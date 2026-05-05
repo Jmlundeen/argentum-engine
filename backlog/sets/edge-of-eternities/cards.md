@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 78 / 261
+**Implemented:** 79 / 261
 
 ---
 
@@ -20,7 +20,7 @@
 - [x] Auxiliary Boosters
 - [ ] Banishing Light
 - [x] Beamsaw Prospector
-- [ ] Beyond the Quiet
+- [x] Beyond the Quiet
 - [ ] Bioengineered Future
 - [x] Biomechan Engineer
 - [x] Biosynthic Burst

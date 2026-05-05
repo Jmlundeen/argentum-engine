@@ -26,6 +26,7 @@ object EdgeOfEternitiesSet {
         AtmosphericGreenhouse,
         AtomicMicrosizer,
         AuxiliaryBoosters,
+        BeyondTheQuiet,
         BeamsawProspector,
         BiomechanEngineer,
         BiosynthicBurst,
