@@ -79,6 +79,7 @@ object EdgeOfEternitiesSet {
         MeltstridersGear,
         MeltstridersResolve,
         MolecularModifier,
+        MmmenonUthrosExile,
         MonoistSentry,
         RadiantStrike,
         RemnantElemental,

@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 82 / 261
+**Implemented:** 83 / 261
 
 ---
 
@@ -145,7 +145,7 @@
 - [ ] Mental Modulation
 - [ ] Mightform Harmonizer
 - [ ] Mm'menon, the Right Hand
-- [ ] Mm'menon, Uthros Exile
+- [x] Mm'menon, Uthros Exile
 - [x] Molecular Modifier
 - [ ] Monoist Circuit-Feeder
 - [x] Monoist Sentry
