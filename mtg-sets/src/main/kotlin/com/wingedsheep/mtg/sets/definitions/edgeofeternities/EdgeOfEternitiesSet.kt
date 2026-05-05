@@ -48,6 +48,7 @@ object EdgeOfEternitiesSet {
         DualSunAdepts,
         DualSunTechnique,
         DubiousDelicacy,
+        DawnsireSunstarDreadnought,
         EmbraceOblivion,
         EmergencyEject,
         EumidianTerrabotanist,
