@@ -77,6 +77,7 @@ object EdgeOfEternitiesSet {
         MechanNavigator,
         MeldedMoxite,
         MeltstridersGear,
+        MeltstridersResolve,
         MolecularModifier,
         MonoistSentry,
         RadiantStrike,
