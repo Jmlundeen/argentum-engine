@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.innistradmidnighthunt
 
 import com.wingedsheep.mtg.sets.definitions.innistradmidnighthunt.cards.Consider
 import com.wingedsheep.mtg.sets.definitions.innistradmidnighthunt.cards.Dissipate
+import com.wingedsheep.mtg.sets.definitions.innistradmidnighthunt.cards.FadingHope
 
 /**
  * Innistrad: Midnight Hunt (2021)
@@ -17,5 +18,6 @@ object InnistradMidnightHuntSet {
     val allCards = listOf(
         Consider,
         Dissipate,
+        FadingHope,
     )
 }

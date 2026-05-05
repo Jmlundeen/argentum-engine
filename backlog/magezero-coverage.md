@@ -74,7 +74,7 @@ one enchantment (Unholy Annex) are double-faced / modal DFCs and depend on DFC s
 - [x] Consider ×4 *(Innistrad: Midnight Hunt)*
 - [x] Dissipate ×4 *(Innistrad: Midnight Hunt)*
 - [x] Essence Scatter ×2
-- [ ] Fading Hope ×4
+- [x] Fading Hope ×4
 - [x] Flow of Knowledge ×2
 - [x] Impulse ×2
 - [ ] Memory Deluge ×1
