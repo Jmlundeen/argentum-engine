@@ -2,12 +2,12 @@
 
 **Set Size:** 273 cards (main set, per Scryfall `set:ecl`)
 **Release Date:** January 23, 2026
-**Implemented:** 237 / 273
+**Implemented:** 238 / 273
 
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 39    | 36   |
-| Blue       | 39    | 35   |
+| Blue       | 39    | 36   |
 | Black      | 38    | 33   |
 | Red        | 39    | 31   |
 | Green      | 39    | 32   |
@@ -87,7 +87,7 @@
 - [ ] Rimekin Recluse
 - [x] Run Away Together
 - [x] Shinestriker
-- [ ] Silvergill Mentor
+- [x] Silvergill Mentor
 - [x] Silvergill Peddler
 - [x] Spell Snare
 - [x] Stratosoarer

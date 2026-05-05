@@ -198,6 +198,7 @@ object LorwynEclipsedSet {
         ShimmerwildsGrowth,
         Shinestriker,
         ShoreLurker,
+        SilvergillMentor,
         SilvergillPeddler,
         SoulbrightSeeker,
         SourbreadAuntie,
