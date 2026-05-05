@@ -20,6 +20,7 @@ object EdgeOfEternitiesSet {
      * All cards implemented from this set.
      */
     val allCards = listOf(
+        AlpharaelDreamingAcolyte,
         Annul,
         ArchenemysCharm,
         AtmosphericGreenhouse,
@@ -63,8 +64,8 @@ object EdgeOfEternitiesSet {
         HonoredKnightCaptain,
         Hullcarver,
         IcecaveCrasher,
-        IllvoiLightJammer,
         IllvoiGaleblade,
+        IllvoiLightJammer,
         IntrepidTenderfoot,
         KavaronHarrier,
         KavaronTurbodrone,
