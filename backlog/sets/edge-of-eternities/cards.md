@@ -2,14 +2,14 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 70 / 261
+**Implemented:** 88 / 261
 
 ---
 
 - [ ] Adagia, Windswept Bastion
 - [ ] All-Fates Scroll
 - [ ] All-Fates Stalker
-- [ ] Alpharael, Dreaming Acolyte
+- [x] Alpharael, Dreaming Acolyte
 - [ ] Alpharael, Stonechosen
 - [x] Annul
 - [ ] Anticausal Vestige
@@ -20,7 +20,7 @@
 - [x] Auxiliary Boosters
 - [ ] Banishing Light
 - [x] Beamsaw Prospector
-- [ ] Beyond the Quiet
+- [x] Beyond the Quiet
 - [ ] Bioengineered Future
 - [x] Biomechan Engineer
 - [x] Biosynthic Burst
@@ -42,7 +42,7 @@
 - [ ] Command Bridge
 - [ ] Consult the Star Charts
 - [ ] Cosmogoyf
-- [ ] Cosmogrand Zenith
+- [x] Cosmogrand Zenith
 - [x] Cryogen Relic
 - [x] Cryoshatter
 - [ ] Cut Propulsion
@@ -67,7 +67,7 @@
 - [ ] Edge Rover
 - [ ] Elegy Acolyte
 - [x] Embrace Oblivion
-- [ ] Emergency Eject
+- [x] Emergency Eject
 - [ ] Emissary Escort
 - [ ] Entropic Battlecruiser
 - [x] Eumidian Terrabotanist
@@ -94,7 +94,7 @@
 - [x] Glacier Godmaw
 - [x] Godless Shrine
 - [x] Gravblade Heavy
-- [ ] Gravkill
+- [x] Gravkill
 - [x] Gravpack Monoist
 - [ ] Haliya, Ascendant Cadet
 - [ ] Haliya, Guided by Light
@@ -110,13 +110,13 @@
 - [ ] Icetill Explorer
 - [x] Illvoi Galeblade
 - [ ] Illvoi Infiltrator
-- [ ] Illvoi Light Jammer
+- [x] Illvoi Light Jammer
 - [ ] Illvoi Operative
 - [ ] Infinite Guideline Station
 - [ ] Insatiable Skittermaw
 - [ ] Interceptor Mechan
 - [x] Intrepid Tenderfoot
-- [ ] Invasive Maneuvers
+- [x] Invasive Maneuvers
 - [x] Kavaron Harrier
 - [ ] Kavaron, Memorial World
 - [ ] Kavaron Skywarden
@@ -139,21 +139,21 @@
 - [x] Melded Moxite
 - [ ] Meltstrider Eulogist
 - [x] Meltstrider's Gear
-- [ ] Meltstrider's Resolve
+- [x] Meltstrider's Resolve
 - [ ] Memorial Team Leader
 - [ ] Memorial Vault
 - [ ] Mental Modulation
 - [ ] Mightform Harmonizer
 - [ ] Mm'menon, the Right Hand
-- [ ] Mm'menon, Uthros Exile
+- [x] Mm'menon, Uthros Exile
 - [x] Molecular Modifier
 - [ ] Monoist Circuit-Feeder
 - [x] Monoist Sentry
 - [ ] Moonlit Meditation
 - [ ] Mouth of the Storm
 - [ ] Mutinous Massacre
-- [ ] Nanoform Sentinel
-- [ ] Nebula Dragon
+- [x] Nanoform Sentinel
+- [x] Nebula Dragon
 - [ ] Nova Hellkite
 - [ ] Nutrient Block
 - [ ] Orbital Plunge
@@ -207,7 +207,7 @@
 - [ ] Starbreach Whale
 - [ ] Starfield Shepherd
 - [ ] Starfield Vocalist
-- [ ] Starfighter Pilot
+- [x] Starfighter Pilot
 - [ ] Starport Security
 - [ ] Starwinder
 - [ ] Station Monitor
@@ -215,8 +215,8 @@
 - [x] Stomping Ground
 - [ ] Sunset Saboteur
 - [ ] Sunstar Chaplain
-- [ ] Sunstar Expansionist
-- [ ] Sunstar Lightsmith
+- [x] Sunstar Expansionist
+- [x] Sunstar Lightsmith
 - [ ] Survey Mechan
 - [ ] Susurian Dirgecraft
 - [ ] Susurian Voidborn
@@ -224,7 +224,7 @@
 - [ ] Swarm Culler
 - [ ] Synthesizer Labship
 - [ ] Syr Vondam, Sunstar Exemplar
-- [ ] Syr Vondam, the Lucent
+- [x] Syr Vondam, the Lucent
 - [x] Systems Override
 - [ ] Tannuk, Memorial Ensign
 - [ ] Tannuk, Steadfast Second
@@ -258,7 +258,7 @@
 - [ ] Warmaker Gunship
 - [x] Watery Grave
 - [ ] Weapons Manufacturing
-- [ ] Wedgelight Rammer
+- [x] Wedgelight Rammer
 - [ ] Weftblade Enhancer
 - [ ] Weftstalker Ardent
 - [ ] Weftwalking
@@ -266,4 +266,4 @@
 - [ ] Xu-Ifit, Osteoharmonist
 - [ ] Zealous Display
 - [ ] Zero Point Ballad
-- [ ] Zookeeper Mechan
+- [x] Zookeeper Mechan
