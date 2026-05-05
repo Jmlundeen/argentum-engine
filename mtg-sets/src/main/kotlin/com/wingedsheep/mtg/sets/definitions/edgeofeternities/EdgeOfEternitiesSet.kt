@@ -90,6 +90,7 @@ object EdgeOfEternitiesSet {
         MolecularModifier,
         MonoistCircuitFeeder,
         MonoistSentry,
+        MouthOfTheStorm,
         NanoformSentinel,
         NebulaDragon,
         RadiantStrike,

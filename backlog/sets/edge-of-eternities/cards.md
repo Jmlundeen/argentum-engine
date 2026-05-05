@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 96 / 261
+**Implemented:** 97 / 261
 
 ---
 
@@ -150,7 +150,7 @@
 - [x] Monoist Circuit-Feeder
 - [x] Monoist Sentry
 - [ ] Moonlit Meditation
-- [ ] Mouth of the Storm
+- [x] Mouth of the Storm
 - [ ] Mutinous Massacre
 - [x] Nanoform Sentinel
 - [x] Nebula Dragon
