@@ -53,6 +53,7 @@ object EdgeOfEternitiesSet {
         DubiousDelicacy,
         EmbraceOblivion,
         EmergencyEject,
+        EmissaryEscort,
         EumidianTerrabotanist,
         EvendoWakingHaven,
         ExosuitSavior,

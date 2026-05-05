@@ -68,7 +68,7 @@
 - [ ] Elegy Acolyte
 - [x] Embrace Oblivion
 - [x] Emergency Eject
-- [ ] Emissary Escort
+- [x] Emissary Escort
 - [ ] Entropic Battlecruiser
 - [x] Eumidian Terrabotanist
 - [ ] Eusocial Engineering
