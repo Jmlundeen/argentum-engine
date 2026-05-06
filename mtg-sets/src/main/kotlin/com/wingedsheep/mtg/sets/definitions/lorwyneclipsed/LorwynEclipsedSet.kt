@@ -74,6 +74,7 @@ object LorwynEclipsedSet {
         DawnhandDissident,
         DawnhandEulogist,
         DawnsLightArcher,
+        Deceit,
         DeepchannelDuelist,
         DisruptorOfCurrents,
         DoranBesiegedByTime,
