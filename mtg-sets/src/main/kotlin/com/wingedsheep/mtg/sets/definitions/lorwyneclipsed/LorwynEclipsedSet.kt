@@ -87,6 +87,7 @@ object LorwynEclipsedSet {
         EclipsedMerrow,
         EclipsedRealms,
         EirduCarrierOfDawn,
+        ElderAuntie,
         Emptiness,
         EncumberedReejerey,
         EndBlazeEpiphany,
