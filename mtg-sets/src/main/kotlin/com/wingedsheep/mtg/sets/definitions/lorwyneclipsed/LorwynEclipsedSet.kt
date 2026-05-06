@@ -195,6 +195,7 @@ object LorwynEclipsedSet {
         SaplingNursery,
         ScarbladesMalice,
         Sear,
+        SelflessSafewright,
         ShadowUrchin,
         Shimmercreep,
         ShimmerwildsGrowth,
