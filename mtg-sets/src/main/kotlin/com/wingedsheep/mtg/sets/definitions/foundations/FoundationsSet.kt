@@ -24,6 +24,7 @@ object FoundationsSet {
      */
     val allCards = listOf(
         Negate,
+        SnakeskinVeil,
         SpringbloomDruid,
     )
 }
