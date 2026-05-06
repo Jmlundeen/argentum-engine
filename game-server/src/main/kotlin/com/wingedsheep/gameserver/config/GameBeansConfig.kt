@@ -28,8 +28,12 @@ import com.wingedsheep.mtg.sets.definitions.scourge.ScourgeSet
 import com.wingedsheep.mtg.sets.definitions.custom.JustOneGlassToken
 import com.wingedsheep.mtg.sets.definitions.custom.SekshaasEarlySleeper
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
+import com.wingedsheep.sdk.model.CardDefinition
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+
+private fun List<CardDefinition>.stamp(setCode: String): List<CardDefinition> =
+    map { if (it.setCode == null) it.copy(setCode = setCode) else it }
 
 @Configuration
 class GameBeansConfig(
@@ -39,17 +43,17 @@ class GameBeansConfig(
     @Bean
     fun cardRegistry(): CardRegistry = CardRegistry().apply {
         register(PredefinedTokens.allTokens)
-        register(PortalSet.allCards)
+        register(PortalSet.allCards.stamp(PortalSet.SET_CODE))
         register(PortalSet.basicLands)
         if (gameProperties.sets.onslaughtEnabled) {
-            register(OnslaughtSet.allCards)
+            register(OnslaughtSet.allCards.stamp(OnslaughtSet.SET_CODE))
             register(OnslaughtSet.basicLands)
         }
         if (gameProperties.sets.scourgeEnabled) {
-            register(ScourgeSet.allCards)
+            register(ScourgeSet.allCards.stamp(ScourgeSet.SET_CODE))
         }
         if (gameProperties.sets.legionsEnabled) {
-            register(LegionsSet.allCards)
+            register(LegionsSet.allCards.stamp(LegionsSet.SET_CODE))
         }
         // Scourge/Legions use Onslaught basic lands — register them even if Onslaught itself isn't enabled
         if (!gameProperties.sets.onslaughtEnabled &&
@@ -57,57 +61,57 @@ class GameBeansConfig(
             register(OnslaughtSet.basicLands)
         }
         if (gameProperties.sets.khansEnabled) {
-            register(KhansOfTarkirSet.allCards)
+            register(KhansOfTarkirSet.allCards.stamp(KhansOfTarkirSet.SET_CODE))
             register(KhansOfTarkirSet.basicLands)
         }
         if (gameProperties.sets.phyrexiaAllWillBeOneEnabled) {
-            register(PhyrexiaAllWillBeOneSet.allCards)
+            register(PhyrexiaAllWillBeOneSet.allCards.stamp(PhyrexiaAllWillBeOneSet.SET_CODE))
         }
         if (gameProperties.sets.dominariaEnabled) {
-            register(DominariaSet.allCards)
+            register(DominariaSet.allCards.stamp(DominariaSet.SET_CODE))
             register(DominariaSet.basicLands)
         }
         if (gameProperties.sets.dominariaUnitedEnabled) {
-            register(DominariaUnitedSet.allCards)
+            register(DominariaUnitedSet.allCards.stamp(DominariaUnitedSet.SET_CODE))
         }
         if (gameProperties.sets.bloomburrowEnabled) {
-            register(BloomburrowSet.allCards)
+            register(BloomburrowSet.allCards.stamp(BloomburrowSet.SET_CODE))
             register(BloomburrowSet.basicLands)
         }
         if (gameProperties.sets.brothersWarEnabled) {
-            register(TheBrothersWarSet.allCards)
+            register(TheBrothersWarSet.allCards.stamp(TheBrothersWarSet.SET_CODE))
         }
         if (gameProperties.sets.aetherdriftEnabled) {
-            register(AetherdriftSet.allCards)
+            register(AetherdriftSet.allCards.stamp(AetherdriftSet.SET_CODE))
         }
         if (gameProperties.sets.edgeOfEternitiesEnabled) {
-            register(EdgeOfEternitiesSet.allCards)
+            register(EdgeOfEternitiesSet.allCards.stamp(EdgeOfEternitiesSet.SET_CODE))
             register(EdgeOfEternitiesSet.basicLands)
         }
         if (gameProperties.sets.lorwynEclipsedEnabled) {
-            register(LorwynEclipsedSet.allCards)
+            register(LorwynEclipsedSet.allCards.stamp(LorwynEclipsedSet.SET_CODE))
             register(LorwynEclipsedSet.basicLands)
         }
         if (gameProperties.sets.lostCavernsOfIxalanEnabled) {
-            register(LostCavernsOfIxalanSet.allCards)
+            register(LostCavernsOfIxalanSet.allCards.stamp(LostCavernsOfIxalanSet.SET_CODE))
         }
         if (gameProperties.sets.murdersAtKarlovManorEnabled) {
-            register(MurdersAtKarlovManorSet.allCards)
+            register(MurdersAtKarlovManorSet.allCards.stamp(MurdersAtKarlovManorSet.SET_CODE))
         }
         if (gameProperties.sets.foundationsEnabled) {
-            register(FoundationsSet.allCards)
+            register(FoundationsSet.allCards.stamp(FoundationsSet.SET_CODE))
         }
         if (gameProperties.sets.duskmournEnabled) {
-            register(DuskmournSet.allCards)
+            register(DuskmournSet.allCards.stamp(DuskmournSet.SET_CODE))
         }
         if (gameProperties.sets.innistradMidnightHuntEnabled) {
-            register(InnistradMidnightHuntSet.allCards)
+            register(InnistradMidnightHuntSet.allCards.stamp(InnistradMidnightHuntSet.SET_CODE))
         }
         if (gameProperties.sets.spiderManEnabled) {
-            register(SpiderManSet.allCards)
+            register(SpiderManSet.allCards.stamp(SpiderManSet.SET_CODE))
         }
         if (gameProperties.sets.wildsOfEldrainEnabled) {
-            register(WildsOfEldrainSet.allCards)
+            register(WildsOfEldrainSet.allCards.stamp(WildsOfEldrainSet.SET_CODE))
         }
         // Easter egg card — injected into Rick's deck at game start
         register(SekshaasEarlySleeper)

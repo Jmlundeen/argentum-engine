@@ -62,6 +62,29 @@ const TYPE_TOKENS = [
 
 const RARITY_TOKENS = ['common', 'uncommon', 'rare', 'mythic']
 
+const SET_NAMES: Record<string, string> = {
+  POR: 'Portal',
+  ONS: 'Onslaught',
+  SCG: 'Scourge',
+  LGN: 'Legions',
+  KTK: 'Khans of Tarkir',
+  ONE: 'Phyrexia: All Will Be One',
+  DOM: 'Dominaria',
+  DMU: 'Dominaria United',
+  BLB: 'Bloomburrow',
+  BRO: "The Brothers' War",
+  DFT: 'Aetherdrift',
+  EOE: 'Edge of Eternities',
+  ECL: 'Lorwyn Eclipsed',
+  LCI: 'The Lost Caverns of Ixalan',
+  MKM: 'Murders at Karlov Manor',
+  FDN: 'Foundations',
+  DSK: 'Duskmourn: House of Horror',
+  MID: 'Innistrad: Midnight Hunt',
+  SPM: 'Marvel’s Spider-Man',
+  WOE: 'Wilds of Eldraine',
+}
+
 type SortMode = 'name' | 'cmc' | 'color' | 'rarity'
 
 const PAGE_SIZE = 120
@@ -952,7 +975,7 @@ function FilterSection({
             <option value="">All sets</option>
             {setCodes.map((code) => (
               <option key={code} value={code}>
-                {code}
+                {SET_NAMES[code] ? `${SET_NAMES[code]} (${code})` : code}
               </option>
             ))}
           </select>
