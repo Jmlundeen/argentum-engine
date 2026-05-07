@@ -133,7 +133,7 @@ class TargetEnumerationUtils(
         } else {
             state.turnOrder.toList()
         }
-        val context = PredicateContext(controllerId = playerId)
+        val context = PredicateContext(controllerId = playerId, sourceId = sourceId)
         return playerIds.flatMap { pid ->
             state.getGraveyard(pid).filter { entityId ->
                 if (filter.excludeSelf && entityId == sourceId) return@filter false

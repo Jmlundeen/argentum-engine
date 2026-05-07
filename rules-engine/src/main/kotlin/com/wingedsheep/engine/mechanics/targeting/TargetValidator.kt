@@ -462,7 +462,7 @@ class TargetValidator {
         }
 
         // Use unified filter - OwnedByYou predicate handles "your graveyard" restriction
-        val predicateContext = PredicateContext(controllerId = casterId, ownerId = target.ownerId)
+        val predicateContext = PredicateContext(controllerId = casterId, ownerId = target.ownerId, sourceId = sourceId)
         val matches = predicateEvaluator.matches(state, target.cardId, filter.baseFilter, predicateContext)
         if (!matches) {
             return "Target does not match filter: ${filter.description}"
