@@ -188,6 +188,7 @@ object LorwynEclipsedSet {
         NoggleTheMind,
         OkoLorwynLiege,
         OmniChangeling,
+        OvergrownTomb,
         Personify,
         PerfectIntimidation,
         PesteredWellguard,
