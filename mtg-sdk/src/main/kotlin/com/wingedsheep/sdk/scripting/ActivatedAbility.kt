@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -30,7 +31,12 @@ data class ActivatedAbility(
     /** When true, prevents auto-pass whenever this ability is available.
      *  Used for abilities that interact with transient game state the player would miss,
      *  such as copying a spell on the stack. */
-    val holdPriority: Boolean = false
+    val holdPriority: Boolean = false,
+    /** When non-null, reduces the generic-mana portion of [cost] at activation time by the
+     *  amount returned for the source. Used by cards like The Dominion Bracelet whose
+     *  granted activated ability "costs {X} less to activate, where X is this creature's power."
+     *  Per Scryfall ruling, the reduced cost is locked in before costs are paid. */
+    val genericCostReduction: DynamicAmount? = null
 ) : TextReplaceable<ActivatedAbility> {
     /** Backward-compatible secondary constructor for single-target abilities. */
     constructor(
@@ -246,6 +252,19 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     @Serializable
     data object ExileSelf : AbilityCost {
         override val description: String = "Exile this creature"
+        override fun applyTextReplacement(replacer: TextReplacer): AbilityCost = this
+    }
+
+    /**
+     * Exile the permanent that granted this activated ability to the source.
+     * Used by cards like The Dominion Bracelet whose static ability grants an
+     * activated ability to the equipped creature with "exile [the equipment]"
+     * as part of the cost. The granter is resolved at activation time.
+     */
+    @SerialName("CostExileGrantingPermanent")
+    @Serializable
+    data object ExileGrantingPermanent : AbilityCost {
+        override val description: String = "Exile the granting permanent"
         override fun applyTextReplacement(replacer: TextReplacer): AbilityCost = this
     }
 

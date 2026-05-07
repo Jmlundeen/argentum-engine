@@ -125,11 +125,15 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                 }
 
                 // Apply text replacement to cost filters (e.g., "Sacrifice a Goblin" -> "Sacrifice a Bird")
-                val effectiveCost = if (textReplacement != null) {
+                val rawCost = if (textReplacement != null) {
                     ability.cost.applyTextReplacement(textReplacement)
                 } else {
                     ability.cost
                 }
+                // Apply ability-specific generic cost reduction so payability is checked against
+                // the locked-in cost (e.g., The Dominion Bracelet — "{X} less, where X is this
+                // creature's power").
+                val effectiveCost = applyAbilityGenericCostReduction(rawCost, ability, state, entityId, playerId)
 
                 // Check cost requirements and gather sacrifice/tap/bounce targets if needed
                 var sacrificeTargets: List<EntityId>? = null
@@ -862,5 +866,43 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             (effect.elseEffect?.let { effectStacksOnRepeat(it) } ?: true)
         is ModalEffect -> effect.modes.all { effectStacksOnRepeat(it.effect) }
         else -> true
+    }
+
+    /**
+     * Apply [ActivatedAbility.genericCostReduction] to the mana portion of [cost].
+     * The reduction is evaluated against the activating entity (e.g., the equipped creature
+     * for The Dominion Bracelet, where X = the creature's power).
+     */
+    private fun applyAbilityGenericCostReduction(
+        cost: AbilityCost,
+        ability: ActivatedAbility,
+        state: com.wingedsheep.engine.state.GameState,
+        sourceId: EntityId,
+        controllerId: EntityId
+    ): AbilityCost {
+        val reduction = ability.genericCostReduction ?: return cost
+        val context = com.wingedsheep.engine.handlers.EffectContext(
+            sourceId = sourceId,
+            controllerId = controllerId,
+            opponentId = null
+        )
+        val amount = com.wingedsheep.engine.handlers.DynamicAmountEvaluator()
+            .evaluate(state, reduction, context)
+        if (amount <= 0) return cost
+        return reduceGenericInAbilityCost(cost, amount)
+    }
+
+    private fun reduceGenericInAbilityCost(cost: AbilityCost, amount: Int): AbilityCost = when (cost) {
+        is AbilityCost.Mana -> AbilityCost.Mana(cost.cost.reduceGeneric(amount))
+        is AbilityCost.Composite -> {
+            var applied = false
+            AbilityCost.Composite(cost.costs.map { sub ->
+                if (!applied && sub is AbilityCost.Mana) {
+                    applied = true
+                    AbilityCost.Mana(sub.cost.reduceGeneric(amount))
+                } else sub
+            })
+        }
+        else -> cost
     }
 }

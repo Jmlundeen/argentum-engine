@@ -108,14 +108,14 @@ class ActivateAbilityHandler(
 
         // Look up ability from card definition (including class-level abilities), granted abilities, or static grants
         val classLevel = container.get<ClassLevelComponent>()?.currentLevel
+        val staticGrants = getStaticGrantedAbilitiesWithGranter(action.sourceId, state)
         val ability = cardDef.script.effectiveActivatedAbilities(classLevel).find { it.id == action.abilityId }
             ?: findClassLevelUpAbility(cardDef, container, action.abilityId)
             ?: state.grantedActivatedAbilities
                 .filter { it.entityId == action.sourceId }
                 .map { it.ability }
                 .find { it.id == action.abilityId }
-            ?: getStaticGrantedActivatedAbilities(action.sourceId, state)
-                .find { it.id == action.abilityId }
+            ?: staticGrants.firstOrNull { it.first.id == action.abilityId }?.first
             ?: resolveIntrinsicManaAbility(state, action.sourceId, action.abilityId)
             ?: return "Ability not found on this card"
 
@@ -157,11 +157,15 @@ class ActivateAbilityHandler(
 
         // Apply text-changing effects to cost and target filters
         val textReplacement = container.get<TextReplacementComponent>()
-        val effectiveCost = if (textReplacement != null) {
+        val rawCost = if (textReplacement != null) {
             ability.cost.applyTextReplacement(textReplacement)
         } else {
             ability.cost
         }
+        // Apply ability-specific generic cost reduction (e.g., The Dominion Bracelet's
+        // "{X} less, where X is this creature's power"). Per Scryfall ruling, the reduced
+        // cost is locked in here, before costs are paid.
+        val effectiveCost = applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId)
         val effectiveTargetReqs = if (textReplacement != null) {
             ability.targetRequirements.map { it.applyTextReplacement(textReplacement) }
         } else {
@@ -312,24 +316,29 @@ class ActivateAbilityHandler(
 
         // Look up ability from card definition (including class-level abilities), granted abilities, or static grants
         val classLevel = container.get<ClassLevelComponent>()?.currentLevel
+        val staticGrants = getStaticGrantedAbilitiesWithGranter(action.sourceId, state)
+        val staticGrantMatch = staticGrants.firstOrNull { it.first.id == action.abilityId }
         val ability = cardDef.script.effectiveActivatedAbilities(classLevel).find { it.id == action.abilityId }
             ?: findClassLevelUpAbility(cardDef, container, action.abilityId)
             ?: state.grantedActivatedAbilities
                 .filter { it.entityId == action.sourceId }
                 .map { it.ability }
                 .find { it.id == action.abilityId }
-            ?: getStaticGrantedActivatedAbilities(action.sourceId, state)
-                .find { it.id == action.abilityId }
+            ?: staticGrantMatch?.first
             ?: resolveIntrinsicManaAbility(state, action.sourceId, action.abilityId)
             ?: return ExecutionResult.error(state, "Ability not found")
+        val staticGranterId = staticGrantMatch?.second
 
         // Apply text-changing effects to cost
         val textReplacement = container.get<TextReplacementComponent>()
-        val effectiveCost = if (textReplacement != null) {
+        val rawCost = if (textReplacement != null) {
             ability.cost.applyTextReplacement(textReplacement)
         } else {
             ability.cost
         }
+        // Apply ability-specific generic cost reduction (e.g., The Dominion Bracelet's
+        // "{X} less, where X is this creature's power"). Locked in before payment.
+        val effectiveCost = applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId)
 
         var currentState = state
         val events = mutableListOf<GameEvent>()
@@ -412,7 +421,8 @@ class ActivateAbilityHandler(
             bounceChoices = action.costPayment?.bouncedPermanents ?: emptyList(),
             xValue = xValue,
             counterRemovalChoices = action.costPayment?.counterRemovals ?: emptyMap(),
-            blightChoices = action.costPayment?.blightTargets ?: emptyList()
+            blightChoices = action.costPayment?.blightTargets ?: emptyList(),
+            granterId = staticGranterId
         )
 
         // Snapshot projected subtypes and P/T of sacrifice targets before zone change
@@ -985,6 +995,44 @@ class ActivateAbilityHandler(
     }
 
     /**
+     * Apply [ActivatedAbility.genericCostReduction] to the mana portion of [cost].
+     * The reduction is evaluated against the activating entity (e.g., the equipped creature
+     * for The Dominion Bracelet, whose granted ability reduces by the creature's power).
+     * Per Scryfall ruling, this is locked in before costs are paid.
+     */
+    private fun applyGenericCostReduction(
+        cost: AbilityCost,
+        ability: ActivatedAbility,
+        state: GameState,
+        sourceId: EntityId,
+        controllerId: EntityId
+    ): AbilityCost {
+        val reduction = ability.genericCostReduction ?: return cost
+        val reductionContext = EffectContext(
+            sourceId = sourceId,
+            controllerId = controllerId,
+            opponentId = null
+        )
+        val amount = DynamicAmountEvaluator().evaluate(state, reduction, reductionContext)
+        if (amount <= 0) return cost
+        return reduceGenericInCost(cost, amount)
+    }
+
+    private fun reduceGenericInCost(cost: AbilityCost, amount: Int): AbilityCost = when (cost) {
+        is AbilityCost.Mana -> AbilityCost.Mana(cost.cost.reduceGeneric(amount))
+        is AbilityCost.Composite -> {
+            var applied = false
+            AbilityCost.Composite(cost.costs.map { sub ->
+                if (!applied && sub is AbilityCost.Mana) {
+                    applied = true
+                    AbilityCost.Mana(sub.cost.reduceGeneric(amount))
+                } else sub
+            })
+        }
+        else -> cost
+    }
+
+    /**
      * Extract the ManaCost from an ability cost, if present.
      */
     private fun extractManaCost(cost: AbilityCost): ManaCost? = when (cost) {
@@ -1479,18 +1527,21 @@ class ActivateAbilityHandler(
     }
 
     /**
-     * Get activated abilities granted to an entity by static abilities on battlefield permanents.
+     * Get activated abilities granted to an entity by static abilities on battlefield permanents,
+     * paired with the EntityId of the permanent that granted each ability.
      * E.g., Spectral Sliver grants a pump ability to all Sliver creatures via
-     * GrantActivatedAbilityToCreatureGroup.
+     * GrantActivatedAbilityToCreatureGroup. The Dominion Bracelet grants its activated
+     * ability to the equipped creature via GrantActivatedAbilityToAttachedCreature; the
+     * granter ID is needed to resolve AbilityCost.ExileGrantingPermanent.
      */
-    private fun getStaticGrantedActivatedAbilities(
+    private fun getStaticGrantedAbilitiesWithGranter(
         entityId: EntityId,
         state: GameState
-    ): List<ActivatedAbility> {
+    ): List<Pair<ActivatedAbility, EntityId>> {
         val targetContainer = state.getEntity(entityId) ?: return emptyList()
         val targetCard = targetContainer.get<CardComponent>() ?: return emptyList()
 
-        val result = mutableListOf<ActivatedAbility>()
+        val result = mutableListOf<Pair<ActivatedAbility, EntityId>>()
 
         for (permanentId in state.getBattlefield()) {
             val container = state.getEntity(permanentId) ?: continue
@@ -1513,13 +1564,13 @@ class ActivateAbilityHandler(
                             }
                         }
                         if (matchesAll) {
-                            result.add(ability.ability)
+                            result.add(ability.ability to permanentId)
                         }
                     }
                     is GrantActivatedAbilityToAttachedCreature -> {
                         val attachedTo = container.get<AttachedToComponent>()
                         if (attachedTo != null && attachedTo.targetId == entityId) {
-                            result.add(ability.ability)
+                            result.add(ability.ability to permanentId)
                         }
                     }
                     else -> {}
@@ -1529,6 +1580,11 @@ class ActivateAbilityHandler(
 
         return result
     }
+
+    private fun getStaticGrantedActivatedAbilities(
+        entityId: EntityId,
+        state: GameState
+    ): List<ActivatedAbility> = getStaticGrantedAbilitiesWithGranter(entityId, state).map { it.first }
 
     companion object {
         fun create(services: EngineServices): ActivateAbilityHandler {

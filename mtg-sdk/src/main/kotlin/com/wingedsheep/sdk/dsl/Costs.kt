@@ -120,6 +120,12 @@ object Costs {
     val ExileSelf: AbilityCost = AbilityCost.ExileSelf
 
     /**
+     * Exile the permanent that granted this activated ability (e.g., the equipment
+     * granting the ability to its equipped creature, like The Dominion Bracelet).
+     */
+    val ExileGrantingPermanent: AbilityCost = AbilityCost.ExileGrantingPermanent
+
+    /**
      * Sacrifice a creature of the type chosen when this permanent entered the battlefield.
      * Used by cards like Doom Cannon.
      */

@@ -248,16 +248,21 @@ class CastPermissionUtils(
     }
 
     /**
-     * Get activated abilities granted to an entity by static abilities on battlefield permanents.
+     * Get activated abilities granted to an entity by static abilities on battlefield permanents,
+     * paired with the EntityId of the permanent that granted each ability.
+     *
+     * The granter ID is required by AbilityCost.ExileGrantingPermanent to know which permanent
+     * to exile when paying the cost (e.g., The Dominion Bracelet exiles itself when its granted
+     * activated ability is paid for).
      */
-    fun getStaticGrantedActivatedAbilities(
+    fun getStaticGrantedAbilitiesWithGranter(
         entityId: EntityId,
         state: GameState
-    ): List<com.wingedsheep.sdk.scripting.ActivatedAbility> {
+    ): List<StaticGrantedAbility> {
         val targetContainer = state.getEntity(entityId) ?: return emptyList()
         val targetCard = targetContainer.get<CardComponent>() ?: return emptyList()
 
-        val result = mutableListOf<com.wingedsheep.sdk.scripting.ActivatedAbility>()
+        val result = mutableListOf<StaticGrantedAbility>()
 
         for (permanentId in state.getBattlefield()) {
             val container = state.getEntity(permanentId) ?: continue
@@ -280,13 +285,13 @@ class CastPermissionUtils(
                             }
                         }
                         if (matchesAll) {
-                            result.add(ability.ability)
+                            result.add(StaticGrantedAbility(ability.ability, permanentId))
                         }
                     }
                     is com.wingedsheep.sdk.scripting.GrantActivatedAbilityToAttachedCreature -> {
                         val attachedTo = container.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
                         if (attachedTo != null && attachedTo.targetId == entityId) {
-                            result.add(ability.ability)
+                            result.add(StaticGrantedAbility(ability.ability, permanentId))
                         }
                     }
                     else -> {}
@@ -296,4 +301,22 @@ class CastPermissionUtils(
 
         return result
     }
+
+    /**
+     * Get activated abilities granted to an entity by static abilities on battlefield permanents.
+     */
+    fun getStaticGrantedActivatedAbilities(
+        entityId: EntityId,
+        state: GameState
+    ): List<com.wingedsheep.sdk.scripting.ActivatedAbility> =
+        getStaticGrantedAbilitiesWithGranter(entityId, state).map { it.ability }
 }
+
+/**
+ * An activated ability granted to an entity by a static ability, paired with the
+ * permanent that granted it.
+ */
+data class StaticGrantedAbility(
+    val ability: com.wingedsheep.sdk.scripting.ActivatedAbility,
+    val granterId: EntityId
+)

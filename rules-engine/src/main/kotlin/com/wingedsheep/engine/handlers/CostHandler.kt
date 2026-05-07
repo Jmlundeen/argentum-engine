@@ -122,6 +122,12 @@ class CostHandler(
                 // Source must exist (can be on battlefield or in graveyard for graveyard abilities)
                 state.getEntity(sourceId) != null
             }
+            is AbilityCost.ExileGrantingPermanent -> {
+                // Granter is resolved from the static-grant lookup at activation time.
+                // If the ability is enumerable, the granter is on the battlefield; if it has
+                // since left, ActivateAbilityHandler's lookup would have failed before payment.
+                true
+            }
             is AbilityCost.TapPermanents -> {
                 val candidates = findUntappedMatchingPermanentsUnified(state, controllerId, cost.filter)
                     .let { targets -> if (cost.excludeSelf) targets.filter { it != sourceId } else targets }
@@ -451,6 +457,18 @@ class CostHandler(
                 // Delegate zone movement to ZoneTransitionService for full cleanup
                 val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
                     state, sourceId, Zone.EXILE
+                )
+
+                CostPaymentResult.success(transitionResult.state, manaPool, transitionResult.events)
+            }
+            is AbilityCost.ExileGrantingPermanent -> {
+                val granterId = choices.granterId
+                    ?: return CostPaymentResult.failure("Granting permanent not provided for cost")
+                state.getEntity(granterId)
+                    ?: return CostPaymentResult.failure("Granting permanent not found")
+
+                val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
+                    state, granterId, Zone.EXILE
                 )
 
                 CostPaymentResult.success(transitionResult.state, manaPool, transitionResult.events)
@@ -975,5 +993,11 @@ data class CostPaymentChoices(
     val bounceChoices: List<EntityId> = emptyList(),
     val xValue: Int = 0,
     val counterRemovalChoices: Map<EntityId, Int> = emptyMap(),
-    val blightChoices: List<EntityId> = emptyList()
+    val blightChoices: List<EntityId> = emptyList(),
+    /**
+     * The permanent that granted the activated ability being paid for, when the
+     * ability comes from a static grant (e.g., GrantActivatedAbilityToAttachedCreature).
+     * Read by the executor for [AbilityCost.ExileGrantingPermanent].
+     */
+    val granterId: EntityId? = null
 )

@@ -941,6 +941,7 @@ class ActivatedAbilityBuilder {
     var description: String? = null
     var hasConvoke: Boolean = false
     var holdPriority: Boolean = false
+    var genericCostReduction: DynamicAmount? = null
 
     // Named target bindings (for multi-target abilities)
     private val namedTargets: MutableList<Pair<String, TargetRequirement>> = mutableListOf()
@@ -979,7 +980,8 @@ class ActivatedAbilityBuilder {
             promptOnDraw = promptOnDraw,
             descriptionOverride = description,
             hasConvoke = hasConvoke,
-            holdPriority = holdPriority
+            holdPriority = holdPriority,
+            genericCostReduction = genericCostReduction
         )
     }
 }

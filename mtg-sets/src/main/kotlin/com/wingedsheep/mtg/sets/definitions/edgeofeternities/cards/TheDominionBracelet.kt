@@ -1,12 +1,20 @@
 package com.wingedsheep.mtg.sets.definitions.edgeofeternities.cards
 
-import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.AbilityCost
+import com.wingedsheep.sdk.scripting.AbilityId
+import com.wingedsheep.sdk.scripting.ActivatedAbility
+import com.wingedsheep.sdk.scripting.GrantActivatedAbilityToAttachedCreature
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
+import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * The Dominion Bracelet
@@ -18,17 +26,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
  * sorcery." (You see all cards that player could see and make all decisions
  * for them.)
  * Equip {1}
- *
- * --- PR 1 implementation note ---
- * The granted activated ability is modelled here as an activated ability on
- * the Bracelet itself rather than `GrantActivatedAbilityToAttachedCreature`.
- * That deliberately defers two coupled engine pieces to PR 2, where the full
- * "you control target opponent" mechanic also lands:
- *   - power-based cost reduction ({X} less, X = equipped creature's power)
- *   - sourcing the ability from the equipped creature so EntityReference.Source
- *     resolves to its (equipment-modified) power
- * The hijack effect itself is currently a no-op event (TurnHijackedEvent);
- * decision routing, hand visibility, and end-of-turn cleanup arrive in PR 2.
  */
 val TheDominionBracelet = card("The Dominion Bracelet") {
     manaCost = "{2}"
@@ -44,12 +41,28 @@ val TheDominionBracelet = card("The Dominion Bracelet") {
         filter = Filters.EquippedCreature
     }
 
-    activatedAbility {
-        cost = Costs.Composite(Costs.Mana("{15}"), Costs.ExileSelf)
-        timing = TimingRule.SorcerySpeed
-        description = "{15}, Exile The Dominion Bracelet: You control target opponent during their next turn"
-        val opponent = target("opponent", Targets.Opponent)
-        effect = Effects.HijackNextTurn(opponent)
+    staticAbility {
+        ability = GrantActivatedAbilityToAttachedCreature(
+            ability = ActivatedAbility(
+                id = AbilityId.generate(),
+                cost = AbilityCost.Composite(
+                    listOf(
+                        AbilityCost.Mana(ManaCost.parse("{15}")),
+                        AbilityCost.ExileGrantingPermanent
+                    )
+                ),
+                effect = Effects.HijackNextTurn(EffectTarget.ContextTarget(0)),
+                targetRequirements = listOf(TargetOpponent()),
+                timing = TimingRule.SorcerySpeed,
+                genericCostReduction = DynamicAmount.EntityProperty(
+                    EntityReference.Source,
+                    EntityNumericProperty.Power
+                ),
+                descriptionOverride = "{15}, Exile The Dominion Bracelet: You control target " +
+                    "opponent during their next turn. This ability costs {X} less to activate, " +
+                    "where X is this creature's power."
+            )
+        )
     }
 
     equipAbility("{1}")

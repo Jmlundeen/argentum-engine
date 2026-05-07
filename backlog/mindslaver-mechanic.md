@@ -8,8 +8,8 @@ Driving card: **The Dominion Bracelet** (Edge of Eternities). The first card to 
 |-------|--------|--------|
 | **PR 1 — card shell, no-op hijack** | ✅ shipped | `0a80ba9b5` |
 | **2A — engine lifecycle** | ✅ shipped | `874fc1575` |
-| **2B — input routing** | ✅ shipped | (this commit) |
-| **2C — frontend visibility / UX** | ⏳ pending | — |
+| **2B — input routing** | ✅ shipped | `d14b48bba` |
+| **2C — frontend visibility / UX** | ✅ shipped | `d3aa4d262` |
 | **PR 2D — proper card sourcing + cost reduction** | ⏳ pending | — |
 
 ## What works today
