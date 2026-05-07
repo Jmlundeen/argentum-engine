@@ -19,7 +19,10 @@
   "player2": {
     "lifeTotal": 20,
     "hand": [],
-    "battlefield": [],
+    "battlefield": [
+      {"name": "Grizzly Bears"},
+      {"name": "Cryogen Relic"}
+    ],
     "graveyard": [],
     "library": ["Cryogen Relic", "Cryogen Relic", "Cryogen Relic", "Cryogen Relic", "Cryogen Relic", "Cryogen Relic", "Cryogen Relic", "Cryogen Relic", "Cryogen Relic", "Cryogen Relic"]
   },

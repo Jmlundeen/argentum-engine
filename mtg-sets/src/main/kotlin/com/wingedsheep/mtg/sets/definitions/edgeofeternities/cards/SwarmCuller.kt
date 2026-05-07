@@ -33,7 +33,7 @@ val SwarmCuller = card("Swarm Culler") {
             "another creature or artifact",
             TargetPermanent(
                 filter = TargetFilter(
-                    GameObjectFilter.Creature.or(GameObjectFilter.Artifact)
+                    GameObjectFilter.Creature.youControl().or(GameObjectFilter.Artifact.youControl())
                 ).other()
             )
         )
