@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 116 / 261
+**Implemented:** 117 / 261
 
 ---
 
@@ -164,7 +164,7 @@
 - [ ] Pinnacle Emissary
 - [x] Pinnacle Kill-Ship
 - [ ] Pinnacle Starcage
-- [ ] Plasma Bolt
+- [x] Plasma Bolt
 - [ ] Possibility Technician
 - [ ] Pull Through the Weft
 - [x] Pulsar Squadron Ace
