@@ -1199,7 +1199,8 @@ class ClientStateTransformer(
             opponentId = state.getOpponent(spellOnStack.casterId),
             xValue = spellOnStack.xValue,
             sacrificedPermanents = spellOnStack.sacrificedPermanents,
-            exiledCardCount = spellOnStack.exiledCardCount
+            exiledCardCount = spellOnStack.exiledCardCount,
+            additionalCostBlightAmount = spellOnStack.additionalCostBlightAmount
         )
         return spellOnStack.chosenModes.map { modeIndex ->
             val mode = modal.modes.getOrNull(modeIndex) ?: return@map "Unknown mode"

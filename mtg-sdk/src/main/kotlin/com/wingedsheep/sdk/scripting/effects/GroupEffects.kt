@@ -29,12 +29,10 @@ data class ForEachInGroupEffect(
     val noRegenerate: Boolean = false,
     val simultaneous: Boolean = true
 ) : Effect {
-    override val description: String = buildString {
-        append(effect.description.replaceFirstChar { it.uppercase() })
-        append(" ")
-        append(filter.description.replaceFirstChar { it.lowercase() })
-        if (noRegenerate) append(". They can't be regenerated")
-    }
+    override val description: String = renderForEachDescription(effect.description, filter, noRegenerate)
+
+    override fun runtimeDescription(resolver: (com.wingedsheep.sdk.scripting.values.DynamicAmount) -> Int): String =
+        renderForEachDescription(effect.runtimeDescription(resolver), filter, noRegenerate)
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newFilter = filter.applyTextReplacement(replacer)
@@ -42,4 +40,30 @@ data class ForEachInGroupEffect(
         return if (newFilter !== filter || newEffect !== effect)
             copy(filter = newFilter, effect = newEffect) else this
     }
+}
+
+/**
+ * Compose the inner effect's text with the group filter so the result reads
+ * naturally on the stack and in oracle text. The inner effect describes a
+ * single iteration target as "this creature" (i.e. `EffectTarget.Self`); we
+ * rewrite that mention to "each [filter]" so e.g. "Deal X damage to this
+ * creature" + `AllCreaturesOpponentsControl` renders as "Deal X damage to
+ * each creature an opponent controls" rather than the broken concatenation
+ * "Deal X damage to this creature all creatures an opponent controls".
+ */
+private fun renderForEachDescription(innerText: String, filter: GroupFilter, noRegenerate: Boolean): String {
+    val capitalizedInner = innerText.replaceFirstChar { it.uppercase() }
+    // Strip the leading "all " from the filter description so we can splice it in
+    // after "each".
+    val filterNoun = filter.description.removePrefix("all ").trimStart()
+    val rewritten = when {
+        capitalizedInner.contains(" to this creature") ->
+            capitalizedInner.replace(" to this creature", " to each $filterNoun")
+        capitalizedInner.endsWith(" this creature") ->
+            capitalizedInner.removeSuffix(" this creature") + " each $filterNoun"
+        capitalizedInner.contains(" this creature ") ->
+            capitalizedInner.replace(" this creature ", " each $filterNoun ")
+        else -> "$capitalizedInner ${filter.description.replaceFirstChar { it.lowercase() }}"
+    }
+    return if (noRegenerate) "$rewritten. They can't be regenerated" else rewritten
 }
