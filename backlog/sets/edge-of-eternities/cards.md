@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 112 / 261
+**Implemented:** 113 / 261
 
 ---
 
@@ -218,7 +218,7 @@
 - [x] Sunstar Expansionist
 - [x] Sunstar Lightsmith
 - [ ] Survey Mechan
-- [ ] Susurian Dirgecraft
+- [x] Susurian Dirgecraft
 - [ ] Susurian Voidborn
 - [ ] Susur Secundi, Void Altar
 - [x] Swarm Culler

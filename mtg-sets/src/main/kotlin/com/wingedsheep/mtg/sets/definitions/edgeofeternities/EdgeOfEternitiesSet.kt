@@ -120,6 +120,7 @@ object EdgeOfEternitiesSet {
         SunsetSaboteur,
         SunstarExpansionist,
         SunstarLightsmith,
+        SusurianDirgecraft,
         SwarmCuller,
         SyrVondamTheLucent,
         SystemsOverride,
