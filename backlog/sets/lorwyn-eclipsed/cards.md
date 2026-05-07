@@ -2,15 +2,15 @@
 
 **Set Size:** 273 cards (main set, per Scryfall `set:ecl`)
 **Release Date:** January 23, 2026
-**Implemented:** 249 / 273
+**Implemented:** 252 / 273
 
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 39    | 37   |
 | Blue       | 39    | 36   |
-| Black      | 38    | 33   |
-| Red        | 39    | 35   |
-| Green      | 39    | 35   |
+| Black      | 38    | 34   |
+| Red        | 39    | 36   |
+| Green      | 39    | 36   |
 | Multicolor | 49    | 45   |
 | Colorless  | 18    | 17   |
 | Land       | 12    | 11   |
@@ -110,7 +110,7 @@
 - [x] Bile-Vial Boggart
 - [x] Bitterbloom Bearer
 - [x] Blight Rot
-- [ ] Blighted Blackthorn
+- [x] Blighted Blackthorn
 - [x] Bloodline Bidding
 - [x] Boggart Mischief
 - [x] Boggart Prankster

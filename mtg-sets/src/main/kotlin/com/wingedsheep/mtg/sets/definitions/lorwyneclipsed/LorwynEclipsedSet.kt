@@ -34,6 +34,7 @@ object LorwynEclipsedSet {
         BileVialBoggart,
         BitterbloomBearer,
         BlightRot,
+        BlightedBlackthorn,
         BloodCrypt,
         BloodlineBidding,
         BloomTender,
