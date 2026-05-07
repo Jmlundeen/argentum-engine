@@ -47,6 +47,7 @@ object EdgeOfEternitiesSet {
         DebrisFieldCrusher,
         Depressurize,
         DiplomaticRelations,
+        DockworkerDrone,
         DrillTooDeep,
         DualSunAdepts,
         DualSunTechnique,

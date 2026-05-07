@@ -164,9 +164,6 @@ https://api.scryfall.com/cards/named?exact=Beyond%20the%20Quiet&set=eoe
 ## Counter target spell unless its controller pays {2}. If they do, you create a Lander token
 - [ ] Divert Disaster
 
-## When this creature dies, put its counters on target creature you control.
-- [ ] Dockworker Drone
-
 ## each player creates a Lander token
 - [ ] Edge Rover
 

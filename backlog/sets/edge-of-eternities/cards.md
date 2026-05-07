@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 114 / 261
+**Implemented:** 115 / 261
 
 ---
 
@@ -57,7 +57,7 @@
 - [ ] Devastating Onslaught
 - [x] Diplomatic Relations
 - [ ] Divert Disaster
-- [ ] Dockworker Drone
+- [x] Dockworker Drone
 - [x] Drill Too Deep
 - [ ] Drix Fatemaker
 - [x] Dual-Sun Adepts
