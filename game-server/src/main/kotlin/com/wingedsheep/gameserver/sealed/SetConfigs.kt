@@ -86,7 +86,7 @@ object SetConfigs {
         setName = LorwynEclipsedSet.SET_NAME,
         cards = LorwynEclipsedSet.allCards,
         basicLands = LorwynEclipsedSet.basicLands,
-        incomplete = true,
+        incomplete = false,
         totalSetSize = 273
     )
 
