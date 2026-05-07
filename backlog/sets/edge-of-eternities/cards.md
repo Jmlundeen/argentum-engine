@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 105 / 261
+**Implemented:** 106 / 261
 
 ---
 
@@ -221,7 +221,7 @@
 - [ ] Susurian Dirgecraft
 - [ ] Susurian Voidborn
 - [ ] Susur Secundi, Void Altar
-- [ ] Swarm Culler
+- [x] Swarm Culler
 - [ ] Synthesizer Labship
 - [ ] Syr Vondam, Sunstar Exemplar
 - [x] Syr Vondam, the Lucent
