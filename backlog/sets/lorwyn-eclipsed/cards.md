@@ -2,7 +2,7 @@
 
 **Set Size:** 273 cards (main set, per Scryfall `set:ecl`)
 **Release Date:** January 23, 2026
-**Implemented:** 254 / 273
+**Implemented:** 255 / 273
 
 | Color      | Total | Done |
 |------------|-------|------|
@@ -10,7 +10,7 @@
 | Blue       | 39    | 36   |
 | Black      | 38    | 34   |
 | Red        | 39    | 36   |
-| Green      | 39    | 36   |
+| Green      | 39    | 37   |
 | Multicolor | 49    | 46   |
 | Colorless  | 18    | 17   |
 | Land       | 12    | 11   |
@@ -212,7 +212,7 @@
 - [x] Morcant's Eyes
 - [x] Mutable Explorer
 - [x] Pitiless Fists
-- [ ] Prismabasher
+- [x] Prismabasher
 - [x] Prismatic Undercurrents
 - [x] Pummeler for Hire
 - [ ] Safewright Cavalry
