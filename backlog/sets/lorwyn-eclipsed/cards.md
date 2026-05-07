@@ -2,7 +2,7 @@
 
 **Set Size:** 273 cards (main set, per Scryfall `set:ecl`)
 **Release Date:** January 23, 2026
-**Implemented:** 268 / 273
+**Implemented:** 269 / 273
 
 | Color      | Total | Done |
 |------------|-------|------|
@@ -10,7 +10,7 @@
 | Blue       | 39    | 38   |
 | Black      | 38    | 38   |
 | Red        | 39    | 39   |
-| Green      | 39    | 38   |
+| Green      | 39    | 39   |
 | Multicolor | 49    | 48   |
 | Colorless  | 18    | 17   |
 | Land       | 12    | 11   |
@@ -199,7 +199,7 @@
 - [x] Chomping Changeling
 - [x] Crossroads Watcher
 - [x] Dawn's Light Archer
-- [ ] Dundoolin Weaver
+- [x] Dundoolin Weaver
 - [x] Formidable Speaker
 - [x] Gilt-Leaf's Embrace
 - [x] Great Forest Druid
