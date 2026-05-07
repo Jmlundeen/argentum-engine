@@ -199,6 +199,7 @@ object LorwynEclipsedSet {
         RaidingSchemes,
         ReapingWillow,
         RecklessRansacking,
+        ReluctantDounguard,
         RetchedWretch,
         RhysTheEvermore,
         RimeChill,
