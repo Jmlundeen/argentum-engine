@@ -132,6 +132,7 @@ object EdgeOfEternitiesSet {
         WateryGrave,
         WedgelightRammer,
         WurmwallSweeper,
+        ZealousDisplay,
         ZookeeperMechan,
 
         // Basic lands

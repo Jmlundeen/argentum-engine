@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 113 / 261
+**Implemented:** 114 / 261
 
 ---
 
@@ -264,6 +264,6 @@
 - [ ] Weftwalking
 - [x] Wurmwall Sweeper
 - [ ] Xu-Ifit, Osteoharmonist
-- [ ] Zealous Display
+- [x] Zealous Display
 - [ ] Zero Point Ballad
 - [x] Zookeeper Mechan
