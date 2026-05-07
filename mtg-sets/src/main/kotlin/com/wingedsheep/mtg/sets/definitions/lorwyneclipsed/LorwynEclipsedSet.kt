@@ -40,6 +40,7 @@ object LorwynEclipsedSet {
         BloomTender,
         Blossombind,
         BlossomingDefense,
+        BoggartCursecrafter,
         BoggartMischief,
         BoggartPrankster,
         BogslithersEmbrace,
