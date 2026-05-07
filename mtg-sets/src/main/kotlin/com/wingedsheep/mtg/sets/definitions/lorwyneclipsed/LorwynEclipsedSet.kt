@@ -161,6 +161,7 @@ object LorwynEclipsedSet {
         MeandersGuide,
         MeekAttack,
         MerrowSkyswimmer,
+        MidnightTilling,
         Mirrorform,
         MirrormindCrown,
         MischievousSneakling,

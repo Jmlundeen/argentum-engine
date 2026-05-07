@@ -206,7 +206,7 @@
 - [x] Luminollusk
 - [x] Lys Alana Dignitary
 - [x] Lys Alana Informant
-- [ ] Midnight Tilling
+- [x] Midnight Tilling
 - [x] Mistmeadow Council
 - [x] Moon-Vigil Adherents
 - [x] Morcant's Eyes
