@@ -20,7 +20,6 @@ https://api.scryfall.com/cards/named?exact=Beyond%20the%20Quiet&set=eoe
 - [ ] Starwinder
 - [ ] Perigee Beckoner
 - [ ] Full Bore
-- [ ] Nova Hellkite
 - [ ] Possibility Technician
 - [ ] Tannuk, Steadfast Second
 - [ ] Weftstalker Ardent
