@@ -49,6 +49,7 @@ object MtgSetCatalog {
         BrothersWarSet,
         InnistradMidnightHuntSet,
         InnistradCrimsonVowSet,
+        MarchOfTheMachineSet,
         MurdersAtKarlovManorSet,
         WildsOfEldrainSet,
         LostCavernsOfIxalanSet,
