@@ -366,6 +366,7 @@ class QuickGameLobbyHandler(
             ?: lobby.players.firstNotNullOfOrNull { it.setCode }
             ?: deckGenerator.randomSetCode()
         gameSession.quickGameSetCode = aiSetCode
+        gameSession.publicSpectate = lobby.isPublic && !lobby.vsAi
 
         val humanPlayers = lobby.players.filter { !it.isAi }
         for (lobbyPlayer in humanPlayers) {

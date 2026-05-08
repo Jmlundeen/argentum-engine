@@ -1,6 +1,7 @@
 package com.wingedsheep.gameserver.controller
 
 import com.wingedsheep.gameserver.lobby.LobbyState
+import com.wingedsheep.gameserver.repository.GameRepository
 import com.wingedsheep.gameserver.repository.LobbyRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/tournaments")
 class TournamentController(
-    private val lobbyRepository: LobbyRepository
+    private val lobbyRepository: LobbyRepository,
+    private val gameRepository: GameRepository,
 ) {
 
     data class TournamentStatusDTO(
@@ -34,6 +36,16 @@ class TournamentController(
         val boosterCount: Int,
         val gamesPerMatch: Int,
         val deckFormat: String? = null
+    )
+
+    data class LiveTournamentMatchDTO(
+        val gameSessionId: String,
+        val lobbyId: String,
+        val round: Int,
+        val player1Name: String,
+        val player2Name: String,
+        val player1Life: Int,
+        val player2Life: Int,
     )
 
     @GetMapping("/{lobbyId}/status")
@@ -78,5 +90,38 @@ class TournamentController(
             }
 
         return ResponseEntity.ok(publicLobbies)
+    }
+
+    /**
+     * In-progress matches in public tournaments. Powers the Live Games section on the landing
+     * page so anonymous visitors can drop in as a spectator. Each row is a single match (one
+     * tournament can produce many concurrent matches).
+     */
+    @GetMapping("/live")
+    fun listLive(): ResponseEntity<List<LiveTournamentMatchDTO>> {
+        val live = lobbyRepository.findAllLobbies()
+            .filter { it.isPublic && it.state == LobbyState.TOURNAMENT_ACTIVE }
+            .flatMap { lobby ->
+                val tournament = lobbyRepository.findTournamentById(lobby.lobbyId) ?: return@flatMap emptyList()
+                val round = tournament.currentRound?.roundNumber ?: 0
+                tournament.getAllInProgressMatches().mapNotNull { match ->
+                    val gameSessionId = match.gameSessionId ?: return@mapNotNull null
+                    val session = gameRepository.findById(gameSessionId) ?: return@mapNotNull null
+                    if (session.isGameOver()) return@mapNotNull null
+                    val names = session.getPlayerNames() ?: return@mapNotNull null
+                    val life = session.getLifeTotals() ?: return@mapNotNull null
+                    LiveTournamentMatchDTO(
+                        gameSessionId = gameSessionId,
+                        lobbyId = lobby.lobbyId,
+                        round = round,
+                        player1Name = names.first,
+                        player2Name = names.second,
+                        player1Life = life.first,
+                        player2Life = life.second,
+                    )
+                }
+            }
+            .sortedBy { it.gameSessionId }
+        return ResponseEntity.ok(live)
     }
 }

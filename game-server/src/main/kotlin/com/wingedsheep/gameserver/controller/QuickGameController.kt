@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.controller
 
 import com.wingedsheep.gameserver.lobby.QuickGameLobby
 import com.wingedsheep.gameserver.lobby.QuickGameLobbyRepository
+import com.wingedsheep.gameserver.repository.GameRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/quick-games")
 class QuickGameController(
-    private val lobbyRepository: QuickGameLobbyRepository
+    private val lobbyRepository: QuickGameLobbyRepository,
+    private val gameRepository: GameRepository,
 ) {
 
     data class PublicQuickGameDTO(
@@ -26,6 +28,14 @@ class QuickGameController(
         val setCode: String?,
         val hostName: String?,
         val format: String? = null
+    )
+
+    data class LiveQuickGameDTO(
+        val gameSessionId: String,
+        val player1Name: String,
+        val player2Name: String,
+        val player1Life: Int,
+        val player2Life: Int,
     )
 
     @GetMapping("/public")
@@ -45,5 +55,29 @@ class QuickGameController(
                 )
             }
         return ResponseEntity.ok(publicLobbies)
+    }
+
+    /**
+     * In-progress public quick games. Powers the Live Games section on the landing page so
+     * anonymous visitors can drop in as a spectator. Tournament matches are exposed separately
+     * by [TournamentController.listLive].
+     */
+    @GetMapping("/live")
+    fun listLive(): ResponseEntity<List<LiveQuickGameDTO>> {
+        val live = gameRepository.findAll()
+            .filter { it.publicSpectate && !it.isGameOver() }
+            .mapNotNull { session ->
+                val names = session.getPlayerNames() ?: return@mapNotNull null
+                val life = session.getLifeTotals() ?: return@mapNotNull null
+                LiveQuickGameDTO(
+                    gameSessionId = session.sessionId,
+                    player1Name = names.first,
+                    player2Name = names.second,
+                    player1Life = life.first,
+                    player2Life = life.second,
+                )
+            }
+            .sortedBy { it.gameSessionId }
+        return ResponseEntity.ok(live)
     }
 }

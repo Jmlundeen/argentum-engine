@@ -77,6 +77,14 @@ class GameSession(
     @Volatile
     var quickGameSetCode: String? = null
 
+    /**
+     * When true, this game is listed as a Live Game on the landing page so anonymous visitors can
+     * spectate it. Set by the lobby/quick-game handler at start; tournament games derive this from
+     * the parent tournament lobby's `isPublic` flag instead.
+     */
+    @Volatile
+    var publicSpectate: Boolean = false
+
     private val players = mutableMapOf<EntityId, PlayerSession>()
     private val deckLists = mutableMapOf<EntityId, List<String>>()
     /** Per-player commander card name for commander-shape formats. Null = no commander. */

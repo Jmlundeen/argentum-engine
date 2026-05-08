@@ -622,12 +622,14 @@ export type GameStore = {
   playerId: EntityId | null
   sessionId: string | null
   pendingTournamentId: string | null
+  pendingSpectateGameId: string | null
   aiEnabled: boolean
   availableSets: readonly AvailableSet[]
   onlinePlayers: number | null
   connect: (playerName: string) => void
   disconnect: () => void
   setPendingTournamentId: (lobbyId: string | null) => void
+  setPendingSpectateGameId: (gameSessionId: string | null) => void
 
   // Gameplay slice
   gameState: ClientGameState | null

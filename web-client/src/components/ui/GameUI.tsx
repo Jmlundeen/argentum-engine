@@ -40,6 +40,28 @@ type PublicLobbyEntry =
   | ({ kind: 'tournament' } & PublicTournamentSummary)
   | ({ kind: 'quickGame' } & PublicQuickGameSummary)
 
+interface LiveQuickGameSummary {
+  gameSessionId: string
+  player1Name: string
+  player2Name: string
+  player1Life: number
+  player2Life: number
+}
+
+interface LiveTournamentMatchSummary {
+  gameSessionId: string
+  lobbyId: string
+  round: number
+  player1Name: string
+  player2Name: string
+  player1Life: number
+  player2Life: number
+}
+
+type LiveGameEntry =
+  | ({ kind: 'tournament' } & LiveTournamentMatchSummary)
+  | ({ kind: 'quickGame' } & LiveQuickGameSummary)
+
 /**
  * Connection/lobby UI - shown when not in a game.
  * Combat mode and game UI are handled in App.tsx and GameBoard.tsx.
@@ -96,7 +118,10 @@ function ConnectionOverlay({
   const [showReplays, setShowReplays] = useState(false)
   const [publicLobbies, setPublicLobbies] = useState<PublicLobbyEntry[]>([])
   const [publicLobbiesError, setPublicLobbiesError] = useState<string | null>(null)
+  const [liveGames, setLiveGames] = useState<LiveGameEntry[]>([])
   const onlinePlayers = useGameStore((state) => state.onlinePlayers)
+  const spectateGame = useGameStore((state) => state.spectateGame)
+  const setPendingSpectateGameId = useGameStore((state) => state.setPendingSpectateGameId)
 
   const confirmName = () => {
     if (playerName.trim()) {
@@ -135,31 +160,42 @@ function ConnectionOverlay({
   useEffect(() => {
     if (sessionId || lobbyState) {
       setPublicLobbies([])
+      setLiveGames([])
       return
     }
 
     let cancelled = false
     const loadPublicLobbies = async () => {
       try {
-        const [tournamentsRes, quickGamesRes] = await Promise.all([
+        const [tournamentsRes, quickGamesRes, liveQuickRes, liveTournRes] = await Promise.all([
           fetch('/api/tournaments/public'),
           fetch('/api/quick-games/public'),
+          fetch('/api/quick-games/live'),
+          fetch('/api/tournaments/live'),
         ])
         if (!tournamentsRes.ok) throw new Error(`Tournaments: ${tournamentsRes.status}`)
         if (!quickGamesRes.ok) throw new Error(`Quick games: ${quickGamesRes.status}`)
         const tournaments = await tournamentsRes.json() as PublicTournamentSummary[]
         const quickGames = await quickGamesRes.json() as PublicQuickGameSummary[]
+        const liveQuick = liveQuickRes.ok ? await liveQuickRes.json() as LiveQuickGameSummary[] : []
+        const liveTourn = liveTournRes.ok ? await liveTournRes.json() as LiveTournamentMatchSummary[] : []
         if (!cancelled) {
           const merged: PublicLobbyEntry[] = [
             ...quickGames.map((q) => ({ kind: 'quickGame' as const, ...q })),
             ...tournaments.map((t) => ({ kind: 'tournament' as const, ...t })),
           ]
+          const live: LiveGameEntry[] = [
+            ...liveQuick.map((g) => ({ kind: 'quickGame' as const, ...g })),
+            ...liveTourn.map((m) => ({ kind: 'tournament' as const, ...m })),
+          ]
           setPublicLobbies(merged)
+          setLiveGames(live)
           setPublicLobbiesError(null)
         }
       } catch {
         if (!cancelled) {
           setPublicLobbies([])
+          setLiveGames([])
           setPublicLobbiesError('Could not load public lobbies.')
         }
       }
@@ -231,6 +267,19 @@ function ConnectionOverlay({
   }
 
   const showPublicLobbies = !sessionId && !lobbyState && (publicLobbies.length > 0 || publicLobbiesError || (onlinePlayers ?? 0) > 0)
+  const showLiveGames = !sessionId && !lobbyState && liveGames.length > 0
+
+  const handleSpectate = (gameSessionId: string) => {
+    if (status === 'connected') {
+      spectateGame(gameSessionId)
+      return
+    }
+    if (!playerName.trim()) return
+    localStorage.setItem('argentum-player-name', playerName.trim())
+    setPendingSpectateGameId(gameSessionId)
+    setNameConfirmed(true)
+    connect(playerName.trim())
+  }
 
   return (
     <div className={styles.connectionOverlay} style={{ backgroundImage: `url(${randomBackground})` }}>
@@ -369,26 +418,37 @@ function ConnectionOverlay({
           )}
         </div>
 
-        {showPublicLobbies && (
-          <PublicLobbyList
-            lobbies={publicLobbies}
-            error={publicLobbiesError}
-            onlinePlayers={onlinePlayers}
-            onJoin={(entry) => {
-              setJoinSessionId(entry.lobbyId)
-              if (entry.kind === 'tournament') setGameMode('tournament')
-              if (status === 'connected') {
-                // QuickGameLobbyHandler routes by lobby kind — works for both.
-                joinQuickGameLobby(entry.lobbyId)
-              } else if (playerName.trim()) {
-                localStorage.setItem('argentum-player-name', playerName.trim())
-                // pendingTournamentId triggers a JoinLobby on connect — works only for tournaments.
-                if (entry.kind === 'tournament') setPendingTournamentId(entry.lobbyId)
-                setNameConfirmed(true)
-                connect(playerName.trim())
-              }
-            }}
-          />
+        {(showPublicLobbies || showLiveGames) && (
+          <div className={styles.sidePanelStack}>
+            {showPublicLobbies && (
+              <PublicLobbyList
+                lobbies={publicLobbies}
+                error={publicLobbiesError}
+                onlinePlayers={onlinePlayers}
+                onJoin={(entry) => {
+                  setJoinSessionId(entry.lobbyId)
+                  if (entry.kind === 'tournament') setGameMode('tournament')
+                  if (status === 'connected') {
+                    // QuickGameLobbyHandler routes by lobby kind — works for both.
+                    joinQuickGameLobby(entry.lobbyId)
+                  } else if (playerName.trim()) {
+                    localStorage.setItem('argentum-player-name', playerName.trim())
+                    // pendingTournamentId triggers a JoinLobby on connect — works only for tournaments.
+                    if (entry.kind === 'tournament') setPendingTournamentId(entry.lobbyId)
+                    setNameConfirmed(true)
+                    connect(playerName.trim())
+                  }
+                }}
+              />
+            )}
+            {showLiveGames && (
+              <LiveGameList
+                games={liveGames}
+                onSpectate={handleSpectate}
+                disabled={!playerName.trim() && status !== 'connected'}
+              />
+            )}
+          </div>
         )}
       </div>
       <div className={styles.attribution}>
@@ -453,6 +513,56 @@ function PublicLobbyList({
       )}
     </div>
   )
+}
+
+function LiveGameList({
+  games,
+  onSpectate,
+  disabled,
+}: {
+  games: LiveGameEntry[]
+  onSpectate: (gameSessionId: string) => void
+  disabled: boolean
+}) {
+  return (
+    <div className={styles.publicTournamentPanel}>
+      <div className={styles.publicTournamentHeader}>
+        <span className={styles.publicTournamentTitle}>Live Games</span>
+        <div className={styles.publicTournamentHeaderRight}>
+          <span className={styles.liveBadge}>
+            <span className={styles.liveDot} />
+            Live
+          </span>
+          <span className={styles.publicTournamentCount}>{games.length}</span>
+        </div>
+      </div>
+      {games.map((game) => (
+        <div key={`${game.kind}-${game.gameSessionId}`} className={styles.publicTournamentRow}>
+          <div className={styles.publicTournamentInfo}>
+            <span className={styles.publicTournamentName}>
+              {game.player1Name} vs {game.player2Name}
+            </span>
+            <span className={styles.publicTournamentMeta}>{liveGameMeta(game)}</span>
+          </div>
+          <button
+            onClick={() => onSpectate(game.gameSessionId)}
+            disabled={disabled}
+            className={styles.spectateButton}
+          >
+            Spectate
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function liveGameMeta(game: LiveGameEntry): string {
+  const lifeSummary = `${game.player1Life} / ${game.player2Life} life`
+  if (game.kind === 'tournament') {
+    return `Tournament · Round ${game.round} · ${lifeSummary}`
+  }
+  return `Quick Game · ${lifeSummary}`
 }
 
 function publicLobbyName(entry: PublicLobbyEntry): string {

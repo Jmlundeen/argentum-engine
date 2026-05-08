@@ -2,7 +2,7 @@
  * Handlers for connection and reconnection messages.
  */
 import type { MessageHandlers } from '@/network/messageHandlers.ts'
-import { entityId, createJoinLobbyMessage } from '@/types'
+import { entityId, createJoinLobbyMessage, createSpectateGameMessage } from '@/types'
 import { getWebSocket, clearLobbyId, loadLobbyId } from '../shared'
 import type { SetState, GetState } from './types'
 
@@ -20,10 +20,14 @@ export function createConnectionHandlers(set: SetState, get: GetState): Pick<Mes
       })
 
       // Auto-join tournament if we have a pending tournament ID (from /tournament/:lobbyId route)
-      const { pendingTournamentId } = get()
+      const { pendingTournamentId, pendingSpectateGameId } = get()
       if (pendingTournamentId) {
         set({ pendingTournamentId: null })
         getWebSocket()?.send(createJoinLobbyMessage(pendingTournamentId))
+      } else if (pendingSpectateGameId) {
+        // Set when the user clicked Spectate on the landing page before being connected.
+        set({ pendingSpectateGameId: null })
+        getWebSocket()?.send(createSpectateGameMessage(pendingSpectateGameId))
       } else {
         clearLobbyId()
       }
