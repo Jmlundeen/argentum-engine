@@ -19,7 +19,7 @@ import { useResponsive } from '@/hooks/useResponsive'
 import { ManaSymbol } from '../ui/ManaSymbols'
 
 // Import extracted components
-import { Battlefield, CardRow, StackDisplay, ZonePile, ResponsiveContext } from './board'
+import { Battlefield, CardRow, CommandZone, StackDisplay, ZonePile, ResponsiveContext } from './board'
 import { RenderProfiler } from '@/utils/renderProfiler'
 import { CardPreview } from './card'
 import { TargetingOverlay, ManaColorSelectionOverlay, LifeDisplay, ActiveEffectsBadges, ConcedeButton, FullscreenButton, SpectatorCountBadge } from './overlay'
@@ -390,6 +390,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           no padding is needed here. Equal-height with row 4 → equal cards. */}
       <div style={styles.opponentArea}>
         <div style={{ ...styles.playerRowWithZones, alignItems: 'flex-start' }}>
+          {/* Opponent command zone (left side) — Commander format only; renders nothing otherwise. */}
+          {effectiveOpponent && <CommandZone player={effectiveOpponent} isOpponent />}
+
           <div style={{
             ...styles.playerMainArea,
             ...(isHijacking ? hijackedSurfaceStyle : null),
@@ -525,6 +528,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           so no padding here. Equal-height with row 2 → symmetric cards. */}
       <div style={styles.playerArea}>
         <div style={styles.playerRowWithZones}>
+          {/* Player command zone (left side) — Commander format only; renders nothing otherwise. */}
+          {effectiveViewingPlayer && <CommandZone player={effectiveViewingPlayer} />}
+
           <div style={{
             ...styles.playerMainArea,
             ...(isHijacked ? hijackedSurfaceStyle : null),

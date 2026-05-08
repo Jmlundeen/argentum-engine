@@ -13,6 +13,7 @@ import com.wingedsheep.engine.state.components.battlefield.GraveyardPlayPermissi
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.battlefield.MayCastFromLinkedExileUsedThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.CommanderComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.MayPlayFromExileComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
@@ -93,6 +94,22 @@ class CastZoneResolver(
      * Check if a card has an intrinsic MayCastSelfFromZones static ability
      * that permits casting from its current zone (e.g., Squee, the Immortal).
      */
+    /**
+     * True iff the card is in [playerId]'s command zone with `CommanderComponent` whose owner is
+     * [playerId] (CR 903.8 — only the commander's owner can cast it from the command zone).
+     */
+    fun hasCommanderCastPermission(
+        state: GameState,
+        playerId: EntityId,
+        cardId: EntityId,
+    ): Boolean {
+        val commandZone = ZoneKey(playerId, Zone.COMMAND)
+        if (cardId !in state.getZone(commandZone)) return false
+        val container = state.getEntity(cardId) ?: return false
+        val commanderComponent = container.get<CommanderComponent>() ?: return false
+        return commanderComponent.ownerId == playerId
+    }
+
     fun hasMayCastSelfFromZonePermission(
         state: GameState,
         playerId: EntityId,

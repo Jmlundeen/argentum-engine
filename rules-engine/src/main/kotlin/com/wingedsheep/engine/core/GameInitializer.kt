@@ -111,17 +111,19 @@ class GameInitializer(
         var state = GameState(format = config.format)
         val playerIds = mutableListOf<EntityId>()
 
-        // Validate Commander-format prerequisites up front. Each player must designate a commander
-        // card name that is actually present in their deck list.
+        // Validate Commander-format prerequisites up front. Each player must designate a
+        // commander card name. The commander is NOT counted in [Deck.cards] (matches the deck
+        // validator's convention and CR 903.6a) — it's instantiated separately in step 3 below
+        // and routed to Zone.COMMAND.
         if (config.format is Format.Commander) {
             for (playerConfig in config.players) {
                 val name = playerConfig.commanderCardName
                 require(!name.isNullOrBlank()) {
                     "Commander format requires PlayerConfig.commanderCardName for player '${playerConfig.name}'"
                 }
-                require(name in playerConfig.deck.cards) {
-                    "Commander '$name' is not present in deck for player '${playerConfig.name}'"
-                }
+                // Make sure the registry can resolve the commander before we touch any state —
+                // we'd rather fail here than mid-init with a half-built game.
+                cardRegistry.requireCard(name)
             }
         }
 
@@ -167,43 +169,37 @@ class GameInitializer(
             turnNumber = 1  // First turn is turn 1, not turn 0
         )
 
-        // 3. Instantiate cards and place in libraries (or command zone for commanders)
+        // 3. Instantiate cards and place in libraries (or command zone for commanders).
+        // Commander setup runs first so a CommanderRegistryComponent is attached to the player
+        // entity before the rest of the deck flows into the library. Phase 1 supports a single
+        // commander per player; CommanderRegistryComponent is a list so Partner / Background
+        // (Phase 4) can append without a schema change.
         for ((index, playerConfig) in config.players.withIndex()) {
             val playerId = playerIds[index]
 
-            // Commander setup: pull the first matching card name out of the deck list and route
-            // it to the command zone with a CommanderComponent attached. Phase 1 supports a
-            // single commander per player; CommanderRegistryComponent is a list to keep
-            // Partner / Background expansion (Phase 4) a no-op on schema.
             val commanderName: String? = when {
                 config.format is Format.Commander -> playerConfig.commanderCardName
                 else -> null
             }
-            var commanderConsumed = false
             val commanderEntityIds = mutableListOf<EntityId>()
+
+            if (commanderName != null) {
+                val cardDef = cardRegistry.requireCard(commanderName)
+                val cardId = EntityId.generate()
+                val cardContainer = createCardEntity(cardDef, playerId).with(
+                    com.wingedsheep.engine.state.components.identity.CommanderComponent(ownerId = playerId)
+                )
+                state = state.withEntity(cardId, cardContainer)
+                state = state.addToZone(ZoneKey(playerId, Zone.COMMAND), cardId)
+                commanderEntityIds.add(cardId)
+            }
 
             for (cardName in playerConfig.deck.cards) {
                 val cardDef = cardRegistry.requireCard(cardName)
                 val cardId = EntityId.generate()
-
-                var cardContainer = createCardEntity(cardDef, playerId)
-
-                val isCommanderCard = !commanderConsumed &&
-                    commanderName != null &&
-                    cardName == commanderName
-
-                if (isCommanderCard) {
-                    cardContainer = cardContainer.with(
-                        com.wingedsheep.engine.state.components.identity.CommanderComponent(ownerId = playerId)
-                    )
-                    state = state.withEntity(cardId, cardContainer)
-                    state = state.addToZone(ZoneKey(playerId, Zone.COMMAND), cardId)
-                    commanderEntityIds.add(cardId)
-                    commanderConsumed = true
-                } else {
-                    state = state.withEntity(cardId, cardContainer)
-                    state = state.addToZone(ZoneKey(playerId, Zone.LIBRARY), cardId)
-                }
+                val cardContainer = createCardEntity(cardDef, playerId)
+                state = state.withEntity(cardId, cardContainer)
+                state = state.addToZone(ZoneKey(playerId, Zone.LIBRARY), cardId)
             }
 
             if (commanderEntityIds.isNotEmpty()) {

@@ -98,7 +98,13 @@ data class LobbyPlayerState(
     var currentPack: List<CardDefinition>? = null,
     /** Draft only: queued packs waiting to be picked from (async pack passing). */
     val packQueue: MutableList<List<CardDefinition>> = mutableListOf(),
-    var submittedDeck: Map<String, Int>? = null
+    var submittedDeck: Map<String, Int>? = null,
+    /**
+     * Commander card name when the lobby's [TournamentLobby.deckFormat] is commander-shape
+     * (Commander / Brawl / Standard Brawl). Null otherwise. The card name is expected to
+     * appear in [submittedDeck]; the engine and validator both rely on this invariant.
+     */
+    var commander: String? = null,
 ) {
     val hasSubmittedDeck: Boolean get() = submittedDeck != null
     /** Total number of packs held by this player (current + queued). */
@@ -1144,8 +1150,19 @@ class TournamentLobby(
 
     /**
      * Submit a deck for a player.
+     *
+     * For commander-shape [deckFormat]s, [commander] designates the player's commander; it
+     * MUST already be counted inside [deckList] (the wire convention — picker emits the merged
+     * deck). Storage follows that convention: the merged [deckList] is kept verbatim in
+     * [LobbyPlayerState.submittedDeck] and the commander is held alongside in
+     * [LobbyPlayerState.commander]. The match-start path strips one copy when handing the
+     * deck to the engine (see TournamentMatchHandler.startSingleMatch).
      */
-    fun submitDeck(playerId: EntityId, deckList: Map<String, Int>): DeckSubmissionResult {
+    fun submitDeck(
+        playerId: EntityId,
+        deckList: Map<String, Int>,
+        commander: String? = null,
+    ): DeckSubmissionResult {
         val isPremade = format == TournamentFormat.PREMADE_DECKS
         // PREMADE_DECKS: players pick their deck while WAITING_FOR_PLAYERS, before the host starts.
         // Other formats: only DECK_BUILDING / TOURNAMENT_ACTIVE.
@@ -1179,7 +1196,13 @@ class TournamentLobby(
             }
         }
 
-        players[playerId] = playerState.copy(submittedDeck = deckList)
+        players[playerId] = playerState.copy(
+            submittedDeck = deckList,
+            // Commander is meaningful only for commander-shape deckFormats; keep whatever the
+            // caller passed (LobbyHandler is responsible for clearing it for non-commander
+            // submissions).
+            commander = commander,
+        )
 
         return DeckSubmissionResult.Success(allReady = allDecksSubmitted())
     }
@@ -1204,7 +1227,7 @@ class TournamentLobby(
         }
 
         // Clear deck and ready state
-        players[playerId] = playerState.copy(submittedDeck = null)
+        players[playerId] = playerState.copy(submittedDeck = null, commander = null)
         playersReadyForNextRound.remove(playerId)
         return true
     }

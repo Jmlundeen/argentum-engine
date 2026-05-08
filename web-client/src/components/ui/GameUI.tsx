@@ -1121,7 +1121,16 @@ function PremadeDeckPickerPanel({ lobbyState }: { lobbyState: LobbyState }) {
   const hasSubmitted = !!me?.deckSubmitted
 
   const [pendingDeck, setPendingDeck] = useState<Record<string, number>>({})
+  const [pendingCommander, setPendingCommander] = useState<string | null>(null)
   const [isValid, setIsValid] = useState(false)
+
+  const handleDeckChange = useCallback(
+    (deck: Record<string, number>, commander?: string | null) => {
+      setPendingDeck(deck)
+      setPendingCommander(commander ?? null)
+    },
+    [],
+  )
 
   if (hasSubmitted) {
     return (
@@ -1140,10 +1149,19 @@ function PremadeDeckPickerPanel({ lobbyState }: { lobbyState: LobbyState }) {
     )
   }
 
-  const totalCards = Object.values(pendingDeck).reduce((a, b) => a + b, 0)
-  const canSubmit = isValid && totalCards >= 40
-
   const deckFormat = lobbyState.settings.deckFormat
+  const isCommanderShape =
+    deckFormat === 'COMMANDER' || deckFormat === 'BRAWL' || deckFormat === 'STANDARD_BRAWL'
+  const totalCards = Object.values(pendingDeck).reduce((a, b) => a + b, 0)
+  const needsCommander = isCommanderShape && !pendingCommander
+  const canSubmit = isValid && totalCards >= 40 && !needsCommander
+
+  const submitTitle = !canSubmit
+    ? needsCommander
+      ? 'Pick a deck with a designated commander to play this format'
+      : 'Pick a valid deck of at least 40 cards'
+    : undefined
+
   return (
     <div className={styles.settingsPanel}>
       <div className={styles.settingsRow} style={{ alignItems: 'flex-start', flexDirection: 'column', gap: 12 }}>
@@ -1156,14 +1174,14 @@ function PremadeDeckPickerPanel({ lobbyState }: { lobbyState: LobbyState }) {
         )}
         <DeckPicker
           tabs={['saved', 'examples', 'paste']}
-          onDeckChange={setPendingDeck}
+          onDeckChange={handleDeckChange}
           onValidityChange={setIsValid}
           format={deckFormat ?? null}
         />
         <button
-          onClick={() => submitLobbyDeck(pendingDeck)}
+          onClick={() => submitLobbyDeck(pendingDeck, isCommanderShape ? pendingCommander : null)}
           disabled={!canSubmit}
-          title={canSubmit ? undefined : 'Pick a valid deck of at least 40 cards'}
+          title={submitTitle}
           className={styles.startButton}
         >
           Submit Deck

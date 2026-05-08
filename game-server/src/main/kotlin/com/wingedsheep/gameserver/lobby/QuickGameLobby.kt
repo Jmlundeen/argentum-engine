@@ -75,4 +75,10 @@ data class QuickGameLobbyPlayer(
      * null means "any set, server picks one". Each player chooses their own.
      */
     var setCode: String? = null,
+    /**
+     * Designated commander card name for commander-shape formats (Commander / Brawl / Standard
+     * Brawl). Null when [deckList] is empty (random pool) or the lobby format isn't commander-
+     * shape. Resubmitted by the client alongside the deck list.
+     */
+    var commander: String? = null,
 )

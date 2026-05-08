@@ -168,6 +168,13 @@ data class ClientCard(
     /** Whether this is a token */
     val isToken: Boolean,
 
+    /**
+     * True iff this card carries `CommanderComponent` (Commander format). Set on the card
+     * regardless of which zone it's in — including the battlefield — so the client can render a
+     * crown / gold border at all times. Token copies of a commander never carry this (CR 903.10a).
+     */
+    val isCommander: Boolean = false,
+
     /** Zone this card is currently in */
     val zone: ZoneKey?,
 

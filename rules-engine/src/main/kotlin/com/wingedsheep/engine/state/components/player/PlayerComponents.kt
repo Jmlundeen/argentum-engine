@@ -239,7 +239,9 @@ enum class LossReason {
     POISON_COUNTERS,
     EMPTY_LIBRARY,
     CONCESSION,
-    CARD_EFFECT
+    CARD_EFFECT,
+    /** Commander format: 21+ combat damage from a single commander (CR 903.10a). */
+    COMMANDER_DAMAGE,
 }
 
 /**

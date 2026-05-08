@@ -1525,15 +1525,36 @@ const MANA_COLORS: Record<string, string> = {
 
 // Helper functions
 
+/**
+ * Color identity (CR 903.4) of [card] as single-letter codes. The server-side identity already
+ * folds in oracle-text colored symbols, basic-land subtype colors, and the Scryfall override,
+ * so it correctly catches off-color activation costs and dual lands. Falls back to parsing the
+ * printed mana cost when the server didn't ship `colorIdentity` (older clients / older messages).
+ */
 function getCardColors(card: SealedCardInfo): Set<string> {
-  const cost = card.manaCost || ''
   const colors = new Set<string>()
+  if (card.colorIdentity && card.colorIdentity.length > 0) {
+    for (const name of card.colorIdentity) {
+      const letter = COLOR_NAME_TO_LETTER[name]
+      if (letter) colors.add(letter)
+    }
+    return colors
+  }
+  const cost = card.manaCost || ''
   if (cost.includes('W')) colors.add('W')
   if (cost.includes('U')) colors.add('U')
   if (cost.includes('B')) colors.add('B')
   if (cost.includes('R')) colors.add('R')
   if (cost.includes('G')) colors.add('G')
   return colors
+}
+
+const COLOR_NAME_TO_LETTER: Record<string, string> = {
+  WHITE: 'W',
+  BLUE: 'U',
+  BLACK: 'B',
+  RED: 'R',
+  GREEN: 'G',
 }
 
 const BASIC_LAND_COLOR: Record<string, LandColor> = {

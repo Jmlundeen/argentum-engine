@@ -4,10 +4,12 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.CommanderComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CharacteristicValue
@@ -59,7 +61,8 @@ class CostCalculator(
         state: GameState,
         cardDef: CardDefinition,
         casterId: EntityId,
-        chosenTargets: List<EntityId> = emptyList()
+        chosenTargets: List<EntityId> = emptyList(),
+        fromZone: Zone? = null,
     ): ManaCost {
         var totalReduction = 0
 
@@ -87,7 +90,13 @@ class CostCalculator(
         totalReduction += calculateFilterCostReduction(state, cardDef, casterId)
 
         // Calculate cost increases from global tax effects (e.g., Glowrider, Damping Sphere)
-        val totalIncrease = calculateFilterCostIncrease(state, cardDef, casterId)
+        var totalIncrease = calculateFilterCostIncrease(state, cardDef, casterId)
+
+        // Commander tax (CR 903.8): casting a card with CommanderComponent from the command zone
+        // costs an additional {2} for each previous time it's been cast from the command zone this
+        // game. The counter is incremented on cast-commit (in StackResolver), not on resolution,
+        // so countered commanders still owe the higher tax next time.
+        totalIncrease += calculateCommanderTax(state, cardDef, casterId, fromZone)
 
         // First apply generic cost reduction
         var effectiveCost = reduceGenericCost(cardDef.manaCost, totalReduction)
@@ -99,6 +108,35 @@ class CostCalculator(
         effectiveCost = increaseGenericCost(effectiveCost, totalIncrease)
 
         return effectiveCost
+    }
+
+    /**
+     * Compute commander tax for [cardDef] when cast from [fromZone].
+     *
+     * Returns 0 unless [fromZone] is `Zone.COMMAND` and the corresponding entity carries a
+     * `CommanderComponent`. The tax is `2 * castsFromCommandZone` generic mana, applied alongside
+     * other generic-cost increases. Locating the entity uses the deck-time `cardDefinitionId`
+     * suffix (`Name#Set-CN`) plus the bare name, mirroring how `GameInitializer` builds the id.
+     */
+    private fun calculateCommanderTax(
+        state: GameState,
+        cardDef: CardDefinition,
+        casterId: EntityId,
+        fromZone: Zone?,
+    ): Int {
+        if (fromZone != Zone.COMMAND) return 0
+        val commandZone = state.zones[
+            com.wingedsheep.engine.state.ZoneKey(casterId, Zone.COMMAND),
+        ] ?: return 0
+        val match = commandZone.firstNotNullOfOrNull { entityId ->
+            val container = state.getEntity(entityId) ?: return@firstNotNullOfOrNull null
+            val card = container.get<CardComponent>() ?: return@firstNotNullOfOrNull null
+            val commander = container.get<CommanderComponent>() ?: return@firstNotNullOfOrNull null
+            if (commander.ownerId != casterId) return@firstNotNullOfOrNull null
+            if (card.name != cardDef.name) return@firstNotNullOfOrNull null
+            commander
+        } ?: return 0
+        return 2 * match.castsFromCommandZone
     }
 
     /**

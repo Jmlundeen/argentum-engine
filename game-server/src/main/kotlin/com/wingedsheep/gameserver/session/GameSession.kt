@@ -79,7 +79,17 @@ class GameSession(
 
     private val players = mutableMapOf<EntityId, PlayerSession>()
     private val deckLists = mutableMapOf<EntityId, List<String>>()
+    /** Per-player commander card name for commander-shape formats. Null = no commander. */
+    private val commanderCardNames = mutableMapOf<EntityId, String>()
     private val spectators = mutableSetOf<PlayerSession>()
+
+    /**
+     * Format the engine should run this game under. Set by the lobby / quick-game / tournament
+     * handler before [startGame]. Null = use [com.wingedsheep.sdk.core.Format.Standard]. Stored on
+     * the session (not GameInitializer) so reconnects / persistence don't need to thread it.
+     */
+    @Volatile
+    var engineFormat: com.wingedsheep.sdk.core.Format = com.wingedsheep.sdk.core.Format.Standard
 
     /** Player info for persistence (playerId -> (playerName, token)) */
     private val playerPersistenceInfo = mutableMapOf<EntityId, PlayerPersistenceInfo>()
@@ -171,7 +181,11 @@ class GameSession(
      * Add a player to this game session.
      * Returns the assigned EntityId for this player.
      */
-    fun addPlayer(playerSession: PlayerSession, deckList: Map<String, Int>): EntityId {
+    fun addPlayer(
+        playerSession: PlayerSession,
+        deckList: Map<String, Int>,
+        commanderCardName: String? = null,
+    ): EntityId {
         require(!isFull) { "Game session is full" }
 
         val playerId = playerSession.playerId
@@ -182,6 +196,11 @@ class GameSession(
             List(count) { cardName }
         }
         deckLists[playerId] = cards
+        if (commanderCardName != null) {
+            commanderCardNames[playerId] = commanderCardName
+        } else {
+            commanderCardNames.remove(playerId)
+        }
         playerSession.currentGameSessionId = sessionId
 
         return playerId
@@ -279,13 +298,15 @@ class GameSession(
             PlayerConfig(
                 name = session.playerName,
                 deck = Deck(deckLists[playerId]!!),
-                playerId = playerId  // Pass existing player ID to the engine
+                playerId = playerId,  // Pass existing player ID to the engine
+                commanderCardName = commanderCardNames[playerId],
             )
         }
 
         val config = GameConfig(
             players = playerConfigs,
-            useHandSmoother = useHandSmoother
+            useHandSmoother = useHandSmoother,
+            format = engineFormat,
         )
 
         val result = gameInitializer.initializeGame(config)
@@ -929,6 +950,7 @@ class GameSession(
             LossReason.POISON_COUNTERS -> GameOverReason.POISON_COUNTERS
             LossReason.CONCESSION -> GameOverReason.CONCESSION
             LossReason.CARD_EFFECT -> GameOverReason.CARD_EFFECT
+            LossReason.COMMANDER_DAMAGE -> GameOverReason.COMMANDER_DAMAGE
             null -> GameOverReason.LIFE_ZERO // Fallback
         }
     }

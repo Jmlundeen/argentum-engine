@@ -774,6 +774,12 @@ export interface SealedCardInfo {
   readonly backFaceTypeLine?: string | null
   readonly backFaceOracleText?: string | null
   readonly backFaceImageUri?: string | null
+  /**
+   * Color identity (CR 903.4) — uppercase color names ("WHITE", "BLUE", …). Drives the
+   * sealed/draft deckbuilder's color filter chips and archetype matcher. The server stamps
+   * this from the authoritative Scryfall override when one exists.
+   */
+  readonly colorIdentity?: readonly string[]
 }
 
 /**
@@ -1433,11 +1439,15 @@ export interface JoinSealedGameMessage {
 }
 
 /**
- * Submit the built deck for a sealed game.
+ * Submit the built deck for a sealed game or a tournament lobby (Premade Decks format).
+ * `commander` is honored only when the tournament lobby's deckFormat is commander-shape;
+ * for non-commander formats it's ignored. The card name MUST appear in `deckList` — the
+ * server validator and engine both rely on this invariant.
  */
 export interface SubmitSealedDeckMessage {
   readonly type: 'submitSealedDeck'
   readonly deckList: Record<string, number>
+  readonly commander?: string | null
 }
 
 // ============================================================================
@@ -1563,8 +1573,15 @@ export function createJoinSealedGameMessage(sessionId: string): JoinSealedGameMe
   return { type: 'joinSealedGame', sessionId }
 }
 
-export function createSubmitSealedDeckMessage(deckList: Record<string, number>): SubmitSealedDeckMessage {
-  return { type: 'submitSealedDeck', deckList }
+export function createSubmitSealedDeckMessage(
+  deckList: Record<string, number>,
+  commander?: string | null,
+): SubmitSealedDeckMessage {
+  const msg: SubmitSealedDeckMessage = { type: 'submitSealedDeck', deckList }
+  if (commander) {
+    return { ...msg, commander }
+  }
+  return msg
 }
 
 // ============================================================================
@@ -2052,6 +2069,8 @@ export interface LeaveQuickGameLobbyMessage {
 export interface SubmitQuickGameLobbyDeckMessage {
   readonly type: 'submitQuickGameLobbyDeck'
   readonly deckList: Record<string, number>
+  /** Designated commander card name for commander-shape lobby formats. */
+  readonly commander?: string
 }
 
 export interface SetQuickGameLobbyReadyMessage {
@@ -2094,8 +2113,15 @@ export function createJoinQuickGameLobbyMessage(lobbyId: string): JoinQuickGameL
 export function createLeaveQuickGameLobbyMessage(): LeaveQuickGameLobbyMessage {
   return { type: 'leaveQuickGameLobby' }
 }
-export function createSubmitQuickGameLobbyDeckMessage(deckList: Record<string, number>): SubmitQuickGameLobbyDeckMessage {
-  return { type: 'submitQuickGameLobbyDeck', deckList }
+export function createSubmitQuickGameLobbyDeckMessage(
+  deckList: Record<string, number>,
+  commander?: string | null,
+): SubmitQuickGameLobbyDeckMessage {
+  return {
+    type: 'submitQuickGameLobbyDeck',
+    deckList,
+    ...(commander ? { commander } : {}),
+  }
 }
 export function createSetQuickGameLobbyReadyMessage(ready: boolean): SetQuickGameLobbyReadyMessage {
   return { type: 'setQuickGameLobbyReady', ready }

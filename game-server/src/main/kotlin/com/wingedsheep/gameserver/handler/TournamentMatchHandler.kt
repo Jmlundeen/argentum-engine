@@ -421,23 +421,48 @@ class TournamentMatchHandler(
             lobby.getSubmittedDeck(match.player2Id) ?: return false,
             lobby.allBasicLandVariants
         )
-        val deck1 = EasterEggDeckInjector.maybeInjectEasterEggs(
+        val deck1WithEgg = EasterEggDeckInjector.maybeInjectEasterEggs(
             player1State.identity.playerName, baseDeck1
         )
-        val deck2 = EasterEggDeckInjector.maybeInjectEasterEggs(
+        val deck2WithEgg = EasterEggDeckInjector.maybeInjectEasterEggs(
             player2State.identity.playerName, baseDeck2
         )
+
+        // Commander-shape PREMADE_DECKS lobbies route through the engine's 1v1 Commander rules.
+        // The deck list on the wire / in the lobby includes one copy of the commander; the
+        // engine expects `Deck.cards` (= library) without it, so strip one copy here. Mirrors
+        // QuickGameLobbyHandler.startGame.
+        val isCommanderShape = lobby.format == com.wingedsheep.gameserver.lobby.TournamentFormat.PREMADE_DECKS &&
+            lobby.deckFormat?.isCommanderShape == true
+        val commander1 = if (isCommanderShape) player1State.commander else null
+        val commander2 = if (isCommanderShape) player2State.commander else null
+        // The deck-submit path rejects commander-shape submissions that don't designate a
+        // commander, but defend in depth: if we somehow reach match start without one, refuse
+        // to launch the match instead of crashing in GameInitializer.
+        if (isCommanderShape && (commander1 == null || commander2 == null)) {
+            val missing = listOfNotNull(
+                player1State.identity.playerName.takeIf { commander1 == null },
+                player2State.identity.playerName.takeIf { commander2 == null },
+            ).joinToString(", ")
+            logger.warn("Tournament ${lobby.lobbyId}: cannot start commander-shape match — missing commander for $missing")
+            return false
+        }
+        val deck1 = if (commander1 != null) stripCommanderFromCards(deck1WithEgg, commander1) else deck1WithEgg
+        val deck2 = if (commander2 != null) stripCommanderFromCards(deck2WithEgg, commander2) else deck2WithEgg
 
         val gameSession = GameSession(
             cardRegistry = cardRegistry,
             useHandSmoother = gameProperties.handSmoother.enabled,
             debugMode = gameProperties.debugMode
         )
+        if (isCommanderShape) {
+            gameSession.engineFormat = com.wingedsheep.sdk.core.Format.Commander()
+        }
         val ps1 = player1State.identity.toPlayerSession()
         val ps2 = player2State.identity.toPlayerSession()
 
-        gameSession.addPlayer(ps1, deck1)
-        gameSession.addPlayer(ps2, deck2)
+        gameSession.addPlayer(ps1, deck1, commanderCardName = commander1)
+        gameSession.addPlayer(ps2, deck2, commanderCardName = commander2)
 
         gameSession.setPlayerPersistenceInfo(ps1.playerId, ps1.playerName, player1State.identity.token)
         gameSession.setPlayerPersistenceInfo(ps2.playerId, ps2.playerName, player2State.identity.token)
@@ -831,5 +856,20 @@ class TournamentMatchHandler(
                 ctx.sender.send(ws, message)
             }
         }
+    }
+
+    /**
+     * Subtract one copy of [commander] from [deckList]. The wire format and lobby state both
+     * keep the commander counted in the deck list; the engine's `Deck.cards` excludes it.
+     * Mirrors QuickGameLobbyHandler.stripCommanderFromCards.
+     */
+    private fun stripCommanderFromCards(
+        deckList: Map<String, Int>,
+        commander: String,
+    ): Map<String, Int> {
+        val current = deckList[commander] ?: return deckList
+        val next = deckList.toMutableMap()
+        if (current <= 1) next.remove(commander) else next[commander] = current - 1
+        return next
     }
 }

@@ -1794,6 +1794,27 @@ function FilterSection({
               </button>
             )
           })}
+          {(() => {
+            // Legendary lives next to the type chips because it's the most common supertype
+            // filter players reach for (commander eligibility, "your commander said legendary
+            // matters", etc.). `is:legendary` resolves via supertypes — distinct from `t:` which
+            // matches across cardTypes/supertypes/subtypes by substring. The crown glyph (♛)
+            // is the same one the deck-row commander toggle uses, so the visual cue carries
+            // across the deckbuilder.
+            const token = 'is:legendary'
+            const active = hasToken(query, token)
+            return (
+              <button
+                key="legendary"
+                className={`${styles.chip} ${active ? styles.chipActive : ''}`}
+                onClick={() => toggle(token)}
+                type="button"
+              >
+                <span aria-hidden="true" style={{ marginRight: 4, color: '#d4a017' }}>♛</span>
+                Legendary
+              </button>
+            )
+          })()}
         </div>
       </section>
 

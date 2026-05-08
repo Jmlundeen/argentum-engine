@@ -147,7 +147,9 @@ class CastSpellHandler(
             action.graveyardLifeCost > 0 && action.cardId in state.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD))
         val hasForageFromGraveyard = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasGraveyardLifeCost &&
             zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(state, action.playerId, action.cardId, cardComponent)
-        if (!inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasGraveyardLifeCost && !hasForageFromGraveyard) {
+        val hasCommanderCast = !inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasGraveyardLifeCost && !hasForageFromGraveyard &&
+            zoneResolver.hasCommanderCastPermission(state, action.playerId, action.cardId)
+        if (!inHand && !onTopOfLibrary && !mayPlayFromExile && !mayCastFromZone && !mayCastFromGraveyard && !hasFlashback && !hasGraveyardLifeCost && !hasForageFromGraveyard && !hasCommanderCast) {
             return "Card is not in your hand"
         }
 
@@ -311,7 +313,8 @@ class CastSpellHandler(
                 state,
                 cardDef,
                 action.playerId,
-                action.targets.map { it.toEntityId() }
+                action.targets.map { it.toEntityId() },
+                fromZone = if (hasCommanderCast) Zone.COMMAND else null,
             )
         } else {
             cardComponent.manaCost
@@ -1122,11 +1125,18 @@ class CastSpellHandler(
         } else if (action.castFaceDown) {
             costCalculator.calculateFaceDownCost(currentState, action.playerId)
         } else if (cardDef != null) {
+            // Detect cast-from-command-zone for commander tax (CR 903.8). The card may have moved
+            // out of the command zone in `state` between validate() and here, but `currentState`
+            // still has it because we haven't called `castSpell` yet.
+            val castingFromCommand = zoneResolver.hasCommanderCastPermission(
+                currentState, action.playerId, action.cardId,
+            )
             costCalculator.calculateEffectiveCost(
                 currentState,
                 cardDef,
                 action.playerId,
-                action.targets.map { it.toEntityId() }
+                action.targets.map { it.toEntityId() },
+                fromZone = if (castingFromCommand) Zone.COMMAND else null,
             )
         } else {
             cardComponent.manaCost

@@ -160,6 +160,13 @@ export interface ClientCard {
   /** Whether this is a token */
   readonly isToken: boolean
 
+  /**
+   * True when this card is a designated commander (Commander format). Set in every zone — hand,
+   * stack, battlefield, command — so the UI can keep the crown / gold border on the card after
+   * it's cast. Token copies of a commander never carry this (CR 903.10a).
+   */
+  readonly isCommander?: boolean
+
   /** Zone this card is currently in */
   readonly zone: ZoneId | null
 

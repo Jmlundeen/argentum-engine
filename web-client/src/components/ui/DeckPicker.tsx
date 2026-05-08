@@ -34,7 +34,14 @@ import styles from './DeckPicker.module.css'
 type Tab = 'saved' | 'examples' | 'paste' | 'random'
 
 export interface DeckPickerProps {
-  onDeckChange: (deckList: Record<string, number>) => void
+  /**
+   * Emitted whenever the deck content changes. The deck list is the full deck (including the
+   * commander, when applicable, merged into the card counts). The optional `commander` is the
+   * designated commander card name when the active selection is a saved deck with one. Quick
+   * Game / Premade-Decks tournament flows pass it through to the server so commander-shape
+   * formats can wire the engine into Format.Commander.
+   */
+  onDeckChange: (deckList: Record<string, number>, commander?: string | null) => void
   onValidityChange?: (isValid: boolean) => void
   /**
    * Optional set selection callback for the "Random" tab. When the picker is on Random and
@@ -252,10 +259,22 @@ export function DeckPicker({
     }
   }, [tab, pasteText, decks, selectedSavedId])
 
-  // Push the current deck up.
+  // Commander only originates from saved decks today (paste / examples / random don't carry one).
+  const currentCommander: string | null = useMemo(() => {
+    if (tab !== 'saved') return null
+    const saved = decks.find((d) => d.id === selectedSavedId)
+    return saved?.commander ?? null
+  }, [tab, decks, selectedSavedId])
+
+  // Push the current deck up. We deliberately suppress empty emissions from non-Random tabs
+  // so that landing on the Saved tab with nothing selected doesn't auto-submit `{}` to the
+  // server — that would mark the player as "deck selected" with an empty deck and surface as
+  // "Random Pool" in the lobby even though the user hasn't actually picked anything yet.
+  // On the Random tab `{}` *is* the chosen deck (server generates a random pool), so emit it.
   useEffect(() => {
-    onDeckChange(currentDeck)
-  }, [currentDeck, onDeckChange])
+    if (tab !== 'random' && Object.keys(currentDeck).length === 0) return
+    onDeckChange(currentDeck, currentCommander)
+  }, [tab, currentDeck, currentCommander, onDeckChange])
 
   // Server-side validation when the deck is non-empty.
   useEffect(() => {

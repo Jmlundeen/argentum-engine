@@ -21,6 +21,7 @@ import com.wingedsheep.gameserver.config.GameProperties
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.gameserver.deck.DeckValidator
 import com.wingedsheep.gameserver.deck.EasterEggDeckInjector
+import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.Dispatchers
@@ -340,7 +341,7 @@ class LobbyHandler(
         val identity = token?.let { sessionRegistry.getIdentityByToken(it) }
         val lobbyId = identity?.currentLobbyId
         if (lobbyId != null) {
-            handleLobbyDeckSubmit(session, playerSession, identity, lobbyId, message.deckList)
+            handleLobbyDeckSubmit(session, playerSession, identity, lobbyId, message.deckList, message.commander)
             return
         }
 
@@ -1814,7 +1815,8 @@ class LobbyHandler(
         playerSession: PlayerSession,
         identity: PlayerIdentity,
         lobbyId: String,
-        deckList: Map<String, Int>
+        deckList: Map<String, Int>,
+        commander: String? = null,
     ) {
         val lobby = lobbyRepository.findLobbyById(lobbyId)
         if (lobby == null) {
@@ -1822,11 +1824,30 @@ class LobbyHandler(
             return
         }
 
+        // Commander only applies to commander-shape deckFormats in a PREMADE_DECKS lobby.
+        // Drop it otherwise so a stale commander on a saved deck doesn't leak into a Standard
+        // game (mirrors the QuickGame submit path).
+        val commanderShape = lobby.format == TournamentFormat.PREMADE_DECKS &&
+            lobby.deckFormat?.isCommanderShape == true
+        val effectiveCommander = if (commanderShape) commander?.takeIf { it.isNotBlank() } else null
+
         // For PREMADE_DECKS, the deck didn't come from a generated card pool — validate
         // against the registry (≥40 cards, 4-of, all cards must resolve) before storing it.
         // If the host has set a deck-construction format, also enforce per-card legality.
+        // Commander-shape formats validate via the structured Deck overload so the singleton +
+        // color-identity rules kick in (matches QuickGameLobbyHandler.handleSubmitDeck).
         if (lobby.format == TournamentFormat.PREMADE_DECKS) {
-            val validation = deckValidator.validate(deckList, lobby.deckFormat)
+            val validation = if (commanderShape) {
+                // Always go through the commander-aware path for commander-shape formats so a
+                // missing commander surfaces as MISSING_COMMANDER instead of silently passing.
+                val withoutCommander = effectiveCommander
+                    ?.let { stripCommanderFromCards(deckList, it) }
+                    ?: deckList
+                val deckCards = withoutCommander.flatMap { (name, count) -> List(count) { name } }
+                deckValidator.validate(Deck(cards = deckCards, commander = effectiveCommander), lobby.deckFormat)
+            } else {
+                deckValidator.validate(deckList, lobby.deckFormat)
+            }
             if (!validation.valid) {
                 val msg = validation.errors.firstOrNull()?.message ?: "Invalid deck"
                 sender.sendError(session, ErrorCode.INVALID_DECK, msg)
@@ -1834,7 +1855,7 @@ class LobbyHandler(
             }
         }
 
-        val result = lobby.submitDeck(identity.playerId, deckList)
+        val result = lobby.submitDeck(identity.playerId, deckList, effectiveCommander)
         when (result) {
             is TournamentLobby.DeckSubmissionResult.Success -> {
                 val deckSize = deckList.values.sum()
@@ -1872,5 +1893,20 @@ class LobbyHandler(
                 sender.sendError(session, ErrorCode.INVALID_DECK, result.message)
             }
         }
+    }
+
+    /**
+     * Subtract one copy of [commander] from [deckList]. Mirrors the QuickGame helper — the
+     * wire format ships the merged deck (commander counted in `deckList`), but `Deck.cards`
+     * excludes it. Idempotent when the commander isn't present.
+     */
+    private fun stripCommanderFromCards(
+        deckList: Map<String, Int>,
+        commander: String,
+    ): Map<String, Int> {
+        val current = deckList[commander] ?: return deckList
+        val next = deckList.toMutableMap()
+        if (current <= 1) next.remove(commander) else next[commander] = current - 1
+        return next
     }
 }

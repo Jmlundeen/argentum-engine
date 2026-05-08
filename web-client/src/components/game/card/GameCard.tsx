@@ -65,6 +65,13 @@ interface GameCardProps {
   hideKeywordIcons?: boolean
   /** Ghost card from graveyard (translucent, purple glow) */
   isGhost?: boolean
+  /**
+   * Allow dragging this card to cast it even when it's not in hand. Used by the command zone
+   * widget so commanders can be cast with the same drag-to-play gesture as hand cards. Drop
+   * heuristic (above the hand top = cast) is unchanged — dragging the commander toward the
+   * battlefield casts it; dropping anywhere along the bottom cancels.
+   */
+  enableDragToCast?: boolean
 }
 
 /**
@@ -84,6 +91,7 @@ export function GameCard({
   suppressTapRotation = false,
   hideKeywordIcons = false,
   isGhost = false,
+  enableDragToCast = false,
 }: GameCardProps) {
   const voidActive = useGameStore(
     (state) => (state.spectatingState?.gameState ?? state.gameState)?.voidActive ?? false
@@ -324,11 +332,15 @@ export function GameCard({
   const isCyclingLandWithoutPlayLand = card.cardTypes.includes('LAND') &&
     playableActions.length === 1 && (playableActions[0]?.action.type === 'CycleCard' || playableActions[0]?.action.type === 'TypecycleCard')
   const shouldShowCastModal = playableActions.length > 1 || (hasMultiplePotentialOptions && playableActions.length > 0) || isCyclingLandWithoutPlayLand
-  const canDragToPlay = inHand && playableAction && !isInCombatMode && !isInTargetingMode
+  const canDragToPlay = (inHand || enableDragToCast) && playableAction && !isInCombatMode && !isInTargetingMode
 
-  // Determine mana cost display for cards in hand (always show, highlight changes)
+  // Determine mana cost display for cards the player can cast directly from a face-up zone
+  // (hand or, for Commander, the command zone). Commander tax (CR 903.8) folds in here for free
+  // because the server's `enumerateCommandZone` enumerator already builds CastSpell actions with
+  // the post-tax `manaCostString` — we just have to read whichever cost the active action carries.
+  const showCastCostOverlay = inHand || enableDragToCast
   const handCostInfo = useMemo(() => {
-    if (!inHand || faceDown || !card.manaCost) return null
+    if (!showCastCostOverlay || faceDown || !card.manaCost) return null
     // Find the normal CastSpell action (not morph, not kicked, not mode)
     const castAction = playableActions.find((a) =>
       a.action.type === 'CastSpell' && a.actionType !== 'CastFaceDown' && a.actionType !== 'CastWithKicker' && a.actionType !== 'CastSpellMode'
@@ -355,7 +367,7 @@ export function GameCard({
       isReduced: effectiveMV < baseMV,
       isIncreased: effectiveMV > baseMV,
     }
-  }, [inHand, faceDown, playableActions, card.manaCost])
+  }, [showCastCostOverlay, faceDown, playableActions, card.manaCost])
 
   // Handle mouse/touch down - start dragging for attackers, blockers, or hand cards
   const handlePointerDown = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -960,7 +972,12 @@ export function GameCard({
         pointerEvents: 'auto',
         transform: `${isTapped ? 'rotate(90deg)' : ''} ${isSelected && (!isInCombatMode || !isCombatRoleCard) ? 'translateY(-8px)' : ''}`,
         transformOrigin: 'center',
-        boxShadow,
+        // Commander gold *glow* — soft halo, deliberately no hard 1–2px rim so it doesn't read
+        // like the playable-action outline. Inner halo sits close to the card for readable
+        // intensity; outer halo gives the glow some reach without bleeding too far.
+        boxShadow: card.isCommander && !faceDown
+          ? `${boxShadow}, 0 0 6px 2px rgba(212, 175, 55, 0.6), 0 0 14px 4px rgba(212, 175, 55, 0.3)`
+          : boxShadow,
         opacity: isBeingDragged ? 0.6 : isGhost ? 0.55 : (inHand && isInTargetingMode && !isValidTarget && !isBeingCast) ? 0.35 : 1,
         userSelect: 'none',
         ...(voidEligible ? { outline: '1px solid rgba(140, 90, 220, 0.55)', outlineOffset: '2px' } : {}),
@@ -1986,6 +2003,48 @@ export function GameCard({
 
   const profilerId = battlefield ? 'GameCard(battlefield)' : inHand ? 'GameCard(hand)' : 'GameCard(other)'
 
+  // Minimalist commander crown — three-point silhouette in a thin wrapper that sits *above* the
+  // card. Lives outside the cardElement because `styles.card` is `overflow: hidden`, which would
+  // clip anything positioned over the top edge. Sized relative to the card so it stays legible
+  // from the small command-zone peek up to a full-size battlefield card.
+  const showCommanderCrown = card.isCommander && !faceDown
+  const commanderCrown = showCommanderCrown ? (() => {
+    const crownWidth = Math.max(14, Math.round(width * 0.18))
+    const crownHeight = Math.round(crownWidth * 0.55)
+    return (
+      <div
+        aria-label="Commander"
+        title="Commander"
+        style={{
+          position: 'absolute',
+          top: -crownHeight - 3,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: crownWidth,
+          height: crownHeight,
+          pointerEvents: 'none',
+          zIndex: 6,
+          opacity: 0.9,
+          filter: 'drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.55))',
+        }}
+      >
+        <svg
+          viewBox="0 0 24 13"
+          width="100%"
+          height="100%"
+          preserveAspectRatio="none"
+          fill="#d4af37"
+          stroke="rgba(0, 0, 0, 0.45)"
+          strokeWidth="0.5"
+          strokeLinejoin="round"
+        >
+          {/* Three-point coronet on a thin band: outer points at the corners, taller centre point */}
+          <path d="M1.5 12 L1.5 9 L4.5 5 L8 8 L12 2 L16 8 L19.5 5 L22.5 9 L22.5 12 Z" />
+        </svg>
+      </div>
+    )
+  })() : null
+
   // Wrap in container for tapped battlefield cards to prevent overlap
   if (isTapped && battlefield) {
     return (
@@ -1998,9 +2057,29 @@ export function GameCard({
         justifyContent: 'center',
         transition: 'width 0.15s, height 0.15s',
         pointerEvents: 'none',
+        position: 'relative',
       }}>
+        {commanderCrown}
         {cardElement}
       </div>
+      </RenderProfiler>
+    )
+  }
+
+  // Commander gets a relative-positioned wrapper so the crown can float above the card without
+  // being clipped by the card's `overflow: hidden`.
+  if (showCommanderCrown) {
+    return (
+      <RenderProfiler id={profilerId}>
+        <div style={{
+          position: 'relative',
+          width,
+          height,
+          pointerEvents: 'none',
+        }}>
+          {commanderCrown}
+          {cardElement}
+        </div>
       </RenderProfiler>
     )
   }

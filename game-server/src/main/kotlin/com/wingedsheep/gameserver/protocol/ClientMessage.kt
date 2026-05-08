@@ -98,12 +98,18 @@ sealed interface ClientMessage {
     data class JoinSealedGame(val sessionId: String) : ClientMessage
 
     /**
-     * Submit the built deck for a sealed game.
-     * Deck list maps card name to count.
+     * Submit the built deck for a sealed game or a tournament lobby (Premade Decks format).
+     * Deck list maps card name to count. The optional [commander] is honored only when the
+     * tournament lobby's `deckFormat` is commander-shape (Commander / Brawl / Standard Brawl);
+     * for other formats it's ignored. The commander card name MUST appear in [deckList] —
+     * the validator and engine both rely on this invariant.
      */
     @Serializable
     @SerialName("submitSealedDeck")
-    data class SubmitSealedDeck(val deckList: Map<String, Int>) : ClientMessage
+    data class SubmitSealedDeck(
+        val deckList: Map<String, Int>,
+        val commander: String? = null,
+    ) : ClientMessage
 
     // =========================================================================
     // Tournament Lobby Messages
@@ -377,7 +383,15 @@ sealed interface ClientMessage {
      */
     @Serializable
     @SerialName("submitQuickGameLobbyDeck")
-    data class SubmitQuickGameLobbyDeck(val deckList: Map<String, Int>) : ClientMessage
+    data class SubmitQuickGameLobbyDeck(
+        val deckList: Map<String, Int>,
+        /**
+         * Optional commander card name for commander-shape lobby formats (Commander / Brawl /
+         * Standard Brawl). Ignored for non-commander formats. The card name MUST appear in
+         * [deckList] — the validator and engine both rely on this invariant.
+         */
+        val commander: String? = null,
+    ) : ClientMessage
 
     /** Toggle this player's ready flag. The server starts the game when both players are ready. */
     @Serializable

@@ -17,6 +17,7 @@ import com.wingedsheep.gameserver.session.PlayerSession
 import com.wingedsheep.gameserver.session.SessionRegistry
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.sdk.core.DeckFormat
+import com.wingedsheep.sdk.model.Deck
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.WebSocketSession
@@ -265,9 +266,21 @@ class QuickGameLobbyHandler(
         val lobby = lobbyRepository.findContainingPlayer(playerSession.playerId) ?: run {
             sender.sendError(session, ErrorCode.GAME_NOT_FOUND, "Not in a lobby"); return
         }
-        // Empty deck = "random pool" — skip validation.
+        // Empty deck = "random pool" — skip validation. The commander field, if any, is meaningless
+        // without an accompanying deck list and gets dropped at the lobby layer below.
         if (message.deckList.isNotEmpty()) {
-            val result = deckValidator.validate(message.deckList, lobby.format)
+            // Commander-aware path: the wire format `deckList` represents the *full* deck (matches
+            // the saved-deck "merged" view the picker emits), but `Deck.cards` follows the server
+            // convention where the commander lives in `Deck.commander` and is NOT counted in
+            // `cards`. Strip one copy here so the validator (which re-adds it) doesn't trip the
+            // singleton check on the commander itself.
+            val result = if (message.commander != null) {
+                val cardsWithoutCommander = stripCommanderFromCards(message.deckList, message.commander)
+                val deckCards = cardsWithoutCommander.flatMap { (name, count) -> List(count) { name } }
+                deckValidator.validate(Deck(cards = deckCards, commander = message.commander), lobby.format)
+            } else {
+                deckValidator.validate(message.deckList, lobby.format)
+            }
             if (!result.valid) {
                 sender.sendError(
                     session,
@@ -283,8 +296,11 @@ class QuickGameLobbyHandler(
             // No-op if the same deck is being resubmitted: avoids ping-pong with the picker
             // (which can re-emit its current value on every render) and keeps the ready flag
             // sticky as long as the player's chosen deck hasn't actually changed.
-            if (player.deckList == message.deckList) return@withLock
+            if (player.deckList == message.deckList && player.commander == message.commander) return@withLock
             player.deckList = message.deckList
+            // For random-pool submissions the commander field is meaningless; drop it so a stale
+            // commander from a prior submission doesn't leak into the game start.
+            player.commander = if (message.deckList.isNotEmpty()) message.commander else null
             // Submitting a *new* deck un-readies the player so they have to confirm again.
             player.ready = false
             broadcastState(current)
@@ -317,11 +333,33 @@ class QuickGameLobbyHandler(
     }
 
     private fun startGame(lobby: QuickGameLobby) {
+        // Commander-shape lobby with a human player who never designated a commander would crash
+        // mid-init when GameInitializer requires `commanderCardName`. Surface the error early so
+        // the player can pick a different deck before everyone gets disconnected.
+        if (lobby.format?.isCommanderShape == true) {
+            val missing = lobby.players.firstOrNull { !it.isAi && it.deckList?.isNotEmpty() == true && it.commander.isNullOrBlank() }
+            if (missing != null) {
+                logger.warn("Lobby ${lobby.lobbyId}: human player ${missing.playerName} has no commander designated for ${lobby.format} game start")
+                broadcastClosed(
+                    lobby,
+                    "${missing.playerName}'s deck has no commander designated — pick a deck with a commander to play ${lobby.format!!.displayName}",
+                )
+                lobbyRepository.remove(lobby.lobbyId)
+                return
+            }
+        }
+
         val gameSession = GameSession(
             cardRegistry = cardRegistry,
             useHandSmoother = gameProperties.handSmoother.enabled,
             debugMode = gameProperties.debugMode
         )
+        // Commander-shape formats (Commander / Brawl / Standard Brawl) run on the engine's 1v1
+        // Commander rules. Other formats fall through to Standard. Brawl-specific tweaks
+        // (60 cards, alternative life total) are Phase 4 territory — Phase 1 covers Commander.
+        if (lobby.format?.isCommanderShape == true) {
+            gameSession.engineFormat = com.wingedsheep.sdk.core.Format.Commander()
+        }
         // Each player can pick their own set for a Random pool; the AI uses the lobby-level
         // setCode (or any human player's choice as a default) when its random deck is generated.
         val aiSetCode = lobby.setCode
@@ -345,7 +383,17 @@ class QuickGameLobbyHandler(
                 lobbyRepository.remove(lobby.lobbyId)
                 return
             }
-            gameSession.addPlayer(playerSession, deckList)
+            // Pass the commander only for commander-shape formats; clear it otherwise so a stale
+            // commander on a saved deck doesn't accidentally route into a Standard game. Strip
+            // one copy of the commander out of the wire deck list so the engine sees `cards`
+            // (= library) excluding the commander, matching `Deck.cards` convention.
+            val commander = if (lobby.format?.isCommanderShape == true) lobbyPlayer.commander else null
+            val engineDeckList = if (commander != null) {
+                stripCommanderFromCards(deckList, commander)
+            } else {
+                deckList
+            }
+            gameSession.addPlayer(playerSession, engineDeckList, commanderCardName = commander)
             // Persistence info so a mid-game reconnect can find the player by token.
             val token = sessionRegistry.getTokenByWsId(playerSession.webSocketSession.id)
             if (token != null) {
@@ -442,6 +490,22 @@ class QuickGameLobbyHandler(
             )
             sender.send(ws, msg)
         }
+    }
+
+    /**
+     * Subtract one copy of [commander] from [deckList]. Mirrors the web-client's
+     * `stripCommanderFromCards` helper — the wire format ships the merged deck (commander
+     * counted in `deckList`), but the server's `Deck.cards` convention excludes it. Idempotent
+     * when the commander isn't present.
+     */
+    private fun stripCommanderFromCards(
+        deckList: Map<String, Int>,
+        commander: String,
+    ): Map<String, Int> {
+        val current = deckList[commander] ?: return deckList
+        val next = deckList.toMutableMap()
+        if (current <= 1) next.remove(commander) else next[commander] = current - 1
+        return next
     }
 
     private fun broadcastClosed(lobby: QuickGameLobby, reason: String) {

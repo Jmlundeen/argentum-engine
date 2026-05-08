@@ -196,6 +196,22 @@ class StackResolver(
             updated
         }
 
+        // Commander tax bookkeeping (CR 903.8): increment castsFromCommandZone on cast-commit so
+        // that countered commanders still pay an escalating tax next time. Done after payment is
+        // complete (the handler has already settled the mana cost) but before the spell is pushed
+        // onto the stack — i.e. the cast is "committed" the moment the spell becomes a real
+        // game object on the stack.
+        if (castFromZone == Zone.COMMAND) {
+            newState = newState.updateEntity(cardId) { c ->
+                val commander = c.get<com.wingedsheep.engine.state.components.identity.CommanderComponent>()
+                if (commander != null) {
+                    c.with(commander.copy(castsFromCommandZone = commander.castsFromCommandZone + 1))
+                } else {
+                    c
+                }
+            }
+        }
+
         // Push to stack and reset priority passes (new stack item requires fresh round of passes)
         newState = newState.pushToStack(cardId)
             .copy(priorityPassedBy = emptySet())
@@ -1783,7 +1799,7 @@ class StackResolver(
         cardId: EntityId,
         playerId: EntityId
     ): Zone? {
-        val zones = listOf(Zone.HAND, Zone.GRAVEYARD, Zone.LIBRARY)
+        val zones = listOf(Zone.HAND, Zone.GRAVEYARD, Zone.LIBRARY, Zone.COMMAND)
         for (zone in zones) {
             if (cardId in state.getZone(ZoneKey(playerId, zone))) {
                 return zone
@@ -1834,6 +1850,12 @@ class StackResolver(
         val libraryZone = ZoneKey(playerId, Zone.LIBRARY)
         if (cardId in state.getZone(libraryZone)) {
             return state.removeFromZone(libraryZone, cardId)
+        }
+
+        // Check the command zone (Commander format casts).
+        val commandZone = ZoneKey(playerId, Zone.COMMAND)
+        if (cardId in state.getZone(commandZone)) {
+            return state.removeFromZone(commandZone, cardId)
         }
 
         return state

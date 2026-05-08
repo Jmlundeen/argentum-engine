@@ -39,6 +39,12 @@ class DecksController(
         val manaCost: String,
         val cmc: Int,
         val colors: List<String>,
+        // Scryfall-style color identity (CR 903.4): mana-cost colors plus oracle-text colored
+        // symbols plus basic-land-subtype colors, with the per-card override applied. Drives the
+        // deckbuilder's color filter — for deck construction "this card is red" means "its
+        // identity is red", not just "its printed cost has red". `colors` stays available for
+        // mana-curve and pip stats that genuinely care about printed cost.
+        val colorIdentity: List<String>,
         val cardTypes: List<String>,
         val supertypes: List<String>,
         val subtypes: List<String>,
@@ -145,6 +151,7 @@ class DecksController(
         manaCost = manaCost.toString(),
         cmc = cmc,
         colors = colors.map { it.name },
+        colorIdentity = colorIdentity.map { it.name },
         cardTypes = typeLine.cardTypes.map { it.name },
         supertypes = typeLine.supertypes.map { it.name },
         subtypes = typeLine.subtypes.map { it.toString() },

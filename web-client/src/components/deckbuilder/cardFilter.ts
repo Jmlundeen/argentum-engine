@@ -21,7 +21,12 @@
  *   name|n       :              substring match (default for bareword)
  *   t|type       :              substring match against cardTypes ∪ supertypes ∪ subtypes
  *   o|oracle     :              substring match against oracle text
- *   c|color      : = <= >=      colour set comparison (letters wubrg, or 'colorless'/'c', 'multicolor'/'m')
+ *   c|color|id|identity
+ *                : = <= >=      colour-identity set comparison (CR 903.4); letters wubrg, or
+ *                               'colorless'/'c', 'multicolor'/'m'. `c:` matches identity, not
+ *                               printed cost — use `cost:` if you specifically want cost colors.
+ *   cost         : = <= >=      same comparator as `c:` but against printed mana-cost colors
+ *                               (escape hatch for surfacing off-color activated abilities).
  *   cmc|mv       : = != <= >= < >   numeric comparison
  *   pow          : = != <= >= < >   numeric (non-numeric power fails the comparator)
  *   tou          : = != <= >= < >
@@ -43,7 +48,15 @@ export interface CardSummary {
   name: string
   manaCost: string
   cmc: number
+  /** Printed mana-cost colors. Used for mana curve, pip stats, and the `cost:` operator. */
   colors: string[]
+  /**
+   * Color identity (CR 903.4) — drives the `c:` / `color:` filter. Includes oracle-text
+   * colored symbols and basic-land-subtype colors, so a card with off-color activation costs
+   * correctly surfaces under its full identity. The server stamps this from the authoritative
+   * Scryfall override when one exists.
+   */
+  colorIdentity: string[]
   cardTypes: string[]
   supertypes: string[]
   subtypes: string[]
@@ -174,7 +187,13 @@ function predicateForToken(tok: Token): CardPredicate {
       return matchOracle(value)
     case 'c':
     case 'color':
+    case 'id':
+    case 'identity':
       return matchColor(op, value)
+    case 'cost':
+      // Escape hatch for "match the printed mana-cost colors" — useful if you specifically
+      // want to find off-color activated-ability cards (search by identity, exclude by cost).
+      return matchColor(op, value, (c) => c.colors)
     case 'cmc':
     case 'mv':
       return matchNumeric(op, value, (c) => c.cmc)
@@ -253,16 +272,23 @@ function parseColorSet(value: string): { kind: 'colors'; set: Set<string> } | { 
   return { kind: 'colors', set }
 }
 
-function matchColor(op: Op, value: string): CardPredicate {
+/**
+ * `c:` / `color:` matches **color identity** (CR 903.4), not printed mana-cost colors. For deck
+ * construction the identity is what matters: a card with no colored mana cost but a `{B}`
+ * activation cost should surface under a black filter, and a Mountain-type land should surface
+ * under a red filter. The mana-cost colors stay accessible via the `cost:` operator and remain
+ * the basis for mana-curve / pip stats.
+ */
+function matchColor(op: Op, value: string, get: (c: CardSummary) => string[] = (c) => c.colorIdentity): CardPredicate {
   const parsed = parseColorSet(value)
   if (!parsed) return () => false
 
   if (parsed.kind === 'colorless') {
-    if (op === '=' || op === ':') return (c) => c.colors.length === 0
+    if (op === '=' || op === ':') return (c) => get(c).length === 0
     return () => false
   }
   if (parsed.kind === 'multi') {
-    if (op === '=' || op === ':') return (c) => c.colors.length >= 2
+    if (op === '=' || op === ':') return (c) => get(c).length >= 2
     return () => false
   }
 
@@ -272,18 +298,20 @@ function matchColor(op: Op, value: string): CardPredicate {
     case '>=':
       // card contains every requested colour
       return (c) => {
-        for (const w of wanted) if (!c.colors.includes(w)) return false
+        const cs = get(c)
+        for (const w of wanted) if (!cs.includes(w)) return false
         return true
       }
     case '=':
       return (c) => {
-        if (c.colors.length !== wanted.size) return false
-        for (const w of wanted) if (!c.colors.includes(w)) return false
+        const cs = get(c)
+        if (cs.length !== wanted.size) return false
+        for (const w of wanted) if (!cs.includes(w)) return false
         return true
       }
     case '<=':
       // every card colour is in the requested set
-      return (c) => c.colors.every((col) => wanted.has(col))
+      return (c) => get(c).every((col) => wanted.has(col))
     default:
       return () => false
   }
@@ -404,13 +432,13 @@ function matchIs(value: string): CardPredicate {
     case 'basic':
       return (c) => c.basicLand
     case 'colorless':
-      return (c) => c.colors.length === 0
+      return (c) => c.colorIdentity.length === 0
     case 'multicolor':
     case 'multicolour':
-      return (c) => c.colors.length >= 2
+      return (c) => c.colorIdentity.length >= 2
     case 'monocolor':
     case 'monocolour':
-      return (c) => c.colors.length === 1
+      return (c) => c.colorIdentity.length === 1
     default:
       return matchKeyword(v)
   }

@@ -46,25 +46,29 @@ export function QuickGameLobbyOverlay() {
   // an unchanged deck would server-side reset our `ready` flag and trigger another broadcast,
   // which is the spam loop we used to have.
   const pendingDeckRef = useRef<Record<string, number> | null>(null)
+  const pendingCommanderRef = useRef<string | null>(null)
   const lastSubmittedKeyRef = useRef<string | null>(null)
   const debounceRef = useRef<number | null>(null)
   const [deckValid, setDeckValid] = useState<boolean>(true)
   const [copied, setCopied] = useState(false)
 
   const handleDeckChange = useCallback(
-    (deckList: Record<string, number>) => {
-      const key = serializeDeck(deckList)
-      // Skip if this deck is structurally identical to the last one we submitted.
+    (deckList: Record<string, number>, commander?: string | null) => {
+      // Include the commander in the dedupe key so swapping commanders on otherwise-identical
+      // deck contents still triggers a resubmission.
+      const key = `${serializeDeck(deckList)}|${commander ?? ''}`
       if (key === lastSubmittedKeyRef.current) return
       pendingDeckRef.current = deckList
+      pendingCommanderRef.current = commander ?? null
       if (debounceRef.current !== null) window.clearTimeout(debounceRef.current)
       debounceRef.current = window.setTimeout(() => {
         const pending = pendingDeckRef.current
         if (!pending) return
-        const pendingKey = serializeDeck(pending)
+        const pendingCmdr = pendingCommanderRef.current
+        const pendingKey = `${serializeDeck(pending)}|${pendingCmdr ?? ''}`
         if (pendingKey === lastSubmittedKeyRef.current) return
         lastSubmittedKeyRef.current = pendingKey
-        submitDeck(pending)
+        submitDeck(pending, pendingCmdr)
       }, 250)
     },
     [submitDeck]
@@ -75,8 +79,10 @@ export function QuickGameLobbyOverlay() {
     return () => {
       if (debounceRef.current !== null) window.clearTimeout(debounceRef.current)
       const pending = pendingDeckRef.current
-      if (pending && serializeDeck(pending) !== lastSubmittedKeyRef.current) {
-        submitDeck(pending)
+      const pendingCmdr = pendingCommanderRef.current
+      const pendingKey = pending ? `${serializeDeck(pending)}|${pendingCmdr ?? ''}` : null
+      if (pending && pendingKey !== lastSubmittedKeyRef.current) {
+        submitDeck(pending, pendingCmdr)
       }
     }
   }, [submitDeck])

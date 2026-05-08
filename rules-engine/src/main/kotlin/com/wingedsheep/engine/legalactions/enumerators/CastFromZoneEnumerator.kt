@@ -10,6 +10,7 @@ import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.CommanderComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.MayPlayFromExileComponent
 import com.wingedsheep.engine.state.components.player.MayCastCreaturesFromGraveyardWithForageComponent
@@ -55,9 +56,118 @@ class CastFromZoneEnumerator : ActionEnumerator {
         enumerateFlashback(context, result)
         enumerateGraveyardWithLifeCost(context, result)
         enumerateWarpFromHand(context, result)
+        enumerateCommandZone(context, result)
         enumerateKickerForZoneCasts(context, result)
 
         return result
+    }
+
+    // =========================================================================
+    // Command zone (Commander format)
+    // =========================================================================
+
+    /**
+     * Enumerate casts of cards in the player's command zone tagged with [CommanderComponent].
+     * Cost calculation already accounts for commander tax via `CostCalculator.calculateEffectiveCost`
+     * with `fromZone = Zone.COMMAND`. Modeled on [enumerateIntrinsicZoneCast] (Squee-shaped).
+     */
+    private fun enumerateCommandZone(
+        context: EnumerationContext,
+        result: MutableList<LegalAction>,
+    ) {
+        val state = context.state
+        val playerId = context.playerId
+        val commandZone = state.getZone(ZoneKey(playerId, Zone.COMMAND))
+        if (commandZone.isEmpty()) return
+
+        for (cardId in commandZone) {
+            val container = state.getEntity(cardId) ?: continue
+            val commanderComponent = container.get<CommanderComponent>() ?: continue
+            if (commanderComponent.ownerId != playerId) continue
+
+            val cardComponent = container.get<CardComponent>() ?: continue
+            // Lands don't normally exist in the command zone, but skip defensively.
+            if (cardComponent.typeLine.isLand) continue
+
+            val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
+
+            val isInstant = cardComponent.typeLine.isInstant
+            val hasFlash = cardDef.keywords.contains(com.wingedsheep.sdk.core.Keyword.FLASH) ||
+                context.castPermissionUtils.hasGrantedFlash(state, cardId)
+            if (!isInstant && !hasFlash && !context.canPlaySorcerySpeed) continue
+            if (context.cantCastSpells) continue
+
+            val castRestrictions = cardDef.script.castRestrictions
+            if (!context.castPermissionUtils.checkCastRestrictions(state, playerId, castRestrictions)) continue
+
+            val effectiveCost = context.costCalculator.calculateEffectiveCost(
+                state, cardDef, playerId, fromZone = Zone.COMMAND,
+            )
+            val cachedSources = context.availableManaSources
+            val canAfford = context.manaSolver.canPay(
+                state, playerId, effectiveCost, precomputedSources = cachedSources,
+            )
+
+            val targetReqs = buildList {
+                addAll(cardDef.script.targetRequirements)
+                cardDef.script.auraTarget?.let { add(it) }
+            }
+
+            val manaCostString = effectiveCost.toString()
+            val hasXCost = effectiveCost.hasX
+            val maxAffordableX: Int? = if (hasXCost) {
+                val availableSources = context.manaSolver.getAvailableManaCount(
+                    state, playerId, precomputedSources = cachedSources,
+                )
+                val fixedCost = effectiveCost.cmc
+                val xSymbolCount = effectiveCost.xCount.coerceAtLeast(1)
+                ((availableSources - fixedCost) / xSymbolCount).coerceAtLeast(0)
+            } else null
+            val autoTapPreview = if (context.skipAutoTapPreview) null else {
+                context.manaSolver.solve(state, playerId, effectiveCost, precomputedSources = cachedSources)
+                    ?.sources?.map { it.entityId }
+            }
+
+            if (targetReqs.isNotEmpty()) {
+                val targetInfos = context.targetUtils.buildTargetInfos(state, playerId, targetReqs)
+                val allSatisfied = context.targetUtils.allRequirementsSatisfied(targetInfos)
+                if (canAfford && allSatisfied) {
+                    val firstReq = targetReqs.first()
+                    val firstInfo = targetInfos.first()
+                    result.add(
+                        LegalAction(
+                            actionType = "CastSpell",
+                            description = "Cast ${cardComponent.name}",
+                            action = CastSpell(playerId, cardId),
+                            validTargets = firstInfo.validTargets,
+                            requiresTargets = true,
+                            targetCount = firstReq.count,
+                            minTargets = firstReq.effectiveMinCount,
+                            targetDescription = firstReq.description,
+                            targetRequirements = if (targetInfos.size > 1) targetInfos else null,
+                            hasXCost = hasXCost,
+                            maxAffordableX = maxAffordableX,
+                            manaCostString = manaCostString,
+                            autoTapPreview = autoTapPreview,
+                            sourceZone = "COMMAND",
+                        )
+                    )
+                }
+            } else if (canAfford) {
+                result.add(
+                    LegalAction(
+                        actionType = "CastSpell",
+                        description = "Cast ${cardComponent.name}",
+                        action = CastSpell(playerId, cardId),
+                        hasXCost = hasXCost,
+                        maxAffordableX = maxAffordableX,
+                        manaCostString = manaCostString,
+                        autoTapPreview = autoTapPreview,
+                        sourceZone = "COMMAND",
+                    )
+                )
+            }
+        }
     }
 
     // =========================================================================

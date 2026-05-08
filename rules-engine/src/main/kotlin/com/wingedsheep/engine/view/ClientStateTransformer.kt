@@ -815,6 +815,12 @@ class ClientStateTransformer(
         // Check if token
         val isToken = container.has<TokenComponent>()
 
+        // Commander flag — surfaced to the client so the UI can render a crown / gold border on
+        // the commander even after it lands on the battlefield (where the gold halo on the
+        // command-zone widget no longer shows). Token copies never carry CommanderComponent
+        // (CR 903.10a) so this is naturally false on token clones.
+        val isCommander = container.has<com.wingedsheep.engine.state.components.identity.CommanderComponent>()
+
         // Get targets for spells/abilities on stack (for targeting arrows)
         val targetsComponent = container.get<TargetsComponent>()
         val targets = targetsComponent?.targets?.mapNotNull { chosenTarget ->
@@ -977,6 +983,7 @@ class ClientStateTransformer(
             controllerId = controllerId,
             ownerId = ownerId,
             isToken = isToken,
+            isCommander = isCommander,
             zone = zoneKey,
             attachedTo = attachedTo,
             attachments = attachments,

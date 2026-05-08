@@ -30,7 +30,7 @@ export interface QuickGameLobbySliceActions {
   createQuickGameLobby: (vsAi?: boolean, setCode?: string, isPublic?: boolean, format?: DeckFormat) => void
   joinQuickGameLobby: (lobbyId: string) => void
   leaveQuickGameLobby: () => void
-  submitQuickGameLobbyDeck: (deckList: Record<string, number>) => void
+  submitQuickGameLobbyDeck: (deckList: Record<string, number>, commander?: string | null) => void
   setQuickGameLobbyReady: (ready: boolean) => void
   setQuickGameLobbySetCode: (setCode: string | null) => void
   setQuickGameLobbyPublic: (isPublic: boolean) => void
@@ -55,8 +55,8 @@ export const createQuickGameLobbySlice: SliceCreator<QuickGameLobbySlice> = (set
     set({ quickGameLobbyState: null })
   },
 
-  submitQuickGameLobbyDeck: (deckList) => {
-    getWebSocket()?.send(createSubmitQuickGameLobbyDeckMessage(deckList))
+  submitQuickGameLobbyDeck: (deckList, commander) => {
+    getWebSocket()?.send(createSubmitQuickGameLobbyDeckMessage(deckList, commander))
   },
 
   setQuickGameLobbyReady: (ready) => {

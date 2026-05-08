@@ -708,7 +708,7 @@ export type GameStore = {
   kickPlayer: (playerId: string) => void
   leaveTournament: () => void
   /** Submit a deck directly from the lobby (Premade Decks tournament format). */
-  submitLobbyDeck: (deckList: Record<string, number>) => void
+  submitLobbyDeck: (deckList: Record<string, number>, commander?: string | null) => void
   unsubmitLobbyDeck: () => void
 
   // Quick Game Lobby slice
@@ -716,7 +716,7 @@ export type GameStore = {
   createQuickGameLobby: (vsAi?: boolean, setCode?: string, isPublic?: boolean, format?: DeckFormat) => void
   joinQuickGameLobby: (lobbyId: string) => void
   leaveQuickGameLobby: () => void
-  submitQuickGameLobbyDeck: (deckList: Record<string, number>) => void
+  submitQuickGameLobbyDeck: (deckList: Record<string, number>, commander?: string | null) => void
   setQuickGameLobbyReady: (ready: boolean) => void
   setQuickGameLobbySetCode: (setCode: string | null) => void
   setQuickGameLobbyPublic: (isPublic: boolean) => void

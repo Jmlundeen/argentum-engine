@@ -293,7 +293,12 @@ sealed interface ServerMessage {
         val backFaceName: String? = null,
         val backFaceTypeLine: String? = null,
         val backFaceOracleText: String? = null,
-        val backFaceImageUri: String? = null
+        val backFaceImageUri: String? = null,
+        // Color identity (CR 903.4) — drives the sealed/draft deckbuilder's color filter and
+        // archetype matcher. Parsing the printed mana cost would miss off-color activation
+        // costs (e.g., a green-cost card with a {B}: ability has identity GB) and lands whose
+        // basic-land subtypes contribute color.
+        val colorIdentity: List<String> = emptyList()
     )
 
     /**
@@ -972,5 +977,7 @@ enum class GameOverReason {
     POISON_COUNTERS,
     DISCONNECTION,
     CARD_EFFECT,
-    DRAW
+    DRAW,
+    /** Commander format: 21+ combat damage from a single commander (CR 903.10a). */
+    COMMANDER_DAMAGE,
 }

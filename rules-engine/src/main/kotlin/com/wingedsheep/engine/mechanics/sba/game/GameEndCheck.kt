@@ -34,6 +34,7 @@ class GameEndCheck : StateBasedActionCheck {
                 LossReason.EMPTY_LIBRARY -> GameEndReason.DECK_EMPTY
                 LossReason.CONCESSION -> GameEndReason.CONCESSION
                 LossReason.CARD_EFFECT -> GameEndReason.CARD_EFFECT
+                LossReason.COMMANDER_DAMAGE -> GameEndReason.COMMANDER_DAMAGE
                 null -> GameEndReason.UNKNOWN
             }
             return ExecutionResult.success(

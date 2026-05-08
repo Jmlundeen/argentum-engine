@@ -21,8 +21,10 @@ import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.combat.DamageAssignmentComponent
 import com.wingedsheep.engine.state.components.combat.DamageAssignmentOrderComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.CommanderComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
+import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
@@ -562,6 +564,9 @@ internal class CombatDamageManager(
             sourceName = sourceName, targetName = "Player", targetIsPlayer = true))
         events.add(LifeChangedEvent(targetId, currentLife, newLife, LifeChangeReason.DAMAGE))
 
+        // Commander damage (CR 903.10a)
+        newState = accumulateCommanderDamage(newState, sourceId, targetId, effectiveAmount)
+
         val toxicAmount = getToxicAmount(newState, newState.projectedState, sourceId)
         if (toxicAmount > 0) {
             val counters = newState.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()
@@ -699,6 +704,9 @@ internal class CombatDamageManager(
                 sourceName = sourceName, targetName = "Player", targetIsPlayer = true))
             events.add(LifeChangedEvent(targetId, currentLife, newLife, LifeChangeReason.DAMAGE))
 
+            // Commander damage (CR 903.10a)
+            newState = accumulateCommanderDamage(newState, sourceId, targetId, amount)
+
             val toxicAmount = getToxicAmount(newState, projected, sourceId)
             if (toxicAmount > 0) {
                 val counters = newState.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()
@@ -817,6 +825,9 @@ internal class CombatDamageManager(
         events.add(DamageDealtEvent(sourceId, attackerController, originalAmount, true,
             sourceName = sourceName, targetName = "Player", targetIsPlayer = true))
         events.add(LifeChangedEvent(attackerController, attackerControllerLife, newLife, LifeChangeReason.DAMAGE))
+
+        // Commander damage (CR 903.10a) — reflection still counts as combat damage from the commander
+        newState = accumulateCommanderDamage(newState, sourceId, attackerController, originalAmount)
 
         return newState
     }
@@ -1105,5 +1116,25 @@ internal class CombatDamageManager(
                     creatureId in floatingEffect.effect.affectedEntities
             }
         )
+    }
+
+    /**
+     * Accumulate post-prevention combat damage onto `state.commanderDamage` when [sourceId] is a
+     * non-token commander dealing combat damage to a player (CR 903.10a). Token copies are NOT
+     * the commander and never carry [CommanderComponent], so the [TokenComponent] guard is a
+     * defense-in-depth check rather than a substantive gate. Returns [state] unchanged when the
+     * source isn't a commander or the amount is non-positive.
+     */
+    private fun accumulateCommanderDamage(
+        state: GameState,
+        sourceId: EntityId,
+        targetPlayerId: EntityId,
+        amount: Int,
+    ): GameState {
+        if (amount <= 0) return state
+        val container = state.getEntity(sourceId) ?: return state
+        if (container.has<TokenComponent>()) return state
+        container.get<CommanderComponent>() ?: return state
+        return state.recordCommanderDamage(sourceId, targetPlayerId, amount)
     }
 }
