@@ -387,9 +387,16 @@ function ConnectionOverlay({
           />
         )}
       </div>
-      <span className={styles.attribution}>
-        Mana symbols by <a href="https://mana.andrewgioia.com" target="_blank" rel="noopener noreferrer" className={styles.attributionLink}>Mana Font</a> (SIL OFL 1.1 / MIT)
-      </span>
+      <div className={styles.attribution}>
+        <span>
+          Card images via <a href="https://scryfall.com" target="_blank" rel="noopener noreferrer" className={styles.attributionLink}>Scryfall</a>
+          {' · '}
+          Mana symbols by <a href="https://mana.andrewgioia.com" target="_blank" rel="noopener noreferrer" className={styles.attributionLink}>Mana Font</a> (SIL OFL 1.1 / MIT)
+        </span>
+        <span className={styles.attributionDisclaimer}>
+          Fan-made project. Not affiliated with, endorsed, or sponsored by Wizards of the Coast. Magic: The Gathering is © Wizards of the Coast LLC.
+        </span>
+      </div>
     </div>
   )
 }
