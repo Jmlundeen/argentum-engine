@@ -1,13 +1,33 @@
 # SDK Composability Gaps
 
 Remaining gaps preventing new cards from being implemented without SDK changes.
-Builds on the completed [effect-pipeline-roadmap.md](effect-pipeline-roadmap.md) which brought
+Builds on the completed [effect-pipeline-roadmap.md](archived/effect-pipeline-roadmap.md) which brought
 zone-manipulation pipeline coverage to ~85%.
 
 **Goal:** Any new card can be composed from existing atomic parts (effects, triggers, conditions,
 costs, amounts, filters) without adding new sealed interface variants to the SDK.
 
 **Current state:** ~82% of cards need no SDK changes. The gaps below block specific mechanic families.
+
+## Status update (2026-05-08)
+
+Several gaps have closed since this doc was written. Confirmed against current `mtg-sdk` source:
+
+| Gap | Status | Where |
+|-----|--------|-------|
+| 1a `PayCost.PayLife` | ✅ Closed | `mtg-sdk/.../scripting/costs/PayCost.kt:111-118` |
+| 1c `PayCost.Exile` | ✅ Closed | `PayCost.kt:129-152` (`@SerialName("ExileFromZone")`) |
+| 2c `LifeChangedEvent` (gain + loss) | ✅ Closed | `mtg-sdk/.../scripting/GameEvent.kt:78-79` (unified event covers both directions) |
+| 3b `HasKeyword` | ✅ Closed | `SourceConditions.kt:241-243`, plus `CardPredicate.HasKeyword` at `CardPredicate.kt:243-245` |
+| 4a `HighestPowerAmong` / `LowestToughnessAmong` | ✅ Closed (via aggregation) | `DynamicAmount.AggregateBattlefield` with `Aggregation.MAX/MIN` (`DynamicAmount.kt:467,470,482`) |
+| 4b `OpponentLifeTotal` / `OpponentHandSize` | ✅ Closed (via Player param) | `DynamicAmount.LifeTotal(Player)` at `DynamicAmount.kt:97-99`; `HandSize` likewise parameterized |
+| 6a `AddCreatureType` | ✅ Closed | `TypeAndColorEffects.kt:133-135` `AddCreatureTypeEffect` (also `AddSubtypeEffect`, `AddCreatureTypeByCounter`) |
+| 7a `ConditionalStaticAbility` | ✅ Closed | `MiscStaticAbilities.kt:32-34` |
+| 9a `CantAttackEffect` | ✅ Closed | `CombatEffects.kt:355` |
+
+`PayCost.Choice` (`PayCost.kt:202-212`) covers some of 1d's "OR-combinator" use cases but **not** a true `Composite` AND-combinator — that's still open.
+
+**Still open:** 1b TapPermanents, 1d true Composite AND, 2a Mana events, 2b SpellCastFromZone, 3a ManaWasSpentOfColor, 3c OpponentControlsMoreOfType, 4c NumberOfColorsAmong, 5a/5b prevention/redirection, 6b RemoveCreatureType, 8a CopyWithModifications, 9b/9c MustBlock/AttackCap.
 
 ---
 

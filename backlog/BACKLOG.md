@@ -64,13 +64,13 @@ Prioritized checklist across all improvement areas. Each item references its sou
 - [ ] Fix Redis cache divergence on TTL expiry ([scalability #10](game-server-scalability.md#10-redis-cache-divergence))
 
 ### SDK Composability
-- [ ] `HighestPowerAmong` / `LowestToughnessAmong` DynamicAmount ([sdk-gaps #4a](sdk-composability-gaps.md#4a-highestpoweramongfilter-gameobjectfilter--lowesttoughnessamong))
-- [ ] `OpponentLifeTotal` / `OpponentHandSize` DynamicAmount ([sdk-gaps #4b](sdk-composability-gaps.md#4b-opponentlifetotal--opponenthandsize))
+- [x] `HighestPowerAmong` / `LowestToughnessAmong` — covered by `AggregateBattlefield` with `Aggregation.MAX/MIN`
+- [x] `OpponentLifeTotal` / `OpponentHandSize` — covered by parameterised `LifeTotal(Player)` / `HandSize(Player)`
 - [ ] `SpellCastFromZoneEvent` (cast source tracking) ([sdk-gaps #2b](sdk-composability-gaps.md#2b-spellcastfromzoneevent-cast-source-tracking))
 - [ ] `PayCost.TapPermanents` (Convoke, tap abilities) ([sdk-gaps #1b](sdk-composability-gaps.md#1b-paycosttappermanentscount-int-filter-gameobjectfilter))
-- [ ] `PayCost.Composite` ([sdk-gaps #1d](sdk-composability-gaps.md#1d-paycostcompositecosts-listpaycost))
+- [ ] `PayCost.Composite` (true AND-combinator) ([sdk-gaps #1d](sdk-composability-gaps.md#1d-paycostcompositecosts-listpaycost)) — `PayCost.Choice` covers OR-style
 - [x] `CantAttackEffect` ([sdk-gaps #9a](sdk-composability-gaps.md#9a-cantattackeffectfilter-gameobjectfilter-duration-duration))
-- [ ] `ConditionalStaticAbility` ([sdk-gaps #7a](sdk-composability-gaps.md#7a-conditionalstaticabilitycondition-condition-ability-staticabilitytype))
+- [x] `ConditionalStaticAbility` — `MiscStaticAbilities.kt:32-34`
 
 ### Web Client
 - [ ] Modularize message handlers by domain ([web-client #4](web-client-improvements.md#4-modularize-message-handlers))

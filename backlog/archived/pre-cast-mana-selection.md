@@ -160,12 +160,14 @@ The current branch has partial implementation:
 
 ## Remaining Work
 
-1. Add `paymentStrategy` to `ActivateAbility`, `CycleCard`, `TypecycleCard` in `GameAction.kt`
-2. Support `Explicit` in `ActivateAbilityHandler` and `CycleCardHandler` (pass `excludeSources`)
-3. Server: attach `availableManaSources` to ActivateAbility/Cycle/TurnFaceUp actions too
-4. Client: replace separate "Choose Mana" button with inline icon per action
-5. Client: update `confirmManaSelection` to handle ActivateAbility/Cycle/TypecycleCard action types
-6. Client: add `paymentStrategy` to TS action type definitions for the new action types
+Status verified 2026-05-08 — only items 3 and 4 are still open.
+
+1. ~~Add `paymentStrategy` to `ActivateAbility`, `CycleCard`, `TypecycleCard` in `GameAction.kt`~~ ✅ done — also added on `TurnFaceUp` and morph cast (`rules-engine/.../core/GameAction.kt:64,144,166,185,360`).
+2. ~~Support `Explicit` in `ActivateAbilityHandler` and `CycleCardHandler`~~ ✅ done (`ActivateAbilityHandler.kt:221,251,379-394,433-475,1062-1074`, `CycleCardHandler.kt:74-75,146-148`).
+3. **Server: attach `availableManaSources` to ActivateAbility/Cycle/TurnFaceUp actions too.** Still gated on `autoTapPreview != null || hasConvoke || hasDelve` in `rules-engine/.../view/LegalActionEnricher.kt:62` (note: file moved out of game-server).
+4. **Client: replace separate "Choose Mana" button with inline icon per action.** `web-client/src/components/ui/ActionMenu.tsx:507-534` still renders a separate `manaSelectionButton`.
+5. ~~Client: update `confirmManaSelection` to handle all action types~~ ✅ effectively done — real logic moved to `GameBoard.tsx:92-121` `handleConfirmManaSelection`, which spreads `manaSelectionState.action` so it works generically.
+6. ~~Client: `paymentStrategy` on TS action type definitions~~ ✅ done (`web-client/src/types/actions.ts:91,137,150,157,179`).
 
 ## Verification
 
