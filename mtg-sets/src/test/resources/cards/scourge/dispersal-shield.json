@@ -38,5 +38,8 @@
         "artist": "Dave Dorman",
         "flavorText": "Maybe next time.",
         "imageUri": "https://cards.scryfall.io/normal/front/0/c/0c257df6-f275-40db-bfe3-a9291356cdf7.jpg?1562525399"
-    }
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }

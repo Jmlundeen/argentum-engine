@@ -33,5 +33,8 @@
         "artist": "Arnie Swekel",
         "flavorText": "The light of the Ancestor will scour the taint of darkness from the land.",
         "imageUri": "https://cards.scryfall.io/normal/front/c/f/cf7c14c9-cb5a-49f0-be2c-eb3166f02510.jpg?1562534791"
-    }
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
 }

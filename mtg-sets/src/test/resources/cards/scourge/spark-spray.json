@@ -33,5 +33,8 @@
         "artist": "Pete Venters",
         "flavorText": "It's the only kind of shower goblins will tolerate.",
         "imageUri": "https://cards.scryfall.io/normal/front/f/6/f60d8716-4297-484c-8e02-c30ce2773a65.jpg?1562536945"
-    }
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
 }

@@ -10,7 +10,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_11",
+                "id": "ability_43",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -61,5 +61,8 @@
         "collectorNumber": "119",
         "artist": "Alan Pollack",
         "imageUri": "https://cards.scryfall.io/normal/front/d/2/d237e169-f152-4ddf-a5a1-32ca46cfa16d.jpg?1562535173"
-    }
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
 }

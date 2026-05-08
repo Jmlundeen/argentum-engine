@@ -28,5 +28,8 @@
         "artist": "Thomas M. Baxa",
         "flavorText": "\"It's not the strategy or the weapons that make goblin attacks so effective. It's the sheer enthusiasm.\"\n—Aven marshal",
         "imageUri": "https://cards.scryfall.io/normal/front/d/c/dce59945-37a2-4f09-8831-9d44b4a59ea7.jpg?1562535675"
-    }
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
 }

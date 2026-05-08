@@ -10,7 +10,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_7",
+                "id": "ability_14",
                 "cost": {
                     "type": "CostSacrifice",
                     "filter": "creature"
@@ -32,5 +32,8 @@
         "artist": "Brian Snõddy",
         "flavorText": "Stinking of rot, it leaps between gravestones in search of its next meal.",
         "imageUri": "https://cards.scryfall.io/normal/front/8/8/88042031-64af-4f84-85d5-95992b43aa6c.jpg?1562531649"
-    }
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
 }

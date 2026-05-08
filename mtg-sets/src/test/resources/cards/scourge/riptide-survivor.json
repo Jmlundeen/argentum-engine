@@ -19,7 +19,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_31",
+                "id": "ability_78",
                 "trigger": "TurnFaceUpEvent",
                 "effect": {
                     "type": "Composite",
@@ -72,5 +72,8 @@
         "artist": "Glen Angus",
         "flavorText": "Rootwater showed him wonders that air dwellers could scarcely comprehend.",
         "imageUri": "https://cards.scryfall.io/normal/front/7/5/7515187f-4821-400d-b78f-cec173df6b84.jpg?1562530669"
-    }
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }

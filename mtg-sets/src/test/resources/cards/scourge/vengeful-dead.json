@@ -10,7 +10,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_94",
+                "id": "ability_96",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -29,7 +29,7 @@
                 }
             },
             {
-                "id": "ability_95",
+                "id": "ability_97",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature Zombie",
@@ -56,5 +56,8 @@
         "artist": "Alex Horley-Orlandelli",
         "flavorText": "Those who don't learn from their deaths are destined to repeat them.",
         "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c11c11d-9809-4031-8cbc-21aef07d7f1f.jpg?1562531178"
-    }
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
 }
