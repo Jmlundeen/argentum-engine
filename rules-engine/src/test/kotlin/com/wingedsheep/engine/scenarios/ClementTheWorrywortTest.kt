@@ -27,7 +27,9 @@ class ClementTheWorrywortTest : FunSpec({
 
     val cardRegistry = CardRegistry().apply {
         register(BloomburrowSet.cards)
+        register(BloomburrowSet.basicLands)
         register(PortalSet.cards)
+        register(PortalSet.basicLands)
     }
     val manaSolver = ManaSolver(cardRegistry)
 

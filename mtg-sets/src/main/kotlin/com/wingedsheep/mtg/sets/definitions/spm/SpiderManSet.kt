@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm
 
-import com.wingedsheep.mtg.sets.definitions.spm.cards.*
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 
@@ -15,8 +15,9 @@ object SpiderManSet : MtgSet {
     override val code = "SPM"
     override val displayName = "Marvel's Spider-Man"
 
-    override val cards: List<CardDefinition> = listOf(
-        OriginOfSpiderMan,
-        SkywardSpider,
-    )
+    override val cards: List<CardDefinition> by lazy {
+        CardDiscovery.findIn(CARDS_PACKAGE)
+    }
+
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.spm.cards"
 }

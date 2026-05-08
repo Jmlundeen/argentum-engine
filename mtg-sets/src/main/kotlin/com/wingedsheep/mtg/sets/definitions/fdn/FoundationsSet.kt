@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn
 
-import com.wingedsheep.mtg.sets.definitions.fdn.cards.*
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 
@@ -19,16 +19,9 @@ object FoundationsSet : MtgSet {
     override val code = "FDN"
     override val displayName = "Foundations"
 
+    override val cards: List<CardDefinition> by lazy {
+        CardDiscovery.findIn(CARDS_PACKAGE)
+    }
 
-
-    /**
-     * All cards implemented from this set.
-     */
-    override val cards: List<CardDefinition> = listOf(
-        Bushwhack,
-        MossbornHydra,
-        Negate,
-        SnakeskinVeil,
-        SpringbloomDruid,
-    )
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.fdn.cards"
 }

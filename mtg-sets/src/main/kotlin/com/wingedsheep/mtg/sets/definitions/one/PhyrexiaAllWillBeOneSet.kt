@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.one
 
-import com.wingedsheep.mtg.sets.definitions.one.cards.*
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 
@@ -15,12 +15,9 @@ object PhyrexiaAllWillBeOneSet : MtgSet {
     override val code = "ONE"
     override val displayName = "Phyrexia: All Will Be One"
 
-    override val cards: List<CardDefinition> = listOf(
-        BlackcleaveCliffs,
-        CopperlineGorge,
-        DarkslickShores,
-        RazorvergeThicket,
-        SkrelvDefectorMite,
-        SeachromeCoast,
-    )
+    override val cards: List<CardDefinition> by lazy {
+        CardDiscovery.findIn(CARDS_PACKAGE)
+    }
+
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.one.cards"
 }

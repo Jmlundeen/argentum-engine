@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation(project(":mtg-sdk"))
+    implementation(libs.classgraph)
 
     testImplementation(libs.kotestRunner)
     testImplementation(libs.kotestAssertions)

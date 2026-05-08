@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci
 
-import com.wingedsheep.mtg.sets.definitions.lci.cards.*
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 
@@ -15,12 +15,9 @@ object LostCavernsOfIxalanSet : MtgSet {
     override val code = "LCI"
     override val displayName = "The Lost Caverns of Ixalan"
 
+    override val cards: List<CardDefinition> by lazy {
+        CardDiscovery.findIn(CARDS_PACKAGE)
+    }
 
-
-    /**
-     * All cards implemented from this set.
-     */
-    override val cards: List<CardDefinition> = listOf(
-        MalcolmAlluringScoundrel,
-    )
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.lci.cards"
 }

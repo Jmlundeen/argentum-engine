@@ -17,9 +17,13 @@ import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.mtg.sets.definitions.ecl.LorwynEclipsedSet
 import com.wingedsheep.mtg.sets.definitions.lci.LostCavernsOfIxalanSet
 import com.wingedsheep.mtg.sets.definitions.fdn.FoundationsSet
+import com.wingedsheep.mtg.sets.definitions.inv.InvasionSet
+import com.wingedsheep.mtg.sets.definitions.mom.MarchOfTheMachineSet
 import com.wingedsheep.mtg.sets.definitions.one.PhyrexiaAllWillBeOneSet
 import com.wingedsheep.mtg.sets.definitions.otj.OutlawsOfThunderJunctionSet
 import com.wingedsheep.mtg.sets.definitions.scg.ScourgeSet
+import com.wingedsheep.mtg.sets.definitions.vow.InnistradCrimsonVowSet
+import com.wingedsheep.mtg.sets.definitions.mid.InnistradMidnightHuntSet
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -50,6 +54,7 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.ProtectionScope
 import io.kotest.core.spec.style.FunSpec
 import java.util.concurrent.atomic.AtomicLong
 
@@ -63,22 +68,26 @@ abstract class ScenarioTestBase : FunSpec() {
 
     protected val cardRegistry = CardRegistry().apply {
         register(PredefinedTokens.allTokens)
-        register(PortalSet.cards)
-        register(OnslaughtSet.cards)
+        register(PortalSet.cards); register(PortalSet.basicLands)
+        register(OnslaughtSet.cards); register(OnslaughtSet.basicLands)
         register(ScourgeSet.cards)
         register(LegionsSet.cards)
-        register(KhansOfTarkirSet.cards)
-        register(DominariaSet.cards)
-        register(BloomburrowSet.cards)
+        register(KhansOfTarkirSet.cards); register(KhansOfTarkirSet.basicLands)
+        register(DominariaSet.cards); register(DominariaSet.basicLands)
+        register(BloomburrowSet.cards); register(BloomburrowSet.basicLands)
         register(BrothersWarSet.cards)
         register(DuskmournSet.cards)
         register(SpiderManSet.cards)
         register(WildsOfEldrainSet.cards)
-        register(EdgeOfEternitiesSet.cards)
-        register(LorwynEclipsedSet.cards)
+        register(EdgeOfEternitiesSet.cards); register(EdgeOfEternitiesSet.basicLands)
+        register(LorwynEclipsedSet.cards); register(LorwynEclipsedSet.basicLands)
         register(LostCavernsOfIxalanSet.cards)
         register(FoundationsSet.cards)
+        register(InvasionSet.cards)
+        register(MarchOfTheMachineSet.cards)
         register(PhyrexiaAllWillBeOneSet.cards)
+        register(InnistradCrimsonVowSet.cards)
+        register(InnistradMidnightHuntSet.cards)
         register(OutlawsOfThunderJunctionSet.cards)
     }
     protected val actionProcessor = ActionProcessor(cardRegistry)
@@ -370,26 +379,25 @@ abstract class ScenarioTestBase : FunSpec() {
             }
 
             // Attach ProtectionComponent for cards with static protection from color/subtype
-            val protectionColors = cardDef.keywordAbilities
-                .filterIsInstance<KeywordAbility.ProtectionFromColor>()
-                .map { it.color }
-                .toSet() +
-                cardDef.keywordAbilities
-                    .filterIsInstance<KeywordAbility.ProtectionFromColors>()
-                    .flatMap { it.colors }
-                    .toSet()
-            val protectionSubtypes = cardDef.keywordAbilities
-                .filterIsInstance<KeywordAbility.ProtectionFromCreatureSubtype>()
-                .map { it.subtype }
-                .toSet()
+            val protections = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Protection>()
+            val protectionColors = protections.flatMap { p ->
+                when (val s = p.scope) {
+                    is ProtectionScope.Color -> listOf(s.color)
+                    is ProtectionScope.Colors -> s.colors
+                    else -> emptyList()
+                }
+            }.toSet()
+            val protectionSubtypes = protections.mapNotNull {
+                (it.scope as? ProtectionScope.Subtype)?.subtype
+            }.toSet()
             if (protectionColors.isNotEmpty() || protectionSubtypes.isNotEmpty()) {
                 container = container.with(ProtectionComponent(protectionColors, protectionSubtypes))
             }
 
             // Attach HexproofFromColorComponent for cards with hexproof from color
             val hexproofFromColors = cardDef.keywordAbilities
-                .filterIsInstance<KeywordAbility.HexproofFromColor>()
-                .map { it.color }
+                .filterIsInstance<KeywordAbility.Hexproof>()
+                .mapNotNull { (it.scope as? ProtectionScope.Color)?.color }
                 .toSet()
             if (hexproofFromColors.isNotEmpty()) {
                 container = container.with(HexproofFromColorComponent(hexproofFromColors))

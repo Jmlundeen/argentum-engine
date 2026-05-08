@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk
 
-import com.wingedsheep.mtg.sets.definitions.dsk.cards.*
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 
@@ -15,16 +15,9 @@ object DuskmournSet : MtgSet {
     override val code = "DSK"
     override val displayName = "Duskmourn: House of Horror"
 
-    override val cards: List<CardDefinition> = listOf(
-        BlazemireVerge,
-        EtherealArmor,
-        FloodfarmVerge,
-        GloomlakeVerge,
-        HushwoodVerge,
-        OptimisticScavenger,
-        ShardmagesRescue,
-        ShelteredByGhosts,
-        ThornspireVerge,
-        VeteranSurvivor,
-    )
+    override val cards: List<CardDefinition> by lazy {
+        CardDiscovery.findIn(CARDS_PACKAGE)
+    }
+
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.dsk.cards"
 }

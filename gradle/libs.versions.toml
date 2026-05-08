@@ -12,6 +12,7 @@ mockk = "1.14.9"
 springBoot = "4.0.5"
 springdocOpenapi = "3.0.2"
 kover = "0.9.1"
+classgraph = "4.8.179"
 
 [libraries]
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -25,6 +26,7 @@ kotestExtensionsSpring = { module = "io.kotest:kotest-extensions-spring", versio
 kotlinxCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 slf4jApi = { module = "org.slf4j:slf4j-api", version = "2.0.16" }
+classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
 
 # Spring Boot dependencies
 springBootStarterWeb = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springBoot" }

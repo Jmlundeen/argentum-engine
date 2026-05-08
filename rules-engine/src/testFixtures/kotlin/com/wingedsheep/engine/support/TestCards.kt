@@ -697,15 +697,15 @@ object TestCards {
     )
 
     val all: List<CardDefinition> =
-        PortalSet.cards +
-            OnslaughtSet.cards +
+        PortalSet.cards + PortalSet.basicLands +
+            OnslaughtSet.cards + OnslaughtSet.basicLands +
             ScourgeSet.cards +
             LegionsSet.cards +
-            KhansOfTarkirSet.cards +
-            DominariaSet.cards +
-            BloomburrowSet.cards +
-            LorwynEclipsedSet.cards +
-            EdgeOfEternitiesSet.cards +
+            KhansOfTarkirSet.cards + KhansOfTarkirSet.basicLands +
+            DominariaSet.cards + DominariaSet.basicLands +
+            BloomburrowSet.cards + BloomburrowSet.basicLands +
+            LorwynEclipsedSet.cards + LorwynEclipsedSet.basicLands +
+            EdgeOfEternitiesSet.cards + EdgeOfEternitiesSet.basicLands +
             LostCavernsOfIxalanSet.cards +
             FoundationsSet.cards +
             DuskmournSet.cards +

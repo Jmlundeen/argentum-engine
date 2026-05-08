@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm
 
-import com.wingedsheep.mtg.sets.definitions.mkm.cards.*
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 
@@ -15,19 +15,9 @@ object MurdersAtKarlovManorSet : MtgSet {
     override val code = "MKM"
     override val displayName = "Murders at Karlov Manor"
 
-    override val cards: List<CardDefinition> = listOf(
-        CommercialDistrict,
-        ElegantParlor,
-        EscapeTunnel,
-        HardHittingQuestion,
-        HedgeMaze,
-        LushPortico,
-        MeticulousArchive,
-        NoMoreLies,
-        RaucousTheater,
-        ShadowyBackstreet,
-        ThunderingFalls,
-        UndercitySewers,
-        UndergroundMortuary,
-    )
+    override val cards: List<CardDefinition> by lazy {
+        CardDiscovery.findIn(CARDS_PACKAGE)
+    }
+
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.mkm.cards"
 }

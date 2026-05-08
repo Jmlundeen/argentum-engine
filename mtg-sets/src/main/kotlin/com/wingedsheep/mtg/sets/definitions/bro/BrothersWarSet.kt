@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.bro
 
-import com.wingedsheep.mtg.sets.definitions.bro.cards.*
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 
@@ -15,13 +15,9 @@ object BrothersWarSet : MtgSet {
     override val code = "BRO"
     override val displayName = "The Brothers' War"
 
-    override val cards: List<CardDefinition> = listOf(
-        FlowOfKnowledge,
-        BattlefieldForge,
-        Brushland,
-        LlanowarWastes,
-        SoulPartition,
-        TeferiTemporalPilgrim,
-        UndergroundRiver,
-    )
+    override val cards: List<CardDefinition> by lazy {
+        CardDiscovery.findIn(CARDS_PACKAGE)
+    }
+
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.bro.cards"
 }
