@@ -1,4 +1,4 @@
-package com.wingedsheep.mtg.sets.definitions.fdn.cards
+package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
@@ -11,8 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Reveal the top five cards of your library. An opponent separates those cards
  * into two piles. Put one pile into your hand and the other into your graveyard.
  *
- * Originally printed in Invasion (2000); reused here as the canonical "divvy"
- * mechanic exemplar (CR 700.3 piles).
+ * The canonical "divvy" mechanic exemplar (CR 700.3 piles).
  */
 val FactOrFiction = card("Fact or Fiction") {
     manaCost = "{3}{U}"

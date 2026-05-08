@@ -9,6 +9,7 @@ import com.wingedsheep.mtg.sets.definitions.dsk.DuskmournSet
 import com.wingedsheep.mtg.sets.definitions.eoe.EdgeOfEternitiesSet
 import com.wingedsheep.mtg.sets.definitions.fdn.FoundationsSet
 import com.wingedsheep.mtg.sets.definitions.fin.FinalFantasySet
+import com.wingedsheep.mtg.sets.definitions.inv.InvasionSet
 import com.wingedsheep.mtg.sets.definitions.mid.InnistradMidnightHuntSet
 import com.wingedsheep.mtg.sets.definitions.ktk.KhansOfTarkirSet
 import com.wingedsheep.mtg.sets.definitions.lgn.LegionsSet
@@ -34,6 +35,7 @@ object MtgSetCatalog {
 
     val all: List<MtgSet> = listOf(
         PortalSet,
+        InvasionSet,
         OnslaughtSet,
         ScourgeSet,
         LegionsSet,
