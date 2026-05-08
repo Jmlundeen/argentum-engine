@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val DreamdewEntrancer = card("Dreamdew Entrancer") {
     manaCost = "{2}{G}{U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Frog Wizard"
     power = 3
     toughness = 4

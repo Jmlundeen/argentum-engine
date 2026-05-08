@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
  */
 val GreatForestDruid = card("Great Forest Druid") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Treefolk Druid"
     power = 0
     toughness = 4

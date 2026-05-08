@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BrainFreeze = card("Brain Freeze") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Target player mills three cards.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 

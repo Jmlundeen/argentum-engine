@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val FungalPlots = card("Fungal Plots") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "{1}{G}, Exile a creature card from your graveyard: Create a 1/1 green Saproling creature token.\nSacrifice two Saprolings: You gain 2 life and draw a card."
 

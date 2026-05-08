@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val ChainOfVapor = card("Chain of Vapor") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Return target nonland permanent to its owner's hand. Then that permanent's controller may sacrifice a land of their choice. If the player does, they may copy this spell and may choose a new target for that copy."
 

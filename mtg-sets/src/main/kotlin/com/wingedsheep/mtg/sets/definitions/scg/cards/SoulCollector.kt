@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SoulCollector = card("Soul Collector") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Vampire"
     power = 3
     toughness = 4

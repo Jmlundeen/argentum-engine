@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KulrathMystic = card("Kulrath Mystic") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental Wizard"
     oracleText = "Whenever you cast a spell with mana value 4 or greater, this creature gets +2/+0 " +
         "and gains vigilance until end of turn."

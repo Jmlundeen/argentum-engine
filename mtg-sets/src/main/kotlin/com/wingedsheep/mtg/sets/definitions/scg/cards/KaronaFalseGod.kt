@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KaronaFalseGod = card("Karona, False God") {
     manaCost = "{1}{W}{U}{B}{R}{G}"
+    colorIdentity = "WUBRG"
     typeLine = "Legendary Creature — Avatar"
     power = 5
     toughness = 5

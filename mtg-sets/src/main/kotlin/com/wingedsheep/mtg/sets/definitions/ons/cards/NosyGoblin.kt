@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val NosyGoblin = card("Nosy Goblin") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 1

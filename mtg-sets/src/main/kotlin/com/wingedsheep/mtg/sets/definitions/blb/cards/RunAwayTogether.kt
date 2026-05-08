@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RunAwayTogether = card("Run Away Together") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Choose two target creatures controlled by different players. Return those creatures to their owners' hands."
 

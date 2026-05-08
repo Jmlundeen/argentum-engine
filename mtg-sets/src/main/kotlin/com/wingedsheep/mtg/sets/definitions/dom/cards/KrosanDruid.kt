@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
  */
 val KrosanDruid = card("Krosan Druid") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Centaur Druid"
     power = 2
     toughness = 3

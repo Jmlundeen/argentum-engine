@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlayer
  */
 val WordsOfWar = card("Words of War") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "{1}: The next time you would draw a card this turn, this enchantment deals 2 damage to any target instead."
 

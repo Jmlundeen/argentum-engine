@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MorcantsEyes = card("Morcant's Eyes") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Kindred Enchantment — Elf"
     oracleText = "At the beginning of your upkeep, surveil 1. " +
         "(Look at the top card of your library. You may put it into your graveyard.)\n" +

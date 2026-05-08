@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
  */
 val CuratorsWard = card("Curator's Ward") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant permanent\nEnchanted permanent has hexproof.\nWhen enchanted permanent leaves the battlefield, if it was historic, draw two cards. (Artifacts, legendaries, and Sagas are historic.)"
 

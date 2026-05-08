@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
  */
 val CravenKnight = card("Craven Knight") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Knight"
     power = 2
     toughness = 2

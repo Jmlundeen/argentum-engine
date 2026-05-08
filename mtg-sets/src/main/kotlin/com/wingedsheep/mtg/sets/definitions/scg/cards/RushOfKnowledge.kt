@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RushOfKnowledge = card("Rush of Knowledge") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Draw cards equal to the greatest mana value among permanents you control."
 

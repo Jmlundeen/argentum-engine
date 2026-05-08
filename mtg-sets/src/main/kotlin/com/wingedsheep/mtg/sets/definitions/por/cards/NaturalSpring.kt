@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
  */
 val NaturalSpring = card("Natural Spring") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

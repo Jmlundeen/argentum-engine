@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ManaRestriction
  */
 val ElfhameDruid = card("Elfhame Druid") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 0
     toughness = 2

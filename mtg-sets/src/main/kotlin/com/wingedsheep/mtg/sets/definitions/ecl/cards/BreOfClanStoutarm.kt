@@ -38,6 +38,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
     manaCost = "{2}{R}{W}"
+    colorIdentity = "WR"
     typeLine = "Legendary Creature — Giant Warrior"
     power = 4
     toughness = 4

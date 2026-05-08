@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val GoblinWarchief = card("Goblin Warchief") {
     manaCost = "{1}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warrior"
     power = 2
     toughness = 2

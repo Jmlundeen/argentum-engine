@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val IcyManipulator = card("Icy Manipulator") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{1}, {T}: Tap target artifact, creature, or land."
 

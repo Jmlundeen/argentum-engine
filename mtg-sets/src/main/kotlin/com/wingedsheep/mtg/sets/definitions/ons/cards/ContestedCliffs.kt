@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val ContestedCliffs = card("Contested Cliffs") {
     typeLine = "Land"
+    colorIdentity = "RG"
     oracleText = "{T}: Add {C}.\n{R}{G}, {T}: Target Beast creature you control fights target creature an opponent controls."
 
     activatedAbility {

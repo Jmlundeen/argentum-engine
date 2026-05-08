@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val UndercitySewers = card("Undercity Sewers") {
     typeLine = "Land — Island Swamp"
+    colorIdentity = "UB"
     oracleText = "({T}: Add {U} or {B}.)\nThis land enters tapped.\nWhen this land enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     // Mana abilities are intrinsic from basic land types (Island -> {U}, Swamp -> {B})

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
  */
 val SnakeskinVeil = card("Snakeskin Veil") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Put a +1/+1 counter on target creature you control. It gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)"
 

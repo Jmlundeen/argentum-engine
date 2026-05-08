@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Moonshadow = card("Moonshadow") {
     manaCost = "{B}"
+    colorIdentity = ""
     typeLine = "Creature — Elemental"
     power = 7
     toughness = 7

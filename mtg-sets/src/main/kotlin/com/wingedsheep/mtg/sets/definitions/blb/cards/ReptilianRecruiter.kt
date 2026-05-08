@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val ReptilianRecruiter = card("Reptilian Recruiter") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Lizard Warrior"
     power = 4
     toughness = 2

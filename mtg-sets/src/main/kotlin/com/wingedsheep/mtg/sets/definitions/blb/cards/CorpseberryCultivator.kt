@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CorpseberryCultivator = card("Corpseberry Cultivator") {
     manaCost = "{1}{B/G}{B/G}"
+    colorIdentity = "BG"
     typeLine = "Creature — Squirrel Warlock"
     power = 2
     toughness = 3

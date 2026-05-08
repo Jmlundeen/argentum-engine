@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val DawnsireSunstarDreadnought = card("Dawnsire, Sunstar Dreadnought") {
     manaCost = "{5}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact — Spacecraft"
     power = 20
     toughness = 20

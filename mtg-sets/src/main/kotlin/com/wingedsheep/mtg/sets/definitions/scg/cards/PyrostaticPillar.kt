@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val PyrostaticPillar = card("Pyrostatic Pillar") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "Whenever a player casts a spell with mana value 3 or less, Pyrostatic Pillar deals 2 damage to that player."
 

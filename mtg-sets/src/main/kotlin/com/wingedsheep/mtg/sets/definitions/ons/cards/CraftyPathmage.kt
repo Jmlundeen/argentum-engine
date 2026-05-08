@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
  */
 val CraftyPathmage = card("Crafty Pathmage") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1

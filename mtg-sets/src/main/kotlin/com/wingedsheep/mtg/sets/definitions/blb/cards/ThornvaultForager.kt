@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val ThornvaultForager = card("Thornvault Forager") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Squirrel Ranger"
     power = 2
     toughness = 2

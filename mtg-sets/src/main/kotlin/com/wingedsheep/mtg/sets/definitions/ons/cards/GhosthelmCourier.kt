@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val GhosthelmCourier = card("Ghosthelm Courier") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 2
     toughness = 1

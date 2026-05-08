@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WetlandSambar = card("Wetland Sambar") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elk"
     power = 2
     toughness = 1

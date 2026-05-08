@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val AncientAnimus = card("Ancient Animus") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Put a +1/+1 counter on target creature you control if it's legendary. Then it fights target creature an opponent controls."
 

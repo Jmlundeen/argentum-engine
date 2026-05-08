@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SkyskipperDuo = card("Skyskipper Duo") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Frog"
     oracleText = "Flying\nWhen this creature enters, exile up to one other target creature you control. " +
         "Return it to the battlefield under its owner's control at the beginning of the next end step."

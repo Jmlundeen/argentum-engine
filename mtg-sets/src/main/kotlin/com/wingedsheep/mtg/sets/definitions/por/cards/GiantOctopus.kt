@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GiantOctopus = card("Giant Octopus") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Octopus"
     power = 3
     toughness = 3

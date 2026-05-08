@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Winterflame = card("Winterflame") {
     manaCost = "{1}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Instant"
     oracleText = "Choose one or both —\n• Tap target creature.\n• Winterflame deals 2 damage to target creature."
 

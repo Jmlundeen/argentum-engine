@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val DawnBlessedPennant = card("Dawn-Blessed Pennant") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText =
         "As this artifact enters, choose Elemental, Elf, Faerie, Giant, Goblin, Kithkin, Merfolk, or Treefolk.\n" +

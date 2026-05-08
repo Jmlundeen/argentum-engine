@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val KeeneyeAven = card("Keeneye Aven") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Soldier"
     power = 2
     toughness = 3

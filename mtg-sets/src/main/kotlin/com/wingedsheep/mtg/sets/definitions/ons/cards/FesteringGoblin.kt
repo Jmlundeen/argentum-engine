@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val FesteringGoblin = card("Festering Goblin") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Goblin"
     power = 1
     toughness = 1

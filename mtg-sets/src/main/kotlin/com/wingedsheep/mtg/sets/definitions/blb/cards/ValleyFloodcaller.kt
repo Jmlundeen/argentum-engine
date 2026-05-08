@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ValleyFloodcaller = card("Valley Floodcaller") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Otter Wizard"
     power = 2
     toughness = 2

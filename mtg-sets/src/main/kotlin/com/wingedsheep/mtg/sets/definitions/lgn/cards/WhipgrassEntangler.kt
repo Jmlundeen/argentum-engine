@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.Duration
  */
 val WhipgrassEntangler = card("Whipgrass Entangler") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 3

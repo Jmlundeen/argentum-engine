@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DisdainfulStroke = card("Disdainful Stroke") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell with mana value 4 or greater."
 

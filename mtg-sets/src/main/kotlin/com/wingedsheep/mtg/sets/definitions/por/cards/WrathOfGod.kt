@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val WrathOfGod = card("Wrath of God") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

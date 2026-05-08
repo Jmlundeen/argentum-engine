@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val KeldonWarcaller = card("Keldon Warcaller") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 2

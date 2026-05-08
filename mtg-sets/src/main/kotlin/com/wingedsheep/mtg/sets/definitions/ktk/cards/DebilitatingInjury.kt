@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val DebilitatingInjury = card("Debilitating Injury") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets -2/-2."
 

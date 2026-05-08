@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val PonybackBrigade = card("Ponyback Brigade") {
     manaCost = "{3}{R}{W}{B}"
+    colorIdentity = "WBR"
     typeLine = "Creature — Goblin Warrior"
     power = 2
     toughness = 2

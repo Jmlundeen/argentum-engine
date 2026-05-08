@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Divest = card("Divest") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target player reveals their hand. You choose an artifact or creature card from it. That player discards that card."
 

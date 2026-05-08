@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ShortBow = card("Short Bow") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "Equipped creature gets +1/+1 and has vigilance and reach.\nEquip {1}"
 

@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MenacingOgre = card("Menacing Ogre") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Ogre"
     power = 3
     toughness = 3

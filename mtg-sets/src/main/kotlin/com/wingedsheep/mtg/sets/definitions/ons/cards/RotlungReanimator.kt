@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val RotlungReanimator = card("Rotlung Reanimator") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Cleric"
     power = 2
     toughness = 2

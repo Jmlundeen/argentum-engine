@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val BristlyBillSpineSower = card("Bristly Bill, Spine Sower") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Creature — Plant Druid"
     power = 2
     toughness = 2

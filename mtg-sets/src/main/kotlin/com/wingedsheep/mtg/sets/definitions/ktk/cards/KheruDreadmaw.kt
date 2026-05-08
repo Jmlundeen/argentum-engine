@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val KheruDreadmaw = card("Kheru Dreadmaw") {
     manaCost = "{4}{B}"
+    colorIdentity = "BG"
     typeLine = "Creature — Zombie Crocodile"
     power = 4
     toughness = 4

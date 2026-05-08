@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Fell = card("Fell") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Destroy target creature."
 

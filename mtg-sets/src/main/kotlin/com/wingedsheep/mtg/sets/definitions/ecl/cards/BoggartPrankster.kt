@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val BoggartPrankster = card("Boggart Prankster") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Goblin Warrior"
     power = 1
     toughness = 3

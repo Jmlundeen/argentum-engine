@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val Carbonize = card("Carbonize") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Carbonize deals 3 damage to any target. If it's a creature, it can't be regenerated this turn, and if it would die this turn, exile it instead."
 

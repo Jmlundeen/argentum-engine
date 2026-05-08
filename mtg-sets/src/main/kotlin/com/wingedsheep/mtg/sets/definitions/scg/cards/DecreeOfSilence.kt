@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val DecreeOfSilence = card("Decree of Silence") {
     manaCost = "{6}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "Whenever an opponent casts a spell, counter that spell and put a depletion counter on Decree of Silence. If there are three or more depletion counters on Decree of Silence, sacrifice it.\nCycling {4}{U}{U}\nWhen you cycle Decree of Silence, you may counter target spell."
 

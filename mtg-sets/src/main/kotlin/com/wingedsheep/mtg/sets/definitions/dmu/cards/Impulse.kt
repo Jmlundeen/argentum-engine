@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Impulse = card("Impulse") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Look at the top four cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order."
 

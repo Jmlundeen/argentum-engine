@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LunarConvocation = card("Lunar Convocation") {
     manaCost = "{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Enchantment"
     oracleText = "At the beginning of your end step, if you gained life this turn, each opponent loses 1 life.\n" +
         "At the beginning of your end step, if you gained and lost life this turn, " +

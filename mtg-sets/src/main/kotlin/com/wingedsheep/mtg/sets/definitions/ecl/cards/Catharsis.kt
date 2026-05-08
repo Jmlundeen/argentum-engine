@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Catharsis = card("Catharsis") {
     manaCost = "{4}{R/W}{R/W}"
+    colorIdentity = "WR"
     typeLine = "Creature — Elemental Incarnation"
     power = 3
     toughness = 4

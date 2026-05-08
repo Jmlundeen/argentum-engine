@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val IcefeatherAven = card("Icefeather Aven") {
     manaCost = "{G}{U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Bird Shaman"
     power = 2
     toughness = 2

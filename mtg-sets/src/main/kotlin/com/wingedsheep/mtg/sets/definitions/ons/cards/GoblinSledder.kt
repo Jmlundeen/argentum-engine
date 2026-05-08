@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val GoblinSledder = card("Goblin Sledder") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 1
     toughness = 1

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val CastDown = card("Cast Down") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Destroy target nonlegendary creature."
 

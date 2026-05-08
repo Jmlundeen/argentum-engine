@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val Dub = card("Dub") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +2/+2, has first strike, and is a Knight in addition to its other types."
 

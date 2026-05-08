@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val DownwindAmbusher = card("Downwind Ambusher") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Skunk Assassin"
     oracleText = "Flash\nWhen this creature enters, choose one —\n" +
         "• Target creature an opponent controls gets -1/-1 until end of turn.\n" +

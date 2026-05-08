@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
  */
 val AuraExtraction = card("Aura Extraction") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Put target enchantment on top of its owner's library.\nCycling {2}"
 

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val WirewoodGuardian = card("Wirewood Guardian") {
     manaCost = "{5}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Mutant"
     power = 6
     toughness = 6

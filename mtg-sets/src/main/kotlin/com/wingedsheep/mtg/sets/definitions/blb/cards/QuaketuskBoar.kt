@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val QuaketuskBoar = card("Quaketusk Boar") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Boar"
     power = 5
     toughness = 5

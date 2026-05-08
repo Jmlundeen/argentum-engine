@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val HardlightContainment = card("Hardlight Containment") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant artifact you control\nWhen this Aura enters, exile target creature an opponent controls until this Aura leaves the battlefield.\nEnchanted permanent has ward {1}."
 

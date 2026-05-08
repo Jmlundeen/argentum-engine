@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val ImperialHellkite = card("Imperial Hellkite") {
     manaCost = "{5}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dragon"
     power = 6
     toughness = 6

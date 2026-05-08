@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val SeekTheHorizon = card("Seek the Horizon") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Search your library for up to three basic land cards, reveal them, put them into your hand, then shuffle."
 

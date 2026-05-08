@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val DefenderOfTheOrder = card("Defender of the Order") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 4

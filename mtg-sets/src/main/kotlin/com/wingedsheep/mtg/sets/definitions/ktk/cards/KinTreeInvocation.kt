@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val KinTreeInvocation = card("Kin-Tree Invocation") {
     manaCost = "{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Sorcery"
     oracleText = "Create an X/X black and green Spirit Warrior creature token, where X is the greatest toughness among creatures you control."
 

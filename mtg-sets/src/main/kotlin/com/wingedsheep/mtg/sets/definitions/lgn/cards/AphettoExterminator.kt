@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val AphettoExterminator = card("Aphetto Exterminator") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Wizard"
     power = 3
     toughness = 1

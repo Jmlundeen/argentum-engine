@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val LiminalHold = card("Liminal Hold") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters, exile up to one target nonland permanent an opponent controls until this enchantment leaves the battlefield. You gain 2 life."
 

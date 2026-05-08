@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val InvigoratingBoon = card("Invigorating Boon") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "Whenever a player cycles a card, you may put a +1/+1 counter on target creature."
 

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SealAway = card("Seal Away") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "Flash\nWhen Seal Away enters the battlefield, exile target tapped creature an opponent controls until Seal Away leaves the battlefield."
 

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val GoblinSharpshooter = card("Goblin Sharpshooter") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 1
     toughness = 1

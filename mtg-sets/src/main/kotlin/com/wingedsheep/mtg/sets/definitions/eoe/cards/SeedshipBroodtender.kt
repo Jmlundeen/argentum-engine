@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val SeedshipBroodtender = card("Seedship Broodtender") {
     manaCost = "{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Creature — Insect Citizen"
     power = 2
     toughness = 3

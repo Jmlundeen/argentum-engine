@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
  */
 val SamisCuriosity = card("Sami's Curiosity") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "You gain 2 life. Create a Lander token. (It's an artifact with \"{2}, {T}, Sacrifice this token: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\")"
 

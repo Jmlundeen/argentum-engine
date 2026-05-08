@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val NeedleshotGourna = card("Needleshot Gourna") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 6

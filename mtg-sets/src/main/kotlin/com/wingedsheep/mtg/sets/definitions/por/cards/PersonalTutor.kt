@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val PersonalTutor = card("Personal Tutor") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

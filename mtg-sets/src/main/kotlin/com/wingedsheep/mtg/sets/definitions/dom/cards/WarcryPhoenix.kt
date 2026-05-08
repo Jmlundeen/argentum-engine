@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WarcryPhoenix = card("Warcry Phoenix") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Phoenix"
     power = 2
     toughness = 2

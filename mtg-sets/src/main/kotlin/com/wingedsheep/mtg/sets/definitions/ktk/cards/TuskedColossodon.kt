@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val TuskedColossodon = card("Tusked Colossodon") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 6
     toughness = 5

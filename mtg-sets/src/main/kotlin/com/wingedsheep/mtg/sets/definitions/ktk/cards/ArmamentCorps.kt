@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val ArmamentCorps = card("Armament Corps") {
     manaCost = "{2}{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Creature — Human Soldier"
     power = 4
     toughness = 4

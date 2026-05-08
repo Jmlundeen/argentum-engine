@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val FloodfarmVerge = card("Floodfarm Verge") {
     typeLine = "Land"
+    colorIdentity = "WU"
     oracleText = "{T}: Add {W}.\n{T}: Add {U}. Activate only if you control a Plains or an Island."
 
     activatedAbility {

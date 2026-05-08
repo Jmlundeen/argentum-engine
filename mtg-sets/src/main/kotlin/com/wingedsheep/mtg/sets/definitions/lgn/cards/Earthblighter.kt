@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val Earthblighter = card("Earthblighter") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 1

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ToxinSliver = card("Toxin Sliver") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Sliver"
     power = 3
     toughness = 3

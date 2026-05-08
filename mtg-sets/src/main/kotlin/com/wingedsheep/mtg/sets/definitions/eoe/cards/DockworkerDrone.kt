@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DockworkerDrone = card("Dockworker Drone") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Artifact Creature — Robot"
     power = 1
     toughness = 1

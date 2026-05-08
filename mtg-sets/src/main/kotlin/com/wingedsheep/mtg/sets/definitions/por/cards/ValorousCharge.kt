@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val ValorousCharge = card("Valorous Charge") {
     manaCost = "{1}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

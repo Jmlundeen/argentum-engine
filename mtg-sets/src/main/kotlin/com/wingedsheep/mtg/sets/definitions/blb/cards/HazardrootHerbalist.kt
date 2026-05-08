@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val HazardrootHerbalist = card("Hazardroot Herbalist") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Rabbit Druid"
     oracleText = "Whenever you attack, target creature you control gets +1/+0 until end of turn. If that creature is a token, it also gains deathtouch until end of turn."
     power = 1

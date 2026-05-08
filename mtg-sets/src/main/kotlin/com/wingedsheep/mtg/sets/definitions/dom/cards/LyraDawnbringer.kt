@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val LyraDawnbringer = card("Lyra Dawnbringer") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Angel"
     power = 5
     toughness = 5

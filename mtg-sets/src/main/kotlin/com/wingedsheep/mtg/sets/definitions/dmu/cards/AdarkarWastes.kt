@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AdarkarWastes = card("Adarkar Wastes") {
     typeLine = "Land"
+    colorIdentity = "WU"
     oracleText = "{T}: Add {C}.\n{T}: Add {W} or {U}. This land deals 1 damage to you."
 
     activatedAbility {

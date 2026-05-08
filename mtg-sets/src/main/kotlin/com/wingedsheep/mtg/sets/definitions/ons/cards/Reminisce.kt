@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Reminisce = card("Reminisce") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Target player shuffles their graveyard into their library."
 

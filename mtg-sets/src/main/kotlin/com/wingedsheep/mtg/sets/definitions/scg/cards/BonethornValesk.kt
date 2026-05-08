@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
  */
 val BonethornValesk = card("Bonethorn Valesk") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 2

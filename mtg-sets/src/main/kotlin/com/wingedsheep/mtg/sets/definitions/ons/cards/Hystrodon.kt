@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val Hystrodon = card("Hystrodon") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 4

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MerEkNightblade = card("Mer-Ek Nightblade") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Orc Assassin"
     power = 2
     toughness = 3

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SpittingEarth = card("Spitting Earth") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

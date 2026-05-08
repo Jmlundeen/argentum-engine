@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
  */
 val TravelingChocobo = card("Traveling Chocobo") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Bird"
     power = 3
     toughness = 2

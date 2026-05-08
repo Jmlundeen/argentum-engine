@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Metamorphose = card("Metamorphose") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Put target permanent an opponent controls on top of its owner's library. That opponent may put an artifact, creature, enchantment, or land card from their hand onto the battlefield."
 

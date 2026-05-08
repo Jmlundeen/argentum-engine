@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val BonebindOrator = card("Bonebind Orator") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Squirrel Warlock Bard"
     power = 2
     toughness = 2

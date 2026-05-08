@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val AncestorsProphet = card("Ancestor's Prophet") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 5

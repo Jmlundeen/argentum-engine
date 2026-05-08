@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SkirkDrillSergeant = card("Skirk Drill Sergeant") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 1

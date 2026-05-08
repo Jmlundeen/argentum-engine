@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BattlefieldForge = card("Battlefield Forge") {
     typeLine = "Land"
+    colorIdentity = "WR"
     oracleText = "{T}: Add {C}.\n{T}: Add {R} or {W}. This land deals 1 damage to you."
 
     activatedAbility {

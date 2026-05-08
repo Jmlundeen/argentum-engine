@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
  */
 val CircleOfSolace = card("Circle of Solace") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "As Circle of Solace enters the battlefield, choose a creature type.\n{1}{W}: The next time a creature of the chosen type would deal damage to you this turn, prevent that damage."
 

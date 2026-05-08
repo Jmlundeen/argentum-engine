@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val ThranTemporalGateway = card("Thran Temporal Gateway") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact"
     oracleText = "{4}, {T}: You may put a historic permanent card from your hand onto the battlefield. (Artifacts, legendaries, and Sagas are historic.)"
 

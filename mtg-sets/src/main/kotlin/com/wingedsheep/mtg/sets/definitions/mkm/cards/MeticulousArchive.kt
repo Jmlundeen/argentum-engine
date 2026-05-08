@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val MeticulousArchive = card("Meticulous Archive") {
     typeLine = "Land — Plains Island"
+    colorIdentity = "WU"
     oracleText = "({T}: Add {W} or {U}.)\nThis land enters tapped.\nWhen this land enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     // Mana abilities are intrinsic from basic land types (Plains -> {W}, Island -> {U})

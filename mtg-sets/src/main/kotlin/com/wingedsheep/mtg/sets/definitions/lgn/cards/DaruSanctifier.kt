@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DaruSanctifier = card("Daru Sanctifier") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 4

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val FlyingCraneTechnique = card("Flying Crane Technique") {
     manaCost = "{3}{U}{R}{W}"
+    colorIdentity = "WUR"
     typeLine = "Instant"
     oracleText = "Untap all creatures you control. They gain flying and double strike until end of turn."
 

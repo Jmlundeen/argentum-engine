@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val TanufelRimespeaker = card("Tanufel Rimespeaker") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental Wizard"
     power = 2
     toughness = 4

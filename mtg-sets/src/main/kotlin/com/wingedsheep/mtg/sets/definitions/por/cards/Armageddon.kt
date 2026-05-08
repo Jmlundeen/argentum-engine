@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val Armageddon = card("Armageddon") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

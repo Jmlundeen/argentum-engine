@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val Diresight = card("Diresight") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Surveil 2, then draw two cards. You lose 2 life."
 

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val Skizzik = card("Skizzik") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental"
     power = 5
     toughness = 3

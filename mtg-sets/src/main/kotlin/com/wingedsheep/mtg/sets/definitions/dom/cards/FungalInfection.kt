@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val FungalInfection = card("Fungal Infection") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Target creature gets -1/-1 until end of turn. Create a 1/1 green Saproling creature token."
 

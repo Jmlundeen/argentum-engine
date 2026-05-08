@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val TradeSecrets = card("Trade Secrets") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Target opponent draws two cards, then you draw up to four cards. That opponent may repeat this process as many times as they choose."
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfSourceEffect
  */
 val Stormsplitter = card("Stormsplitter") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Otter Wizard"
     oracleText = "Haste\nWhenever you cast an instant or sorcery spell, create a token that's a copy of this creature. Exile that token at the beginning of the next end step."
     power = 1

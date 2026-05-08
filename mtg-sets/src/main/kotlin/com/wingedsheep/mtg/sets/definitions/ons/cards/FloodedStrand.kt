@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val FloodedStrand = card("Flooded Strand") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}, Pay 1 life, Sacrifice Flooded Strand: Search your library for a Plains or Island card, put it onto the battlefield, then shuffle."
 
     activatedAbility {

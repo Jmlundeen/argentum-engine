@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ThundercloudElemental = card("Thundercloud Elemental") {
     manaCost = "{5}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental"
     power = 3
     toughness = 4

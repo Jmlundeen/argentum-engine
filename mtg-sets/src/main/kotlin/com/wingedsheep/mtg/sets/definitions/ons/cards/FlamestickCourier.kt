@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val FlamestickCourier = card("Flamestick Courier") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 1

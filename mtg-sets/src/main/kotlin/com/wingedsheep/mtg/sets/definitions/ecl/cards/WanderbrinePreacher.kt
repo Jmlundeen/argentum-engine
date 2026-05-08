@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WanderbrinePreacher = card("Wanderbrine Preacher") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Merfolk Cleric"
     power = 2
     toughness = 2

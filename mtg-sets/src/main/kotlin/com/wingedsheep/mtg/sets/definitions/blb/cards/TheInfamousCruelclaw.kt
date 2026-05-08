@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
  */
 val TheInfamousCruelclaw = card("The Infamous Cruelclaw") {
     manaCost = "{1}{B}{R}"
+    colorIdentity = "BR"
     typeLine = "Legendary Creature — Weasel Mercenary"
     power = 3
     toughness = 3

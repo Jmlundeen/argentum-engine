@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val ElvishScrapper = card("Elvish Scrapper") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 1
     toughness = 1

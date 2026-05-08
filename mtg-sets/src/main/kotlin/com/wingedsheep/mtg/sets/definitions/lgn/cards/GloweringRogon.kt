@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.EntersWithRevealCounters
  */
 val GloweringRogon = card("Glowering Rogon") {
     manaCost = "{5}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 4

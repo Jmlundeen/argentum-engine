@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val BarrenMoor = card("Barren Moor") {
     typeLine = "Land"
+    colorIdentity = "B"
     oracleText = "Barren Moor enters the battlefield tapped.\n{T}: Add {B}.\nCycling {B}"
 
     replacementEffect(EntersTapped())

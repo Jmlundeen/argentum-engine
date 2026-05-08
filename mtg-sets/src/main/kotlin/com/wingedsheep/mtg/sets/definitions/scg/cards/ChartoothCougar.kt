@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val ChartoothCougar = card("Chartooth Cougar") {
     manaCost = "{5}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Cat Beast"
     power = 4
     toughness = 4

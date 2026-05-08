@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.PreventLifeGain
 
 val SulfuricVortex = card("Sulfuric Vortex") {
     manaCost = "{1}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "At the beginning of each player's upkeep, Sulfuric Vortex deals 2 damage to that player.\nIf a player would gain life, that player gains no life instead."
 

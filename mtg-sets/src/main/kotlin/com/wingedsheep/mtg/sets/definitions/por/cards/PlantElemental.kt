@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val PlantElemental = card("Plant Elemental") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Plant Elemental"
     power = 3
     toughness = 4

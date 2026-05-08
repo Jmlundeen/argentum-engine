@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val GideonsReproach = card("Gideon's Reproach") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Gideon's Reproach deals 4 damage to target attacking or blocking creature."
 

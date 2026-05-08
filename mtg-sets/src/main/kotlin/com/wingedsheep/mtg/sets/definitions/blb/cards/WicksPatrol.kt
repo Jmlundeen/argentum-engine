@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val WicksPatrol = card("Wick's Patrol") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Rat Warlock"
     oracleText = "When this creature enters, mill three cards. When you do, target creature an opponent controls gets -X/-X until end of turn, where X is the greatest mana value among cards in your graveyard."
     power = 5

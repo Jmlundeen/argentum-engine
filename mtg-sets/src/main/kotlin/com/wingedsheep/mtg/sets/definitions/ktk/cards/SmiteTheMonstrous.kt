@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SmiteTheMonstrous = card("Smite the Monstrous") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Destroy target creature with power 4 or greater."
 

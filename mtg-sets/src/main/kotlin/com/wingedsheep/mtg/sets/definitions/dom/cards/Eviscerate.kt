@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Eviscerate = card("Eviscerate") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Destroy target creature."
 

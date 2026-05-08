@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val VerdantForce = card("Verdant Force") {
     manaCost = "{5}{G}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental"
     power = 7
     toughness = 7

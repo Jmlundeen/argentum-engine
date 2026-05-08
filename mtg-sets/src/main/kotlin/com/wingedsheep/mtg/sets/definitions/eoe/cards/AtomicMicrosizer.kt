@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
  */
 val AtomicMicrosizer = card("Atomic Microsizer") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Artifact — Equipment"
     oracleText = "Equipped creature gets +1/+0.\nWhenever equipped creature attacks, choose up to one target creature. That creature can't be blocked this turn and has base power and toughness 1/1 until end of turn.\nEquip {2}"
 

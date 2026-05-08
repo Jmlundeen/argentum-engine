@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val SpringleafDrum = card("Springleaf Drum") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{T}, Tap an untapped creature you control: Add one mana of any color."
 

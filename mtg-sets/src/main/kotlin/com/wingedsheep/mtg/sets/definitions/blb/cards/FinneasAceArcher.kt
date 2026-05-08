@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val FinneasAceArcher = card("Finneas, Ace Archer") {
     manaCost = "{G}{W}"
+    colorIdentity = "WG"
     typeLine = "Legendary Creature — Rabbit Archer"
     power = 2
     toughness = 2

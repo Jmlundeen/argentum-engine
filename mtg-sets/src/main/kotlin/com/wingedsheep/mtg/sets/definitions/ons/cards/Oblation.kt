@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val Oblation = card("Oblation") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "The owner of target nonland permanent shuffles it into their library, then draws two cards."
 

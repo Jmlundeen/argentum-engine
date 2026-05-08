@@ -42,6 +42,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val PortentOfCalamity = card("Portent of Calamity") {
     manaCost = "{X}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Reveal the top X cards of your library. For each card type, you may exile a card of that type from among them. Put the rest into your graveyard. You may cast a spell from among the exiled cards without paying its mana cost if you exiled four or more cards this way. Then put the rest of the exiled cards into your hand."
 

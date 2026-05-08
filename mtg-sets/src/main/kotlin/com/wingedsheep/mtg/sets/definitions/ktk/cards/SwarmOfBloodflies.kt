@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SwarmOfBloodflies = card("Swarm of Bloodflies") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Insect"
     power = 0
     toughness = 0

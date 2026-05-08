@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.events.SourceFilter
  */
 val Sandskin = card("Sandskin") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nPrevent all combat damage that would be dealt to and dealt by enchanted creature."
 

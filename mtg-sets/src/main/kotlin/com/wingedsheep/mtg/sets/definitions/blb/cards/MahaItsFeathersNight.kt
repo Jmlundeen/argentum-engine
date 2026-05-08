@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val MahaItsFeathersNight = card("Maha, Its Feathers Night") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Elemental Bird"
     power = 6
     toughness = 5

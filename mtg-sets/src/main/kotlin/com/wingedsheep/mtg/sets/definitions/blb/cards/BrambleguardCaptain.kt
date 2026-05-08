@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val BrambleguardCaptain = card("Brambleguard Captain") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Mouse Soldier"
     power = 2
     toughness = 3

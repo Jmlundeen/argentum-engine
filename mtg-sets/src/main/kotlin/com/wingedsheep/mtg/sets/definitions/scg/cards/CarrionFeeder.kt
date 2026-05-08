@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val CarrionFeeder = card("Carrion Feeder") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 1
     toughness = 1

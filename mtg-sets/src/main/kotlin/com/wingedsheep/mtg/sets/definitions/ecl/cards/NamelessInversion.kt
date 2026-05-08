@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val NamelessInversion = card("Nameless Inversion") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Kindred Instant — Shapeshifter"
     oracleText = "Changeling (This card is every creature type.)\n" +
         "Target creature gets +3/-3 and loses all creature types until end of turn."

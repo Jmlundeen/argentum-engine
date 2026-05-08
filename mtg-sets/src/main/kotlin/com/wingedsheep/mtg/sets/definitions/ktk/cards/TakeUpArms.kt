@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val TakeUpArms = card("Take Up Arms") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Create three 1/1 white Warrior creature tokens."
 

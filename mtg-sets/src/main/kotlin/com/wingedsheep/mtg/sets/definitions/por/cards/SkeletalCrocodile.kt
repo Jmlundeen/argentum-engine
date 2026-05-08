@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SkeletalCrocodile = card("Skeletal Crocodile") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Crocodile Skeleton"
     power = 5
     toughness = 1

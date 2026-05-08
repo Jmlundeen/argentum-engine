@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AbzanAscendancy = card("Abzan Ascendancy") {
     manaCost = "{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters, put a +1/+1 counter on each creature you control.\nWhenever a nontoken creature you control dies, create a 1/1 white Spirit creature token with flying."
 

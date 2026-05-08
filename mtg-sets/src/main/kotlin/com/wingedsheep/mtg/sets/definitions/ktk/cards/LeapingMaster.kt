@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LeapingMaster = card("Leaping Master") {
     manaCost = "{1}{R}"
+    colorIdentity = "WR"
     typeLine = "Creature — Human Monk"
     power = 2
     toughness = 1

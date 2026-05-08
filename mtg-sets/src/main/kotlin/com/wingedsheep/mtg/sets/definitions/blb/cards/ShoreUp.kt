@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ShoreUp = card("Shore Up") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Target creature you control gets +1/+1 and gains hexproof until end of turn. Untap it."
 

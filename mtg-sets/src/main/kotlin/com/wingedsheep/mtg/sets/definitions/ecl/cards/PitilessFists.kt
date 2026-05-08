@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val PitilessFists = card("Pitiless Fists") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature you control\n" +
         "When this Aura enters, enchanted creature fights up to one target creature an opponent controls. " +

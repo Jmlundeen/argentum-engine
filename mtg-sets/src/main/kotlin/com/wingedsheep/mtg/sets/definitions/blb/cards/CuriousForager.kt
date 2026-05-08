@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val CuriousForager = card("Curious Forager") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Squirrel Druid"
     power = 3
     toughness = 2

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.PreventLandPlaysThisTurnEffect
  */
 val RockJockey = card("Rock Jockey") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 3
     toughness = 3

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.IncreaseMorphCost
  */
 val ExiledDoomsayer = card("Exiled Doomsayer") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     oracleText = "All morph costs cost {2} more. (This doesn't affect the cost to cast creature spells face down.)"
     power = 1

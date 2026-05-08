@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val BraveTheSands = card("Brave the Sands") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "Creatures you control have vigilance.\nEach creature you control can block an additional creature each combat."
 

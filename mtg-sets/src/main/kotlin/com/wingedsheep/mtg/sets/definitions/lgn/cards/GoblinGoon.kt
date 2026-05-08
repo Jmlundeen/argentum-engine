@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.CantBlockUnless
  */
 val GoblinGoon = card("Goblin Goon") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Mutant"
     power = 6
     toughness = 6

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WarNameAspirant = card("War-Name Aspirant") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 1

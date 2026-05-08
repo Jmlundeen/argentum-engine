@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val HandOfDeath = card("Hand of Death") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

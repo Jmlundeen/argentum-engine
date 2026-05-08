@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val CoralEel = card("Coral Eel") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Fish"
     power = 2
     toughness = 1

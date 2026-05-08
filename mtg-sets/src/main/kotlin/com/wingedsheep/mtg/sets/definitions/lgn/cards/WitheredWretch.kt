@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val WitheredWretch = card("Withered Wretch") {
     manaCost = "{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Cleric"
     power = 2
     toughness = 2

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val EnragedFlamecaster = card("Enraged Flamecaster") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Sorcerer"
     power = 3
     toughness = 2

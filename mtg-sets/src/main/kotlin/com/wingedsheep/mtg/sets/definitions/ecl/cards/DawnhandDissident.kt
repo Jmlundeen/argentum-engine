@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val DawnhandDissident = card("Dawnhand Dissident") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elf Warlock"
     power = 1
     toughness = 2

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.conditions.OpponentSpellOnStack
  */
 val MysticDenial = card("Mystic Denial") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
 
     spell {

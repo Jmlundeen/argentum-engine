@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Swat = card("Swat") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Destroy target creature with power 2 or less.\nCycling {2}"
 

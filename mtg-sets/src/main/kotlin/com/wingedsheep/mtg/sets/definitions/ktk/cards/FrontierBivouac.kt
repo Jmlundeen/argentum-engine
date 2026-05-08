@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val FrontierBivouac = card("Frontier Bivouac") {
     typeLine = "Land"
+    colorIdentity = "URG"
     oracleText = "This land enters tapped.\n{T}: Add {G}, {U}, or {R}."
 
     replacementEffect(EntersTapped())

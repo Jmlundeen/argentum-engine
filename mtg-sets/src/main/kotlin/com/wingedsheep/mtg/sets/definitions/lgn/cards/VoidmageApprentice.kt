@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val VoidmageApprentice = card("Voidmage Apprentice") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1

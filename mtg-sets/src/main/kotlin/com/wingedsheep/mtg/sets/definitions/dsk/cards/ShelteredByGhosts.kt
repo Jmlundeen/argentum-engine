@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val ShelteredByGhosts = card("Sheltered by Ghosts") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature you control\nWhen this Aura enters, exile target nonland permanent an opponent controls until this Aura leaves the battlefield.\nEnchanted creature gets +1/+0 and has lifelink and ward {2}."
 

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val Skulltap = card("Skulltap") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, sacrifice a creature.\nDraw two cards."
 

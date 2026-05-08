@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val SolarBlast = card("Solar Blast") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Solar Blast deals 3 damage to any target.\nCycling {1}{R}{R}\nWhen you cycle Solar Blast, you may have it deal 1 damage to any target."
 

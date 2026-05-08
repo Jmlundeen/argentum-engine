@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HelmOfTheHost = card("Helm of the Host") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact — Equipment"
     oracleText = "At the beginning of combat on your turn, create a token that's a copy of equipped creature, except the token isn't legendary. That token gains haste.\nEquip {5}"
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
  */
 val DualSunTechnique = card("Dual-Sun Technique") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Target creature you control gains double strike until end of turn. If it has a +1/+1 counter on it, draw a card."
 

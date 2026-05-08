@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val HivespineWolverine = card("Hivespine Wolverine") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental Wolverine"
     oracleText = "When this creature enters, choose one —\n" +
         "• Put a +1/+1 counter on target creature you control.\n" +

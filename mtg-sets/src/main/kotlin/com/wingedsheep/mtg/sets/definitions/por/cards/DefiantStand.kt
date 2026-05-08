@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
  */
 val DefiantStand = card("Defiant Stand") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
 
     spell {

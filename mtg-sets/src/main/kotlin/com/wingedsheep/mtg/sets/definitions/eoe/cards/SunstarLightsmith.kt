@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SunstarLightsmith = card("Sunstar Lightsmith") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Artificer"
     oracleText = "Whenever you cast your second spell each turn, put a +1/+1 counter on this creature and draw a card."
     power = 3

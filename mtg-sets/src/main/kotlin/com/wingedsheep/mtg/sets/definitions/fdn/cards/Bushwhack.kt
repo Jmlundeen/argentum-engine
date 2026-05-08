@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Bushwhack = card("Bushwhack") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Choose one —\n" +
         "• Search your library for a basic land card, reveal it, put it into your hand, then shuffle.\n" +

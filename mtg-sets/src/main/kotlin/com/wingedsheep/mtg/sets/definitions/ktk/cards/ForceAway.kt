@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ForceAway = card("Force Away") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Return target creature to its owner's hand.\nFerocious — If you control a creature with power 4 or greater, you may draw a card. If you do, discard a card."
 

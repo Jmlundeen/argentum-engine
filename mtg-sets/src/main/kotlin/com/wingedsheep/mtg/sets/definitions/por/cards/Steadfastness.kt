@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val Steadfastness = card("Steadfastness") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val RecklessOne = card("Reckless One") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Avatar"
     oracleText = "Haste\nReckless One's power and toughness are each equal to the number of Goblins on the battlefield."
 

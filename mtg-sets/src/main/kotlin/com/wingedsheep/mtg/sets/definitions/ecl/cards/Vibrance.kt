@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val Vibrance = card("Vibrance") {
     manaCost = "{3}{R/G}{R/G}"
+    colorIdentity = "RG"
     typeLine = "Creature — Elemental Incarnation"
     power = 4
     toughness = 4

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val WarrenTorchmaster = card("Warren Torchmaster") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warrior"
     power = 2
     toughness = 2

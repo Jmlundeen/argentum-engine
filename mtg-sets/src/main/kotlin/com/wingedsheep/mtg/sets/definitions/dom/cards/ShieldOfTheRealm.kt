@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.events.RecipientFilter
  */
 val ShieldOfTheRealm = card("Shield of the Realm") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "If a source would deal damage to equipped creature, prevent 2 of that damage.\nEquip {1}"
 

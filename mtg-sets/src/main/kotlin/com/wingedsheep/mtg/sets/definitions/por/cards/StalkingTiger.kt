@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan
  */
 val StalkingTiger = card("Stalking Tiger") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Cat"
     power = 3
     toughness = 3

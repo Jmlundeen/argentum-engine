@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val WarrenWarleader = card("Warren Warleader") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Rabbit Knight"
     power = 4
     toughness = 4

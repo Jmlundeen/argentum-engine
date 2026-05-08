@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BeaconOfDestiny = card("Beacon of Destiny") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 3

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val MemorialToWar = card("Memorial to War") {
     typeLine = "Land"
+    colorIdentity = "R"
     oracleText = "Memorial to War enters the battlefield tapped.\n{T}: Add {R}.\n{4}{R}, {T}, Sacrifice Memorial to War: Destroy target land."
 
     replacementEffect(EntersTapped())

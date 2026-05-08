@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val KrosanTusker = card("Krosan Tusker") {
     manaCost = "{5}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Boar Beast"
     power = 6
     toughness = 5

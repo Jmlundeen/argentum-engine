@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val Glarecaster = card("Glarecaster") {
     manaCost = "{4}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Cleric"
     power = 3
     toughness = 3

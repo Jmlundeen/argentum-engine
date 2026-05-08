@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SorcerersWand = card("Sorcerer's Wand") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "Equipped creature has \"{T}: This creature deals 1 damage to target player or planeswalker. " +
         "If this creature is a Wizard, it deals 2 damage instead.\"\n" +

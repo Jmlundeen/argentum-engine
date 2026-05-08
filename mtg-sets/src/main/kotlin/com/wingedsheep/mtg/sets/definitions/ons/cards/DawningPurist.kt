@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val DawningPurist = card("Dawning Purist") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 2

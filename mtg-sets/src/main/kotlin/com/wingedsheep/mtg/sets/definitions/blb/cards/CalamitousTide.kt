@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val CalamitousTide = card("Calamitous Tide") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Return up to two target creatures to their owners' hands. Draw two cards, then discard a card."
 

@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HoodedHydra = card("Hooded Hydra") {
     manaCost = "{X}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Snake Hydra"
     power = 0
     toughness = 0

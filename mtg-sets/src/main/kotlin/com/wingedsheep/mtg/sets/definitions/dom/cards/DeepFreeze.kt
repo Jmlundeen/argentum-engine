@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.SetBasePowerToughnessStatic
  */
 val DeepFreeze = card("Deep Freeze") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature has base power and toughness 0/4, has defender, loses all other abilities, and is a blue Wall in addition to its other colors and types."
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val WickedPact = card("Wicked Pact") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

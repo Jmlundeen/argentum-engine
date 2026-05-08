@@ -36,6 +36,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BoggartMischief = card("Boggart Mischief") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Kindred Enchantment — Goblin"
     oracleText = "When this enchantment enters, you may blight 1. If you do, create two 1/1 black and red Goblin creature tokens. " +
         "(To blight 1, put a -1/-1 counter on a creature you control.)\n" +

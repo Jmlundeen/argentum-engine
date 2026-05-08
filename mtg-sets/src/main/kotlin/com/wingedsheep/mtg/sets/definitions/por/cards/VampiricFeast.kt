@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val VampiricFeast = card("Vampiric Feast") {
     manaCost = "{5}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWithKeyword
  */
 val CloudDragon = card("Cloud Dragon") {
     manaCost = "{5}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion Dragon"
     power = 5
     toughness = 4

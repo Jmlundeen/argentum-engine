@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val DragonShadow = card("Dragon Shadow") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +1/+0 and has fear. (It can't be blocked except by artifact creatures and/or black creatures.)\nWhen a creature with mana value 6 or greater enters, you may return Dragon Shadow from your graveyard to the battlefield attached to that creature."
 

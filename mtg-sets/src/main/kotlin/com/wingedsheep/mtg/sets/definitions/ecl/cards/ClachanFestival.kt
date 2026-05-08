@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ClachanFestival = card("Clachan Festival") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Kindred Enchantment — Kithkin"
     oracleText = "When this enchantment enters, create two 1/1 green and white Kithkin creature tokens.\n" +
         "{4}{W}: Create a 1/1 green and white Kithkin creature token."

@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SeasonedWarrenguard = card("Seasoned Warrenguard") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Rabbit Warrior"
     power = 1
     toughness = 2

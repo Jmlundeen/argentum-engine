@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val TreetopScout = card("Treetop Scout") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Scout"
     power = 1
     toughness = 1

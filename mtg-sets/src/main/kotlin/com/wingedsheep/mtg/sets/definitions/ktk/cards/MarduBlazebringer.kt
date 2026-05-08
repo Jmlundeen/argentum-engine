@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.core.Step
  */
 val MarduBlazebringer = card("Mardu Blazebringer") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Ogre Warrior"
     power = 4
     toughness = 4

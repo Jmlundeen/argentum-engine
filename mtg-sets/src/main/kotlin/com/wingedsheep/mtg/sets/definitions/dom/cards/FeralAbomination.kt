@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FeralAbomination = card("Feral Abomination") {
     manaCost = "{5}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Thrull"
     power = 5
     toughness = 5

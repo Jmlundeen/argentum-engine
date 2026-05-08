@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val EssenceChanneler = card("Essence Channeler") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bat Cleric"
     power = 2
     toughness = 1

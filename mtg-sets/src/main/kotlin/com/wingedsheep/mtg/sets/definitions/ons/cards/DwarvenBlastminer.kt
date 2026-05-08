@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val DwarvenBlastminer = card("Dwarven Blastminer") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dwarf"
     power = 1
     toughness = 1

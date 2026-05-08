@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
  */
 val TwistedAbomination = card("Twisted Abomination") {
     manaCost = "{5}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Mutant"
     power = 5
     toughness = 3

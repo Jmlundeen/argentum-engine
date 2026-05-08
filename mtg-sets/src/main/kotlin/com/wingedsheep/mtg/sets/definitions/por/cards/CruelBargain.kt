@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
  */
 val CruelBargain = card("Cruel Bargain") {
     manaCost = "{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

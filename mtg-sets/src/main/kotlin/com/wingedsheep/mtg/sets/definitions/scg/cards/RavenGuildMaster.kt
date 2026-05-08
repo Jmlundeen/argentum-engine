@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val RavenGuildMaster = card("Raven Guild Master") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard Mutant"
     power = 1
     toughness = 1

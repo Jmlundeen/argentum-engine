@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MutableExplorer = card("Mutable Explorer") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Shapeshifter"
     power = 1
     toughness = 1

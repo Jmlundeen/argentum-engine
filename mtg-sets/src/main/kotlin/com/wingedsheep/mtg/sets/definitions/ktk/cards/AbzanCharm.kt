@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val AbzanCharm = card("Abzan Charm") {
     manaCost = "{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Exile target creature with power 3 or greater.\n• You draw two cards and you lose 2 life.\n• Distribute two +1/+1 counters among one or two target creatures."
 

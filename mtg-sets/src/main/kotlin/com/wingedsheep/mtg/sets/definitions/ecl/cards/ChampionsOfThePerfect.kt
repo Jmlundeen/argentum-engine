@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
  */
 val ChampionsOfThePerfect = card("Champions of the Perfect") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Warrior"
     power = 6
     toughness = 6

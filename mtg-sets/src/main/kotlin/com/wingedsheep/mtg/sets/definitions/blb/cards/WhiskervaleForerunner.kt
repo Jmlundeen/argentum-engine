@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val WhiskervaleForerunner = card("Whiskervale Forerunner") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Mouse Bard"
     power = 3
     toughness = 4

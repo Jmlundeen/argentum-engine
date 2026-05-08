@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val PinnacleKillShip = card("Pinnacle Kill-Ship") {
     manaCost = "{7}"
+    colorIdentity = ""
     typeLine = "Artifact — Spacecraft"
     power = 7
     toughness = 7

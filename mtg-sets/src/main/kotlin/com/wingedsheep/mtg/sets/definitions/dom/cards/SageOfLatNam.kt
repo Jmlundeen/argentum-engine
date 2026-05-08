@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val SageOfLatNam = card("Sage of Lat-Nam") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Artificer"
     power = 1
     toughness = 2

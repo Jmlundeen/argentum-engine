@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.PreventManaPoolEmptying
  */
 val Upwelling = card("Upwelling") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "Players don't lose unspent mana as steps and phases end."
 

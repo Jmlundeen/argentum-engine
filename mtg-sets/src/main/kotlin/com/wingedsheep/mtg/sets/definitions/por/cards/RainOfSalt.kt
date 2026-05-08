@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val RainOfSalt = card("Rain of Salt") {
     manaCost = "{4}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

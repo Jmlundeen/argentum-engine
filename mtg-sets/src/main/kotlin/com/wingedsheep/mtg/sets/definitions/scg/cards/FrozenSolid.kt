@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val FrozenSolid = card("Frozen Solid") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature doesn't untap during its controller's untap step.\nWhen enchanted creature is dealt damage, destroy it."
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LiegeOfTheAxe = card("Liege of the Axe") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 3

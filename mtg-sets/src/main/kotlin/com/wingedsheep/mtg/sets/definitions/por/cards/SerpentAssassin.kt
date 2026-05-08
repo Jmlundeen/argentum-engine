@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val SerpentAssassin = card("Serpent Assassin") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Snake Assassin"
     power = 2
     toughness = 2

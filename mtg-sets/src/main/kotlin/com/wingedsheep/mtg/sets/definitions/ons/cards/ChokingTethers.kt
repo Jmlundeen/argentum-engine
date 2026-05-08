@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val ChokingTethers = card("Choking Tethers") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Tap up to four target creatures.\nCycling {1}{U}\nWhen you cycle Choking Tethers, you may tap target creature."
 

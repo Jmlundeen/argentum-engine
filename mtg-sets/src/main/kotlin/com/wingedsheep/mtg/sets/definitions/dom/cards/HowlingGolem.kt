@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val HowlingGolem = card("Howling Golem") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Golem"
     power = 2
     toughness = 3

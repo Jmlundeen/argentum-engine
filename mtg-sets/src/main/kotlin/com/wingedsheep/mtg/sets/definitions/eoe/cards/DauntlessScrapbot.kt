@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
  */
 val DauntlessScrapbot = card("Dauntless Scrapbot") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Robot"
     power = 3
     toughness = 1

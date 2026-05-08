@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val CrypticGateway = card("Cryptic Gateway") {
     manaCost = "{5}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "Tap two untapped creatures you control: You may put a creature card from your hand that shares a creature type with each creature tapped this way onto the battlefield."
 

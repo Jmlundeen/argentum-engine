@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val BreedingPool = card("Breeding Pool") {
     manaCost = ""
+    colorIdentity = "UG"
     typeLine = "Land — Forest Island"
     oracleText = "({T}: Add {G} or {U}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 

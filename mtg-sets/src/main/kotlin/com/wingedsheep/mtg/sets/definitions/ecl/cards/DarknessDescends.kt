@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DarknessDescends = card("Darkness Descends") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Put two -1/-1 counters on each creature."
 

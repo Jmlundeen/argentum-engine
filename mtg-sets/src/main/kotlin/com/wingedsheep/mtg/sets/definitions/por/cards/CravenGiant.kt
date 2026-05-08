@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
  */
 val CravenGiant = card("Craven Giant") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Giant"
     power = 4
     toughness = 1

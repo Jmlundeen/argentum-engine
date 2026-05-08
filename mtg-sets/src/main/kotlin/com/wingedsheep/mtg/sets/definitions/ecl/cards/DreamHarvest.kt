@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val DreamHarvest = card("Dream Harvest") {
     manaCost = "{5}{U/B}{U/B}"
+    colorIdentity = "UB"
     typeLine = "Sorcery"
     oracleText = "Each opponent exiles cards from the top of their library until they have exiled cards with total mana value 5 or greater this way. Until end of turn, you may cast cards exiled this way without paying their mana costs."
 

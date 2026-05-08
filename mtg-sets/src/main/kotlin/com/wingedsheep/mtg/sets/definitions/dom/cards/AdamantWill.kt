@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AdamantWill = card("Adamant Will") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Target creature gets +2/+2 and gains indestructible until end of turn."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val NobleTemplar = card("Noble Templar") {
     manaCost = "{5}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric Soldier"
     power = 3
     toughness = 6

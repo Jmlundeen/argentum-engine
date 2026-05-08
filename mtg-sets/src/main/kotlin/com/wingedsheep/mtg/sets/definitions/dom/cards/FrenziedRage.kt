@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val FrenziedRage = card("Frenzied Rage") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +2/+1 and has menace."
 

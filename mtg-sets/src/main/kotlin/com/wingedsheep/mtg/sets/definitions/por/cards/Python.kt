@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Python = card("Python") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Snake"
     power = 3
     toughness = 2

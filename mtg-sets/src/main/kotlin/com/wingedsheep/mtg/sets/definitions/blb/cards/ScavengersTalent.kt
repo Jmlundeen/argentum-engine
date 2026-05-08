@@ -42,6 +42,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ScavengersTalent = card("Scavenger's Talent") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Class"
     oracleText = "Whenever one or more creatures you control die, create a Food token. " +
         "This ability triggers only once each turn.\n" +

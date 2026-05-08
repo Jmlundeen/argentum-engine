@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SporecrownThallid = card("Sporecrown Thallid") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Fungus"
     power = 2
     toughness = 2

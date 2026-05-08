@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val StormCrow = card("Storm Crow") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird"
     power = 1
     toughness = 2

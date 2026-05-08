@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val InvasiveManeuvers = card("Invasive Maneuvers") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Invasive Maneuvers deals 3 damage to target creature. It deals 5 damage instead if you control a Spacecraft."
 

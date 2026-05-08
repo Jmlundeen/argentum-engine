@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CamelliaTheSeedmiser = card("Camellia, the Seedmiser") {
     manaCost = "{1}{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Legendary Creature — Squirrel Warlock"
     power = 3
     toughness = 3

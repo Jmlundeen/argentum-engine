@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MonoistSentry = card("Monoist Sentry") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Artifact Creature — Robot"
     power = 4
     toughness = 1

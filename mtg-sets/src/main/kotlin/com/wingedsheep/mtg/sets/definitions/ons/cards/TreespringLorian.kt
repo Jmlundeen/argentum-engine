@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val TreespringLorian = card("Treespring Lorian") {
     manaCost = "{5}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 5
     toughness = 4

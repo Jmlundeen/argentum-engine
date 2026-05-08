@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
  */
 val WirewoodSymbiote = card("Wirewood Symbiote") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect"
     oracleText = "Return an Elf you control to its owner's hand: Untap target creature. Activate only once each turn."
     power = 1

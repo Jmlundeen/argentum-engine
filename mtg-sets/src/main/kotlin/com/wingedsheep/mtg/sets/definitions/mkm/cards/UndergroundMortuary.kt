@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val UndergroundMortuary = card("Underground Mortuary") {
     typeLine = "Land — Swamp Forest"
+    colorIdentity = "BG"
     oracleText = "({T}: Add {B} or {G}.)\nThis land enters tapped.\nWhen this land enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     // Mana abilities are intrinsic from basic land types (Swamp -> {B}, Forest -> {G})

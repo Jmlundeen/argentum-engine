@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val SnarlingUndorak = card("Snarling Undorak") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 3

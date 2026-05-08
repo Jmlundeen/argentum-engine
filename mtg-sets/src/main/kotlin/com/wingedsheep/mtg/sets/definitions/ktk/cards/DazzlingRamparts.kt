@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val DazzlingRamparts = card("Dazzling Ramparts") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Wall"
     power = 0
     toughness = 7

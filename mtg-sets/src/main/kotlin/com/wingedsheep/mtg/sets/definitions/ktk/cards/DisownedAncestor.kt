@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DisownedAncestor = card("Disowned Ancestor") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Spirit Warrior"
     power = 0
     toughness = 4

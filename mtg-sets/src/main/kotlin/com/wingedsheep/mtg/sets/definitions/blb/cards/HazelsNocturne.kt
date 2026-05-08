@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val HazelsNocturne = card("Hazel's Nocturne") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Return up to two target creature cards from your graveyard to your hand. " +
         "Each opponent loses 2 life and you gain 2 life."

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val ScourForScrap = card("Scour for Scrap") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Choose one or both —\n" +
         "• Search your library for an artifact card, reveal it, put it into your hand, then shuffle.\n" +

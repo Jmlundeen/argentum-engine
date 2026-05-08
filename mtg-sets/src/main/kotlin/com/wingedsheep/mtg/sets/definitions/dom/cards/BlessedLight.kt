@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BlessedLight = card("Blessed Light") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Exile target creature or enchantment."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val BlisteringFirecat = card("Blistering Firecat") {
     manaCost = "{1}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Cat"
     power = 7
     toughness = 1

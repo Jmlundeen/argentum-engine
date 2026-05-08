@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.AdditionalManaOnTap
  */
 val ElvishGuidance = card("Elvish Guidance") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant land\nWhenever enchanted land is tapped for mana, its controller adds an additional {G} for each Elf on the battlefield."
 

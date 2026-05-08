@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GrantShroudToController
  */
 val TrueBeliever = card("True Believer") {
     manaCost = "{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 2

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val TemptingWurm = card("Tempting Wurm") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Wurm"
     power = 5
     toughness = 5

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val TouchOfBrilliance = card("Touch of Brilliance") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val PyrrhicStrike = card("Pyrrhic Strike") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "As an additional cost to cast this spell, you may blight 2. " +
         "(You may put two -1/-1 counters on a creature you control.)\n" +

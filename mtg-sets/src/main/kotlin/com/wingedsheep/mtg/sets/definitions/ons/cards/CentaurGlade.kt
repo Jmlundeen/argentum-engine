@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val CentaurGlade = card("Centaur Glade") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "{2}{G}{G}: Create a 3/3 green Centaur creature token."
 

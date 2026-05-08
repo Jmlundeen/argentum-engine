@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.UntapFilteredDuringOtherUntapSteps
  */
 val IvorytuskFortress = card("Ivorytusk Fortress") {
     manaCost = "{2}{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Creature — Elephant"
     power = 5
     toughness = 7

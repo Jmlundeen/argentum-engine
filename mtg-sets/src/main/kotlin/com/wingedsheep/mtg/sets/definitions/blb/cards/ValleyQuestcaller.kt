@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val ValleyQuestcaller = card("Valley Questcaller") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Rabbit Warrior"
     power = 2
     toughness = 3

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.ReplaceTokenCreationWithEquippedCopy
  */
 val MirrormindCrown = card("Mirrormind Crown") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "As long as this Equipment is attached to a creature, the first time you would create one or more tokens each turn, you may instead create that many tokens that are copies of equipped creature.\nEquip {2}"
 

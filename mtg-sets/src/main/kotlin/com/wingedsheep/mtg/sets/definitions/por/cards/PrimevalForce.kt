@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val PrimevalForce = card("Primeval Force") {
     manaCost = "{2}{G}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental"
     power = 8
     toughness = 8

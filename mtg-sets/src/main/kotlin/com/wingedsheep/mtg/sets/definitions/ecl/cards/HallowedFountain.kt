@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val HallowedFountain = card("Hallowed Fountain") {
     typeLine = "Land — Plains Island"
+    colorIdentity = "WU"
     oracleText = "({T}: Add {W} or {U}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 
     // Mana abilities are intrinsic from basic land types (Plains → {W}, Island → {U})

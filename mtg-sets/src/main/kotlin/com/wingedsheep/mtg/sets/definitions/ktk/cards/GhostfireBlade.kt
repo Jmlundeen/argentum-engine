@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val GhostfireBlade = card("Ghostfire Blade") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "Equipped creature gets +2/+2.\nEquip {3}\nGhostfire Blade's equip ability costs {2} less to activate if it targets a colorless creature."
 

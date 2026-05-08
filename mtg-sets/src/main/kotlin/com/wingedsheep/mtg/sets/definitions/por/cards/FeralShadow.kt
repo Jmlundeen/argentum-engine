@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FeralShadow = card("Feral Shadow") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Nightstalker"
     power = 2
     toughness = 1

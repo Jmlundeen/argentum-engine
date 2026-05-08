@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val JeskaiElder = card("Jeskai Elder") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Monk"
     power = 1
     toughness = 2

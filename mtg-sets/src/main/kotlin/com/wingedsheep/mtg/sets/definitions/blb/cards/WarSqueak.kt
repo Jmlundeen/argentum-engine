@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WarSqueak = card("War Squeak") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\n" +
         "When this Aura enters, target creature an opponent controls can't block this turn.\n" +

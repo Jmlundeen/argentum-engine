@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val VampiricTouch = card("Vampiric Touch") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

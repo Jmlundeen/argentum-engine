@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BoggartCursecrafter = card("Boggart Cursecrafter") {
     manaCost = "{B}{R}"
+    colorIdentity = "BR"
     typeLine = "Creature — Goblin Warlock"
     power = 2
     toughness = 3

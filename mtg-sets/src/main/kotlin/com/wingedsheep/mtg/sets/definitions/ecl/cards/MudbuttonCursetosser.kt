@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val MudbuttonCursetosser = card("Mudbutton Cursetosser") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Goblin Warlock"
     power = 2
     toughness = 1

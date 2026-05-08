@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MistformSliver = card("Mistform Sliver") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion Sliver"
     power = 1
     toughness = 1

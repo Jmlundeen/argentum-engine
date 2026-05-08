@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val SkirkCommando = card("Skirk Commando") {
     manaCost = "{1}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 1

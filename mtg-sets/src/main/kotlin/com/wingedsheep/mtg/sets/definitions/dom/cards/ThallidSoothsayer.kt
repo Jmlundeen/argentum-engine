@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val ThallidSoothsayer = card("Thallid Soothsayer") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Fungus"
     power = 2
     toughness = 3

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Mindswipe = card("Mindswipe") {
     manaCost = "{X}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Instant"
     oracleText = "Counter target spell unless its controller pays {X}. Mindswipe deals X damage to that spell's controller."
 

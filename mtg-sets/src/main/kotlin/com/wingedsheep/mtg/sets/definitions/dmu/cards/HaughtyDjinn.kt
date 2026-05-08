@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HaughtyDjinn = card("Haughty Djinn") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Djinn"
     oracleText = "Flying\nHaughty Djinn's power is equal to the number of instant and sorcery cards in your graveyard.\nInstant and sorcery spells you cast cost {1} less to cast."
 

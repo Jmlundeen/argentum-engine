@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SecludedStarforge = card("Secluded Starforge") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}: Add {C}.\n{2}, {T}, Tap X untapped artifacts you control: Target creature gets +X/+0 until end of turn. Activate only as a sorcery.\n{5}, {T}: Create a 2/2 colorless Robot artifact creature token."
 
     // Basic mana ability: {T}: Add {C}

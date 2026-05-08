@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MesaUnicorn = card("Mesa Unicorn") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Unicorn"
     power = 2
     toughness = 2

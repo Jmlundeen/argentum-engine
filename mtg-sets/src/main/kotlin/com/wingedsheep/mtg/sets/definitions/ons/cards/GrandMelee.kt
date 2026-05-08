@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val GrandMelee = card("Grand Melee") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "All creatures attack each combat if able.\nAll creatures block each combat if able."
 

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaEffect
  */
 val BirchloreRangers = card("Birchlore Rangers") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid Ranger"
     power = 1
     toughness = 1

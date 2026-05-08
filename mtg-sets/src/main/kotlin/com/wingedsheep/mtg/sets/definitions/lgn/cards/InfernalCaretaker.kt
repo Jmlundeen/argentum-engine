@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val InfernalCaretaker = card("Infernal Caretaker") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 2

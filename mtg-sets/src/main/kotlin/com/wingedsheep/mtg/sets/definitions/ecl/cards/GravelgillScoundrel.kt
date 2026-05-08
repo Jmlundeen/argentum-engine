@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val GravelgillScoundrel = card("Gravelgill Scoundrel") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Rogue"
     power = 1
     toughness = 3

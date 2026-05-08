@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
  */
 val UndyingBeast = card("Undying Beast") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 2

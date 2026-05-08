@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
  */
 val CombatResearch = card("Combat Research") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature has \"Whenever this creature deals combat damage to a player, draw a card.\"\nAs long as enchanted creature is legendary, it gets +1/+1 and has ward {1}."
 

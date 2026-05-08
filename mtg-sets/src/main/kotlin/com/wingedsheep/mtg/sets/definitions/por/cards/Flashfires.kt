@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val Flashfires = card("Flashfires") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersWithRevealCounters
  */
 val AvenWarhawk = card("Aven Warhawk") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier"
     power = 2
     toughness = 2

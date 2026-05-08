@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BlackbladeReforged = card("Blackblade Reforged") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact — Equipment"
     oracleText = "Equipped creature gets +1/+1 for each land you control.\n" +
         "Equip legendary creature {3}\n" +

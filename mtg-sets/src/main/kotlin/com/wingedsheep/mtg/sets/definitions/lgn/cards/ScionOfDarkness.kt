@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val ScionOfDarkness = card("Scion of Darkness") {
     manaCost = "{5}{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Avatar"
     power = 6
     toughness = 6

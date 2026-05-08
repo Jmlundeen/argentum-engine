@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val NaturesSpiral = card("Nature's Spiral") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Return target permanent card from your graveyard to your hand."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val KeldonRaider = card("Keldon Raider") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Warrior"
     power = 4
     toughness = 3

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.Duration
  */
 val ShadesBreath = card("Shade's Breath") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
 
     spell {

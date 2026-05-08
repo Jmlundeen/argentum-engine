@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val RaccoonRallier = card("Raccoon Rallier") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Raccoon Bard"
     oracleText = "{T}: Target creature you control gains haste until end of turn. Activate only as a sorcery."
     power = 2

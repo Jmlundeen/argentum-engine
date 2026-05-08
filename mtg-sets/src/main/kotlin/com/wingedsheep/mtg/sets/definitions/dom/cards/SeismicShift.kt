@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SeismicShift = card("Seismic Shift") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Destroy target land. Up to two target creatures can't block this turn."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MistformUltimus = card("Mistform Ultimus") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Illusion"
     power = 3
     toughness = 3

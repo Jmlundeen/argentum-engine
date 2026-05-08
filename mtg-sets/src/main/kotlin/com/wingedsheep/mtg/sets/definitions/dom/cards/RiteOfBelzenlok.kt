@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RiteOfBelzenlok = card("Rite of Belzenlok") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I, II — Create two 0/1 black Cleric creature tokens.\n" +

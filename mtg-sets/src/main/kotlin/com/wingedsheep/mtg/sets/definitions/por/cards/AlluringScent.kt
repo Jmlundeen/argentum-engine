@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val AlluringScent = card("Alluring Scent") {
     manaCost = "{1}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

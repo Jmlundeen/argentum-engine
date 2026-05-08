@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Dermoplasm = card("Dermoplasm") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Shapeshifter"
     power = 1
     toughness = 1

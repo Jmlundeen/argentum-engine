@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HollowSpecter = card("Hollow Specter") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Specter"
     power = 2
     toughness = 2

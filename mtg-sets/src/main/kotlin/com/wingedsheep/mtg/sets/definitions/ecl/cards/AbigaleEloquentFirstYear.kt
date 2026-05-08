@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val AbigaleEloquentFirstYear = card("Abigale, Eloquent First-Year") {
     manaCost = "{W/B}{W/B}"
+    colorIdentity = "WB"
     typeLine = "Legendary Creature — Bird Bard"
     power = 1
     toughness = 1

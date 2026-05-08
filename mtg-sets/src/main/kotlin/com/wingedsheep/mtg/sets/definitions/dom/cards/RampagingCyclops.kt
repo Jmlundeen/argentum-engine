@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val RampagingCyclops = card("Rampaging Cyclops") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Cyclops"
     power = 4
     toughness = 4

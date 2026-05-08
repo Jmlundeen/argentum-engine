@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val ExcavationElephant = card("Excavation Elephant") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Elephant"
     power = 3
     toughness = 5

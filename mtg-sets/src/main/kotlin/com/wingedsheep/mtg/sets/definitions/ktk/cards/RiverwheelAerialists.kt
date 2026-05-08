@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RiverwheelAerialists = card("Riverwheel Aerialists") {
     manaCost = "{5}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Djinn Monk"
     power = 4
     toughness = 5

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MistfireWeaver = card("Mistfire Weaver") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Djinn Wizard"
     power = 3
     toughness = 1

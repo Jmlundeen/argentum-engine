@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SilentSpecter = card("Silent Specter") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Specter"
     power = 4
     toughness = 4

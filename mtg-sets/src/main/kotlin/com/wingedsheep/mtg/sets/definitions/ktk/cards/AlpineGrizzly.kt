@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AlpineGrizzly = card("Alpine Grizzly") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Bear"
     power = 4
     toughness = 2

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val HordelingOutburst = card("Hordeling Outburst") {
     manaCost = "{1}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Create three 1/1 red Goblin creature tokens."
 

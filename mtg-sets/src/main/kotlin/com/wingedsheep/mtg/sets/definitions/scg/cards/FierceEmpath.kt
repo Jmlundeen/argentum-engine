@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val FierceEmpath = card("Fierce Empath") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 1
     toughness = 1

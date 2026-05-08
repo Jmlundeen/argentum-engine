@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MuerraTrashTactician = card("Muerra, Trash Tactician") {
     manaCost = "{1}{R}{G}"
+    colorIdentity = "RG"
     typeLine = "Legendary Creature — Raccoon Warrior"
     power = 2
     toughness = 4

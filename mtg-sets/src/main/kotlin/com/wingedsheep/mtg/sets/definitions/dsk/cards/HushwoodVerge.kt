@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val HushwoodVerge = card("Hushwood Verge") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}: Add {G}.\n{T}: Add {W}. Activate only if you control a Forest or a Plains."
 
     activatedAbility {

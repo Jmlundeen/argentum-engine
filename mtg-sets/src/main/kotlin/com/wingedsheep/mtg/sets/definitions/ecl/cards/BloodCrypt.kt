@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val BloodCrypt = card("Blood Crypt") {
     typeLine = "Land — Swamp Mountain"
+    colorIdentity = "BR"
     oracleText = "({T}: Add {B} or {R}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 
     // Mana abilities are intrinsic from basic land types (Swamp → {B}, Mountain → {R})

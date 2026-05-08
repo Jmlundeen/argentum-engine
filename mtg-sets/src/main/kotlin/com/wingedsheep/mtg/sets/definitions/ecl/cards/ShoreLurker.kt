@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 
 val ShoreLurker = card("Shore Lurker") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Merfolk Scout"
     power = 3
     toughness = 3

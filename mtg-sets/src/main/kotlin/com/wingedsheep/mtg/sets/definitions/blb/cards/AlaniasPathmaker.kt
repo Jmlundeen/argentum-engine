@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val AlaniasPathmaker = card("Alania's Pathmaker") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Otter Wizard"
     power = 4
     toughness = 2

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val Giantfall = card("Giantfall") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Target creature you control deals damage equal to its power to target creature an opponent controls.\n• Destroy target artifact."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val SoulSalvage = card("Soul Salvage") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Return up to two target creature cards from your graveyard to your hand."
 

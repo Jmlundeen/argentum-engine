@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HighspireMantis = card("Highspire Mantis") {
     manaCost = "{2}{R}{W}"
+    colorIdentity = "WR"
     typeLine = "Creature — Insect"
     power = 3
     toughness = 3

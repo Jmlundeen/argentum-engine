@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SkrelvDefectorMite = card("Skrelv, Defector Mite") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Artifact Creature — Phyrexian Mite"
     power = 1
     toughness = 1

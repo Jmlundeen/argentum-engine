@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val VinereapMentor = card("Vinereap Mentor") {
     manaCost = "{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Creature — Squirrel Druid"
     oracleText = "When this creature enters or dies, create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")"
     power = 3

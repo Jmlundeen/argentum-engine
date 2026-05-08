@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val GravelSlinger = card("Gravel Slinger") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 1
     toughness = 3

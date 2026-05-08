@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PatronOfTheWild = card("Patron of the Wild") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 1
     toughness = 1

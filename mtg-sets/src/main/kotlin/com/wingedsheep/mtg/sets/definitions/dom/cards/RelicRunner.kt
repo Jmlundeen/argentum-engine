@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 val RelicRunner = card("Relic Runner") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Rogue"
     oracleText = "Relic Runner can't be blocked if you've cast a historic spell this turn. (Artifacts, legendaries, and Sagas are historic.)"
     power = 2

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GhituLavarunner = card("Ghitu Lavarunner") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 2

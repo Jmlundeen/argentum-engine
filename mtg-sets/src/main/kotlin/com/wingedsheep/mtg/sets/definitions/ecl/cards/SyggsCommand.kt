@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val SyggsCommand = card("Sygg's Command") {
     manaCost = "{1}{W}{U}"
+    colorIdentity = "WU"
     typeLine = "Kindred Sorcery — Merfolk"
     oracleText = "Choose two —\n" +
             "• Create a token that's a copy of target Merfolk you control.\n" +

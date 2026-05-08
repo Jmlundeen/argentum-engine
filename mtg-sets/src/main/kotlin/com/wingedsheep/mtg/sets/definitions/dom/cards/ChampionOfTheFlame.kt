@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ChampionOfTheFlame = card("Champion of the Flame") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Warrior"
     power = 1
     toughness = 1

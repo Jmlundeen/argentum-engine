@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BushyBodyguard = card("Bushy Bodyguard") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Squirrel Warrior"
     power = 2
     toughness = 1

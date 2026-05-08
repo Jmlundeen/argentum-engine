@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WordsOfWilding = card("Words of Wilding") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "{1}: The next time you would draw a card this turn, create a 2/2 green Bear creature token instead."
 

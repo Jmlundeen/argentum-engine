@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GoblinPsychopath = card("Goblin Psychopath") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Mutant"
     power = 5
     toughness = 5

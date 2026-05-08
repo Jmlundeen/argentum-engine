@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.SpellCostReduction
  */
 val AcademyJourneymage = card("Academy Journeymage") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 3
     toughness = 2

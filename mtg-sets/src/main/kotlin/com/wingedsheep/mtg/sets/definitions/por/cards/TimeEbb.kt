@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val TimeEbb = card("Time Ebb") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

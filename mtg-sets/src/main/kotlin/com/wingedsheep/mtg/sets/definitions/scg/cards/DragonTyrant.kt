@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DragonTyrant = card("Dragon Tyrant") {
     manaCost = "{8}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dragon"
     power = 6
     toughness = 6

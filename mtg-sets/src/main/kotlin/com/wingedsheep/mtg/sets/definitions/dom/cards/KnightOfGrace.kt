@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val KnightOfGrace = card("Knight of Grace") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Knight"
     oracleText = "First strike\nHexproof from black (This creature can't be the target of black spells or abilities your opponents control.)\nKnight of Grace gets +1/+0 as long as any player controls a black permanent."
     power = 2

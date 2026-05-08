@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val Fruition = card("Fruition") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

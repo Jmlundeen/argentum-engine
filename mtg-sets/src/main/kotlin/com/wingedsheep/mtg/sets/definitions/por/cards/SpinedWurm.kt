@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SpinedWurm = card("Spined Wurm") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Wurm"
     power = 5
     toughness = 4

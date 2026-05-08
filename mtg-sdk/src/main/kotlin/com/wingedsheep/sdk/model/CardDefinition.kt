@@ -80,7 +80,8 @@ data class CardDefinition(
     val backFace: CardDefinition? = null,  // For double-faced cards
     val metadata: ScryfallMetadata = ScryfallMetadata(),  // Scryfall metadata for web client
     val startingLoyalty: Int? = null,  // For planeswalkers
-    val legalFormats: Set<DeckFormat> = emptySet()  // Formats in which the card is legal (Scryfall-sourced)
+    val legalFormats: Set<DeckFormat> = emptySet(),  // Formats in which the card is legal (Scryfall-sourced)
+    val colorIdentityOverride: Set<Color>? = null  // Authoritative Scryfall color identity; null = derive from heuristic
 ) {
     init {
         if (typeLine.isCreature) {
@@ -111,9 +112,14 @@ data class CardDefinition(
      *
      * Not yet modelled: explicit color indicators (rule 204) — there's no field on
      * [CardDefinition] for them today. When that's added, fold the indicator's colors in here.
+     *
+     * If [colorIdentityOverride] is set (typically from the Scryfall bulk-data sync), that value
+     * is authoritative and the heuristic is skipped. Use the override for cards where the
+     * heuristic differs from Scryfall (color indicators, devoid, hybrid quirks, etc.).
      */
     val colorIdentity: Set<Color>
         get() {
+            colorIdentityOverride?.let { return it }
             val identity = manaCost.colors.toMutableSet()
             if (oracleText.isNotBlank()) {
                 for (match in COLOR_SYMBOL_REGEX.findAll(oracleText)) {

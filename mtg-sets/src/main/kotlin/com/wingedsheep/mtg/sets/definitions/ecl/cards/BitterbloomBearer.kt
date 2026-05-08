@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val BitterbloomBearer = card("Bitterbloom Bearer") {
     manaCost = "{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Faerie Rogue"
     power = 1
     toughness = 1

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GoblinClearcutter = card("Goblin Clearcutter") {
     manaCost = "{3}{R}"
+    colorIdentity = "RG"
     typeLine = "Creature — Goblin"
     power = 3
     toughness = 3

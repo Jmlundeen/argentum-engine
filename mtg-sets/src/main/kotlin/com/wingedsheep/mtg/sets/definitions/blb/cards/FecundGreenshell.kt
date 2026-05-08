@@ -46,6 +46,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val FecundGreenshell = card("Fecund Greenshell") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental Turtle"
     power = 4
     toughness = 6

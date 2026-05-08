@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RockshardElemental = card("Rockshard Elemental") {
     manaCost = "{5}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental"
     power = 4
     toughness = 3

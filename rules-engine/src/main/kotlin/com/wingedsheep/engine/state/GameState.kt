@@ -7,6 +7,7 @@ import com.wingedsheep.engine.event.GrantedActivatedAbility
 import com.wingedsheep.engine.event.GrantedTriggeredAbility
 import com.wingedsheep.engine.mechanics.layers.ActiveFloatingEffect
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.Format
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.TypeLine
@@ -102,7 +103,22 @@ data class GameState(
     val spellWarpedThisTurn: Boolean = false,
 
     /** Whether a nonland permanent left the battlefield this turn (for the Void ability word). */
-    val nonlandPermanentLeftBattlefieldThisTurn: Boolean = false
+    val nonlandPermanentLeftBattlefieldThisTurn: Boolean = false,
+
+    /**
+     * Game-mode configuration the engine reads for format-dependent behaviour (commander damage
+     * threshold, command-zone redirect, etc.). Defaults to [Format.Standard] so existing
+     * persisted states / tests need no migration.
+     */
+    val format: Format = Format.Standard,
+
+    /**
+     * Cumulative combat damage dealt by each commander to each player, keyed by
+     * `(commanderEntityId, defendingPlayerId)`. Populated by `CombatDamageManager` at the
+     * `DamageDealtEvent` emission sites for combat damage to a player. Read by the
+     * `CommanderDamageLossCheck` SBA against [Format.Commander.commanderDamageThreshold].
+     */
+    val commanderDamage: List<CommanderDamageEntry> = emptyList(),
 ) {
     /**
      * Cached projection of the game state with all continuous effects (Rule 613) applied.
@@ -438,6 +454,37 @@ data class GameState(
         copy(delayedTriggers = delayedTriggers + trigger)
 
     /**
+     * Read the cumulative commander damage dealt by [commanderId] to [defendingPlayerId].
+     */
+    fun commanderDamageOf(commanderId: EntityId, defendingPlayerId: EntityId): Int =
+        commanderDamage.firstOrNull {
+            it.commanderId == commanderId && it.defendingPlayerId == defendingPlayerId
+        }?.amount ?: 0
+
+    /**
+     * Increment cumulative commander damage from [commanderId] to [defendingPlayerId] by [amount].
+     * Returns a new state with the updated tally. Negative or zero amounts are no-ops.
+     */
+    fun recordCommanderDamage(
+        commanderId: EntityId,
+        defendingPlayerId: EntityId,
+        amount: Int,
+    ): GameState {
+        if (amount <= 0) return this
+        val idx = commanderDamage.indexOfFirst {
+            it.commanderId == commanderId && it.defendingPlayerId == defendingPlayerId
+        }
+        return if (idx >= 0) {
+            val existing = commanderDamage[idx]
+            val updated = commanderDamage.toMutableList()
+            updated[idx] = existing.copy(amount = existing.amount + amount)
+            copy(commanderDamage = updated)
+        } else {
+            copy(commanderDamage = commanderDamage + CommanderDamageEntry(commanderId, defendingPlayerId, amount))
+        }
+    }
+
+    /**
      * Remove delayed triggers by their IDs.
      */
     fun removeDelayedTriggers(ids: Set<String>): GameState =
@@ -476,6 +523,18 @@ data class ZoneKey(
 ) {
     override fun toString(): String = "${ownerId.value}:${zoneType.name}"
 }
+
+/**
+ * Cumulative combat damage dealt by a single commander to a single player. Stored as a list of
+ * entries (rather than a `Map<Pair<EntityId, EntityId>, Int>`) so kotlinx.serialization can
+ * round-trip the state — map keys must be primitives.
+ */
+@Serializable
+data class CommanderDamageEntry(
+    val commanderId: EntityId,
+    val defendingPlayerId: EntityId,
+    val amount: Int,
+)
 
 /**
  * Snapshot of a spell's card characteristics at cast time,

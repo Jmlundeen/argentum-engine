@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val DeepchannelDuelist = card("Deepchannel Duelist") {
     manaCost = "{W}{U}"
+    colorIdentity = "WU"
     typeLine = "Creature — Merfolk Soldier"
     power = 2
     toughness = 2

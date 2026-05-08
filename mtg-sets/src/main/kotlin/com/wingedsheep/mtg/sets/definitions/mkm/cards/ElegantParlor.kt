@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val ElegantParlor = card("Elegant Parlor") {
     typeLine = "Land — Mountain Plains"
+    colorIdentity = "WR"
     oracleText = "({T}: Add {R} or {W}.)\nThis land enters tapped.\nWhen this land enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     // Mana abilities are intrinsic from basic land types (Mountain -> {R}, Plains -> {W})

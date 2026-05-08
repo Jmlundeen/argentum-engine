@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect
  */
 val TauntingElf = card("Taunting Elf") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 0
     toughness = 1

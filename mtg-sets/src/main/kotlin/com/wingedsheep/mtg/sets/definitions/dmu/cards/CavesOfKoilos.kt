@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CavesOfKoilos = card("Caves of Koilos") {
     typeLine = "Land"
+    colorIdentity = "WB"
     oracleText = "{T}: Add {C}.\n{T}: Add {W} or {B}. This land deals 1 damage to you."
 
     activatedAbility {

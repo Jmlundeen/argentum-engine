@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val FirehoofCavalry = card("Firehoof Cavalry") {
     manaCost = "{W}"
+    colorIdentity = "WR"
     typeLine = "Creature — Human Berserker"
     power = 1
     toughness = 1

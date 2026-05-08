@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val RhysTheEvermore = card("Rhys, the Evermore") {
     manaCost = "{1}{W}"
+    colorIdentity = ""
     typeLine = "Legendary Creature — Elf Warrior"
     power = 2
     toughness = 2

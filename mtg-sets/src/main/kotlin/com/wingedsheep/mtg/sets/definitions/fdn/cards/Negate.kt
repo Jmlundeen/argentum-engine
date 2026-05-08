@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Negate = card("Negate") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target noncreature spell."
 

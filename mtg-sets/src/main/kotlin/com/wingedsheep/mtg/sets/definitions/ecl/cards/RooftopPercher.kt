@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val RooftopPercher = card("Rooftop Percher") {
     manaCost = "{5}"
+    colorIdentity = ""
     typeLine = "Creature — Shapeshifter"
     power = 3
     toughness = 3

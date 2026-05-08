@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.FaceDownSpellCostReduction
  */
 val DreamChisel = card("Dream Chisel") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "Face-down creature spells you cast cost {1} less to cast."
 

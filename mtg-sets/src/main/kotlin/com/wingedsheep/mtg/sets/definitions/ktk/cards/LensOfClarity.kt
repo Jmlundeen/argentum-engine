@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
  */
 val LensOfClarity = card("Lens of Clarity") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "You may look at the top card of your library and at face-down creatures you don't control any time."
 

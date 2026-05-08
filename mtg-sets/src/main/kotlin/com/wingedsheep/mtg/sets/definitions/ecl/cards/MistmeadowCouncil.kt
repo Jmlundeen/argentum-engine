@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.SpellCostReduction
 
 val MistmeadowCouncil = card("Mistmeadow Council") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Kithkin Advisor"
     power = 4
     toughness = 3

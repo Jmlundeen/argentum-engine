@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CrumbAndGetIt = card("Crumb and Get It") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Gift a Food (You may promise an opponent a gift as you cast this spell. If you do, they create a Food token before its other effects. It's an artifact with \"{2}, {T}, Sacrifice this artifact: You gain 3 life.\")\nTarget creature you control gets +2/+2 until end of turn. If the gift was promised, that creature also gains indestructible until end of turn."
 

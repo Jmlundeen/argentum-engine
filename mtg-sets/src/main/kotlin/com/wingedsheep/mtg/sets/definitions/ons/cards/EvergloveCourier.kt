@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val EvergloveCourier = card("Everglove Courier") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 2
     toughness = 1

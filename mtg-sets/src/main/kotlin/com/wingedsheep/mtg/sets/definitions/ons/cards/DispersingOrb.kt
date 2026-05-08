@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val DispersingOrb = card("Dispersing Orb") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "{3}{U}, Sacrifice a permanent: Return target permanent to its owner's hand."
 

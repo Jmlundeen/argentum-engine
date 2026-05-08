@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
  */
 val TemurCharger = card("Temur Charger") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Horse"
     power = 3
     toughness = 1

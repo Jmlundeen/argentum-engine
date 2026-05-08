@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ChargingPaladin = card("Charging Paladin") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Knight"
     power = 2
     toughness = 2

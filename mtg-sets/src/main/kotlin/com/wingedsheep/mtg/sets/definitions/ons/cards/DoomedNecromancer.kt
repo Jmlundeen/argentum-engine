@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val DoomedNecromancer = card("Doomed Necromancer") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric Mercenary"
     power = 2
     toughness = 2

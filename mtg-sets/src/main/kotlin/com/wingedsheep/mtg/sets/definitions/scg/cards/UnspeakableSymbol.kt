@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
  */
 val UnspeakableSymbol = card("Unspeakable Symbol") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "Pay 3 life: Put a +1/+1 counter on target creature."
 

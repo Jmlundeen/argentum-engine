@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val KilnmouthDragon = card("Kilnmouth Dragon") {
     manaCost = "{5}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dragon"
     power = 5
     toughness = 5

@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
  */
 val AuroraAwakener = card("Aurora Awakener") {
     manaCost = "{6}{G}"
+    colorIdentity = ""
     typeLine = "Creature — Giant Druid"
     oracleText = "Trample\nVivid — When this creature enters, reveal cards from the top of your library " +
         "until you reveal X permanent cards, where X is the number of colors among permanents you control. " +

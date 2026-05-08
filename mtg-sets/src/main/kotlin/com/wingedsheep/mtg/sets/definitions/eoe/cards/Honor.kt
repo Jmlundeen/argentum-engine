@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.dsl.Targets
  */
 val Honor = card("Honor") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Put a +1/+1 counter on target creature.\nDraw a card."
 

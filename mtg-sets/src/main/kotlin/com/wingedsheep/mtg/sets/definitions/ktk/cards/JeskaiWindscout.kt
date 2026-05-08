@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val JeskaiWindscout = card("Jeskai Windscout") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Scout"
     power = 2
     toughness = 1

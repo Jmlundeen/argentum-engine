@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffe
  */
 val HarvestriteHost = card("Harvestrite Host") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Rabbit Citizen"
     power = 3
     toughness = 3

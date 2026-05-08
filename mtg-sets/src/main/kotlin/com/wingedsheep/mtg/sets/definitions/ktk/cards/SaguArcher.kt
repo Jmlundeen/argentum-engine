@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SaguArcher = card("Sagu Archer") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Snake Archer"
     power = 2
     toughness = 5

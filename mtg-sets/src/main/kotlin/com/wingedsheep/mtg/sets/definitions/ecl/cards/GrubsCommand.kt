@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GrubsCommand = card("Grub's Command") {
     manaCost = "{3}{B}{R}"
+    colorIdentity = "BR"
     typeLine = "Kindred Sorcery — Goblin"
     oracleText = "Choose two —\n" +
             "• Create a token that's a copy of target Goblin you control.\n" +

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.IncreaseSpellCostByPlayerSpellsCast
  */
 val DampingSphere = card("Damping Sphere") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "If a land is tapped for two or more mana, it produces {C} instead of any other type and amount.\n" +
         "Each spell a player casts costs {1} more to cast for each other spell that player has cast this turn."

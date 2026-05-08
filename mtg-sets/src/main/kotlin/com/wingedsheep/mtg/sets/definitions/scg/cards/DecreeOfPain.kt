@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val DecreeOfPain = card("Decree of Pain") {
     manaCost = "{6}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Destroy all creatures. They can't be regenerated. Draw a card for each creature destroyed this way.\nCycling {3}{B}{B}\nWhen you cycle Decree of Pain, all creatures get -2/-2 until end of turn."
 

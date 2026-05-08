@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val BloomTender = card("Bloom Tender") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 1
     toughness = 1

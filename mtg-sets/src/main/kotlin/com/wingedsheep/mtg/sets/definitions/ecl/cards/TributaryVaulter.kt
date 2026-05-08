@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val TributaryVaulter = card("Tributary Vaulter") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Merfolk Warrior"
     power = 1
     toughness = 3

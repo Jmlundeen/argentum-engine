@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
  */
 val RunWild = card("Run Wild") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
 
     spell {

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BrambleguardVeteran = card("Brambleguard Veteran") {
     manaCost = "{1}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Raccoon Warrior"
     power = 3
     toughness = 4

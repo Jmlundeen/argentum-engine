@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GoblinChainwhirler = card("Goblin Chainwhirler") {
     manaCost = "{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warrior"
     power = 3
     toughness = 3

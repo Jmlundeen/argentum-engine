@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val WingmateRoc = card("Wingmate Roc") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird"
     power = 3
     toughness = 4

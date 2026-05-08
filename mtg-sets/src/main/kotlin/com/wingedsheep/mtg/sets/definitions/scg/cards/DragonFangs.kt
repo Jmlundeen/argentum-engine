@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val DragonFangs = card("Dragon Fangs") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +1/+1 and has trample.\nWhen a creature with mana value 6 or greater enters, you may return Dragon Fangs from your graveyard to the battlefield attached to that creature."
 

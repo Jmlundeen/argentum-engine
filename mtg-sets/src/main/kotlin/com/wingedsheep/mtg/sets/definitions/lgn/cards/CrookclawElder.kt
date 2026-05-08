@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val CrookclawElder = card("Crookclaw Elder") {
     manaCost = "{5}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Wizard"
     power = 3
     toughness = 2

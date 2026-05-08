@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BladewingsThrall = card("Bladewing's Thrall") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     oracleText = "This creature has flying as long as you control a Dragon.\nWhen a Dragon enters, you may return this card from your graveyard to the battlefield."
     power = 3

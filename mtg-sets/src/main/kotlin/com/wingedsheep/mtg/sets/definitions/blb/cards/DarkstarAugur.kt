@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val DarkstarAugur = card("Darkstar Augur") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bat Warlock"
     power = 2
     toughness = 3

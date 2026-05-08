@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val BiotechSpecialist = card("Biotech Specialist") {
     manaCost = "{R}{G}"
+    colorIdentity = "RG"
     typeLine = "Creature — Insect Scientist"
     power = 1
     toughness = 3

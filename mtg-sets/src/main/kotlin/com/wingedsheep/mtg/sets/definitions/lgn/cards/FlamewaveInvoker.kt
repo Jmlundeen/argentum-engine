@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val FlamewaveInvoker = card("Flamewave Invoker") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Mutant"
     power = 2
     toughness = 2

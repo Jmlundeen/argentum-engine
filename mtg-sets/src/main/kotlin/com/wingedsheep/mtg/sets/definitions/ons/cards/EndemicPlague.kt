@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val EndemicPlague = card("Endemic Plague") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, sacrifice a creature. Destroy all creatures that share a creature type with the sacrificed creature. They can't be regenerated."
 

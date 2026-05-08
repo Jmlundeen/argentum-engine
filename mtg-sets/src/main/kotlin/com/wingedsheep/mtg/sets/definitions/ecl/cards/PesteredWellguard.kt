@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 val PesteredWellguard = card("Pestered Wellguard") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Soldier"
     power = 3
     toughness = 2

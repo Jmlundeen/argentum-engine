@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val MemorialToGlory = card("Memorial to Glory") {
     typeLine = "Land"
+    colorIdentity = "W"
     oracleText = "Memorial to Glory enters the battlefield tapped.\n{T}: Add {W}.\n{3}{W}, {T}, Sacrifice Memorial to Glory: Create two 1/1 white Soldier creature tokens."
 
     replacementEffect(EntersTapped())

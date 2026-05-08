@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val TakeOutTheTrash = card("Take Out the Trash") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Take Out the Trash deals 3 damage to target creature or planeswalker. If you control a Raccoon, you may discard a card. If you do, draw a card."
 

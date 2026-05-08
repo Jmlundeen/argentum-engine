@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
  */
 val SkirkMarauder = card("Skirk Marauder") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 1

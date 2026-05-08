@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WarBehemoth = card("War Behemoth") {
     manaCost = "{5}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 6

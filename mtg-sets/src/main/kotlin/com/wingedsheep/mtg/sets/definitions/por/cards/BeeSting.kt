@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val BeeSting = card("Bee Sting") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

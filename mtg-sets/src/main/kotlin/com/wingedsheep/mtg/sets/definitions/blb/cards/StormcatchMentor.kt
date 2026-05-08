@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.ReduceSpellCostByFilter
  */
 val StormcatchMentor = card("Stormcatch Mentor") {
     manaCost = "{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Creature — Otter Wizard"
     power = 1
     toughness = 1

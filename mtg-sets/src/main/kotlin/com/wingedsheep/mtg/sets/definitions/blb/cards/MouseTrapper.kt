@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MouseTrapper = card("Mouse Trapper") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Mouse Soldier"
     power = 3
     toughness = 2

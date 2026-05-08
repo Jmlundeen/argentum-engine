@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val DiplomaticRelations = card("Diplomatic Relations") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Target creature you control gets +1/+0 and gains vigilance until end of turn. It deals damage equal to its power to target creature an opponent controls."
 

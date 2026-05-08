@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FootSoldiers = card("Foot Soldiers") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 4

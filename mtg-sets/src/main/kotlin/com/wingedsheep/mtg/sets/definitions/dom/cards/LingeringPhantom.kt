@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LingeringPhantom = card("Lingering Phantom") {
     manaCost = "{5}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Spirit"
     power = 5
     toughness = 4

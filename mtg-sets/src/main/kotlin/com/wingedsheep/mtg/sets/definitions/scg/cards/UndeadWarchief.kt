@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.ReduceSpellCostBySubtype
  */
 val UndeadWarchief = card("Undead Warchief") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 1
     toughness = 1

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val GempalmPolluter = card("Gempalm Polluter") {
     manaCost = "{5}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     oracleText = "Cycling {B}{B}\nWhen you cycle Gempalm Polluter, you may have target player lose life equal to the number of Zombies on the battlefield."
     power = 4

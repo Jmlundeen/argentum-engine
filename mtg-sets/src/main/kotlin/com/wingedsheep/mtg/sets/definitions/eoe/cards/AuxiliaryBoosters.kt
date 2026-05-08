@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AuxiliaryBoosters = card("Auxiliary Boosters") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, create a 2/2 colorless Robot artifact creature token and attach this Equipment to it.\nEquipped creature gets +1/+2 and has flying.\nEquip {3}"
 

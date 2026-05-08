@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val PlasmaBolt = card("Plasma Bolt") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Plasma Bolt deals 2 damage to any target.\n" +
         "Void — Plasma Bolt deals 3 damage instead if a nonland permanent left the battlefield " +

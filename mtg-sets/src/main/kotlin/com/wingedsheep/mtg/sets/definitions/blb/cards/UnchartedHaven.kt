@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val UnchartedHaven = card("Uncharted Haven") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "This land enters tapped.\nAs it enters, choose a color.\n{T}: Add one mana of the chosen color."
 
     replacementEffect(EntersTapped())

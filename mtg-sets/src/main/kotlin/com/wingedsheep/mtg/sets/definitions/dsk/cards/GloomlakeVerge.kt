@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val GloomlakeVerge = card("Gloomlake Verge") {
     typeLine = "Land"
+    colorIdentity = "UB"
     oracleText = "{T}: Add {U}.\n{T}: Add {B}. Activate only if you control an Island or a Swamp."
 
     activatedAbility {

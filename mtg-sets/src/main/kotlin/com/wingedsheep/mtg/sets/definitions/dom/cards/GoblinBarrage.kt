@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val GoblinBarrage = card("Goblin Barrage") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Kicker—Sacrifice an artifact or Goblin. (You may sacrifice an artifact or Goblin in addition to any other costs as you cast this spell.)\nGoblin Barrage deals 4 damage to target creature. If this spell was kicked, it also deals 4 damage to target player or planeswalker."
 

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DawnhandEulogist = card("Dawnhand Eulogist") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elf Warlock"
     power = 3
     toughness = 3

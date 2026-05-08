@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val EnchantresssPresence = card("Enchantress's Presence") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "Whenever you cast an enchantment spell, draw a card."
 

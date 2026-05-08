@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val AvenFarseer = card("Aven Farseer") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier"
     power = 1
     toughness = 1

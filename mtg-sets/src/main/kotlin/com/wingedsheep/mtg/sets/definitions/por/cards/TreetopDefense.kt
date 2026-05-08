@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
  */
 val TreetopDefense = card("Treetop Defense") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
 
     spell {

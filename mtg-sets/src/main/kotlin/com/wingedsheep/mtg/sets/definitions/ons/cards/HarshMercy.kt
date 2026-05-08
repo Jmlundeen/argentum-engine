@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
  */
 val HarshMercy = card("Harsh Mercy") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Each player chooses a creature type. Destroy all creatures that aren't of a type chosen this way. They can't be regenerated."
 

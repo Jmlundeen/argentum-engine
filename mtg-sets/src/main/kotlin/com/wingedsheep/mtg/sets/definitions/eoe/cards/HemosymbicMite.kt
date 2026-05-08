@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val HemosymbicMite = card("Hemosymbic Mite") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Mite"
     power = 1
     toughness = 1

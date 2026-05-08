@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SeedglaiveMentor = card("Seedglaive Mentor") {
     manaCost = "{1}{R}{W}"
+    colorIdentity = "WR"
     typeLine = "Creature — Mouse Soldier"
     power = 3
     toughness = 2

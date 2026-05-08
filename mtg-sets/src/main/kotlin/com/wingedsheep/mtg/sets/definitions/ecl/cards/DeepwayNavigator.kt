@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val DeepwayNavigator = card("Deepway Navigator") {
     manaCost = "{W}{U}"
+    colorIdentity = "WU"
     typeLine = "Creature — Merfolk Wizard"
     power = 2
     toughness = 2

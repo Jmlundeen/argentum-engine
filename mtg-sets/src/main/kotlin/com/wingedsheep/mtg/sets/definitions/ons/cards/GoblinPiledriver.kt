@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val GoblinPiledriver = card("Goblin Piledriver") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warrior"
     power = 1
     toughness = 2

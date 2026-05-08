@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CrestedCraghorn = card("Crested Craghorn") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goat Beast"
     power = 4
     toughness = 1

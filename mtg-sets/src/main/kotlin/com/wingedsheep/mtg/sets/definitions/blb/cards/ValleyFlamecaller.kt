@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.events.SourceFilter
  */
 val ValleyFlamecaller = card("Valley Flamecaller") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Lizard Warlock"
     power = 3
     toughness = 3

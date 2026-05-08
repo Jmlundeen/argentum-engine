@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CoruscationMage = card("Coruscation Mage") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Otter Wizard"
     oracleText = "Offspring {2} (You may pay an additional {2} as you cast this spell. If you do, " +
         "when this creature enters, create a 1/1 token copy of it.)\n" +

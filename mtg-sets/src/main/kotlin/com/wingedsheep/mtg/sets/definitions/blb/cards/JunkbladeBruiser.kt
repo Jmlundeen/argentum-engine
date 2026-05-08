@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val JunkbladeBruiser = card("Junkblade Bruiser") {
     manaCost = "{3}{R/G}{R/G}"
+    colorIdentity = "RG"
     typeLine = "Creature — Raccoon Berserker"
     power = 4
     toughness = 5

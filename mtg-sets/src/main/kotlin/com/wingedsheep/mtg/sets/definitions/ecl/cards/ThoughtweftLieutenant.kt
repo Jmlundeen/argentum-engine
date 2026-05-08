@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val ThoughtweftLieutenant = card("Thoughtweft Lieutenant") {
     manaCost = "{G}{W}"
+    colorIdentity = "WG"
     typeLine = "Creature — Kithkin Soldier"
     power = 2
     toughness = 2

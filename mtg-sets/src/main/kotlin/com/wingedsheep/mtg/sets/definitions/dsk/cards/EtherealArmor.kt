@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val EtherealArmor = card("Ethereal Armor") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +1/+1 for each enchantment you control and has first strike."
 

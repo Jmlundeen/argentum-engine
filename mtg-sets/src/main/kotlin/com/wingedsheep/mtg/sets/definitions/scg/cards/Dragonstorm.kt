@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val Dragonstorm = card("Dragonstorm") {
     manaCost = "{8}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Search your library for a Dragon permanent card, put it onto the battlefield, then shuffle.\nStorm (When you cast this spell, copy it for each spell cast before it this turn.)"
 

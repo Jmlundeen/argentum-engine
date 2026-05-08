@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ScreechingBuzzard = card("Screeching Buzzard") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bird"
     power = 2
     toughness = 2

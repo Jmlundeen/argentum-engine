@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val KeeperOfTheNineGales = card("Keeper of the Nine Gales") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Wizard"
     power = 1
     toughness = 2

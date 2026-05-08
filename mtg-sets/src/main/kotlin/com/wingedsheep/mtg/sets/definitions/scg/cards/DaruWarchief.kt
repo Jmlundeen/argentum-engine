@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.ReduceSpellCostBySubtype
  */
 val DaruWarchief = card("Daru Warchief") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 1
     toughness = 1

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GoblinLookout = card("Goblin Lookout") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 1
     toughness = 2

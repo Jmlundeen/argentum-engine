@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val TerritorialAllosaurus = card("Territorial Allosaurus") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Dinosaur"
     power = 5
     toughness = 5

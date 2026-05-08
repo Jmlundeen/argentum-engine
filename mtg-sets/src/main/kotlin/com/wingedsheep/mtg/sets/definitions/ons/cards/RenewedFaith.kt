@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val RenewedFaith = card("Renewed Faith") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "You gain 6 life.\nCycling {1}{W}\nWhen you cycle Renewed Faith, you may gain 2 life."
 

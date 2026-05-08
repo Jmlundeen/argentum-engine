@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val SproutingVines = card("Sprouting Vines") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Search your library for a basic land card, reveal that card, put it into your hand, then shuffle.\nStorm (When you cast this spell, copy it for each spell cast before it this turn.)"
 

@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EclipsedMerrow = card("Eclipsed Merrow") {
     manaCost = "{W/U}{W/U}{W/U}"
+    colorIdentity = "WU"
     typeLine = "Creature — Merfolk Scout"
     power = 2
     toughness = 3

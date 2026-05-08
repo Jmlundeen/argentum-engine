@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.GrantKeywordToOwnSpells
  */
 val RaidingSchemes = card("Raiding Schemes") {
     manaCost = "{3}{R}{G}"
+    colorIdentity = "RG"
     typeLine = "Enchantment"
     oracleText = "Each noncreature spell you cast has conspire. (As you cast a noncreature " +
         "spell, you may tap two untapped creatures you control that share a color with it. " +

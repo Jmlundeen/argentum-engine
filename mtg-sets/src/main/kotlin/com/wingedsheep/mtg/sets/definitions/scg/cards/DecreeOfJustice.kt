@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.core.Keyword
  */
 val DecreeOfJustice = card("Decree of Justice") {
     manaCost = "{X}{X}{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Create X 4/4 white Angel creature tokens with flying.\nCycling {2}{W}\nWhen you cycle Decree of Justice, you may pay {X}. If you do, create X 1/1 white Soldier creature tokens."
 

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GlacierGodmaw = card("Glacier Godmaw") {
     manaCost = "{5}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Leviathan"
     power = 6
     toughness = 6

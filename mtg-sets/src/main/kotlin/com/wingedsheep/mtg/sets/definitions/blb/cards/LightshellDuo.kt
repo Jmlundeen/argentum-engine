@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val LightshellDuo = card("Lightshell Duo") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Rat Otter"
     oracleText = "Prowess\nWhen this creature enters, surveil 2."
     power = 3

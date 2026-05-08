@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GlorySeeker = card("Glory Seeker") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 2

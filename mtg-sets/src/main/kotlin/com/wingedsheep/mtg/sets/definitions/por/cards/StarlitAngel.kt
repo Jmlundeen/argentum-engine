@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val StarlitAngel = card("Starlit Angel") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Angel"
     power = 3
     toughness = 4

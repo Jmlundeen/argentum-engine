@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val AzureBeastbinder = card("Azure Beastbinder") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Rat Rogue"
     power = 1
     toughness = 3

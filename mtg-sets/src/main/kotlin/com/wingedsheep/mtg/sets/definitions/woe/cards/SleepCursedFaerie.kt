@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SleepCursedFaerie = card("Sleep-Cursed Faerie") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Faerie Wizard"
     power = 3
     toughness = 3

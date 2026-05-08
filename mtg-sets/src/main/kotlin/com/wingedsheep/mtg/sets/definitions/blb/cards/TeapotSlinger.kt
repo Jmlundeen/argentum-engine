@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TeapotSlinger = card("Teapot Slinger") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Raccoon Warrior"
     power = 3
     toughness = 4

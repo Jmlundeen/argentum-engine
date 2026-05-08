@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val NightwhorlHermit = card("Nightwhorl Hermit") {
     manaCost = "{2}{U}"
+    colorIdentity = ""
     typeLine = "Creature — Rat Rogue"
     power = 1
     toughness = 4

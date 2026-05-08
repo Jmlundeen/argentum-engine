@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CribSwap = card("Crib Swap") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Kindred Instant — Shapeshifter"
     oracleText = "Changeling (This card is every creature type.)\n" +
         "Exile target creature. Its controller creates a 1/1 colorless Shapeshifter creature token with changeling."

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val NebulaDragon = card("Nebula Dragon") {
     manaCost = "{6}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dragon"
     oracleText = "Flying\nWhen this creature enters, it deals 3 damage to any target."
     power = 4

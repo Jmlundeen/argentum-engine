@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val DispersalShield = card("Dispersal Shield") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell if its mana value is less than or equal to the greatest mana value among permanents you control."
 

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AvenEnvoy = card("Aven Envoy") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Soldier"
     power = 0
     toughness = 2

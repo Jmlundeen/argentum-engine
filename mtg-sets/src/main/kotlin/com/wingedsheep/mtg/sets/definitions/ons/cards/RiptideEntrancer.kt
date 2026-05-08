@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val RiptideEntrancer = card("Riptide Entrancer") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1

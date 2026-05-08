@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val Kurgadon = card("Kurgadon") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 3

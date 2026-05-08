@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ClifftopRetreat = card("Clifftop Retreat") {
     typeLine = "Land"
+    colorIdentity = "WR"
     oracleText = "This land enters tapped unless you control a Mountain or a Plains.\n{T}: Add {R} or {W}."
 
     replacementEffect(EntersTapped(

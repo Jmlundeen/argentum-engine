@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
  */
 val Dragonstalker = card("Dragonstalker") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier"
     power = 3
     toughness = 3

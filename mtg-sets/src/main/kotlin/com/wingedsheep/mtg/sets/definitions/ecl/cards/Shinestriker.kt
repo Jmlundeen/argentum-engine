@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Shinestriker = card("Shinestriker") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental"
     oracleText = "Flying\nVivid — When this creature enters, draw cards equal to the number of colors " +
         "among permanents you control."

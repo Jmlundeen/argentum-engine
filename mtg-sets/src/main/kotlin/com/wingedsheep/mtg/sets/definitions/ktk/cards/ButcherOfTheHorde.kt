@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ButcherOfTheHorde = card("Butcher of the Horde") {
     manaCost = "{1}{R}{W}{B}"
+    colorIdentity = "WBR"
     typeLine = "Creature — Demon"
     power = 5
     toughness = 4

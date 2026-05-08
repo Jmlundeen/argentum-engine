@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val LeeryFogbeast = card("Leery Fogbeast") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 2

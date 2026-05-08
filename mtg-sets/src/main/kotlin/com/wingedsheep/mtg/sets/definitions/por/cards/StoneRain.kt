@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val StoneRain = card("Stone Rain") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

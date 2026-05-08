@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val FinalParting = card("Final Parting") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Search your library for two cards. Put one into your hand and the other into your graveyard. Then shuffle."
 

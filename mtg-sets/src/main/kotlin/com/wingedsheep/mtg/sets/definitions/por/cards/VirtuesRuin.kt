@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val VirtuesRuin = card("Virtue's Ruin") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

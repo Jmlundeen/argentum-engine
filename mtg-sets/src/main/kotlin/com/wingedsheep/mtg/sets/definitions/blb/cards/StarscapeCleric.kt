@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val StarscapeCleric = card("Starscape Cleric") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bat Cleric"
     oracleText = "Offspring {2}{B} (You may pay an additional {2}{B} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nFlying\nThis creature can't block.\nWhenever you gain life, each opponent loses 1 life."
     power = 2

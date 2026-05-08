@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SpellSnare = card("Spell Snare") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell with mana value 2."
 

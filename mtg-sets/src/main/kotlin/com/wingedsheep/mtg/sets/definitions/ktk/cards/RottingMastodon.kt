@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.model.Rarity
 
 val RottingMastodon = card("Rotting Mastodon") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Elephant"
     power = 2
     toughness = 8

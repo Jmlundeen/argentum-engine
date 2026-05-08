@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val FlameChainMauler = card("Flame-Chain Mauler") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Warrior"
     power = 2
     toughness = 2

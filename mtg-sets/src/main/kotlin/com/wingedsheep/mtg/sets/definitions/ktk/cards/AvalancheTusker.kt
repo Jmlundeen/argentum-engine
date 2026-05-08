@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AvalancheTusker = card("Avalanche Tusker") {
     manaCost = "{2}{G}{U}{R}"
+    colorIdentity = "URG"
     typeLine = "Creature — Elephant Warrior"
     power = 6
     toughness = 4

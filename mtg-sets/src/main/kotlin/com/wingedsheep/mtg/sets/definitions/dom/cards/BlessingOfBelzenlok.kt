@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val BlessingOfBelzenlok = card("Blessing of Belzenlok") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Target creature gets +2/+1 until end of turn. If it's legendary, it also gains lifelink until end of turn."
 

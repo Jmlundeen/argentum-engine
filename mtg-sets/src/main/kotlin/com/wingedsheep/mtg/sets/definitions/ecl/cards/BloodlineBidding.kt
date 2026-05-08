@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val BloodlineBidding = card("Bloodline Bidding") {
     manaCost = "{6}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\n" +
         "Choose a creature type. Return all creature cards of the chosen type from your graveyard to the battlefield."

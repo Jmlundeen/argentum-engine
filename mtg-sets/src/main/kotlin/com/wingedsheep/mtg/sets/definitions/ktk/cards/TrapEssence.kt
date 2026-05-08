@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val TrapEssence = card("Trap Essence") {
     manaCost = "{G}{U}{R}"
+    colorIdentity = "URG"
     typeLine = "Instant"
     oracleText = "Counter target creature spell. Put two +1/+1 counters on up to one target creature."
 

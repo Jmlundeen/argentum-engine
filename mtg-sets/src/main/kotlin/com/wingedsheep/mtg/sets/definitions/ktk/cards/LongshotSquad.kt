@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LongshotSquad = card("Longshot Squad") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Dog Archer"
     power = 3
     toughness = 3

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val SearingFlesh = card("Searing Flesh") {
     manaCost = "{6}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Searing Flesh deals 7 damage to target opponent."
 

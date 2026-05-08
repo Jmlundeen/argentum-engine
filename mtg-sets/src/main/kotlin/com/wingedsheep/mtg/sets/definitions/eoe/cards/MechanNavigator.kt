@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MechanNavigator = card("Mechan Navigator") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Artifact Creature — Robot Pilot"
     power = 2
     toughness = 1

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.core.Step
  */
 val SystemsOverride = card("Systems Override") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Gain control of target artifact or creature until end of turn. Untap that permanent. It gains haste until end of turn. If it's a Spacecraft, put ten charge counters on it. If you do, remove ten charge counters from it at the beginning of the next end step."
 

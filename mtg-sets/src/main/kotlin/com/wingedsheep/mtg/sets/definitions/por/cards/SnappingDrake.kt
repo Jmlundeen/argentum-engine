@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SnappingDrake = card("Snapping Drake") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Drake"
     power = 3
     toughness = 2

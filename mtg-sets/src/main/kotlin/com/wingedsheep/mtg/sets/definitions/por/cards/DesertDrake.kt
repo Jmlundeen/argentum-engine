@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DesertDrake = card("Desert Drake") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Drake"
     power = 2
     toughness = 2

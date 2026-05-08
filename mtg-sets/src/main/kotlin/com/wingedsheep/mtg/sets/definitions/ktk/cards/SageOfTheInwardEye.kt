@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SageOfTheInwardEye = card("Sage of the Inward Eye") {
     manaCost = "{2}{U}{R}{W}"
+    colorIdentity = "WUR"
     typeLine = "Creature — Djinn Wizard"
     power = 3
     toughness = 4

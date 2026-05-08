@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val CryogenRelic = card("Cryogen Relic") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Artifact"
     oracleText = "When this artifact enters or leaves the battlefield, draw a card.\n{1}{U}, Sacrifice this artifact: Put a stun counter on up to one target tapped creature. (If a permanent with a stun counter would become untapped, remove one from it instead.)"
 

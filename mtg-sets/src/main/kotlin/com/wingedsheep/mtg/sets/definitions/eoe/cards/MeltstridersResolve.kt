@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val MeltstridersResolve = card("Meltstrider's Resolve") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature you control\nWhen this Aura enters, enchanted creature fights up to one target creature an opponent controls. (Each deals damage equal to its power to the other.)\nEnchanted creature gets +0/+2 and can't be blocked by more than one creature."
 

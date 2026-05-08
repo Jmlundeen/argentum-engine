@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val BenalishMarshal = card("Benalish Marshal") {
     manaCost = "{W}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Knight"
     power = 3
     toughness = 3

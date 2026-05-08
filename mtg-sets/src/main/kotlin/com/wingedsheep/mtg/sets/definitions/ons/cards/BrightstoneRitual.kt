@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BrightstoneRitual = card("Brightstone Ritual") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Add {R} for each Goblin on the battlefield."
 

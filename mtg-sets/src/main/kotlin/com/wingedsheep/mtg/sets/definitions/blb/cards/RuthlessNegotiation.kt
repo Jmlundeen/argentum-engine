@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RuthlessNegotiation = card("Ruthless Negotiation") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target opponent exiles a card from their hand. If this spell was cast from a graveyard, draw a card.\nFlashback {4}{B} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 

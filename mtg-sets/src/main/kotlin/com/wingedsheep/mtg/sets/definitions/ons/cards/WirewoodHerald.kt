@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val WirewoodHerald = card("Wirewood Herald") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 1
     toughness = 1

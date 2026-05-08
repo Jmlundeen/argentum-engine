@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val Erase = card("Erase") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Exile target enchantment."
 

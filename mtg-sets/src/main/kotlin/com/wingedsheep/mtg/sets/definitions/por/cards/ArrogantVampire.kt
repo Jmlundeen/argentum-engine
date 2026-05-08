@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ArrogantVampire = card("Arrogant Vampire") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Vampire"
     power = 4
     toughness = 3

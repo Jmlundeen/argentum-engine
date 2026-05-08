@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val CallTheCavalry = card("Call the Cavalry") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Create two 2/2 white Knight creature tokens with vigilance."
 

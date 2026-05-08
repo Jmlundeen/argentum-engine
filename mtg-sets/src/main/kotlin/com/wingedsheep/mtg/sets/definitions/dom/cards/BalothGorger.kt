@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BalothGorger = card("Baloth Gorger") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 4

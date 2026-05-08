@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ArtistsTalent = card("Artist's Talent") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Class"
     oracleText = "Whenever you cast a noncreature spell, you may discard a card. If you do, draw a card.\n{2}{R}: Level 2 — Noncreature spells you cast cost {1} less to cast.\n{2}{R}: Level 3 — If a source you control would deal noncombat damage to an opponent or a permanent an opponent controls, it deals that much damage plus 2 instead."
 

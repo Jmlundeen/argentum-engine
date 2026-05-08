@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AbzanBattlePriest = card("Abzan Battle Priest") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 3
     toughness = 2

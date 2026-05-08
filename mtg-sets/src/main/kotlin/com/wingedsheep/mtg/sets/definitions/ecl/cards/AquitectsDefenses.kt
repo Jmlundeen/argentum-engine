@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AquitectsDefenses = card("Aquitect's Defenses") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Flash\nEnchant creature you control\nWhen this Aura enters, enchanted creature gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)\nEnchanted creature gets +1/+2."
 

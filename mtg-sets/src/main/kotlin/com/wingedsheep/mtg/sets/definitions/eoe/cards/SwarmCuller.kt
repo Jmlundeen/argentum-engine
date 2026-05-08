@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val SwarmCuller = card("Swarm Culler") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Insect Warrior"
     power = 2
     toughness = 4

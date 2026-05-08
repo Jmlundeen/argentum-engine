@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
  */
 val VoraciousTomeSkimmer = card("Voracious Tome-Skimmer") {
     manaCost = "{U/B}{U/B}{U/B}"
+    colorIdentity = "UB"
     typeLine = "Creature — Faerie Rogue"
     power = 2
     toughness = 3

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val TheftOfDreams = card("Theft of Dreams") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

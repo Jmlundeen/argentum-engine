@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val CaretakersTalent = card("Caretaker's Talent") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Class"
     oracleText = "Whenever one or more tokens you control enter, draw a card. This ability triggers only once each turn.\n" +
         "{W}: Level 2 — When this Class becomes level 2, create a token that's a copy of target token you control.\n" +

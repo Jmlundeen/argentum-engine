@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GaeasProtector = card("Gaea's Protector") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental Warrior"
     power = 4
     toughness = 2

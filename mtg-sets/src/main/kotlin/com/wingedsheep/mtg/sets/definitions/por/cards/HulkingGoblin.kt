@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
  */
 val HulkingGoblin = card("Hulking Goblin") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 2

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Savor = card("Savor") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Target creature gets -2/-2 until end of turn. Create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")"
 

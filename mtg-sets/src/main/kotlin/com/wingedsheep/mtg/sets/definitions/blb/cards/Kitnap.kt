@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Kitnap = card("Kitnap") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, when it enters, they draw a card.)\nEnchant creature\nWhen this Aura enters, tap enchanted creature. If the gift wasn't promised, put three stun counters on it.\nYou control enchanted creature."
 

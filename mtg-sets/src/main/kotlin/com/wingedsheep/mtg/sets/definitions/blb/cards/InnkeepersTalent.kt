@@ -34,6 +34,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val InnkeepersTalent = card("Innkeeper's Talent") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Class"
     oracleText = "At the beginning of combat on your turn, put a +1/+1 counter on target creature you control.\n" +
         "{G}: Level 2 — Permanents you control with counters on them have ward {1}.\n" +

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SteelyResolve = card("Steely Resolve") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "As Steely Resolve enters the battlefield, choose a creature type.\nCreatures of the chosen type have shroud."
 

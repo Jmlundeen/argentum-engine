@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KaronasZealot = card("Karona's Zealot") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 5

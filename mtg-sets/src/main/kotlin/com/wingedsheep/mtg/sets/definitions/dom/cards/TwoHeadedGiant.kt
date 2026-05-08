@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TwoHeadedGiant = card("Two-Headed Giant") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Giant Warrior"
     power = 4
     toughness = 4

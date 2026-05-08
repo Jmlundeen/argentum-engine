@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val RiskyMove = card("Risky Move") {
     manaCost = "{3}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "At the beginning of each player's upkeep, that player gains control of Risky Move.\n" +
         "When you gain control of Risky Move from another player, choose a creature you control and an opponent. " +

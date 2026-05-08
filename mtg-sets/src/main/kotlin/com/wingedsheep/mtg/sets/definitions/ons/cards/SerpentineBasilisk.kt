@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.core.Step
  */
 val SerpentineBasilisk = card("Serpentine Basilisk") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Basilisk"
     power = 2
     toughness = 3

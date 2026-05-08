@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
  */
 val Gigapede = card("Gigapede") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect"
     power = 6
     toughness = 1

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val JhoiraWeatherlightCaptain = card("Jhoira, Weatherlight Captain") {
     manaCost = "{2}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Legendary Creature — Human Artificer"
     power = 3
     toughness = 3

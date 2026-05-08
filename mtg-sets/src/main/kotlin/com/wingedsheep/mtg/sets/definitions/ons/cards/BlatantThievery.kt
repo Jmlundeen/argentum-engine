@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val BlatantThievery = card("Blatant Thievery") {
     manaCost = "{4}{U}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "For each opponent, gain control of target permanent that player controls."
 

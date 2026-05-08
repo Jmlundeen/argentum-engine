@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val Demystify = card("Demystify") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Destroy target enchantment."
 

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val ThunderingFalls = card("Thundering Falls") {
     typeLine = "Land — Island Mountain"
+    colorIdentity = "UR"
     oracleText = "({T}: Add {U} or {R}.)\nThis land enters tapped.\nWhen this land enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     // Mana abilities are intrinsic from basic land types (Island -> {U}, Mountain -> {R})

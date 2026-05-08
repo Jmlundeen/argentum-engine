@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 // to the battlefield tapped.
 val LumraBellowOfTheWoods = card("Lumra, Bellow of the Woods") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Creature — Elemental Bear"
     oracleText = "Vigilance, reach\nLumra, Bellow of the Woods's power and toughness are each equal to the number of lands you control.\nWhen Lumra, Bellow of the Woods enters, mill four cards. Then return all land cards from your graveyard to the battlefield tapped."
 

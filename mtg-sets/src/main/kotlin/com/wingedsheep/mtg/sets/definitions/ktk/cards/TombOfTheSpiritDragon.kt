@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val TombOfTheSpiritDragon = card("Tomb of the Spirit Dragon") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}: Add {C}.\n{2}, {T}: You gain 1 life for each colorless creature you control."
 
     activatedAbility {

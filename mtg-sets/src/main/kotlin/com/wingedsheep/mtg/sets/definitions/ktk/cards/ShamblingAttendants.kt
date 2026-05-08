@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ShamblingAttendants = card("Shambling Attendants") {
     manaCost = "{7}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 3
     toughness = 5

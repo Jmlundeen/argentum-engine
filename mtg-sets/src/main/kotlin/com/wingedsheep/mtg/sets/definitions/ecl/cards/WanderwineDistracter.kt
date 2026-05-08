@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 
 val WanderwineDistracter = card("Wanderwine Distracter") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Wizard"
     power = 4
     toughness = 3

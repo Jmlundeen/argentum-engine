@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val JoustingLance = card("Jousting Lance") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "Equipped creature gets +2/+0.\nAs long as it's your turn, equipped creature has first strike.\nEquip {3}"
 

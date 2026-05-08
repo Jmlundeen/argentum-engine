@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CabalPaladin = card("Cabal Paladin") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Knight"
     power = 4
     toughness = 2

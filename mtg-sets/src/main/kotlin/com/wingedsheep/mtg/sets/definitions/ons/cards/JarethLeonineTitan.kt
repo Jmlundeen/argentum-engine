@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val JarethLeonineTitan = card("Jareth, Leonine Titan") {
     manaCost = "{3}{W}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Cat Giant"
     power = 4
     toughness = 7

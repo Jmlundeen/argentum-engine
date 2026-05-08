@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponentOrPlaneswalker
  */
 val JeskaiCharm = card("Jeskai Charm") {
     manaCost = "{U}{R}{W}"
+    colorIdentity = "WUR"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Put target creature on top of its owner's library.\n• Jeskai Charm deals 4 damage to target opponent or planeswalker.\n• Creatures you control get +1/+1 and gain lifelink until end of turn."
 

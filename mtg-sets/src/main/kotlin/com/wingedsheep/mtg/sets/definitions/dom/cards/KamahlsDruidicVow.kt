@@ -44,6 +44,7 @@ private val LandOrLegendaryPermanent = GameObjectFilter(
  */
 val KamahlsDruidicVow = card("Kamahl's Druidic Vow") {
     manaCost = "{X}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Sorcery"
     oracleText = "(You may cast a legendary sorcery only if you control a legendary creature or planeswalker.)\nLook at the top X cards of your library. You may put any number of land and/or legendary permanent cards with mana value X or less from among them onto the battlefield. Put the rest into your graveyard."
 

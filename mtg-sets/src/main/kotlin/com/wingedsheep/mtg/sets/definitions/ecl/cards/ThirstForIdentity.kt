@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ThirstForIdentity = card("Thirst for Identity") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Draw three cards. Then discard two cards unless you discard a creature card."
 

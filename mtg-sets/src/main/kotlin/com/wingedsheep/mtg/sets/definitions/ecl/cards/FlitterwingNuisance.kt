@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 
 val FlitterwingNuisance = card("Flitterwing Nuisance") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Faerie Rogue"
     power = 2
     toughness = 2

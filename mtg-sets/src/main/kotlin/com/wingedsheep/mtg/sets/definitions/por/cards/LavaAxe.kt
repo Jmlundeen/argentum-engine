@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val LavaAxe = card("Lava Axe") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

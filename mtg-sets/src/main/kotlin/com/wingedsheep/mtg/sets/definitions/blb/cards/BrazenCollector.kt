@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BrazenCollector = card("Brazen Collector") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Raccoon Rogue"
     power = 2
     toughness = 1

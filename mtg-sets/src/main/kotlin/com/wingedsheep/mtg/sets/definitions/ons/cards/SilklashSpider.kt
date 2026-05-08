@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SilklashSpider = card("Silklash Spider") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Spider"
     power = 2
     toughness = 7

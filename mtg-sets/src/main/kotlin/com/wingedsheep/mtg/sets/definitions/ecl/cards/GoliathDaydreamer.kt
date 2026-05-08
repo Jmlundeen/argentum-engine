@@ -34,6 +34,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GoliathDaydreamer = card("Goliath Daydreamer") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Giant Wizard"
     power = 4
     toughness = 4

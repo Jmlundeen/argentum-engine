@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val PegasusCourser = card("Pegasus Courser") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Pegasus"
     power = 1
     toughness = 3

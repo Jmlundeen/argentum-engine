@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FerventStrike = card("Fervent Strike") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Target creature gets +1/+0 and gains first strike and haste until end of turn."
 

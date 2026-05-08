@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val HelgaSkittishSeer = card("Helga, Skittish Seer") {
     manaCost = "{G}{W}{U}"
+    colorIdentity = "WUG"
     typeLine = "Legendary Creature — Frog Druid"
     power = 1
     toughness = 3

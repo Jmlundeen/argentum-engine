@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val WoodlandCemetery = card("Woodland Cemetery") {
     typeLine = "Land"
+    colorIdentity = "BG"
     oracleText = "This land enters tapped unless you control a Swamp or a Forest.\n{T}: Add {B} or {G}."
 
     replacementEffect(EntersTapped(

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Woodcloaker = card("Woodcloaker") {
     manaCost = "{5}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 3
     toughness = 3

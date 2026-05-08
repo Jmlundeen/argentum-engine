@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BarbedBloodletter = card("Barbed Bloodletter") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Artifact — Equipment"
     oracleText = "Flash\nWhen this Equipment enters, attach it to target creature you control. That creature gains wither until end of turn. (It deals damage to creatures in the form of -1/-1 counters.)\nEquipped creature gets +1/+2.\nEquip {2}"
 

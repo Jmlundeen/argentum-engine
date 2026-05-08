@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DecreeOfAnnihilation = card("Decree of Annihilation") {
     manaCost = "{8}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Exile all artifacts, creatures, and lands from the battlefield, all cards from all graveyards, and all cards from all hands.\nCycling {5}{R}{R}\nWhen you cycle Decree of Annihilation, destroy all lands."
 

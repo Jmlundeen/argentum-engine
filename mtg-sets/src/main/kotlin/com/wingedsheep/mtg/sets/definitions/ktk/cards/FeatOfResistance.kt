@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FeatOfResistance = card("Feat of Resistance") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Put a +1/+1 counter on target creature you control. It gains protection from the color of your choice until end of turn."
 

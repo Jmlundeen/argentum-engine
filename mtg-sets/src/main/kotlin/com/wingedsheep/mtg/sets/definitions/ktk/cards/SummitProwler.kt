@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SummitProwler = card("Summit Prowler") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Yeti"
     power = 4
     toughness = 3

@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
  */
 val ClifftopLookout = card("Clifftop Lookout") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Frog Scout"
     oracleText = "Reach\nWhen this creature enters, reveal cards from the top of your library until you reveal a land card. Put that card onto the battlefield tapped and the rest on the bottom of your library in a random order."
     power = 1

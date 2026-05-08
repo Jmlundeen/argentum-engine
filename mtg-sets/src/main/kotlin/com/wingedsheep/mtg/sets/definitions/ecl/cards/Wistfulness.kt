@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val Wistfulness = card("Wistfulness") {
     manaCost = "{3}{G/U}{G/U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Elemental Incarnation"
     power = 6
     toughness = 5

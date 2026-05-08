@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val RazorvergeThicket = card("Razorverge Thicket") {
     typeLine = "Land"
+    colorIdentity = "WG"
     oracleText = "This land enters tapped unless you control two or fewer other lands.\n{T}: Add {G} or {W}."
 
     replacementEffect(EntersTapped(

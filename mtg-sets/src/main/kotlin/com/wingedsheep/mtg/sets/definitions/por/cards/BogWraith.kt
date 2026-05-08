@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BogWraith = card("Bog Wraith") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Wraith"
     power = 3
     toughness = 3

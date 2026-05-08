@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GoblinBully = card("Goblin Bully") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 1

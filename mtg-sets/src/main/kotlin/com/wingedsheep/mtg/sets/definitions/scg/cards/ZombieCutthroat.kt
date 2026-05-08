@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
  */
 val ZombieCutthroat = card("Zombie Cutthroat") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 3
     toughness = 4

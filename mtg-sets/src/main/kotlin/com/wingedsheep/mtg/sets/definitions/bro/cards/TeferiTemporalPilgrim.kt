@@ -41,6 +41,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Planeswalker — Teferi"
     startingLoyalty = 4
     oracleText = "Whenever you draw a card, put a loyalty counter on Teferi, Temporal Pilgrim.\n" +

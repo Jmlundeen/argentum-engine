@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val ChiefOfTheScale = card("Chief of the Scale") {
     manaCost = "{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 3

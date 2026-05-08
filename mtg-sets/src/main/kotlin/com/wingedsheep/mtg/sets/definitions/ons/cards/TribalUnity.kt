@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val TribalUnity = card("Tribal Unity") {
     manaCost = "{X}{2}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Creatures of the creature type of your choice get +X/+X until end of turn."
 

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.SkipCombatPhasesEffect
  */
 val FalsePeace = card("False Peace") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

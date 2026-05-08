@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val BurdenedStoneback = card("Burdened Stoneback") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Giant Warrior"
     power = 4
     toughness = 4

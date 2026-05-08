@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
  */
 val ChaosSpewer = card("Chaos Spewer") {
     manaCost = "{2}{B/R}"
+    colorIdentity = "BR"
     typeLine = "Creature — Goblin Warlock"
     power = 5
     toughness = 4

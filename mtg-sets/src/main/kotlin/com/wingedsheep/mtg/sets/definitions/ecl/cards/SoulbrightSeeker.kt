@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffe
  */
 val SoulbrightSeeker = card("Soulbright Seeker") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Sorcerer"
     power = 2
     toughness = 1

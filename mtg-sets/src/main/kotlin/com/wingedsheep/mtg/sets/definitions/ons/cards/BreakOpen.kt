@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val BreakOpen = card("Break Open") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Turn target face-down creature an opponent controls face up."
 

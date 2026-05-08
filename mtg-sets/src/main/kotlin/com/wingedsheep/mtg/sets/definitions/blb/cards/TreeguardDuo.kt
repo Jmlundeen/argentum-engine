@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val TreeguardDuo = card("Treeguard Duo") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Frog Rabbit"
     oracleText = "When this creature enters, until end of turn, target creature you control gains vigilance and gets +X/+X, where X is the number of creatures you control."
     power = 3

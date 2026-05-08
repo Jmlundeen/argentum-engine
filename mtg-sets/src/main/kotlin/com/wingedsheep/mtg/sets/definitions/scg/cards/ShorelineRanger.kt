@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val ShorelineRanger = card("Shoreline Ranger") {
     manaCost = "{5}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Soldier"
     power = 3
     toughness = 4

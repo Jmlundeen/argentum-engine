@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val StarfighterPilot = card("Starfighter Pilot") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Pilot"
     oracleText = "Whenever this creature becomes tapped, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
     power = 2

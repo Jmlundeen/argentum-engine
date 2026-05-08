@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
  */
 val MolecularModifier = card("Molecular Modifier") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Kavu Artificer"
     power = 2
     toughness = 2

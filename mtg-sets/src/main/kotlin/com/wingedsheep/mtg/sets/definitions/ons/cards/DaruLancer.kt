@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DaruLancer = card("Daru Lancer") {
     manaCost = "{4}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 3
     toughness = 4

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BaylenTheHaymaker = card("Baylen, the Haymaker") {
     manaCost = "{R}{G}{W}"
+    colorIdentity = "WRG"
     typeLine = "Legendary Creature — Rabbit Warrior"
     power = 4
     toughness = 3

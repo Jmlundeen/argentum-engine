@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val WipeClean = card("Wipe Clean") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Exile target enchantment.\nCycling {3}"
 

@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val RoarOfChallenge = card("Roar of Challenge") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "All creatures able to block target creature this turn do so.\nFerocious — That creature gains indestructible until end of turn if you control a creature with power 4 or greater."
 

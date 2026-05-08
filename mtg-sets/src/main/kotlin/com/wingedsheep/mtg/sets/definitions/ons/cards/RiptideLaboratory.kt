@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val RiptideLaboratory = card("Riptide Laboratory") {
     typeLine = "Land"
+    colorIdentity = "U"
     oracleText = "{T}: Add {C}.\n{1}{U}, {T}: Return target Wizard you control to its owner's hand."
 
     activatedAbility {

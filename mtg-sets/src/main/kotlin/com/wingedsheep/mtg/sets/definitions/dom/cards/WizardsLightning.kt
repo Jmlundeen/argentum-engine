@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.SpellCostReduction
  */
 val WizardsLightning = card("Wizard's Lightning") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "This spell costs {2} less to cast if you control a Wizard.\nWizard's Lightning deals 3 damage to any target."
 

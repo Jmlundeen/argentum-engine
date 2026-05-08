@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val IxidorsWill = card("Ixidor's Will") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell unless its controller pays {2} for each Wizard on the battlefield."
 

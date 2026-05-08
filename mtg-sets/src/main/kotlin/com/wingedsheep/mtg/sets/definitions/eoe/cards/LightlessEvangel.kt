@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LightlessEvangel = card("Lightless Evangel") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Vampire Cleric"
     power = 2
     toughness = 2

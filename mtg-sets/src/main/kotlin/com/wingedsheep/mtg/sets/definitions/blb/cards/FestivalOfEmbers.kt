@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
  */
 val FestivalOfEmbers = card("Festival of Embers") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "During your turn, you may cast instant and sorcery spells from your graveyard by paying 1 life in addition to their other costs.\nIf a card or token would be put into your graveyard from anywhere, exile it instead.\n{1}{R}: Sacrifice this enchantment."
 

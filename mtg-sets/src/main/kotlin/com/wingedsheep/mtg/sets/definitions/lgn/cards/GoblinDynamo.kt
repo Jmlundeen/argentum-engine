@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GoblinDynamo = card("Goblin Dynamo") {
     manaCost = "{5}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Mutant"
     power = 4
     toughness = 4

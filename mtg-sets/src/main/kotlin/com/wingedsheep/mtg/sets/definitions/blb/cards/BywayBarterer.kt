@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val BywayBarterer = card("Byway Barterer") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Raccoon Rogue"
     power = 3
     toughness = 3

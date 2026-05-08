@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val MoxAmber = card("Mox Amber") {
     manaCost = "{0}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact"
     oracleText = "{T}: Add one mana of any color among legendary creatures and planeswalkers you control."
 

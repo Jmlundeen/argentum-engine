@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val BlossomingSands = card("Blossoming Sands") {
     typeLine = "Land"
+    colorIdentity = "WG"
     oracleText = "This land enters tapped.\nWhen this land enters, you gain 1 life.\n{T}: Add {G} or {W}."
 
     replacementEffect(EntersTapped())

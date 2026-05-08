@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val NanoformSentinel = card("Nanoform Sentinel") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Artifact Creature — Robot"
     oracleText = "Whenever this creature becomes tapped, untap another target permanent. This ability triggers only once each turn."
     power = 3

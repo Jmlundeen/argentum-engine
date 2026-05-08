@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val BuildersTalent = card("Builder's Talent") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Class"
     oracleText = "When this Class enters, create a 0/4 white Wall creature token with defender.\n" +
         "{W}: Level 2 — Whenever one or more noncreature, nonland permanents you control enter, " +

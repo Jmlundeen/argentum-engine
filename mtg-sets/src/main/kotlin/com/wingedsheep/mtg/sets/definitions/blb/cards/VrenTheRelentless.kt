@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.TurnTracker
  */
 val VrenTheRelentless = card("Vren, the Relentless") {
     manaCost = "{2}{U}{B}"
+    colorIdentity = "UB"
     typeLine = "Legendary Creature — Rat Rogue"
     power = 3
     toughness = 4

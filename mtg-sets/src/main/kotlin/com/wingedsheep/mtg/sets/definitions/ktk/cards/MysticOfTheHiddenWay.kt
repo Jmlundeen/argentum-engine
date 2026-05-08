@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MysticOfTheHiddenWay = card("Mystic of the Hidden Way") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Monk"
     power = 3
     toughness = 2

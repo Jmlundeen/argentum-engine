@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EmberheartChallenger = card("Emberheart Challenger") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Mouse Warrior"
     power = 2
     toughness = 2

@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val Scrapshooter = card("Scrapshooter") {
     manaCost = "{1}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Raccoon Archer"
     power = 4
     toughness = 4

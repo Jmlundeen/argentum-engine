@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MarduHateblade = card("Mardu Hateblade") {
     manaCost = "{W}"
+    colorIdentity = "WB"
     typeLine = "Creature — Human Warrior"
     power = 1
     toughness = 1

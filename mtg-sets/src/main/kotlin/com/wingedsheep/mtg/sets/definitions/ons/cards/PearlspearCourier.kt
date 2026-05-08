@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val PearlspearCourier = card("Pearlspear Courier") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 1

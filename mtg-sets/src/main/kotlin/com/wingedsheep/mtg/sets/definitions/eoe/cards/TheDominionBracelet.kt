@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val TheDominionBracelet = card("The Dominion Bracelet") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact — Equipment"
     oracleText = "Equipped creature gets +1/+1 and has \"{15}, Exile The Dominion Bracelet: " +
         "You control target opponent during their next turn. This ability costs {X} less to " +

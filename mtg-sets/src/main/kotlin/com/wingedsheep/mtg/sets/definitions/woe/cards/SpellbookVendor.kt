@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  */
 val SpellbookVendor = card("Spellbook Vendor") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Peasant"
     power = 2
     toughness = 2

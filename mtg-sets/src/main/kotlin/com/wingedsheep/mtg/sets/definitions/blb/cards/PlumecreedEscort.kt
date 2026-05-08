@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PlumecreedEscort = card("Plumecreed Escort") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Scout"
     oracleText = "Flash\nFlying\nWhen this creature enters, target creature you control gains hexproof until end of turn."
     power = 2

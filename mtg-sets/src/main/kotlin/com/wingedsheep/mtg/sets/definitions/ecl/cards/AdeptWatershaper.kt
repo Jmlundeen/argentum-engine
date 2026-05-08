@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val AdeptWatershaper = card("Adept Watershaper") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Merfolk Cleric"
     power = 3
     toughness = 4

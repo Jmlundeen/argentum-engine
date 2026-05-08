@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BurnAway = card("Burn Away") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Burn Away deals 6 damage to target creature. When that creature dies this turn, exile its controller's graveyard."
 

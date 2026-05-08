@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val FeedTheClan = card("Feed the Clan") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "You gain 5 life.\nFerocious — You gain 10 life instead if you control a creature with power 4 or greater."
 

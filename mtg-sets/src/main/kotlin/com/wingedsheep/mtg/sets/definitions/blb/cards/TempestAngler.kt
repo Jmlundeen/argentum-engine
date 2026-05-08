@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TempestAngler = card("Tempest Angler") {
     manaCost = "{1}{U/R}{U/R}"
+    colorIdentity = "UR"
     typeLine = "Creature — Otter Wizard"
     oracleText = "Whenever you cast a noncreature spell, put a +1/+1 counter on this creature."
     power = 2

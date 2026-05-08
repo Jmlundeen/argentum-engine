@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val YawgmothsVileOffering = card("Yawgmoth's Vile Offering") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Sorcery"
     oracleText = "(You may cast a legendary sorcery only if you control a legendary creature or planeswalker.)\n" +
         "Put up to one target creature or planeswalker card from a graveyard onto the battlefield under your control. " +

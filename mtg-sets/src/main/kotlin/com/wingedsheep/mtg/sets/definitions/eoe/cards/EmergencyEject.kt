@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val EmergencyEject = card("Emergency Eject") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Destroy target nonland permanent. Its controller creates a Lander token. (It's an artifact with \"{2}, {T}, Sacrifice this token: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\")"
 

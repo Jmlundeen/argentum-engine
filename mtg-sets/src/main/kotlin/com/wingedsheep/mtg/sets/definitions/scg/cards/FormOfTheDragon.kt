@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.SetLifeTotalEffect
  */
 val FormOfTheDragon = card("Form of the Dragon") {
     manaCost = "{4}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "At the beginning of your upkeep, this enchantment deals 5 damage to any target.\n" +
         "At the beginning of each end step, your life total becomes 5.\n" +

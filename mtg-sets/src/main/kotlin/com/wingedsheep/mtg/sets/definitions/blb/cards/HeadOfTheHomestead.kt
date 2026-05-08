@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HeadOfTheHomestead = card("Head of the Homestead") {
     manaCost = "{3}{G/W}{G/W}"
+    colorIdentity = "WG"
     typeLine = "Creature — Rabbit Citizen"
     oracleText = "When this creature enters, create two 1/1 white Rabbit creature tokens."
     power = 3

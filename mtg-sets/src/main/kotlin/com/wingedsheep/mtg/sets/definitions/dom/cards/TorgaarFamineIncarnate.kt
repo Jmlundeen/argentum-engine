@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val TorgaarFamineIncarnate = card("Torgaar, Famine Incarnate") {
     manaCost = "{6}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Avatar"
     power = 7
     toughness = 6

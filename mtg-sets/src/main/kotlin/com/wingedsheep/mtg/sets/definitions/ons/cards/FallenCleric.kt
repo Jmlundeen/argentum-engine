@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
  */
 val FallenCleric = card("Fallen Cleric") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Cleric"
     power = 4
     toughness = 2

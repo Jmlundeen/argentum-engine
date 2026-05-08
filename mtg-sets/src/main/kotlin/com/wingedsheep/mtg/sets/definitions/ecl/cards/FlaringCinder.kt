@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val FlaringCinder = card("Flaring Cinder") {
     manaCost = "{1}{U/R}{U/R}"
+    colorIdentity = "UR"
     typeLine = "Creature — Elemental Sorcerer"
     power = 3
     toughness = 2

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.MustAttack
  */
 val ValleyDasher = card("Valley Dasher") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Berserker"
     power = 2
     toughness = 2

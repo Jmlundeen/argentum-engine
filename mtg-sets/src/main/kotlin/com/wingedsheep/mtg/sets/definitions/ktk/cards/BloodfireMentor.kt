@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BloodfireMentor = card("Bloodfire Mentor") {
     manaCost = "{2}{R}"
+    colorIdentity = "UR"
     typeLine = "Creature — Efreet Shaman"
     power = 0
     toughness = 5

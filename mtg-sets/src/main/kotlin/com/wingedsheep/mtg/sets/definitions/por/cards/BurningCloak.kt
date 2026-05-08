@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val BurningCloak = card("Burning Cloak") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

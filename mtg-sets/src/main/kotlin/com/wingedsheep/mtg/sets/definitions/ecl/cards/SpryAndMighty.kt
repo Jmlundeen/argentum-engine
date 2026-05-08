@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val SpryAndMighty = card("Spry and Mighty") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Choose exactly two creatures you control. You draw X cards and the chosen creatures " +
         "get +X/+X and gain trample until end of turn, where X is the difference between the chosen " +

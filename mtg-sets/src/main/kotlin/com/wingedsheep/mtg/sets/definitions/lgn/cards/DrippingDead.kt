@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DrippingDead = card("Dripping Dead") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 4
     toughness = 1

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DiligentExcavator = card("Diligent Excavator") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Artificer"
     power = 1
     toughness = 3

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DeftbladeElite = card("Deftblade Elite") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 1
     toughness = 1

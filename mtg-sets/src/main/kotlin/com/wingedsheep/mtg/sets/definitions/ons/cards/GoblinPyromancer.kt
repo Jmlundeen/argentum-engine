@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val GoblinPyromancer = card("Goblin Pyromancer") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Wizard"
     power = 2
     toughness = 2

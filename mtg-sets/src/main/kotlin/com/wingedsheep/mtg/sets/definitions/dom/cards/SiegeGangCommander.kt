@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val SiegeGangCommander = card("Siege-Gang Commander") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 2

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val GiftOfEstates = card("Gift of Estates") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

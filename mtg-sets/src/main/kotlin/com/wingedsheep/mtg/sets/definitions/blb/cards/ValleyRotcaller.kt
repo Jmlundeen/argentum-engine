@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ValleyRotcaller = card("Valley Rotcaller") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Squirrel Warlock"
     power = 1
     toughness = 3

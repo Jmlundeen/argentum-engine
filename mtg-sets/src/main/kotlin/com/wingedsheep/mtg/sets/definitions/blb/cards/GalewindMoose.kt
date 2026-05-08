@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GalewindMoose = card("Galewind Moose") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental Elk"
     power = 6
     toughness = 6

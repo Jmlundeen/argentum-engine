@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.CantBeBlockedUnlessDefenderSharesCreatureTy
  */
 val Graxiplon = card("Graxiplon") {
     manaCost = "{5}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 4

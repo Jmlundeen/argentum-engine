@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HillGiant = card("Hill Giant") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Giant"
     power = 3
     toughness = 3

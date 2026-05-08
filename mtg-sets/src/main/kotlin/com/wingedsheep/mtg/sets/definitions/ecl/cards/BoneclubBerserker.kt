@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BoneclubBerserker = card("Boneclub Berserker") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Berserker"
     power = 2
     toughness = 4

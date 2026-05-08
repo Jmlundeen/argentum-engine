@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val GustcloakHarrier = card("Gustcloak Harrier") {
     manaCost = "{1}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier"
     power = 2
     toughness = 2

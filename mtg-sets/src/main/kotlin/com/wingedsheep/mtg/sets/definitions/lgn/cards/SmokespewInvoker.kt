@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SmokespewInvoker = card("Smokespew Invoker") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Mutant"
     power = 3
     toughness = 1

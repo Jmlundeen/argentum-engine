@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GoblinMachinist = card("Goblin Machinist") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 0
     toughness = 5

@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FireElemental = card("Fire Elemental") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental"
     power = 5
     toughness = 4

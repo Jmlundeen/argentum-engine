@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val WirewoodSavage = card("Wirewood Savage") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 2
     toughness = 2

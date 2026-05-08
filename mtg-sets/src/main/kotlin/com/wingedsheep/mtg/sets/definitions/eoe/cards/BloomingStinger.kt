@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val BloomingStinger = card("Blooming Stinger") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Plant Scorpion"
     power = 2
     toughness = 2

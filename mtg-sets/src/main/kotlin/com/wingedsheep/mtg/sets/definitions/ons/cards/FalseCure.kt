@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val FalseCure = card("False Cure") {
     manaCost = "{B}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
 
     spell {

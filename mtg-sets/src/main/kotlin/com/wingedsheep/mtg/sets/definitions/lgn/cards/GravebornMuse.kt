@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GravebornMuse = card("Graveborn Muse") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Spirit"
     power = 3
     toughness = 3

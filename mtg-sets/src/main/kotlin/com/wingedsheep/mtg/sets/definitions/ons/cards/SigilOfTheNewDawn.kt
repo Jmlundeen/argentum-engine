@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val SigilOfTheNewDawn = card("Sigil of the New Dawn") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "Whenever a creature is put into your graveyard from the battlefield, you may pay {1}{W}. If you do, return that card to your hand."
 

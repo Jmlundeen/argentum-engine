@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val DreamSeizer = card("Dream Seizer") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Faerie Rogue"
     power = 3
     toughness = 2

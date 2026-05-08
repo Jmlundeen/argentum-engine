@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GanglyStompling = card("Gangly Stompling") {
     manaCost = "{2}{R/G}"
+    colorIdentity = "RG"
     typeLine = "Creature — Shapeshifter"
     power = 4
     toughness = 2

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BeamsawProspector = card("Beamsaw Prospector") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Artificer"
     power = 2
     toughness = 1

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val DirgeOfDread = card("Dirge of Dread") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "All creatures gain fear until end of turn.\nCycling {1}{B}\nWhen you cycle Dirge of Dread, you may have target creature gain fear until end of turn."
 

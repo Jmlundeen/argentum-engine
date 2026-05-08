@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ShimmerwildsGrowth = card("Shimmerwilds Growth") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant land\nAs this Aura enters, choose a color.\nEnchanted land is the chosen color.\nWhenever enchanted land is tapped for mana, its controller adds an additional one mana of the chosen color."
 

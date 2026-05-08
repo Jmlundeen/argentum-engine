@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val VillainousWealth = card("Villainous Wealth") {
     manaCost = "{X}{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Sorcery"
     oracleText = "Target opponent exiles the top X cards of their library. You may cast any number of spells with mana value X or less from among them without paying their mana costs."
 

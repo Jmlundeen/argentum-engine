@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val Mirrorform = card("Mirrorform") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Each nonland permanent you control becomes a copy of target non-Aura permanent."
 

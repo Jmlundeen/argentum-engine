@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SeasonOfGathering = card("Season of Gathering") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Choose up to five {P} worth of modes. You may choose the same mode more than once.\n" +
         "{P} — Put a +1/+1 counter on a creature you control. It gains vigilance and trample until end of turn.\n" +

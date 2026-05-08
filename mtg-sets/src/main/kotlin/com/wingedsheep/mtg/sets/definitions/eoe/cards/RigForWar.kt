@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.Duration
  */
 val RigForWar = card("Rig for War") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Target creature gets +3/+0 and gains first strike and reach until end of turn."
 

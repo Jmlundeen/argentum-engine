@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val BalanceOfPower = card("Balance of Power") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

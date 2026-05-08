@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EmissaryEscort = card("Emissary Escort") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Artifact Creature — Robot Soldier"
     power = 0
     toughness = 4

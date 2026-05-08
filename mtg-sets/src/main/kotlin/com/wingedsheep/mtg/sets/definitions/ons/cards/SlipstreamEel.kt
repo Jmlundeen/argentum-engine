@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val SlipstreamEel = card("Slipstream Eel") {
     manaCost = "{5}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Fish Beast"
     power = 6
     toughness = 6

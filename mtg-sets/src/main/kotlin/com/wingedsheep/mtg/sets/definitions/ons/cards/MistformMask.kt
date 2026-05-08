@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MistformMask = card("Mistform Mask") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\n{1}: Enchanted creature becomes the creature type of your choice until end of turn."
 

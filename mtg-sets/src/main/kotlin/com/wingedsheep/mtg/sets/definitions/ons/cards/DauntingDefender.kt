@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.events.RecipientFilter
  */
 val DauntingDefender = card("Daunting Defender") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 3
     toughness = 3

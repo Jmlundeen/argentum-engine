@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SyphonMind = card("Syphon Mind") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Each other player discards a card. You draw a card for each card discarded this way."
 

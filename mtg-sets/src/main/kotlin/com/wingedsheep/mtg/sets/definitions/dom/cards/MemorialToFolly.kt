@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val MemorialToFolly = card("Memorial to Folly") {
     typeLine = "Land"
+    colorIdentity = "B"
     oracleText = "Memorial to Folly enters the battlefield tapped.\n{T}: Add {B}.\n{2}{B}, {T}, Sacrifice Memorial to Folly: Return target creature card from your graveyard to your hand."
 
     replacementEffect(EntersTapped())

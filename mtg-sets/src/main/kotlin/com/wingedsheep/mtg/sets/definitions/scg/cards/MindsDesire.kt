@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MindsDesire = card("Mind's Desire") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Shuffle your library. Then exile the top card of your library. Until end of turn, you may play that card without paying its mana cost.\nStorm (When you cast this spell, copy it for each spell cast before it this turn.)"
 

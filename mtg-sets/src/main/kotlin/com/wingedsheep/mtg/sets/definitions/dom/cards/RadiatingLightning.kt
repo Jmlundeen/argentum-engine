@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val RadiatingLightning = card("Radiating Lightning") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Radiating Lightning deals 3 damage to target player and 1 damage to each creature that player controls."
 

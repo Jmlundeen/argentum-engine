@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val SurlyFarrier = card("Surly Farrier") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Kithkin Citizen"
     power = 2
     toughness = 2

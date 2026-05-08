@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val PileatedProvisioner = card("Pileated Provisioner") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Scout"
     power = 3
     toughness = 4

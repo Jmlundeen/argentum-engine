@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val BlindingSpray = card("Blinding Spray") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Creatures your opponents control get -4/-0 until end of turn.\nDraw a card."
 

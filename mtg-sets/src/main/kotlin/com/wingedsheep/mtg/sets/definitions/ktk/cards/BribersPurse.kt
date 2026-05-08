@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BribersPurse = card("Briber's Purse") {
     manaCost = "{X}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "Briber's Purse enters the battlefield with X gem counters on it.\n{1}, {T}, Remove a gem counter from Briber's Purse: Target creature can't attack or block this turn."
 

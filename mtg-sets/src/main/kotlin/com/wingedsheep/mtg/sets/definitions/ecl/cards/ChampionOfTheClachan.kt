@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val ChampionOfTheClachan = card("Champion of the Clachan") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Kithkin Knight"
     power = 4
     toughness = 5

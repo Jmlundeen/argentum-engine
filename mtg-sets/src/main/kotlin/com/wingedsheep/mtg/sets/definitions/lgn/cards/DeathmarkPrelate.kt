@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val DeathmarkPrelate = card("Deathmark Prelate") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 3

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val Infest = card("Infest") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "All creatures get -2/-2 until end of turn."
 

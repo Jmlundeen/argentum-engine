@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MistformSkyreaver = card("Mistform Skyreaver") {
     manaCost = "{5}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion"
     power = 6
     toughness = 6

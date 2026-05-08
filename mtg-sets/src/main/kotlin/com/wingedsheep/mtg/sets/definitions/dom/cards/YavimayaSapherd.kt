@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val YavimayaSapherd = card("Yavimaya Sapherd") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Fungus"
     power = 2
     toughness = 2

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
  */
 val FeistySpikeling = card("Feisty Spikeling") {
     manaCost = "{1}{R/W}"
+    colorIdentity = "WR"
     typeLine = "Creature — Shapeshifter"
     power = 2
     toughness = 1

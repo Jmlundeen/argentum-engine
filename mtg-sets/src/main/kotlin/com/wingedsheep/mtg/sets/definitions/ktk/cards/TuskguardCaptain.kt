@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TuskguardCaptain = card("Tuskguard Captain") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 3

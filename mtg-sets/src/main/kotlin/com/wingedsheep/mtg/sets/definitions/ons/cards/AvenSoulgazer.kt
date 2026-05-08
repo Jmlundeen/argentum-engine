@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val AvenSoulgazer = card("Aven Soulgazer") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Cleric"
     power = 3
     toughness = 3

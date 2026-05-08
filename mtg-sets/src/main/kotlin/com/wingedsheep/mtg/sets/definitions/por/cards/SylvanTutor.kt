@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val SylvanTutor = card("Sylvan Tutor") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

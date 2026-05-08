@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ScornfulEgotist = card("Scornful Egotist") {
     manaCost = "{7}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1

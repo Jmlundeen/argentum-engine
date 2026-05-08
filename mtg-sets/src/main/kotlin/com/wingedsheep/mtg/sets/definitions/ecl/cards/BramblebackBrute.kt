@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
  */
 val BramblebackBrute = card("Brambleback Brute") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Giant Warrior"
     power = 4
     toughness = 5

@@ -36,6 +36,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MarduCharm = card("Mardu Charm") {
     manaCost = "{R}{W}{B}"
+    colorIdentity = "WBR"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Mardu Charm deals 4 damage to target creature.\n• Create two 1/1 white Warrior creature tokens. They gain first strike until end of turn.\n• Target opponent reveals their hand. You choose a noncreature, nonland card from it. That player discards that card."
 

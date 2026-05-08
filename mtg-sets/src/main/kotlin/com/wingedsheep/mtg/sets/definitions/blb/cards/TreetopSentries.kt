@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
  */
 val TreetopSentries = card("Treetop Sentries") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Squirrel Archer"
     power = 2
     toughness = 4

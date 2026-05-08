@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val LostInSpace = card("Lost in Space") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Target artifact or creature's owner puts it on their choice of the top or bottom of their library. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 

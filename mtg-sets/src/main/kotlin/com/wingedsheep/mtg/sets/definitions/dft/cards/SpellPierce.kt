@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SpellPierce = card("Spell Pierce") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target noncreature spell unless its controller pays {2}."
 

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val OverwhelmingInstinct = card("Overwhelming Instinct") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "Whenever you attack with three or more creatures, draw a card."
 

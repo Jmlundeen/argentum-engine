@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val ElvenRiders = card("Elven Riders") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 3
     toughness = 3

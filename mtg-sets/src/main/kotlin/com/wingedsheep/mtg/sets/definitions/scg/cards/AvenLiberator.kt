@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AvenLiberator = card("Aven Liberator") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier"
     power = 2
     toughness = 3

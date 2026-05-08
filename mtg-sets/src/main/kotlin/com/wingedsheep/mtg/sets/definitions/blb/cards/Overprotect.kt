@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Overprotect = card("Overprotect") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Target creature you control gets +3/+3 and gains trample, hexproof, and indestructible until end of turn."
 

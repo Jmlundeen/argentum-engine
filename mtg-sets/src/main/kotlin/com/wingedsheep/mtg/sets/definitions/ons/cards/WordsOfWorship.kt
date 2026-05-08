@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WordsOfWorship = card("Words of Worship") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "{1}: The next time you would draw a card this turn, you gain 5 life instead."
 

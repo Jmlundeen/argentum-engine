@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RiteOfTheSerpent = card("Rite of the Serpent") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Destroy target creature. If that creature had a +1/+1 counter on it, create a 1/1 green Snake creature token."
 

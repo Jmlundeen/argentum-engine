@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val EnormousBaloth = card("Enormous Baloth") {
     manaCost = "{6}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 7
     toughness = 7

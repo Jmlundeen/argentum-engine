@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val IntrepidTenderfoot = card("Intrepid Tenderfoot") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect Citizen"
     power = 2
     toughness = 2

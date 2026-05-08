@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val BreathOfLife = card("Breath of Life") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

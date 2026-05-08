@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BlightRot = card("Blight Rot") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Put four -1/-1 counters on target creature."
 

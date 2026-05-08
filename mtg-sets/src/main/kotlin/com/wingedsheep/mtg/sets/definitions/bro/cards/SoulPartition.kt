@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SoulPartition = card("Soul Partition") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Exile target nonland permanent. For as long as that card remains exiled, its owner may play it. A spell cast by an opponent this way costs {2} more to cast."
 

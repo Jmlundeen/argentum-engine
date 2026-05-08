@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.core.Keyword
  */
 val Hullcarver = card("Hullcarver") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Artifact Creature — Robot Assassin"
     power = 1
     toughness = 1

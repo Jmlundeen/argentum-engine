@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MoongloveExtractor = card("Moonglove Extractor") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elf Warlock"
     power = 2
     toughness = 1

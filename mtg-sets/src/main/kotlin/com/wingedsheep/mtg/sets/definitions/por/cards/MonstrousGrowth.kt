@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val MonstrousGrowth = card("Monstrous Growth") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

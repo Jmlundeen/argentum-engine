@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val HonoredKnightCaptain = card("Honored Knight-Captain") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Advisor Knight"
     power = 1
     toughness = 1

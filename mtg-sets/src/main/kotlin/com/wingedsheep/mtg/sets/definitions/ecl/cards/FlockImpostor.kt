@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val FlockImpostor = card("Flock Impostor") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Shapeshifter"
     power = 2
     toughness = 2

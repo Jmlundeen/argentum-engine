@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.AttackTax
  */
 val BairdStewardOfArgive = card("Baird, Steward of Argive") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Human Soldier"
     power = 2
     toughness = 4

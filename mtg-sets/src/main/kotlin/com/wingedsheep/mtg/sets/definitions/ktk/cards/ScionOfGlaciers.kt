@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ScionOfGlaciers = card("Scion of Glaciers") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental"
     power = 2
     toughness = 5

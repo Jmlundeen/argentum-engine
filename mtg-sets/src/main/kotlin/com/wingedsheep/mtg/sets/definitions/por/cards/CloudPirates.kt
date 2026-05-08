@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWithKeyword
  */
 val CloudPirates = card("Cloud Pirates") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Pirate"
     power = 1
     toughness = 1

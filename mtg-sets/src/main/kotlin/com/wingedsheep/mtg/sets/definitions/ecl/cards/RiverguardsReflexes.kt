@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val RiverguardsReflexes = card("Riverguard's Reflexes") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Target creature gets +2/+2 and gains first strike until end of turn. Untap it."
 

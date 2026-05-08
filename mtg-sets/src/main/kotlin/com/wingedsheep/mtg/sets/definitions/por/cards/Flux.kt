@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Flux = card("Flux") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

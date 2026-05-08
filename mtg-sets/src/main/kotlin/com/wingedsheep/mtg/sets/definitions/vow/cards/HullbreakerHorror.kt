@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val HullbreakerHorror = card("Hullbreaker Horror") {
     manaCost = "{5}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Kraken Horror"
     power = 7
     toughness = 8

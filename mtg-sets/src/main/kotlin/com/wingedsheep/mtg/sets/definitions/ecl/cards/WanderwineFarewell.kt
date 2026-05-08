@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val WanderwineFarewell = card("Wanderwine Farewell") {
     manaCost = "{5}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Kindred Sorcery — Merfolk"
     oracleText = "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\n" +
         "Return one or two target nonland permanents to their owners' hands. Then if you control a Merfolk, create a 1/1 white and blue Merfolk creature token for each permanent returned to its owner's hand this way."

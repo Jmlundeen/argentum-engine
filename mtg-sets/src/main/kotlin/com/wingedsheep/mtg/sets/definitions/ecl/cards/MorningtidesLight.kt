@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val MorningtidesLight = card("Morningtide's Light") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Exile any number of target creatures. At the beginning of the next end step, return those cards to the battlefield tapped under their owners' control.\nUntil your next turn, prevent all damage that would be dealt to you.\nExile Morningtide's Light."
 

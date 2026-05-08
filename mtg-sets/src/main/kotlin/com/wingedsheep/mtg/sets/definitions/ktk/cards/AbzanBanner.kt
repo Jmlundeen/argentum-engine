@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val AbzanBanner = card("Abzan Banner") {
     manaCost = "{3}"
+    colorIdentity = "WBG"
     typeLine = "Artifact"
     oracleText = "{T}: Add {W}, {B}, or {G}.\n{W}{B}{G}, {T}, Sacrifice this artifact: Draw a card."
 

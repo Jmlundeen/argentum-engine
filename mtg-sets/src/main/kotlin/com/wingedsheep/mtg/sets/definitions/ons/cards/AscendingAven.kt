@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWithKeyword
  */
 val AscendingAven = card("Ascending Aven") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Soldier"
     power = 3
     toughness = 2

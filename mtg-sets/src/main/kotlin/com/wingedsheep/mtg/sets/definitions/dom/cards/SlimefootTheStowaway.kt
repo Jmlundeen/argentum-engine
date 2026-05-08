@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SlimefootTheStowaway = card("Slimefoot, the Stowaway") {
     manaCost = "{1}{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Legendary Creature — Fungus"
     power = 2
     toughness = 3

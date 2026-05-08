@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
  */
 val ForagingWickermaw = card("Foraging Wickermaw") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Scarecrow"
     power = 1
     toughness = 3

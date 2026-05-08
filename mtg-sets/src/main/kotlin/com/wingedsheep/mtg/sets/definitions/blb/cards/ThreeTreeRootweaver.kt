@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val ThreeTreeRootweaver = card("Three Tree Rootweaver") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Mole Druid"
     power = 1
     toughness = 3

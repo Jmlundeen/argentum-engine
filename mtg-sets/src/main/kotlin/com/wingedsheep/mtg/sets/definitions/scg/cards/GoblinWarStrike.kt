@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val GoblinWarStrike = card("Goblin War Strike") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Goblin War Strike deals damage to target player equal to the number of Goblins you control."
 

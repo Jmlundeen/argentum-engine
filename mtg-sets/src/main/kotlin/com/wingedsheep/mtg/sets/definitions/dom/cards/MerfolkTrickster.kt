@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MerfolkTrickster = card("Merfolk Trickster") {
     manaCost = "{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Wizard"
     power = 2
     toughness = 2

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val DoubtlessOne = card("Doubtless One") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Cleric Avatar"
     oracleText = "Whenever Doubtless One deals damage, you gain that much life.\nDoubtless One's power and toughness are each equal to the number of Clerics on the battlefield."
 

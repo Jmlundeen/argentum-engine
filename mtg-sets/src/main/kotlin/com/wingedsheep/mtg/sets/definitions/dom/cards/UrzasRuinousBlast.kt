@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val UrzasRuinousBlast = card("Urza's Ruinous Blast") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Sorcery"
     oracleText = "(You may cast a legendary sorcery only if you control a legendary creature or planeswalker.)\nExile all nonland permanents that aren't legendary."
 

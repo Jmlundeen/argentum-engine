@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Skinthinner = card("Skinthinner") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 2
     toughness = 1

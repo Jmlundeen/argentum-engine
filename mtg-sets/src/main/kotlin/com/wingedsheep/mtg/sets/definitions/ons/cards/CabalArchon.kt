@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val CabalArchon = card("Cabal Archon") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 2

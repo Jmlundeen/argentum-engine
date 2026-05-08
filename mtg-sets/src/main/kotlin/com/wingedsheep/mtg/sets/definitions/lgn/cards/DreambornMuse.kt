@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val DreambornMuse = card("Dreamborn Muse") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Spirit"
     power = 2
     toughness = 2

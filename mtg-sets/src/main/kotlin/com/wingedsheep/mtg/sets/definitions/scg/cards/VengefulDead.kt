@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val VengefulDead = card("Vengeful Dead") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 3
     toughness = 2

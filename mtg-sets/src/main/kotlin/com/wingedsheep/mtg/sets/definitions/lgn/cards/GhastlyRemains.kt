@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GhastlyRemains = card("Ghastly Remains") {
     manaCost = "{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 0
     toughness = 0

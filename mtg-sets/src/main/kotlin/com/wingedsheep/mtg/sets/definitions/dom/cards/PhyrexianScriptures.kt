@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val PhyrexianScriptures = card("Phyrexian Scriptures") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I — Put a +1/+1 counter on up to one target creature. That creature becomes an artifact in addition to its other types.\n" +

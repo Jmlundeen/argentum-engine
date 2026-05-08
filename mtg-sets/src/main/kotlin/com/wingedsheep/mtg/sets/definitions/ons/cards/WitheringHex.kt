@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val WitheringHex = card("Withering Hex") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nWhenever a player cycles a card, put a plague counter on Withering Hex.\nEnchanted creature gets -1/-1 for each plague counter on Withering Hex."
 

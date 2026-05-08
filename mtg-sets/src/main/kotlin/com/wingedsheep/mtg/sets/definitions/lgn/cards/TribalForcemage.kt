@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val TribalForcemage = card("Tribal Forcemage") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Wizard"
     power = 1
     toughness = 1

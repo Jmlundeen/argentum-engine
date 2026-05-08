@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AmaranthineWall = card("Amaranthine Wall") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Wall"
     power = 0
     toughness = 6

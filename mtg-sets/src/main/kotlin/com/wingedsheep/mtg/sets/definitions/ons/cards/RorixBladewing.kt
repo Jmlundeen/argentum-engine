@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RorixBladewing = card("Rorix Bladewing") {
     manaCost = "{3}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Legendary Creature — Dragon"
     power = 6
     toughness = 5

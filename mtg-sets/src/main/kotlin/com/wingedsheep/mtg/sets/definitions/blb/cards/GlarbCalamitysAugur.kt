@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
  */
 val GlarbCalamitysAugur = card("Glarb, Calamity's Augur") {
     manaCost = "{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Legendary Creature — Frog Wizard Noble"
     power = 2
     toughness = 4

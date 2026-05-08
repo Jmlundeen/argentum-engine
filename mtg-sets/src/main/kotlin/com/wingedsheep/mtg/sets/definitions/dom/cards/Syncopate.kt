@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Syncopate = card("Syncopate") {
     manaCost = "{X}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell unless its controller pays {X}. If that spell is countered this way, exile it instead of putting it into its owner's graveyard."
 

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
  */
 val BloodlineShaman = card("Bloodline Shaman") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Wizard Shaman"
     power = 1
     toughness = 1

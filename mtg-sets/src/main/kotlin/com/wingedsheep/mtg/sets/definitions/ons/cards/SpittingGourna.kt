@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SpittingGourna = card("Spitting Gourna") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 4

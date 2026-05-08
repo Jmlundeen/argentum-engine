@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ShannaSisaysLegacy = card("Shanna, Sisay's Legacy") {
     manaCost = "{G}{W}"
+    colorIdentity = "WG"
     typeLine = "Legendary Creature — Human Warrior"
     power = 0
     toughness = 0

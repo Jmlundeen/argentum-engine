@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val FirefistAdept = card("Firefist Adept") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Wizard"
     power = 3
     toughness = 3

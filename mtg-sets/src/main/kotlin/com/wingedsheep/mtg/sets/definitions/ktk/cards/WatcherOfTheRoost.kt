@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
  */
 val WatcherOfTheRoost = card("Watcher of the Roost") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier"
     power = 2
     toughness = 1

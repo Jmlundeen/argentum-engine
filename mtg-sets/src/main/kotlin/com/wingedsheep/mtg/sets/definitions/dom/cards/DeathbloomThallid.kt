@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val DeathbloomThallid = card("Deathbloom Thallid") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Fungus"
     power = 3
     toughness = 2

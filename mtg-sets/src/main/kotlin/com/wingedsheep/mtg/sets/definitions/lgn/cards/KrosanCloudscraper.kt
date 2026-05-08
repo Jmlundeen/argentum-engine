@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val KrosanCloudscraper = card("Krosan Cloudscraper") {
     manaCost = "{7}{G}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast Mutant"
     power = 13
     toughness = 13

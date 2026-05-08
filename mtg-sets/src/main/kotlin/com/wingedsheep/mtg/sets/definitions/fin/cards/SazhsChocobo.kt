@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SazhsChocobo = card("Sazh's Chocobo") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Bird"
     power = 0
     toughness = 1

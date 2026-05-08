@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val DragonWings = card("Dragon Wings") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature has flying.\nCycling {1}{U}\nWhen a creature with mana value 6 or greater enters, you may return Dragon Wings from your graveyard to the battlefield attached to that creature."
 

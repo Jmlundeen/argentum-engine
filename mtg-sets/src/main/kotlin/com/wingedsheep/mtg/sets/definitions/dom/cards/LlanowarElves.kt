@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val LlanowarElves = card("Llanowar Elves") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 1
     toughness = 1

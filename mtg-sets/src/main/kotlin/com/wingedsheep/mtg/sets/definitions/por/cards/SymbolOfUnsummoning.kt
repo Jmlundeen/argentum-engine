@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SymbolOfUnsummoning = card("Symbol of Unsummoning") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

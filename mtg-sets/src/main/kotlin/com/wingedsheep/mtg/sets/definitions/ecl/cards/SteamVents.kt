@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val SteamVents = card("Steam Vents") {
     typeLine = "Land — Island Mountain"
+    colorIdentity = "UR"
     oracleText = "({T}: Add {U} or {R}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 
     // Mana abilities are intrinsic from basic land types (Island → {U}, Mountain → {R})

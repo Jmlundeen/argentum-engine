@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val IsolatedChapel = card("Isolated Chapel") {
     typeLine = "Land"
+    colorIdentity = "WB"
     oracleText = "This land enters tapped unless you control a Plains or a Swamp.\n{T}: Add {W} or {B}."
 
     replacementEffect(EntersTapped(

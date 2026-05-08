@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 
 val LongTermPlans = card("Long-Term Plans") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Search your library for a card, then shuffle and put that card third from the top."
 

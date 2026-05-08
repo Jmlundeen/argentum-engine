@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.TransformPermanent
  */
 val NoggleTheMind = card("Noggle the Mind") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Flash\nEnchant creature\nEnchanted creature loses all abilities and is a colorless Noggle with base power and toughness 1/1. (It loses all colors and all other creature types.)"
 

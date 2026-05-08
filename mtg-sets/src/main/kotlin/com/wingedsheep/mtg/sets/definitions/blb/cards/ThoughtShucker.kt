@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ThoughtShucker = card("Thought Shucker") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Rat Rogue"
     power = 1
     toughness = 3

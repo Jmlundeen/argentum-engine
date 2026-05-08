@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val NaturesLore = card("Nature's Lore") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

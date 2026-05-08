@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val UrgorosTheEmptyOne = card("Urgoros, the Empty One") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Specter"
     power = 4
     toughness = 3

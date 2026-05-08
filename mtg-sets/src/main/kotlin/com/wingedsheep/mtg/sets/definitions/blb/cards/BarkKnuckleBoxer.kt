@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BarkKnuckleBoxer = card("Bark-Knuckle Boxer") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Raccoon Berserker"
     power = 3
     toughness = 2

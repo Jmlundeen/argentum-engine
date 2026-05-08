@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val EmbalmedBrawler = card("Embalmed Brawler") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 2
     toughness = 2

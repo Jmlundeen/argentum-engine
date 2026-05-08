@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DeflectingPalm = card("Deflecting Palm") {
     manaCost = "{R}{W}"
+    colorIdentity = "WR"
     typeLine = "Instant"
     oracleText = "The next time a source of your choice would deal damage to you this turn, prevent that damage. If damage is prevented this way, Deflecting Palm deals that much damage to that source's controller."
 

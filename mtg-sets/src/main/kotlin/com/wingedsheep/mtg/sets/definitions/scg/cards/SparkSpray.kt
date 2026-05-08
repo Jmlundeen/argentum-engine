@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val SparkSpray = card("Spark Spray") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Spark Spray deals 1 damage to any target.\nCycling {R}"
 

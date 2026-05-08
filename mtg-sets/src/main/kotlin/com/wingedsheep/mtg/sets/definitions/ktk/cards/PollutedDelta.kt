@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val PollutedDelta = card("Polluted Delta") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}, Pay 1 life, Sacrifice Polluted Delta: Search your library for an Island or Swamp card, put it onto the battlefield, then shuffle."
 
     activatedAbility {

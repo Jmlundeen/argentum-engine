@@ -41,6 +41,7 @@ import com.wingedsheep.engine.state.components.combat.DamageAssignmentOrderCompo
 import com.wingedsheep.engine.state.components.combat.DealtFirstStrikeDamageComponent
 import com.wingedsheep.engine.state.components.combat.RequiresManualDamageAssignmentComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.CommanderComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.MorphDataComponent
@@ -82,6 +83,19 @@ data class ZoneChangeRedirectResult(
 object ZoneMovementUtils {
 
     private val predicateEvaluator = PredicateEvaluator()
+
+    /**
+     * Destinations that the commander zone-change replacement can intercept (CR 903.9).
+     * Battlefield, stack, and command itself are intentionally excluded — commanders enter
+     * the battlefield like any other permanent, can sit on the stack while resolving, and
+     * "moving to the command zone" while already there is a no-op.
+     */
+    private val COMMANDER_DIVERT_DESTINATIONS = setOf(
+        Zone.GRAVEYARD,
+        Zone.EXILE,
+        Zone.HAND,
+        Zone.LIBRARY,
+    )
 
     /**
      * Apply Saga entry setup to an entity entering the battlefield (Rule 714.3a).
@@ -374,6 +388,24 @@ object ZoneMovementUtils {
             container.has<ExileOnLeaveBattlefieldComponent>()
         ) {
             return ZoneChangeRedirectResult(Zone.EXILE)
+        }
+
+        // Commander zone-change replacement (CR 903.9). When a card with CommanderComponent would
+        // move to graveyard / exile / hand / library from any zone, the owner *may* divert to the
+        // command zone. Token copies of a commander aren't the commander itself (CR 903.10a) and
+        // never carry CommanderComponent, so the TokenComponent guard is implicit.
+        //
+        // Phase 1: Format.Commander.alwaysDivertToCommand = true → unconditional redirect. The
+        // graveyard-recursion archetypes (Muldrotha / Meren / Karador) lose the choice until
+        // Phase 1.5 wires a YesNoDecision continuation through ZoneTransitionResult.
+        if (container.has<CommanderComponent>() &&
+            toZone in COMMANDER_DIVERT_DESTINATIONS &&
+            fromZone != Zone.COMMAND
+        ) {
+            val format = state.format
+            if (format is com.wingedsheep.sdk.core.Format.Commander && format.alwaysDivertToCommand) {
+                return ZoneChangeRedirectResult(Zone.COMMAND)
+            }
         }
 
         // Check for finality counter — if a permanent with a finality counter

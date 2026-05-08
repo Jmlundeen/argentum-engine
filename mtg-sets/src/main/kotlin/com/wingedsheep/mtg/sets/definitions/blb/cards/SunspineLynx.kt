@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SunspineLynx = card("Sunspine Lynx") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Cat"
     power = 5
     toughness = 4

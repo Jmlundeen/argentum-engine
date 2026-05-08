@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AncestralMemories = card("Ancestral Memories") {
     manaCost = "{2}{U}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

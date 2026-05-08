@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val OnSerrasWings = card("On Serra's Wings") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature is legendary, gets +1/+1, and has flying, vigilance, and lifelink."
 

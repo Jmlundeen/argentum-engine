@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RavineRaider = card("Ravine Raider") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Lizard Rogue"
     power = 1
     toughness = 1

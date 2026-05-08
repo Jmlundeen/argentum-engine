@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ThreeTreeScribe = card("Three Tree Scribe") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Frog Druid"
     oracleText = "Whenever this creature or another creature you control leaves the battlefield " +
         "without dying, put a +1/+1 counter on target creature you control."

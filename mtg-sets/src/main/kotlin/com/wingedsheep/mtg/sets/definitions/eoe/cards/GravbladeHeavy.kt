@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GravbladeHeavy = card("Gravblade Heavy") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Soldier"
     power = 3
     toughness = 4

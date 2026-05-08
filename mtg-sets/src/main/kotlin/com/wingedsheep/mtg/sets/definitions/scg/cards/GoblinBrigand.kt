@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.MustAttack
  */
 val GoblinBrigand = card("Goblin Brigand") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warrior"
     power = 2
     toughness = 2

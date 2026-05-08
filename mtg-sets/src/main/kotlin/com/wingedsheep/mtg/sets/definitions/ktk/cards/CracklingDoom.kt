@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val CracklingDoom = card("Crackling Doom") {
     manaCost = "{R}{W}{B}"
+    colorIdentity = "WBR"
     typeLine = "Instant"
     oracleText = "Crackling Doom deals 2 damage to each opponent. Each opponent sacrifices a creature with the greatest power among creatures that player controls."
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val AphettoAlchemist = card("Aphetto Alchemist") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 2

@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val EddymurkCrab = card("Eddymurk Crab") {
     manaCost = "{5}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental Crab"
     power = 5
     toughness = 5

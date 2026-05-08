@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val EvendoWakingHaven = card("Evendo, Waking Haven") {
     typeLine = "Land — Planet"
+    colorIdentity = "G"
     oracleText = "This land enters tapped.\n{T}: Add {G}.\nStation (Tap another creature you control: Put charge counters equal to its power on this Planet. Station only as a sorcery.)\n12+ | {G}, {T}: Add {G} for each creature you control."
 
     // This land enters tapped

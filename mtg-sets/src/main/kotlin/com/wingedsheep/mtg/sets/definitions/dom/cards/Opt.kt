@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Opt = card("Opt") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Scry 1. (Look at the top card of your library. You may put that card on the bottom of your library.)\nDraw a card."
 

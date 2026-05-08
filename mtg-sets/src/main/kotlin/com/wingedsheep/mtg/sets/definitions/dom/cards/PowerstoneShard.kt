@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val PowerstoneShard = card("Powerstone Shard") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{T}: Add {C} for each artifact you control named Powerstone Shard."
 

@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MagmaSliver = card("Magma Sliver") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Sliver"
     power = 3
     toughness = 3

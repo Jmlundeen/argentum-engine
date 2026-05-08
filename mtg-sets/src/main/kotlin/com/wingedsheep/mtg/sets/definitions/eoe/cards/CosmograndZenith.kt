@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CosmograndZenith = card("Cosmogrand Zenith") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     oracleText = "Whenever you cast your second spell each turn, choose one —\n" +
         "• Create two 1/1 white Human Soldier creature tokens.\n" +

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Befuddle = card("Befuddle") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Target creature gets -4/-0 until end of turn. Draw a card."
 

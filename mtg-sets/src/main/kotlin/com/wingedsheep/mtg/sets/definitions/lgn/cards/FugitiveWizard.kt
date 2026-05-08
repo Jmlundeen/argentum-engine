@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FugitiveWizard = card("Fugitive Wizard") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1

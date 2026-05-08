@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Thawbringer = card("Thawbringer") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect Scout"
     power = 4
     toughness = 2

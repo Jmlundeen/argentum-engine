@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val FrightshroudCourier = card("Frightshroud Courier") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 2
     toughness = 1

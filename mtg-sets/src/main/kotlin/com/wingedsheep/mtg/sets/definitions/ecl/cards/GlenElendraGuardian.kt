@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GlenElendraGuardian = card("Glen Elendra Guardian") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Faerie Wizard"
     power = 3
     toughness = 4

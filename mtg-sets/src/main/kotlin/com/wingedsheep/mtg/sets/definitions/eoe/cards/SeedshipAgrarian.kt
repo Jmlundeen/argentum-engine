@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SeedshipAgrarian = card("Seedship Agrarian") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect Scientist"
     power = 3
     toughness = 3

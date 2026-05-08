@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ReluctantDounguard = card("Reluctant Dounguard") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Kithkin Soldier"
     power = 4
     toughness = 4

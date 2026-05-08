@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BoardTheWeatherlight = card("Board the Weatherlight") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Look at the top five cards of your library. You may reveal a historic card from among them and put it into your hand. Put the rest on the bottom of your library in a random order. (A card is historic if it has the legendary supertype, the artifact card type, or the Saga subtype.)"
 

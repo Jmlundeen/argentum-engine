@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val VoteOut = card("Vote Out") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\nDestroy target creature."
 

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GlenElendrasAnswer = card("Glen Elendra's Answer") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = ""
     typeLine = "Instant"
     oracleText = "This spell can't be countered.\n" +
         "Counter all spells your opponents control and all abilities your opponents control. " +

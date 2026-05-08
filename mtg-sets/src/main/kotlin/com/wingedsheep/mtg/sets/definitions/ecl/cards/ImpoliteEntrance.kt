@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ImpoliteEntrance = card("Impolite Entrance") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Target creature gains trample and haste until end of turn.\nDraw a card."
 

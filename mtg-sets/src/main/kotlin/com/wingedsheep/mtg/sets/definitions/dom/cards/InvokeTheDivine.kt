@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val InvokeTheDivine = card("Invoke the Divine") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Destroy target artifact or enchantment. You gain 4 life."
 

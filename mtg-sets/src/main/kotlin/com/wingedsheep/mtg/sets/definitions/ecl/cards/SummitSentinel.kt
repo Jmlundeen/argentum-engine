@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SummitSentinel = card("Summit Sentinel") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental Soldier"
     power = 1
     toughness = 3

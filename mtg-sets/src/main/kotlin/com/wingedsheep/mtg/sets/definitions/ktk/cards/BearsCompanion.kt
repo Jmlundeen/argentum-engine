@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val BearsCompanion = card("Bear's Companion") {
     manaCost = "{2}{G}{U}{R}"
+    colorIdentity = "URG"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 2

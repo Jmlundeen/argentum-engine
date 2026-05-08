@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
  */
 val DragonsEyeSavants = card("Dragon's Eye Savants") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 0
     toughness = 6

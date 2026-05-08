@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val FireTempest = card("Fire Tempest") {
     manaCost = "{5}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

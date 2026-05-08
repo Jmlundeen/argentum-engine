@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val RimekinRecluse = card("Rimekin Recluse") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental Wizard"
     power = 3
     toughness = 2

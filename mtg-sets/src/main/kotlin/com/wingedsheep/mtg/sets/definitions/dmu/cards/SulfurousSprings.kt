@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SulfurousSprings = card("Sulfurous Springs") {
     typeLine = "Land"
+    colorIdentity = "BR"
     oracleText = "{T}: Add {C}.\n{T}: Add {B} or {R}. This land deals 1 damage to you."
 
     activatedAbility {

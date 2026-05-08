@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val ReapingTheGraves = card("Reaping the Graves") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Return target creature card from your graveyard to your hand.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 

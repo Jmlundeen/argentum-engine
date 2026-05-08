@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val MeandersGuide = card("Meanders Guide") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Merfolk Scout"
     power = 3
     toughness = 2

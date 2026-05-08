@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BygoneColossus = card("Bygone Colossus") {
     manaCost = "{9}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Robot Giant"
     power = 9
     toughness = 9

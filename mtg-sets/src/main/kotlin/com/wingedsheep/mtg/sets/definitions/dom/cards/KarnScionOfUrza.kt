@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val KarnScionOfUrza = card("Karn, Scion of Urza") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Legendary Planeswalker — Karn"
     startingLoyalty = 5
     oracleText = "+1: Reveal the top two cards of your library. An opponent chooses one of them. Put that card into your hand and exile the other with a silver counter on it.\n\u22121: Put a card you own with a silver counter on it from exile into your hand.\n\u22122: Create a 0/0 colorless Construct artifact creature token with \"This creature gets +1/+1 for each artifact you control.\""

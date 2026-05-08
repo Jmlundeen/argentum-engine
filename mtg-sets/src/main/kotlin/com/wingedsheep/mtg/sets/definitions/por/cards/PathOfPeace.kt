@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val PathOfPeace = card("Path of Peace") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

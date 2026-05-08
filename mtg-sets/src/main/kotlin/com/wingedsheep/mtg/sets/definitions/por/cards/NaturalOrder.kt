@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val NaturalOrder = card("Natural Order") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     additionalCost(AdditionalCost.SacrificePermanent(

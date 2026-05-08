@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DevotedHero = card("Devoted Hero") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Elf Soldier"
     power = 1
     toughness = 2

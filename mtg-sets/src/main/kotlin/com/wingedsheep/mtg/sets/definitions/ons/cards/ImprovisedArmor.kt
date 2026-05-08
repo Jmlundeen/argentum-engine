@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val ImprovisedArmor = card("Improvised Armor") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +2/+5.\nCycling {3}"
 

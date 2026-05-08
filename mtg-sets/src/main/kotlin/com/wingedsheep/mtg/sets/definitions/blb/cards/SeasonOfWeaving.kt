@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SeasonOfWeaving = card("Season of Weaving") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Choose up to five {P} worth of modes. You may choose the same mode more than once.\n" +
         "{P} — Draw a card.\n" +

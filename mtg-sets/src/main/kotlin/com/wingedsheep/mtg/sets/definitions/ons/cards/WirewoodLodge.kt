@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val WirewoodLodge = card("Wirewood Lodge") {
     typeLine = "Land"
+    colorIdentity = "G"
     oracleText = "{T}: Add {C}.\n{G}, {T}: Untap target Elf."
 
     activatedAbility {

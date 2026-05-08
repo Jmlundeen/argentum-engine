@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AgelessSentinels = card("Ageless Sentinels") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Wall"
     power = 4
     toughness = 4

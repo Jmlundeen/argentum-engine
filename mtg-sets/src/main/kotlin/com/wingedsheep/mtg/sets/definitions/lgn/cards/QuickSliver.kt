@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
  */
 val QuickSliver = card("Quick Sliver") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Sliver"
     power = 1
     toughness = 1

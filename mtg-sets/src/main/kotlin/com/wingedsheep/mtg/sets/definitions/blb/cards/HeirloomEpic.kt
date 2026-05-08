@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val HeirloomEpic = card("Heirloom Epic") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{4}, {T}: Draw a card. For each mana in this ability's activation cost, you may tap an untapped creature you control rather than pay that mana. Activate only as a sorcery."
 

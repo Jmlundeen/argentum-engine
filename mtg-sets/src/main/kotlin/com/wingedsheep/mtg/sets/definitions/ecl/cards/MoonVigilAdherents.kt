@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MoonVigilAdherents = card("Moon-Vigil Adherents") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 0
     toughness = 0

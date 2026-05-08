@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val NoxiousToad = card("Noxious Toad") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Frog"
     power = 1
     toughness = 1

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
  */
 val MarduHeartPiercer = card("Mardu Heart-Piercer") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Archer"
     power = 2
     toughness = 3

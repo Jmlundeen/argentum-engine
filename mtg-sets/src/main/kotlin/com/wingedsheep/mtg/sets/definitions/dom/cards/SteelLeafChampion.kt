@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val SteelLeafChampion = card("Steel Leaf Champion") {
     manaCost = "{G}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Knight"
     power = 5
     toughness = 4

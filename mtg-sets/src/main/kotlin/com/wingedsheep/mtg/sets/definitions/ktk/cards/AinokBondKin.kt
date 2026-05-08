@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AinokBondKin = card("Ainok Bond-Kin") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Dog Soldier"
     power = 2
     toughness = 1

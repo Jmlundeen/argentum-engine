@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ThoughtweftImbuer = card("Thoughtweft Imbuer") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Kithkin Advisor"
     power = 0
     toughness = 5

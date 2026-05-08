@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
  */
 val ChromeCompanion = card("Chrome Companion") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Dog"
     power = 2
     toughness = 1

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WanderbrineTrapper = card("Wanderbrine Trapper") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Merfolk Scout"
     power = 2
     toughness = 1

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
  */
 val AlabasterDragon = card("Alabaster Dragon") {
     manaCost = "{4}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Dragon"
     power = 4
     toughness = 4

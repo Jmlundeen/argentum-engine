@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HarmonizedCrescendo = card("Harmonized Crescendo") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\n" +
         "Choose a creature type. Draw a card for each permanent you control of that type."

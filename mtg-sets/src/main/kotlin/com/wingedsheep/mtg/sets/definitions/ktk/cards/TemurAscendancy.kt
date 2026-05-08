@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val TemurAscendancy = card("Temur Ascendancy") {
     manaCost = "{G}{U}{R}"
+    colorIdentity = "URG"
     typeLine = "Enchantment"
     oracleText = "Creatures you control have haste.\nWhenever a creature with power 4 or greater enters under your control, you may draw a card."
 

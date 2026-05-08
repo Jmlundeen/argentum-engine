@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val BiomechanEngineer = card("Biomechan Engineer") {
     manaCost = "{G}{U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Insect Artificer"
     power = 2
     toughness = 2

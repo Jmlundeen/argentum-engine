@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MeanderingTowershell = card("Meandering Towershell") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Turtle"
     power = 5
     toughness = 9

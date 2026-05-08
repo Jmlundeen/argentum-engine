@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val UndergroundRiver = card("Underground River") {
     typeLine = "Land"
+    colorIdentity = "UB"
     oracleText = "{T}: Add {C}.\n{T}: Add {U} or {B}. This land deals 1 damage to you."
 
     activatedAbility {

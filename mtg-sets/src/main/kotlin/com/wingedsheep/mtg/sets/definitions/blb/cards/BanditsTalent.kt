@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BanditsTalent = card("Bandit's Talent") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Class"
     oracleText = "When this Class enters, each opponent discards two cards unless they discard a nonland card.\n" +
         "{B}: Level 2 — At the beginning of each opponent's upkeep, if that player has one or fewer cards " +

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val DutifulReturn = card("Dutiful Return") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Return up to two target creature cards from your graveyard to your hand."
 

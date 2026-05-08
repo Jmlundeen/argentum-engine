@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val FlowOfKnowledge = card("Flow of Knowledge") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Draw a card for each Island you control, then discard two cards."
 

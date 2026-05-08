@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val ChainOfAcid = card("Chain of Acid") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Destroy target noncreature permanent. Then that permanent's controller may copy this spell and may choose a new target for that copy."
 

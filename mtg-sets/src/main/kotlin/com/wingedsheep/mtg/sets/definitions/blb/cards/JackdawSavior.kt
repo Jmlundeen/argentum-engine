@@ -42,6 +42,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val JackdawSavior = card("Jackdaw Savior") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Cleric"
     power = 3
     toughness = 1

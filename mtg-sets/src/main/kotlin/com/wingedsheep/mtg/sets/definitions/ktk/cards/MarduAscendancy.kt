@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val MarduAscendancy = card("Mardu Ascendancy") {
     manaCost = "{R}{W}{B}"
+    colorIdentity = "WBR"
     typeLine = "Enchantment"
     oracleText = "Whenever a nontoken creature you control attacks, create a 1/1 red Goblin creature token that's tapped and attacking.\nSacrifice Mardu Ascendancy: Creatures you control get +0/+3 until end of turn."
 

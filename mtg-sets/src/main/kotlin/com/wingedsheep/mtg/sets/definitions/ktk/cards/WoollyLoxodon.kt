@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WoollyLoxodon = card("Woolly Loxodon") {
     manaCost = "{5}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elephant Warrior"
     power = 6
     toughness = 7

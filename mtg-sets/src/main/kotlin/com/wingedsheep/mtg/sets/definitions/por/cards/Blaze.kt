@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val Blaze = card("Blaze") {
     manaCost = "{X}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

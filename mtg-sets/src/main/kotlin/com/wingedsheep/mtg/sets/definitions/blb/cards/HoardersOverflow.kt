@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val HoardersOverflow = card("Hoarder's Overflow") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters and whenever you expend 4, put a stash counter on it. (You expend 4 as you spend your fourth total mana to cast spells during a turn.)\n{1}{R}, Sacrifice this enchantment: Discard your hand, then draw cards equal to the number of stash counters on this enchantment."
 

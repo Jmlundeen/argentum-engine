@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Consider = card("Consider") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)\nDraw a card."
 

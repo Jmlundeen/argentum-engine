@@ -37,6 +37,7 @@ private val TriggeringPowerToughnessDifference: DynamicAmount = DynamicAmount.Ma
  */
 val DoranBesiegedByTime = card("Doran, Besieged by Time") {
     manaCost = "{1}{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Legendary Creature — Treefolk Druid"
     power = 0
     toughness = 5

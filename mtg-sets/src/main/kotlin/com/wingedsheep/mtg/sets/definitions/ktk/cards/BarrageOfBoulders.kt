@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val BarrageOfBoulders = card("Barrage of Boulders") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Barrage of Boulders deals 1 damage to each creature you don't control.\nFerocious — If you control a creature with power 4 or greater, creatures can't block this turn."
 

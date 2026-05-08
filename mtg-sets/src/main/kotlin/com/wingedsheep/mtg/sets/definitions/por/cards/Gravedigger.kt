@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val Gravedigger = card("Gravedigger") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 2
     toughness = 2

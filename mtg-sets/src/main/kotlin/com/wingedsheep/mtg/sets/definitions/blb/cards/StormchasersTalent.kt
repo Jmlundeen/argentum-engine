@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val StormchasersTalent = card("Stormchaser's Talent") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Class"
     oracleText = "When this Class enters, create a 1/1 blue and red Otter creature token with prowess.\n{3}{U}: Level 2 — When this Class becomes level 2, return target instant or sorcery card from your graveyard to your hand.\n{5}{U}: Level 3 — Whenever you cast an instant or sorcery spell, create a 1/1 blue and red Otter creature token with prowess."
 

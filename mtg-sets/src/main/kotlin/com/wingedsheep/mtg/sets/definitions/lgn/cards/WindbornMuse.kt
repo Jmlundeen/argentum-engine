@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.AttackTax
  */
 val WindbornMuse = card("Windborn Muse") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Spirit"
     power = 2
     toughness = 3

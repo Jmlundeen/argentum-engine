@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val DragonscaleBoon = card("Dragonscale Boon") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Put two +1/+1 counters on target creature and untap it."
 

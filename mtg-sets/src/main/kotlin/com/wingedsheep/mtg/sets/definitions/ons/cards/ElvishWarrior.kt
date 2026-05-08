@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ElvishWarrior = card("Elvish Warrior") {
     manaCost = "{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Warrior"
     power = 2
     toughness = 3

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val MossbornHydra = card("Mossborn Hydra") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental Hydra"
     power = 0
     toughness = 0

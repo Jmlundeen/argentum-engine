@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val SinisterMonolith = card("Sinister Monolith") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Artifact"
     oracleText = "At the beginning of combat on your turn, each opponent loses 1 life and you gain 1 life.\n{T}, Pay 2 life, Sacrifice this artifact: Draw two cards. Activate only as a sorcery."
 

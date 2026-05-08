@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val GrowFromTheAshes = card("Grow from the Ashes") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Kicker {2} (You may pay an additional {2} as you cast this spell.)\nSearch your library for a basic land card, put it onto the battlefield, then shuffle. If this spell was kicked, instead search your library for two basic land cards, put them onto the battlefield, then shuffle."
 

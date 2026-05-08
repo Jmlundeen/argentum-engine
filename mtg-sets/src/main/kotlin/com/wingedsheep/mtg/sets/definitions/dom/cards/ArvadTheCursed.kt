@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val ArvadTheCursed = card("Arvad the Cursed") {
     manaCost = "{3}{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Legendary Creature — Vampire Knight"
     power = 3
     toughness = 3

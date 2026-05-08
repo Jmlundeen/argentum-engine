@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val RewardTheFaithful = card("Reward the Faithful") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Any number of target players each gain life equal to the greatest mana value among permanents you control."
 

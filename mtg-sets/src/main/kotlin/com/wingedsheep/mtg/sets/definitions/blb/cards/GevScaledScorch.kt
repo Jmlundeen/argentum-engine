@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.TurnTracker
  */
 val GevScaledScorch = card("Gev, Scaled Scorch") {
     manaCost = "{B}{R}"
+    colorIdentity = "BR"
     typeLine = "Legendary Creature — Lizard Mercenary"
     oracleText = "Ward—Pay 2 life.\n" +
         "Other creatures you control enter with an additional +1/+1 counter on them " +

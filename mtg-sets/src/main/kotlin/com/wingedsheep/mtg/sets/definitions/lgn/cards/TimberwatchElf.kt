@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val TimberwatchElf = card("Timberwatch Elf") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 1
     toughness = 2

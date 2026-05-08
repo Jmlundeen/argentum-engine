@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val HinterlandHarbor = card("Hinterland Harbor") {
     typeLine = "Land"
+    colorIdentity = "UG"
     oracleText = "This land enters tapped unless you control a Forest or an Island.\n{T}: Add {G} or {U}."
 
     replacementEffect(EntersTapped(

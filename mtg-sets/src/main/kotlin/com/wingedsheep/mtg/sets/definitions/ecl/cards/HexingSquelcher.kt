@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val HexingSquelcher = card("Hexing Squelcher") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Sorcerer"
     power = 2
     toughness = 2

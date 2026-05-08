@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val WindsOfChange = card("Winds of Change") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

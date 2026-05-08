@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EclipsedElf = card("Eclipsed Elf") {
     manaCost = "{B/G}{B/G}{B/G}"
+    colorIdentity = "BG"
     typeLine = "Creature — Elf Scout"
     power = 3
     toughness = 2

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
 // - You can't look at the face-down cards.
 val ParallelThoughts = card("Parallel Thoughts") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters, search your library for seven cards, exile them " +
         "in a face-down pile, and shuffle that pile. Then shuffle your library.\n" +

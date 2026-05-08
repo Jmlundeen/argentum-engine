@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val MindDrillAssailant = card("Mind Drill Assailant") {
     manaCost = "{2}{U/B}{U/B}"
+    colorIdentity = "UB"
     typeLine = "Creature — Rat Warlock"
     power = 2
     toughness = 5

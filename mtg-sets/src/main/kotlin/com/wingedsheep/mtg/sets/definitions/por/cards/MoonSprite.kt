@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MoonSprite = card("Moon Sprite") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Faerie"
     power = 1
     toughness = 1

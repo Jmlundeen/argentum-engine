@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val WarrenElder = card("Warren Elder") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Rabbit Cleric"
     power = 2
     toughness = 2

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EssenceSliver = card("Essence Sliver") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Sliver"
     power = 3
     toughness = 3

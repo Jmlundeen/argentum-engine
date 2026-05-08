@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AnuridMurkdiver = card("Anurid Murkdiver") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Frog Beast"
     power = 4
     toughness = 3

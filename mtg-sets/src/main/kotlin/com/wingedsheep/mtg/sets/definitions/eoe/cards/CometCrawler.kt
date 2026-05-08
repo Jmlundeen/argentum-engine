@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
  */
 val CometCrawler = card("Comet Crawler") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Insect Horror"
     power = 2
     toughness = 3

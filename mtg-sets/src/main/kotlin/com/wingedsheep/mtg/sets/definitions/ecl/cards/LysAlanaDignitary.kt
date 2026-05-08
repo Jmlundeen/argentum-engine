@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val LysAlanaDignitary = card("Lys Alana Dignitary") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Advisor"
     power = 2
     toughness = 3

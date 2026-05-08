@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val ChampionOfThePath = card("Champion of the Path") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Sorcerer"
     power = 7
     toughness = 3

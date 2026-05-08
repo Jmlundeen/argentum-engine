@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val GravpackMonoist = card("Gravpack Monoist") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Scout"
     power = 2
     toughness = 1

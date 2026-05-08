@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val StoicGroveGuide = card("Stoic Grove-Guide") {
     manaCost = "{4}{B/G}"
+    colorIdentity = "BG"
     typeLine = "Creature — Elf Druid"
     power = 5
     toughness = 4

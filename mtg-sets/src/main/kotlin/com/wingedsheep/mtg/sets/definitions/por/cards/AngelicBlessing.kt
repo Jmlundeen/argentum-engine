@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AngelicBlessing = card("Angelic Blessing") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

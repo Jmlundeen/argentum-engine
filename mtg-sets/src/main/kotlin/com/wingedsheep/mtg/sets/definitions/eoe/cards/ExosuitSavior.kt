@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
  */
 val ExosuitSavior = card("Exosuit Savior") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 2

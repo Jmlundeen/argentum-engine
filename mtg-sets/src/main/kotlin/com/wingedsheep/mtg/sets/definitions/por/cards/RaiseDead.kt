@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val RaiseDead = card("Raise Dead") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

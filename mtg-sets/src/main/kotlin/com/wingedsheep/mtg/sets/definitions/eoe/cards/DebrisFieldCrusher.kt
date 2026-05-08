@@ -34,6 +34,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val DebrisFieldCrusher = card("Debris Field Crusher") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Artifact — Spacecraft"
     power = 1
     toughness = 5

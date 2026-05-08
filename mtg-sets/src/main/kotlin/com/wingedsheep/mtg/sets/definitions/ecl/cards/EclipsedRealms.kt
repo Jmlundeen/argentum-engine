@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val EclipsedRealms = card("Eclipsed Realms") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText =
         "As Eclipsed Realms enters, choose Elemental, Elf, Faerie, Giant, Goblin, Kithkin, Merfolk, or Treefolk.\n" +
         "{T}: Add {C}.\n" +

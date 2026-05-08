@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
  */
 val RummagingWizard = card("Rummaging Wizard") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 2
     toughness = 2

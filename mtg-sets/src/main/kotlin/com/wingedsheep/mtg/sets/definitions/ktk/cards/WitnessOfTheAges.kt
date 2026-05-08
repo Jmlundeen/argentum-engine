@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WitnessOfTheAges = card("Witness of the Ages") {
     manaCost = "{6}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Golem"
     power = 4
     toughness = 4

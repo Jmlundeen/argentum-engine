@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val RatColony = card("Rat Colony") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Rat"
     power = 2
     toughness = 1

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val ChangelingWayfinder = card("Changeling Wayfinder") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Creature — Shapeshifter"
     power = 1
     toughness = 2

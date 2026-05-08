@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val EndBlazeEpiphany = card("End-Blaze Epiphany") {
     manaCost = "{X}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "End-Blaze Epiphany deals X damage to target creature. When that creature dies this turn, " +
         "exile a number of cards from the top of your library equal to its power, then choose a card exiled this way. " +

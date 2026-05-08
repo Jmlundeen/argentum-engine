@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val Glamermite = card("Glamermite") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Faerie Rogue"
     power = 2
     toughness = 2

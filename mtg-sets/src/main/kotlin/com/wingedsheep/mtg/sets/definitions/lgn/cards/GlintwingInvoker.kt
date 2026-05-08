@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GlintwingInvoker = card("Glintwing Invoker") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard Mutant"
     power = 3
     toughness = 3

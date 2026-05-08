@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SoulImmolation = card("Soul Immolation") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, blight X. X can't be greater than the greatest toughness among creatures you control. (Put X -1/-1 counters on a creature you control.)\n" +
         "Soul Immolation deals X damage to each opponent and each creature they control."

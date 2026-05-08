@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
  */
 val ZhalfirinVoid = card("Zhalfirin Void") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "When Zhalfirin Void enters the battlefield, scry 1.\n{T}: Add {C}."
 
     triggeredAbility {

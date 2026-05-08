@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val NaturesRuin = card("Nature's Ruin") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

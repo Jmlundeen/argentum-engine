@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val RonaDiscipleOfGix = card("Rona, Disciple of Gix") {
     manaCost = "{1}{U}{B}"
+    colorIdentity = "UB"
     typeLine = "Legendary Creature — Human Artificer"
     power = 2
     toughness = 2

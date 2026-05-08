@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val StarCharter = card("Star Charter") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bat Cleric"
     oracleText = "Flying\nAt the beginning of your end step, if you gained or lost life this turn, look at the top four cards of your library. You may reveal a creature card with power 3 or less from among them and put it into your hand. Put the rest on the bottom of your library in a random order."
     power = 3

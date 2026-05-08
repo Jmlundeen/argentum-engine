@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val ElvishVanguard = card("Elvish Vanguard") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Warrior"
     power = 1
     toughness = 1

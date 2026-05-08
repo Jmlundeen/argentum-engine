@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HopToIt = card("Hop to It") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Create three 1/1 white Rabbit creature tokens."
 

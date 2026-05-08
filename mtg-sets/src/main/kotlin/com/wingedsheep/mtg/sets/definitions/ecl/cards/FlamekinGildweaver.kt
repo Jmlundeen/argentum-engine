@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FlamekinGildweaver = card("Flamekin Gildweaver") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Sorcerer"
     power = 4
     toughness = 3

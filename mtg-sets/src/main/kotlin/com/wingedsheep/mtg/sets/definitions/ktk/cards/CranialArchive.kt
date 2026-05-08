@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val CranialArchive = card("Cranial Archive") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{2}, Exile this artifact: Target player shuffles their graveyard into their library. Draw a card."
 

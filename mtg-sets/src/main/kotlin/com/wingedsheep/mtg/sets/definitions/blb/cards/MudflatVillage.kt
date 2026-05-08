@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val MudflatVillage = card("Mudflat Village") {
     typeLine = "Land"
+    colorIdentity = "B"
     oracleText = "{T}: Add {C}.\n{T}: Add {B}. Spend this mana only to cast a creature spell.\n" +
         "{1}{B}, {T}, Sacrifice this land: Return target Bat, Lizard, Rat, or Squirrel card " +
         "from your graveyard to your hand."

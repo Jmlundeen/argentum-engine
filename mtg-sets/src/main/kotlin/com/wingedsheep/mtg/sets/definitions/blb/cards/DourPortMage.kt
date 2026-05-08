@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val DourPortMage = card("Dour Port-Mage") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Frog Wizard"
     power = 1
     toughness = 3

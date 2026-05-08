@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val PlanarGuide = card("Planar Guide") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 1

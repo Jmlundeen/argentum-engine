@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val NavigatorsCompass = card("Navigator's Compass") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "When this artifact enters, you gain 3 life.\n" +
         "{T}: Until end of turn, target land you control becomes the basic land type of your choice in addition to its other types."

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CorrosiveOoze = card("Corrosive Ooze") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Ooze"
     power = 2
     toughness = 2

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val VenerableMonk = card("Venerable Monk") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Monk Cleric"
     power = 2
     toughness = 2

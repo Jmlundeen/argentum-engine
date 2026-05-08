@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val ThunderingWurm = card("Thundering Wurm") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Wurm"
     power = 4
     toughness = 4

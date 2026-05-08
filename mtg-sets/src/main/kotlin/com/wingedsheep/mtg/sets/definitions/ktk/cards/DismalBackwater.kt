@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val DismalBackwater = card("Dismal Backwater") {
     typeLine = "Land"
+    colorIdentity = "UB"
     oracleText = "This land enters tapped.\nWhen this land enters, you gain 1 life.\n{T}: Add {U} or {B}."
 
     replacementEffect(EntersTapped())

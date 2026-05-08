@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val LushPortico = card("Lush Portico") {
     typeLine = "Land — Forest Plains"
+    colorIdentity = "WG"
     oracleText = "({T}: Add {G} or {W}.)\nThis land enters tapped.\nWhen this land enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     // Mana abilities are intrinsic from basic land types (Forest -> {G}, Plains -> {W})

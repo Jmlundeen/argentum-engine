@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val TeferiHeroOfDominaria = card("Teferi, Hero of Dominaria") {
     manaCost = "{3}{W}{U}"
+    colorIdentity = "WU"
     typeLine = "Legendary Planeswalker — Teferi"
     startingLoyalty = 4
     oracleText = "+1: Draw a card. At the beginning of the next end step, untap up to two lands.\n\u22123: Put target nonland permanent into its owner's library third from the top.\n\u22128: You get an emblem with \"Whenever you draw a card, exile target permanent an opponent controls.\""

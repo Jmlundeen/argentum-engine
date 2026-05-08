@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Recuperate = card("Recuperate") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Target player gains 5 life."
 

@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EclipsedBoggart = card("Eclipsed Boggart") {
     manaCost = "{B/R}{B/R}{B/R}"
+    colorIdentity = "BR"
     typeLine = "Creature — Goblin Scout"
     power = 2
     toughness = 3

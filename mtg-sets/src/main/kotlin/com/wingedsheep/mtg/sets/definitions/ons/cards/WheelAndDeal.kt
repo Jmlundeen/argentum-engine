@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val WheelAndDeal = card("Wheel and Deal") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Any number of target opponents each discard their hands, then draw seven cards. Draw a card."
 

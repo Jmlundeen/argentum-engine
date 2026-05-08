@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val Charge = card("Charge") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Creatures you control get +1/+1 until end of turn."
 

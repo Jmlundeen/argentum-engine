@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
  */
 val RiptideBiologist = card("Riptide Biologist") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 2

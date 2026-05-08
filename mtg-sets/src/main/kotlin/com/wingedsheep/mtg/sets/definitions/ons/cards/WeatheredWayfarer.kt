@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val WeatheredWayfarer = card("Weathered Wayfarer") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Nomad Cleric"
     power = 1
     toughness = 1

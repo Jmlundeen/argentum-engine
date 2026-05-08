@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val MarduSkullhunter = card("Mardu Skullhunter") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 1

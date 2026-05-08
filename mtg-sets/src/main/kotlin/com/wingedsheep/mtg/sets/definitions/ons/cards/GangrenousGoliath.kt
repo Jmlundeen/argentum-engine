@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val GangrenousGoliath = card("Gangrenous Goliath") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Giant"
     power = 4
     toughness = 4

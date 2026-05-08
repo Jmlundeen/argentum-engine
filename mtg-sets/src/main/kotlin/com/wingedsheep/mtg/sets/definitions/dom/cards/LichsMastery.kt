@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val LichsMastery = card("Lich's Mastery") {
     manaCost = "{3}{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Enchantment"
     oracleText = "Hexproof\n" +
         "You can't lose the game.\n" +

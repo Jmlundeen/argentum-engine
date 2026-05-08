@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val FireglassMentor = card("Fireglass Mentor") {
     manaCost = "{B}{R}"
+    colorIdentity = "BR"
     typeLine = "Creature — Lizard Warlock"
     oracleText = "At the beginning of your second main phase, if an opponent lost life this turn, " +
         "exile the top two cards of your library. Choose one of them. Until end of turn, you may play that card."

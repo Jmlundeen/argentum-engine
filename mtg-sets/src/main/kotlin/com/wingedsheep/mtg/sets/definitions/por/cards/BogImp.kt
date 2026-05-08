@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BogImp = card("Bog Imp") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Imp"
     power = 1
     toughness = 1

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val GempalmIncinerator = card("Gempalm Incinerator") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     oracleText = "Cycling {1}{R}\nWhen you cycle Gempalm Incinerator, you may have it deal X damage to target creature, where X is the number of Goblins on the battlefield."
     power = 2

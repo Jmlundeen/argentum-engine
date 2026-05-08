@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
  */
 val RadiantStrike = card("Radiant Strike") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Destroy target artifact or tapped creature. You gain 3 life."
 

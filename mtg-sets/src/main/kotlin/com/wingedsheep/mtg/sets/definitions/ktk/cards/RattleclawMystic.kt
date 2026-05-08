@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val RattleclawMystic = card("Rattleclaw Mystic") {
     manaCost = "{1}{G}"
+    colorIdentity = "URG"
     typeLine = "Creature — Human Shaman"
     power = 2
     toughness = 1

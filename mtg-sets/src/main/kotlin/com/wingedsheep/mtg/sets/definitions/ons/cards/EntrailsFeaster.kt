@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val EntrailsFeaster = card("Entrails Feaster") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Cat"
     power = 1
     toughness = 1

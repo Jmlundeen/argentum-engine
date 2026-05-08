@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val AdelizTheCinderWind = card("Adeliz, the Cinder Wind") {
     manaCost = "{1}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Legendary Creature — Human Wizard"
     power = 2
     toughness = 2

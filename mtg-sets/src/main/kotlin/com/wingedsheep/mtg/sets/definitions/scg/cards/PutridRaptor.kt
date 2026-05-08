@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
  */
 val PutridRaptor = card("Putrid Raptor") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Dinosaur Beast"
     power = 4
     toughness = 4

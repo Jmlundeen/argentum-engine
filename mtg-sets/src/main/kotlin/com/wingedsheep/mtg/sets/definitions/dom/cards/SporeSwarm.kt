@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val SporeSwarm = card("Spore Swarm") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Create three 1/1 green Saproling creature tokens."
 

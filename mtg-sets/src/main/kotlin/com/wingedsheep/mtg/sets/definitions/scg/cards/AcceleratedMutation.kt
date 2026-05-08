@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val AcceleratedMutation = card("Accelerated Mutation") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Target creature gets +X/+X until end of turn, where X is the highest mana value among permanents you control."
 

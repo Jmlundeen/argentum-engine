@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val NabanDeanOfIteration = card("Naban, Dean of Iteration") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Human Wizard"
     power = 2
     toughness = 1

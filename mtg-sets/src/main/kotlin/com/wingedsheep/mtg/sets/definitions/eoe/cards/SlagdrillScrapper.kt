@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
  */
 val SlagdrillScrapper = card("Slagdrill Scrapper") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Artifact Creature — Robot Scout"
     oracleText = "{2}, {T}, Sacrifice another artifact or land: Draw a card."
     power = 1

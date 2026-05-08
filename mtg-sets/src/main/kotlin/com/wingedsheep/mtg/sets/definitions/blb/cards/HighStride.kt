@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val HighStride = card("High Stride") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Target creature gets +1/+3 and gains reach until end of turn. Untap it."
 

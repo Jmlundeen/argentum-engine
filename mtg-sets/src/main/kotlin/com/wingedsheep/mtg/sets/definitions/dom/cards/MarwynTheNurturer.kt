@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val MarwynTheNurturer = card("Marwyn, the Nurturer") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Creature — Elf Druid"
     power = 1
     toughness = 1

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val Devastation = card("Devastation") {
     manaCost = "{5}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

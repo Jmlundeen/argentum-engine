@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Biorhythm = card("Biorhythm") {
     manaCost = "{6}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Each player's life total becomes the number of creatures they control."
 

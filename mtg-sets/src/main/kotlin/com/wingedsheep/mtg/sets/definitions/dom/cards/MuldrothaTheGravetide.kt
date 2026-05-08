@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.MayPlayPermanentsFromGraveyard
  */
 val MuldrothaTheGravetide = card("Muldrotha, the Gravetide") {
     manaCost = "{3}{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Legendary Creature — Elemental Avatar"
     power = 6
     toughness = 6

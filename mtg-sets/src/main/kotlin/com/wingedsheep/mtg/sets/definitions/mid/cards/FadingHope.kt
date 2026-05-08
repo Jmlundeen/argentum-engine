@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val FadingHope = card("Fading Hope") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Return target creature to its owner's hand. If its mana value was 3 or less, scry 1. (Look at the top card of your library. You may put that card on the bottom.)"
 

@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SizzlingChangeling = card("Sizzling Changeling") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Shapeshifter"
     power = 3
     toughness = 2

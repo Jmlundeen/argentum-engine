@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val MasterTheWay = card("Master the Way") {
     manaCost = "{3}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Sorcery"
     oracleText = "Draw a card. Master the Way deals damage to any target equal to the number of cards in your hand."
 

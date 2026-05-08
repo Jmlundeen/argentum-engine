@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val TemurBanner = card("Temur Banner") {
     manaCost = "{3}"
+    colorIdentity = "URG"
     typeLine = "Artifact"
     oracleText = "{T}: Add {G}, {U}, or {R}.\n{G}{U}{R}, {T}, Sacrifice this artifact: Draw a card."
 

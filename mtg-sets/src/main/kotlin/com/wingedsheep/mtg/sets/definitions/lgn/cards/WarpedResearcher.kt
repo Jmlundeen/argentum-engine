@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WarpedResearcher = card("Warped Researcher") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard Mutant"
     power = 3
     toughness = 4

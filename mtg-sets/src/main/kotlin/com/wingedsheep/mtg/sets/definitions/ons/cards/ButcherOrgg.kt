@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.DivideCombatDamageFreely
  */
 val ButcherOrgg = card("Butcher Orgg") {
     manaCost = "{4}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Orgg"
     power = 6
     toughness = 6

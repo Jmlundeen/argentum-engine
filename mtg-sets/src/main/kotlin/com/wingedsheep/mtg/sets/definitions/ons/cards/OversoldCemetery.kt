@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val OversoldCemetery = card("Oversold Cemetery") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "At the beginning of your upkeep, if you have four or more creature cards in your graveyard, you may return target creature card from your graveyard to your hand."
 

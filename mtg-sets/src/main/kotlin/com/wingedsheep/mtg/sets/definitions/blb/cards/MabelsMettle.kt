@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val MabelsMettle = card("Mabel's Mettle") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Target creature gets +2/+2 until end of turn. Up to one other target creature gets +1/+1 until end of turn."
 

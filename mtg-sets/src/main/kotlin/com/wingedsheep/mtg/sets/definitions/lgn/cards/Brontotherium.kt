@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Brontotherium = card("Brontotherium") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 5
     toughness = 3

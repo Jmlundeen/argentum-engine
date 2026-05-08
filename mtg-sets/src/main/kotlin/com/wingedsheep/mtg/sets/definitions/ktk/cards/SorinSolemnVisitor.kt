@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SorinSolemnVisitor = card("Sorin, Solemn Visitor") {
     manaCost = "{2}{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Legendary Planeswalker — Sorin"
     startingLoyalty = 4
     oracleText = "+1: Until your next turn, creatures you control get +1/+0 and gain lifelink.\n−2: Create a 2/2 black Vampire creature token with flying.\n−6: You get an emblem with \"At the beginning of each opponent's upkeep, that player sacrifices a creature of their choice.\""

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val BattlefieldMedic = card("Battlefield Medic") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 1

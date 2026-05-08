@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val BladewingTheRisen = card("Bladewing the Risen") {
     manaCost = "{3}{B}{B}{R}{R}"
+    colorIdentity = "BR"
     typeLine = "Legendary Creature — Zombie Dragon"
     power = 4
     toughness = 4

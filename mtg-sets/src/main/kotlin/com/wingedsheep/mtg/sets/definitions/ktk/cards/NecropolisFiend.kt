@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val NecropolisFiend = card("Necropolis Fiend") {
     manaCost = "{7}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Demon"
     power = 4
     toughness = 5

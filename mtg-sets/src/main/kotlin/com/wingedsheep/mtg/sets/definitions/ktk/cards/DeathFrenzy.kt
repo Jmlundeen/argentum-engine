@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val DeathFrenzy = card("Death Frenzy") {
     manaCost = "{3}{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Sorcery"
     oracleText = "All creatures get -2/-2 until end of turn. Whenever a creature dies this turn, you gain 1 life."
 

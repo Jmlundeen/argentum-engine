@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Dissipate = card("Dissipate") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell. If that spell is countered this way, exile it instead of putting it into its owner's graveyard."
 

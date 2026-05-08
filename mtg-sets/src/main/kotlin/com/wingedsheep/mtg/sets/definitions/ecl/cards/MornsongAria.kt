@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MornsongAria = card("Mornsong Aria") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Enchantment"
     oracleText = "Players can't draw cards or gain life.\n" +
         "At the beginning of each player's draw step, that player loses 3 life, searches their library for a card, puts it into their hand, then shuffles."

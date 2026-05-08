@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
  */
 val HallarTheFirefletcher = card("Hallar, the Firefletcher") {
     manaCost = "{1}{R}{G}"
+    colorIdentity = "RG"
     typeLine = "Legendary Creature — Elf Archer"
     power = 3
     toughness = 3

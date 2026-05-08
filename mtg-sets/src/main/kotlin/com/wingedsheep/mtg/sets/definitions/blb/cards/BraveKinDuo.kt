@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val BraveKinDuo = card("Brave-Kin Duo") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Rabbit Mouse"
     power = 1
     toughness = 1

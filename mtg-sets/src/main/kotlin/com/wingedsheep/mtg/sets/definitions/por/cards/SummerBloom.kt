@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.PlayAdditionalLandsEffect
  */
 val SummerBloom = card("Summer Bloom") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
  */
 val FeedTheCycle = card("Feed the Cycle") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "As an additional cost to cast this spell, forage or pay {B}. (To forage, exile three cards from your graveyard or sacrifice a Food.)\nDestroy target creature or planeswalker."
 

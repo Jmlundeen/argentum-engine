@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val BalefulStare = card("Baleful Stare") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

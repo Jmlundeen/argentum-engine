@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val BoldwyrAggressor = card("Boldwyr Aggressor") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Giant Warrior"
     power = 2
     toughness = 5

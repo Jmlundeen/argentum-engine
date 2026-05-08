@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val WaveOfIndifference = card("Wave of Indifference") {
     manaCost = "{X}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "X target creatures can't block this turn."
 

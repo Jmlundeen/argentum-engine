@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ThistledownPlayers = card("Thistledown Players") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Mouse Bard"
     power = 3
     toughness = 3

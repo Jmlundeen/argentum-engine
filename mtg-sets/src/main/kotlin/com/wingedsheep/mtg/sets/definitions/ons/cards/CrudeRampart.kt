@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val CrudeRampart = card("Crude Rampart") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Wall"
     power = 4
     toughness = 5

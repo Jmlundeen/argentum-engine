@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val OptimisticScavenger = card("Optimistic Scavenger") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Scout"
     power = 1
     toughness = 1

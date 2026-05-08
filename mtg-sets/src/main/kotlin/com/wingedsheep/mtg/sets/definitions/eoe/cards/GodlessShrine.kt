@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val GodlessShrine = card("Godless Shrine") {
     manaCost = ""
+    colorIdentity = "WB"
     typeLine = "Land — Plains Swamp"
     oracleText = "({T}: Add {W} or {B}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantShroudEffect
  */
 val GildedLight = card("Gilded Light") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "You gain shroud until end of turn. (You can't be the target of spells or abilities.)\nCycling {2}"
 

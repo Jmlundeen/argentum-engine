@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WaterspoutWarden = card("Waterspout Warden") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Frog Soldier"
     oracleText = "Whenever this creature attacks, if another creature entered the battlefield under your control this turn, this creature gains flying until end of turn."
     power = 3

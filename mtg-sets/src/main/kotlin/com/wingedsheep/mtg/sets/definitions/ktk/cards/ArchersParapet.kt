@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ArchersParapet = card("Archers' Parapet") {
     manaCost = "{1}{G}"
+    colorIdentity = "BG"
     typeLine = "Creature — Wall"
     power = 0
     toughness = 5

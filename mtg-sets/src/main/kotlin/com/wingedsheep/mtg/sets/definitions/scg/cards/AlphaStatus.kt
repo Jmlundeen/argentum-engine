@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val AlphaStatus = card("Alpha Status") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +2/+2 for each other creature on the battlefield that shares a creature type with it."
 

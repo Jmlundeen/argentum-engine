@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.SetEnchantedLandType
  */
 val SeasClaim = card("Sea's Claim") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant land\nEnchanted land is an Island."
 

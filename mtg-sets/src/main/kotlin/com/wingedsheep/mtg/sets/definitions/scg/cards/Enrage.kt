@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Enrage = card("Enrage") {
     manaCost = "{X}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Target creature gets +X/+0 until end of turn."
 

@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Despise = card("Despise") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target opponent reveals their hand. You choose a creature or planeswalker card from it. That player discards that card."
 

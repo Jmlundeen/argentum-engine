@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BullHippo = card("Bull Hippo") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Hippo"
     power = 3
     toughness = 3

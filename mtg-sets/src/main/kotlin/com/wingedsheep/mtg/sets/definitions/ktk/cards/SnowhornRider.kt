@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SnowhornRider = card("Snowhorn Rider") {
     manaCost = "{3}{G}{U}{R}"
+    colorIdentity = "URG"
     typeLine = "Creature — Human Warrior"
     power = 5
     toughness = 5

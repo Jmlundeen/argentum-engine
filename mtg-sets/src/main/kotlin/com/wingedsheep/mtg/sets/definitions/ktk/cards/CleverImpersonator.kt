@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val CleverImpersonator = card("Clever Impersonator") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Shapeshifter"
     power = 0
     toughness = 0

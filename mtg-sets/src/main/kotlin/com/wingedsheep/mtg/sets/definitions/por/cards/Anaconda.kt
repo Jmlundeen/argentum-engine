@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Anaconda = card("Anaconda") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Snake"
     power = 3
     toughness = 3

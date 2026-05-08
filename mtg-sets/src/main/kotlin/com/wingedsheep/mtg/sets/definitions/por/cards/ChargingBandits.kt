@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val ChargingBandits = card("Charging Bandits") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Rogue"
     power = 3
     toughness = 3

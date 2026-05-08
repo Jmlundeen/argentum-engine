@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ThornspireVerge = card("Thornspire Verge") {
     typeLine = "Land"
+    colorIdentity = "RG"
     oracleText = "{T}: Add {R}.\n{T}: Add {G}. Activate only if you control a Mountain or a Forest."
 
     activatedAbility {

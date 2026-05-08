@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val TriumphOfGerrard = card("Triumph of Gerrard") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I, II — Put a +1/+1 counter on target creature you control with the greatest power.\n" +

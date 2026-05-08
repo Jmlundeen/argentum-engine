@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DragonStyleTwins = card("Dragon-Style Twins") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Monk"
     power = 3
     toughness = 3

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BrightbladeStoat = card("Brightblade Stoat") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Weasel Soldier"
     oracleText = "First strike, lifelink"
     power = 2

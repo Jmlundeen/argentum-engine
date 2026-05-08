@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WillowDryad = card("Willow Dryad") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Dryad"
     power = 1
     toughness = 1

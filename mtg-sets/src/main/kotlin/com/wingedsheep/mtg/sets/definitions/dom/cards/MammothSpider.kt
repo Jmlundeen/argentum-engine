@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MammothSpider = card("Mammoth Spider") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Spider"
     power = 3
     toughness = 5

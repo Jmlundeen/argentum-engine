@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val PersistentMarshstalker = card("Persistent Marshstalker") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Rat Berserker"
     power = 3
     toughness = 1

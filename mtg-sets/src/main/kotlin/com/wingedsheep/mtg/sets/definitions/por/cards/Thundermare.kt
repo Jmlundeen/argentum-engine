@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val Thundermare = card("Thundermare") {
     manaCost = "{5}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Horse"
     power = 5
     toughness = 5

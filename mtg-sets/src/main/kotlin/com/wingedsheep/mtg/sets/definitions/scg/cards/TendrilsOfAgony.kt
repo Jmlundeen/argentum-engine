@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val TendrilsOfAgony = card("Tendrils of Agony") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target player loses 2 life and you gain 2 life.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 

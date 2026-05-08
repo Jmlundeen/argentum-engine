@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val HauntedCadaver = card("Haunted Cadaver") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 2
     toughness = 2

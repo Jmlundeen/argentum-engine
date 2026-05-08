@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MerchantOfSecrets = card("Merchant of Secrets") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1

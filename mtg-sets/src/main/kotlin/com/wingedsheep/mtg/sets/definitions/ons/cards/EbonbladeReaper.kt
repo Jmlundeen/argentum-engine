@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val EbonbladeReaper = card("Ebonblade Reaper") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 1

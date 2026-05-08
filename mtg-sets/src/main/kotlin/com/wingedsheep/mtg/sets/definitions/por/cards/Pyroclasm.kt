@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val Pyroclasm = card("Pyroclasm") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

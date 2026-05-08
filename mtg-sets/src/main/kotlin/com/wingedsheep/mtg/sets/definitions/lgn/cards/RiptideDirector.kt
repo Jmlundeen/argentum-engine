@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val RiptideDirector = card("Riptide Director") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 2
     toughness = 3

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val NettleGuard = card("Nettle Guard") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Mouse Soldier"
     power = 3
     toughness = 1

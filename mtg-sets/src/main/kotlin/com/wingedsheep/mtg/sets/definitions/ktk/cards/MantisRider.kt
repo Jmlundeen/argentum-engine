@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MantisRider = card("Mantis Rider") {
     manaCost = "{U}{R}{W}"
+    colorIdentity = "WUR"
     typeLine = "Creature — Human Monk"
     power = 3
     toughness = 3

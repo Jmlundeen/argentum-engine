@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val MmmenonUthrosExile = card("Mm'menon, Uthros Exile") {
     manaCost = "{1}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Legendary Creature — Jellyfish Advisor"
     oracleText = "Flying\nWhenever an artifact you control enters, put a +1/+1 counter on target creature."
     power = 1

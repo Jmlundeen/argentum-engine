@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HuntingPack = card("Hunting Pack") {
     manaCost = "{5}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Create a 4/4 green Beast creature token.\nStorm (When you cast this spell, copy it for each spell cast before it this turn.)"
 

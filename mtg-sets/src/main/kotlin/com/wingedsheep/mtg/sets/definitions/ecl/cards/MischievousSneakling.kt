@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MischievousSneakling = card("Mischievous Sneakling") {
     manaCost = "{1}{U/B}"
+    colorIdentity = "UB"
     typeLine = "Creature — Shapeshifter"
     power = 2
     toughness = 2

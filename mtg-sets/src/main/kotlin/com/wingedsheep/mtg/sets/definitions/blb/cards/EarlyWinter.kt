@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val EarlyWinter = card("Early Winter") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Exile target creature.\n• Target opponent exiles an enchantment they control."
 

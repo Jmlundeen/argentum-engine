@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
  */
 val BiosynthicBurst = card("Biosynthic Burst") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Put a +1/+1 counter on target creature you control. It gains reach, trample, and indestructible until end of turn. Untap it. (Damage and effects that say \"destroy\" don't destroy it.)"
 

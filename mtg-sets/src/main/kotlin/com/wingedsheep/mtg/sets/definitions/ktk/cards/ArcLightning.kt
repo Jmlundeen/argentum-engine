@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val ArcLightning = card("Arc Lightning") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Arc Lightning deals 3 damage divided as you choose among one, two, or three targets."
 

@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BurningCuriosity = card("Burning Curiosity") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, you may blight 1. " +
         "(You may put a -1/-1 counter on a creature you control.)\n" +

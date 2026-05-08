@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val AnkleShanker = card("Ankle Shanker") {
     manaCost = "{2}{R}{W}{B}"
+    colorIdentity = "WBR"
     typeLine = "Creature — Goblin Berserker"
     power = 2
     toughness = 2

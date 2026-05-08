@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SkirkAlarmist = card("Skirk Alarmist") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 2

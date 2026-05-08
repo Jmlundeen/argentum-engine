@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HugsGrislyGuardian = card("Hugs, Grisly Guardian") {
     manaCost = "{X}{R}{R}{G}{G}"
+    colorIdentity = "RG"
     typeLine = "Legendary Creature — Badger Warrior"
     power = 5
     toughness = 5

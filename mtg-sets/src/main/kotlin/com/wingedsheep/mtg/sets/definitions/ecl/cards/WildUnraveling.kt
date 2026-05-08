@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
  */
 val WildUnraveling = card("Wild Unraveling") {
     manaCost = "{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "As an additional cost to cast this spell, blight 2 or pay {1}. " +
         "(To blight 2, put two -1/-1 counters on a creature you control.)\n" +

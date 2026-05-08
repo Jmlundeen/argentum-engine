@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val TorrentOfFire = card("Torrent of Fire") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Torrent of Fire deals damage to any target equal to the greatest mana value among permanents you control."
 

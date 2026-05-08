@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.ReduceSpellColoredCostBySubtype
  */
 val Edgewalker = card("Edgewalker") {
     manaCost = "{1}{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 2

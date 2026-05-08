@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SourbreadAuntie = card("Sourbread Auntie") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warrior"
     power = 4
     toughness = 3

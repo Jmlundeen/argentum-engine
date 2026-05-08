@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val WeaverOfLies = card("Weaver of Lies") {
     manaCost = "{5}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 4

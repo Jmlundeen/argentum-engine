@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val HeirloomAuntie = card("Heirloom Auntie") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Goblin Warlock"
     power = 4
     toughness = 4

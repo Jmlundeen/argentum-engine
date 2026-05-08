@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val AjaniOutlandChaperone = card("Ajani, Outland Chaperone") {
     manaCost = "{1}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Planeswalker — Ajani"
     startingLoyalty = 3
     oracleText = "+1: Create a 1/1 green and white Kithkin creature token.\n" +

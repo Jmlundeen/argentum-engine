@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val MistformMutant = card("Mistform Mutant") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion Mutant"
     power = 3
     toughness = 4

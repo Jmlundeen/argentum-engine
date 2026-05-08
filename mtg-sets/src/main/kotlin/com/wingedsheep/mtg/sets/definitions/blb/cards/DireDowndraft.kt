@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.predicates.StatePredicate
  */
 val DireDowndraft = card("Dire Downdraft") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "This spell costs {1} less to cast if it targets an attacking or tapped creature.\nTarget creature's owner puts it on their choice of the top or bottom of their library."
 

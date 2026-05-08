@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SiegeRhino = card("Siege Rhino") {
     manaCost = "{1}{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Creature — Rhino"
     power = 4
     toughness = 5

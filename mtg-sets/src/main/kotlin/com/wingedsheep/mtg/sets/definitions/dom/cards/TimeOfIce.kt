@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TimeOfIce = card("Time of Ice") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I, II — Tap target creature an opponent controls. It doesn't untap during its controller's untap step for as long as you control Time of Ice.\n" +

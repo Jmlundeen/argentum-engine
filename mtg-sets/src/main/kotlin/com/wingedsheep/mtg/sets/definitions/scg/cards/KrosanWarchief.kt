@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val KrosanWarchief = card("Krosan Warchief") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 2
     toughness = 2

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ThunderOfHooves = card("Thunder of Hooves") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Thunder of Hooves deals X damage to each creature without flying and each player, where X is the number of Beasts on the battlefield."
 

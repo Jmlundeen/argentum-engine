@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MistformSeaswift = card("Mistform Seaswift") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion"
     power = 3
     toughness = 1

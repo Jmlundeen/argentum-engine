@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
  */
 val KarnsTemporalSundering = card("Karn's Temporal Sundering") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Sorcery"
     oracleText = "(You may cast a legendary sorcery only if you control a legendary creature or planeswalker.)\nTarget player takes an extra turn after this one. Return up to one target nonland permanent to its owner's hand. Exile Karn's Temporal Sundering."
 

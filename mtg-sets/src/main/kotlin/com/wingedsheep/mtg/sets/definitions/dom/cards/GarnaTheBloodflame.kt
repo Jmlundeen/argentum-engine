@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val GarnaTheBloodflame = card("Garna, the Bloodflame") {
     manaCost = "{3}{B}{R}"
+    colorIdentity = "BR"
     typeLine = "Legendary Creature — Human Warrior"
     power = 3
     toughness = 3

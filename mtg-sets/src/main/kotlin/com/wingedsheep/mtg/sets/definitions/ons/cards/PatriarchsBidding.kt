@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PatriarchsBidding = card("Patriarch's Bidding") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Each player chooses a creature type. Each player returns all creature cards of a type chosen this way from their graveyard to the battlefield."
 

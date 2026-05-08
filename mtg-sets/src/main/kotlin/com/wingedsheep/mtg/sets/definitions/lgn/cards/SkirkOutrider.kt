@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val SkirkOutrider = card("Skirk Outrider") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     oracleText = "As long as you control a Beast, this creature gets +2/+2 and has trample."
     power = 2

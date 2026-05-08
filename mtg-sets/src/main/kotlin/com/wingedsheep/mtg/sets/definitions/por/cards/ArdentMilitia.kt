@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ArdentMilitia = card("Ardent Militia") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 5

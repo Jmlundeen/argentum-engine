@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val Exhaustion = card("Exhaustion") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

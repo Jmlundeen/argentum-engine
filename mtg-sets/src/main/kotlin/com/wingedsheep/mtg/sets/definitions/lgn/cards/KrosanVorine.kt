@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KrosanVorine = card("Krosan Vorine") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Cat Beast"
     power = 3
     toughness = 2

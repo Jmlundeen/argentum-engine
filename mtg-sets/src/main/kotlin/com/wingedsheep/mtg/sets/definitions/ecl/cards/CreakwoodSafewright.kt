@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CreakwoodSafewright = card("Creakwood Safewright") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elf Warrior"
     power = 5
     toughness = 5

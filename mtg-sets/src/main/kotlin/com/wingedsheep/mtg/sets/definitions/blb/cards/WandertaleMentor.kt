@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WandertaleMentor = card("Wandertale Mentor") {
     manaCost = "{R}{G}"
+    colorIdentity = "RG"
     typeLine = "Creature — Raccoon Bard"
     power = 2
     toughness = 2

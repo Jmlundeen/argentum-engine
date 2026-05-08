@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val KnightOfNewBenalia = card("Knight of New Benalia") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Knight"
     power = 3
     toughness = 1

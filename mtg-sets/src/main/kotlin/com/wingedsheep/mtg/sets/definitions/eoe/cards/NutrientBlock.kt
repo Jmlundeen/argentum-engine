@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val NutrientBlock = card("Nutrient Block") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact — Food"
     oracleText = "Indestructible (Effects that say \"destroy\" don't destroy this artifact.)\n{2}, {T}, Sacrifice this artifact: You gain 3 life.\nWhen this artifact is put into a graveyard from the battlefield, draw a card."
 

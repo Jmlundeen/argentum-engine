@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val Mindwhisker = card("Mindwhisker") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Rat Wizard"
     power = 3
     toughness = 2

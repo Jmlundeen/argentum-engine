@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val TotemSpeaker = card("Totem Speaker") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 3
     toughness = 3

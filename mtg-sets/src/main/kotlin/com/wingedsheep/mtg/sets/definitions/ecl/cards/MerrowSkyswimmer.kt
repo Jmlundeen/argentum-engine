@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val MerrowSkyswimmer = card("Merrow Skyswimmer") {
     manaCost = "{3}{W/U}{W/U}"
+    colorIdentity = "WU"
     typeLine = "Creature — Merfolk Soldier"
     power = 2
     toughness = 2

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
  */
 val Pacifism = card("Pacifism") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature can't attack or block."
 

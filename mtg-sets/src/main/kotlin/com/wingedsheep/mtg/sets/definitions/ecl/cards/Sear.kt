@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Sear = card("Sear") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Sear deals 4 damage to target creature or planeswalker."
 

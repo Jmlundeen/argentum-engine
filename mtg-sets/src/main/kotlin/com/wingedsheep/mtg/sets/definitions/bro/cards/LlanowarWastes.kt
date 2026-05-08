@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LlanowarWastes = card("Llanowar Wastes") {
     typeLine = "Land"
+    colorIdentity = "BG"
     oracleText = "{T}: Add {C}.\n{T}: Add {B} or {G}. This land deals 1 damage to you."
 
     activatedAbility {

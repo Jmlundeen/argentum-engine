@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Unwind = card("Unwind") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target noncreature spell. Untap up to three lands."
 

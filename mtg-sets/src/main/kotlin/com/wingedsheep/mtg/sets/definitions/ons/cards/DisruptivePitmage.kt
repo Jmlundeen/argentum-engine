@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
  */
 val DisruptivePitmage = card("Disruptive Pitmage") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1

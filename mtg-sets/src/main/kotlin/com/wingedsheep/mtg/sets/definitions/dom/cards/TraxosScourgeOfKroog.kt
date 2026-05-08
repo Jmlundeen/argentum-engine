@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TraxosScourgeOfKroog = card("Traxos, Scourge of Kroog") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact Creature — Construct"
     power = 7
     toughness = 7

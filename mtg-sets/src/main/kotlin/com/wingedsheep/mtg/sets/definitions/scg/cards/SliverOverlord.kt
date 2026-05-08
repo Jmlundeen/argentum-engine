@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val SliverOverlord = card("Sliver Overlord") {
     manaCost = "{W}{U}{B}{R}{G}"
+    colorIdentity = "WUBRG"
     typeLine = "Legendary Creature — Sliver Mutant"
     power = 7
     toughness = 7

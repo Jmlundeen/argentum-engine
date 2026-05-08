@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WildvinePummeler = card("Wildvine Pummeler") {
     manaCost = "{6}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Giant Berserker"
     power = 6
     toughness = 5

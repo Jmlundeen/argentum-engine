@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val WarlordsFury = card("Warlord's Fury") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Creatures you control gain first strike until end of turn.\nDraw a card."
 

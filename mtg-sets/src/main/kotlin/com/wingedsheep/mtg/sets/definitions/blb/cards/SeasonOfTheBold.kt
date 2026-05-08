@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SeasonOfTheBold = card("Season of the Bold") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Choose up to five {P} worth of modes. You may choose the same mode more than once.\n" +
         "{P} — Create a tapped Treasure token.\n" +

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ForgottenAncient = card("Forgotten Ancient") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental"
     power = 0
     toughness = 3

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val GrandColiseum = card("Grand Coliseum") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "Grand Coliseum enters the battlefield tapped.\n{T}: Add {C}.\n{T}: Add one mana of any color. Grand Coliseum deals 1 damage to you."
 
     replacementEffect(EntersTapped())

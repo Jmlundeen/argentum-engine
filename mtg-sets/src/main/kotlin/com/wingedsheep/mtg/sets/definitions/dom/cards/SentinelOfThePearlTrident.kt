@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val SentinelOfThePearlTrident = card("Sentinel of the Pearl Trident") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Soldier"
     oracleText = "Flash\nWhen Sentinel of the Pearl Trident enters, you may exile target historic permanent you control. If you do, return that card to the battlefield under its owner's control at the beginning of the next end step."
     power = 3

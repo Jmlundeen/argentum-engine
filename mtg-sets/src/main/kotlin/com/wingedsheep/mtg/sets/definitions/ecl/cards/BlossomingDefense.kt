@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BlossomingDefense = card("Blossoming Defense") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Target creature you control gets +2/+2 and gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)"
 

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SeedpodSquire = card("Seedpod Squire") {
     manaCost = "{3}{W/U}"
+    colorIdentity = "WU"
     typeLine = "Creature — Bird Scout"
     oracleText = "Flying\nWhenever this creature attacks, target creature you control without flying gets +1/+1 until end of turn."
     power = 3

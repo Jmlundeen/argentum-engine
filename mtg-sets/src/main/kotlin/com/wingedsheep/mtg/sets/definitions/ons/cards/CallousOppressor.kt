@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val CallousOppressor = card("Callous Oppressor") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Cephalid"
     power = 1
     toughness = 2

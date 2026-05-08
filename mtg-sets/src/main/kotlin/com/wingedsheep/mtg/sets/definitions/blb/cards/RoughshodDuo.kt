@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RoughshodDuo = card("Roughshod Duo") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Mouse Raccoon"
     oracleText = "Trample\nWhenever you expend 4, target creature you control gets +1/+1 and " +
         "gains trample until end of turn. (You expend 4 as you spend your fourth total mana to " +

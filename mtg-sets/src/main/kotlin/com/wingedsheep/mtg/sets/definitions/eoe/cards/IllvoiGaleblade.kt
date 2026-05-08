@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.dsl.Effects
  */
 val IllvoiGaleblade = card("Illvoi Galeblade") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Jellyfish Warrior"
     power = 1
     toughness = 1

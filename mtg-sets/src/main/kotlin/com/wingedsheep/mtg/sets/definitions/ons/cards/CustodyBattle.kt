@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val CustodyBattle = card("Custody Battle") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature has \"At the beginning of your upkeep, target opponent gains control of this creature unless you sacrifice a land.\""
 

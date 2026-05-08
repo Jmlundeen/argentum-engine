@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SplashPortal = card("Splash Portal") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Exile target creature you control, then return it to the battlefield under its owner's control. If that creature is a Bird, Frog, Otter, or Rat, draw a card."
 

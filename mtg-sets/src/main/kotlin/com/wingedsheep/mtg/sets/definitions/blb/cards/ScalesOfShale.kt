@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val ScalesOfShale = card("Scales of Shale") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Affinity for Lizards (This spell costs {1} less to cast for each Lizard you control.)\n" +
         "Target creature gets +2/+0 and gains lifelink and indestructible until end of turn."

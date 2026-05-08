@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LastingTarfire = card("Lasting Tarfire") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "At the beginning of each end step, if you put a counter on a creature this turn, " +
         "this enchantment deals 2 damage to each opponent."

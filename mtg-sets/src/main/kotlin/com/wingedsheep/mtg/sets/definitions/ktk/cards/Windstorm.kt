@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Windstorm = card("Windstorm") {
     manaCost = "{X}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Windstorm deals X damage to each creature with flying."
 

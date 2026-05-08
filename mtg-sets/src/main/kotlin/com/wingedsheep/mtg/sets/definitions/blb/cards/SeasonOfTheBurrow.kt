@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SeasonOfTheBurrow = card("Season of the Burrow") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Choose up to five {P} worth of modes. You may choose the same mode more than once.\n" +
         "{P} — Create a 1/1 white Rabbit creature token.\n" +

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.ReduceSpellCostByFilter
  */
 val DragonspeakerShaman = card("Dragonspeaker Shaman") {
     manaCost = "{1}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Barbarian Shaman"
     power = 2
     toughness = 2

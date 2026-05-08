@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val TheMirariConjecture = card("The Mirari Conjecture") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I — Return target instant card from your graveyard to your hand.\n" +

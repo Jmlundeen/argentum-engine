@@ -47,6 +47,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MalcolmAlluringScoundrel = card("Malcolm, Alluring Scoundrel") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Siren Pirate"
     power = 2
     toughness = 1

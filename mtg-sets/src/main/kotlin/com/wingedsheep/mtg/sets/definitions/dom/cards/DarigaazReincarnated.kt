@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val DarigaazReincarnated = card("Darigaaz Reincarnated") {
     manaCost = "{4}{B}{R}{G}"
+    colorIdentity = "BRG"
     typeLine = "Legendary Creature — Dragon"
     power = 7
     toughness = 7

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SparringConstruct = card("Sparring Construct") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Construct"
     power = 1
     toughness = 1

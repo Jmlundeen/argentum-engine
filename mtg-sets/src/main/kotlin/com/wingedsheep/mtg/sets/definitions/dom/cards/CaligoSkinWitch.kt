@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
  */
 val CaligoSkinWitch = card("Caligo Skin-Witch") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 3

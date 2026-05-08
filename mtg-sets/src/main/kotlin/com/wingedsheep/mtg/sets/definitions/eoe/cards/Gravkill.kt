@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val Gravkill = card("Gravkill") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Exile target creature or Spacecraft."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val EbonDragon = card("Ebon Dragon") {
     manaCost = "{5}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Dragon"
     power = 5
     toughness = 4

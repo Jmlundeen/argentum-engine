@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val PucasEye = card("Puca's Eye") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "When this artifact enters, draw a card, then choose a color. This artifact becomes the chosen color.\n" +
         "{3}, {T}: Draw a card. Activate only if there are five colors among permanents you control."

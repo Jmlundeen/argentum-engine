@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val AdventurousImpulse = card("Adventurous Impulse") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Look at the top three cards of your library. You may reveal a creature or land card from among them and put it into your hand. Put the rest on the bottom of your library in any order."
 

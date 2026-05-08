@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val PsychicTrance = card("Psychic Trance") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Until end of turn, Wizards you control gain \"{T}: Counter target spell.\""
 

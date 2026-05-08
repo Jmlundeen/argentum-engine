@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.core.ManaCost
  */
 val BarkhideMauler = card("Barkhide Mauler") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 4

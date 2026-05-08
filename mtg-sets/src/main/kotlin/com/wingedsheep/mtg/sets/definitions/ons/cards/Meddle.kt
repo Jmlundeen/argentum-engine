@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Meddle = card("Meddle") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "If target spell has only one target and that target is a creature, change that spell's target to another creature."
 

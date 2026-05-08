@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BloodtallowCandle = card("Bloodtallow Candle") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{6}, {T}, Sacrifice Bloodtallow Candle: Target creature gets -5/-5 until end of turn."
 

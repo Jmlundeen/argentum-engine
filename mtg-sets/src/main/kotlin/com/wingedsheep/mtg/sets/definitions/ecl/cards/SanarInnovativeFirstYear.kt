@@ -41,6 +41,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
  */
 val SanarInnovativeFirstYear = card("Sanar, Innovative First-Year") {
     manaCost = "{2}{U/R}{U/R}"
+    colorIdentity = "UR"
     typeLine = "Legendary Creature — Goblin Sorcerer"
     power = 2
     toughness = 4

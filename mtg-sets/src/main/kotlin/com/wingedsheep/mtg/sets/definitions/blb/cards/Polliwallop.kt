@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val Polliwallop = card("Polliwallop") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Affinity for Frogs (This spell costs {1} less to cast for each Frog you control.)\n" +
         "Target creature you control deals damage equal to twice its power to target creature you don't control."

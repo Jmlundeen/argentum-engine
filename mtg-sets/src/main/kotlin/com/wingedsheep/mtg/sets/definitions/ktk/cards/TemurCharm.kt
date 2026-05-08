@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetSpell
  */
 val TemurCharm = card("Temur Charm") {
     manaCost = "{G}{U}{R}"
+    colorIdentity = "URG"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Target creature you control gets +1/+1 until end of turn. It fights target creature you don't control.\n• Counter target spell unless its controller pays {3}.\n• Creatures with power 3 or less can't block this turn."
 

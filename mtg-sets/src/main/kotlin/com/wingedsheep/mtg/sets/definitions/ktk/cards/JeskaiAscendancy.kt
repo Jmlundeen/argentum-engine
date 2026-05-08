@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val JeskaiAscendancy = card("Jeskai Ascendancy") {
     manaCost = "{U}{R}{W}"
+    colorIdentity = "WUR"
     typeLine = "Enchantment"
     oracleText = "Whenever you cast a noncreature spell, creatures you control get +1/+1 until end of turn. Untap those creatures.\nWhenever you cast a noncreature spell, you may draw a card. If you do, discard a card."
 

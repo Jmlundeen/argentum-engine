@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val CoilingRebirth = card("Coiling Rebirth") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, they draw a card before its other effects.)\nReturn target creature card from your graveyard to the battlefield. Then if the gift was promised and that creature isn't legendary, create a token that's a copy of that creature, except it's 1/1."
 

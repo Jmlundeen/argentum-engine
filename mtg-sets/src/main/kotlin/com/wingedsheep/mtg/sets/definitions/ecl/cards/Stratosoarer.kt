@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val Stratosoarer = card("Stratosoarer") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental"
     power = 3
     toughness = 5

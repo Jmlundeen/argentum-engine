@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val WirewoodHivemaster = card("Wirewood Hivemaster") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 1
     toughness = 1

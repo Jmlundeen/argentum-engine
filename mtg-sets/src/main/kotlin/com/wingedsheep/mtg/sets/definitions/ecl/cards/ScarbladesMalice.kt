@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
  */
 val ScarbladesMalice = card("Scarblade's Malice") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Target creature you control gains deathtouch and lifelink until end of turn. " +
         "When that creature dies this turn, create a 2/2 black and green Elf creature token."

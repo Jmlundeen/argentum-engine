@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Deceit = card("Deceit") {
     manaCost = "{4}{U/B}{U/B}"
+    colorIdentity = "UB"
     typeLine = "Creature — Elemental Incarnation"
     power = 5
     toughness = 5

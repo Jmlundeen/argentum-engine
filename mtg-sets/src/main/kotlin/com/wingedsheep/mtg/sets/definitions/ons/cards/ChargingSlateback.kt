@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
  */
 val ChargingSlateback = card("Charging Slateback") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 3

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val DruidOfTheSpade = card("Druid of the Spade") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Rabbit Druid"
     power = 2
     toughness = 3

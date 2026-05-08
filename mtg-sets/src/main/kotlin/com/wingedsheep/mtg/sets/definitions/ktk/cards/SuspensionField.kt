@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SuspensionField = card("Suspension Field") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters, you may exile target creature with toughness 3 or greater until this enchantment leaves the battlefield."
 

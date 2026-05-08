@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ForebearsBlade = card("Forebear's Blade") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "Equipped creature gets +3/+0 and has vigilance and trample.\n" +
         "Whenever equipped creature dies, attach Forebear's Blade to target creature you control.\n" +

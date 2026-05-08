@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val TemporalCleansing = card("Temporal Cleansing") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\n" +
         "The owner of target nonland permanent puts it into their library second from the top or on the bottom."

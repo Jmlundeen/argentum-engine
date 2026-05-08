@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val ChiefOfTheEdge = card("Chief of the Edge") {
     manaCost = "{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Human Warrior"
     power = 3
     toughness = 2

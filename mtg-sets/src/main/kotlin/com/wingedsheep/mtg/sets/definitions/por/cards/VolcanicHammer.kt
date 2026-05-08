@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val VolcanicHammer = card("Volcanic Hammer") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

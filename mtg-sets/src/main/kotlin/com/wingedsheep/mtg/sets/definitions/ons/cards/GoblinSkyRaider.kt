@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GoblinSkyRaider = card("Goblin Sky Raider") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warrior"
     power = 1
     toughness = 2

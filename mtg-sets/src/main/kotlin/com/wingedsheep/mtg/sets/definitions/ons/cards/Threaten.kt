@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.Duration
  */
 val Threaten = card("Threaten") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Untap target creature and gain control of it until end of turn. That creature gains haste until end of turn."
 

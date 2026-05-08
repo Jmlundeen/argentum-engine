@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CinderingCutthroat = card("Cindering Cutthroat") {
     manaCost = "{2}{B/R}"
+    colorIdentity = "BR"
     typeLine = "Creature — Lizard Assassin"
     oracleText = "This creature enters with a +1/+1 counter on it if an opponent lost life this turn.\n" +
         "{1}{B/R}: This creature gains menace until end of turn."

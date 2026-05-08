@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val AlpharaelDreamingAcolyte = card("Alpharael, Dreaming Acolyte") {
     manaCost = "{1}{U}{B}"
+    colorIdentity = "UB"
     typeLine = "Legendary Creature — Human Cleric"
     oracleText = "When Alpharael enters, draw two cards. Then discard two cards unless you discard an artifact card.\nDuring your turn, Alpharael has deathtouch."
     power = 2

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SidisisPet = card("Sidisi's Pet") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Ape"
     power = 1
     toughness = 4

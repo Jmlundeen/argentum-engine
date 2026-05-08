@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val DisruptorOfCurrents = card("Disruptor of Currents") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Wizard"
     power = 3
     toughness = 3

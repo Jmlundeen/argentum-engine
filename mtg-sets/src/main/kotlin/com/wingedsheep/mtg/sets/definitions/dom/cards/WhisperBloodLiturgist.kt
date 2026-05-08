@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val WhisperBloodLiturgist = card("Whisper, Blood Liturgist") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Human Cleric"
     power = 2
     toughness = 2

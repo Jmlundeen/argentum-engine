@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 
 val GripOfChaos = card("Grip of Chaos") {
     manaCost = "{4}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "Whenever a spell or ability is put onto the stack, if it has a single target, reselect its target at random. (Select from among all legal targets.)"
 

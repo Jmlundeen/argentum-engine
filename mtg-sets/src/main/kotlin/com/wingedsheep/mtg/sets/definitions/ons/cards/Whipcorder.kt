@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Whipcorder = card("Whipcorder") {
     manaCost = "{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier Rebel"
     power = 2
     toughness = 2

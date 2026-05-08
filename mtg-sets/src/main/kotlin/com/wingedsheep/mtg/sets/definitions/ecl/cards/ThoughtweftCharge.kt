@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ThoughtweftCharge = card("Thoughtweft Charge") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Target creature gets +3/+3 until end of turn. " +
         "If a creature entered the battlefield under your control this turn, draw a card."

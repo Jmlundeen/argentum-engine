@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val KirolAttentiveFirstYear = card("Kirol, Attentive First-Year") {
     manaCost = "{1}{R/W}{R/W}"
+    colorIdentity = "WR"
     typeLine = "Legendary Creature — Vampire Cleric"
     power = 3
     toughness = 3

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val WintersGrasp = card("Winter's Grasp") {
     manaCost = "{1}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

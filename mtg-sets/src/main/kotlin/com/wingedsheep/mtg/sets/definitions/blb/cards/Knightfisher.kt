@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val Knightfisher = card("Knightfisher") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Knight"
     power = 4
     toughness = 5

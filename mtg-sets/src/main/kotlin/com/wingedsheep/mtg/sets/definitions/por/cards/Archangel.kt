@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Archangel = card("Archangel") {
     manaCost = "{5}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Angel"
     power = 5
     toughness = 5

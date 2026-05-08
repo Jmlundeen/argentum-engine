@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val PierceTheSky = card("Pierce the Sky") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Pierce the Sky deals 7 damage to target creature with flying."
 

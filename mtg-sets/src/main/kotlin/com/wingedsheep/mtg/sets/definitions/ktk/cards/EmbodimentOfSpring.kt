@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val EmbodimentOfSpring = card("Embodiment of Spring") {
     manaCost = "{U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Elemental"
     power = 0
     toughness = 3

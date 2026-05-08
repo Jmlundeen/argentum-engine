@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val EscapeTunnel = card("Escape Tunnel") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}, Sacrifice this land: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\n{T}, Sacrifice this land: Target creature with power 2 or less can't be blocked this turn."
 
     // First ability: Search for basic land

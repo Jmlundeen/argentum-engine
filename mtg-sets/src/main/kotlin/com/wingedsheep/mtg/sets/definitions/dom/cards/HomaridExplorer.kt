@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HomaridExplorer = card("Homarid Explorer") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Homarid Scout"
     power = 3
     toughness = 3

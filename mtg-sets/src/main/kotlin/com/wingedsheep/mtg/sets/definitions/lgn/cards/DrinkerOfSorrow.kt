@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val DrinkerOfSorrow = card("Drinker of Sorrow") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Horror"
     power = 5
     toughness = 3

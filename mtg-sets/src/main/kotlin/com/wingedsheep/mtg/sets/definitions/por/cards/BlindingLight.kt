@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
  */
 val BlindingLight = card("Blinding Light") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

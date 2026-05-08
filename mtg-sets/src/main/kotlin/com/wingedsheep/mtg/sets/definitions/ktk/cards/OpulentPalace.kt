@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val OpulentPalace = card("Opulent Palace") {
     typeLine = "Land"
+    colorIdentity = "UBG"
     oracleText = "This land enters tapped.\n{T}: Add {B}, {G}, or {U}."
 
     replacementEffect(EntersTapped())

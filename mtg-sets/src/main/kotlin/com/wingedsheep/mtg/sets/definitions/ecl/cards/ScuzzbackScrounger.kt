@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
  */
 val ScuzzbackScrounger = card("Scuzzback Scrounger") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warrior"
     power = 3
     toughness = 2

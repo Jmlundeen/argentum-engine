@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EclipsedFlamekin = card("Eclipsed Flamekin") {
     manaCost = "{1}{U/R}{U/R}"
+    colorIdentity = "UR"
     typeLine = "Creature — Elemental Scout"
     power = 1
     toughness = 4

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DawnsLightArcher = card("Dawn's Light Archer") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Archer"
     power = 4
     toughness = 2

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SafewrightCavalry = card("Safewright Cavalry") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Warrior"
     power = 4
     toughness = 4

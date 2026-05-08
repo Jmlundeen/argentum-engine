@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val UnexpectedAssistance = card("Unexpected Assistance") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\n" +
         "Draw three cards, then discard a card."

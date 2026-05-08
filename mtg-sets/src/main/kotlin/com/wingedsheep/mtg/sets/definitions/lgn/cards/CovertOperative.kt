@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val CovertOperative = card("Covert Operative") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 3
     toughness = 2

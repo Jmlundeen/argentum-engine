@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val AphettoRunecaster = card("Aphetto Runecaster") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 2
     toughness = 3

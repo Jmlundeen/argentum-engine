@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RideDown = card("Ride Down") {
     manaCost = "{R}{W}"
+    colorIdentity = "WR"
     typeLine = "Instant"
     oracleText = "Destroy target blocking creature. Creatures that were blocked by that creature this combat gain trample until end of turn."
 

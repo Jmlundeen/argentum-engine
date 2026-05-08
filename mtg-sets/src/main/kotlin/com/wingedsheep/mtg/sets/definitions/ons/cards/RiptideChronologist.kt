@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RiptideChronologist = card("Riptide Chronologist") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 3

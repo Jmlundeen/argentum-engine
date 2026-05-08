@@ -43,6 +43,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val KastralTheWindcrested = card("Kastral, the Windcrested") {
     manaCost = "{3}{W}{U}"
+    colorIdentity = "WU"
     typeLine = "Legendary Creature — Bird Scout"
     power = 4
     toughness = 5

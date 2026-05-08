@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RetchedWretch = card("Retched Wretch") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Goblin"
     power = 4
     toughness = 2

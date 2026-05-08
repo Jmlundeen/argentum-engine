@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HootingMandrills = card("Hooting Mandrills") {
     manaCost = "{5}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Ape"
     power = 4
     toughness = 4

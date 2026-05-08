@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val VeteranGuardmouse = card("Veteran Guardmouse") {
     manaCost = "{3}{R/W}"
+    colorIdentity = "WR"
     typeLine = "Creature — Mouse Soldier"
     power = 3
     toughness = 4

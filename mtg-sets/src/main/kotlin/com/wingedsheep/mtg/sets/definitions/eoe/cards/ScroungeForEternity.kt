@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val ScroungeForEternity = card("Scrounge for Eternity") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, sacrifice an artifact or creature.\nReturn target creature or Spacecraft card with mana value 5 or less from your graveyard to the battlefield. Then create a Lander token. (It's an artifact with \"{2}, {T}, Sacrifice this token: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\")"
 

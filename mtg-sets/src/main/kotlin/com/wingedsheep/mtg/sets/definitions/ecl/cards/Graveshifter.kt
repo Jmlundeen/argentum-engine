@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val Graveshifter = card("Graveshifter") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Shapeshifter"
     power = 2
     toughness = 2

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val KeenEyedArchers = card("Keen-Eyed Archers") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Elf Archer"
     power = 2
     toughness = 2

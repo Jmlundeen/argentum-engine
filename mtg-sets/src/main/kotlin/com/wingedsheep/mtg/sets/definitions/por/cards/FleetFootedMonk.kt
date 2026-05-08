@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val FleetFootedMonk = card("Fleet-Footed Monk") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Monk"
     power = 1
     toughness = 1

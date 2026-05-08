@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LongRiverLurker = card("Long River Lurker") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Frog Scout"
     power = 2
     toughness = 3

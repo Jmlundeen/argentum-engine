@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MindSpiral = card("Mind Spiral") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Gift a tapped Fish (You may promise an opponent a gift as you cast this spell. If you do, they create a tapped 1/1 blue Fish creature token before its other effects.)\nTarget player draws three cards. If the gift was promised, tap target creature an opponent controls and put a stun counter on it."
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MistformShrieker = card("Mistform Shrieker") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion"
     power = 3
     toughness = 3

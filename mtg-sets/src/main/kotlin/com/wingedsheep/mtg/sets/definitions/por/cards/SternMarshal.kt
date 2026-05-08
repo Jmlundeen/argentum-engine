@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val SternMarshal = card("Stern Marshal") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 2

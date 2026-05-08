@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KheruBloodsucker = card("Kheru Bloodsucker") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Vampire"
     power = 2
     toughness = 2

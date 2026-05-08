@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val BlacksmithsTalent = card("Blacksmith's Talent") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Class"
     oracleText = "When this Class enters, create a colorless Equipment artifact token named Sword with \"Equipped creature gets +1/+1\" and equip {2}.\n" +
         "{2}{R}: Level 2 — At the beginning of combat on your turn, attach target Equipment you control to up to one target creature you control.\n" +

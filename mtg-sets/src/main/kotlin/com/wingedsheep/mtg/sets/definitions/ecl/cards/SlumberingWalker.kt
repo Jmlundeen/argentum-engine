@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val SlumberingWalker = card("Slumbering Walker") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Giant Warrior"
     power = 4
     toughness = 7

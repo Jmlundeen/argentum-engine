@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val CoverOfDarkness = card("Cover of Darkness") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "As Cover of Darkness enters the battlefield, choose a creature type.\nCreatures of the chosen type have fear."
 

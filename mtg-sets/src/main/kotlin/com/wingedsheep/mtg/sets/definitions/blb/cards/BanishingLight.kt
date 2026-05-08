@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val BanishingLight = card("Banishing Light") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters, exile target nonland permanent an opponent controls until this enchantment leaves the battlefield."
 

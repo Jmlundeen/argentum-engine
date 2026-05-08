@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val PawpatchFormation = card("Pawpatch Formation") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Choose one —\n" +
         "• Destroy target creature with flying.\n" +

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
  */
 val ExaltedAngel = card("Exalted Angel") {
     manaCost = "{4}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Angel"
     power = 4
     toughness = 5

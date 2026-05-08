@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BringLow = card("Bring Low") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Bring Low deals 3 damage to target creature. If that creature has a +1/+1 counter on it, Bring Low deals 5 damage to it instead."
 

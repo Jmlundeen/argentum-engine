@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GrunnTheLonelyKing = card("Grunn, the Lonely King") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Creature — Ape Warrior"
     power = 5
     toughness = 5

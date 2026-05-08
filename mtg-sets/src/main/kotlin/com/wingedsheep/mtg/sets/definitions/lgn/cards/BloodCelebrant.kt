@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val BloodCelebrant = card("Blood Celebrant") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     oracleText = "{B}, Pay 1 life: Add one mana of any color."
     power = 1

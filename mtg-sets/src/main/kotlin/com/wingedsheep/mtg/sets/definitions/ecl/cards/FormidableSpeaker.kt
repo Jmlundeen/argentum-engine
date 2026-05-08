@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val FormidableSpeaker = card("Formidable Speaker") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 2
     toughness = 4

@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val YargleGluttonOfUrborg = card("Yargle, Glutton of Urborg") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Frog Spirit"
     power = 9
     toughness = 3

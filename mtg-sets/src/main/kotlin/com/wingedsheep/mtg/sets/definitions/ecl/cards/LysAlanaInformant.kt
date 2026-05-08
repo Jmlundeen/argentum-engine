@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val LysAlanaInformant = card("Lys Alana Informant") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Scout"
     power = 3
     toughness = 1

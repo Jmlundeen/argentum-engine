@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MemorialToUnity = card("Memorial to Unity") {
     typeLine = "Land"
+    colorIdentity = "G"
     oracleText = "Memorial to Unity enters the battlefield tapped.\n{T}: Add {G}.\n{2}{G}, {T}, Sacrifice Memorial to Unity: Look at the top five cards of your library. You may reveal a creature card from among them and put it into your hand. Then put the rest on the bottom of your library in a random order."
 
     replacementEffect(EntersTapped())

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val DazzlingDenial = card("Dazzling Denial") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell unless its controller pays {2}. If you control a Bird, counter that spell unless its controller pays {4} instead."
 

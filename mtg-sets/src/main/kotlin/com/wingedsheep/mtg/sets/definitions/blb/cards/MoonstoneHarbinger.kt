@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val MoonstoneHarbinger = card("Moonstone Harbinger") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bat Warrior"
     power = 1
     toughness = 3

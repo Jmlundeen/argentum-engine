@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val StarlightInvoker = card("Starlight Invoker") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric Mutant"
     power = 1
     toughness = 3

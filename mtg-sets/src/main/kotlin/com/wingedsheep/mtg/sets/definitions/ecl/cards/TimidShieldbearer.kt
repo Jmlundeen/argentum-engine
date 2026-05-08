@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val TimidShieldbearer = card("Timid Shieldbearer") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Kithkin Soldier"
     power = 2
     toughness = 2

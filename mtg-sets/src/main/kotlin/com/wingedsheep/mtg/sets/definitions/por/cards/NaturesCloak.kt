@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val NaturesCloak = card("Nature's Cloak") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

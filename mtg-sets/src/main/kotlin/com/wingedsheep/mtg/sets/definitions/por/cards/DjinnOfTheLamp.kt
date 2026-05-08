@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DjinnOfTheLamp = card("Djinn of the Lamp") {
     manaCost = "{5}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Djinn"
     power = 5
     toughness = 6

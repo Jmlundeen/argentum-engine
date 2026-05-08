@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val FightWithFire = card("Fight with Fire") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Kicker {5}{R} (You may pay an additional {5}{R} as you cast this spell.)\nFight with Fire deals 5 damage to target creature. If this spell was kicked, it deals 10 damage divided as you choose among any number of targets instead."
 

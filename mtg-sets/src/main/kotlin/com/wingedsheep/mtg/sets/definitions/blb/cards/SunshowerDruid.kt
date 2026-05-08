@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SunshowerDruid = card("Sunshower Druid") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Frog Druid"
     power = 0
     toughness = 2

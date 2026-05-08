@@ -35,3 +35,15 @@ tasks.register<JavaExec>("syncLegalityFromDump") {
     mainClass.set("com.wingedsheep.mtg.sets.legality.SyncLegalitiesFromDumpKt")
     workingDir = rootProject.projectDir
 }
+
+// Offline sync of color identities. Walks every card definition .kt file under
+// mtg-sets/.../definitions/<set>/cards/ and adds or updates `colorIdentity = "..."` from a
+// Scryfall bulk-data dump.
+// Run with: ./gradlew :mtg-sets:syncColorIdentityFromDump --args="/path/to/all-cards.json"
+tasks.register<JavaExec>("syncColorIdentityFromDump") {
+    description = "Patch every card .kt file with its Scryfall color identity."
+    group = "build"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.wingedsheep.mtg.sets.colors.SyncColorIdentityFromDumpKt")
+    workingDir = rootProject.projectDir
+}

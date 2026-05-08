@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
  */
 val PinpointAvalanche = card("Pinpoint Avalanche") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Pinpoint Avalanche deals 4 damage to target creature. The damage can't be prevented."
 

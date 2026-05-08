@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val IllvoiOperative = card("Illvoi Operative") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Jellyfish Rogue"
     power = 2
     toughness = 1

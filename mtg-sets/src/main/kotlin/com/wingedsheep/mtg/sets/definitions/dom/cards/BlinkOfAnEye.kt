@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val BlinkOfAnEye = card("Blink of an Eye") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Kicker {1}{U}\nReturn target nonland permanent to its owner's hand. If this spell was kicked, draw a card."
 

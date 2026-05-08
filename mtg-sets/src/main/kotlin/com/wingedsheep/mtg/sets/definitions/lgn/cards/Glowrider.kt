@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.IncreaseSpellCostByFilter
  */
 val Glowrider = card("Glowrider") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 1

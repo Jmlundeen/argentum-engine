@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WallOfDeceit = card("Wall of Deceit") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Wall"
     power = 0
     toughness = 5

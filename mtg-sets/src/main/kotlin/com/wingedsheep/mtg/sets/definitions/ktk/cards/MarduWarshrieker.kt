@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouAttackedThisTurn
  */
 val MarduWarshrieker = card("Mardu Warshrieker") {
     manaCost = "{3}{R}"
+    colorIdentity = "WBR"
     typeLine = "Creature — Orc Shaman"
     power = 3
     toughness = 3

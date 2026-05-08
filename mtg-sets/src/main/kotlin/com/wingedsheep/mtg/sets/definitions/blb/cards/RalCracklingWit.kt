@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RalCracklingWit = card("Ral, Crackling Wit") {
     manaCost = "{2}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Legendary Planeswalker — Ral"
     startingLoyalty = 4
     oracleText = "Whenever you cast a noncreature spell, put a loyalty counter on Ral, Crackling Wit.\n+1: Create a 1/1 blue and red Otter creature token with prowess.\n\u22123: Draw three cards, then discard two cards.\n\u221210: Draw three cards. You get an emblem with \"Instant and sorcery spells you cast have storm.\""

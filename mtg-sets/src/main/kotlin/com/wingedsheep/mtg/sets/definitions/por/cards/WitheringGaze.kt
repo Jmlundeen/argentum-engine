@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val WitheringGaze = card("Withering Gaze") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

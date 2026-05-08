@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Luminollusk = card("Luminollusk") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental"
     oracleText = "Deathtouch\nVivid — When this creature enters, you gain life equal to the number of " +
         "colors among permanents you control."

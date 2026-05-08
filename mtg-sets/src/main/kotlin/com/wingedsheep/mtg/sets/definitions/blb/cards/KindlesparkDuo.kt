@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KindlesparkDuo = card("Kindlespark Duo") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Lizard Otter"
     power = 1
     toughness = 3

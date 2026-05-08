@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SavagePunch = card("Savage Punch") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Target creature you control fights target creature you don't control.\nFerocious — The creature you control gets +2/+2 until end of turn before it fights if you control a creature with power 4 or greater."
 

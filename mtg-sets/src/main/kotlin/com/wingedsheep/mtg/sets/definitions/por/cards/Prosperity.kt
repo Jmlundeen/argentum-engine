@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Prosperity = card("Prosperity") {
     manaCost = "{X}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

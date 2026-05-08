@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val VenerableLammasu = card("Venerable Lammasu") {
     manaCost = "{6}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Lammasu"
     power = 5
     toughness = 4

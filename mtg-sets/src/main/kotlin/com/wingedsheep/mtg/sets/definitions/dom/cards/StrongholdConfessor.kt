@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val StrongholdConfessor = card("Stronghold Confessor") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 1

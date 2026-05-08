@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Prismabasher = card("Prismabasher") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental"
     oracleText = "Trample\n" +
         "Vivid — When this creature enters, up to X target creatures you control get +X/+X " +

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BeyondTheQuiet = card("Beyond the Quiet") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Exile all creatures and Spacecraft."
 

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val BrigidsCommand = card("Brigid's Command") {
     manaCost = "{1}{G}{W}"
+    colorIdentity = "WG"
     typeLine = "Kindred Sorcery — Kithkin"
     oracleText = "Choose two —\n" +
         "• Create a token that's a copy of target Kithkin you control.\n" +

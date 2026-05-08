@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MinotaurWarrior = card("Minotaur Warrior") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Minotaur Warrior"
     power = 2
     toughness = 3

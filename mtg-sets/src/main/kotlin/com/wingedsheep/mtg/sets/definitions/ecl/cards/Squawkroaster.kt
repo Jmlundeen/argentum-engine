@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Squawkroaster = card("Squawkroaster") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental"
     oracleText = "Double strike\n" +
         "Vivid — Squawkroaster's power is equal to the number of colors among permanents you control."

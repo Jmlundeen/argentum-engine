@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ElderAuntie = card("Elder Auntie") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Warlock"
     power = 2
     toughness = 2

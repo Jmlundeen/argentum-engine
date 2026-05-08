@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.events.SourceFilter
  */
 val CollectiveInferno = card("Collective Inferno") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\n" +
         "As this enchantment enters, choose a creature type.\n" +

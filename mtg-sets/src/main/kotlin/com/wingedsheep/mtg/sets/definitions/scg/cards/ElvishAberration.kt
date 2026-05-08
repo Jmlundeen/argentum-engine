@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val ElvishAberration = card("Elvish Aberration") {
     manaCost = "{5}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Mutant"
     power = 4
     toughness = 5

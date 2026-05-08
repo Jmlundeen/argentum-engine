@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 
 val SootfeatherFlock = card("Sootfeather Flock") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bird"
     power = 3
     toughness = 2

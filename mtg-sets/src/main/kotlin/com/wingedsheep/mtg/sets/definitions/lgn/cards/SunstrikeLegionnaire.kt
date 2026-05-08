@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SunstrikeLegionnaire = card("Sunstrike Legionnaire") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 1
     toughness = 2

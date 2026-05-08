@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val DejaVu = card("Déjà Vu") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

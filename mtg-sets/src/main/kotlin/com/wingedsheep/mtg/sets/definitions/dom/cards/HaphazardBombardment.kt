@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val HaphazardBombardment = card("Haphazard Bombardment") {
     manaCost = "{5}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "When Haphazard Bombardment enters the battlefield, choose four nonenchantment permanents you don't control and put an aim counter on each of them.\nAt the beginning of your end step, if two or more permanents you don't control have an aim counter on them, destroy one of those permanents at random."
 

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DefiantElf = card("Defiant Elf") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 1
     toughness = 1

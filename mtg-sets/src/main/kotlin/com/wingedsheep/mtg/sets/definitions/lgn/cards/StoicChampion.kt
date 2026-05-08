@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val StoicChampion = card("Stoic Champion") {
     manaCost = "{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     oracleText = "Whenever a player cycles a card, this creature gets +2/+2 until end of turn."
     power = 2

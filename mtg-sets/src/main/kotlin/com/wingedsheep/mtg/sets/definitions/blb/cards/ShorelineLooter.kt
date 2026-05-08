@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val ShorelineLooter = card("Shoreline Looter") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Rat Rogue"
     power = 1
     toughness = 1

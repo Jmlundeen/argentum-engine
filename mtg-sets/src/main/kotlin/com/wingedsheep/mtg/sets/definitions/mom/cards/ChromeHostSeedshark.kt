@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ChromeHostSeedshark = card("Chrome Host Seedshark") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Phyrexian Shark"
     oracleText = "Flying\n" +
         "Whenever you cast a noncreature spell, incubate X, where X is that spell's mana value. " +

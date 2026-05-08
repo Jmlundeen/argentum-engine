@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val MisguidedRage = card("Misguided Rage") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Target player sacrifices a permanent."
 

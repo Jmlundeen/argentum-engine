@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val ManOWar = card("Man-o'-War") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Jellyfish"
     power = 2
     toughness = 2

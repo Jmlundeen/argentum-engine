@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val PhageTheUntouchable = card("Phage the Untouchable") {
     manaCost = "{3}{B}{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Avatar Minion"
     power = 4
     toughness = 4

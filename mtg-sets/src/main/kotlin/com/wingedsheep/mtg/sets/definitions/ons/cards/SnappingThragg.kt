@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val SnappingThragg = card("Snapping Thragg") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 3

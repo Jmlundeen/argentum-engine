@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ShrikeForce = card("Shrike Force") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Knight"
     oracleText = "Flying, double strike, vigilance"
     power = 1

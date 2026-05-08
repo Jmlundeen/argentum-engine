@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BogRaiders = card("Bog Raiders") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 2
     toughness = 2

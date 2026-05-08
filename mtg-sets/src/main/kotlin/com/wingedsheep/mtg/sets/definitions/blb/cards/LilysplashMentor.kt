@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
  */
 val LilysplashMentor = card("Lilysplash Mentor") {
     manaCost = "{2}{G}{U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Frog Druid"
     oracleText = "Reach\n{1}{G}{U}: Exile another target creature you control, then return it to the battlefield under its owner's control with a +1/+1 counter on it. Activate only as a sorcery."
     power = 4

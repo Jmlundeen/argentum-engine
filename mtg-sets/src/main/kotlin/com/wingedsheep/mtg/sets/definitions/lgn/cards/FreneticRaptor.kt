@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val FreneticRaptor = card("Frenetic Raptor") {
     manaCost = "{5}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dinosaur Beast"
     power = 6
     toughness = 6

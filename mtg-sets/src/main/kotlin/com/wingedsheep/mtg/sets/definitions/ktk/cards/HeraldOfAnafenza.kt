@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val HeraldOfAnafenza = card("Herald of Anafenza") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 1
     toughness = 2

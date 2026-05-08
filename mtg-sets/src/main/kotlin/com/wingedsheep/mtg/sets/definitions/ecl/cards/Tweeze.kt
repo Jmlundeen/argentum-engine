@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val Tweeze = card("Tweeze") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Tweeze deals 3 damage to any target. You may discard a card. If you do, draw a card."
 

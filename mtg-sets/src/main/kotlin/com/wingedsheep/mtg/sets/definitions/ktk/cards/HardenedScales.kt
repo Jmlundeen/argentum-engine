@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.ModifyCounterPlacement
  */
 val HardenedScales = card("Hardened Scales") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "If one or more +1/+1 counters would be put on a creature you control, that many plus one +1/+1 counters are put on it instead."
 

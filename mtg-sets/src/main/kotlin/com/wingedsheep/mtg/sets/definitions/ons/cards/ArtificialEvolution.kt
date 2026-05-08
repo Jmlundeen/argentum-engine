@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetSpellOrPermanent
  */
 val ArtificialEvolution = card("Artificial Evolution") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Change the text of target spell or permanent by replacing all instances of one creature type with another. The new creature type can't be Wall. (This effect lasts indefinitely.)"
 

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DecreeOfSavagery = card("Decree of Savagery") {
     manaCost = "{7}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Put four +1/+1 counters on each creature you control.\nCycling {4}{G}{G}\nWhen you cycle Decree of Savagery, you may put four +1/+1 counters on target creature."
 

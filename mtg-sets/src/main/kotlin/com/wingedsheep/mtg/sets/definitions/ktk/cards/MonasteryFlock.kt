@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MonasteryFlock = card("Monastery Flock") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird"
     power = 0
     toughness = 5

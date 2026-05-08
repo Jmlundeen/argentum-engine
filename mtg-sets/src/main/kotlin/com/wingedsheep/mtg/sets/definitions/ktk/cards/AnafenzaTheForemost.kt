@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val AnafenzaTheForemost = card("Anafenza, the Foremost") {
     manaCost = "{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Legendary Creature — Human Soldier"
     power = 4
     toughness = 4

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val AmbushCommander = card("Ambush Commander") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 2
     toughness = 2

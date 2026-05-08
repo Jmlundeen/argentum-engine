@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val Ouroboroid = card("Ouroboroid") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Plant Wurm"
     power = 1
     toughness = 3

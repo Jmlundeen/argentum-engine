@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TianaShipsCaretaker = card("Tiana, Ship's Caretaker") {
     manaCost = "{3}{R}{W}"
+    colorIdentity = "WR"
     typeLine = "Legendary Creature — Angel Artificer"
     power = 3
     toughness = 3

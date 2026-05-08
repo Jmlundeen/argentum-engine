@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BlightedBlackthorn = card("Blighted Blackthorn") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Treefolk Warlock"
     power = 3
     toughness = 7

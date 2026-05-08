@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val WardenOfTheEye = card("Warden of the Eye") {
     manaCost = "{2}{U}{R}{W}"
+    colorIdentity = "WUR"
     typeLine = "Creature — Djinn Wizard"
     power = 3
     toughness = 3

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KinTreeWarden = card("Kin-Tree Warden") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Human Warrior"
     power = 1
     toughness = 1

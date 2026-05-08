@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ChitinousGraspling = card("Chitinous Graspling") {
     manaCost = "{3}{G/U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Shapeshifter"
     power = 3
     toughness = 4

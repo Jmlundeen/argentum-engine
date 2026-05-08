@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.EachPlayerDiscardsOrLoseLifeEffect
  */
 val StrongarmTactics = card("Strongarm Tactics") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Each player discards a card. Then each player who didn't discard a creature card this way loses 4 life."
 

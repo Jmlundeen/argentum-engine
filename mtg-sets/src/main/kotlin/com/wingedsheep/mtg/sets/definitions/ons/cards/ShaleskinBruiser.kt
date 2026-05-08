@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ShaleskinBruiser = card("Shaleskin Bruiser") {
     manaCost = "{6}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 4

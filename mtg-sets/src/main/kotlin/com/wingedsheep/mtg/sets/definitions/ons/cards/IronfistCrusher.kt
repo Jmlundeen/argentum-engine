@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.CanBlockAnyNumber
  */
 val IronfistCrusher = card("Ironfist Crusher") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 4

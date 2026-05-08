@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val Hundroog = card("Hundroog") {
     manaCost = "{6}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 7

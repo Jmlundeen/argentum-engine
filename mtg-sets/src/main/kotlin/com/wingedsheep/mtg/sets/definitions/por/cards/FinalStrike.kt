@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val FinalStrike = card("Final Strike") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     additionalCost(AdditionalCost.SacrificePermanent(GameObjectFilter.Creature))

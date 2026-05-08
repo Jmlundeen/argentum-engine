@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
  */
 val DeepWood = card("Deep Wood") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
 
     spell {

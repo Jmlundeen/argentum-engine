@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WindgraceAcolyte = card("Windgrace Acolyte") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Cat Warrior"
     power = 3
     toughness = 2

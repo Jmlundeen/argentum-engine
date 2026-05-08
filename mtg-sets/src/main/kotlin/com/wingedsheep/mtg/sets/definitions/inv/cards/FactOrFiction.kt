@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FactOrFiction = card("Fact or Fiction") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Reveal the top five cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other into your graveyard."
 

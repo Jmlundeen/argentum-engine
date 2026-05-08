@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SpinedBasher = card("Spined Basher") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Beast"
     power = 3
     toughness = 1

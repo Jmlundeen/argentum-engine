@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val PawpatchRecruit = card("Pawpatch Recruit") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Rabbit Warrior"
     power = 2
     toughness = 1

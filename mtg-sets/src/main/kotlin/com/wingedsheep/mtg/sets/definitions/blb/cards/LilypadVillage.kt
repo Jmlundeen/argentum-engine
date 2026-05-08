@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val LilypadVillage = card("Lilypad Village") {
     typeLine = "Land"
+    colorIdentity = "U"
     oracleText = "{T}: Add {C}.\n{T}: Add {U}. Spend this mana only to cast a creature spell.\n{U}, {T}: Surveil 2. Activate only if a Bird, Frog, Otter, or Rat entered the battlefield under your control this turn."
 
     activatedAbility {

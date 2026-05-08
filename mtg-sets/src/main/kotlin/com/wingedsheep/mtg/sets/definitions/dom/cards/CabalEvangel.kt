@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val CabalEvangel = card("Cabal Evangel") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 2

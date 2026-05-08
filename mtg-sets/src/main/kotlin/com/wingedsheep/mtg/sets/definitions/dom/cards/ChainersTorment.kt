@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ChainersTorment = card("Chainer's Torment") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I, II — This Saga deals 2 damage to each opponent and you gain 2 life.\n" +

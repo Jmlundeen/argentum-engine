@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val CorpseHarvester = card("Corpse Harvester") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Wizard"
     power = 3
     toughness = 3

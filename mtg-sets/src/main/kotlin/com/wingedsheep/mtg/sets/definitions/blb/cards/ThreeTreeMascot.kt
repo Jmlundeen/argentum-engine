@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val ThreeTreeMascot = card("Three Tree Mascot") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Shapeshifter"
     power = 2
     toughness = 1

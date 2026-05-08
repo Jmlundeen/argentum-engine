@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val WeirdHarvest = card("Weird Harvest") {
     manaCost = "{X}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Each player may search their library for up to X creature cards, reveal those cards, put them into their hand, then shuffle."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BenalishHonorGuard = card("Benalish Honor Guard") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Knight"
     power = 2
     toughness = 2

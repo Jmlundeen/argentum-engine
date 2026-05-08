@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val DarkEndurance = card("Dark Endurance") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "This spell costs {1} less to cast if it targets a blocking creature.\nTarget creature gets +2/+0 and gains indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy it.)"
 

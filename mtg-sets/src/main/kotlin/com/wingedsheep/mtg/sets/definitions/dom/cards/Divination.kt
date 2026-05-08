@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Divination = card("Divination") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Draw two cards."
 

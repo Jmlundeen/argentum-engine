@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val Smother = card("Smother") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Destroy target creature with mana value 3 or less. It can't be regenerated."
 

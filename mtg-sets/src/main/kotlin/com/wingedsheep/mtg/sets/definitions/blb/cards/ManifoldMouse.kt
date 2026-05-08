@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val ManifoldMouse = card("Manifold Mouse") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Mouse Soldier"
     power = 1
     toughness = 2

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val Shock = card("Shock") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Shock deals 2 damage to any target."
 

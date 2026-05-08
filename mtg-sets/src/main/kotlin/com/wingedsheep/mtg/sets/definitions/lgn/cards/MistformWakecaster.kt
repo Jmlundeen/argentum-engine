@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MistformWakecaster = card("Mistform Wakecaster") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion"
     power = 2
     toughness = 3

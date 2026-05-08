@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val ChainOfPlasma = card("Chain of Plasma") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Chain of Plasma deals 3 damage to any target. Then that player or that permanent's controller may discard a card. If the player does, they may copy this spell and may choose a new target for that copy."
 

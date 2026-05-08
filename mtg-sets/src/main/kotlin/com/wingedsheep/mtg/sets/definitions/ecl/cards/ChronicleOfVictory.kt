@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ChronicleOfVictory = card("Chronicle of Victory") {
     manaCost = "{6}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact"
     oracleText = "As Chronicle of Victory enters, choose a creature type.\n" +
             "Creatures you control of the chosen type get +2/+2 and have first strike and trample.\n" +

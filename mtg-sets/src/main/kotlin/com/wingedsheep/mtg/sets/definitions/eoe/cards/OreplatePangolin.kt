@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val OreplatePangolin = card("Oreplate Pangolin") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Artifact Creature — Robot Pangolin"
     power = 2
     toughness = 2

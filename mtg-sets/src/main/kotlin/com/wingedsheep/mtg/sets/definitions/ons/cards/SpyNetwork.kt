@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val SpyNetwork = card("Spy Network") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Look at target player's hand, the top card of that player's library, and any face-down creatures they control. Look at the top four cards of your library, then put them back in any order."
 

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val ZealousDisplay = card("Zealous Display") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Creatures you control get +2/+0 until end of turn. If it's not your turn, untap those creatures."
 

@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val KinscaerSentry = card("Kinscaer Sentry") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Kithkin Soldier"
     power = 2
     toughness = 2

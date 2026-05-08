@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val TatyovaBenthicDruid = card("Tatyova, Benthic Druid") {
     manaCost = "{3}{G}{U}"
+    colorIdentity = "UG"
     typeLine = "Legendary Creature — Merfolk Druid"
     power = 3
     toughness = 3

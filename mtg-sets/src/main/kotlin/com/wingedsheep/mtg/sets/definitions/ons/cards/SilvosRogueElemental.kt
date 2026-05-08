@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
  */
 val SilvosRogueElemental = card("Silvos, Rogue Elemental") {
     manaCost = "{3}{G}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Creature — Elemental"
     power = 8
     toughness = 5

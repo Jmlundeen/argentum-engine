@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val GoblinTaskmaster = card("Goblin Taskmaster") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 1
     toughness = 1

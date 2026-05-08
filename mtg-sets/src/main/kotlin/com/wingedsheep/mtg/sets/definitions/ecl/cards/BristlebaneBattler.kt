@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BristlebaneBattler = card("Bristlebane Battler") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Kithkin Soldier"
     power = 6
     toughness = 6

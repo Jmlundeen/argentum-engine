@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.AssignCombatDamageAsUnblocked
  */
 val ThornElemental = card("Thorn Elemental") {
     manaCost = "{5}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elemental"
     power = 7
     toughness = 7

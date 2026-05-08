@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val ChampionsOfTheShoal = card("Champions of the Shoal") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Soldier"
     power = 4
     toughness = 6

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val GravespawnSovereign = card("Gravespawn Sovereign") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 3
     toughness = 3

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BellowingSaddlebrute = card("Bellowing Saddlebrute") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Orc Warrior"
     power = 4
     toughness = 5

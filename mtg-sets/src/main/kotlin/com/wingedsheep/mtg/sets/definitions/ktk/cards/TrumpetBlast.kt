@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val TrumpetBlast = card("Trumpet Blast") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Attacking creatures get +2/+0 until end of turn."
 

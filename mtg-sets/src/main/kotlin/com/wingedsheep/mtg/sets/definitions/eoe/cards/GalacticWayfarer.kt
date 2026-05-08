@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GalacticWayfarer = card("Galactic Wayfarer") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Human Scout"
     power = 3
     toughness = 3

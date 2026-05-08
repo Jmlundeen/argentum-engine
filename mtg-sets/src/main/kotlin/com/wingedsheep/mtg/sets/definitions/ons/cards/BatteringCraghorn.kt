@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BatteringCraghorn = card("Battering Craghorn") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goat Beast"
     power = 3
     toughness = 1

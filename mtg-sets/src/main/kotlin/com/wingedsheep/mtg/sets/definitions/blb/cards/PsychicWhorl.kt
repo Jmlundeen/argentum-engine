@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val PsychicWhorl = card("Psychic Whorl") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target opponent discards two cards. Then if you control a Rat, surveil 2."
 

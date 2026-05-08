@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DrudgeSentinel = card("Drudge Sentinel") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Skeleton Warrior"
     power = 2
     toughness = 1

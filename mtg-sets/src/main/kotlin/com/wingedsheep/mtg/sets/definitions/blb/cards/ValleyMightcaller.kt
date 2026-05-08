@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ValleyMightcaller = card("Valley Mightcaller") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Frog Warrior"
     power = 1
     toughness = 1

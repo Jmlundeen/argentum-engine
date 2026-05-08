@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val HeedlessOne = card("Heedless One") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Avatar"
     oracleText = "Trample\nHeedless One's power and toughness are each equal to the number of Elves on the battlefield."
 

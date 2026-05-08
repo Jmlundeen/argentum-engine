@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WaxWaneWitness = card("Wax-Wane Witness") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bat Cleric"
     power = 2
     toughness = 4

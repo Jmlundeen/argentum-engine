@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ForceBubble = card("Force Bubble") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "If damage would be dealt to you, put that many depletion counters on Force Bubble instead.\nWhen there are four or more depletion counters on Force Bubble, sacrifice it.\nAt the beginning of each end step, remove all depletion counters from Force Bubble."
 

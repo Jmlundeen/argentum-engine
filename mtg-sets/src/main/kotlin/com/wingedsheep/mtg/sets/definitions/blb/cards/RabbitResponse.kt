@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val RabbitResponse = card("Rabbit Response") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Creatures you control get +2/+1 until end of turn. If you control a Rabbit, scry 2."
 

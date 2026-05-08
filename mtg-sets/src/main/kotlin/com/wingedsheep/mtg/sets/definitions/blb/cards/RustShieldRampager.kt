@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
  */
 val RustShieldRampager = card("Rust-Shield Rampager") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Raccoon Warrior"
     power = 4
     toughness = 4

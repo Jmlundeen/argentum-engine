@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
  */
 val MarduRoughrider = card("Mardu Roughrider") {
     manaCost = "{2}{R}{W}{B}"
+    colorIdentity = "WBR"
     typeLine = "Creature — Orc Warrior"
     power = 5
     toughness = 4

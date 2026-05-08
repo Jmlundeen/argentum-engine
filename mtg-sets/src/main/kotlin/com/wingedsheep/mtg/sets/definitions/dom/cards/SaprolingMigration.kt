@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val SaprolingMigration = card("Saproling Migration") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Kicker {4}\nCreate two 1/1 green Saproling creature tokens. If this spell was kicked, create four of those tokens instead."
 

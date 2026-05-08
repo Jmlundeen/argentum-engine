@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val CloudreachCavalry = card("Cloudreach Cavalry") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     oracleText = "As long as you control a Bird, this creature gets +2/+2 and has flying."
     power = 1

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Bombard = card("Bombard") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Bombard deals 4 damage to target creature."
 

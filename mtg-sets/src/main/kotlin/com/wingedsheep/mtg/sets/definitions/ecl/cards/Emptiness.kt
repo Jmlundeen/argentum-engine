@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val Emptiness = card("Emptiness") {
     manaCost = "{4}{W/B}{W/B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Elemental Incarnation"
     power = 3
     toughness = 5

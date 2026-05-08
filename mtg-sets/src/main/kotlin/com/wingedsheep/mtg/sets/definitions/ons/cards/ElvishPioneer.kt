@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val ElvishPioneer = card("Elvish Pioneer") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 1
     toughness = 1

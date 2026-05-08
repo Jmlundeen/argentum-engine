@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val ValdukKeeperOfTheFlame = card("Valduk, Keeper of the Flame") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Legendary Creature — Human Shaman"
     power = 3
     toughness = 2

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val HowlOfTheHorde = card("Howl of the Horde") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "When you next cast an instant or sorcery spell this turn, copy that spell. You may choose new targets for the copy.\nRaid — If you attacked this turn, when you next cast an instant or sorcery spell this turn, copy that spell an additional time. You may choose new targets for the copy."
 

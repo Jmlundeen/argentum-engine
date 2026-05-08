@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val UncontrolledInfestation = card("Uncontrolled Infestation") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant nonbasic land\nWhen enchanted land becomes tapped, destroy it."
 

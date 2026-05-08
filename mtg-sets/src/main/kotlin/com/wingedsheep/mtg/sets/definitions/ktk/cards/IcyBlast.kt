@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val IcyBlast = card("Icy Blast") {
     manaCost = "{X}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Tap X target creatures.\nFerocious — If you control a creature with power 4 or greater, those creatures don't untap during their controllers' next untap steps."
 

@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val OakhollowVillage = card("Oakhollow Village") {
     typeLine = "Land"
+    colorIdentity = "G"
     oracleText = "{T}: Add {C}.\n{T}: Add {G}. Spend this mana only to cast a creature spell.\n" +
         "{G}, {T}: Put a +1/+1 counter on each Frog, Rabbit, Raccoon, or Squirrel you control " +
         "that entered the battlefield this turn."

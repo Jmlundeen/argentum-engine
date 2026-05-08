@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
  */
 val Fountainport = card("Fountainport") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}: Add {C}.\n{2}, {T}, Sacrifice a token: Draw a card.\n{3}, {T}, Pay 1 life: Create a 1/1 blue Fish creature token.\n{4}, {T}: Create a Treasure token."
 
     activatedAbility {

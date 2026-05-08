@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PhantomWarrior = card("Phantom Warrior") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion Warrior"
     power = 2
     toughness = 2

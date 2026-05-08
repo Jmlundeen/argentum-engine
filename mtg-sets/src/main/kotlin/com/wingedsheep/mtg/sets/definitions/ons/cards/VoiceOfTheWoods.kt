@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val VoiceOfTheWoods = card("Voice of the Woods") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 2
     toughness = 2

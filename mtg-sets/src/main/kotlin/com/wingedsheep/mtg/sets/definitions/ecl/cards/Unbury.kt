@@ -38,6 +38,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Unbury = card("Unbury") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Choose one —\n" +
         "• Return target creature card from your graveyard to your hand.\n" +

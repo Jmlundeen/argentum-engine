@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GluttonousZombie = card("Gluttonous Zombie") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 3
     toughness = 3

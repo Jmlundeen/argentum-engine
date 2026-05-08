@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val ShatteredWings = card("Shattered Wings") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Destroy target artifact, enchantment, or creature with flying. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 

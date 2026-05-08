@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val KamahlFistOfKrosa = card("Kamahl, Fist of Krosa") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Creature — Human Druid"
     power = 4
     toughness = 3

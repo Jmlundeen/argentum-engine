@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KeepOut = card("Keep Out") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Keep Out deals 4 damage to target tapped creature.\n• Destroy target enchantment."
 

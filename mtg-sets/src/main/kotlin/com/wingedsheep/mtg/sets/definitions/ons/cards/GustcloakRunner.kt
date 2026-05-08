@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val GustcloakRunner = card("Gustcloak Runner") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 1
     toughness = 1

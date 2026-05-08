@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GiltLeafsEmbrace = card("Gilt-Leaf's Embrace") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Flash\n" +
         "Enchant creature\n" +

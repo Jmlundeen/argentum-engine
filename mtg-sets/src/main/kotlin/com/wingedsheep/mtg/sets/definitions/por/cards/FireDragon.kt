@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val FireDragon = card("Fire Dragon") {
     manaCost = "{6}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dragon"
     power = 6
     toughness = 6

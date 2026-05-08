@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val GalvanizingSawship = card("Galvanizing Sawship") {
     manaCost = "{5}{R}"
+    colorIdentity = "R"
     typeLine = "Artifact — Spacecraft"
     power = 6
     toughness = 5

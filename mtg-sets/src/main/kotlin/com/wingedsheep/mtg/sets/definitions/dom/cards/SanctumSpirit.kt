@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SanctumSpirit = card("Sanctum Spirit") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Spirit"
     power = 3
     toughness = 2

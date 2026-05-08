@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val WarbreakTrumpeter = card("Warbreak Trumpeter") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     oracleText = "Morph {X}{X}{R} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Warbreak Trumpeter is turned face up, create X 1/1 red Goblin creature tokens."
     power = 1

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersWithRevealCounters
  */
 val ZombieBrute = card("Zombie Brute") {
     manaCost = "{6}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 5
     toughness = 4

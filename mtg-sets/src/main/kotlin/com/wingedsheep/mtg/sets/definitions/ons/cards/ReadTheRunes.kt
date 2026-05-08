@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.ReadTheRunesEffect
  */
 val ReadTheRunes = card("Read the Runes") {
     manaCost = "{X}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Draw X cards. For each card drawn this way, discard a card unless you sacrifice a permanent."
 

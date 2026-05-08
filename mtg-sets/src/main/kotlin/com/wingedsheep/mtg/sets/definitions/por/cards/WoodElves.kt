@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val WoodElves = card("Wood Elves") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Scout"
     power = 1
     toughness = 1

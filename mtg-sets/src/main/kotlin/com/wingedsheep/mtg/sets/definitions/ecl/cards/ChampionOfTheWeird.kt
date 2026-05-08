@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ChampionOfTheWeird = card("Champion of the Weird") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Goblin Berserker"
     power = 5
     toughness = 5

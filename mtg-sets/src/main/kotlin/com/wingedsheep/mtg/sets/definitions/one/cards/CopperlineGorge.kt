@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val CopperlineGorge = card("Copperline Gorge") {
     typeLine = "Land"
+    colorIdentity = "RG"
     oracleText = "This land enters tapped unless you control two or fewer other lands.\n{T}: Add {R} or {G}."
 
     replacementEffect(EntersTapped(

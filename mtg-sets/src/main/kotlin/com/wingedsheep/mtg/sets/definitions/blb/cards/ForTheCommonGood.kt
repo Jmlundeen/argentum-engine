@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ForTheCommonGood = card("For the Common Good") {
     manaCost = "{X}{X}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Create X tokens that are copies of target token you control. Then tokens you control gain indestructible until your next turn. You gain 1 life for each token you control."
 

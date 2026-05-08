@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DawnsTruce = card("Dawn's Truce") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, they draw a card before its other effects.)\nYou and permanents you control gain hexproof until end of turn. If the gift was promised, permanents you control also gain indestructible until end of turn."
 

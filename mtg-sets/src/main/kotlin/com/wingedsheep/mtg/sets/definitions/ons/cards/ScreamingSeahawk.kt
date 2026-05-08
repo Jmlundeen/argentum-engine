@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val ScreamingSeahawk = card("Screaming Seahawk") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird"
     power = 2
     toughness = 2

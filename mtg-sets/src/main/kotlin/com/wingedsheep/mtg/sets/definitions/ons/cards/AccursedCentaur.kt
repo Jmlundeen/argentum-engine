@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
  */
 val AccursedCentaur = card("Accursed Centaur") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Centaur"
     power = 2
     toughness = 2

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val DaruCavalier = card("Daru Cavalier") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 2

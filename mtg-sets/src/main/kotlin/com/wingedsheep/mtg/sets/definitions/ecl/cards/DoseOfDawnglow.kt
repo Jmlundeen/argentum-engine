@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val DoseOfDawnglow = card("Dose of Dawnglow") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Return target creature card from your graveyard to the battlefield. " +
         "Then if it isn't your main phase, blight 2. (Put two -1/-1 counters on a creature you control.)"

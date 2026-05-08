@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BellowingCrier = card("Bellowing Crier") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Frog Advisor"
     power = 2
     toughness = 1

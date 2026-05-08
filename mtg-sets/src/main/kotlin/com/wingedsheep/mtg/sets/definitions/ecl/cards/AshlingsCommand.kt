@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val AshlingsCommand = card("Ashling's Command") {
     manaCost = "{3}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Kindred Instant — Elemental"
     oracleText = "Choose two —\n" +
             "• Create a token that's a copy of target Elemental you control.\n" +

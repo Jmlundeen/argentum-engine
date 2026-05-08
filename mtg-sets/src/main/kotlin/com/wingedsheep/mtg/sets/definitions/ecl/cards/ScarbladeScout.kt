@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ScarbladeScout = card("Scarblade Scout") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elf Scout"
     power = 2
     toughness = 2

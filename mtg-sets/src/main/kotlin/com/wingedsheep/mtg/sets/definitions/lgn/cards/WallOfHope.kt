@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val WallOfHope = card("Wall of Hope") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Wall"
     power = 0
     toughness = 3

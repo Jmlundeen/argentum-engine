@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SynapseSliver = card("Synapse Sliver") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Sliver"
     power = 3
     toughness = 3

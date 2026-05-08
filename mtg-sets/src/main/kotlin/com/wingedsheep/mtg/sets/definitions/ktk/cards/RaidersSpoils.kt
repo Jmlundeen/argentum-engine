@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RaidersSpoils = card("Raiders' Spoils") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "Creatures you control get +1/+0.\nWhenever a Warrior you control deals combat damage to a player, you may pay 1 life. If you do, draw a card."
 

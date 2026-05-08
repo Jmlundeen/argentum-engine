@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val MercenaryKnight = card("Mercenary Knight") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Mercenary Knight"
     power = 4
     toughness = 4

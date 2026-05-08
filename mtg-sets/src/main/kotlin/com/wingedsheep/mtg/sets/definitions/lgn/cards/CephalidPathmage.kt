@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
  */
 val CephalidPathmage = card("Cephalid Pathmage") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Octopus Wizard"
     power = 1
     toughness = 2

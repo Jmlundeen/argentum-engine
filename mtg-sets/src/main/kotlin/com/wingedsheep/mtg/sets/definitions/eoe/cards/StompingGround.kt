@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val StompingGround = card("Stomping Ground") {
     manaCost = ""
+    colorIdentity = "RG"
     typeLine = "Land — Mountain Forest"
     oracleText = "({T}: Add {R} or {G}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 

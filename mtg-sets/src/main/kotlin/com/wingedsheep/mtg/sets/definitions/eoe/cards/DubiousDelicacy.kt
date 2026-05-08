@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.core.Keyword
  */
 val DubiousDelicacy = card("Dubious Delicacy") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Artifact — Food"
     oracleText = "Flash\nWhen this artifact enters, up to one target creature gets -3/-3 until end of turn.\n{2}, {T}, Sacrifice this artifact: You gain 3 life.\n{2}, {T}, Sacrifice this artifact: Target opponent loses 3 life."
 

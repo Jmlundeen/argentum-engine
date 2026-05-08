@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val CabalExecutioner = card("Cabal Executioner") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 2
     toughness = 2

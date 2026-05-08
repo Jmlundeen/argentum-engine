@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ChromeshellCrab = card("Chromeshell Crab") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Crab Beast"
     power = 3
     toughness = 3

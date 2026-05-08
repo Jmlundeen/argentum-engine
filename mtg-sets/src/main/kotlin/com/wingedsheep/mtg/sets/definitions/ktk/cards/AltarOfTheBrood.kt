@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val AltarOfTheBrood = card("Altar of the Brood") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "Whenever another permanent you control enters, each opponent mills a card."
 

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val Personify = card("Personify") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Exile target creature you control, then return that card to the battlefield under its owner's control. Create a 1/1 colorless Shapeshifter creature token with changeling. (It's every creature type.)"
 

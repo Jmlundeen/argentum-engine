@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MercurialKite = card("Mercurial Kite") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird"
     power = 2
     toughness = 2

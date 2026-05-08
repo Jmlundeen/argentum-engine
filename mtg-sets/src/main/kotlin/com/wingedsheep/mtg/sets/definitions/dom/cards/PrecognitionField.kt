@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val PrecognitionField = card("Precognition Field") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "You may look at the top card of your library any time.\nYou may cast instant and sorcery spells from the top of your library.\n{3}: Exile the top card of your library."
 

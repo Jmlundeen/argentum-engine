@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val MeldedMoxite = card("Melded Moxite") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Artifact"
     oracleText = "When this artifact enters, you may discard a card. If you do, draw two cards.\n{3}, Sacrifice this artifact: Create a tapped 2/2 colorless Robot artifact creature token."
 

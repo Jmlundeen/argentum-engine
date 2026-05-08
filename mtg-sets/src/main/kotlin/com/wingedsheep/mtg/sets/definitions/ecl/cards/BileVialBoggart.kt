@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val BileVialBoggart = card("Bile-Vial Boggart") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Goblin Assassin"
     power = 1
     toughness = 1

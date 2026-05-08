@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val CratersClaws = card("Crater's Claws") {
     manaCost = "{X}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Crater's Claws deals X damage to any target.\nFerocious — Crater's Claws deals X plus 2 damage instead if you control a creature with power 4 or greater."
 

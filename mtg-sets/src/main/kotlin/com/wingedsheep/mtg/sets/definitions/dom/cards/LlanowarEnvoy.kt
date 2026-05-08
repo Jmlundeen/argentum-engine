@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val LlanowarEnvoy = card("Llanowar Envoy") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Scout"
     power = 3
     toughness = 2

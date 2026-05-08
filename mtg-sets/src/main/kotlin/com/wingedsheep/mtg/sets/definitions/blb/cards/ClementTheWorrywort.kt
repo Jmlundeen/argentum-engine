@@ -46,6 +46,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val ClementTheWorrywort = card("Clement, the Worrywort") {
     manaCost = "{1}{G}{U}"
+    colorIdentity = "UG"
     typeLine = "Legendary Creature — Frog Druid"
     power = 3
     toughness = 3

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val BloodstainedMire = card("Bloodstained Mire") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}, Pay 1 life, Sacrifice Bloodstained Mire: Search your library for a Swamp or Mountain card, put it onto the battlefield, then shuffle."
 
     activatedAbility {

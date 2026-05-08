@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val KheruSpellsnatcher = card("Kheru Spellsnatcher") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Snake Wizard"
     power = 3
     toughness = 3

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val ThingFromTheDeep = card("Thing from the Deep") {
     manaCost = "{6}{U}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Leviathan"
     power = 9
     toughness = 9

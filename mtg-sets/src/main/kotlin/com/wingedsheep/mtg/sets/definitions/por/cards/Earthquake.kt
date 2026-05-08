@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val Earthquake = card("Earthquake") {
     manaCost = "{X}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

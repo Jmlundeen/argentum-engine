@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.conditions.SourceHasSubtype
  */
 val MistformWall = card("Mistform Wall") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Illusion Wall"
     power = 1
     toughness = 4

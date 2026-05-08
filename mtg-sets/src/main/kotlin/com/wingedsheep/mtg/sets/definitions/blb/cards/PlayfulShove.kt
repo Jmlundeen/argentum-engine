@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PlayfulShove = card("Playful Shove") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Playful Shove deals 1 damage to any target.\nDraw a card."
 

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SultaiScavenger = card("Sultai Scavenger") {
     manaCost = "{5}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bird Warrior"
     power = 3
     toughness = 3

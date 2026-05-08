@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LavabornMuse = card("Lavaborn Muse") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Spirit"
     oracleText = "At the beginning of each opponent's upkeep, if that player has two or fewer cards in hand, Lavaborn Muse deals 3 damage to that player."
     power = 3

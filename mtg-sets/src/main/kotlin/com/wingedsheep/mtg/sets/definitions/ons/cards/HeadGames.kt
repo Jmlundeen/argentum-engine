@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val HeadGames = card("Head Games") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target opponent puts the cards from their hand on top of their library. Search that player's library for that many cards. The player puts those cards into their hand, then shuffles."
 

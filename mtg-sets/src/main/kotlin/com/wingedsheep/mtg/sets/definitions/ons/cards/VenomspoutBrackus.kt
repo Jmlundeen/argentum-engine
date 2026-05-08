@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val VenomspoutBrackus = card("Venomspout Brackus") {
     manaCost = "{6}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 5
     toughness = 5

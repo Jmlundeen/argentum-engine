@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val SupremeInquisitor = card("Supreme Inquisitor") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 3

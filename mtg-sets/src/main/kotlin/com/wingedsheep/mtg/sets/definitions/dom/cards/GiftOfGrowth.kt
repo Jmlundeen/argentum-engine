@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val GiftOfGrowth = card("Gift of Growth") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Kicker {2}\nUntap target creature. It gets +2/+2 until end of turn. If this spell was kicked, that creature gets +4/+4 until end of turn instead."
 

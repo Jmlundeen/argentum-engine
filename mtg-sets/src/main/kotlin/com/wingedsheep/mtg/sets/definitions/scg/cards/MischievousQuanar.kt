@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MischievousQuanar = card("Mischievous Quanar") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 3

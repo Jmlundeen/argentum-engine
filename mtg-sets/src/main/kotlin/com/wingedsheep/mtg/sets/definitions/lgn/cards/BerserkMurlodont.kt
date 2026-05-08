@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val BerserkMurlodont = card("Berserk Murlodont") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 3

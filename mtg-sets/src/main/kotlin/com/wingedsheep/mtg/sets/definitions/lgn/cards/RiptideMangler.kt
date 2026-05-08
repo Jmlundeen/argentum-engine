@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val RiptideMangler = card("Riptide Mangler") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Beast"
     power = 0
     toughness = 3

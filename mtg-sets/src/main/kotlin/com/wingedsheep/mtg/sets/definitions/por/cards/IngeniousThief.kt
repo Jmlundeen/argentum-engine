@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val IngeniousThief = card("Ingenious Thief") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Rogue"
     power = 1
     toughness = 1

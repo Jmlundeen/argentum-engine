@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AstralSteel = card("Astral Steel") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Target creature gets +1/+2 until end of turn.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 

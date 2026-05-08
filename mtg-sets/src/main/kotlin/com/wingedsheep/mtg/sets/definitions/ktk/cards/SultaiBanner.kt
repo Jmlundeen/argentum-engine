@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val SultaiBanner = card("Sultai Banner") {
     manaCost = "{3}"
+    colorIdentity = "UBG"
     typeLine = "Artifact"
     oracleText = "{T}: Add {B}, {G}, or {U}.\n{B}{G}{U}, {T}, Sacrifice this artifact: Draw a card."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val DaggerfangDuo = card("Daggerfang Duo") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Rat Squirrel"
     power = 3
     toughness = 2

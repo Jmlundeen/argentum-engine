@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KinsbaileAspirant = card("Kinsbaile Aspirant") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Kithkin Citizen"
     power = 2
     toughness = 1

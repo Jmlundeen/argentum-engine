@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val EvraHalcyonWitness = card("Evra, Halcyon Witness") {
     manaCost = "{4}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Avatar"
     power = 4
     toughness = 4

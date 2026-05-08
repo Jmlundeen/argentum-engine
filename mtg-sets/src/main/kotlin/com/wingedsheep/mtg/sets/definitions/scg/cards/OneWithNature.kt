@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val OneWithNature = card("One with Nature") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nWhenever enchanted creature deals combat damage to a player, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle."
 

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AgateBladeAssassin = card("Agate-Blade Assassin") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Lizard Assassin"
     power = 1
     toughness = 3

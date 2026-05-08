@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
  */
 val CoastWatcher = card("Coast Watcher") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Soldier"
     power = 1
     toughness = 1

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val LightningRift = card("Lightning Rift") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "Whenever a player cycles a card, you may pay {1}. If you do, Lightning Rift deals 2 damage to any target."
 

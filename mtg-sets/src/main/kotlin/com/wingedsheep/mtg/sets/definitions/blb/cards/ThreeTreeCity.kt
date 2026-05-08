@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ThreeTreeCity = card("Three Tree City") {
     typeLine = "Legendary Land"
+    colorIdentity = ""
     oracleText = "As Three Tree City enters, choose a creature type.\n{T}: Add {C}.\n{2}, {T}: Choose a color. Add an amount of mana of that color equal to the number of creatures you control of the chosen type."
 
     replacementEffect(EntersWithChoice(ChoiceType.CREATURE_TYPE))

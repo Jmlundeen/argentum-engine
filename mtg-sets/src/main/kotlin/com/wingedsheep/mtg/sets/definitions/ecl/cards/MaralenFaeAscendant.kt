@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MaralenFaeAscendant = card("Maralen, Fae Ascendant") {
     manaCost = "{2}{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Legendary Creature — Elf Faerie Noble"
     power = 4
     toughness = 5

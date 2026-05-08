@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MonasterySwiftspear = card("Monastery Swiftspear") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Monk"
     power = 1
     toughness = 2

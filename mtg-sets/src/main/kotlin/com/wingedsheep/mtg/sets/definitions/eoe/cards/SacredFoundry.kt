@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val SacredFoundry = card("Sacred Foundry") {
     manaCost = ""
+    colorIdentity = "WR"
     typeLine = "Land — Mountain Plains"
     oracleText = "({T}: Add {R} or {W}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 

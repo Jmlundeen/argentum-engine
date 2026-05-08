@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SpectralSliver = card("Spectral Sliver") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Sliver Spirit"
     power = 2
     toughness = 2

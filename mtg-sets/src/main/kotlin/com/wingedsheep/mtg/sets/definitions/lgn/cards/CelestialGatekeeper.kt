@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val CelestialGatekeeper = card("Celestial Gatekeeper") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Cleric"
     power = 2
     toughness = 2

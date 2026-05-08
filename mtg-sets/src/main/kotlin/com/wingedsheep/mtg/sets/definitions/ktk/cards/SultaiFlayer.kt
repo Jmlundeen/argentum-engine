@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
  */
 val SultaiFlayer = card("Sultai Flayer") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Snake Shaman"
     power = 3
     toughness = 4

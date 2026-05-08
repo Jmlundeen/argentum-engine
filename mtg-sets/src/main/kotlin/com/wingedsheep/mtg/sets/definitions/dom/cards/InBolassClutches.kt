@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.ControlEnchantedPermanent
  */
 val InBolassClutches = card("In Bolas's Clutches") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Enchantment — Aura"
     oracleText = "Enchant permanent\nYou control enchanted permanent.\nEnchanted permanent is legendary."
 

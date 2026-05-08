@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val AssertPerfection = card("Assert Perfection") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Target creature you control gets +1/+0 until end of turn. It deals damage equal to its power to up to one target creature an opponent controls."
 

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val ThousandWinds = card("Thousand Winds") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental"
     power = 5
     toughness = 6

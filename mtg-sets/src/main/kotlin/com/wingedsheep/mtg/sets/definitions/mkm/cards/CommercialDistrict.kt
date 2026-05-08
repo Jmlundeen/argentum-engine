@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val CommercialDistrict = card("Commercial District") {
     typeLine = "Land — Mountain Forest"
+    colorIdentity = "RG"
     oracleText = "({T}: Add {R} or {G}.)\nThis land enters tapped.\nWhen this land enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     // Mana abilities are intrinsic from basic land types (Mountain -> {R}, Forest -> {G})

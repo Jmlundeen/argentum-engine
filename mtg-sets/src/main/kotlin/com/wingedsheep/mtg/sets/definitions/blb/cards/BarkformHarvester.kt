@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val BarkformHarvester = card("Barkform Harvester") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Shapeshifter"
     power = 2
     toughness = 3

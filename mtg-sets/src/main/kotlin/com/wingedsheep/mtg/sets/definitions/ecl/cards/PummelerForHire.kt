@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val PummelerForHire = card("Pummeler for Hire") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Giant Mercenary"
     power = 4
     toughness = 4

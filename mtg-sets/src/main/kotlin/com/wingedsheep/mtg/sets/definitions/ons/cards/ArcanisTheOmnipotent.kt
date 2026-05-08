@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val ArcanisTheOmnipotent = card("Arcanis the Omnipotent") {
     manaCost = "{3}{U}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Wizard"
     power = 3
     toughness = 4

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.TakeExtraTurnEffect
  */
 val UginsNexus = card("Ugin's Nexus") {
     manaCost = "{5}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact"
     oracleText = "If a player would begin an extra turn, that player skips that turn instead.\n" +
             "If Ugin's Nexus would be put into a graveyard from the battlefield, instead exile it and take an extra turn after this one."

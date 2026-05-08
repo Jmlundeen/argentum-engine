@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val HardHittingQuestion = card("Hard-Hitting Question") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Target creature you control deals damage equal to its power to target creature or planeswalker you don't control."
 

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RakshasaDeathdealer = card("Rakshasa Deathdealer") {
     manaCost = "{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Creature — Demon"
     oracleText = "{B}{G}: This creature gets +2/+2 until end of turn.\n{B}{G}: Regenerate this creature."
     power = 2

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val PrismaticUndercurrents = card("Prismatic Undercurrents") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
 
     // Vivid — When this enchantment enters, search your library for up to X basic land cards,

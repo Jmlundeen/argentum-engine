@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
  */
 val SkirkFireMarshal = card("Skirk Fire Marshal") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 2
     toughness = 2

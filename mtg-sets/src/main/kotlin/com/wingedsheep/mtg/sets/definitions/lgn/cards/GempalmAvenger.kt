@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val GempalmAvenger = card("Gempalm Avenger") {
     manaCost = "{5}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     oracleText = "Cycling {2}{W}\nWhen you cycle Gempalm Avenger, Soldier creatures get +1/+1 and gain first strike until end of turn."
     power = 3

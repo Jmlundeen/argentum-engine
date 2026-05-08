@@ -40,6 +40,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ZoralineCosmosCaller = card("Zoraline, Cosmos Caller") {
     manaCost = "{1}{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Legendary Creature — Bat Cleric"
     power = 3
     toughness = 3

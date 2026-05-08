@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val UnyieldingKrumar = card("Unyielding Krumar") {
     manaCost = "{3}{B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Orc Warrior"
     power = 3
     toughness = 3

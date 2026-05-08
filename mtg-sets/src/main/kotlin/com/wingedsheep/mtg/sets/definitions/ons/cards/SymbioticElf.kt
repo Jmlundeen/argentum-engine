@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val SymbioticElf = card("Symbiotic Elf") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 2
     toughness = 2

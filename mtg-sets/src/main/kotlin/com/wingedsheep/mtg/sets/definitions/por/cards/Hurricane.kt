@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val Hurricane = card("Hurricane") {
     manaCost = "{X}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

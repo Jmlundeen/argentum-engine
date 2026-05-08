@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val MabelHeirToCragflame = card("Mabel, Heir to Cragflame") {
     manaCost = "{1}{R}{W}"
+    colorIdentity = "WR"
     typeLine = "Legendary Creature — Mouse Soldier"
     oracleText = "Other Mice you control get +1/+1.\nWhen Mabel enters, create Cragflame, a legendary colorless Equipment artifact token with \"Equipped creature gets +1/+1 and has vigilance, trample, and haste\" and equip {2}."
     power = 3

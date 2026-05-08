@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 // {1}: Exile target card from a graveyard.
 val KeenEyedCurator = card("Keen-Eyed Curator") {
     manaCost = "{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Raccoon Scout"
     power = 3
     toughness = 3

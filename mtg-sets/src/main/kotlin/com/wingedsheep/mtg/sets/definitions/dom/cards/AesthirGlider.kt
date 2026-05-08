@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
  */
 val AesthirGlider = card("Aesthir Glider") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Bird Construct"
     power = 2
     toughness = 1

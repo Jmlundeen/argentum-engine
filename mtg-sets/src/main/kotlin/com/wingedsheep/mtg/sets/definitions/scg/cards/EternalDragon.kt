@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val EternalDragon = card("Eternal Dragon") {
     manaCost = "{5}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Dragon Spirit"
     power = 5
     toughness = 5

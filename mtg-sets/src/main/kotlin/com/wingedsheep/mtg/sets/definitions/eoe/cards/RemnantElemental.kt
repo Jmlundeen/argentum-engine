@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RemnantElemental = card("Remnant Elemental") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental"
     oracleText = "Reach\nLandfall — Whenever a land you control enters, this creature gets +2/+0 until end of turn."
     power = 0

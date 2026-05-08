@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan
  */
 val ChargingRhino = card("Charging Rhino") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Rhino"
     power = 4
     toughness = 4

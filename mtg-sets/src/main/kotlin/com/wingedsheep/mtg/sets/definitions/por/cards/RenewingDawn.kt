@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val RenewingDawn = card("Renewing Dawn") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

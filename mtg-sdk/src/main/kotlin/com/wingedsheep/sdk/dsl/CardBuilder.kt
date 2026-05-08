@@ -150,6 +150,17 @@ class CardBuilder(private val name: String) {
     var typeLine: String = ""
 
     /**
+     * Authoritative color identity, sourced from Scryfall via `syncColorIdentityFromDump`.
+     *
+     * String of color symbols, e.g. `"WUR"`. Empty string means explicitly colorless.
+     * `null` (the default) means "fall back to the heuristic in `CardDefinition.colorIdentity`".
+     *
+     * Don't author this by hand — let the sync task populate it. Hand-set values are tolerated
+     * but will be overwritten on the next sync.
+     */
+    var colorIdentity: String? = null
+
+    /**
      * Power (for creatures). Can be set as Int for fixed stats.
      */
     var power: Int? = null
@@ -597,6 +608,10 @@ class CardBuilder(private val name: String) {
         val derivedKeywords = finalKeywordAbilities.mapNotNull { it.keyword }.toSet()
         val finalKeywords = keywordSet + derivedKeywords
 
+        val parsedColorIdentity: Set<Color>? = colorIdentity?.let { raw ->
+            raw.mapNotNullTo(mutableSetOf()) { Color.fromSymbol(it.uppercaseChar()) }
+        }
+
         return CardDefinition(
             name = name,
             manaCost = parsedManaCost,
@@ -609,7 +624,8 @@ class CardBuilder(private val name: String) {
             script = script,
             equipCost = equipCost,
             startingLoyalty = startingLoyalty,
-            metadata = metadata
+            metadata = metadata,
+            colorIdentityOverride = parsedColorIdentity
         )
     }
 }

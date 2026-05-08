@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val VirusBeetle = card("Virus Beetle") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Artifact Creature — Insect"
     oracleText = "When this creature enters, each opponent discards a card."
     power = 1

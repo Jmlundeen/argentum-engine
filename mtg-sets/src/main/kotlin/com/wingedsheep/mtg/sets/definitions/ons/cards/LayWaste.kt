@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val LayWaste = card("Lay Waste") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Destroy target land.\nCycling {2}"
 

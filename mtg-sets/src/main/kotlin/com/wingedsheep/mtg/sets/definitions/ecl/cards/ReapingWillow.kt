@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val ReapingWillow = card("Reaping Willow") {
     manaCost = "{1}{W/B}{W/B}{W/B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Treefolk Cleric"
     power = 3
     toughness = 6

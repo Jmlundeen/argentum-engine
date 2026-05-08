@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Depressurize = card("Depressurize") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Target creature gets -3/-0 until end of turn. Then if that creature's power is 0 or less, destroy it."
 

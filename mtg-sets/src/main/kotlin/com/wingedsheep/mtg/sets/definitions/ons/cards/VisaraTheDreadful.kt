@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val VisaraTheDreadful = card("Visara the Dreadful") {
     manaCost = "{3}{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Gorgon"
     power = 5
     toughness = 5

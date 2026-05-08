@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val StarseerMentor = card("Starseer Mentor") {
     manaCost = "{3}{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Bat Warlock"
     power = 3
     toughness = 5

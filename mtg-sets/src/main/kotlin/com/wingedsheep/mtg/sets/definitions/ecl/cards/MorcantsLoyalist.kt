@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val MorcantsLoyalist = card("Morcant's Loyalist") {
     manaCost = "{1}{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Creature — Elf Warrior"
     power = 3
     toughness = 2

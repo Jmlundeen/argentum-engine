@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
  */
 val Spellgyre = card("Spellgyre") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Counter target spell.\n• Surveil 2, then draw two cards."
 

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SultaiAscendancy = card("Sultai Ascendancy") {
     manaCost = "{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Enchantment"
     oracleText = "At the beginning of your upkeep, surveil 2. (Look at the top two cards of your library, then put any number of them into your graveyard and the rest on top of your library in any order.)"
 

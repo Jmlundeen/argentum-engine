@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val ConvalescentCare = card("Convalescent Care") {
     manaCost = "{1}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "At the beginning of your upkeep, if you have 5 or less life, you gain 3 life and draw a card."
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.TurnFaceDownEffect
  */
 val SkittishValesk = card("Skittish Valesk") {
     manaCost = "{6}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 5
     toughness = 5

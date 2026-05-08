@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val AphettoVulture = card("Aphetto Vulture") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Bird"
     power = 3
     toughness = 2

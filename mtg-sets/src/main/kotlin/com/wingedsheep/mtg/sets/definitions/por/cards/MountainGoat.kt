@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MountainGoat = card("Mountain Goat") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goat"
     power = 1
     toughness = 1

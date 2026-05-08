@@ -34,6 +34,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SalvationSwan = card("Salvation Swan") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Cleric"
     power = 3
     toughness = 3

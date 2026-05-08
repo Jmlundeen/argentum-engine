@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val TifaLockhart = card("Tifa Lockhart") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Creature — Human Monk"
     power = 1
     toughness = 2

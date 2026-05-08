@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val TendTheSprigs = card("Tend the Sprigs") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Search your library for a basic land card, put it onto the battlefield tapped, " +
         "then shuffle. Then if you control seven or more lands and/or Treefolk, create a 3/4 " +

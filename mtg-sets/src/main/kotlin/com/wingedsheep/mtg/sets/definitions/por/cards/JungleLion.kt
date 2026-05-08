@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
  */
 val JungleLion = card("Jungle Lion") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Cat"
     power = 2
     toughness = 1

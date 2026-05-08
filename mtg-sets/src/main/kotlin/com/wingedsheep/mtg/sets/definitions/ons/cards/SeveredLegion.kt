@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SeveredLegion = card("Severed Legion") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 2
     toughness = 2

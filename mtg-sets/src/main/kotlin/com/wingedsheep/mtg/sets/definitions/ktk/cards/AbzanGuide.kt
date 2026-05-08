@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AbzanGuide = card("Abzan Guide") {
     manaCost = "{3}{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Creature — Human Warrior"
     power = 4
     toughness = 4

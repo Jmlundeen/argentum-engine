@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val VoidmageProdigy = card("Voidmage Prodigy") {
     manaCost = "{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 2
     toughness = 1

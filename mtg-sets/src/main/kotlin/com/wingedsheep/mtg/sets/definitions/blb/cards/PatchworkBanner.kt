@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaEffect
  */
 val PatchworkBanner = card("Patchwork Banner") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "As this artifact enters, choose a creature type.\nCreatures you control of the chosen type get +1/+1.\n{T}: Add one mana of any color."
 

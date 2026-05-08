@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
  */
 val TempleOfTheFalseGod = card("Temple of the False God") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}: Add {C}{C}. Activate only if you control five or more lands."
 
     activatedAbility {

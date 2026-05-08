@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WhirlwindAdept = card("Whirlwind Adept") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Djinn Monk"
     power = 4
     toughness = 2

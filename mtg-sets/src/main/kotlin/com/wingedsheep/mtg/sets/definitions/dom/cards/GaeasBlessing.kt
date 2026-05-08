@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val GaeasBlessing = card("Gaea's Blessing") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Target player shuffles up to three target cards from their graveyard into their library. Draw a card.\nWhen Gaea's Blessing is put into your graveyard from your library, shuffle your graveyard into your library."
 

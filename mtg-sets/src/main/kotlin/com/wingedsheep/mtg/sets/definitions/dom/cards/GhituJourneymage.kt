@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GhituJourneymage = card("Ghitu Journeymage") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Wizard"
     power = 3
     toughness = 2

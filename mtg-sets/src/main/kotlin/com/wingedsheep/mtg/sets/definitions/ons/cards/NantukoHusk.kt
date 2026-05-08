@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val NantukoHusk = card("Nantuko Husk") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Insect"
     power = 2
     toughness = 2

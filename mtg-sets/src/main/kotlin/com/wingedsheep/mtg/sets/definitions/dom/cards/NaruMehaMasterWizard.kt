@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val NaruMehaMasterWizard = card("Naru Meha, Master Wizard") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Human Wizard"
     power = 3
     toughness = 3

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PondProphet = card("Pond Prophet") {
     manaCost = "{G/U}{G/U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Frog Advisor"
     power = 1
     toughness = 1

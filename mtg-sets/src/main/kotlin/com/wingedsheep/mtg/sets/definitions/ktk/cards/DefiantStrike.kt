@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val DefiantStrike = card("Defiant Strike") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Target creature gets +1/+0 until end of turn. Draw a card."
 

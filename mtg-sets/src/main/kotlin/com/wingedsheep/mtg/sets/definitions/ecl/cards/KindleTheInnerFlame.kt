@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KindleTheInnerFlame = card("Kindle the Inner Flame") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Kindred Sorcery — Elemental"
     oracleText = "Create a token that's a copy of target creature you control, except it has haste and " +
         "\"At the beginning of the end step, sacrifice this token.\"\n" +

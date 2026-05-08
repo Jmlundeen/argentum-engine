@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GrantCantBeCountered
  */
 val RootSliver = card("Root Sliver") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Sliver"
     power = 2
     toughness = 2

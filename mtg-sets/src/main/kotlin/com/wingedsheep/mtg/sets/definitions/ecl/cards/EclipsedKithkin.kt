@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EclipsedKithkin = card("Eclipsed Kithkin") {
     manaCost = "{G/W}{G/W}"
+    colorIdentity = "WG"
     typeLine = "Creature — Kithkin Scout"
     power = 2
     toughness = 1

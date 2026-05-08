@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ProteusMachine = card("Proteus Machine") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Shapeshifter"
     power = 2
     toughness = 2

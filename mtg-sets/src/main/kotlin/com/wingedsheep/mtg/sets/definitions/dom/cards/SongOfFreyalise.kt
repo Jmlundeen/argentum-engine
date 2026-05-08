@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SongOfFreyalise = card("Song of Freyalise") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I, II — Until your next turn, creatures you control gain \"{T}: Add one mana of any color.\"\n" +

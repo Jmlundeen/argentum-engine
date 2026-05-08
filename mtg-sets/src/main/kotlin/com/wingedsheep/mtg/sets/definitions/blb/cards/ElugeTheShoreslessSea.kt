@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ElugeTheShoreslessSea = card("Eluge, the Shoreless Sea") {
     manaCost = "{1}{U}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Elemental Fish"
     oracleText = "Eluge, the Shoreless Sea's power and toughness are each equal to the number of Islands you control.\nWhenever Eluge enters or attacks, put a flood counter on target land. It's an Island in addition to its other types for as long as it has a flood counter on it.\nThe first instant or sorcery spell you cast each turn costs {U} less to cast for each land you control with a flood counter on it. (Excess cost reduction reduces generic mana.)"
 

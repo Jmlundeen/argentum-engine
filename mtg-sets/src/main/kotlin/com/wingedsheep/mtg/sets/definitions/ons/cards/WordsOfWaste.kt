@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WordsOfWaste = card("Words of Waste") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "{1}: The next time you would draw a card this turn, each opponent discards a card instead."
 

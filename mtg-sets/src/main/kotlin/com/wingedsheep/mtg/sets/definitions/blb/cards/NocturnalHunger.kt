@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val NocturnalHunger = card("Nocturnal Hunger") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Gift a Food (You may promise an opponent a gift as you cast this spell. If you do, they create a Food token before its other effects. It's an artifact with \"{2}, {T}, Sacrifice this artifact: You gain 3 life.\")\nDestroy target creature. If the gift wasn't promised, you lose 2 life."
 

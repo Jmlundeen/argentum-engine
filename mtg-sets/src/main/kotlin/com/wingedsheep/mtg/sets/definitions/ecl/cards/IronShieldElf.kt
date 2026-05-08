@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val IronShieldElf = card("Iron-Shield Elf") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elf Warrior"
     power = 3
     toughness = 1

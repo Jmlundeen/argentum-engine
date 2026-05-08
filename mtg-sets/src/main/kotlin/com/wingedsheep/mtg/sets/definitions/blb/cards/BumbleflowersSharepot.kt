@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val BumbleflowersSharepot = card("Bumbleflower's Sharepot") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "When this artifact enters, create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")\n{5}, {T}, Sacrifice this artifact: Destroy target nonland permanent. Activate only as a sorcery."
 

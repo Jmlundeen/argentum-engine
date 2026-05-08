@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val OtterballAntics = card("Otterball Antics") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Create a 1/1 blue and red Otter creature token with prowess. If this spell was cast from anywhere other than your hand, put a +1/+1 counter on that creature.\nFlashback {3}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 

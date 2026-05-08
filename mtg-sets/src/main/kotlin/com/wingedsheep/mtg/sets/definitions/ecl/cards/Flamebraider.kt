@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ManaRestriction
  */
 val Flamebraider = card("Flamebraider") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Bard"
     power = 2
     toughness = 2

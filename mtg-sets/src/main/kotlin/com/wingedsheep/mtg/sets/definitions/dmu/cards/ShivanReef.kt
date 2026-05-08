@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ShivanReef = card("Shivan Reef") {
     typeLine = "Land"
+    colorIdentity = "UR"
     oracleText = "{T}: Add {C}.\n{T}: Add {U} or {R}. This land deals 1 damage to you."
 
     activatedAbility {

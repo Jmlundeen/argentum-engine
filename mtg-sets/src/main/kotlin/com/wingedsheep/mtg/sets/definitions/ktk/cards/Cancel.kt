@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Cancel = card("Cancel") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell."
 

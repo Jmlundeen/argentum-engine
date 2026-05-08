@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val FlowerfootSwordmaster = card("Flowerfoot Swordmaster") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Mouse Soldier"
     power = 1
     toughness = 2

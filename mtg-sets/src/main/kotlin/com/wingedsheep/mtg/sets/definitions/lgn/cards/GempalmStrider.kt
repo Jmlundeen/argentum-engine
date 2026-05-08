@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val GempalmStrider = card("Gempalm Strider") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     oracleText = "Cycling {2}{G}{G}\nWhen you cycle Gempalm Strider, Elf creatures get +2/+2 until end of turn."
     power = 2

@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val DriftgloomCoyote = card("Driftgloom Coyote") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Elemental Coyote"
     power = 3
     toughness = 4

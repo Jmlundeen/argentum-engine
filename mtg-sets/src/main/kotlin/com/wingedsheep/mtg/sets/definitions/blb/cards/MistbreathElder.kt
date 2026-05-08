@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MistbreathElder = card("Mistbreath Elder") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Frog Warrior"
     power = 2
     toughness = 2

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val SultaiCharm = card("Sultai Charm") {
     manaCost = "{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Destroy target monocolored creature.\n• Destroy target artifact or enchantment.\n• Draw two cards, then discard a card."
 

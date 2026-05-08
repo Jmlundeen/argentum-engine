@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val HeartfireHero = card("Heartfire Hero") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Mouse Soldier"
     power = 1
     toughness = 1

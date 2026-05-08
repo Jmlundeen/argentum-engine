@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RegalUnicorn = card("Regal Unicorn") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Unicorn"
     power = 2
     toughness = 3

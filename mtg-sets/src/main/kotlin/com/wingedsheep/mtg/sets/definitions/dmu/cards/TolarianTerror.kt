@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.SpellCostReduction
  */
 val TolarianTerror = card("Tolarian Terror") {
     manaCost = "{6}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Serpent"
     oracleText = "This spell costs {1} less to cast for each instant and sorcery card in your graveyard.\nWard {2} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)"
     

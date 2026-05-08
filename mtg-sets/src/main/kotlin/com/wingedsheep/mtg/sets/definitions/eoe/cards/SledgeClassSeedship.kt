@@ -34,6 +34,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val SledgeClassSeedship = card("Sledge-Class Seedship") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Artifact — Spacecraft"
     power = 4
     toughness = 5

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
  */
 val ThrashingMudspawn = card("Thrashing Mudspawn") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 4

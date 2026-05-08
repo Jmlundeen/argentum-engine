@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DreadShade = card("Dread Shade") {
     manaCost = "{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Shade"
     power = 3
     toughness = 3

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.AssignDamageEqualToToughness
  */
 val BarkOfDoran = card("Bark of Doran") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Artifact — Equipment"
     oracleText = "Equipped creature gets +0/+1.\n" +
             "As long as equipped creature's toughness is greater than its power, it assigns combat " +

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SerraAngel = card("Serra Angel") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Angel"
     power = 4
     toughness = 4

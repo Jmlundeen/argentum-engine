@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ArtificersAssistant = card("Artificer's Assistant") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird"
     power = 1
     toughness = 1

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val KavaronTurbodrone = card("Kavaron Turbodrone") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Artifact Creature — Robot Scout"
     power = 2
     toughness = 3

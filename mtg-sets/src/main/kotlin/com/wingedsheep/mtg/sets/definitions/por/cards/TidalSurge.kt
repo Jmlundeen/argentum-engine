@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val TidalSurge = card("Tidal Surge") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

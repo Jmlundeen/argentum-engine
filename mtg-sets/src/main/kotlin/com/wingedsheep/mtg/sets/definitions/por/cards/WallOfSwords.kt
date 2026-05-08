@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WallOfSwords = card("Wall of Swords") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Wall"
     power = 3
     toughness = 5

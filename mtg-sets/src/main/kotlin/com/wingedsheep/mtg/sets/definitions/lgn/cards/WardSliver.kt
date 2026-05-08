@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val WardSliver = card("Ward Sliver") {
     manaCost = "{4}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Sliver"
     power = 2
     toughness = 2

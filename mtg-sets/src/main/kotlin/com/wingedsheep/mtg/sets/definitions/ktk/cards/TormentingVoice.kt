@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
  */
 val TormentingVoice = card("Tormenting Voice") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, discard a card.\nDraw two cards."
 

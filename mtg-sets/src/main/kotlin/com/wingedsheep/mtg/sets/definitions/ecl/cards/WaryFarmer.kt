@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val WaryFarmer = card("Wary Farmer") {
     manaCost = "{1}{G/W}{G/W}"
+    colorIdentity = "WG"
     typeLine = "Creature — Kithkin Citizen"
     power = 3
     toughness = 3

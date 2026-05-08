@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val KnightErrant = card("Knight Errant") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Knight"
     power = 2
     toughness = 2

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val YavimayaCoast = card("Yavimaya Coast") {
     typeLine = "Land"
+    colorIdentity = "UG"
     oracleText = "{T}: Add {C}.\n{T}: Add {G} or {U}. This land deals 1 damage to you."
 
     activatedAbility {

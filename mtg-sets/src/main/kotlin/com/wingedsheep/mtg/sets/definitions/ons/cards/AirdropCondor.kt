@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val AirdropCondor = card("Airdrop Condor") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Bird"
     power = 2
     toughness = 2

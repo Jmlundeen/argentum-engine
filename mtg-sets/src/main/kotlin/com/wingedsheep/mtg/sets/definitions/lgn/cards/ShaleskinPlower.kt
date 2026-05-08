@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ShaleskinPlower = card("Shaleskin Plower") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 2

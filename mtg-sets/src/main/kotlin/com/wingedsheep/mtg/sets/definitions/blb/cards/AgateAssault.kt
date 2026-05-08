@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
  */
 val AgateAssault = card("Agate Assault") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Choose one —\n• Agate Assault deals 4 damage to target creature. If that creature " +
         "would die this turn, exile it instead.\n• Exile target artifact."

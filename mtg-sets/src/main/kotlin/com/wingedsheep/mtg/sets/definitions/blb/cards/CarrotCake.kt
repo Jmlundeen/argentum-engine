@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val CarrotCake = card("Carrot Cake") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Artifact — Food"
     oracleText = "When this artifact enters and when you sacrifice it, create a 1/1 white Rabbit creature token and scry 1.\n{2}, {T}, Sacrifice this artifact: You gain 3 life."
 

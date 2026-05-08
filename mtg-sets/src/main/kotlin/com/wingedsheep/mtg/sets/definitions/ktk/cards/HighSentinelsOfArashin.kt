@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HighSentinelsOfArashin = card("High Sentinels of Arashin") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier"
     power = 3
     toughness = 4

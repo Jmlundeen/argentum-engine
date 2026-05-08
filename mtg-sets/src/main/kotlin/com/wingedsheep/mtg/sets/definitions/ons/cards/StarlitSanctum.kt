@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val StarlitSanctum = card("Starlit Sanctum") {
     typeLine = "Land"
+    colorIdentity = "WB"
     oracleText = "{T}: Add {C}.\n{W}, {T}, Sacrifice a Cleric creature: You gain life equal to the sacrificed creature's toughness.\n{B}, {T}, Sacrifice a Cleric creature: Target player loses life equal to the sacrificed creature's power."
 
     activatedAbility {

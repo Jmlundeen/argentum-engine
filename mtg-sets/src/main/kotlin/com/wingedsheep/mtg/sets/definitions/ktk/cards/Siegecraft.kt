@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val Siegecraft = card("Siegecraft") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +2/+4."
 

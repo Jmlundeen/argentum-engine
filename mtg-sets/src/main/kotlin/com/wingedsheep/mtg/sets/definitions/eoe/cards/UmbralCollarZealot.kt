@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val UmbralCollarZealot = card("Umbral Collar Zealot") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 3
     toughness = 2

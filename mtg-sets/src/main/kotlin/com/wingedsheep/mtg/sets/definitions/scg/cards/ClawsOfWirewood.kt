@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ClawsOfWirewood = card("Claws of Wirewood") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Claws of Wirewood deals 3 damage to each creature with flying and each player.\nCycling {2}"
 

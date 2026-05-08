@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  */
 val KavaronHarrier = card("Kavaron Harrier") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Artifact Creature — Robot Soldier"
     oracleText = "Whenever this creature attacks, you may pay {2}. If you do, create a 2/2 colorless Robot artifact creature token that's tapped and attacking. Sacrifice that token at end of combat."
     power = 2

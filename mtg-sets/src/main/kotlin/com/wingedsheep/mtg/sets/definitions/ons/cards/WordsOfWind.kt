@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WordsOfWind = card("Words of Wind") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "{1}: The next time you would draw a card this turn, each player returns a permanent they control to its owner's hand instead."
 

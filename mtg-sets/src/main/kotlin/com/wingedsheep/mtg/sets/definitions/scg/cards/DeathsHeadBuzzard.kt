@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val DeathsHeadBuzzard = card("Death's-Head Buzzard") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bird"
     power = 2
     toughness = 1

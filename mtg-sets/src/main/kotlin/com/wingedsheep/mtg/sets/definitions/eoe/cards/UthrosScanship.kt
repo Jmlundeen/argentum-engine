@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val UthrosScanship = card("Uthros Scanship") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Artifact — Spacecraft"
     power = 4
     toughness = 4

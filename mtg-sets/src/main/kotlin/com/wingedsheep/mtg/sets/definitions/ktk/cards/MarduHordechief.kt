@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val MarduHordechief = card("Mardu Hordechief") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 3

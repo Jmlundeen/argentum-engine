@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetSpellOrPermanent
  */
 val SwatAway = card("Swat Away") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "This spell costs {2} less to cast if a creature is attacking you.\n" +
         "The owner of target spell or creature puts it on their choice of the top or bottom of their library."

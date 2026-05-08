@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.Duration
 
 val ActOfTreason = card("Act of Treason") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Gain control of target creature until end of turn. Untap that creature. It gains haste until end of turn."
 

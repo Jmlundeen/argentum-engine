@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val JayaBallard = card("Jaya Ballard") {
     manaCost = "{2}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Legendary Planeswalker — Jaya"
     startingLoyalty = 5
     oracleText = "+1: Add {R}{R}{R}. Spend this mana only to cast instant or sorcery spells.\n+1: Discard up to three cards, then draw that many cards.\n\u22128: You get an emblem with \"You may cast instant and sorcery spells from your graveyard. If a spell cast this way would be put into your graveyard, exile it instead.\""

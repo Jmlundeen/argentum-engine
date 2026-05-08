@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val TemporaryTruce = card("Temporary Truce") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

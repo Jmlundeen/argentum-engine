@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val GrasslandCrusader = card("Grassland Crusader") {
     manaCost = "{5}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric Soldier"
     power = 2
     toughness = 4

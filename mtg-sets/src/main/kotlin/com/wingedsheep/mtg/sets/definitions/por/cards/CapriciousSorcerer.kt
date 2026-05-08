@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
  */
 val CapriciousSorcerer = card("Capricious Sorcerer") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1

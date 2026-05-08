@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val Rescue = card("Rescue") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Return target permanent you control to its owner's hand."
 

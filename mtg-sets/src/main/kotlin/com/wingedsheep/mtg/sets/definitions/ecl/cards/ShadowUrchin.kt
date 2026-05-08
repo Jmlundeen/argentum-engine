@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ShadowUrchin = card("Shadow Urchin") {
     manaCost = "{2}{B/R}"
+    colorIdentity = "BR"
     typeLine = "Creature — Ouphe"
     power = 3
     toughness = 4

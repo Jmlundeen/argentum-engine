@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val TempestDjinn = card("Tempest Djinn") {
     manaCost = "{U}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Djinn"
     power = 0
     toughness = 4

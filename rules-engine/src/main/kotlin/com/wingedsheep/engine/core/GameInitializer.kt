@@ -9,6 +9,7 @@ import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.state.components.player.MulliganStateComponent
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.Format
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
@@ -25,7 +26,13 @@ data class PlayerConfig(
     val name: String,
     val deck: Deck,
     val startingLife: Int = 20,
-    val playerId: EntityId? = null
+    val playerId: EntityId? = null,
+    /**
+     * Name of the card in [deck] that should be designated this player's commander. Required when
+     * [GameConfig.format] is [Format.Commander]. Phase 1 supports a single commander; partner /
+     * Background pairings are Phase 4 territory.
+     */
+    val commanderCardName: String? = null,
 )
 
 /**
@@ -43,7 +50,12 @@ data class GameConfig(
     val skipMulligans: Boolean = false,
     val useHandSmoother: Boolean = false,
     val handSmootherCandidates: Int = 3,
-    val startingPlayerIndex: Int? = null
+    val startingPlayerIndex: Int? = null,
+    /**
+     * Game-mode configuration. Defaults to [Format.Standard] so existing callers keep their
+     * 20-life / 7-card / no-commander behaviour without changes.
+     */
+    val format: Format = Format.Standard,
 )
 
 /**
@@ -96,17 +108,40 @@ class GameInitializer(
         require(config.players.size >= 2) { "Need at least 2 players" }
 
         val events = mutableListOf<GameEvent>()
-        var state = GameState()
+        var state = GameState(format = config.format)
         val playerIds = mutableListOf<EntityId>()
+
+        // Validate Commander-format prerequisites up front. Each player must designate a commander
+        // card name that is actually present in their deck list.
+        if (config.format is Format.Commander) {
+            for (playerConfig in config.players) {
+                val name = playerConfig.commanderCardName
+                require(!name.isNullOrBlank()) {
+                    "Commander format requires PlayerConfig.commanderCardName for player '${playerConfig.name}'"
+                }
+                require(name in playerConfig.deck.cards) {
+                    "Commander '$name' is not present in deck for player '${playerConfig.name}'"
+                }
+            }
+        }
+
+        // Format-driven starting life. Commander overrides the per-player default of 20 so callers
+        // don't have to remember to set startingLife = 40 alongside format = Commander.
+        val formatStartingLife: Int? = when (val f = config.format) {
+            is Format.Commander -> f.startingLife
+            else -> null
+        }
 
         // 1. Create player entities
         for (playerConfig in config.players) {
             val playerId = playerConfig.playerId ?: EntityId.generate()
             playerIds.add(playerId)
 
+            val startingLife = formatStartingLife ?: playerConfig.startingLife
+
             val playerContainer = ComponentContainer.of(
-                PlayerComponent(playerConfig.name, playerConfig.startingLife),
-                LifeTotalComponent(playerConfig.startingLife),
+                PlayerComponent(playerConfig.name, startingLife),
+                LifeTotalComponent(startingLife),
                 ManaPoolComponent(),
                 LandDropsComponent(),
                 MulliganStateComponent(
@@ -132,19 +167,51 @@ class GameInitializer(
             turnNumber = 1  // First turn is turn 1, not turn 0
         )
 
-        // 3. Instantiate cards and place in libraries
+        // 3. Instantiate cards and place in libraries (or command zone for commanders)
         for ((index, playerConfig) in config.players.withIndex()) {
             val playerId = playerIds[index]
+
+            // Commander setup: pull the first matching card name out of the deck list and route
+            // it to the command zone with a CommanderComponent attached. Phase 1 supports a
+            // single commander per player; CommanderRegistryComponent is a list to keep
+            // Partner / Background expansion (Phase 4) a no-op on schema.
+            val commanderName: String? = when {
+                config.format is Format.Commander -> playerConfig.commanderCardName
+                else -> null
+            }
+            var commanderConsumed = false
+            val commanderEntityIds = mutableListOf<EntityId>()
 
             for (cardName in playerConfig.deck.cards) {
                 val cardDef = cardRegistry.requireCard(cardName)
                 val cardId = EntityId.generate()
 
-                val cardContainer = createCardEntity(cardDef, playerId)
-                state = state.withEntity(cardId, cardContainer)
+                var cardContainer = createCardEntity(cardDef, playerId)
 
-                val libraryKey = ZoneKey(playerId, Zone.LIBRARY)
-                state = state.addToZone(libraryKey, cardId)
+                val isCommanderCard = !commanderConsumed &&
+                    commanderName != null &&
+                    cardName == commanderName
+
+                if (isCommanderCard) {
+                    cardContainer = cardContainer.with(
+                        com.wingedsheep.engine.state.components.identity.CommanderComponent(ownerId = playerId)
+                    )
+                    state = state.withEntity(cardId, cardContainer)
+                    state = state.addToZone(ZoneKey(playerId, Zone.COMMAND), cardId)
+                    commanderEntityIds.add(cardId)
+                    commanderConsumed = true
+                } else {
+                    state = state.withEntity(cardId, cardContainer)
+                    state = state.addToZone(ZoneKey(playerId, Zone.LIBRARY), cardId)
+                }
+            }
+
+            if (commanderEntityIds.isNotEmpty()) {
+                state = state.updateEntity(playerId) { c ->
+                    c.with(
+                        com.wingedsheep.engine.state.components.identity.CommanderRegistryComponent(commanderEntityIds)
+                    )
+                }
             }
         }
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val BreakAsunder = card("Break Asunder") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Destroy target artifact or enchantment.\nCycling {2}"
 

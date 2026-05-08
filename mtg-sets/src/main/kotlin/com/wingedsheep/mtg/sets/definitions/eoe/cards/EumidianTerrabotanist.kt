@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val EumidianTerrabotanist = card("Eumidian Terrabotanist") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect Druid"
     power = 2
     toughness = 3

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val DeadDrop = card("Dead Drop") {
     manaCost = "{9}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)\nTarget player sacrifices two creatures."
 

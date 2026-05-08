@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val DaruHealer = card("Daru Healer") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 2

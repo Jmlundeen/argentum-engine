@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val SkirkProspector = card("Skirk Prospector") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 1
     toughness = 1

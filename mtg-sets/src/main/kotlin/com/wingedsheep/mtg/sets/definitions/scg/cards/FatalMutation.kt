@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val FatalMutation = card("Fatal Mutation") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nWhen enchanted creature is turned face up, destroy it. It can't be regenerated."
 

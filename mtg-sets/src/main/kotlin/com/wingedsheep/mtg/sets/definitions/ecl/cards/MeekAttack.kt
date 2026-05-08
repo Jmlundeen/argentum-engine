@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val MeekAttack = card("Meek Attack") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "{1}{R}: You may put a creature card with total power and toughness 5 or less from " +
         "your hand onto the battlefield. That creature gains haste. At the beginning of the next end step, " +

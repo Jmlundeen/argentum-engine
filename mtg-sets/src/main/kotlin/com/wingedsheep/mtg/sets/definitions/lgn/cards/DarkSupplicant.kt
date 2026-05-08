@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val DarkSupplicant = card("Dark Supplicant") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 1

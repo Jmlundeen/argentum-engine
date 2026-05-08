@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val EvershrikesGift = card("Evershrike's Gift") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\n" +
         "Enchanted creature gets +1/+0 and has flying.\n" +

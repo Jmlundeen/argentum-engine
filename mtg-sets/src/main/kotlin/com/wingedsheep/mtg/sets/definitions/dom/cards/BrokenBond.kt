@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val BrokenBond = card("Broken Bond") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Destroy target artifact or enchantment. You may put a land card from your hand onto the battlefield."
 

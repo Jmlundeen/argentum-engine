@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val TragicPoet = card("Tragic Poet") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human"
     power = 1
     toughness = 1

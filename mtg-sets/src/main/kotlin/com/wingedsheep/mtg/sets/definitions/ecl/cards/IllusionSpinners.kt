@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 
 val IllusionSpinners = card("Illusion Spinners") {
     manaCost = "{4}{U}"
+    colorIdentity = ""
     typeLine = "Creature — Faerie Wizard"
     power = 4
     toughness = 3

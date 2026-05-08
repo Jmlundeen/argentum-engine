@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val QuicksilverDragon = card("Quicksilver Dragon") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Dragon"
     power = 5
     toughness = 5

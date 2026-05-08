@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val HedgeMaze = card("Hedge Maze") {
     typeLine = "Land — Forest Island"
+    colorIdentity = "UG"
     oracleText = "({T}: Add {G} or {U}.)\nThis land enters tapped.\nWhen this land enters, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
 
     // Mana abilities are intrinsic from basic land types (Forest -> {G}, Island -> {U})

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val DeathPulse = card("Death Pulse") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Target creature gets -4/-4 until end of turn.\nCycling {1}{B}{B}\nWhen you cycle Death Pulse, you may have target creature get -1/-1 until end of turn."
 

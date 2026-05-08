@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.RevealFirstDrawEachTurn
  */
 val PrimitiveEtchings = card("Primitive Etchings") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "Reveal the first card you draw each turn. Whenever you reveal a creature card this way, draw a card."
 

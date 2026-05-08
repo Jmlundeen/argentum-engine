@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BlackcleaveCliffs = card("Blackcleave Cliffs") {
     typeLine = "Land"
+    colorIdentity = "BR"
     oracleText = "This land enters tapped unless you control two or fewer other lands.\n{T}: Add {B} or {R}."
 
     replacementEffect(EntersTapped(

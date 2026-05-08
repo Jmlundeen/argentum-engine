@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val ArkOfBlight = card("Ark of Blight") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{3}, {T}, Sacrifice Ark of Blight: Destroy target land."
 

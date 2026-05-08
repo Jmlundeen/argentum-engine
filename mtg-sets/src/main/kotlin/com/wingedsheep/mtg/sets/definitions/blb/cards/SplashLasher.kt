@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
  */
 val SplashLasher = card("Splash Lasher") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Frog Wizard"
     power = 3
     toughness = 3

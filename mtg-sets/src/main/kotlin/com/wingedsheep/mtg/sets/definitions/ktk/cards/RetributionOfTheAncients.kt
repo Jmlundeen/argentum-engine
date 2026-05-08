@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val RetributionOfTheAncients = card("Retribution of the Ancients") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "{B}, Remove X +1/+1 counters from among creatures you control: Target creature gets -X/-X until end of turn."
 

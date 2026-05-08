@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val ConductElectricity = card("Conduct Electricity") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Conduct Electricity deals 6 damage to target creature and 2 damage to up to one target creature token."
 

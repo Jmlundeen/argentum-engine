@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GlidediveDuo = card("Glidedive Duo") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bat Lizard"
     power = 3
     toughness = 3

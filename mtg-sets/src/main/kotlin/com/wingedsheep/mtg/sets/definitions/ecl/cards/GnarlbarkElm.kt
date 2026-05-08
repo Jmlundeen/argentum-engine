@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val GnarlbarkElm = card("Gnarlbark Elm") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Treefolk Warlock"
     power = 3
     toughness = 4

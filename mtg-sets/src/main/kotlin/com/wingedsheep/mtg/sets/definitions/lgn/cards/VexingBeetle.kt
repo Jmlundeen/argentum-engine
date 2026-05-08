@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val VexingBeetle = card("Vexing Beetle") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect"
     power = 3
     toughness = 3

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val EmptyThePits = card("Empty the Pits") {
     manaCost = "{X}{X}{B}{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)\nCreate X tapped 2/2 black Zombie creature tokens."
 

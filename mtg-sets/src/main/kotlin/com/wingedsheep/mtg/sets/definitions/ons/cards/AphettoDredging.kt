@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AphettoDredging = card("Aphetto Dredging") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Return up to three target creature cards of the creature type of your choice from your graveyard to your hand."
 

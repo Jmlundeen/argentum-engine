@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HeartPiercerBow = card("Heart-Piercer Bow") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "Whenever equipped creature attacks, Heart-Piercer Bow deals 1 damage to target creature defending player controls.\nEquip {1}"
 

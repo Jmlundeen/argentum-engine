@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
  */
 val FeedTheFlames = card("Feed the Flames") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Feed the Flames deals 5 damage to target creature. " +
         "If that creature would die this turn, exile it instead."

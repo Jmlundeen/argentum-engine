@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val DemonlordBelzenlok = card("Demonlord Belzenlok") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Elder Demon"
     power = 6
     toughness = 6

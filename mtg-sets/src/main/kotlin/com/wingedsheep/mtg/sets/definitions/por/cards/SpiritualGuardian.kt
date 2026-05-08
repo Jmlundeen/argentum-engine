@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val SpiritualGuardian = card("Spiritual Guardian") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Spirit"
     power = 3
     toughness = 4

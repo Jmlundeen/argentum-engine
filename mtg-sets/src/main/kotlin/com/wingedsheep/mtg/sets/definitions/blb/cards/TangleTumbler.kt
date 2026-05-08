@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TangleTumbler = card("Tangle Tumbler") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact — Vehicle"
     oracleText = "Vigilance\n{3}, {T}: Put a +1/+1 counter on target creature.\nTap two untapped tokens you control: This Vehicle becomes an artifact creature until end of turn."
     power = 6

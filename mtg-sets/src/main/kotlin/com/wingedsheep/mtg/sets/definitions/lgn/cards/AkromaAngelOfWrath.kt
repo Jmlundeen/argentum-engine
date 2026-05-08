@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
  */
 val AkromaAngelOfWrath = card("Akroma, Angel of Wrath") {
     manaCost = "{5}{W}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Angel"
     power = 6
     toughness = 6

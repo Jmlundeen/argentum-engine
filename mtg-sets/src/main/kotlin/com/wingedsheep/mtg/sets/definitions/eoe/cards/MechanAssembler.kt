@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val MechanAssembler = card("Mechan Assembler") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Artifact Creature — Robot Artificer"
     power = 4
     toughness = 4

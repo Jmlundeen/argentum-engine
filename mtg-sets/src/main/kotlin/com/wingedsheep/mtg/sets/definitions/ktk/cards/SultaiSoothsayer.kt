@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SultaiSoothsayer = card("Sultai Soothsayer") {
     manaCost = "{2}{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Creature — Snake Shaman"
     power = 2
     toughness = 5

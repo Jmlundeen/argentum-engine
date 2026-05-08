@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WingbeatWarrior = card("Wingbeat Warrior") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier Warrior"
     power = 2
     toughness = 1

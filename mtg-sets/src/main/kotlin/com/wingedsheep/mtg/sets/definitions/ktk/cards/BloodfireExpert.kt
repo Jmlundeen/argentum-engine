@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BloodfireExpert = card("Bloodfire Expert") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Efreet Monk"
     power = 3
     toughness = 1

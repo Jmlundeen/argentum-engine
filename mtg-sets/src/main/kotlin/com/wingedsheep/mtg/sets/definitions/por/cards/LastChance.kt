@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.TakeExtraTurnEffect
  */
 val LastChance = card("Last Chance") {
     manaCost = "{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

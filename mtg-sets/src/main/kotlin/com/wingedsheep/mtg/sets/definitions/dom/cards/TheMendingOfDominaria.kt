@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TheMendingOfDominaria = card("The Mending of Dominaria") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I, II — Mill two cards, then you may return a creature card from your graveyard to your hand.\n" +

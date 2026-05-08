@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val DimensionalBreach = card("Dimensional Breach") {
     manaCost = "{5}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Exile all permanents. For as long as any of those cards remain exiled, at the beginning of each player's upkeep, that player returns one of the exiled cards they own to the battlefield."
 

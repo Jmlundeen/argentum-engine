@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val AuntiesSentence = card("Auntie's Sentence") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Choose one —\n" +
         "• Target opponent reveals their hand. You choose a nonland permanent card from it. That player discards that card.\n" +

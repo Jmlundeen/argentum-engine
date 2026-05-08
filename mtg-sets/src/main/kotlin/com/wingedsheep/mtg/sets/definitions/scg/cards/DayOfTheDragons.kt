@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val DayOfTheDragons = card("Day of the Dragons") {
     manaCost = "{4}{U}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "When Day of the Dragons enters the battlefield, exile all creatures you control. Then create that many 5/5 red Dragon creature tokens with flying.\nWhen Day of the Dragons leaves the battlefield, sacrifice all Dragons you control. Then return the exiled cards to the battlefield under your control."
 

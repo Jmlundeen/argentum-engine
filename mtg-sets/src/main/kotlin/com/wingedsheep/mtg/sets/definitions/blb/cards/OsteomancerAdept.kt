@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantCastCreaturesFromGraveyardWith
  */
 val OsteomancerAdept = card("Osteomancer Adept") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Squirrel Warlock"
     power = 2
     toughness = 2

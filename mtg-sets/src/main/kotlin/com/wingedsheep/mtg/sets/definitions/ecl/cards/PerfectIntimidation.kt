@@ -34,6 +34,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val PerfectIntimidation = card("Perfect Intimidation") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Choose one or both —\n" +
         "• Target opponent exiles two cards from their hand.\n" +

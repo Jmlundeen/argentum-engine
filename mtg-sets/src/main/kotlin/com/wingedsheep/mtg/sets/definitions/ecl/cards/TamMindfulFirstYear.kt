@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val TamMindfulFirstYear = card("Tam, Mindful First-Year") {
     manaCost = "{1}{G/U}"
+    colorIdentity = "UG"
     typeLine = "Legendary Creature — Gorgon Wizard"
     power = 2
     toughness = 2

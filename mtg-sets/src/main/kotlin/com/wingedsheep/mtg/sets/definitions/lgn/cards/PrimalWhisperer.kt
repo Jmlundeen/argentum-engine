@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val PrimalWhisperer = card("Primal Whisperer") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Soldier"
     power = 2
     toughness = 2

@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val CuriousColossus = card("Curious Colossus") {
     manaCost = "{5}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Giant Warrior"
     power = 7
     toughness = 7

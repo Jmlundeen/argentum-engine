@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AirborneAid = card("Airborne Aid") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Draw a card for each Bird on the battlefield."
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MeltstridersGear = card("Meltstrider's Gear") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, attach it to target creature you control.\nEquipped creature gets +2/+1 and has reach.\nEquip {5} ({5}: Attach to target creature you control. Equip only as a sorcery.)"
 

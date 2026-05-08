@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
  */
 val MoonlitLamenter = card("Moonlit Lamenter") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Treefolk Cleric"
     power = 2
     toughness = 5

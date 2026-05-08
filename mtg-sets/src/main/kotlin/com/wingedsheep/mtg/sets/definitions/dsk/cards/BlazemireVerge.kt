@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val BlazemireVerge = card("Blazemire Verge") {
     typeLine = "Land"
+    colorIdentity = "BR"
     oracleText = "{T}: Add {B}.\n{T}: Add {R}. Activate only if you control a Swamp or a Mountain."
 
     activatedAbility {

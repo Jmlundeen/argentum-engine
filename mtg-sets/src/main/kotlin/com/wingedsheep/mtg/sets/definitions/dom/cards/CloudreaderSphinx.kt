@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val CloudreaderSphinx = card("Cloudreader Sphinx") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Sphinx"
     power = 3
     toughness = 4

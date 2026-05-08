@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.events.RecipientFilter
  */
 val DawnElemental = card("Dawn Elemental") {
     manaCost = "{W}{W}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Elemental"
     power = 3
     toughness = 3

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val PrimevalsGloriousRebirth = card("Primevals' Glorious Rebirth") {
     manaCost = "{5}{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Legendary Sorcery"
     oracleText = "(You may cast a legendary sorcery only if you control a legendary creature or planeswalker.)\nReturn all legendary permanent cards from your graveyard to the battlefield."
 

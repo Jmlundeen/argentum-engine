@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val StickytongueSentinel = card("Stickytongue Sentinel") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Frog Warrior"
     power = 3
     toughness = 3

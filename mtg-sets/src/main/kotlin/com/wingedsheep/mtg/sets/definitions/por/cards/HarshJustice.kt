@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
  */
 val HarshJustice = card("Harsh Justice") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
 
     spell {

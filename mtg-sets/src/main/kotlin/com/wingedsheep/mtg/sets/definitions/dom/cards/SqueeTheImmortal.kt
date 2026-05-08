@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.MayCastSelfFromZones
  */
 val SqueeTheImmortal = card("Squee, the Immortal") {
     manaCost = "{1}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Legendary Creature — Goblin"
     power = 2
     toughness = 1

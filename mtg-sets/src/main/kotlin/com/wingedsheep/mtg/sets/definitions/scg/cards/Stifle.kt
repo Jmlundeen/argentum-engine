@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Stifle = card("Stifle") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target activated or triggered ability. (Mana abilities can't be targeted.)"
 

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KazarovSengirPureblood = card("Kazarov, Sengir Pureblood") {
     manaCost = "{5}{B}{B}"
+    colorIdentity = "BR"
     typeLine = "Legendary Creature — Vampire"
     oracleText = "Flying\nWhenever a creature an opponent controls is dealt damage, put a +1/+1 counter on Kazarov, Sengir Pureblood.\n{3}{R}: Kazarov, Sengir Pureblood deals 2 damage to target creature."
     power = 4

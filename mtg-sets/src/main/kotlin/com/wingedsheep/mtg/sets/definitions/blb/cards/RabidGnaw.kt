@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val RabidGnaw = card("Rabid Gnaw") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Target creature you control gets +1/+0 until end of turn. Then it deals damage equal to its power to target creature you don't control."
 

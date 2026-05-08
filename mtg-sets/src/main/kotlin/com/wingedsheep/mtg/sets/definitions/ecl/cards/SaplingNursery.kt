@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SaplingNursery = card("Sapling Nursery") {
     manaCost = "{6}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "Affinity for Forests (This spell costs {1} less to cast for each Forest you control.)\n" +
         "Landfall — Whenever a land you control enters, create a 3/4 green Treefolk creature token with reach.\n" +

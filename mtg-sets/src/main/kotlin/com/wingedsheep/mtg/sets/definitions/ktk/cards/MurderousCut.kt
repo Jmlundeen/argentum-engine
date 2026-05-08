@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MurderousCut = card("Murderous Cut") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)\nDestroy target creature."
 

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GurmagSwiftwing = card("Gurmag Swiftwing") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bat"
     power = 1
     toughness = 2

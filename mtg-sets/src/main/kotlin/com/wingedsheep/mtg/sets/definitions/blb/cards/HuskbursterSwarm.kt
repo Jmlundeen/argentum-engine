@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.SpellCostReduction
  */
 val HuskbursterSwarm = card("Huskburster Swarm") {
     manaCost = "{7}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elemental Insect"
     power = 6
     toughness = 6

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HornedTurtle = card("Horned Turtle") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Turtle"
     power = 1
     toughness = 4

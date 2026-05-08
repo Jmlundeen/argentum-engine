@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
  */
 val Insurrection = card("Insurrection") {
     manaCost = "{5}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Untap all creatures and gain control of them until end of turn. They gain haste until end of turn."
 

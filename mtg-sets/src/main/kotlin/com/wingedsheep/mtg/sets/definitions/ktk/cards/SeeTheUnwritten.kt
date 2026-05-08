@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val SeeTheUnwritten = card("See the Unwritten") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Reveal the top eight cards of your library. You may put a creature card from among them onto the battlefield. Put the rest into your graveyard.\nFerocious — If you control a creature with power 4 or greater, you may put two creature cards onto the battlefield instead of one."
 

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
  */
 val RavenGuildInitiate = card("Raven Guild Initiate") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 4

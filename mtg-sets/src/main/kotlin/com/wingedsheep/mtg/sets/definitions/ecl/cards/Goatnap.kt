@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 val Goatnap = card("Goatnap") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Gain control of target creature until end of turn. Untap that creature. It gains haste until end of turn. If that creature is a Goat, it also gets +3/+0 until end of turn."
 

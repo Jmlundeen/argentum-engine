@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
  */
 val Wellwisher = card("Wellwisher") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 1
     toughness = 1

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
  */
 val DaruMender = card("Daru Mender") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 1

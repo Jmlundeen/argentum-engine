@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RagingCougar = card("Raging Cougar") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Cat"
     power = 2
     toughness = 2

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val ElvenCache = card("Elven Cache") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

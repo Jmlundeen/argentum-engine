@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val KrumarBondKin = card("Krumar Bond-Kin") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Orc Warrior"
     power = 5
     toughness = 3

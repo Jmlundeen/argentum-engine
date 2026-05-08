@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val RustHarvester = card("Rust Harvester") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Artifact Creature — Robot"
     oracleText = "Menace\n{2}, {T}, Exile an artifact card from your graveyard: Put a +1/+1 counter on this creature, then it deals damage equal to its power to any target."
     power = 1

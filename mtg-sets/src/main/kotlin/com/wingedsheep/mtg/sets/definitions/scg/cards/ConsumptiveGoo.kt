@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ConsumptiveGoo = card("Consumptive Goo") {
     manaCost = "{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Ooze"
     power = 1
     toughness = 1

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val WindsweptHeath = card("Windswept Heath") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}, Pay 1 life, Sacrifice Windswept Heath: Search your library for a Forest or Plains card, put it onto the battlefield, then shuffle."
 
     activatedAbility {

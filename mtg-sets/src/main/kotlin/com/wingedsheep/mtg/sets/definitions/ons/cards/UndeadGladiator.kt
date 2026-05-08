@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val UndeadGladiator = card("Undead Gladiator") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Barbarian"
     power = 3
     toughness = 1

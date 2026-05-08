@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val JosuVessLichKnight = card("Josu Vess, Lich Knight") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Legendary Creature — Zombie Knight"
     power = 4
     toughness = 5

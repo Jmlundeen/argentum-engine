@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val LluwenImperfectNaturalist = card("Lluwen, Imperfect Naturalist") {
     manaCost = "{B/G}{B/G}"
+    colorIdentity = "BG"
     typeLine = "Legendary Creature — Elf Druid"
     power = 1
     toughness = 3

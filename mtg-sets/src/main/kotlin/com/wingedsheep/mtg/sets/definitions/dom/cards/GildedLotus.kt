@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaEffect
  */
 val GildedLotus = card("Gilded Lotus") {
     manaCost = "{5}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{T}: Add three mana of any one color."
 

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val DragonMage = card("Dragon Mage") {
     manaCost = "{5}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dragon Wizard"
     power = 5
     toughness = 5

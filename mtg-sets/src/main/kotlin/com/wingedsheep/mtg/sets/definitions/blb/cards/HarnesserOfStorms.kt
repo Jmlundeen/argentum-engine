@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HarnesserOfStorms = card("Harnesser of Storms") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Otter Wizard"
     power = 1
     toughness = 4

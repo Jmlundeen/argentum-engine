@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AvenFateshaper = card("Aven Fateshaper") {
     manaCost = "{6}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Wizard"
     power = 4
     toughness = 5

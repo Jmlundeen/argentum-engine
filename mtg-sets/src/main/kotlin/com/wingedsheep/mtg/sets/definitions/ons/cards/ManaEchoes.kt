@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val ManaEchoes = card("Mana Echoes") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "Whenever a creature enters, you may add an amount of {C} equal to the number of creatures you control that share a creature type with it."
 

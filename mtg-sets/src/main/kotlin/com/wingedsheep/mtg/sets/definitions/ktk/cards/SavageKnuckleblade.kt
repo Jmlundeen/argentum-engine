@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SavageKnuckleblade = card("Savage Knuckleblade") {
     manaCost = "{G}{U}{R}"
+    colorIdentity = "URG"
     typeLine = "Creature — Ogre Warrior"
     oracleText = "{2}{G}: This creature gets +2/+2 until end of turn. Activate only once each turn.\n{2}{U}: Return this creature to its owner's hand.\n{R}: This creature gains haste until end of turn."
     power = 4

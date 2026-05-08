@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val WirewoodElf = card("Wirewood Elf") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 1
     toughness = 2

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CrossroadsWatcher = card("Crossroads Watcher") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Kithkin Ranger"
     power = 3
     toughness = 3

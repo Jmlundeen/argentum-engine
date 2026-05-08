@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val ArcaneFlight = card("Arcane Flight") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +1/+1 and has flying."
 

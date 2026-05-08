@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SharedTriumph = card("Shared Triumph") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "As Shared Triumph enters the battlefield, choose a creature type.\nCreatures of the chosen type get +1/+1."
 

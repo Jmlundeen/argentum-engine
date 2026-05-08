@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val NantukoVigilante = card("Nantuko Vigilante") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect Druid Mutant"
     power = 3
     toughness = 2

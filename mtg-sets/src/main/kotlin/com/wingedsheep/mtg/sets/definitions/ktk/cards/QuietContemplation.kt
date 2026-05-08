@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val QuietContemplation = card("Quiet Contemplation") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "Whenever you cast a noncreature spell, you may pay {1}. If you do, tap target creature an opponent controls. It doesn't untap during its controller's next untap step."
 

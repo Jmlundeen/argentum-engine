@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ThundertrapTrainer = card("Thundertrap Trainer") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Otter Wizard"
     power = 1
     toughness = 2

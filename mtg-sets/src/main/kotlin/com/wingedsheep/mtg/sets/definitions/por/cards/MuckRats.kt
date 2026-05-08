@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MuckRats = card("Muck Rats") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Rat"
     power = 1
     toughness = 1

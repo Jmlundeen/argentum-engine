@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val TrystansCommand = card("Trystan's Command") {
     manaCost = "{4}{B}{G}"
+    colorIdentity = ""
     typeLine = "Kindred Sorcery — Elf"
     oracleText = "Choose two —\n" +
             "• Create a token that's a copy of target Elf you control.\n" +

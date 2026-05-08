@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FieryIntervention = card("Fiery Intervention") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Choose one —\n• Fiery Intervention deals 5 damage to target creature.\n• Destroy target artifact."
 

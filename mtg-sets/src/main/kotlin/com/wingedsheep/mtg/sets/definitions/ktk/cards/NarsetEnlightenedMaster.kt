@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val NarsetEnlightenedMaster = card("Narset, Enlightened Master") {
     manaCost = "{3}{U}{R}{W}"
+    colorIdentity = "WUR"
     typeLine = "Legendary Creature — Human Monk"
     oracleText = "First strike, hexproof\nWhenever Narset, Enlightened Master attacks, exile the top four cards of your library. Until end of turn, you may cast noncreature, nonland cards from among those cards without paying their mana costs."
     power = 3

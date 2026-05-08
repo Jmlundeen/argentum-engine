@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val WretchedAnurid = card("Wretched Anurid") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Frog Beast"
     power = 3
     toughness = 3

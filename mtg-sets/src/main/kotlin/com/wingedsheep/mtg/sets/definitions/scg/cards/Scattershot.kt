@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Scattershot = card("Scattershot") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Scattershot deals 1 damage to target creature.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 

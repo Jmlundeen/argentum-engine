@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val EssenceFracture = card("Essence Fracture") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Return two target creatures to their owners' hands.\nCycling {2}{U}"
 

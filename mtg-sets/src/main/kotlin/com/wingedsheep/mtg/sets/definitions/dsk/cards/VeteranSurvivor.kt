@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val VeteranSurvivor = card("Veteran Survivor") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Survivor"
     power = 2
     toughness = 1

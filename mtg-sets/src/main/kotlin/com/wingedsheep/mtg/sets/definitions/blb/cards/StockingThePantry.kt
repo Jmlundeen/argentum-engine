@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val StockingThePantry = card("Stocking the Pantry") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment"
     oracleText = "Whenever you put one or more +1/+1 counters on a creature you control, " +
         "put a supply counter on this enchantment.\n" +

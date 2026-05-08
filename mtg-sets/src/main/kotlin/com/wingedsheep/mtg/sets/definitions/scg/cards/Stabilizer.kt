@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.PreventCycling
  */
 val Stabilizer = card("Stabilizer") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "Players can't cycle cards."
 

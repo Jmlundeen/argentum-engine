@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.CounterEffect
  */
 val Discombobulate = card("Discombobulate") {
     manaCost = "{2}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell. Look at the top four cards of your library, then put them back in any order."
 

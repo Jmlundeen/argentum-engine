@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SlinnVodaTheRisingDeep = card("Slinn Voda, the Rising Deep") {
     manaCost = "{6}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Leviathan"
     power = 8
     toughness = 8

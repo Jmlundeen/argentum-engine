@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val LumenClassFrigate = card("Lumen-Class Frigate") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Artifact — Spacecraft"
     power = 3
     toughness = 5

@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val SugarCoat = card("Sugar Coat") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Flash\nEnchant creature or Food\nEnchanted permanent is a colorless Food artifact with \"{2}, {T}, Sacrifice this artifact: You gain 3 life\" and loses all other card types and abilities."
 

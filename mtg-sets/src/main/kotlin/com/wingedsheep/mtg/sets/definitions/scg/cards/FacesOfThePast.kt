@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val FacesOfThePast = card("Faces of the Past") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "Whenever a creature dies, tap all untapped creatures that share a creature type with it or untap all tapped creatures that share a creature type with it."
 

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val DivergentGrowth = card("Divergent Growth") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Until end of turn, lands you control gain \"{T}: Add one mana of any color.\""
 

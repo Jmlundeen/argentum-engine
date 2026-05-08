@@ -46,6 +46,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val TasterOfWares = card("Taster of Wares") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Goblin Warlock"
     power = 3
     toughness = 2

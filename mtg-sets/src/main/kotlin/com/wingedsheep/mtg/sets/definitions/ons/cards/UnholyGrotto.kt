@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val UnholyGrotto = card("Unholy Grotto") {
     typeLine = "Land"
+    colorIdentity = "B"
     oracleText = "{T}: Add {C}.\n{B}, {T}: Put target Zombie card from your graveyard on top of your library."
 
     activatedAbility {

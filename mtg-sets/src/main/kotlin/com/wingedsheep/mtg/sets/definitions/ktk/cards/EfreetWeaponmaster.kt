@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val EfreetWeaponmaster = card("Efreet Weaponmaster") {
     manaCost = "{3}{U}{R}{W}"
+    colorIdentity = "WUR"
     typeLine = "Creature — Efreet Monk"
     power = 4
     toughness = 3

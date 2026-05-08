@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val DaringWaverider = card("Daring Waverider") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Otter Wizard"
     power = 4
     toughness = 4

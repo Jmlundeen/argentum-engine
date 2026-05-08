@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val SulfurFalls = card("Sulfur Falls") {
     typeLine = "Land"
+    colorIdentity = "UR"
     oracleText = "This land enters tapped unless you control an Island or a Mountain.\n{T}: Add {U} or {R}."
 
     replacementEffect(EntersTapped(

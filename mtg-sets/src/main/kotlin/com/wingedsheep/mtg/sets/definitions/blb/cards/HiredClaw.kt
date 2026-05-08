@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val HiredClaw = card("Hired Claw") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Lizard Mercenary"
     oracleText = "Whenever you attack with one or more Lizards, this creature deals 1 damage to target opponent.\n{1}{R}: Put a +1/+1 counter on this creature. Activate only if an opponent lost life this turn and only once each turn."
     power = 1

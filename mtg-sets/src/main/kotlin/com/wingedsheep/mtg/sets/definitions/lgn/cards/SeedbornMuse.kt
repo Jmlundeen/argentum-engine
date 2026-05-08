@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.UntapDuringOtherUntapSteps
  */
 val SeedbornMuse = card("Seedborn Muse") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Spirit"
     power = 2
     toughness = 4

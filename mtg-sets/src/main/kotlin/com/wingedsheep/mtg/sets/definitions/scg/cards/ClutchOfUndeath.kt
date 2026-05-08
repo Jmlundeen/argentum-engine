@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.conditions.EnchantedCreatureHasSubtype
  */
 val ClutchOfUndeath = card("Clutch of Undeath") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +3/+3 as long as it's a Zombie. Otherwise, it gets -3/-3."
 

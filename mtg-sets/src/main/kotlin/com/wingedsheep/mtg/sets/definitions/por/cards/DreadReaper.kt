@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
  */
 val DreadReaper = card("Dread Reaper") {
     manaCost = "{3}{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Horror"
     power = 6
     toughness = 5

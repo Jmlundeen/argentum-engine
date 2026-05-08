@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val CloakOfFeathers = card("Cloak of Feathers") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

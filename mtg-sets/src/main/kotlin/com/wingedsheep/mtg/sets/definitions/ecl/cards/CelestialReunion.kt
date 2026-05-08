@@ -45,6 +45,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val CelestialReunion = card("Celestial Reunion") {
     manaCost = "{X}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, you may choose a creature type and " +
         "behold two creatures of that type.\n" +

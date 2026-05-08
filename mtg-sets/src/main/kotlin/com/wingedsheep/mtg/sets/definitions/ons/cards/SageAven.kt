@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SageAven = card("Sage Aven") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Wizard"
     power = 1
     toughness = 3

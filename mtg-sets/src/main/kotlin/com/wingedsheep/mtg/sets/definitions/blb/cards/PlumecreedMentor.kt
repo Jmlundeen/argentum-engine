@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val PlumecreedMentor = card("Plumecreed Mentor") {
     manaCost = "{1}{W}{U}"
+    colorIdentity = "WU"
     typeLine = "Creature — Bird Scout"
     oracleText = "Flying\nWhenever this creature or another creature you control with flying enters, " +
         "put a +1/+1 counter on target creature you control without flying."

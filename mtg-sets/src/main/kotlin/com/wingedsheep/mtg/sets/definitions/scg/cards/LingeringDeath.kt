@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val LingeringDeath = card("Lingering Death") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nAt the beginning of the end step of enchanted creature's controller, that player sacrifices that creature."
 

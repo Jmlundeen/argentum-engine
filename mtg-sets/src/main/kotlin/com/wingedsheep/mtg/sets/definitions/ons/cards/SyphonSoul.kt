@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val SyphonSoul = card("Syphon Soul") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Syphon Soul deals 2 damage to each other player. You gain life equal to the damage dealt this way."
 

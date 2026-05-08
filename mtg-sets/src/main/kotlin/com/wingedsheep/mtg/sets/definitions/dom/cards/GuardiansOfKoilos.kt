@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 val GuardiansOfKoilos = card("Guardians of Koilos") {
     manaCost = "{5}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Construct"
     oracleText = "When Guardians of Koilos enters the battlefield, you may return another target historic permanent you control to its owner's hand. (Artifacts, legendaries, and Sagas are historic.)"
     power = 4

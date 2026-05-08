@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
  */
 val RighteousCause = card("Righteous Cause") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "Whenever a creature attacks, you gain 1 life."
 

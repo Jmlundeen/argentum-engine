@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val MindKnives = card("Mind Knives") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.core.Zone
  */
 val Cryoshatter = card("Cryoshatter") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets -5/-0.\nWhen enchanted creature becomes tapped or is dealt damage, destroy it."
 

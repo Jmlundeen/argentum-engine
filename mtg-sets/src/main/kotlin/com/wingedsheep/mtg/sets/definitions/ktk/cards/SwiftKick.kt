@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SwiftKick = card("Swift Kick") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Target creature you control gets +1/+0 until end of turn. It fights target creature you don't control."
 

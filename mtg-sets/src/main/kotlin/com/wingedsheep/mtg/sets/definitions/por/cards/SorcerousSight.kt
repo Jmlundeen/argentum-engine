@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val SorcerousSight = card("Sorcerous Sight") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

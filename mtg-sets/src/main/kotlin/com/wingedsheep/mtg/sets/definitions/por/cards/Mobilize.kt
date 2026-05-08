@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
  */
 val Mobilize = card("Mobilize") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val PulsarSquadronAce = card("Pulsar Squadron Ace") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Pilot"
     power = 1
     toughness = 2

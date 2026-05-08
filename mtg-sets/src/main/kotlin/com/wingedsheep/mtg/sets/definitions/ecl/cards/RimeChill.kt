@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val RimeChill = card("Rime Chill") {
     manaCost = "{6}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Vivid — This spell costs {1} less to cast for each color among permanents you control.\n" +
             "Tap up to two target creatures. Put a stun counter on each of them. (If a permanent with a stun counter " +

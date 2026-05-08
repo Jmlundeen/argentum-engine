@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BristlebaneOutrider = card("Bristlebane Outrider") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Kithkin Knight"
     power = 3
     toughness = 5

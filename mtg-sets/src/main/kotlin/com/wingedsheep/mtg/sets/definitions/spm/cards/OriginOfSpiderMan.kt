@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
  */
 val OriginOfSpiderMan = card("Origin of Spider-Man") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I — Create a 2/1 green Spider creature token with reach.\n" +

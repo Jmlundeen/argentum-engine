@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ManaRestriction
  */
 val VodalianArcanist = card("Vodalian Arcanist") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Wizard"
     power = 1
     toughness = 3

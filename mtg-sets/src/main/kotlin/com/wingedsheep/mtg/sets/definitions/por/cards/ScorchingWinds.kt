@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
  */
 val ScorchingWinds = card("Scorching Winds") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
 
     spell {

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Standardize = card("Standardize") {
     manaCost = "{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Choose a creature type other than Wall. Each creature becomes that type until end of turn."
 

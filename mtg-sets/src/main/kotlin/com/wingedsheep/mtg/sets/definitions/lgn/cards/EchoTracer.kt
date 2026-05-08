@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val EchoTracer = card("Echo Tracer") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard"
     power = 2
     toughness = 2

@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val SidisiBroodTyrant = card("Sidisi, Brood Tyrant") {
     manaCost = "{1}{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Legendary Creature — Snake Shaman"
     power = 3
     toughness = 3

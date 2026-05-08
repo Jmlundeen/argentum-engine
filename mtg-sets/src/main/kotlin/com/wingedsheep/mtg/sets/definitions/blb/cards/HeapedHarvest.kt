@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val HeapedHarvest = card("Heaped Harvest") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Artifact — Food"
     oracleText = "When this artifact enters and when you sacrifice it, you may search your library " +
         "for a basic land card, put it onto the battlefield tapped, then shuffle.\n" +

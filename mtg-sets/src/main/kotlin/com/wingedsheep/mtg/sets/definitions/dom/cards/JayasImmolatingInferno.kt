@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val JayasImmolatingInferno = card("Jaya's Immolating Inferno") {
     manaCost = "{X}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Legendary Sorcery"
     oracleText = "(You may cast a legendary sorcery only if you control a legendary creature or planeswalker.)\nJaya's Immolating Inferno deals X damage to each of up to three targets."
 

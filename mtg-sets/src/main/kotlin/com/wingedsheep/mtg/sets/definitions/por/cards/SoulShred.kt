@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SoulShred = card("Soul Shred") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

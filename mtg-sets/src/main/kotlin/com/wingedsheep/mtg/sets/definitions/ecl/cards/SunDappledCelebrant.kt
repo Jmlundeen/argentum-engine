@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SunDappledCelebrant = card("Sun-Dappled Celebrant") {
     manaCost = "{4}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Treefolk Cleric"
     power = 5
     toughness = 6

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SurrakDragonclaw = card("Surrak Dragonclaw") {
     manaCost = "{2}{G}{U}{R}"
+    colorIdentity = "URG"
     typeLine = "Legendary Creature — Human Warrior"
     power = 6
     toughness = 6

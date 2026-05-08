@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.Effects
  */
 val ShieldmageElder = card("Shieldmage Elder") {
     manaCost = "{5}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric Wizard"
     power = 2
     toughness = 3

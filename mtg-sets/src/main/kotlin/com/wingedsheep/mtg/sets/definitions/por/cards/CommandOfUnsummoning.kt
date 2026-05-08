@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val CommandOfUnsummoning = card("Command of Unsummoning") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
 
     spell {

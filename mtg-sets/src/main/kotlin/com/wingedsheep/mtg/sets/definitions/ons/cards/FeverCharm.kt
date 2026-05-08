@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val FeverCharm = card("Fever Charm") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Target creature gains haste until end of turn.\n• Target creature gets +2/+0 until end of turn.\n• Fever Charm deals 3 damage to target Wizard creature."
 

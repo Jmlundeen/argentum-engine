@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TheFirstEruption = card("The First Eruption") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I — This Saga deals 1 damage to each creature without flying.\n" +

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.SpellCostReduction
  */
 val PearlOfWisdom = card("Pearl of Wisdom") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "This spell costs {1} less to cast if you control an Otter.\nDraw two cards."
 

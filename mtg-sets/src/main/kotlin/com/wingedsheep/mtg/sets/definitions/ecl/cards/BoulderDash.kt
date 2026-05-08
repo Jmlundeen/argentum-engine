@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOther
  */
 val BoulderDash = card("Boulder Dash") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Boulder Dash deals 2 damage to any target and 1 damage to any other target."
 

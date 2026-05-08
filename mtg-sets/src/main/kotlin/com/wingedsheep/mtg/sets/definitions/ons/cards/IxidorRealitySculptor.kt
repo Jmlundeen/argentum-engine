@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val IxidorRealitySculptor = card("Ixidor, Reality Sculptor") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Human Wizard"
     power = 3
     toughness = 4

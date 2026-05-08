@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
  */
 val UrzasTome = card("Urza's Tome") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{3}, {T}: Draw a card. Then discard a card unless you exile a historic card from your graveyard."
 

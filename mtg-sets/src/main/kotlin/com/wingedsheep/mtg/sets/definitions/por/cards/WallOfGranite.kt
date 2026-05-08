@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WallOfGranite = card("Wall of Granite") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Wall"
     power = 0
     toughness = 7

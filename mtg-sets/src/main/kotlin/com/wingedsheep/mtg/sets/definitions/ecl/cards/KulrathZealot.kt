@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val KulrathZealot = card("Kulrath Zealot") {
     manaCost = "{5}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Warrior"
     power = 6
     toughness = 5

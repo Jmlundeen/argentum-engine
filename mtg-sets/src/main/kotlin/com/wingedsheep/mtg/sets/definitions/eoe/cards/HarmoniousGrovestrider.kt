@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val HarmoniousGrovestrider = card("Harmonious Grovestrider") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     dynamicStats(
         DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land).count()

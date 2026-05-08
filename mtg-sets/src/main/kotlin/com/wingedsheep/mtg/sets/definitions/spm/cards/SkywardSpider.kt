@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
  */
 val SkywardSpider = card("Skyward Spider") {
     manaCost = "{W/U}{W/U}"
+    colorIdentity = "WU"
     typeLine = "Creature — Spider Human Hero"
     power = 2
     toughness = 2

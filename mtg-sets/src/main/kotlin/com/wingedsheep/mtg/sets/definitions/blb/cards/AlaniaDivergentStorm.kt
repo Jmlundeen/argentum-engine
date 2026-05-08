@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val AlaniaDivergentStorm = card("Alania, Divergent Storm") {
     manaCost = "{3}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Legendary Creature — Otter Wizard"
     oracleText = "Whenever you cast a spell, if it's the first instant spell, the first sorcery spell, or the first Otter spell other than Alania you've cast this turn, you may have target opponent draw a card. If you do, copy that spell. You may choose new targets for the copy."
     power = 3

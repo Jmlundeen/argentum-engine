@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RimefireTorque = card("Rimefire Torque") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Artifact"
     oracleText = "As Rimefire Torque enters, choose a creature type.\n" +
             "Whenever a permanent you control of the chosen type enters, put a charge counter on Rimefire Torque.\n" +

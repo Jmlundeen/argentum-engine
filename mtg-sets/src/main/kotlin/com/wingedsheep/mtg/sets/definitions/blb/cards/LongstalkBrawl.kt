@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val LongstalkBrawl = card("Longstalk Brawl") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Gift a tapped Fish (You may promise an opponent a gift as you cast this spell. If you do, they create a tapped 1/1 blue Fish creature token before its other effects.)\nChoose target creature you control and target creature you don't control. Put a +1/+1 counter on the creature you control if the gift was promised. Then those creatures fight each other."
 

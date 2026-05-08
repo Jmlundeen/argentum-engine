@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val SerraDisciple = card("Serra Disciple") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Cleric"
     power = 1
     toughness = 1

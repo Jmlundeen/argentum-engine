@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val DanithaCapashenParagon = card("Danitha Capashen, Paragon") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Human Knight"
     power = 2
     toughness = 2

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val DundoolinWeaver = card("Dundoolin Weaver") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Kithkin Druid"
     power = 2
     toughness = 1

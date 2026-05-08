@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val Boneknitter = card("Boneknitter") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Cleric"
     power = 1
     toughness = 1

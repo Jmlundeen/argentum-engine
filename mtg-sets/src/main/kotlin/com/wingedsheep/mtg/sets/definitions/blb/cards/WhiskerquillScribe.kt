@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val WhiskerquillScribe = card("Whiskerquill Scribe") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Mouse Citizen"
     oracleText = "Valiant — Whenever this creature becomes the target of a spell or ability you control for the first time each turn, you may discard a card. If you do, draw a card."
     power = 2

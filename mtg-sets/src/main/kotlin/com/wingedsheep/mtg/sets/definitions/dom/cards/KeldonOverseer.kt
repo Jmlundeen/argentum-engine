@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
  */
 val KeldonOverseer = card("Keldon Overseer") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Warrior"
     power = 3
     toughness = 1

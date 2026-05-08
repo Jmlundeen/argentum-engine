@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val LethalVapors = card("Lethal Vapors") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "Whenever a creature enters, destroy it.\n{0}: Destroy Lethal Vapors. You skip your next turn. Any player may activate this ability."
 

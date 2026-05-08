@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val SusurianDirgecraft = card("Susurian Dirgecraft") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Artifact — Spacecraft"
     power = 4
     toughness = 3

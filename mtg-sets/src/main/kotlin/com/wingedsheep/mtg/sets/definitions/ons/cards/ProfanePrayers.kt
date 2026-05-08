@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.AnyTarget
  */
 val ProfanePrayers = card("Profane Prayers") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Profane Prayers deals X damage to any target and you gain X life, where X is the number of Clerics on the battlefield."
 

@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Lizard Warlock"
     power = 2
     toughness = 2

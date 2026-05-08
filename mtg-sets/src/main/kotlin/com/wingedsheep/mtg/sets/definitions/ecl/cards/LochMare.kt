@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
  */
 val LochMare = card("Loch Mare") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Horse Serpent"
     power = 4
     toughness = 5

@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HonoredDreyleader = card("Honored Dreyleader") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Squirrel Warrior"
     power = 1
     toughness = 1

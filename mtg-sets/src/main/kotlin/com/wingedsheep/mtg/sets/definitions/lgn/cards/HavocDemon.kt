@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val HavocDemon = card("Havoc Demon") {
     manaCost = "{5}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Demon"
     power = 5
     toughness = 5

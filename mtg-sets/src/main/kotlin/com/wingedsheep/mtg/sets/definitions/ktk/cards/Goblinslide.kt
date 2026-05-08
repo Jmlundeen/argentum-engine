@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  */
 val Goblinslide = card("Goblinslide") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment"
     oracleText = "Whenever you cast a noncreature spell, you may pay {1}. If you do, create a 1/1 red Goblin creature token with haste."
 

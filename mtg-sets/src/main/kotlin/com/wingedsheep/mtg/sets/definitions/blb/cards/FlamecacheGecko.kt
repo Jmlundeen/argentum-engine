@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FlamecacheGecko = card("Flamecache Gecko") {
     manaCost = "{1}{R}"
+    colorIdentity = "BR"
     typeLine = "Creature — Lizard Warlock"
     power = 2
     toughness = 2

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val GempalmSorcerer = card("Gempalm Sorcerer") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Human Wizard Sorcerer"
     oracleText = "Cycling {2}{U}\nWhen you cycle Gempalm Sorcerer, Wizard creatures gain flying until end of turn."
     power = 2

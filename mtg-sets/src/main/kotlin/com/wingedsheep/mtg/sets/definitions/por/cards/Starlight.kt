@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val Starlight = card("Starlight") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

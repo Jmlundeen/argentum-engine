@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val ElvishPathcutter = card("Elvish Pathcutter") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Scout"
     power = 1
     toughness = 2

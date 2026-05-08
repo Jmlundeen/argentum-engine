@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ZurgoHelmsmasher = card("Zurgo Helmsmasher") {
     manaCost = "{2}{R}{W}{B}"
+    colorIdentity = "WBR"
     typeLine = "Legendary Creature — Orc Warrior"
     power = 7
     toughness = 2

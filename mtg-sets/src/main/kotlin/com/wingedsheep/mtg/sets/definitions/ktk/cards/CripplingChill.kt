@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val CripplingChill = card("Crippling Chill") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Tap target creature. It doesn't untap during its controller's next untap step.\nDraw a card."
 

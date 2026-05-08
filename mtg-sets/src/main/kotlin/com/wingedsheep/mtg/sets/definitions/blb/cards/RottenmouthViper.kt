@@ -36,6 +36,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RottenmouthViper = card("Rottenmouth Viper") {
     manaCost = "{5}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elemental Snake"
     power = 6
     toughness = 6

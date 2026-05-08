@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.Duration
  */
 val FrontlineStrategist = card("Frontline Strategist") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 1
     toughness = 1

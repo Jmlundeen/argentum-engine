@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val EmbermageGoblin = card("Embermage Goblin") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Wizard"
     power = 1
     toughness = 1

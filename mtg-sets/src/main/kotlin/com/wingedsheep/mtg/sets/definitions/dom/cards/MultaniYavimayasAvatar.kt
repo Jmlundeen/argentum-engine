@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MultaniYavimayasAvatar = card("Multani, Yavimaya's Avatar") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Legendary Creature — Elemental Avatar"
     power = 0
     toughness = 0

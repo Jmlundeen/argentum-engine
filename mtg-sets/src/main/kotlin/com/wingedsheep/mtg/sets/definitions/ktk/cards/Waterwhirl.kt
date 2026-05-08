@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val Waterwhirl = card("Waterwhirl") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Return up to two target creatures to their owners' hands."
 

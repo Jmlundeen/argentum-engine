@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HealingGrace = card("Healing Grace") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Prevent the next 3 damage that would be dealt to any target this turn by a source of your choice. You gain 3 life."
 

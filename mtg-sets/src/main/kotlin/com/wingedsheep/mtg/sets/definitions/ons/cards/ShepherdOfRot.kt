@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val ShepherdOfRot = card("Shepherd of Rot") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Cleric"
     power = 1
     toughness = 1

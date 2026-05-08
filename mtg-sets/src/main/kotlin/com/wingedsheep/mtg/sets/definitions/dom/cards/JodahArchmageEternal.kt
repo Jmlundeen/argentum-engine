@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GrantAlternativeCastingCost
  */
 val JodahArchmageEternal = card("Jodah, Archmage Eternal") {
     manaCost = "{1}{U}{R}{W}"
+    colorIdentity = "WUBRG"
     typeLine = "Legendary Creature — Human Wizard"
     power = 4
     toughness = 3

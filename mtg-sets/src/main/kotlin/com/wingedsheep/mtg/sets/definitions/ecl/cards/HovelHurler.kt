@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val HovelHurler = card("Hovel Hurler") {
     manaCost = "{3}{R/W}{R/W}"
+    colorIdentity = "WR"
     typeLine = "Creature — Giant Warrior"
     power = 6
     toughness = 7

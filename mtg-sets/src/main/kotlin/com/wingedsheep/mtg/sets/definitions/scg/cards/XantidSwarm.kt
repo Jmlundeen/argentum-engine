@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val XantidSwarm = card("Xantid Swarm") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect"
     oracleText = "Flying\nWhenever Xantid Swarm attacks, defending player can't cast spells this turn."
     power = 0

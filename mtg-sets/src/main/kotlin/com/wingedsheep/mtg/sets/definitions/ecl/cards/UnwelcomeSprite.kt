@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val UnwelcomeSprite = card("Unwelcome Sprite") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Faerie Rogue"
     power = 2
     toughness = 1

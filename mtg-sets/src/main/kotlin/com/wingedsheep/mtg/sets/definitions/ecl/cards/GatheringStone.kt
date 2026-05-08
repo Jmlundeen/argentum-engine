@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GatheringStone = card("Gathering Stone") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "As this artifact enters, choose a creature type.\n" +
         "Spells you cast of the chosen type cost {1} less to cast.\n" +

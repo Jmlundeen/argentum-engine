@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.PlayFromTopOfLibrary
  */
 val FutureSight = card("Future Sight") {
     manaCost = "{2}{U}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Enchantment"
     oracleText = "Play with the top card of your library revealed.\nYou may play lands and cast spells from the top of your library."
 

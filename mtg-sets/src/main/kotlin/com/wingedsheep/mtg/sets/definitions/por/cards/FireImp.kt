@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val FireImp = card("Fire Imp") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Imp"
     power = 2
     toughness = 1

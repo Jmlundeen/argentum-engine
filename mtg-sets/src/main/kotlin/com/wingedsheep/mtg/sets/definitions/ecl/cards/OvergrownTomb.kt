@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val OvergrownTomb = card("Overgrown Tomb") {
     typeLine = "Land — Swamp Forest"
+    colorIdentity = "BG"
     oracleText = "({T}: Add {B} or {G}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 
     // Mana abilities are intrinsic from basic land types (Swamp → {B}, Forest → {G})

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Clickslither = card("Clickslither") {
     manaCost = "{1}{R}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Insect"
     power = 3
     toughness = 3

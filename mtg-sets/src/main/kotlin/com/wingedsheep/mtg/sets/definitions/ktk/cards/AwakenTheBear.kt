@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val AwakenTheBear = card("Awaken the Bear") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Target creature gets +3/+3 and gains trample until end of turn."
 

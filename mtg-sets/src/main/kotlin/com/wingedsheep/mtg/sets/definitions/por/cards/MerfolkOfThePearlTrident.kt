@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MerfolkOfThePearlTrident = card("Merfolk of the Pearl Trident") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk"
     power = 1
     toughness = 1

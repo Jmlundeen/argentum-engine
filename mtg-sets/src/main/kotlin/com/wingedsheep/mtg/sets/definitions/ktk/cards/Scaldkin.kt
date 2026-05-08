@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Scaldkin = card("Scaldkin") {
     manaCost = "{3}{U}"
+    colorIdentity = "UR"
     typeLine = "Creature — Elemental"
     power = 2
     toughness = 2

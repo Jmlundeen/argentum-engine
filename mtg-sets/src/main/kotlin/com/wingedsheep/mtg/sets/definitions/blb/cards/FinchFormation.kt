@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val FinchFormation = card("Finch Formation") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Scout"
     power = 2
     toughness = 2

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
  */
 val WateryGrave = card("Watery Grave") {
     manaCost = ""
+    colorIdentity = "UB"
     typeLine = "Land — Island Swamp"
     oracleText = "({T}: Add {U} or {B}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped."
 

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val FleetingAven = card("Fleeting Aven") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Wizard"
     power = 2
     toughness = 2

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PeerPressure = card("Peer Pressure") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Choose a creature type. If you control more creatures of that type than each other player, you gain control of all creatures of that type. (This effect lasts indefinitely.)"
 

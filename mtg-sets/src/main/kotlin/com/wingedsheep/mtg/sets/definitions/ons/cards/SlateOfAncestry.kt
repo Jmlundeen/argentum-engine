@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val SlateOfAncestry = card("Slate of Ancestry") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{4}, {T}, Discard your hand: Draw a card for each creature you control."
 

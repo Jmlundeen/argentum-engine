@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val AdagiaWindsweptBastion = card("Adagia, Windswept Bastion") {
     typeLine = "Land — Planet"
+    colorIdentity = "W"
     oracleText = "This land enters tapped.\n" +
         "{T}: Add {W}.\n" +
         "Station (Tap another creature you control: Put charge counters equal to its power on this Planet. Station only as a sorcery.)\n" +

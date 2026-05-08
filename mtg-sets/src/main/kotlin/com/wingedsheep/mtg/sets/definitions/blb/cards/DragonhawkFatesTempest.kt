@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val DragonhawkFatesTempest = card("Dragonhawk, Fate's Tempest") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Legendary Creature — Bird Dragon"
     oracleText = "Flying\nWhenever Dragonhawk enters or attacks, exile the top X cards of your library, where X is the number of creatures you control with power 4 or greater. You may play those cards until your next end step. At the beginning of your next end step, Dragonhawk deals 2 damage to each opponent for each of those cards that are still exiled."
     power = 5

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
  */
 val TribalGolem = card("Tribal Golem") {
     manaCost = "{6}"
+    colorIdentity = "B"
     typeLine = "Artifact Creature — Golem"
     power = 4
     toughness = 4

@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val Aurification = card("Aurification") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "Whenever a creature deals damage to you, put a gold counter on it.\nEach creature with a gold counter on it is a Wall in addition to its other creature types and has defender. (Those creatures can't attack.)\nWhen this enchantment leaves the battlefield, remove all gold counters from all creatures."
 

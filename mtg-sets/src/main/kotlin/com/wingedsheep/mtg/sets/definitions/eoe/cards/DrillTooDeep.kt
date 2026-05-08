@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val DrillTooDeep = card("Drill Too Deep") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Put five charge counters on target Spacecraft or Planet you control.\n• Destroy target artifact."
 

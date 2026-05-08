@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val SeasonedMarshal = card("Seasoned Marshal") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 2

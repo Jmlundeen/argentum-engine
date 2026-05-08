@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val Annul = card("Annul") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target artifact or enchantment spell."
 

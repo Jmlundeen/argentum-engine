@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val AncientOoze = card("Ancient Ooze") {
     manaCost = "{5}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Ooze"
     oracleText = "Ancient Ooze's power and toughness are each equal to the total mana value of other creatures you control."
 

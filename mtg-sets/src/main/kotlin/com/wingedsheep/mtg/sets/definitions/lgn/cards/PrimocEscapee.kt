@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val PrimocEscapee = card("Primoc Escapee") {
     manaCost = "{6}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Beast"
     power = 4
     toughness = 4

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val CanopyCrawler = card("Canopy Crawler") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 2
     toughness = 2

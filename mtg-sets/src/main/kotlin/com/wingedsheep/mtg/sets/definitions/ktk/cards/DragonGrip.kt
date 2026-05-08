@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val DragonGrip = card("Dragon Grip") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Aura"
     oracleText = "Ferocious — If you control a creature with power 4 or greater, you may cast this spell as though it had flash.\nEnchant creature\nEnchanted creature gets +2/+0 and has first strike."
 

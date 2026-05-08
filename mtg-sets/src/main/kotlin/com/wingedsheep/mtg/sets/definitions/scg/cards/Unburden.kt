@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val Unburden = card("Unburden") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target player discards two cards.\nCycling {2}"
 

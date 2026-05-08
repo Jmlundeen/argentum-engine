@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val SergeantAtArms = card("Sergeant-at-Arms") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 2
     toughness = 3

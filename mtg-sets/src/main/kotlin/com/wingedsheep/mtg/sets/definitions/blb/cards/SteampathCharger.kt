@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
  */
 val SteampathCharger = card("Steampath Charger") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Lizard Warlock"
     power = 2
     toughness = 1

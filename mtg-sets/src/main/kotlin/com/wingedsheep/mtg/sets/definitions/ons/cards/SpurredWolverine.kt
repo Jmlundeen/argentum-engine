@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val SpurredWolverine = card("Spurred Wolverine") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Wolverine Beast"
     power = 3
     toughness = 2

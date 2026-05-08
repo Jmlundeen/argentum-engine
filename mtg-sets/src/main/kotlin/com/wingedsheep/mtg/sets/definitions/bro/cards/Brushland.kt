@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Brushland = card("Brushland") {
     typeLine = "Land"
+    colorIdentity = "WG"
     oracleText = "{T}: Add {C}.\n{T}: Add {G} or {W}. This land deals 1 damage to you."
 
     activatedAbility {

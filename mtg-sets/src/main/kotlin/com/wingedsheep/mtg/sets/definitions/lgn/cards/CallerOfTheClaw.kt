@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.TurnTracker
  */
 val CallerOfTheClaw = card("Caller of the Claw") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf"
     power = 2
     toughness = 2

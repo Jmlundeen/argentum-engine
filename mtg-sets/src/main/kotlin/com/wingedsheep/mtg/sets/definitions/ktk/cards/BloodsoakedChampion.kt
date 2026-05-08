@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BloodsoakedChampion = card("Bloodsoaked Champion") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 1

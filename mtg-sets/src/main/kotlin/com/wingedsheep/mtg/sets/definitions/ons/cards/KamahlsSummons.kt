@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val KamahlsSummons = card("Kamahl's Summons") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Each player may reveal any number of creature cards from their hand. Then each player creates a 2/2 green Bear creature token for each card they revealed this way."
 

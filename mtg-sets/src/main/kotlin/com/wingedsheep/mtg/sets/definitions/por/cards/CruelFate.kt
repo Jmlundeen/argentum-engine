@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val CruelFate = card("Cruel Fate") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

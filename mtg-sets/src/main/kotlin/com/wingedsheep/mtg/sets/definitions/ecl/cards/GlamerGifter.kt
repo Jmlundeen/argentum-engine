@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val GlamerGifter = card("Glamer Gifter") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Faerie Wizard"
     power = 1
     toughness = 2

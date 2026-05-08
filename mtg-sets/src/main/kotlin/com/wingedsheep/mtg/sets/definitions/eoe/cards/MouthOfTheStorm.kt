@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val MouthOfTheStorm = card("Mouth of the Storm") {
     manaCost = "{6}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental"
     power = 6
     toughness = 6

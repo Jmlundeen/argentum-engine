@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectionMode
  */
 val Duneblast = card("Duneblast") {
     manaCost = "{4}{W}{B}{G}"
+    colorIdentity = "WBG"
     typeLine = "Sorcery"
     oracleText = "Choose up to one creature. Destroy the rest."
 

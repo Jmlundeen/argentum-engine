@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GrantCantBeBlockedToSmallCreatures
  */
 val TetsukoUmezawaFugitive = card("Tetsuko Umezawa, Fugitive") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Human Rogue"
     power = 1
     toughness = 3

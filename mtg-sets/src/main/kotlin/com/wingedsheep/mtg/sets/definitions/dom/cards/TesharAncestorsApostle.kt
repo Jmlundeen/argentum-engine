@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val TesharAncestorsApostle = card("Teshar, Ancestor's Apostle") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Bird Cleric"
     power = 2
     toughness = 2

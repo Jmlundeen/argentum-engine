@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Stargaze = card("Stargaze") {
     manaCost = "{X}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Look at twice X cards from the top of your library. Put X cards from among them into your hand and the rest into your graveyard. You lose X life."
 

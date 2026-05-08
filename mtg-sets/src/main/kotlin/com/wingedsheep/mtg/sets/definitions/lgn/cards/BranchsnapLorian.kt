@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val BranchsnapLorian = card("Branchsnap Lorian") {
     manaCost = "{1}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 1

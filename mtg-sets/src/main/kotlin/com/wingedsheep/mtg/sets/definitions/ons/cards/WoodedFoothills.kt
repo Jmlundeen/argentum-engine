@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val WoodedFoothills = card("Wooded Foothills") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}, Pay 1 life, Sacrifice Wooded Foothills: Search your library for a Mountain or Forest card, put it onto the battlefield, then shuffle."
 
     activatedAbility {

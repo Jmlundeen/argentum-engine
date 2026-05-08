@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val IncrementalGrowth = card("Incremental Growth") {
     manaCost = "{3}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
     oracleText = "Put a +1/+1 counter on target creature, two +1/+1 counters on another target creature, and three +1/+1 counters on a third target creature."
 

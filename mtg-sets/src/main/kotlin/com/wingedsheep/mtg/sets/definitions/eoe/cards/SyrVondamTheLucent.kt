@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SyrVondamTheLucent = card("Syr Vondam, the Lucent") {
     manaCost = "{2}{W}{B}{B}"
+    colorIdentity = "WB"
     typeLine = "Legendary Creature — Human Knight"
     power = 4
     toughness = 4

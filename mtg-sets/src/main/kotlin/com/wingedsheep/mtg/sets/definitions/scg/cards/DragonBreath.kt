@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DragonBreath = card("Dragon Breath") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature has haste.\n{R}: Enchanted creature gets +1/+0 until end of turn.\nWhen a creature with mana value 6 or greater enters, you may return Dragon Breath from your graveyard to the battlefield attached to that creature."
 

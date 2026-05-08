@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.IsAllCreatureTypes
  */
 val StalactiteDagger = card("Stalactite Dagger") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, create a 1/1 colorless Shapeshifter creature token with changeling. (It's every creature type.)\n" +
         "Equipped creature gets +1/+1 and is all creature types.\n" +

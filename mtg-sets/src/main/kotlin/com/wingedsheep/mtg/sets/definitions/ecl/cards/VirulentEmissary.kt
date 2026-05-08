@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val VirulentEmissary = card("Virulent Emissary") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Assassin"
     power = 1
     toughness = 1

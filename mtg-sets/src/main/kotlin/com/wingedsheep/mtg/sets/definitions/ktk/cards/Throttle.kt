@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val Throttle = card("Throttle") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Target creature gets -4/-4 until end of turn."
 

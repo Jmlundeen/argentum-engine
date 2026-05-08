@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val HighPerfectMorcant = card("High Perfect Morcant") {
     manaCost = "{2}{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Legendary Creature — Elf Noble"
     power = 4
     toughness = 4

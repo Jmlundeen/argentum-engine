@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val KrosanGroundshaker = card("Krosan Groundshaker") {
     manaCost = "{4}{G}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 6
     toughness = 6

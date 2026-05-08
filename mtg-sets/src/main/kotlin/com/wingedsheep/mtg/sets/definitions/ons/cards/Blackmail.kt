@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val Blackmail = card("Blackmail") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target player reveals three cards from their hand and you choose one of them. That player discards that card."
 

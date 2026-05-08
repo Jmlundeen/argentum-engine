@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val SeamRip = card("Seam Rip") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters, exile target nonland permanent an opponent controls with mana value 2 or less until this enchantment leaves the battlefield."
 

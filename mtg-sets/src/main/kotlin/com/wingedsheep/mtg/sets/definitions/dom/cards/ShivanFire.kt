@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
  */
 val ShivanFire = card("Shivan Fire") {
     manaCost = "{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Kicker {4}\nShivan Fire deals 2 damage to target creature or planeswalker. If this spell was kicked, it deals 4 damage instead."
 

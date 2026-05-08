@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RowanTreefolk = card("Rowan Treefolk") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Treefolk"
     power = 3
     toughness = 4

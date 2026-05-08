@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
  */
 val CerebralDownload = card("Cerebral Download") {
     manaCost = "{4}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Surveil X, where X is the number of artifacts you control. Then draw three cards."
 

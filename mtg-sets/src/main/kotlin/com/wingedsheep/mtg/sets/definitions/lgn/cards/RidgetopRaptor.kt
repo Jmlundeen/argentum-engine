@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RidgetopRaptor = card("Ridgetop Raptor") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dinosaur Beast"
     power = 2
     toughness = 1

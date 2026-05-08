@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val LifecreedDuo = card("Lifecreed Duo") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bat Bird"
     power = 1
     toughness = 2

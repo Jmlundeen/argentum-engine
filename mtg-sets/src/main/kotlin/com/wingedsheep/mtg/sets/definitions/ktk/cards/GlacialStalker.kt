@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GlacialStalker = card("Glacial Stalker") {
     manaCost = "{5}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Elemental"
     power = 4
     toughness = 5

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val EliteCatWarrior = card("Elite Cat Warrior") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Cat Warrior"
     power = 2
     toughness = 3

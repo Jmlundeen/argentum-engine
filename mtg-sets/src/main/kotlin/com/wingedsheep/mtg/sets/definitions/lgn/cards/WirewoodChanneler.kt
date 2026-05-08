@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaEffect
  */
 val WirewoodChanneler = card("Wirewood Channeler") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
     power = 2
     toughness = 2

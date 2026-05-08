@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val GlisterBairn = card("Glister Bairn") {
     manaCost = "{2}{G/U}{G/U}{G/U}"
+    colorIdentity = "UG"
     typeLine = "Creature — Ouphe"
     oracleText = "Vivid — At the beginning of combat on your turn, another target creature you control " +
         "gets +X/+X until end of turn, where X is the number of colors among permanents you control."

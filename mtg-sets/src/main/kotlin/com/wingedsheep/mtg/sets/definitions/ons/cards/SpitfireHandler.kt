@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
  */
 val SpitfireHandler = card("Spitfire Handler") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin"
     power = 1
     toughness = 1

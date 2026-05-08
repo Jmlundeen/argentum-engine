@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
  */
 val ThoughtboundPrimoc = card("Thoughtbound Primoc") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Bird Beast"
     power = 2
     toughness = 3

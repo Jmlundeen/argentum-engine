@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val JeeringInstigator = card("Jeering Instigator") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Rogue"
     power = 2
     toughness = 1

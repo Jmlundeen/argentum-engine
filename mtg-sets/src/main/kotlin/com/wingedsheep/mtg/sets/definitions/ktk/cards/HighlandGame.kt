@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HighlandGame = card("Highland Game") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Elk"
     power = 2
     toughness = 1

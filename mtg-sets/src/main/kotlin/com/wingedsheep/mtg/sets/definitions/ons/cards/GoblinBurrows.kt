@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val GoblinBurrows = card("Goblin Burrows") {
     typeLine = "Land"
+    colorIdentity = "R"
     oracleText = "{T}: Add {C}.\n{1}{R}, {T}: Target Goblin creature gets +2/+0 until end of turn."
 
     activatedAbility {

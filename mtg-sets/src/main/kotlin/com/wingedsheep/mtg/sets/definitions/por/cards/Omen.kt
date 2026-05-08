@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
  */
 val Omen = card("Omen") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

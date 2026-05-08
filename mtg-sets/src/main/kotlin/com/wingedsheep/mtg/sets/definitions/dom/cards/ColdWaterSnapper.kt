@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ColdWaterSnapper = card("Cold-Water Snapper") {
     manaCost = "{5}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Turtle"
     power = 4
     toughness = 5

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val RakshasaVizier = card("Rakshasa Vizier") {
     manaCost = "{2}{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Creature — Demon"
     power = 4
     toughness = 4

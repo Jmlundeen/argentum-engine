@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val BecomeImmense = card("Become Immense") {
     manaCost = "{5}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)\nTarget creature gets +6/+6 until end of turn."
 

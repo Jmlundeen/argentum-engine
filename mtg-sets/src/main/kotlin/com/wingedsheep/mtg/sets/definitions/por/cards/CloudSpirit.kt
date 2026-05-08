@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWithKeyword
  */
 val CloudSpirit = card("Cloud Spirit") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Spirit"
     power = 3
     toughness = 1

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val DeathMatch = card("Death Match") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "Whenever a creature enters, that creature's controller may have target creature of their choice get -3/-3 until end of turn."
 

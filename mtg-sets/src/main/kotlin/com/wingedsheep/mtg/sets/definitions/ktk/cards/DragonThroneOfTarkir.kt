@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val DragonThroneOfTarkir = card("Dragon Throne of Tarkir") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact — Equipment"
     oracleText = "Equipped creature has defender and \"{2}, {T}: Other creatures you control gain trample and get +X/+X until end of turn, where X is this creature's power.\"\nEquip {3}"
 

@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val KheruLichLord = card("Kheru Lich Lord") {
     manaCost = "{3}{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Creature — Zombie Wizard"
     power = 4
     toughness = 4

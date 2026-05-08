@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val JollyGerbils = card("Jolly Gerbils") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Hamster Citizen"
     power = 2
     toughness = 3

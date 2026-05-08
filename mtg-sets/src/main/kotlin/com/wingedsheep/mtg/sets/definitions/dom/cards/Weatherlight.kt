@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Weatherlight = card("Weatherlight") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Legendary Artifact — Vehicle"
     power = 4
     toughness = 5

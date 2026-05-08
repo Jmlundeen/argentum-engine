@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.SelfAlternativeCost
  */
 val ZahidDjinnOfTheLamp = card("Zahid, Djinn of the Lamp") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Djinn"
     power = 5
     toughness = 6

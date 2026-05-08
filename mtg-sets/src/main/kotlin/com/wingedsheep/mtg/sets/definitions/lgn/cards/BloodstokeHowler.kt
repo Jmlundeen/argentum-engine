@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BloodstokeHowler = card("Bloodstoke Howler") {
     manaCost = "{5}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 4

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val WirewoodPride = card("Wirewood Pride") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Target creature gets +X/+X until end of turn, where X is the number of Elves on the battlefield."
 

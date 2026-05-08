@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HinderingTouch = card("Hindering Touch") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target spell unless its controller pays {2}.\nStorm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)"
 

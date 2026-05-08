@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val Taunt = card("Taunt") {
     manaCost = "{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
 
     spell {

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AcademyDrake = card("Academy Drake") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Drake"
     power = 2
     toughness = 2

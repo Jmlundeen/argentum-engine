@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val UnforgivingAim = card("Unforgiving Aim") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Destroy target creature with flying.\n• Destroy target enchantment.\n• Create a 2/2 black and green Elf creature token."
 

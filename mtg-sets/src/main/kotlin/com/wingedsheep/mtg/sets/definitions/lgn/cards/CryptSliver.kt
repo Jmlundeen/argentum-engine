@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val CryptSliver = card("Crypt Sliver") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Sliver"
     power = 1
     toughness = 1

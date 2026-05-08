@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val Sunderflock = card("Sunderflock") {
     manaCost = "{7}{U}{U}"
+    colorIdentity = ""
     typeLine = "Creature — Elemental"
     power = 5
     toughness = 5

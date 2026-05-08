@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
  */
 val GrinningDemon = card("Grinning Demon") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Demon"
     power = 6
     toughness = 6

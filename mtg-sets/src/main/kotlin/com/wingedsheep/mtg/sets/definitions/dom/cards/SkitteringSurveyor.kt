@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val SkitteringSurveyor = card("Skittering Surveyor") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Construct"
     power = 1
     toughness = 2

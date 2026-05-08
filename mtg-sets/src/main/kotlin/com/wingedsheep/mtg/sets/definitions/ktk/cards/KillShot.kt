@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val KillShot = card("Kill Shot") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Destroy target attacking creature."
 

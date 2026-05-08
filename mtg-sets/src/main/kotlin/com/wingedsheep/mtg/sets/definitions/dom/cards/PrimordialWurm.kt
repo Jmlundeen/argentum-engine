@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PrimordialWurm = card("Primordial Wurm") {
     manaCost = "{4}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Wurm"
     power = 7
     toughness = 6

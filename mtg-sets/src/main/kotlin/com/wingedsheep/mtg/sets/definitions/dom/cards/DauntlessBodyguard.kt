@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DauntlessBodyguard = card("Dauntless Bodyguard") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Knight"
     power = 2
     toughness = 1

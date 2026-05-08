@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.values.TurnTracker
  */
 val SeasonOfLoss = card("Season of Loss") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Choose up to five {P} worth of modes. You may choose the same mode more than once.\n" +
         "{P} — Each player sacrifices a creature of their choice.\n" +

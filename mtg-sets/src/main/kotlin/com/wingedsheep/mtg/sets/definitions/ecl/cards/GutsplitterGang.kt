@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val GutsplitterGang = card("Gutsplitter Gang") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Goblin Berserker"
     power = 6
     toughness = 6

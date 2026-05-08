@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WalkingDesecration = card("Walking Desecration") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie"
     power = 1
     toughness = 1

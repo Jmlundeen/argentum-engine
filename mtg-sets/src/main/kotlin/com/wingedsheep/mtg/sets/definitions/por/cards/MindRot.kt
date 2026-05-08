@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val MindRot = card("Mind Rot") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

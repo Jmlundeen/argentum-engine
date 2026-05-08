@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val DarkBargain = card("Dark Bargain") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Look at the top three cards of your library. Put two of them into your hand and the other into your graveyard. Dark Bargain deals 2 damage to you."
 

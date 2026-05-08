@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
  */
 val DaruStinger = card("Daru Stinger") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 1
     toughness = 1

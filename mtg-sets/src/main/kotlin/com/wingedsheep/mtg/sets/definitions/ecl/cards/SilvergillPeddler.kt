@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SilvergillPeddler = card("Silvergill Peddler") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Citizen"
     power = 2
     toughness = 3

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val FireSnake = card("Fire Snake") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Snake"
     power = 3
     toughness = 1

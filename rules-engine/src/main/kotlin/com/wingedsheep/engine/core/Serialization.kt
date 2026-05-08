@@ -271,6 +271,8 @@ val engineSerializersModule = SerializersModule {
         subclass(CantBeCounteredComponent::class)
         subclass(ChosenCreatureComponent::class)
         subclass(com.wingedsheep.engine.state.components.identity.EmblemSourceComponent::class)
+        subclass(com.wingedsheep.engine.state.components.identity.CommanderComponent::class)
+        subclass(com.wingedsheep.engine.state.components.identity.CommanderRegistryComponent::class)
         subclass(ExileAfterResolveComponent::class)
         subclass(HasMorphAbilityComponent::class)
         subclass(MayPlayFromExileComponent::class)

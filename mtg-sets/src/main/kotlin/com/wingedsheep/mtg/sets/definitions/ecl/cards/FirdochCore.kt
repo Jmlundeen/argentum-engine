@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val FirdochCore = card("Firdoch Core") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Kindred Artifact — Shapeshifter"
     oracleText = "Changeling (This card is every creature type.)\n" +
         "{T}: Add one mana of any color.\n" +

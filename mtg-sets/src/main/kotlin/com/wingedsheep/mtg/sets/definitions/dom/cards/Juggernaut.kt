@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.MustAttack
  */
 val Juggernaut = card("Juggernaut") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Juggernaut"
     power = 5
     toughness = 3

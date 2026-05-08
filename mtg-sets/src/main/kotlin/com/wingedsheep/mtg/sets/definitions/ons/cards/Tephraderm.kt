@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Tephraderm = card("Tephraderm") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 5

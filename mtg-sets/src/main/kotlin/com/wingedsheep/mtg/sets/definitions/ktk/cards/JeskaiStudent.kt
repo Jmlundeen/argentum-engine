@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val JeskaiStudent = card("Jeskai Student") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Monk"
     power = 1
     toughness = 3

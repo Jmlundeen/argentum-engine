@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ArmoredPegasus = card("Armored Pegasus") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Pegasus"
     power = 1
     toughness = 2

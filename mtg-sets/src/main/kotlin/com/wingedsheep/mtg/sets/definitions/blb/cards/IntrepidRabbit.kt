@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val IntrepidRabbit = card("Intrepid Rabbit") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Rabbit Soldier"
     power = 3
     toughness = 2

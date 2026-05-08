@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ThallidOmnivore = card("Thallid Omnivore") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Fungus"
     power = 3
     toughness = 3

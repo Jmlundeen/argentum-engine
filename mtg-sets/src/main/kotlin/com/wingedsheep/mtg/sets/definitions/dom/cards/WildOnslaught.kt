@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val WildOnslaught = card("Wild Onslaught") {
     manaCost = "{3}{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Kicker {4} (You may pay an additional {4} as you cast this spell.)\nPut a +1/+1 counter on each creature you control. If this spell was kicked, put two +1/+1 counters on each creature you control instead."
 

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val AshcloudPhoenix = card("Ashcloud Phoenix") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Phoenix"
     power = 4
     toughness = 1

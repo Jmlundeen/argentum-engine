@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val Mobilization = card("Mobilization") {
     manaCost = "{2}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "Soldier creatures have vigilance.\n{2}{W}: Create a 1/1 white Soldier creature token."
 

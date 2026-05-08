@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ShalaiVoiceOfPlenty = card("Shalai, Voice of Plenty") {
     manaCost = "{3}{W}"
+    colorIdentity = "WG"
     typeLine = "Legendary Creature — Angel"
     power = 3
     toughness = 4

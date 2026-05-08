@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SquiresLightblade = card("Squire's Lightblade") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Artifact — Equipment"
     oracleText = "Flash\nWhen this Equipment enters, attach it to target creature you control. That creature gains first strike until end of turn.\nEquipped creature gets +1/+0.\nEquip {3}"
 

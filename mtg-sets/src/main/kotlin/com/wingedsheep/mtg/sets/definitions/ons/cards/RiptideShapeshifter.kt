@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RiptideShapeshifter = card("Riptide Shapeshifter") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Shapeshifter"
     power = 3
     toughness = 3

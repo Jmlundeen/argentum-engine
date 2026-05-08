@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Shimmercreep = card("Shimmercreep") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elemental"
     oracleText = "Menace (This creature can't be blocked except by two or more creatures.)\n" +
         "Vivid — When this creature enters, each opponent loses X life and you gain X life, " +

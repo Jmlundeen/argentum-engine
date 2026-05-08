@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val SonarStrike = card("Sonar Strike") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Sonar Strike deals 4 damage to target attacking, blocking, or tapped creature. " +
         "You gain 3 life if you control a Bat."

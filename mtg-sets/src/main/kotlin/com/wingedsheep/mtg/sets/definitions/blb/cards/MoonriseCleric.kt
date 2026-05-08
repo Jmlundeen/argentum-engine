@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val MoonriseCleric = card("Moonrise Cleric") {
     manaCost = "{1}{W/B}{W/B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Bat Cleric"
     power = 2
     toughness = 3

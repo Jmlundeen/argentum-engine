@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val AinokTracker = card("Ainok Tracker") {
     manaCost = "{5}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dog Scout"
     power = 3
     toughness = 3

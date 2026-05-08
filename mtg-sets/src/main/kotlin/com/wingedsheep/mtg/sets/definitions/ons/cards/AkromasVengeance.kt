@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val AkromasVengeance = card("Akroma's Vengeance") {
     manaCost = "{4}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Destroy all artifacts, creatures, and enchantments.\nCycling {3}"
 

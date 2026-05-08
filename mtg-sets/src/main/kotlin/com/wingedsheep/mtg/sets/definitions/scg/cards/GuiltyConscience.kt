@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val GuiltyConscience = card("Guilty Conscience") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nWhenever enchanted creature deals damage, Guilty Conscience deals that much damage to that creature."
 

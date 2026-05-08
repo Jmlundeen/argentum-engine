@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val NoggleRobber = card("Noggle Robber") {
     manaCost = "{1}{R/G}{R/G}"
+    colorIdentity = "RG"
     typeLine = "Creature — Noggle Rogue"
     power = 3
     toughness = 3

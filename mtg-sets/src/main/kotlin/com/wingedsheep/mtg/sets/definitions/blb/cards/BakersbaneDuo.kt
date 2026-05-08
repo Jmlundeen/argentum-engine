@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val BakersbaneDuo = card("Bakersbane Duo") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Squirrel Raccoon"
     power = 2
     toughness = 2

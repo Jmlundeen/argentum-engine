@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WeaveFate = card("Weave Fate") {
     manaCost = "{3}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Draw two cards."
 

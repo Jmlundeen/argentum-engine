@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val TidecallerMentor = card("Tidecaller Mentor") {
     manaCost = "{1}{U}{B}"
+    colorIdentity = "UB"
     typeLine = "Creature — Rat Wizard"
     power = 3
     toughness = 3

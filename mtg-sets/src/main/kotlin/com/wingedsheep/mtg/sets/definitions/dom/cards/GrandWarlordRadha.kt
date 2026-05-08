@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val GrandWarlordRadha = card("Grand Warlord Radha") {
     manaCost = "{2}{R}{G}"
+    colorIdentity = "RG"
     typeLine = "Legendary Creature — Elf Warrior"
     power = 3
     toughness = 4

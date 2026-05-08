@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val ExtraArms = card("Extra Arms") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nWhenever enchanted creature attacks, it deals 2 damage to any target."
 

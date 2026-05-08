@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val YgraEaterOfAll = card("Ygra, Eater of All") {
     manaCost = "{3}{B}{G}"
+    colorIdentity = "BG"
     typeLine = "Legendary Creature — Elemental Cat"
     power = 6
     toughness = 6

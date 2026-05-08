@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
  */
 val SacredNectar = card("Sacred Nectar") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
 
     spell {

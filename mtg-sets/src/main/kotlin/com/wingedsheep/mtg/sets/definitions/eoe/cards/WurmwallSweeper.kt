@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val WurmwallSweeper = card("Wurmwall Sweeper") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact — Spacecraft"
     power = 2
     toughness = 2

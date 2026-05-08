@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val OrcishVandal = card("Orcish Vandal") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Orc Warrior"
     power = 1
     toughness = 1

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val UntamedWilds = card("Untamed Wilds") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Sorcery"
 
     spell {

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val WallOfMulch = card("Wall of Mulch") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Wall"
     power = 0
     toughness = 4

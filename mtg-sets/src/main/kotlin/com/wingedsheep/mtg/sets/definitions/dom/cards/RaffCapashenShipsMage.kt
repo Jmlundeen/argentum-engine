@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
  */
 val RaffCapashenShipsMage = card("Raff Capashen, Ship's Mage") {
     manaCost = "{2}{W}{U}"
+    colorIdentity = "WU"
     typeLine = "Legendary Creature — Human Wizard"
     power = 3
     toughness = 3

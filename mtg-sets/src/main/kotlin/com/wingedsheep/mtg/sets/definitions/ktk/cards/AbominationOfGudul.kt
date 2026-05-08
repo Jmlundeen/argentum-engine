@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val AbominationOfGudul = card("Abomination of Gudul") {
     manaCost = "{3}{B}{G}{U}"
+    colorIdentity = "UBG"
     typeLine = "Creature — Horror"
     power = 3
     toughness = 4

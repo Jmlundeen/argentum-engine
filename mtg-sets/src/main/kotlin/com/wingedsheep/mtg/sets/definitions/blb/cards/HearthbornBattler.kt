@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val HearthbornBattler = card("Hearthborn Battler") {
     manaCost = "{2}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Lizard Warlock"
     oracleText = "Haste\n" +
         "Whenever a player casts their second spell each turn, " +

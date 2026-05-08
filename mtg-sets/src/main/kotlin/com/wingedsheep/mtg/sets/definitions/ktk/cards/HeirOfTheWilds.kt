@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val HeirOfTheWilds = card("Heir of the Wilds") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Human Warrior"
     power = 2
     toughness = 2

@@ -30,6 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val WildfireHowl = card("Wildfire Howl") {
     manaCost = "{1}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, they draw a card before its other effects.)\nWildfire Howl deals 2 damage to each creature. If the gift was promised, instead Wildfire Howl deals 1 damage to any target and 2 damage to each creature."
 

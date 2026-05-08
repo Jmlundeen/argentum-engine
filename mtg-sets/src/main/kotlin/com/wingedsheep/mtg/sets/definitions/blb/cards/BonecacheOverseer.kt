@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.conditions.AnyCondition
  */
 val BonecacheOverseer = card("Bonecache Overseer") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Squirrel Warlock"
     power = 1
     toughness = 1

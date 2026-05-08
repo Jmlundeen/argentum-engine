@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GorillaWarrior = card("Gorilla Warrior") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Ape Warrior"
     power = 3
     toughness = 2

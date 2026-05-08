@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val TheEldestReborn = card("The Eldest Reborn") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I — Each opponent sacrifices a creature or planeswalker.\n" +

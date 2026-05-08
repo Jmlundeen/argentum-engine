@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ArborArmament = card("Arbor Armament") {
     manaCost = "{G}"
+    colorIdentity = "G"
     typeLine = "Instant"
     oracleText = "Put a +1/+1 counter on target creature. That creature gains reach until end of turn."
 

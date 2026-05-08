@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val IridescentVinelasher = card("Iridescent Vinelasher") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Lizard Assassin"
     power = 1
     toughness = 2

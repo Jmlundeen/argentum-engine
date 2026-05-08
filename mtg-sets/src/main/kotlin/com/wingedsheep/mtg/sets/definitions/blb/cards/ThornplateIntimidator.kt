@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ThornplateIntimidator = card("Thornplate Intimidator") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Rat Rogue"
     power = 4
     toughness = 3

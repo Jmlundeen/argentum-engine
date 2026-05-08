@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val OwlFamiliar = card("Owl Familiar") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird"
     power = 1
     toughness = 1

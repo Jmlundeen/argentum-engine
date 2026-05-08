@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val FigureOfFable = card("Figure of Fable") {
     manaCost = "{G/W}"
+    colorIdentity = "WG"
     typeLine = "Creature — Kithkin"
     power = 1
     toughness = 1

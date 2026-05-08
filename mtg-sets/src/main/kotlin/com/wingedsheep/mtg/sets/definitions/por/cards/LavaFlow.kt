@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val LavaFlow = card("Lava Flow") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
 
     spell {

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val CloudsculptTechnician = card("Cloudsculpt Technician") {
     manaCost = "{2}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Jellyfish Artificer"
     power = 1
     toughness = 4

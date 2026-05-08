@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val StarlitSoothsayer = card("Starlit Soothsayer") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Bat Cleric"
     oracleText = "Flying\nAt the beginning of your end step, if you gained or lost life this turn, surveil 1."
     power = 2

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val CrowdFavorites = card("Crowd Favorites") {
     manaCost = "{6}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Soldier"
     power = 4
     toughness = 4

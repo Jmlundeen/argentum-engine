@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val RunAmok = card("Run Amok") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Instant"
     oracleText = "Target attacking creature gets +3/+3 and gains trample until end of turn."
 

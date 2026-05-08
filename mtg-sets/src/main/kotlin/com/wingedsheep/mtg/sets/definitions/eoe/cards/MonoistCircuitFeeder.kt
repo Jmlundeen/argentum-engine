@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val MonoistCircuitFeeder = card("Monoist Circuit-Feeder") {
     manaCost = "{4}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Artifact Creature — Nautilus"
     power = 4
     toughness = 4

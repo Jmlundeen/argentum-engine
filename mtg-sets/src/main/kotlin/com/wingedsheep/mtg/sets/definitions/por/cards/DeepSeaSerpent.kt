@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.CantAttackUnless
  */
 val DeepSeaSerpent = card("Deep-Sea Serpent") {
     manaCost = "{4}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Serpent"
     power = 5
     toughness = 5

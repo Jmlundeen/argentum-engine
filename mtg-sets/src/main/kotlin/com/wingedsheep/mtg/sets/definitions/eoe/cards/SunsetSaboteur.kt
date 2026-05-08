@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val SunsetSaboteur = card("Sunset Saboteur") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Rogue"
     power = 4
     toughness = 1

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
  */
 val FrilledSparkshooter = card("Frilled Sparkshooter") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Lizard Archer"
     power = 3
     toughness = 3

@@ -33,6 +33,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val AtmosphericGreenhouse = card("Atmospheric Greenhouse") {
     manaCost = "{4}{G}"
+    colorIdentity = "G"
     typeLine = "Artifact — Spacecraft"
     power = 5
     toughness = 4

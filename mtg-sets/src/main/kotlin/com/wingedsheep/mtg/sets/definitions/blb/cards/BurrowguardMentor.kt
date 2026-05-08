@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.core.Keyword
  */
 val BurrowguardMentor = card("Burrowguard Mentor") {
     manaCost = "{G}{W}"
+    colorIdentity = "WG"
     typeLine = "Creature — Rabbit Soldier"
     oracleText = "Trample\nBurrowguard Mentor's power and toughness are each equal to the number of creatures you control."
 

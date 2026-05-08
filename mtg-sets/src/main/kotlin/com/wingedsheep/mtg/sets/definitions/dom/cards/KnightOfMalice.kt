@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val KnightOfMalice = card("Knight of Malice") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Knight"
     oracleText = "First strike\nHexproof from white (This creature can't be the target of white spells or abilities your opponents control.)\nKnight of Malice gets +1/+0 as long as any player controls a white permanent."
     power = 2

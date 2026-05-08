@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val CanyonLurkers = card("Canyon Lurkers") {
     manaCost = "{4}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Rogue"
     power = 5
     toughness = 2

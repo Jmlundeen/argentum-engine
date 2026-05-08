@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val CallToTheGrave = card("Call to the Grave") {
     manaCost = "{4}{B}"
+    colorIdentity = "B"
     typeLine = "Enchantment"
     oracleText = "At the beginning of each player's upkeep, that player sacrifices a non-Zombie creature.\nAt the beginning of the end step, if no creatures are on the battlefield, sacrifice Call to the Grave."
 

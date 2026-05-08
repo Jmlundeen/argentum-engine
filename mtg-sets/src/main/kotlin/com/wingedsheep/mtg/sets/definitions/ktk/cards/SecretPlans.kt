@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val SecretPlans = card("Secret Plans") {
     manaCost = "{G}{U}"
+    colorIdentity = "UG"
     typeLine = "Enchantment"
     oracleText = "Face-down creatures you control get +0/+1.\nWhenever a permanent you control is turned face up, draw a card."
 

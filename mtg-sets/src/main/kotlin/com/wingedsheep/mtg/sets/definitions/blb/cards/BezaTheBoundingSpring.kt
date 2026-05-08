@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BezaTheBoundingSpring = card("Beza, the Bounding Spring") {
     manaCost = "{2}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Elemental Elk"
     power = 4
     toughness = 5

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  */
 val RakshasasSecret = card("Rakshasa's Secret") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target opponent discards two cards. You mill two cards."
 

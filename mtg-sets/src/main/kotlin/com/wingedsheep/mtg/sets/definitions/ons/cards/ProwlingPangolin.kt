@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
  */
 val ProwlingPangolin = card("Prowling Pangolin") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Pangolin Beast"
     power = 6
     toughness = 5

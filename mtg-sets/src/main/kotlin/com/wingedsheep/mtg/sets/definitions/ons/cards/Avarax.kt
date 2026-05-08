@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
  */
 val Avarax = card("Avarax") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 3
     toughness = 3

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val GristleGlutton = card("Gristle Glutton") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Scout"
     power = 1
     toughness = 3

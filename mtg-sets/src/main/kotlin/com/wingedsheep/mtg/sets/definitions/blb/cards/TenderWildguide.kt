@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TenderWildguide = card("Tender Wildguide") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Possum Druid"
     power = 2
     toughness = 2

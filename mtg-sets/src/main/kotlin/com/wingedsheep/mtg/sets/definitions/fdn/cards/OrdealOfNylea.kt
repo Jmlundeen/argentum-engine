@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val OrdealOfNylea = card("Ordeal of Nylea") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\n" +
         "Whenever enchanted creature attacks, put a +1/+1 counter on it. Then if it has three or more " +

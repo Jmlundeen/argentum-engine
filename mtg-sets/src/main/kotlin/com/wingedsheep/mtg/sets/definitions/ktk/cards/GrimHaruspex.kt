@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
  */
 val GrimHaruspex = card("Grim Haruspex") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Wizard"
     power = 3
     toughness = 2

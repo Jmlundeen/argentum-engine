@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 val CabalStronghold = card("Cabal Stronghold") {
     typeLine = "Land"
+    colorIdentity = "B"
     oracleText = "{T}: Add {C}.\n{3}, {T}: Add {B} for each basic Swamp you control."
 
     activatedAbility {

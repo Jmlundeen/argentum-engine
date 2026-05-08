@@ -27,6 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ConsumedByGreed = card("Consumed by Greed") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, they draw a card before its other effects.)\nTarget opponent sacrifices a creature with the greatest power among creatures they control. If the gift was promised, return target creature card from your graveyard to your hand."
 

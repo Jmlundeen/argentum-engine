@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val UntamedKavu = card("Untamed Kavu") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Kavu"
     power = 2
     toughness = 2

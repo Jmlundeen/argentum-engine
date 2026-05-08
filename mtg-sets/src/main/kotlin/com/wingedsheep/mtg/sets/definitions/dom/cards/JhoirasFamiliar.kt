@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.ReduceSpellCostByFilter
  */
 val JhoirasFamiliar = card("Jhoira's Familiar") {
     manaCost = "{4}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Bird"
     power = 2
     toughness = 2

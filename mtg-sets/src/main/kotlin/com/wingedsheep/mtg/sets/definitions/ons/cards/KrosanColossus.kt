@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val KrosanColossus = card("Krosan Colossus") {
     manaCost = "{6}{G}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 9
     toughness = 9

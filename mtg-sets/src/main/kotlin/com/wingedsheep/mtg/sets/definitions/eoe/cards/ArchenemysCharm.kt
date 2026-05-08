@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val ArchenemysCharm = card("Archenemy's Charm") {
     manaCost = "{B}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
     oracleText = "Choose one —\n• Exile target creature or planeswalker.\n• Return one or two target creature and/or planeswalker cards from your graveyard to your hand.\n• Put two +1/+1 counters on target creature you control. It gains lifelink until end of turn."
 

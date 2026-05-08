@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val PillagingHorde = card("Pillaging Horde") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Barbarian"
     power = 5
     toughness = 5

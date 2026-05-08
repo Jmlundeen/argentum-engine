@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
  */
 val RiptideReplicator = card("Riptide Replicator") {
     manaCost = "{X}{4}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "As Riptide Replicator enters the battlefield, choose a color and a creature type.\nRiptide Replicator enters the battlefield with X charge counters on it.\n{4}, {T}: Create an X/X creature token of the chosen color and type, where X is the number of charge counters on Riptide Replicator."
 

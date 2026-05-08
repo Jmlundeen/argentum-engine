@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val AvenBrigadier = card("Aven Brigadier") {
     manaCost = "{3}{W}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Bird Soldier"
     power = 3
     toughness = 5

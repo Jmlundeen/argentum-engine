@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.conditions.SourceEnteredThisTurn
  */
 val ShardmagesRescue = card("Shardmage's Rescue") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Flash\nEnchant creature you control\nAs long as this Aura entered this turn, enchanted creature has hexproof.\nEnchanted creature gets +1/+1."
 

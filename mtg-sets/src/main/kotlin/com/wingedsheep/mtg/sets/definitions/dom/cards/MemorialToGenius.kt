@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
  */
 val MemorialToGenius = card("Memorial to Genius") {
     typeLine = "Land"
+    colorIdentity = "U"
     oracleText = "Memorial to Genius enters the battlefield tapped.\n{T}: Add {U}.\n{4}{U}, {T}, Sacrifice Memorial to Genius: Draw two cards."
 
     replacementEffect(EntersTapped())

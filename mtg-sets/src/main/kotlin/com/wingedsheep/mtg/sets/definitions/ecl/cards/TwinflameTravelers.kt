@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val TwinflameTravelers = card("Twinflame Travelers") {
     manaCost = "{2}{U}{R}"
+    colorIdentity = "UR"
     typeLine = "Creature — Elemental Sorcerer"
     power = 3
     toughness = 3

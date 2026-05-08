@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val VolcanicDragon = card("Volcanic Dragon") {
     manaCost = "{4}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Dragon"
     power = 4
     toughness = 4

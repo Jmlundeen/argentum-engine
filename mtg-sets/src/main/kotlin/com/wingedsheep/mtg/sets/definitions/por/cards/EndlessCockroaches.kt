@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.dsl.Triggers
  */
 val EndlessCockroaches = card("Endless Cockroaches") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Insect"
     power = 1
     toughness = 1

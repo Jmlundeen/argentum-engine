@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val TwilightDiviner = card("Twilight Diviner") {
     manaCost = "{2}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Elf Cleric"
     power = 3
     toughness = 3

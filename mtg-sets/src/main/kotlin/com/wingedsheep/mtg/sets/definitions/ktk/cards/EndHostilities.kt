@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  */
 val EndHostilities = card("End Hostilities") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Sorcery"
     oracleText = "Destroy all creatures and all permanents attached to creatures."
 

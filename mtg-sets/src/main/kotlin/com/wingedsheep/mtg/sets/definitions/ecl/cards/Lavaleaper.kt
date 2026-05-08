@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val Lavaleaper = card("Lavaleaper") {
     manaCost = "{3}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental"
     power = 4
     toughness = 4

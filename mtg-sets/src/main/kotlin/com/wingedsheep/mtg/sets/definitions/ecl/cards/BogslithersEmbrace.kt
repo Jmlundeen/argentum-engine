@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
  */
 val BogslithersEmbrace = card("Bogslither's Embrace") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, blight 1 or pay {3}. " +
         "(To blight 1, put a -1/-1 counter on a creature you control.)\n" +

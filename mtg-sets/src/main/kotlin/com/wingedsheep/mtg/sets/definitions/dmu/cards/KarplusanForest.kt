@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val KarplusanForest = card("Karplusan Forest") {
     typeLine = "Land"
+    colorIdentity = "RG"
     oracleText = "{T}: Add {C}.\n{T}: Add {R} or {G}. This land deals 1 damage to you."
 
     activatedAbility {

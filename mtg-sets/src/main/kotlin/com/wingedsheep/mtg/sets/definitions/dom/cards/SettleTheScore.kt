@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  */
 val SettleTheScore = card("Settle the Score") {
     manaCost = "{2}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Exile target creature. Put two loyalty counters on a planeswalker you control."
 

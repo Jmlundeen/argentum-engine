@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val NightmareSower = card("Nightmare Sower") {
     manaCost = "{3}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Faerie Assassin"
     power = 2
     toughness = 3

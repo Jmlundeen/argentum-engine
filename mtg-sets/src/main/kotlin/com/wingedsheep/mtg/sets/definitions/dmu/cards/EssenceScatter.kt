@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val EssenceScatter = card("Essence Scatter") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "Counter target creature spell."
 

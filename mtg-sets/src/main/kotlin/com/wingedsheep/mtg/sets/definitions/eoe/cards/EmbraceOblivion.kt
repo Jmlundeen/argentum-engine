@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val EmbraceOblivion = card("Embrace Oblivion") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "As an additional cost to cast this spell, sacrifice an artifact or creature.\nDestroy target creature or Spacecraft."
 

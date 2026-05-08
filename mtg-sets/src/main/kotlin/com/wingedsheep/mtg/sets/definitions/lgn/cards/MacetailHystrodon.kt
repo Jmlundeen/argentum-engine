@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  */
 val MacetailHystrodon = card("Macetail Hystrodon") {
     manaCost = "{6}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 4

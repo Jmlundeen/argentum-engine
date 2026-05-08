@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val UnstableHulk = card("Unstable Hulk") {
     manaCost = "{1}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Goblin Mutant"
     oracleText = "Morph {3}{R}{R} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Unstable Hulk is turned face up, it gets +6/+6 and gains trample until end of turn. You skip your next turn."
     power = 2

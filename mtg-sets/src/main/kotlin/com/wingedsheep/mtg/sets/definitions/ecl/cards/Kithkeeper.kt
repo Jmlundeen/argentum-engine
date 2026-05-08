@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val Kithkeeper = card("Kithkeeper") {
     manaCost = "{6}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Elemental"
     oracleText = "Vivid — When this creature enters, create X 1/1 green and white Kithkin creature " +
         "tokens, where X is the number of colors among permanents you control.\n" +

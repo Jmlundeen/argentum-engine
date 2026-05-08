@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  */
 val AssassinsBlade = card("Assassin's Blade") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Instant"
 
     spell {

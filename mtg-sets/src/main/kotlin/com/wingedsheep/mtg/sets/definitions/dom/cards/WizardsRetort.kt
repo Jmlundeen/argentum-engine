@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.SpellCostReduction
  */
 val WizardsRetort = card("Wizard's Retort") {
     manaCost = "{1}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Instant"
     oracleText = "This spell costs {1} less to cast if you control a Wizard.\nCounter target spell."
 

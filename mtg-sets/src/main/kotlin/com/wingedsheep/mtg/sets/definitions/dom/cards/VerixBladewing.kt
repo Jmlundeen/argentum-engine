@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
  */
 val VerixBladewing = card("Verix Bladewing") {
     manaCost = "{2}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Legendary Creature — Dragon"
     power = 4
     toughness = 4

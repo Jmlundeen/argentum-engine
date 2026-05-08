@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PardicWanderer = card("Pardic Wanderer") {
     manaCost = "{6}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Golem"
     power = 5
     toughness = 5

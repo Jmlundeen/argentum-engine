@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val VoltaicServant = card("Voltaic Servant") {
     manaCost = "{2}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Construct"
     power = 1
     toughness = 3

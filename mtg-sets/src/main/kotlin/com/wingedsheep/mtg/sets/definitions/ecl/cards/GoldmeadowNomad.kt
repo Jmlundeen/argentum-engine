@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val GoldmeadowNomad = card("Goldmeadow Nomad") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Kithkin Scout"
     power = 1
     toughness = 2

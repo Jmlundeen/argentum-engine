@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val DaruEncampment = card("Daru Encampment") {
     typeLine = "Land"
+    colorIdentity = "W"
     oracleText = "{T}: Add {C}.\n{W}, {T}: Target Soldier creature gets +1/+1 until end of turn."
 
     activatedAbility {

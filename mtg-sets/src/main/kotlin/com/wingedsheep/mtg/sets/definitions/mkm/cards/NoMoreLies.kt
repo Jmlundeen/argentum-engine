@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val NoMoreLies = card("No More Lies") {
     manaCost = "{W}{U}"
+    colorIdentity = "WU"
     typeLine = "Instant"
     oracleText = "Counter target spell unless its controller pays {3}. If that spell is countered this way, exile it instead of putting it into its owner's graveyard."
 

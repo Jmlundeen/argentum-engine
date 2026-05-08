@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val EncumberedReejerey = card("Encumbered Reejerey") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Merfolk Soldier"
     power = 5
     toughness = 4

@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ExplosiveProdigy = card("Explosive Prodigy") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Elemental Sorcerer"
     oracleText = "Vivid — When this creature enters, it deals X damage to target creature an " +
         "opponent controls, where X is the number of colors among permanents you control."

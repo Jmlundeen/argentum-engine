@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  */
 val FeatherOfFlight = card("Feather of Flight") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Flash\nEnchant creature\nWhen this Aura enters, draw a card.\nEnchanted creature gets +1/+0 and has flying."
 

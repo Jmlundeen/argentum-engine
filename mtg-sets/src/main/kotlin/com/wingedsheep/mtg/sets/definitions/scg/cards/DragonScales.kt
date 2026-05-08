@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.MayEffect
  */
 val DragonScales = card("Dragon Scales") {
     manaCost = "{1}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Aura"
     oracleText = "Enchant creature\nEnchanted creature gets +1/+2 and has vigilance.\nWhen a creature with mana value 6 or greater enters, you may return Dragon Scales from your graveyard to the battlefield attached to that creature."
 

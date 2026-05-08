@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val CabalConditioning = card("Cabal Conditioning") {
     manaCost = "{6}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Any number of target players each discard a number of cards equal to the greatest mana value among permanents you control."
 

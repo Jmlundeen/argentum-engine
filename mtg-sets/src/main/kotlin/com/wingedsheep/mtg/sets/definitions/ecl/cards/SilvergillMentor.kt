@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.AdditionalCost
  */
 val SilvergillMentor = card("Silvergill Mentor") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Merfolk Wizard"
     power = 2
     toughness = 1

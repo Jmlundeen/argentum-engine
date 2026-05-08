@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val SpottedGriffin = card("Spotted Griffin") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Griffin"
     power = 2
     toughness = 3

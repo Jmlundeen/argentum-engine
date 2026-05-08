@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.ProtectionScope
  */
 val FoothillGuide = card("Foothill Guide") {
     manaCost = "{W}"
+    colorIdentity = "W"
     typeLine = "Creature — Human Cleric"
     power = 1
     toughness = 1

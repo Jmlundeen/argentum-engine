@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val GhituChronicler = card("Ghitu Chronicler") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 3

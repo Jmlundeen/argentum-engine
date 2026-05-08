@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.EntersAsCopy
  */
 val OmniChangeling = card("Omni-Changeling") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Shapeshifter"
     power = 0
     toughness = 0

@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val FabledPassage = card("Fabled Passage") {
     typeLine = "Land"
+    colorIdentity = ""
     oracleText = "{T}, Sacrifice this land: Search your library for a basic land card, put it onto " +
         "the battlefield tapped, then shuffle. Then if you control four or more lands, untap that land."
 

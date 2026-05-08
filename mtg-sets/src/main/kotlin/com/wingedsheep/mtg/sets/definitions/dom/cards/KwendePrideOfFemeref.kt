@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  */
 val KwendePrideOfFemeref = card("Kwende, Pride of Femeref") {
     manaCost = "{3}{W}"
+    colorIdentity = "W"
     typeLine = "Legendary Creature — Human Knight"
     power = 2
     toughness = 2

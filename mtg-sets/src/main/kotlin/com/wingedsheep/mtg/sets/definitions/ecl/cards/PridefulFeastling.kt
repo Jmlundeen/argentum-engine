@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val PridefulFeastling = card("Prideful Feastling") {
     manaCost = "{2}{W/B}"
+    colorIdentity = "WB"
     typeLine = "Creature — Shapeshifter"
     power = 2
     toughness = 3

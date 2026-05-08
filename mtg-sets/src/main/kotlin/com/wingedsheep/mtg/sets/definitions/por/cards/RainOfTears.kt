@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val RainOfTears = card("Rain of Tears") {
     manaCost = "{1}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
 
     spell {

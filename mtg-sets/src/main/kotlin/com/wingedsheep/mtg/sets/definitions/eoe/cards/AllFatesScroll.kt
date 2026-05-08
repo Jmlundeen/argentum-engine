@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
  */
 val AllFatesScroll = card("All-Fates Scroll") {
     manaCost = "{3}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{T}: Add one mana of any color.\n" +
         "{7}, {T}, Sacrifice this artifact: Draw X cards, where X is the number of differently named lands you control."

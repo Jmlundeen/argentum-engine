@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val AryelKnightOfWindgrace = card("Aryel, Knight of Windgrace") {
     manaCost = "{2}{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Legendary Creature — Human Knight"
     power = 4
     toughness = 4

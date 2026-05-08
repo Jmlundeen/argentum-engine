@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  */
 val MishrasSelfReplicator = card("Mishra's Self-Replicator") {
     manaCost = "{5}"
+    colorIdentity = ""
     typeLine = "Artifact Creature — Assembly-Worker"
     power = 2
     toughness = 2

@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val ArrowStorm = card("Arrow Storm") {
     manaCost = "{3}{R}{R}"
+    colorIdentity = "R"
     typeLine = "Sorcery"
     oracleText = "Arrow Storm deals 4 damage to any target.\nRaid — If you attacked this turn, instead Arrow Storm deals 5 damage to that permanent or player and the damage can't be prevented."
 

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val HistoryOfBenalia = card("History of Benalia") {
     manaCost = "{1}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
         "I, II — Create a 2/2 white Knight creature token with vigilance.\n" +

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val FinalPunishment = card("Final Punishment") {
     manaCost = "{3}{B}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target player loses life equal to the damage already dealt to that player this turn."
 

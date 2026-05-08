@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  */
 val ChainOfSmog = card("Chain of Smog") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Sorcery"
     oracleText = "Target player discards two cards. That player may copy this spell and may choose a new target for that copy."
 

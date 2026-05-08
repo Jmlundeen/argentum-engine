@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val ChompingChangeling = card("Chomping Changeling") {
     manaCost = "{2}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Shapeshifter"
     power = 1
     toughness = 2

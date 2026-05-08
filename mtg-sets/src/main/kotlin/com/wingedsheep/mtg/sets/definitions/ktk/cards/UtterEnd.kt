@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
  */
 val UtterEnd = card("Utter End") {
     manaCost = "{2}{W}{B}"
+    colorIdentity = "WB"
     typeLine = "Instant"
     oracleText = "Exile target nonland permanent."
 

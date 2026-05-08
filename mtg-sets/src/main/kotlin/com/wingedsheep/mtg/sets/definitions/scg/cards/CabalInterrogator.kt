@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val CabalInterrogator = card("Cabal Interrogator") {
     manaCost = "{1}{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Zombie Wizard"
     power = 1
     toughness = 1

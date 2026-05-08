@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val WeightOfMemory = card("Weight of Memory") {
     manaCost = "{3}{U}{U}"
+    colorIdentity = "U"
     typeLine = "Sorcery"
     oracleText = "Draw three cards. Target player mills three cards."
 

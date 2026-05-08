@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  */
 val FountainportBell = card("Fountainport Bell") {
     manaCost = "{1}"
+    colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "When this artifact enters, you may search your library for a basic land card, " +
         "reveal it, then shuffle and put that card on top.\n" +

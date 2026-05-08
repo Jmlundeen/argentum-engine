@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  */
 val KitsaOtterballElite = card("Kitsa, Otterball Elite") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Legendary Creature — Otter Wizard"
     power = 1
     toughness = 3

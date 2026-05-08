@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
  */
 val RavenousBaloth = card("Ravenous Baloth") {
     manaCost = "{2}{G}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Beast"
     power = 4
     toughness = 4

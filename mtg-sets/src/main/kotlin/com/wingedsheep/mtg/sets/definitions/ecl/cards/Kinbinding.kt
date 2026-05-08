@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val Kinbinding = card("Kinbinding") {
     manaCost = "{3}{W}{W}"
+    colorIdentity = "W"
     typeLine = "Enchantment"
     oracleText = "Creatures you control get +X/+X, where X is the number of creatures that entered the battlefield under your control this turn.\n" +
         "At the beginning of combat on your turn, create a 1/1 green and white Kithkin creature token."

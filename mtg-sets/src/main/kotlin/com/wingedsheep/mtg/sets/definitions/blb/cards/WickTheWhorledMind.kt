@@ -38,6 +38,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val WickTheWhorledMind = card("Wick, the Whorled Mind") {
     manaCost = "{3}{B}"
+    colorIdentity = "UBR"
     typeLine = "Legendary Creature — Rat Warlock"
     power = 2
     toughness = 4

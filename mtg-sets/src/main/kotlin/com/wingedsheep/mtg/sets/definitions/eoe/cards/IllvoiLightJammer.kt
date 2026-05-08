@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 val IllvoiLightJammer = card("Illvoi Light Jammer") {
     manaCost = "{1}{U}"
+    colorIdentity = "U"
     typeLine = "Artifact — Equipment"
     oracleText = "Flash\nWhen this Equipment enters, attach it to target creature you control. That creature gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)\nEquipped creature gets +1/+2.\nEquip {3}"
 

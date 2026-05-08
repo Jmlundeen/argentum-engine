@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.EntersAsCopy
  */
 val Mockingbird = card("Mockingbird") {
     manaCost = "{X}{U}"
+    colorIdentity = "U"
     typeLine = "Creature — Bird Bard"
     power = 1
     toughness = 1

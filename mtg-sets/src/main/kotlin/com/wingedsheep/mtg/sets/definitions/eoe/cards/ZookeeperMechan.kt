@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  */
 val ZookeeperMechan = card("Zookeeper Mechan") {
     manaCost = "{1}{R}"
+    colorIdentity = "R"
     typeLine = "Artifact Creature — Robot"
     power = 1
     toughness = 3

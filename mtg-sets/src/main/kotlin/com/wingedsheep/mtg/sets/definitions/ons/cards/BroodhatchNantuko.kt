@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  */
 val BroodhatchNantuko = card("Broodhatch Nantuko") {
     manaCost = "{1}{G}"
+    colorIdentity = "G"
     typeLine = "Creature — Insect Druid"
     power = 1
     toughness = 1

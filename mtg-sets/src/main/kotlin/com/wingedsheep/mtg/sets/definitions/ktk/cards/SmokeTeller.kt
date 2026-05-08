@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  */
 val SmokeTeller = card("Smoke Teller") {
     manaCost = "{1}{G}"
+    colorIdentity = "UG"
     typeLine = "Creature — Human Shaman"
     power = 2
     toughness = 2

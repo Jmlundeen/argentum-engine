@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
  */
 val RuthlessRipper = card("Ruthless Ripper") {
     manaCost = "{B}"
+    colorIdentity = "B"
     typeLine = "Creature — Human Assassin"
     power = 1
     toughness = 1
