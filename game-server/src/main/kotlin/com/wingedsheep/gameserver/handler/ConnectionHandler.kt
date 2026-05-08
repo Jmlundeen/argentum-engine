@@ -35,8 +35,7 @@ class ConnectionHandler(
             name = config.setName,
             incomplete = config.incomplete,
             block = config.block,
-            implementedCount = config.cards.size,
-            totalCount = config.totalSetSize
+            implementedCount = config.cards.size
         )
     }
 
