@@ -36,7 +36,7 @@ class SetsController(
     @GetMapping
     fun getSets(): List<SetInfoDTO> =
         boosterGenerator.availableSets.values
-            .filter { it.incomplete }
+            .filter { !it.incomplete }
             .map { config ->
                 SetInfoDTO(
                     setCode = config.setCode,

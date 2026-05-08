@@ -3,11 +3,11 @@ package com.wingedsheep.gameserver.controller
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.gameserver.deck.DeckValidationResult
 import com.wingedsheep.gameserver.deck.DeckValidator
+import com.wingedsheep.mtg.sets.MtgSetCatalog
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.DeckFormat
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
-import com.wingedsheep.sdk.model.MtgSet
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController
 class DecksController(
     private val cardRegistry: CardRegistry,
     private val deckValidator: DeckValidator,
-    private val activeSets: List<MtgSet>
 ) {
 
     data class CardSummaryDTO(
@@ -142,7 +141,7 @@ class DecksController(
 
     @GetMapping("/sets")
     fun getSets(): List<SetInfoDTO> =
-        activeSets.map { SetInfoDTO(it.code, it.displayName) }
+        MtgSetCatalog.all.map { SetInfoDTO(it.code, it.displayName) }
 
     data class SetInfoDTO(val code: String, val name: String)
 

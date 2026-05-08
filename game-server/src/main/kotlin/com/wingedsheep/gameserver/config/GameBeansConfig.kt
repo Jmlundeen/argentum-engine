@@ -29,7 +29,10 @@ class GameBeansConfig(
     @Bean
     fun cardRegistry(): CardRegistry = CardRegistry().apply {
         register(PredefinedTokens.allTokens)
-        for (set in activeSets()) {
+        // Register every catalogued set so the standalone deckbuilder can browse and validate
+        // cards from all sets, even those gated out of sealed/draft via game.sets.disabled-by-default.
+        // Booster/sealed/draft generation still respects the active-set filter via boosterGenerator.
+        for (set in MtgSetCatalog.all) {
             register(set.cards.stamp(set.code).withLegalities())
             register(set.basicLands.withLegalities())
             set.basicLandsFallback?.let { register(it.basicLands.withLegalities()) }
