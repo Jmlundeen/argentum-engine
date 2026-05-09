@@ -54,18 +54,18 @@ jobs:
           PERCENT=$(awk "BEGIN {printf \"%.1f\", ($COVERED / $TOTAL) * 100}")
           echo "coverage=$PERCENT" >> $GITHUB_OUTPUT
 
-      - name: Update coverage badge
-        if: github.ref == 'refs/heads/main'
-        uses: schneegans/dynamic-badges-action@v1.7.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ vars.COVERAGE_GIST_ID }}
-          filename: coverage.json
-          label: coverage
-          message: ${{ steps.coverage.outputs.coverage }}%
-          valColorRange: ${{ steps.coverage.outputs.coverage }}
-          minColorRange: 0
-          maxColorRange: 100
+#      - name: Update coverage badge
+#        if: github.ref == 'refs/heads/main'
+#        uses: schneegans/dynamic-badges-action@v1.7.0
+#        with:
+#          auth: ${{ secrets.GIST_SECRET }}
+#          gistID: ${{ vars.COVERAGE_GIST_ID }}
+#          filename: coverage.json
+#          label: coverage
+#          message: ${{ steps.coverage.outputs.coverage }}%
+#          valColorRange: ${{ steps.coverage.outputs.coverage }}
+#          minColorRange: 0
+#          maxColorRange: 100
 
   frontend:
     runs-on: ubuntu-latest
