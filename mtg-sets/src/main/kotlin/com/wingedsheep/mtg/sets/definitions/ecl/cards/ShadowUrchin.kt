@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -45,13 +46,13 @@ val ShadowUrchin = card("Shadow Urchin") {
     triggeredAbility {
         trigger = Triggers.YourCreatureDies
         triggerCondition = Compare(
-            DynamicAmount.LastKnownTotalCounterCount,
+            DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT),
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(1)
         )
         effect = CompositeEffect(listOf(
             GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.LastKnownTotalCounterCount),
+                source = CardSource.TopOfLibrary(DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT)),
                 storeAs = "exiledCards"
             ),
             MoveCollectionEffect(

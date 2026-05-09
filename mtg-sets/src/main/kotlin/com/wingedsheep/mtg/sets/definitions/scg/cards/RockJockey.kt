@@ -1,10 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
-import com.wingedsheep.sdk.scripting.conditions.PlayedLandThisTurn
 import com.wingedsheep.sdk.scripting.effects.PreventLandPlaysThisTurnEffect
 
 /**
@@ -24,7 +25,7 @@ val RockJockey = card("Rock Jockey") {
     oracleText = "You can't cast this spell if you've played a land this turn.\nYou can't play lands if you cast this spell this turn."
 
     spell {
-        castOnlyIf(NotCondition(PlayedLandThisTurn))
+        castOnlyIf(NotCondition(Conditions.PlayedLandThisTurn))
     }
 
     triggeredAbility {

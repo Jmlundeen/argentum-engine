@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -31,12 +32,12 @@ val SoulImmolation = card("Soul Immolation") {
 
     spell {
         effect = Effects.DealDamage(
-            DynamicAmount.AdditionalCostBlightAmount,
+            DynamicAmount.ContextProperty(ContextPropertyKey.ADDITIONAL_COST_BLIGHT_AMOUNT),
             EffectTarget.PlayerRef(Player.EachOpponent)
         ) then ForEachInGroupEffect(
             filter = GroupFilter.AllCreaturesOpponentsControl,
             effect = DealDamageEffect(
-                DynamicAmount.AdditionalCostBlightAmount,
+                DynamicAmount.ContextProperty(ContextPropertyKey.ADDITIONAL_COST_BLIGHT_AMOUNT),
                 EffectTarget.Self
             )
         )

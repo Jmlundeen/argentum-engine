@@ -1,11 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.YouAttackedThisTurn
 
 /**
  * Mardu Warshrieker
@@ -24,7 +25,7 @@ val MarduWarshrieker = card("Mardu Warshrieker") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        triggerCondition = YouAttackedThisTurn
+        triggerCondition = Conditions.YouAttackedThisTurn
         effect = Effects.Composite(
             Effects.AddMana(Color.RED),
             Effects.AddMana(Color.WHITE),

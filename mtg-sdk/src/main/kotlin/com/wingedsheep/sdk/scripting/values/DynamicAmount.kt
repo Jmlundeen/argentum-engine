@@ -30,7 +30,25 @@ enum class TurnTracker {
     /** Total damage received by the player this turn. */
     DAMAGE_RECEIVED,
     /** Total amount of life the player has gained this turn. */
-    LIFE_GAINED;
+    LIFE_GAINED,
+    /**
+     * Indicator (0 or 1) that the player has lost life at least once this turn. Backed by the
+     * `LifeLostThisTurnComponent` marker — there is no engine-side accumulator for the *amount*
+     * lost, so use `Compare(TurnTracking(player, LIFE_LOST), GTE, Fixed(1))` for boolean checks.
+     */
+    LIFE_LOST,
+    /** Indicator (0 or 1) that the player declared at least one attacker this turn. */
+    PLAYER_ATTACKED,
+    /** Indicator (0 or 1) that the player was dealt combat damage this turn. */
+    DEALT_COMBAT_DAMAGE,
+    /** Indicator (0 or 1) that the player put one or more counters on a creature this turn. */
+    COUNTERS_PUT_ON_CREATURE,
+    /** Number of land cards the player played this turn (derived from `LandDropsComponent`). */
+    LANDS_PLAYED,
+    /** Indicator (0 or 1) that the player sacrificed at least one Food this turn. */
+    FOOD_SACRIFICED,
+    /** Total cards that left the player's graveyard this turn (Bonecache Overseer). */
+    CARDS_LEFT_GRAVEYARD;
 
     fun descriptionFor(player: Player): String = when (this) {
         CREATURES_DIED -> "the number of creatures that died under ${player.possessive} control this turn"
@@ -39,7 +57,45 @@ enum class TurnTracker {
         OPPONENTS_WHO_LOST_LIFE -> "the number of opponents who lost life this turn"
         DAMAGE_RECEIVED -> "the damage already dealt to that player this turn"
         LIFE_GAINED -> "the amount of life ${player.possessive} gained this turn"
+        LIFE_LOST -> "whether ${player.description} lost life this turn"
+        PLAYER_ATTACKED -> "whether ${player.description} attacked this turn"
+        DEALT_COMBAT_DAMAGE -> "whether ${player.description} were dealt combat damage this turn"
+        COUNTERS_PUT_ON_CREATURE -> "whether ${player.description} put a counter on a creature this turn"
+        LANDS_PLAYED -> "the number of lands ${player.description} played this turn"
+        FOOD_SACRIFICED -> "whether ${player.description} sacrificed a Food this turn"
+        CARDS_LEFT_GRAVEYARD -> "the number of cards that left ${player.possessive} graveyard this turn"
     }
+}
+
+/**
+ * Keys for [DynamicAmount.ContextProperty] — values that an effect reads from its
+ * resolution context (trigger payload, additional-cost values, target list, linked-exile
+ * pile attached to the source) rather than from any fixed entity property.
+ *
+ * Each key carries its own oracle-text [description] used in card text generation.
+ */
+@Serializable
+enum class ContextPropertyKey(val description: String) {
+    /** The amount of damage in the current trigger payload (Tephraderm, Wall of Hope, …). */
+    TRIGGER_DAMAGE_AMOUNT("the damage dealt"),
+    /** The amount of life gained in the current trigger payload (False Cure, Lich's Mastery). */
+    TRIGGER_LIFE_GAINED("the life gained"),
+    /** The amount of life lost in the current trigger payload (Lich's Mastery). */
+    TRIGGER_LIFE_LOST("the life lost"),
+    /** Number of cards exiled as an additional cost (Chill Haunting). */
+    ADDITIONAL_COST_EXILED_COUNT("the number of cards exiled"),
+    /** X chosen for a `blight X` additional cost (Soul Immolation). */
+    ADDITIONAL_COST_BLIGHT_AMOUNT("X"),
+    /** Number of (still-legal) targets in the current effect context. */
+    TARGET_COUNT("the number of targets"),
+    /** Number of +1/+1 counters on the source as it last existed on the battlefield (Hooded Hydra). */
+    LAST_KNOWN_PLUS_ONE_COUNTER_COUNT("the number of +1/+1 counters on it"),
+    /** Total counters of any kind on the source as it last existed on the battlefield (Shadow Urchin). */
+    LAST_KNOWN_TOTAL_COUNTER_COUNT("the number of counters on it"),
+    /** Total cards exiled and linked to the source permanent (Veteran Survivor). */
+    LINKED_EXILE_CARD_COUNT("the number of cards exiled with this creature"),
+    /** Distinct card types among cards exiled and linked to the source permanent (Keen-Eyed Curator). */
+    LINKED_EXILE_DISTINCT_CARD_TYPE_COUNT("the number of card types among cards exiled with this creature"),
 }
 
 /**
@@ -123,24 +179,25 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     /**
-     * Count of distinct card types among cards exiled and linked to the source permanent.
-     * Used for Keen-Eyed Curator: "four or more card types among cards exiled with this creature"
+     * A value pulled from the current resolution context — trigger payload, additional-cost
+     * accumulator, target list, or a linked-exile pile attached to the source permanent.
+     *
+     * The key uniquely identifies which contextual quantity to read; the evaluator dispatches
+     * on the key. Replaces the per-context one-off cases (TriggerDamageAmount,
+     * TriggerLifeGainAmount, TriggerLifeLossAmount, AdditionalCostExiledCount,
+     * AdditionalCostBlightAmount, TargetCount, LastKnownCounterCount,
+     * LastKnownTotalCounterCount, CardsInLinkedExile, CardTypesInLinkedExile).
+     *
+     * Examples:
+     * ```kotlin
+     * ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)         // Tephraderm
+     * ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT) // Hooded Hydra
+     * ```
      */
-    @SerialName("CardTypesInLinkedExile")
+    @SerialName("ContextProperty")
     @Serializable
-    data object CardTypesInLinkedExile : DynamicAmount {
-        override val description: String = "the number of card types among cards exiled with this creature"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
-    }
-
-    /**
-     * Total count of cards exiled and linked to the source permanent.
-     * Used for Veteran Survivor: "three or more cards exiled with this creature"
-     */
-    @SerialName("CardsInLinkedExile")
-    @Serializable
-    data object CardsInLinkedExile : DynamicAmount {
-        override val description: String = "the number of cards exiled with this creature"
+    data class ContextProperty(val key: ContextPropertyKey) : DynamicAmount {
+        override val description: String = key.description
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
     }
 
@@ -156,6 +213,24 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @Serializable
     data object XValue : DynamicAmount {
         override val description: String = "X"
+        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
+    }
+
+    /**
+     * The total amount of mana paid from the pool to cast the current spell.
+     *
+     * Sums every per-color and colorless bucket recorded on the spell's stack object.
+     * For `{X}` spells the X portion is already included (the mana solver routes those
+     * payments through the same buckets), so this is **not** the same as [XValue]:
+     *  - `XValue` is the chosen value of X (e.g. 3 for Blaze cast with X=3).
+     *  - `TotalManaSpent` is the full mana paid (e.g. 4 for `{X}{R}` Blaze with X=3).
+     *
+     * Used for effects like Memory Deluge: "where X is the amount of mana spent to cast this spell."
+     */
+    @SerialName("TotalManaSpent")
+    @Serializable
+    data object TotalManaSpent : DynamicAmount {
+        override val description: String = "the total mana spent to cast this spell"
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
     }
 
@@ -316,68 +391,6 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     // =========================================================================
-    // Context-based Values - Values from cost payment or trigger context
-    // =========================================================================
-
-    /**
-     * The amount of damage dealt, from a trigger context.
-     * Used for abilities like "Whenever ~ is dealt damage, create that many tokens."
-     */
-    @SerialName("TriggerDamageAmount")
-    @Serializable
-    data object TriggerDamageAmount : DynamicAmount {
-        override val description: String = "the damage dealt"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
-    }
-
-    /**
-     * The amount of life gained, from a trigger context.
-     * Used for abilities like False Cure: "that player loses 2 life for each 1 life gained."
-     * Resolves from the same trigger amount pipeline as TriggerDamageAmount.
-     */
-    @SerialName("TriggerLifeGainAmount")
-    @Serializable
-    data object TriggerLifeGainAmount : DynamicAmount {
-        override val description: String = "the life gained"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
-    }
-
-    /**
-     * The amount of life lost, from a trigger context.
-     * Used for abilities like Vilis, Broker of Blood: "Whenever you lose life, draw that many cards."
-     * Resolves from the triggerDamageAmount field in EffectContext (absolute value of life lost).
-     */
-    @SerialName("TriggerLifeLossAmount")
-    @Serializable
-    data object TriggerLifeLossAmount : DynamicAmount {
-        override val description: String = "the life lost"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
-    }
-
-    /**
-     * Number of cards exiled as an additional cost to cast a spell.
-     * Used for effects like Chill Haunting: "Target creature gets -X/-X where X is
-     * the number of creature cards exiled as an additional cost."
-     */
-    @SerialName("AdditionalCostExiledCount")
-    @Serializable
-    data object AdditionalCostExiledCount : DynamicAmount {
-        override val description: String = "the number of cards exiled"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
-    }
-
-    /**
-     * Number of -1/-1 counters chosen as the variable amount for a Blight X
-     * additional cost (e.g., Soul Immolation: "blight X. ... deals X damage").
-     */
-    @SerialName("AdditionalCostBlightAmount")
-    @Serializable
-    data object AdditionalCostBlightAmount : DynamicAmount {
-        override val description: String = "X"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
-    }
-
-    // =========================================================================
     // Zone-based Counting — generic counting primitives
     // =========================================================================
 
@@ -433,34 +446,6 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
                 }
             }
         }
-    }
-
-    /**
-     * The number of +1/+1 counters on the source when it last existed on the battlefield.
-     * Used for death triggers that reference the creature's counters (e.g., Hooded Hydra:
-     * "create a 1/1 Snake token for each +1/+1 counter on it").
-     * Reads from the triggerCounterCount field in EffectContext, which is populated from
-     * last-known information captured in the ZoneChangeEvent.
-     */
-    @SerialName("LastKnownCounterCount")
-    @Serializable
-    data object LastKnownCounterCount : DynamicAmount {
-        override val description: String = "the number of +1/+1 counters on it"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
-    }
-
-    /**
-     * The total number of counters of any type on the source when it last existed on the
-     * battlefield. Used for dies/leaves triggers that reference "one or more counters" or
-     * "that many" across all counter types (e.g., Shadow Urchin).
-     * Reads from the triggerTotalCounterCount field in EffectContext, populated from
-     * last-known information captured in the ZoneChangeEvent.
-     */
-    @SerialName("LastKnownTotalCounterCount")
-    @Serializable
-    data object LastKnownTotalCounterCount : DynamicAmount {
-        override val description: String = "the number of counters on it"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
     }
 
     /**
@@ -709,18 +694,6 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @Serializable
     data class CreaturesSharingTypeWithEntity(val entity: EntityReference) : DynamicAmount {
         override val description: String = "the number of other creatures that share a creature type with ${entity.description}"
-        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
-    }
-
-    /**
-     * The number of targets in the current effect context.
-     * Used for "for each permanent returned this way" effects where the count
-     * equals the number of (still-legal) targets at resolution time.
-     */
-    @SerialName("TargetCount")
-    @Serializable
-    data object TargetCount : DynamicAmount {
-        override val description: String = "the number of targets"
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
     }
 

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -41,7 +42,7 @@ val WanderwineFarewell = card("Wanderwine Farewell") {
         ) then ConditionalEffect(
             condition = Conditions.ControlCreatureOfType(Subtype.MERFOLK),
             effect = CreateTokenEffect(
-                count = DynamicAmount.TargetCount,
+                count = DynamicAmount.ContextProperty(ContextPropertyKey.TARGET_COUNT),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.WHITE, Color.BLUE),

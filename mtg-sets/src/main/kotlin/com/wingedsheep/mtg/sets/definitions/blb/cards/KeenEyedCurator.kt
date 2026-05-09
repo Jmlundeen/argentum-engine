@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 // Keen-Eyed Curator - {G}{G}
@@ -30,7 +31,7 @@ val KeenEyedCurator = card("Keen-Eyed Curator") {
     oracleText = "As long as there are four or more card types among cards exiled with this creature, it gets +4/+4 and has trample.\n{1}: Exile target card from a graveyard."
 
     val fourOrMoreCardTypes = Compare(
-        DynamicAmount.CardTypesInLinkedExile,
+        DynamicAmount.ContextProperty(ContextPropertyKey.LINKED_EXILE_DISTINCT_CARD_TYPE_COUNT),
         ComparisonOperator.GTE,
         DynamicAmount.Fixed(4)
     )

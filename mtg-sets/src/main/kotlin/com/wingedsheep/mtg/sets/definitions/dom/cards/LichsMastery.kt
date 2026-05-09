@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCantLoseGame
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -40,14 +41,14 @@ val LichsMastery = card("Lich's Mastery") {
     // Whenever you gain life, draw that many cards
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = Effects.DrawCards(DynamicAmount.TriggerLifeGainAmount)
+        effect = Effects.DrawCards(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED))
     }
 
     // Whenever you lose life, for each 1 life you lost, exile a permanent you control
     // or a card from your hand or graveyard
     triggeredAbility {
         trigger = Triggers.YouLoseLife
-        effect = Effects.ForceExileMultiZone(DynamicAmount.TriggerLifeLossAmount)
+        effect = Effects.ForceExileMultiZone(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST))
     }
 
     // When Lich's Mastery leaves the battlefield, you lose the game

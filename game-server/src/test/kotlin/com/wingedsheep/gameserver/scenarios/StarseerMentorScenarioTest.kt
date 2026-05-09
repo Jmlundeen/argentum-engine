@@ -3,6 +3,7 @@ package com.wingedsheep.gameserver.scenarios
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.core.SelectCardsDecision
+import com.wingedsheep.engine.state.components.player.LifeGainedAmountThisTurnComponent
 import com.wingedsheep.engine.state.components.player.LifeGainedThisTurnComponent
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
@@ -27,7 +28,10 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 class StarseerMentorScenarioTest : ScenarioTestBase() {
 
     private fun markLifeGained(game: TestGame) {
-        game.state = game.state.updateEntity(game.player1Id) { it.with(LifeGainedThisTurnComponent) }
+        game.state = game.state.updateEntity(game.player1Id) {
+            it.with(LifeGainedThisTurnComponent)
+                .with(LifeGainedAmountThisTurnComponent(amount = 1))
+        }
     }
 
     /** Advance from postcombat main to end step by passing priority until we get there. */

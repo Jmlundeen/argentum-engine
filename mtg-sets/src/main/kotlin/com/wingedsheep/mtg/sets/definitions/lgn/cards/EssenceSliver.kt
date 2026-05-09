@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -32,7 +33,7 @@ val EssenceSliver = card("Essence Sliver") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsDamage.event,
                 binding = Triggers.DealsDamage.binding,
-                effect = GainLifeEffect(DynamicAmount.TriggerDamageAmount)
+                effect = GainLifeEffect(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
             ),
             filter = sliverFilter
         )

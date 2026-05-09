@@ -237,6 +237,9 @@ data class TargetFilter(
     /** Mana value at most */
     fun manaValueAtMost(max: Int) = copy(baseFilter = baseFilter.manaValueAtMost(max))
 
+    /** Mana value at most the X chosen for the source spell/ability */
+    fun manaValueAtMostX() = copy(baseFilter = baseFilter.manaValueAtMostX())
+
     /** Mana value at least */
     fun manaValueAtLeast(min: Int) = copy(baseFilter = baseFilter.manaValueAtLeast(min))
 

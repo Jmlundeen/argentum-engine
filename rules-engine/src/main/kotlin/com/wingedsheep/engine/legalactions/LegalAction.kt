@@ -24,6 +24,17 @@ data class LegalAction(
     val minTargets: Int = targetCount,
     val targetDescription: String? = null,
     val targetRequirements: List<TargetInfo>? = null,
+    /**
+     * True when the (single) target requirement filters by "mana value X or less"
+     * (i.e. the requirement's filter contains [CardPredicate.ManaValueAtMostX]).
+     *
+     * The enumerator builds [validTargets] permissively because X is unbound at
+     * enumeration time. The client must re-filter [validTargets] by the chosen X
+     * once the player picks it, so it cannot click an over-MV target that the
+     * server would later reject. For multi-requirement spells, see
+     * [TargetInfo.xConstrainsManaValue] on each requirement instead.
+     */
+    val xConstrainsTargetManaValue: Boolean = false,
 
     // Combat
     val validAttackers: List<EntityId>? = null,
@@ -50,6 +61,15 @@ data class LegalAction(
     // Mana abilities
     val isManaAbility: Boolean = false,
     val requiresManaColorChoice: Boolean = false,
+    /**
+     * Constrained set of colors the ability can produce, when known.
+     *
+     * Null means the ability accepts all five colors (e.g. plain "Add one mana of any color"
+     * — Gilded Lotus, Birds of Paradise). When non-null, the UI must restrict the color
+     * picker to these colors (Mox Amber, Fellwar Stone, Reflecting Pool). An empty list
+     * means no color is producible right now and the action effectively no-ops if activated.
+     */
+    val availableManaColors: List<Color>? = null,
 
     // Auto-tap (engine computes the solution; server enriches with full mana source info)
     val autoTapPreview: List<EntityId>? = null,
@@ -142,7 +162,12 @@ data class TargetInfo(
     val minTargets: Int,
     val maxTargets: Int,
     val validTargets: List<EntityId>,
-    val targetZone: String? = null
+    val targetZone: String? = null,
+    /**
+     * True when this requirement's filter contains [CardPredicate.ManaValueAtMostX].
+     * The client re-filters [validTargets] by the chosen X after X selection.
+     */
+    val xConstrainsManaValue: Boolean = false
 )
 
 /**

@@ -1,10 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.YouAttackedThisTurn
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
@@ -25,7 +26,7 @@ val MarduHeartPiercer = card("Mardu Heart-Piercer") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        triggerCondition = YouAttackedThisTurn
+        triggerCondition = Conditions.YouAttackedThisTurn
         val t = target("any target", Targets.Any)
         effect = DealDamageEffect(2, t)
     }

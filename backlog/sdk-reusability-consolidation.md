@@ -101,39 +101,47 @@ dispatches by modification kind. Face-down (`calculateFaceDownCost`) and morph
 
 **Win:** 13 → 1.
 
-### 5. TurnTracker condition collapse — [HIGH]
+### 5. TurnTracker condition collapse — [HIGH] ✅ done
 
-`scripting/conditions/TurnConditions.kt` has 11 hand-rolled "did X this turn"
-conditions: `YouGainedLifeThisTurn`, `YouLostLifeThisTurn`,
-`YouGainedAndLostLifeThisTurn`, `YouGainedOrLostLifeThisTurn`,
-`OpponentLostLifeThisTurn`, `YouAttackedThisTurn`,
-`YouWereDealtCombatDamageThisTurn`, `PutCounterOnCreatureThisTurn`,
-`PlayedLandThisTurn`, `SacrificedFoodThisTurn`, `CardsLeftGraveyardThisTurn`.
+`scripting/conditions/TurnConditions.kt`'s 11 hand-rolled "did X this turn"
+classes deleted. New `TurnTracker` keys (`LIFE_LOST`, `PLAYER_ATTACKED`,
+`DEALT_COMBAT_DAMAGE`, `COUNTERS_PUT_ON_CREATURE`, `LANDS_PLAYED`,
+`FOOD_SACRIFICED`, `CARDS_LEFT_GRAVEYARD`) backed by the existing per-player
+markers/accumulators; markers report as 0 or 1, count-bearing components
+return their full count. Each `Conditions.X` DSL accessor now produces
+`Compare(DynamicAmount.TurnTracking(player, key), GTE, Fixed(n))` — the
+projection-side `SourceProjectionCondition.Compare` branch already delegated
+to `DynamicAmountEvaluator`, so the dead `ControllerLostLifeThisTurn`
+projection variant + its `StaticAbilityHandler` mapping were dropped. AND/OR
+composites collapse to `AllConditions` / `AnyCondition` over the basic
+trackers; `OpponentLostLifeThisTurn` now reads
+`TurnTracking(Player.Opponent, LIFE_LOST)`. Card-sites that imported the data
+objects directly (ktk Mardu cycle, Rock Jockey, Thought Stalker Warlock) were
+moved onto the `Conditions` facade.
 
-The `LIFE_GAINED` tracker pattern in `DynamicAmount.kt:33` is already the right
-primitive — every one of these can be
-`Compare(DynamicAmount.TurnTracking(player, key), op, Fixed(n))`.
+**Win:** 11 condition classes + 12 hand-written evaluator branches deleted;
+future "did X this turn" cards add a tracker key, not a class.
 
-**Fix:** add tracker keys for the missing categories
-(`CARDS_LEFT_GRAVEYARD`, `COUNTERS_PUT_ON_CREATURE`, `LIFE_LOST`, `LANDS_PLAYED`,
-`FOOD_SACRIFICED`, `ATTACKED`, `DEALT_COMBAT_DAMAGE`) and delete the bespoke
-conditions.
+### 6. DynamicAmount context-property collapse — [HIGH] ✅ done
 
-**Win:** 11 → 0 conditions; future "did X this turn" cards add a tracker key, not a class.
+10 of the 11 cases collapsed into `DynamicAmount.ContextProperty(key:
+ContextPropertyKey)`. The single evaluator branch dispatches by key:
+`TRIGGER_DAMAGE_AMOUNT` / `TRIGGER_LIFE_GAINED` / `TRIGGER_LIFE_LOST` all
+share `EffectContext.triggerDamageAmount` (the per-event accumulator already
+populates it with the absolute amount of life moved);
+`LAST_KNOWN_PLUS_ONE_COUNTER_COUNT` / `LAST_KNOWN_TOTAL_COUNTER_COUNT` read
+the trigger payload's last-known counter snapshot;
+`ADDITIONAL_COST_EXILED_COUNT` / `ADDITIONAL_COST_BLIGHT_AMOUNT` read
+cast-time cost accumulators; `TARGET_COUNT` reads `context.targets.size`;
+`LINKED_EXILE_CARD_COUNT` / `LINKED_EXILE_DISTINCT_CARD_TYPE_COUNT` read the
+source's `LinkedExileComponent`. `CreaturesSharingTypeWithEntity(entity)`
+stays as a separate parameterized class — its `EntityReference` parameter
+doesn't fit the enum-keyed shape.
 
-### 6. DynamicAmount context-property collapse — [HIGH]
+Per-key oracle text lives on the enum's `description` so card text generation
+remains stable.
 
-`scripting/values/DynamicAmount.kt` has 11 one-off amounts each wired to one
-trigger/cost field: `TriggerDamageAmount`, `TriggerLifeGainAmount`,
-`TriggerLifeLossAmount`, `AdditionalCostExiledCount`, `AdditionalCostBlightAmount`,
-`TargetCount`, `LastKnownCounterCount`, `LastKnownTotalCounterCount`,
-`CardsInLinkedExile`, `CardTypesInLinkedExile`, `CreaturesSharingTypeWithEntity`.
-
-**Fix:** introduce
-`DynamicAmount.ContextProperty(key: ContextPropertyKey)` with an enum mirroring how
-`TurnTracker` already works. `descriptionFor()` lives on the enum.
-
-**Win:** 11 case classes → 1 + enum.
+**Win:** 10 case classes → 1 + 10-entry enum.
 
 ### 7. Targeting OR-type collapse — [HIGH]
 
@@ -358,8 +366,8 @@ If picking one at a time, by leverage:
 2. **Static-ability single-vs-group unification** — every card author currently has to
    know which form exists.
 3. **`CostStaticAbilities` consolidation** — cost-modification is the muddiest area.
-4. **TurnTracker + DynamicAmount context-property collapse** — kills the "one new
-   condition per card" pattern.
+4. **TurnTracker + DynamicAmount context-property collapse** ✅ done — kills
+   the "one new condition per card" pattern.
 5. **`StatePredicate` exhaustiveness split** — closes a known bug class.
 6. **Targeting OR-type collapse** — small, high signal-to-noise.
 7. **`MoveType` unification** + **`AddManaEffect` cluster** + **`ChainCopy` facades** —

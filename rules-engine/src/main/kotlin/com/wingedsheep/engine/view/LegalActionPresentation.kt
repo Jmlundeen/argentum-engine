@@ -22,7 +22,14 @@ data class LegalActionTargetInfo(
     val minTargets: Int,
     val maxTargets: Int,
     val validTargets: List<EntityId>,
-    val targetZone: String? = null
+    val targetZone: String? = null,
+    /**
+     * True when this target requirement filters by "mana value X or less"
+     * (CardPredicate.ManaValueAtMostX). The client must re-filter [validTargets]
+     * by the chosen X after X selection — the engine builds [validTargets]
+     * permissively because X is unbound at legal-action enumeration time.
+     */
+    val xConstrainsManaValue: Boolean = false
 )
 
 @Serializable
@@ -37,6 +44,13 @@ data class LegalActionInfo(
     val minTargets: Int = targetCount,
     val targetDescription: String? = null,
     val targetRequirements: List<LegalActionTargetInfo>? = null,
+    /**
+     * True when the (single) target requirement filters by "mana value X or less".
+     * For multi-requirement spells the per-requirement flag on
+     * [LegalActionTargetInfo.xConstrainsManaValue] is used instead. The client
+     * must re-filter [validTargets] by the chosen X after X selection.
+     */
+    val xConstrainsTargetManaValue: Boolean = false,
     val validAttackers: List<EntityId>? = null,
     val mandatoryAttackers: List<EntityId>? = null,
     val validAttackTargets: List<EntityId>? = null,
@@ -58,6 +72,13 @@ data class LegalActionInfo(
     val autoTapPreview: List<EntityId>? = null,
     val availableManaSources: List<ManaSourceInfo>? = null,
     val requiresManaColorChoice: Boolean = false,
+    /**
+     * Restricted color names ("WHITE", "BLUE", ...) when the ability can only produce a
+     * subset (Mox Amber, Fellwar Stone, Reflecting Pool). Null = all five colors are valid
+     * (Gilded Lotus, Birds of Paradise). The client must hide unproducible colors from the
+     * picker. See [LegalAction.availableManaColors].
+     */
+    val availableManaColors: List<String>? = null,
     val sourceZone: String? = null,
     val blockerMaxBlockCounts: Map<EntityId, Int>? = null,
     val mandatoryBlockerAssignments: Map<EntityId, List<EntityId>>? = null,

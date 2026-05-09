@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -26,7 +27,7 @@ val BroodhatchNantuko = card("Broodhatch Nantuko") {
     triggeredAbility {
         trigger = Triggers.TakesDamage
         effect = CreateTokenEffect(
-            count = DynamicAmount.TriggerDamageAmount,
+            count = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             power = 1,
             toughness = 1,
             colors = setOf(Color.GREEN),

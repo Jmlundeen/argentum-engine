@@ -528,6 +528,12 @@ export interface LegalActionTargetInfo {
   readonly validTargets: readonly EntityId[]
   /** The zone these targets are in (e.g., "Graveyard" for graveyard targets). Null for battlefield targets. */
   readonly targetZone?: string
+  /**
+   * True when this requirement filters by "mana value X or less" — the client must
+   * intersect [validTargets] with `card.manaValue <= chosenX` after X selection,
+   * since the server enumerates targets permissively before X is bound.
+   */
+  readonly xConstrainsManaValue?: boolean
 }
 
 /**
@@ -549,6 +555,13 @@ export interface LegalActionInfo {
   readonly targetDescription?: string
   /** Multiple target requirements for spells with multiple distinct targets */
   readonly targetRequirements?: readonly LegalActionTargetInfo[]
+  /**
+   * True when the (single) target requirement filters by "mana value X or less".
+   * For multi-requirement spells, see the per-requirement
+   * [LegalActionTargetInfo.xConstrainsManaValue]. The client must re-filter
+   * [validTargets] by the chosen X after X selection.
+   */
+  readonly xConstrainsTargetManaValue?: boolean
   /** Valid attacker IDs for DeclareAttackers action */
   readonly validAttackers?: readonly EntityId[]
   /** Creature IDs that must attack this combat (from MustAttack, Taunt, etc.) */
@@ -593,6 +606,13 @@ export interface LegalActionInfo {
   readonly availableManaSources?: readonly ManaSourceInfo[]
   /** Whether this ability produces mana of any color and needs a color choice from the player */
   readonly requiresManaColorChoice?: boolean
+  /**
+   * Restricted set of producible color names ("WHITE", "BLUE", "BLACK", "RED", "GREEN")
+   * for color-constrained abilities (Mox Amber, Fellwar Stone, Reflecting Pool).
+   * Undefined means all five colors are valid (Gilded Lotus, Birds of Paradise).
+   * The picker must hide colors not present in this list.
+   */
+  readonly availableManaColors?: readonly string[]
   /** Source zone if this action is from a non-hand zone (e.g., "LIBRARY" for Future Sight) */
   readonly sourceZone?: string
   /** Max block counts for blockers that can block more than one attacker */

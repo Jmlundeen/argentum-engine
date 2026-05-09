@@ -69,26 +69,6 @@ data object YouWereAttackedThisStep : Condition {
 }
 
 /**
- * Condition: "If you were dealt combat damage this turn"
- */
-@SerialName("YouWereDealtCombatDamageThisTurn")
-@Serializable
-data object YouWereDealtCombatDamageThisTurn : Condition {
-    override val description: String = "if you were dealt combat damage this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "If you attacked this turn"
- */
-@SerialName("YouAttackedThisTurn")
-@Serializable
-data object YouAttackedThisTurn : Condition {
-    override val description: String = "if you attacked this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
  * Condition: "If you attacked with [atLeast] or more creatures matching [filter] this turn".
  * Counts every creature you declared as an attacker this turn whose current state
  * (per the projected state) matches the filter.
@@ -136,68 +116,6 @@ data class YouCastSpellsThisTurn(
 }
 
 /**
- * Condition: "If an opponent lost life this turn"
- * Checks whether any opponent has lost life (from any source: damage, life loss, payment)
- * at any point during the current turn. Per MTG rules, this cares about whether life was
- * lost, not whether the net life total changed.
- * Used for cards like Hired Claw.
- */
-/**
- * Condition: "if you gained life this turn"
- * Checks whether the controller has gained life at any point during the current turn.
- * Used for Lunar Convocation.
- */
-@SerialName("YouGainedLifeThisTurn")
-@Serializable
-data object YouGainedLifeThisTurn : Condition {
-    override val description: String = "if you gained life this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "as long as you've lost life this turn"
- * Checks whether the controller has lost life at any point during the current turn.
- * Used for Essence Channeler.
- */
-@SerialName("YouLostLifeThisTurn")
-@Serializable
-data object YouLostLifeThisTurn : Condition {
-    override val description: String = "as long as you've lost life this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "if you gained and lost life this turn"
- * Checks whether the controller has BOTH gained AND lost life during the current turn.
- * Used for Lunar Convocation's second ability.
- */
-@SerialName("YouGainedAndLostLifeThisTurn")
-@Serializable
-data object YouGainedAndLostLifeThisTurn : Condition {
-    override val description: String = "if you gained and lost life this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "if you gained or lost life this turn"
- * Checks whether the controller has gained OR lost life at any point during the current turn.
- * Used for Star Charter and similar Bloomburrow cards.
- */
-@SerialName("YouGainedOrLostLifeThisTurn")
-@Serializable
-data object YouGainedOrLostLifeThisTurn : Condition {
-    override val description: String = "if you gained or lost life this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-@SerialName("OpponentLostLifeThisTurn")
-@Serializable
-data object OpponentLostLifeThisTurn : Condition {
-    override val description: String = "if an opponent lost life this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
  * Condition: "if this is the first spell matching the given filter cast by you this turn"
  * Checks the per-player spell record tracker. The condition is true if exactly one spell
  * matching the filter has been cast (just this spell). Used for Alania, Divergent Storm.
@@ -208,65 +126,6 @@ data class IsFirstSpellOfTypeCastThisTurn(
     val spellFilter: GameObjectFilter
 ) : Condition {
     override val description: String = "if it's the first ${spellFilter.description} spell you've cast this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-// =============================================================================
-// Land Conditions
-// =============================================================================
-
-/**
- * Condition: "If you've played a land this turn"
- * Checks if the player has used any land drops this turn.
- * Used for cards like Rock Jockey.
- */
-@SerialName("PlayedLandThisTurn")
-@Serializable
-data object PlayedLandThisTurn : Condition {
-    override val description: String = "if you've played a land this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-// =============================================================================
-// Graveyard/Sacrifice Tracking Conditions
-// =============================================================================
-
-/**
- * Condition: "If N or more cards left your graveyard this turn"
- * Used for Bonecache Overseer.
- */
-@SerialName("CardsLeftGraveyardThisTurn")
-@Serializable
-data class CardsLeftGraveyardThisTurn(val count: Int) : Condition {
-    override val description: String = "if $count or more cards left your graveyard this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "If you've sacrificed a Food this turn"
- * Used for Bonecache Overseer.
- */
-@SerialName("SacrificedFoodThisTurn")
-@Serializable
-data object SacrificedFoodThisTurn : Condition {
-    override val description: String = "if you've sacrificed a Food this turn"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-// =============================================================================
-// Counter Tracking Conditions
-// =============================================================================
-
-/**
- * Condition: "if you put a counter on a creature this turn"
- * Checks whether the controller has placed one or more counters on any creature
- * during the current turn.
- * Used for Lasting Tarfire.
- */
-@SerialName("PutCounterOnCreatureThisTurn")
-@Serializable
-data object PutCounterOnCreatureThisTurn : Condition {
-    override val description: String = "if you put a counter on a creature this turn"
     override fun applyTextReplacement(replacer: TextReplacer): Condition = this
 }
 

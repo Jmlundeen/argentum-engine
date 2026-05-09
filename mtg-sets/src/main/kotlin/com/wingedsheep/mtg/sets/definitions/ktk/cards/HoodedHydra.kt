@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -41,7 +42,7 @@ val HoodedHydra = card("Hooded Hydra") {
     triggeredAbility {
         trigger = Triggers.Dies
         effect = CreateTokenEffect(
-            count = DynamicAmount.LastKnownCounterCount,
+            count = DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT),
             power = 1,
             toughness = 1,
             colors = setOf(Color.GREEN),

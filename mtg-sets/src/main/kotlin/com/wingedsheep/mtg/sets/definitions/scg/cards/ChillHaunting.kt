@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.CostZone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -30,7 +31,7 @@ val ChillHaunting = card("Chill Haunting") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        val negX = DynamicAmount.Multiply(DynamicAmount.AdditionalCostExiledCount, -1)
+        val negX = DynamicAmount.Multiply(DynamicAmount.ContextProperty(ContextPropertyKey.ADDITIONAL_COST_EXILED_COUNT), -1)
         effect = Effects.ModifyStats(negX, negX, creature)
     }
 

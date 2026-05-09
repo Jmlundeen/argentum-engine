@@ -431,6 +431,8 @@ internal class AffectsFilterResolver {
         }
         is CardPredicate.ManaValueEquals -> card.manaValue == predicate.value
         is CardPredicate.ManaValueAtMost -> card.manaValue <= predicate.max
+        // ManaValueAtMostX is target-time only; layer-projection has no X context, so it never matches here.
+        CardPredicate.ManaValueAtMostX -> false
         is CardPredicate.ManaValueAtLeast -> card.manaValue >= predicate.min
         is CardPredicate.NameEquals -> card.name == predicate.name
         is CardPredicate.HasBasicLandType -> if (isFaceDown) false else subtypes.any { it.equals(predicate.landType, ignoreCase = true) }

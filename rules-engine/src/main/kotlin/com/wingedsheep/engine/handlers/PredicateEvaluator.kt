@@ -250,6 +250,17 @@ class PredicateEvaluator {
                 val cmc = if (projectedValues?.isFaceDown == true) 0 else card.manaValue
                 cmc <= predicate.max
             }
+            is CardPredicate.ManaValueAtMostX -> {
+                // Null xValue means X is unbound (legal-action enumeration runs before the
+                // player chooses X). Match permissively so the cast action is offered; the
+                // chosen X is enforced at cast-time validation and resolution-time re-check.
+                val xValue = context?.xValue
+                if (xValue == null) true
+                else {
+                    val cmc = if (projectedValues?.isFaceDown == true) 0 else card.manaValue
+                    cmc <= xValue
+                }
+            }
             is CardPredicate.ManaValueAtLeast -> {
                 val cmc = if (projectedValues?.isFaceDown == true) 0 else card.manaValue
                 cmc >= predicate.min
@@ -537,6 +548,10 @@ class PredicateEvaluator {
             // Mana value predicates
             is CardPredicate.ManaValueEquals -> card.manaValue == predicate.value
             is CardPredicate.ManaValueAtMost -> card.manaValue <= predicate.max
+            is CardPredicate.ManaValueAtMostX -> {
+                val xValue = context?.xValue
+                xValue == null || card.manaValue <= xValue
+            }
             is CardPredicate.ManaValueAtLeast -> card.manaValue >= predicate.min
 
             // Power/toughness predicates
@@ -922,6 +937,8 @@ class PredicateEvaluator {
             // Mana value predicates
             is CardPredicate.ManaValueEquals -> record.manaValue == predicate.value
             is CardPredicate.ManaValueAtMost -> record.manaValue <= predicate.max
+            // ManaValueAtMostX is target-time only; without context it cannot match record-level history.
+            CardPredicate.ManaValueAtMostX -> false
             is CardPredicate.ManaValueAtLeast -> record.manaValue >= predicate.min
 
             // Power/toughness — not meaningful for cast records
@@ -982,7 +999,13 @@ data class PredicateContext(
     /** Ordered targets chosen for the effect; used to resolve explicit EffectTarget references. */
     val targets: List<ChosenTarget> = emptyList(),
     /** Named targets bound via the DSL, mapped by name. */
-    val namedTargets: Map<String, ChosenTarget> = emptyMap()
+    val namedTargets: Map<String, ChosenTarget> = emptyMap(),
+    /**
+     * The X chosen for the source spell/ability (cast-time selection or snapshot from
+     * SpellOnStackComponent at resolution). Used by [CardPredicate.ManaValueAtMostX] to
+     * filter targets by "mana value X or less".
+     */
+    val xValue: Int? = null
 ) {
     /**
      * Resolve an [EffectTarget] reference to a concrete player [EntityId].
@@ -1023,7 +1046,8 @@ data class PredicateContext(
                 storedStringLists = context.pipeline.storedStringLists,
                 storedSubtypeGroups = context.pipeline.storedSubtypeGroups,
                 targets = context.targets,
-                namedTargets = context.pipeline.namedTargets
+                namedTargets = context.pipeline.namedTargets,
+                xValue = context.xValue
             )
         }
     }

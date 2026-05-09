@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 1 / 312
+**Implemented:** 3 / 312
 
 | Color      | Total | Done |
 |------------|-------|------|
@@ -12,8 +12,8 @@
 | Red        | 24    | 0    |
 | Green      | 62    | 1    |
 | Multicolor | 40    | 0    |
-| Colorless  | 33    | 0    |
-| Land       | 69    | 0    |
+| Colorless  | 33    | 1    |
+| Land       | 69    | 1    |
 
 ---
 
@@ -101,7 +101,7 @@
 - [ ] Explore
 - [ ] Faeburrow Elder
 - [ ] Farseek
-- [ ] Fellwar Stone
+- [x] Fellwar Stone
 - [ ] Ferrous Lake
 - [ ] Fisher's Talent
 - [ ] Flooded Grove
@@ -158,7 +158,7 @@
 - [ ] Junk Winder
 - [ ] Kalonian Hydra
 - [ ] Karn, the Great Creator
-- [ ] Karplusan Forest
+- [x] Karplusan Forest
 - [ ] Kodama of the East Tree
 - [ ] Kwain, Itinerant Meddler
 - [ ] Kykar, Wind's Fury

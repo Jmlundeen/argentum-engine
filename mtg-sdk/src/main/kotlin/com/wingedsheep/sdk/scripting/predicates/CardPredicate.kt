@@ -272,6 +272,18 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
         override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
     }
 
+    /**
+     * Mana value at most the X chosen for the source spell/ability.
+     * Resolves against [PredicateContext.xValue] at evaluation time, so it works
+     * both at cast-time target validation and at resolution-time legality re-check.
+     */
+    @SerialName("ManaValueAtMostX")
+    @Serializable
+    data object ManaValueAtMostX : CardPredicate {
+        override val description: String = "with mana value X or less"
+        override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
+    }
+
     @SerialName("ManaValueAtLeast")
     @Serializable
     data class ManaValueAtLeast(val min: Int) : CardPredicate {

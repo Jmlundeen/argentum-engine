@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.EffectPatterns
@@ -8,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.OpponentLostLifeThisTurn
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
@@ -49,7 +50,7 @@ val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
         trigger = Triggers.EntersBattlefield
         val opponent = target("opponent", Targets.Opponent)
         effect = ConditionalEffect(
-            condition = OpponentLostLifeThisTurn,
+            condition = Conditions.OpponentLostLifeThisTurn,
             // If they lost life: reveal hand, controller chooses nonland, discard it
             effect = CompositeEffect(
                 listOf(

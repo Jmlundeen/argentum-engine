@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -55,7 +56,7 @@ class LifeLossTriggerTest : FunSpec({
                     trigger = Triggers.YouLoseLife.event,
                     binding = Triggers.YouLoseLife.binding,
                     effect = LoseLifeEffect(
-                        amount = DynamicAmount.TriggerLifeLossAmount,
+                        amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST),
                         target = EffectTarget.PlayerRef(Player.EachOpponent)
                     )
                 )

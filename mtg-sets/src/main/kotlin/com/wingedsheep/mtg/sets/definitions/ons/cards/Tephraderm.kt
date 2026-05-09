@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,7 +27,7 @@ val Tephraderm = card("Tephraderm") {
     triggeredAbility {
         trigger = Triggers.DamagedByCreature
         effect = DealDamageEffect(
-            amount = DynamicAmount.TriggerDamageAmount,
+            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.TriggeringEntity
         )
     }
@@ -34,7 +35,7 @@ val Tephraderm = card("Tephraderm") {
     triggeredAbility {
         trigger = Triggers.DamagedBySpell
         effect = DealDamageEffect(
-            amount = DynamicAmount.TriggerDamageAmount,
+            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.ControllerOfTriggeringEntity
         )
     }

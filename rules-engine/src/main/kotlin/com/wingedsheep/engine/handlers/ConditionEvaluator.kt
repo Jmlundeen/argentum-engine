@@ -42,7 +42,6 @@ import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
 import com.wingedsheep.sdk.scripting.conditions.OpponentSpellOnStack
-import com.wingedsheep.sdk.scripting.conditions.PlayedLandThisTurn
 import com.wingedsheep.sdk.scripting.conditions.SourceEnteredThisTurn
 import com.wingedsheep.sdk.scripting.conditions.SourceIsModified
 import com.wingedsheep.sdk.scripting.conditions.SourceHasDealtCombatDamageToPlayer
@@ -64,26 +63,16 @@ import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityEnteredOrWasCast
 import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadMinusOneMinusOneCounter
 import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityWasHistoric
 import com.wingedsheep.sdk.scripting.conditions.TriggeringSpellHasSingleTarget
-import com.wingedsheep.sdk.scripting.conditions.CardsLeftGraveyardThisTurn
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
-import com.wingedsheep.sdk.scripting.conditions.OpponentLostLifeThisTurn
-import com.wingedsheep.sdk.scripting.conditions.YouGainedLifeThisTurn
-import com.wingedsheep.sdk.scripting.conditions.YouGainedAndLostLifeThisTurn
-import com.wingedsheep.sdk.scripting.conditions.YouGainedOrLostLifeThisTurn
-import com.wingedsheep.sdk.scripting.conditions.YouLostLifeThisTurn
-import com.wingedsheep.sdk.scripting.conditions.PutCounterOnCreatureThisTurn
-import com.wingedsheep.sdk.scripting.conditions.SacrificedFoodThisTurn
 import com.wingedsheep.sdk.scripting.conditions.IsFirstSpellOfTypeCastThisTurn
 import com.wingedsheep.sdk.scripting.conditions.SourceAbilityResolvedNTimesThisTurn
 import com.wingedsheep.sdk.scripting.conditions.ManaSpentToCastIncludes
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
-import com.wingedsheep.sdk.scripting.conditions.YouAttackedThisTurn
 import com.wingedsheep.sdk.scripting.conditions.YouAttackedWithCreaturesThisTurn
 import com.wingedsheep.sdk.scripting.conditions.YouCastSpellsThisTurn
 import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
-import com.wingedsheep.sdk.scripting.conditions.YouWereDealtCombatDamageThisTurn
 import com.wingedsheep.sdk.scripting.conditions.VoidCondition
 
 /**
@@ -144,19 +133,8 @@ class ConditionEvaluator {
             is IsYourTurn -> evaluateIsYourTurn(state, context)
             is IsNotYourTurn -> !evaluateIsYourTurn(state, context)
             is IsInPhase -> evaluateIsInPhase(state, condition, context)
-            is PlayedLandThisTurn -> evaluatePlayedLandThisTurn(state, context)
-            is YouAttackedThisTurn -> evaluateYouAttackedThisTurn(state, context)
             is YouAttackedWithCreaturesThisTurn -> evaluateYouAttackedWithCreaturesThisTurn(state, condition, context)
-            is YouGainedLifeThisTurn -> evaluateYouGainedLifeThisTurn(state, context)
-            is YouGainedOrLostLifeThisTurn -> evaluateYouGainedOrLostLifeThisTurn(state, context)
-            is YouLostLifeThisTurn -> evaluateYouLostLifeThisTurn(state, context)
-            is YouGainedAndLostLifeThisTurn -> evaluateYouGainedAndLostLifeThisTurn(state, context)
-            is OpponentLostLifeThisTurn -> evaluateOpponentLostLifeThisTurn(state, context)
             is YouWereAttackedThisStep -> evaluateYouWereAttackedThisStep(state, context)
-            is YouWereDealtCombatDamageThisTurn -> evaluateYouWereDealtCombatDamageThisTurn(state, context)
-            is CardsLeftGraveyardThisTurn -> evaluateCardsLeftGraveyardThisTurn(state, condition, context)
-            is SacrificedFoodThisTurn -> evaluateSacrificedFoodThisTurn(state, context)
-            is PutCounterOnCreatureThisTurn -> evaluatePutCounterOnCreatureThisTurn(state, context)
             is IsFirstSpellOfTypeCastThisTurn -> evaluateFirstSpellOfType(state, condition, context)
             is YouCastSpellsThisTurn -> evaluateYouCastSpellsThisTurn(state, condition, context)
             is SourceAbilityResolvedNTimesThisTurn -> evaluateSourceAbilityResolvedNTimes(state, condition, context)
@@ -317,12 +295,6 @@ class ConditionEvaluator {
         return state.phase in condition.phases
     }
 
-    private fun evaluatePlayedLandThisTurn(state: GameState, context: EffectContext): Boolean {
-        val landDrops = state.getEntity(context.controllerId)?.get<LandDropsComponent>()
-            ?: return false
-        return landDrops.remaining < landDrops.maxPerTurn
-    }
-
     private fun evaluateSourceEnteredThisTurn(state: GameState, context: EffectContext): Boolean {
         val sourceId = context.sourceId ?: return false
         return state.getEntity(sourceId)?.has<EnteredThisTurnComponent>() == true
@@ -415,10 +387,6 @@ class ConditionEvaluator {
         return state.getEntity(sourceId)?.has<HasDealtCombatDamageToPlayerComponent>() == true
     }
 
-    private fun evaluateYouAttackedThisTurn(state: GameState, context: EffectContext): Boolean {
-        return state.getEntity(context.controllerId)?.has<PlayerAttackedThisTurnComponent>() == true
-    }
-
     private fun evaluateYouAttackedWithCreaturesThisTurn(
         state: GameState,
         condition: YouAttackedWithCreaturesThisTurn,
@@ -440,60 +408,11 @@ class ConditionEvaluator {
         return false
     }
 
-    private fun evaluateYouGainedLifeThisTurn(state: GameState, context: EffectContext): Boolean {
-        return state.getEntity(context.controllerId)
-            ?.has<com.wingedsheep.engine.state.components.player.LifeGainedThisTurnComponent>() == true
-    }
-
-    private fun evaluateYouLostLifeThisTurn(state: GameState, context: EffectContext): Boolean {
-        return state.getEntity(context.controllerId)
-            ?.has<com.wingedsheep.engine.state.components.player.LifeLostThisTurnComponent>() == true
-    }
-
-    private fun evaluateYouGainedOrLostLifeThisTurn(state: GameState, context: EffectContext): Boolean {
-        val entity = state.getEntity(context.controllerId) ?: return false
-        return entity.has<com.wingedsheep.engine.state.components.player.LifeGainedThisTurnComponent>() ||
-            entity.has<com.wingedsheep.engine.state.components.player.LifeLostThisTurnComponent>()
-    }
-
-    private fun evaluateYouGainedAndLostLifeThisTurn(state: GameState, context: EffectContext): Boolean {
-        val entity = state.getEntity(context.controllerId) ?: return false
-        return entity.has<com.wingedsheep.engine.state.components.player.LifeGainedThisTurnComponent>() &&
-            entity.has<com.wingedsheep.engine.state.components.player.LifeLostThisTurnComponent>()
-    }
-
-    private fun evaluateOpponentLostLifeThisTurn(state: GameState, context: EffectContext): Boolean {
-        val opponents = state.turnOrder.filter { it != context.controllerId }
-        return opponents.any { opponentId ->
-            state.getEntity(opponentId)?.has<com.wingedsheep.engine.state.components.player.LifeLostThisTurnComponent>() == true
-        }
-    }
-
     private fun evaluateYouWereAttackedThisStep(state: GameState, context: EffectContext): Boolean {
         return state.entities.any { (_, container) ->
             val attacking = container.get<AttackingComponent>()
             attacking != null && attacking.defenderId == context.controllerId
         }
-    }
-
-    private fun evaluateYouWereDealtCombatDamageThisTurn(state: GameState, context: EffectContext): Boolean {
-        return state.getEntity(context.controllerId)?.has<WasDealtCombatDamageThisTurnComponent>() == true
-    }
-
-    private fun evaluateCardsLeftGraveyardThisTurn(state: GameState, condition: CardsLeftGraveyardThisTurn, context: EffectContext): Boolean {
-        val component = state.getEntity(context.controllerId)
-            ?.get<com.wingedsheep.engine.state.components.player.CardsLeftGraveyardThisTurnComponent>()
-        return (component?.count ?: 0) >= condition.count
-    }
-
-    private fun evaluateSacrificedFoodThisTurn(state: GameState, context: EffectContext): Boolean {
-        return state.getEntity(context.controllerId)
-            ?.has<com.wingedsheep.engine.state.components.player.SacrificedFoodThisTurnComponent>() == true
-    }
-
-    private fun evaluatePutCounterOnCreatureThisTurn(state: GameState, context: EffectContext): Boolean {
-        return state.getEntity(context.controllerId)
-            ?.has<com.wingedsheep.engine.state.components.player.PutCounterOnCreatureThisTurnComponent>() == true
     }
 
     private fun evaluateOpponentSpellOnStack(state: GameState, context: EffectContext): Boolean {

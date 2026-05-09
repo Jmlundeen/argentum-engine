@@ -401,14 +401,30 @@ object Conditions {
 
     // =========================================================================
     // Turn Conditions
+    //
+    // These all compose `Compare(DynamicAmount.TurnTracking(player, key), op, Fixed(n))`
+    // around the canonical [com.wingedsheep.sdk.scripting.values.TurnTracker] enum. Counts
+    // and accumulators live on per-player components in the engine; the DSL just wraps the
+    // comparison with friendlier names.
     // =========================================================================
+
+    private fun trackerAtLeast(
+        tracker: com.wingedsheep.sdk.scripting.values.TurnTracker,
+        atLeast: Int = 1,
+        player: Player = Player.You
+    ): ConditionInterface =
+        Compare(
+            DynamicAmount.TurnTracking(player, tracker),
+            ComparisonOperator.GTE,
+            DynamicAmount.Fixed(atLeast)
+        )
 
     /**
      * If you gained life this turn.
      * Used for Lunar Convocation.
      */
     val YouGainedLifeThisTurn: ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.YouGainedLifeThisTurn
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LIFE_GAINED)
 
     /**
      * As long as you attacked with [atLeast] or more creatures matching [filter] this turn.
@@ -434,25 +450,45 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.YouCastSpellsThisTurn(filter, atLeast)
 
     /**
-     * If you gained or lost life this turn.
-     * Used for Star Charter and similar Bloomburrow cards.
-     */
-    val YouGainedOrLostLifeThisTurn: ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.YouGainedOrLostLifeThisTurn
-
-    /**
      * As long as you've lost life this turn.
      * Used for Essence Channeler.
      */
     val YouLostLifeThisTurn: ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.YouLostLifeThisTurn
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LIFE_LOST)
+
+    /**
+     * If you gained or lost life this turn.
+     * Used for Star Charter and similar Bloomburrow cards.
+     */
+    val YouGainedOrLostLifeThisTurn: ConditionInterface =
+        AnyCondition(listOf(YouGainedLifeThisTurn, YouLostLifeThisTurn))
 
     /**
      * If you gained and lost life this turn.
      * Used for Lunar Convocation's second ability.
      */
     val YouGainedAndLostLifeThisTurn: ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.YouGainedAndLostLifeThisTurn
+        AllConditions(listOf(YouGainedLifeThisTurn, YouLostLifeThisTurn))
+
+    /**
+     * If you attacked this turn (you declared at least one attacker).
+     * Used for Mardu Skullhunter, Mardu Hordechief, Wingmate Roc, Arrow Storm, etc.
+     */
+    val YouAttackedThisTurn: ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.PLAYER_ATTACKED)
+
+    /**
+     * If you were dealt combat damage this turn.
+     */
+    val YouWereDealtCombatDamageThisTurn: ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.DEALT_COMBAT_DAMAGE)
+
+    /**
+     * If you've played a land this turn.
+     * Used for cards like Rock Jockey ("can't cast unless no land was played").
+     */
+    val PlayedLandThisTurn: ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LANDS_PLAYED)
 
     /**
      * Void: "if a nonland permanent left the battlefield this turn or a spell was warped this turn".
@@ -467,26 +503,26 @@ object Conditions {
      * Used for cards like Hired Claw: "Activate only if an opponent lost life this turn"
      */
     val OpponentLostLifeThisTurn: ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.OpponentLostLifeThisTurn
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LIFE_LOST, player = Player.Opponent)
 
     /**
      * If N or more cards left your graveyard this turn.
      */
     fun CardsLeftGraveyardThisTurn(count: Int): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.CardsLeftGraveyardThisTurn(count)
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.CARDS_LEFT_GRAVEYARD, atLeast = count)
 
     /**
      * If you've sacrificed a Food this turn.
      */
     val SacrificedFoodThisTurn: ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.SacrificedFoodThisTurn
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.FOOD_SACRIFICED)
 
     /**
      * If you put a counter on a creature this turn.
      * Used for Lasting Tarfire.
      */
     val PutCounterOnCreatureThisTurn: ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.PutCounterOnCreatureThisTurn
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.COUNTERS_PUT_ON_CREATURE)
 
     /**
      * If this is the Nth time this ability has resolved this turn.

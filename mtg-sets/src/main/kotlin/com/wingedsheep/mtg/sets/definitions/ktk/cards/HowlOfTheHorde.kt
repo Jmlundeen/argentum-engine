@@ -1,9 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.conditions.YouAttackedThisTurn
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
@@ -24,7 +25,7 @@ val HowlOfTheHorde = card("Howl of the Horde") {
 
     spell {
         effect = Effects.CopyNextSpellCast(1) then ConditionalEffect(
-            condition = YouAttackedThisTurn,
+            condition = Conditions.YouAttackedThisTurn,
             effect = Effects.CopyNextSpellCast(1)
         )
     }

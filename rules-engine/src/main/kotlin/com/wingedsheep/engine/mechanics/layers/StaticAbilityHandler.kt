@@ -515,7 +515,6 @@ class StaticAbilityHandler(
             is IsYourTurn -> SourceProjectionCondition.IsYourTurn
             is SourceIsTapped -> SourceProjectionCondition.SourceIsTapped
             is SourceIsUntapped -> SourceProjectionCondition.SourceIsUntapped
-            is com.wingedsheep.sdk.scripting.conditions.YouLostLifeThisTurn -> SourceProjectionCondition.ControllerLostLifeThisTurn
             is com.wingedsheep.sdk.scripting.conditions.YouAttackedWithCreaturesThisTurn ->
                 SourceProjectionCondition.ControllerAttackedWithCreaturesThisTurn(condition.filter, condition.atLeast)
             is com.wingedsheep.sdk.scripting.conditions.YouCastSpellsThisTurn ->

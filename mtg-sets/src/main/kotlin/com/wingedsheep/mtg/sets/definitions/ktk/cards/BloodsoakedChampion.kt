@@ -1,5 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -7,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.CantBlock
-import com.wingedsheep.sdk.scripting.conditions.YouAttackedThisTurn
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,7 +37,7 @@ val BloodsoakedChampion = card("Bloodsoaked Champion") {
         effect = Effects.PutOntoBattlefield(EffectTarget.Self)
         activateFromZone = Zone.GRAVEYARD
         restrictions = listOf(
-            ActivationRestriction.OnlyIfCondition(YouAttackedThisTurn)
+            ActivationRestriction.OnlyIfCondition(Conditions.YouAttackedThisTurn)
         )
     }
 

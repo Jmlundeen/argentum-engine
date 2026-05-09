@@ -440,6 +440,7 @@ class TriggerMatcher(
                 val cmc = if (isFaceDown) 0 else cardComponent.manaValue
                 cmc <= predicate.max
             }
+            com.wingedsheep.sdk.scripting.predicates.CardPredicate.ManaValueAtMostX -> false
             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.ManaValueEquals -> {
                 val cmc = if (isFaceDown) 0 else cardComponent.manaValue
                 cmc == predicate.value

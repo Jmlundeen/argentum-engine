@@ -200,6 +200,11 @@ data class GameObjectFilter(
         cardPredicates = cardPredicates + CardPredicate.ManaValueAtMost(max)
     )
 
+    /** Mana value at most the X chosen for the source spell/ability */
+    fun manaValueAtMostX() = copy(
+        cardPredicates = cardPredicates + CardPredicate.ManaValueAtMostX
+    )
+
     /** Mana value at least */
     fun manaValueAtLeast(min: Int) = copy(
         cardPredicates = cardPredicates + CardPredicate.ManaValueAtLeast(min)

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 val UnstoppableSlasher = card("Unstoppable Slasher") {
@@ -39,7 +40,7 @@ val UnstoppableSlasher = card("Unstoppable Slasher") {
         trigger = Triggers.Dies
         effect = ConditionalEffect(
             condition = Compare(
-                DynamicAmount.LastKnownTotalCounterCount,
+                DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT),
                 ComparisonOperator.EQ,
                 DynamicAmount.Fixed(0)
             ),

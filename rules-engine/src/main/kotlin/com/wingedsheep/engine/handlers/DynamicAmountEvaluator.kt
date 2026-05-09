@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.CharacteristicValue
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
@@ -61,6 +62,8 @@ class DynamicAmountEvaluator(
             is DynamicAmount.Fixed -> amount.amount
 
             is DynamicAmount.XValue -> context.xValue ?: 0
+
+            is DynamicAmount.TotalManaSpent -> context.totalManaSpent
 
             is DynamicAmount.YourLifeTotal -> {
                 state.getEntity(context.controllerId)?.get<LifeTotalComponent>()?.life ?: 0
@@ -119,34 +122,7 @@ class DynamicAmountEvaluator(
                 min(evaluate(state, amount.left, context), evaluate(state, amount.right, context))
             }
 
-            // Context-based values (kept — these read from trigger event context, not entity properties)
-            is DynamicAmount.TriggerDamageAmount -> context.triggerDamageAmount ?: 0
-            is DynamicAmount.TriggerLifeGainAmount -> context.triggerDamageAmount ?: 0
-            is DynamicAmount.TriggerLifeLossAmount -> context.triggerDamageAmount ?: 0
-            is DynamicAmount.LastKnownCounterCount -> context.triggerCounterCount ?: 0
-            is DynamicAmount.LastKnownTotalCounterCount -> context.triggerTotalCounterCount ?: 0
-
-            is DynamicAmount.CardTypesInLinkedExile -> {
-                val sourceId = context.sourceId ?: return 0
-                val linkedExile = state.getEntity(sourceId)
-                    ?.get<com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent>()
-                    ?: return 0
-                val cardTypes = mutableSetOf<com.wingedsheep.sdk.core.CardType>()
-                for (exiledId in linkedExile.exiledIds) {
-                    val card = state.getEntity(exiledId)
-                        ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()
-                        ?: continue
-                    cardTypes.addAll(card.typeLine.cardTypes)
-                }
-                cardTypes.size
-            }
-
-            is DynamicAmount.CardsInLinkedExile -> {
-                val sourceId = context.sourceId ?: return 0
-                state.getEntity(sourceId)
-                    ?.get<com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent>()
-                    ?.exiledIds?.size ?: 0
-            }
+            is DynamicAmount.ContextProperty -> evaluateContextProperty(state, amount.key, context)
 
             // Unified counting
             is DynamicAmount.Count -> {
@@ -160,10 +136,6 @@ class DynamicAmountEvaluator(
             is DynamicAmount.AggregateZone -> {
                 evaluateZoneAggregate(state, amount, context)
             }
-
-            is DynamicAmount.AdditionalCostExiledCount -> context.exiledCardCount
-
-            is DynamicAmount.AdditionalCostBlightAmount -> context.additionalCostBlightAmount
 
             is DynamicAmount.Conditional -> {
                 val eval = conditionEvaluator ?: ConditionEvaluator()
@@ -247,10 +219,39 @@ class DynamicAmountEvaluator(
                             ?.get<com.wingedsheep.engine.state.components.player.LifeGainedAmountThisTurnComponent>()
                             ?.amount ?: 0
                     }
+                    TurnTracker.LIFE_LOST -> playerIds.count { playerId ->
+                        state.getEntity(playerId)
+                            ?.has<com.wingedsheep.engine.state.components.player.LifeLostThisTurnComponent>() == true
+                    }
+                    TurnTracker.PLAYER_ATTACKED -> playerIds.count { playerId ->
+                        state.getEntity(playerId)
+                            ?.has<com.wingedsheep.engine.state.components.combat.PlayerAttackedThisTurnComponent>() == true
+                    }
+                    TurnTracker.DEALT_COMBAT_DAMAGE -> playerIds.count { playerId ->
+                        state.getEntity(playerId)
+                            ?.has<com.wingedsheep.engine.state.components.player.WasDealtCombatDamageThisTurnComponent>() == true
+                    }
+                    TurnTracker.COUNTERS_PUT_ON_CREATURE -> playerIds.count { playerId ->
+                        state.getEntity(playerId)
+                            ?.has<com.wingedsheep.engine.state.components.player.PutCounterOnCreatureThisTurnComponent>() == true
+                    }
+                    TurnTracker.LANDS_PLAYED -> playerIds.sumOf { playerId ->
+                        val landDrops = state.getEntity(playerId)
+                            ?.get<com.wingedsheep.engine.state.components.player.LandDropsComponent>()
+                            ?: return@sumOf 0
+                        landDrops.maxPerTurn - landDrops.remaining
+                    }
+                    TurnTracker.FOOD_SACRIFICED -> playerIds.count { playerId ->
+                        state.getEntity(playerId)
+                            ?.has<com.wingedsheep.engine.state.components.player.SacrificedFoodThisTurnComponent>() == true
+                    }
+                    TurnTracker.CARDS_LEFT_GRAVEYARD -> playerIds.sumOf { playerId ->
+                        state.getEntity(playerId)
+                            ?.get<com.wingedsheep.engine.state.components.player.CardsLeftGraveyardThisTurnComponent>()
+                            ?.count ?: 0
+                    }
                 }
             }
-
-            is DynamicAmount.TargetCount -> context.targets.size
 
             is DynamicAmount.CreaturesSharingTypeWithEntity -> {
                 val entityId = resolveEntityId(amount.entity, context) ?: return 0
@@ -280,6 +281,58 @@ class DynamicAmountEvaluator(
                 }
             }
 
+        }
+    }
+
+    // =========================================================================
+    // Context Property Evaluation
+    // =========================================================================
+
+    /**
+     * Resolve a [ContextPropertyKey] against the current resolution [context].
+     *
+     * The trigger amount keys (damage / life-gained / life-lost) all read the same
+     * `triggerDamageAmount` field — `LifeChangedEvent` populates it with the absolute
+     * amount of life moved, regardless of direction.
+     */
+    private fun evaluateContextProperty(
+        state: GameState,
+        key: ContextPropertyKey,
+        context: EffectContext
+    ): Int = when (key) {
+        ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT,
+        ContextPropertyKey.TRIGGER_LIFE_GAINED,
+        ContextPropertyKey.TRIGGER_LIFE_LOST -> context.triggerDamageAmount ?: 0
+
+        ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT -> context.triggerCounterCount ?: 0
+        ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT -> context.triggerTotalCounterCount ?: 0
+
+        ContextPropertyKey.ADDITIONAL_COST_EXILED_COUNT -> context.exiledCardCount
+        ContextPropertyKey.ADDITIONAL_COST_BLIGHT_AMOUNT -> context.additionalCostBlightAmount
+
+        ContextPropertyKey.TARGET_COUNT -> context.targets.size
+
+        ContextPropertyKey.LINKED_EXILE_CARD_COUNT -> {
+            val sourceId = context.sourceId
+            if (sourceId == null) 0 else state.getEntity(sourceId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent>()
+                ?.exiledIds?.size ?: 0
+        }
+
+        ContextPropertyKey.LINKED_EXILE_DISTINCT_CARD_TYPE_COUNT -> {
+            val sourceId = context.sourceId
+            if (sourceId == null) 0 else {
+                val linkedExile = state.getEntity(sourceId)
+                    ?.get<com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent>()
+                if (linkedExile == null) 0 else {
+                    val cardTypes = mutableSetOf<com.wingedsheep.sdk.core.CardType>()
+                    for (exiledId in linkedExile.exiledIds) {
+                        val card = state.getEntity(exiledId)?.get<CardComponent>() ?: continue
+                        cardTypes.addAll(card.typeLine.cardTypes)
+                    }
+                    cardTypes.size
+                }
+            }
         }
     }
 

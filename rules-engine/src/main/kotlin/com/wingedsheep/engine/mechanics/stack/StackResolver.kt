@@ -528,7 +528,8 @@ class StackResolver(
                 state, targetsComponent.targets, sourceColors, sourceSubtypes,
                 spellComponent.casterId, targetsComponent.targetRequirements,
                 sourceId = spellId,
-                targetingSourceType = TargetingSourceType.SPELL
+                targetingSourceType = TargetingSourceType.SPELL,
+                xValue = spellComponent.xValue
             )
             if (validTargets.isEmpty()) {
                 // All targets invalid - spell fizzles
@@ -1017,6 +1018,9 @@ class StackResolver(
                 opponentId = newState.getOpponent(spellComponent.casterId),
                 targets = targets,
                 xValue = spellComponent.xValue,
+                totalManaSpent = spellComponent.manaSpentWhite + spellComponent.manaSpentBlue +
+                    spellComponent.manaSpentBlack + spellComponent.manaSpentRed +
+                    spellComponent.manaSpentGreen + spellComponent.manaSpentColorless,
                 wasKicked = spellComponent.wasKicked,
                 wasBlightPaid = spellComponent.wasBlightPaid,
                 sacrificedPermanents = spellComponent.sacrificedPermanents,
@@ -1264,7 +1268,8 @@ class StackResolver(
                 state, targetsComponent.targets, sourceColors, sourceSubtypes,
                 abilityComponent.controllerId, targetsComponent.targetRequirements,
                 sourceId = abilityComponent.sourceId,
-                targetingSourceType = TargetingSourceType.ABILITY
+                targetingSourceType = TargetingSourceType.ABILITY,
+                xValue = abilityComponent.xValue
             )
             if (validTargets.isEmpty()) {
                 // Fizzle - remove ability entity
@@ -1353,7 +1358,8 @@ class StackResolver(
             val validTargets = validateTargets(
                 state, targetsComponent.targets, sourceColors, sourceSubtypes,
                 abilityComponent.controllerId, targetsComponent.targetRequirements,
-                sourceId = abilityComponent.sourceId
+                sourceId = abilityComponent.sourceId,
+                xValue = abilityComponent.xValue
             )
             if (validTargets.isEmpty()) {
                 val newState = state.removeEntity(abilityId)
@@ -1671,11 +1677,12 @@ class StackResolver(
         controllerId: EntityId,
         targetRequirements: List<TargetRequirement> = emptyList(),
         sourceId: EntityId? = null,
-        targetingSourceType: TargetingSourceType = TargetingSourceType.ANY
+        targetingSourceType: TargetingSourceType = TargetingSourceType.ANY,
+        xValue: Int? = null
     ): List<ChosenTarget> {
         // Always project state for shroud/hexproof checks (Rule 702.18, 702.11)
         val projected = state.projectedState
-        val predicateContext = PredicateContext(controllerId = controllerId, sourceId = sourceId)
+        val predicateContext = PredicateContext(controllerId = controllerId, sourceId = sourceId, xValue = xValue)
 
         return targets.filterIndexed { index, target ->
             when (target) {

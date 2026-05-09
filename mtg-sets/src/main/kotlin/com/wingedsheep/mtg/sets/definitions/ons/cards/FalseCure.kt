@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CreateGlobalTriggeredAbilityUntilEndOfTurnEffect
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
@@ -28,7 +29,7 @@ val FalseCure = card("False Cure") {
                 trigger = Triggers.AnyPlayerGainsLife.event,
                 binding = Triggers.AnyPlayerGainsLife.binding,
                 effect = LoseLifeEffect(
-                    amount = DynamicAmount.Multiply(DynamicAmount.TriggerLifeGainAmount, 2),
+                    amount = DynamicAmount.Multiply(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED), 2),
                     target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
                 )
             )

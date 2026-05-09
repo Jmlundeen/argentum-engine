@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
@@ -213,7 +214,7 @@ object DynamicAmounts {
     // =========================================================================
 
     fun additionalCostExiledCount(): DynamicAmount =
-        DynamicAmount.AdditionalCostExiledCount
+        DynamicAmount.ContextProperty(ContextPropertyKey.ADDITIONAL_COST_EXILED_COUNT)
 
     // =========================================================================
     // Target-based player values

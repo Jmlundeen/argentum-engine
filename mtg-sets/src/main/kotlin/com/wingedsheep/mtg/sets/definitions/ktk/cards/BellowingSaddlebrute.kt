@@ -1,11 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.Conditions
+
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
-import com.wingedsheep.sdk.scripting.conditions.YouAttackedThisTurn
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -27,7 +28,7 @@ val BellowingSaddlebrute = card("Bellowing Saddlebrute") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ConditionalEffect(
-            condition = NotCondition(YouAttackedThisTurn),
+            condition = NotCondition(Conditions.YouAttackedThisTurn),
             effect = Effects.LoseLife(4, EffectTarget.Controller)
         )
     }

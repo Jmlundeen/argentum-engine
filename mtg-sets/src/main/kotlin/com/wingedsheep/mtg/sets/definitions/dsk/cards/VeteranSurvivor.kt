@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.SourceIsTapped
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -50,7 +51,7 @@ val VeteranSurvivor = card("Veteran Survivor") {
     }
 
     val threeOrMoreExiled = Compare(
-        DynamicAmount.CardsInLinkedExile,
+        DynamicAmount.ContextProperty(ContextPropertyKey.LINKED_EXILE_CARD_COUNT),
         ComparisonOperator.GTE,
         DynamicAmount.Fixed(3)
     )

@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -29,7 +30,7 @@ val WallOfHope = card("Wall of Hope") {
     triggeredAbility {
         trigger = Triggers.TakesDamage
         effect = GainLifeEffect(
-            amount = DynamicAmount.TriggerDamageAmount,
+            amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.Controller
         )
     }
