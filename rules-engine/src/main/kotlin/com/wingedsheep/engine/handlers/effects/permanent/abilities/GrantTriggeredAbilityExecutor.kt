@@ -30,16 +30,17 @@ class GrantTriggeredAbilityExecutor : EffectExecutor<GrantTriggeredAbilityEffect
         val targetId = context.resolveTarget(effect.target)
             ?: return EffectResult.error(state, "No valid target for triggered ability grant")
 
-        // Verify target exists and is a creature on the battlefield
         val targetContainer = state.getEntity(targetId)
-            ?: return EffectResult.error(state, "Target creature no longer exists")
-        val cardComponent = targetContainer.get<CardComponent>()
+            ?: return EffectResult.error(state, "Target no longer exists")
+        targetContainer.get<CardComponent>()
             ?: return EffectResult.error(state, "Target is not a card")
-        if (!cardComponent.typeLine.isCreature) {
-            return EffectResult.error(state, "Target is not a creature")
-        }
         if (!state.getBattlefield().contains(targetId)) {
             return EffectResult.error(state, "Target is not on the battlefield")
+        }
+        // Read projected state so type-changing floating effects earlier in the same
+        // composite (e.g., AnimateLand on a land becoming a creature) are visible here.
+        if (!state.projectedState.isCreature(targetId)) {
+            return EffectResult.error(state, "Target is not a creature")
         }
 
         val grant = GrantedTriggeredAbility(

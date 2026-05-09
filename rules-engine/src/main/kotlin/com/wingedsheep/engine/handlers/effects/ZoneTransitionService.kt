@@ -245,6 +245,19 @@ object ZoneTransitionService {
         // 7. ENTRY SETUP based on destination
         when (actualDestZone) {
             Zone.BATTLEFIELD -> {
+                // Rule 400.7: a card that changes zones becomes a new object with no memory
+                // of its previous existence. Floating effects targeting it are stripped on the
+                // way out (see step 4); granted triggered/activated abilities have to be
+                // dropped here, on re-entry, because the leaves-battlefield trigger detection
+                // for the previous incarnation needs to read them via state during the exit
+                // event. By the time we reach this point those triggers are already queued on
+                // the stack with their own captured ability data, so it is safe to wipe.
+                newState = newState.copy(
+                    grantedTriggeredAbilities = newState.grantedTriggeredAbilities
+                        .filter { it.entityId != entityId },
+                    grantedActivatedAbilities = newState.grantedActivatedAbilities
+                        .filter { it.entityId != entityId }
+                )
                 newState = newState.addToZone(destZoneKey, entityId)
                 newState = applyBattlefieldEntry(
                     newState, entityId, cardComponent, destControllerId, options, fromZone

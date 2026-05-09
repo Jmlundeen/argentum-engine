@@ -66,6 +66,7 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.GrantExileOnLeaveEffect
 import com.wingedsheep.sdk.scripting.effects.GrantHexproofEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
+import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordToAttackersBlockedByEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveAllAbilitiesEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
@@ -1679,6 +1680,50 @@ object Effects {
         toughness: Int = 1,
         duration: Duration = Duration.EndOfTurn
     ): Effect = AnimateLandEffect(target, power, toughness, duration)
+
+    /**
+     * Earthbend N (TLA keyword action) — target land becomes a 0/0 creature-land
+     * with haste, get N +1/+1 counters, and gains a triggered ability:
+     * "When this dies or is exiled, return it to the battlefield tapped."
+     *
+     * Modeled as data — no new keyword. The return clause is a single granted
+     * self-trigger on `from = BATTLEFIELD, to = null` (any leave). At resolution,
+     * two zone-gated [MoveToZoneEffect]s run in sequence: one tries to move the
+     * card from the graveyard back to the battlefield, the other from exile.
+     * For non-grave/exile leaves (hand bounce, library shuffle), both branches
+     * skip via `MoveToZoneEffect.fromZone` and the trigger resolves as a no-op,
+     * matching the printed "When it dies or is exiled" reading in practice.
+     *
+     * Folding into a single grant keeps the FE active-effects badges quiet —
+     * one "Granted Ability" tile while the land is earthbended, not two.
+     */
+    fun Earthbend(amount: Int, target: EffectTarget): Effect {
+        val returnTapped = TriggeredAbility.create(
+            trigger = GameEvent.ZoneChangeEvent(from = Zone.BATTLEFIELD, to = null),
+            binding = TriggerBinding.SELF,
+            effect = CompositeEffect(listOf(
+                MoveToZoneEffect(
+                    target = EffectTarget.Self,
+                    destination = Zone.BATTLEFIELD,
+                    placement = ZonePlacement.Tapped,
+                    fromZone = Zone.GRAVEYARD
+                ),
+                MoveToZoneEffect(
+                    target = EffectTarget.Self,
+                    destination = Zone.BATTLEFIELD,
+                    placement = ZonePlacement.Tapped,
+                    fromZone = Zone.EXILE
+                ),
+            )),
+            descriptionOverride = "When this dies or is exiled, return it to the battlefield tapped."
+        )
+        return CompositeEffect(listOf(
+            AnimateLandEffect(target, 0, 0, Duration.Permanent),
+            GrantKeywordEffect(Keyword.HASTE, target, Duration.Permanent),
+            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
+            GrantTriggeredAbilityEffect(returnTapped, target, Duration.Permanent),
+        ))
+    }
 
     /**
      * Target permanent becomes a creature with specified characteristics.

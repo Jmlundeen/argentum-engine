@@ -321,7 +321,10 @@ class DeathAndLeaveTriggerDetector(
         val controllerId = event.ownerId
 
         for (ability in abilities) {
-            if (!matcher.isLeavesBattlefieldTrigger(ability.trigger)) continue
+            val isGenericLeave = matcher.isLeavesBattlefieldTrigger(ability.trigger)
+            val isSpecificZoneLeave =
+                matcher.isLeavesBattlefieldToZoneTrigger(ability.trigger, event.toZone)
+            if (!isGenericLeave && !isSpecificZoneLeave) continue
 
             when (ability.binding) {
                 TriggerBinding.SELF -> {
