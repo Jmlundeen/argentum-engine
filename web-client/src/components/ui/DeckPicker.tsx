@@ -29,6 +29,11 @@ import {
   labelForFormat,
   useDeckLegalFormats,
 } from '@/utils/deckLegality'
+import {
+  DeckSummary,
+  computeDeckStats,
+  type DeckValidationResult,
+} from './DeckSummary'
 import styles from './DeckPicker.module.css'
 
 type Tab = 'saved' | 'examples' | 'paste' | 'random'
@@ -90,26 +95,7 @@ interface ExampleDeck {
   cards: Record<string, number>
 }
 
-interface ValidationIssue {
-  code: string
-  message: string
-  cardName: string | null
-}
-
-interface ValidationResult {
-  valid: boolean
-  totalCards: number
-  errors: ValidationIssue[]
-  warnings: ValidationIssue[]
-}
-
-const COLOR_DOT: Record<string, string> = {
-  WHITE: '#f5f3da',
-  BLUE: '#62a8ff',
-  BLACK: '#3a3a3a',
-  RED: '#ff6a4a',
-  GREEN: '#4ab86a',
-}
+type ValidationResult = DeckValidationResult
 
 function parseDeckText(text: string): Record<string, number> {
   const result: Record<string, number> = {}
@@ -313,7 +299,7 @@ export function DeckPicker({
     }
   }, [currentDeck, onValidityChange, format])
 
-  const stats = useMemo(() => computeStats(currentDeck, cards), [currentDeck, cards])
+  const stats = useMemo(() => computeDeckStats(currentDeck, cards), [currentDeck, cards])
   const totalCards = Object.values(currentDeck).reduce((a, b) => a + b, 0)
 
   const handleLoadExample = (ex: ExampleDeck) => {
@@ -467,46 +453,8 @@ export function DeckPicker({
       </div>
 
       {tab !== 'random' && (
-        <div className={styles.summary}>
-          <div className={styles.summaryRow}>
-            <span>{totalCards} cards</span>
-            <span className={summaryStatusClass(validation, totalCards)}>
-              {validationLabel(validation, totalCards)}
-            </span>
-          </div>
-
-          {validation && validation.errors.length > 0 && (
-            <ul className={styles.issues}>
-              {validation.errors.slice(0, 5).map((e, i) => (
-                <li key={i}>• {e.message}</li>
-              ))}
-              {validation.errors.length > 5 && <li>+{validation.errors.length - 5} more…</li>}
-            </ul>
-          )}
-
-          {totalCards > 0 && stats.colorCounts.length > 0 && (
-            <div className={styles.stats}>
-              <div className={styles.statBlock}>
-                <span className={styles.statLabel}>Colors</span>
-                <span className={styles.colorPips}>
-                  {stats.colorCounts.map(([color, n]) => (
-                    <span key={color} className={styles.colorPip} title={`${color}: ${n}`}>
-                      <span className={styles.colorDot} style={{ background: COLOR_DOT[color] ?? '#888' }} />
-                      {n}
-                    </span>
-                  ))}
-                </span>
-              </div>
-              <div className={styles.statBlock}>
-                <span className={styles.statLabel}>Types</span>
-                <span>{stats.typesLabel}</span>
-              </div>
-              <div className={styles.statBlock} style={{ gridColumn: '1 / -1' }}>
-                <span className={styles.statLabel}>Mana curve (non-land)</span>
-                <ManaCurveBars curve={stats.curve} />
-              </div>
-            </div>
-          )}
+        <div className={styles.summaryWrapper}>
+          <DeckSummary validation={validation} totalCards={totalCards} stats={stats} />
         </div>
       )}
     </div>
@@ -604,66 +552,3 @@ function SavedDecksPanel({
   )
 }
 
-function ManaCurveBars({ curve }: { curve: number[] }) {
-  const max = Math.max(1, ...curve)
-  return (
-    <div>
-      <div className={styles.curveBars}>
-        {curve.map((n, i) => (
-          <div
-            key={i}
-            className={styles.curveBar}
-            style={{ height: `${(n / max) * 100}%` }}
-            title={`CMC ${i === curve.length - 1 ? `${i}+` : i}: ${n}`}
-          />
-        ))}
-      </div>
-      <div className={styles.curveBars} style={{ height: 'auto' }}>
-        {curve.map((_, i) => (
-          <div key={i} className={styles.curveLabel}>
-            {i === curve.length - 1 ? `${i}+` : i}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function computeStats(deck: Record<string, number>, cards: Record<string, CardSummary>) {
-  const colorCount: Record<string, number> = {}
-  const typeCount: Record<string, number> = {}
-  const curve = [0, 0, 0, 0, 0, 0, 0, 0] // 0..6, last bucket is 6+
-  for (const [entry, count] of Object.entries(deck)) {
-    if (count <= 0) continue
-    // Strip a "#variant" suffix to look up the base card metadata.
-    const baseName = entry.split('#')[0]!
-    const c = cards[baseName]
-    if (!c) continue
-    for (const color of c.colors) colorCount[color] = (colorCount[color] ?? 0) + count
-    for (const t of c.cardTypes) typeCount[t] = (typeCount[t] ?? 0) + count
-    if (!c.cardTypes.includes('LAND')) {
-      const idx = Math.min(c.cmc, curve.length - 1)
-      curve[idx] = (curve[idx] ?? 0) + count
-    }
-  }
-  const colorCounts = Object.entries(colorCount).sort((a, b) => b[1] - a[1])
-  const typesLabel = Object.entries(typeCount)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([t, n]) => `${t.charAt(0)}${t.slice(1).toLowerCase()} ${n}`)
-    .join(' · ') || '—'
-  return { colorCounts, typesLabel, curve }
-}
-
-function summaryStatusClass(v: ValidationResult | null, total: number): string {
-  if (total === 0) return styles.statusEmpty!
-  if (!v) return styles.statusEmpty!
-  return v.valid ? styles.statusOk! : styles.statusBad!
-}
-
-function validationLabel(v: ValidationResult | null, total: number): string {
-  if (total === 0) return ''
-  if (!v) return 'Validating…'
-  if (v.valid) return 'Legal ✓'
-  return `${v.errors.length} issue${v.errors.length === 1 ? '' : 's'}`
-}
