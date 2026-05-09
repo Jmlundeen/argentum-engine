@@ -100,6 +100,39 @@
   gap: var(--space-3);
 }
 
+/* Deck-mode left-rail card preview — replaces the filter menu since there's nothing to filter
+   when the catalog grid isn't visible. */
+.deckHoverPreview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.deckHoverPreviewImageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.deckHoverPreviewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.deckHoverPreviewEmpty {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-align: center;
+  padding: var(--space-4) var(--space-2);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+}
+
 .section {
   display: flex;
   flex-direction: column;
@@ -523,19 +556,43 @@
   backdrop-filter: blur(2px);
 }
 
+/* Sits at the top-left of the banner so it doesn't collide with the format
+ * pills in the body. The banner gradient varies, so we layer a dark backdrop
+ * + blur to keep contrast readable across all colour identities. */
 .deckCardActiveBadge {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
-  font-size: 0.62rem;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent-primary, #6aa3ff);
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(106, 163, 255, 0.4);
+  letter-spacing: 0.09em;
+  color: #eaf1ff;
+  background: rgba(106, 163, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
-  padding: 1px 8px;
+  padding: 2px 9px;
   font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.deckCardActiveBadge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+  animation: deckCardActiveBadgePulse 1.6s ease-in-out infinite;
+}
+
+@keyframes deckCardActiveBadgePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 .linkButton {
@@ -580,24 +637,46 @@
 }
 
 .chipActive {
-  background: rgba(106, 163, 255, 0.2);
+  background: rgba(106, 163, 255, 0.28);
   border-color: var(--accent-primary, #6aa3ff);
   color: var(--text-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary, #6aa3ff), 0 0 8px rgba(106, 163, 255, 0.35);
 }
 
 /* Mana-icon chip variant. Tighter padding + centered SVG so the symbol reads as the chip's
-   primary content rather than as text-with-an-icon. Active state inherits the blue tint from
-   .chipActive but we boost the symbol's contrast with a faint white halo. */
+   primary content rather than as text-with-an-icon. Inactive icons are dimmed and slightly
+   desaturated so the active ring + full-colour symbol reads as a clear "on" state. */
 .chipMana {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 3px 6px;
   line-height: 0;
+  transition: transform 0.1s ease, filter 0.1s ease, opacity 0.1s ease;
+}
+
+.chipMana img {
+  opacity: 0.55;
+  filter: grayscale(0.45);
+  transition: opacity 0.1s ease, filter 0.1s ease;
+}
+
+.chipMana:hover img {
+  opacity: 0.85;
+  filter: grayscale(0.15);
 }
 
 .chipMana.chipActive {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+  background: rgba(106, 163, 255, 0.32);
+  box-shadow: 0 0 0 2px var(--accent-primary, #6aa3ff), 0 0 10px rgba(106, 163, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.chipMana.chipActive img {
+  opacity: 1;
+  filter: none;
+  /* Slight white glow behind the symbol so it pops on the blue active ring. */
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.55));
 }
 
 .numericRow {
@@ -1256,37 +1335,52 @@
   cursor: not-allowed;
 }
 
-.basicLandRow {
+/* Inline basic-land grid — 5 compact tiles (W/U/B/S/G) sitting side-by-side instead of
+   stacking as full rows. Saves a lot of vertical space in the right rail. Each tile shows
+   the mana symbol, current count, and small −/+ buttons. */
+.basicLandsGrid {
   display: grid;
-  grid-template-columns: 22px 12px 1fr auto;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.basicLandTile {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 2px 4px;
+  gap: 4px;
+  padding: 6px 2px 4px;
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  min-width: 0;
 }
 
-.basicLandRow:hover {
-  background: rgba(255, 255, 255, 0.04);
+.basicLandTile:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.basicLandCount {
-  text-align: right;
+.basicLandTileCount {
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
-.basicLandName {
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.basicLandButtons {
+.basicLandTileButtons {
   display: flex;
   gap: 2px;
+  width: 100%;
+}
+
+.basicLandTileButtons > .basicLandBtn,
+.basicLandTileButtons > .basicLandBtnAdd {
+  flex: 1;
+  width: auto;
+  height: 18px;
 }
 
 .basicLandBtn,
@@ -1378,24 +1472,63 @@
   border: 1px solid rgba(0, 0, 0, 0.4);
 }
 
-.curveBars {
+.curveContainer {
   display: flex;
+  flex-direction: column;
   gap: 2px;
-  align-items: flex-end;
-  height: 28px;
 }
 
-.curveBar {
+.curveBars {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.curveBarColumn {
   flex: 1;
-  background: rgba(106, 163, 255, 0.5);
-  border-radius: 1px 1px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.curveBarCount {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  height: 12px;
+  line-height: 12px;
+}
+
+.curveBarTrack {
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 2px;
+}
+
+.curveBarStack {
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  border-radius: 2px;
+  overflow: hidden;
+  min-height: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.curveBarSegment {
+  flex: 1;
   min-height: 1px;
 }
 
 .curveLabel {
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
-  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .actionRow {
@@ -1831,30 +1964,117 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Footer strip below the deck columns: basic-lands quick-add + summary stats +
-   save/save-as/delete actions. Stack vertically on narrow widths, side-by-side
-   on wider ones. */
+/* Footer strip below the deck columns: deck size + status + colour pips, the colored mana
+   curve, and the save/save-as/delete actions, all in a single horizontal row. The right-rail
+   layout uses a stacked DeckSummary + DeckActionRow because that pane is too narrow for
+   a horizontal arrangement; deck-mode has the full center pane width to play with. */
 .deckCentricFooter {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  gap: var(--space-3);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.3);
+  display: flex;
   align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.42));
+  flex-wrap: wrap;
 }
 
-/* The DeckSummary and DeckActionRow components own their own padding/borders in the right-rail
-   layout. In the deck-mode footer they sit side-by-side, so suppress the redundant top borders
-   and rely on the grid gap for separation. */
-.deckCentricFooter > .summary,
-.deckCentricFooter > .actionRow {
-  border-top: none;
-  margin: 0;
+.footerMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 0 0 auto;
+}
+
+.footerCount {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footerCountNum {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.footerCountLabel {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.footerStatus {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footerColorPips {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.footerColorPip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.footerCurve {
+  flex: 1 1 240px;
+  min-width: 200px;
+  max-width: 360px;
+}
+
+.footerActions {
+  display: flex;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+/* Tighter, fixed-width buttons in the wide footer (vs. the stretching primary button in the
+   narrow right-rail layout). */
+.footerActions .primaryButton {
+  flex: 0 0 auto;
+  padding: 8px 22px;
+}
+
+.footerActions .secondaryButton,
+.footerActions .dangerButton {
+  padding: 8px 14px;
 }
 
 @media (max-width: 900px) {
   .deckCentricFooter {
-    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  .footerCurve {
+    flex-basis: 100%;
+    max-width: none;
+    order: 3;
+  }
+  .footerActions {
+    margin-left: 0;
   }
 }
 

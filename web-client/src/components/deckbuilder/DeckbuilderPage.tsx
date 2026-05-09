@@ -231,9 +231,7 @@ export function DeckbuilderPage() {
         setSearchParams(
           (prev) => {
             const params = new URLSearchParams(prev)
-            const next = setFormatToken(params.get('q') ?? '', existing.format!)
-            if (next) params.set('q', next)
-            else params.delete('q')
+            params.set('fmt', existing.format!.toUpperCase())
             return params
           },
           { replace: true },
@@ -306,12 +304,28 @@ export function DeckbuilderPage() {
     [setSearchParams]
   )
 
-  // Pull the active format token (if any) so we can pass it to the validator and stamp it
-  // onto saved decks. Single-select by construction (FormatSection enforces that).
+  // The deck's chosen format lives in its own URL param (`fmt`) so the search-bar query is
+  // free to contain anything. Without this separation, editing/typing in the search bar
+  // would clobber the `format:<name>` token and silently un-set the deck format.
   const activeFormat = useMemo(() => {
-    const m = query.match(/(?:^|\s)format:([^\s]+)/i)
-    return m ? m[1]!.toUpperCase() : null
-  }, [query])
+    const raw = searchParams.get('fmt')
+    return raw ? raw.toUpperCase() : null
+  }, [searchParams])
+
+  const setActiveFormat = useCallback(
+    (next: string | null) => {
+      setSearchParams(
+        (prev) => {
+          const params = new URLSearchParams(prev)
+          if (next) params.set('fmt', next.toUpperCase())
+          else params.delete('fmt')
+          return params
+        },
+        { replace: true },
+      )
+    },
+    [setSearchParams],
+  )
 
   // True when the active format uses a designated commander (CR 903.5b for Commander; same
   // shape for Brawl and Standard Brawl). Mirrors `DeckFormat.isCommanderShape` on the server.
@@ -336,17 +350,23 @@ export function DeckbuilderPage() {
   const predicate = parseResult.predicate
   const queryErrors = parseResult.errors
   const advanced = useMemo(() => isAdvancedQuery(query), [query])
+  // When a deck format is selected, scope the catalog to format-legal cards automatically so
+  // the user only sees plays they can actually run. The `format:` query token still works as
+  // an extra filter (intersected on top), but isn't required for this default behavior.
   const filtered = useMemo(() => {
-    const result = catalog.filter(predicate)
+    let result = catalog.filter(predicate)
+    if (activeFormat) {
+      result = result.filter((c) => c.legalFormats?.includes(activeFormat) ?? false)
+    }
     return sortCards(result, sortMode)
-  }, [catalog, predicate, sortMode])
+  }, [catalog, predicate, sortMode, activeFormat])
 
   // Pager: cap rendered tiles so a 1000+ card catalogue doesn't melt the browser.
   // Reset whenever the result set changes (new query / filter / sort).
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   useEffect(() => {
     setVisibleCount(PAGE_SIZE)
-  }, [query, sortMode])
+  }, [query, sortMode, activeFormat])
 
   const displayed = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount])
 
@@ -506,11 +526,8 @@ export function DeckbuilderPage() {
     // wipe a just-loaded commander designation. Done in one navigate call so we
     // don't race against the async `setSearchParams` update.
     const params = new URLSearchParams(searchParams)
-    if (deck.format) {
-      const nextQ = setFormatToken(params.get('q') ?? '', deck.format)
-      if (nextQ) params.set('q', nextQ)
-      else params.delete('q')
-    }
+    if (deck.format) params.set('fmt', deck.format.toUpperCase())
+    else params.delete('fmt')
     const suffix = params.toString()
     navigate(`/deckbuilder/${deck.id}${suffix ? `?${suffix}` : ''}`)
     setDecksBrowserOpen(false)
@@ -548,6 +565,43 @@ export function DeckbuilderPage() {
 
   const totalCards = Object.values(deckCards).reduce((a, b) => a + b, 0)
   const stats = useMemo(() => computeStats(deckCards, catalogIndex), [deckCards, catalogIndex])
+
+  // Deck-mode left-rail card preview. Hover state is lifted out of DeckCentricView so the
+  // (Moxfield-style) preview can live in the left rail instead of floating near the cursor.
+  const [deckHoverName, setDeckHoverName] = useState<string | null>(null)
+  const [deckHoverCard, setDeckHoverCard] = useState<CardSummary | null>(null)
+  const deckHoverDfc = useDfcHoverFlip(
+    deckHoverCard
+      ? {
+          name: deckHoverCard.name,
+          imageUri: deckHoverCard.imageUri ?? null,
+          isDoubleFaced: deckHoverCard.isDoubleFaced ?? false,
+          backFaceName: deckHoverCard.backFaceName ?? null,
+          backFaceImageUri: deckHoverCard.backFaceImageUri ?? null,
+        }
+      : null,
+  )
+  const resetDeckHoverDfc = deckHoverDfc.resetFlip
+  const handleDeckHoverEnter = useCallback(
+    (entry: { name: string; card: CardSummary | undefined }) => {
+      setDeckHoverName((prev) => {
+        if (prev !== entry.name) resetDeckHoverDfc()
+        return entry.name
+      })
+      setDeckHoverCard(entry.card ?? null)
+    },
+    [resetDeckHoverDfc],
+  )
+  const handleDeckHoverLeave = useCallback(() => {
+    setDeckHoverName(null)
+    setDeckHoverCard(null)
+  }, [])
+  useEffect(() => {
+    if (deckHoverName && !(deckHoverName in deckCards) && deckHoverName !== commander) {
+      setDeckHoverName(null)
+      setDeckHoverCard(null)
+    }
+  }, [deckCards, commander, deckHoverName])
 
   return (
     <div className={`${styles.page} ${viewMode === 'deck' ? styles.pageDeckMode : ''}`}>
@@ -639,13 +693,25 @@ export function DeckbuilderPage() {
           activeDeckId={activeDeckId}
           onOpen={() => setDecksBrowserOpen(true)}
         />
-        <FilterSection
-          query={query}
-          onQueryChange={setQuery}
-          catalog={catalog}
-          setNames={setNames}
-          advanced={advanced}
-        />
+        {viewMode === 'deck' ? (
+          <DeckHoverPreview
+            name={deckHoverName ? (deckHoverDfc.displayName ?? deckHoverName) : null}
+            imageUri={
+              deckHoverName
+                ? (deckHoverDfc.displayImageUri ?? deckHoverCard?.imageUri ?? null)
+                : null
+            }
+            overlay={deckHoverDfc.hint}
+          />
+        ) : (
+          <FilterSection
+            query={query}
+            onQueryChange={setQuery}
+            catalog={catalog}
+            setNames={setNames}
+            advanced={advanced}
+          />
+        )}
       </aside>
 
       {/* Center + right rail are swapped between view modes. In "cards" mode the catalog grid
@@ -689,7 +755,7 @@ export function DeckbuilderPage() {
               />
               <DeckFormatPicker
                 activeFormat={activeFormat}
-                onChange={(value) => setQuery(setFormatToken(query, value))}
+                onChange={setActiveFormat}
               />
             </div>
 
@@ -742,7 +808,7 @@ export function DeckbuilderPage() {
             />
             <DeckFormatPicker
               activeFormat={activeFormat}
-              onChange={(value) => setQuery(setFormatToken(query, value))}
+              onChange={setActiveFormat}
             />
             <div className={styles.deckHeaderInlineSpacer} />
             <span className={styles.deckHeaderInlineCount}>
@@ -776,22 +842,20 @@ export function DeckbuilderPage() {
             }
             rowViolations={rowViolations}
             isCommanderFormat={isCommanderFormat}
+            onHoverEnter={handleDeckHoverEnter}
+            onHoverLeave={handleDeckHoverLeave}
           />
 
-          <div className={styles.deckCentricFooter}>
-            <DeckSummary
-              validation={validation}
-              totalCards={totalCards}
-              stats={stats}
-            />
-            <DeckActionRow
-              activeDeckId={activeDeckId}
-              isEmpty={Object.keys(deckCards).length === 0}
-              onSave={handleSave}
-              onSaveAs={handleSaveAs}
-              onDelete={handleDelete}
-            />
-          </div>
+          <DeckCentricFooter
+            validation={validation}
+            totalCards={totalCards}
+            stats={stats}
+            activeDeckId={activeDeckId}
+            isEmpty={Object.keys(deckCards).length === 0}
+            onSave={handleSave}
+            onSaveAs={handleSaveAs}
+            onDelete={handleDelete}
+          />
         </main>
       )}
     </div>
@@ -843,7 +907,7 @@ function DeckSummary({
               ))}
             </span>
           </div>
-          <ManaCurveBars curve={stats.curve} />
+          <ManaCurveBars curve={stats.curve} curveByColor={stats.curveByColor} />
         </>
       )}
     </div>
@@ -874,6 +938,85 @@ function DeckActionRow({
       <button className={styles.dangerButton} onClick={onDelete} disabled={!activeDeckId}>
         Delete
       </button>
+    </div>
+  )
+}
+
+/**
+ * Single horizontal footer strip used in deck-mode (Moxfield-style). Lays out
+ * deck size, legality, color pips, the colored mana curve, and the action
+ * buttons in one tightly-packed row instead of stacking the summary block above
+ * the actions like the right-rail layout does. Cards-mode keeps the stacked
+ * `DeckSummary` + `DeckActionRow` because the right rail is too narrow for a
+ * horizontal layout.
+ */
+function DeckCentricFooter({
+  validation,
+  totalCards,
+  stats,
+  activeDeckId,
+  isEmpty,
+  onSave,
+  onSaveAs,
+  onDelete,
+}: {
+  validation: ValidationResult | null
+  totalCards: number
+  stats: ReturnType<typeof computeStats>
+  activeDeckId: string | null
+  isEmpty: boolean
+  onSave: () => void
+  onSaveAs: () => void
+  onDelete: () => void
+}) {
+  const showStats = totalCards > 0 && stats.colorCounts.length > 0
+  const errors = validation?.errors ?? []
+  const errorTooltip = errors.length > 0 ? errors.map((e) => `• ${e.message}`).join('\n') : undefined
+  return (
+    <div className={styles.deckCentricFooter}>
+      <div className={styles.footerMeta}>
+        <div className={styles.footerCount}>
+          <span className={styles.footerCountNum}>{totalCards}</span>
+          <span className={styles.footerCountLabel}>cards</span>
+        </div>
+        <span
+          className={`${styles.footerStatus} ${statusClass(validation, totalCards)}`}
+          title={errorTooltip}
+        >
+          {statusLabel(validation, totalCards)}
+        </span>
+        {showStats && (
+          <div className={styles.footerColorPips}>
+            {stats.colorCounts.map(([color, n]) => (
+              <span key={color} className={styles.footerColorPip}>
+                <span
+                  className={styles.colorDot}
+                  style={{ background: COLOR_DOT[color] ?? '#888' }}
+                />
+                {n}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {showStats && (
+        <div className={styles.footerCurve}>
+          <ManaCurveBars curve={stats.curve} curveByColor={stats.curveByColor} />
+        </div>
+      )}
+
+      <div className={styles.footerActions}>
+        <button className={styles.primaryButton} onClick={onSave} disabled={isEmpty}>
+          {activeDeckId ? 'Save' : 'Save deck'}
+        </button>
+        <button className={styles.secondaryButton} onClick={onSaveAs} disabled={isEmpty}>
+          Save as
+        </button>
+        <button className={styles.dangerButton} onClick={onDelete} disabled={!activeDeckId}>
+          Delete
+        </button>
+      </div>
     </div>
   )
 }
@@ -1528,28 +1671,26 @@ function SavedDecksBrowser({
               return (
                 <button
                   key={key}
-                  className={`${styles.chip} ${active ? styles.chipActive : ''}`}
+                  className={`${styles.chip} ${styles.chipMana} ${active ? styles.chipActive : ''}`}
                   onClick={() => toggleColor(key)}
                   type="button"
                   aria-pressed={active}
+                  aria-label={label}
                   title={key.toLowerCase()}
                 >
-                  <span
-                    className={styles.savedItemColorDot}
-                    style={{ background: COLOR_DOT[key] ?? '#888' }}
-                  />
-                  {label}
+                  <ManaSymbol symbol={label} size={18} />
                 </button>
               )
             })}
             <button
-              className={`${styles.chip} ${colorFilter.has('COLORLESS') ? styles.chipActive : ''}`}
+              className={`${styles.chip} ${styles.chipMana} ${colorFilter.has('COLORLESS') ? styles.chipActive : ''}`}
               onClick={() => toggleColor('COLORLESS')}
               type="button"
               aria-pressed={colorFilter.has('COLORLESS')}
+              aria-label="Colourless"
               title="colourless"
             >
-              C
+              <ManaSymbol symbol="C" size={18} />
             </button>
             {colorFilter.size > 0 && (
               <button
@@ -1773,14 +1914,26 @@ function SearchBar({
 }) {
   const [helpOpen, setHelpOpen] = useState(false)
   const hasErrors = errors.length > 0
+  // Local mirror of the URL-backed `query` so the input never has its DOM value reassigned by
+  // the round-trip through `useSearchParams`. Without this, typing certain characters (e.g.
+  // parentheses) caused the cursor to jump because React would briefly rerender the input
+  // with the previous-tick query while the URL update was in flight, and the browser
+  // re-anchored the caret.
+  const [localQuery, setLocalQuery] = useState(query)
+  useEffect(() => {
+    setLocalQuery((prev) => (prev === query ? prev : query))
+  }, [query])
   return (
     <div className={styles.searchBar}>
       <div className={styles.searchInputWrap}>
         <input
           className={hasErrors ? styles.searchInputError : styles.searchInput}
           placeholder='Search — try: t:creature c:r cmc<=3, o:flying, (c:u or c:b) -is:legendary'
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
+          value={localQuery}
+          onChange={(e) => {
+            setLocalQuery(e.target.value)
+            onQueryChange(e.target.value)
+          }}
           aria-invalid={hasErrors}
           aria-describedby={hasErrors ? 'search-errors' : undefined}
         />
@@ -2140,13 +2293,13 @@ function FilterSection({
 
 // ---------------------------------------------------------------------------
 // Format selector (right rail) — drives validation, deck-list red-flagging,
-// and the catalog's `format:` filter token.
+// and the catalog's automatic format filter.
 // ---------------------------------------------------------------------------
 
 /**
- * Compact format picker for the right rail. Edits the same `format:<name>` query token used
- * by the catalog filter so a single source of truth governs both "build target" and "browse
- * by legal-in-format". `null` value clears the token.
+ * Compact format picker for the right rail. Drives the deck-level `fmt` URL param —
+ * deliberately separate from the search-bar query so editing the catalog filter never
+ * clobbers the user's chosen format. `null` clears the format.
  */
 function DeckFormatPicker({
   activeFormat,
@@ -2171,19 +2324,6 @@ function DeckFormatPicker({
       </select>
     </label>
   )
-}
-
-/**
- * Atomic update of the `format:<name>` token in the query. Picking the same value twice
- * still works because we always strip-then-add. `null` clears the token.
- */
-function setFormatToken(query: string, value: string | null): string {
-  const stripped = query
-    .split(/\s+/)
-    .filter((t) => t.length > 0 && !/^-?format:/i.test(t))
-    .join(' ')
-  if (!value) return stripped
-  return stripped ? `${stripped} format:${value}` : `format:${value}`
 }
 
 // ---------------------------------------------------------------------------
@@ -2594,6 +2734,38 @@ function HoverFollowPreview({
   }, [name])
   if (!name || !pos) return null
   return <HoverCardPreview name={name} imageUri={imageUri} pos={pos} overlay={overlay} />
+}
+
+/**
+ * Card preview pane shown in the left rail in deck-mode (Moxfield-style). Replaces
+ * the filter menu, which is meaningless when the right-rail catalog grid is hidden.
+ * Driven by the lifted hover state in DeckbuilderPage.
+ */
+function DeckHoverPreview({
+  name,
+  imageUri,
+  overlay,
+}: {
+  name: string | null
+  imageUri: string | null
+  overlay?: React.ReactNode
+}) {
+  if (!name) {
+    return (
+      <div className={styles.deckHoverPreviewEmpty}>
+        Hover a card to preview it here.
+      </div>
+    )
+  }
+  const imageUrl = getCardImageUrl(name, imageUri, 'large')
+  return (
+    <div className={styles.deckHoverPreview}>
+      <div className={styles.deckHoverPreviewImageWrap}>
+        <img className={styles.deckHoverPreviewImage} src={imageUrl} alt={name} />
+        {overlay}
+      </div>
+    </div>
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -3049,6 +3221,8 @@ function DeckCentricView({
   onToggleCommander,
   rowViolations,
   isCommanderFormat,
+  onHoverEnter,
+  onHoverLeave,
 }: {
   deckCards: Record<string, number>
   catalog: Record<string, CardSummary>
@@ -3060,43 +3234,13 @@ function DeckCentricView({
   onToggleCommander: (name: string) => void
   rowViolations: Map<string, Set<string>>
   isCommanderFormat: boolean
+  onHoverEnter: (entry: { name: string; card: CardSummary | undefined }) => void
+  onHoverLeave: () => void
 }) {
   const grouped = useMemo(
     () => groupByCardType(deckCards, catalog, commander),
     [deckCards, catalog, commander],
   )
-
-  const [hoverCard, setHoverCard] = useState<CardSummary | null>(null)
-  const [hoverName, setHoverName] = useState<string | null>(null)
-  const dfc = useDfcHoverFlip(
-    hoverCard
-      ? {
-          name: hoverCard.name,
-          imageUri: hoverCard.imageUri ?? null,
-          isDoubleFaced: hoverCard.isDoubleFaced ?? false,
-          backFaceName: hoverCard.backFaceName ?? null,
-          backFaceImageUri: hoverCard.backFaceImageUri ?? null,
-        }
-      : null,
-  )
-  const resetDfcFlip = dfc.resetFlip
-
-  const handleEnter = (entry: { name: string; card: CardSummary | undefined }) => {
-    if (hoverName !== entry.name) resetDfcFlip()
-    setHoverName(entry.name)
-    setHoverCard(entry.card ?? null)
-  }
-  const handleLeave = () => {
-    setHoverName(null)
-    setHoverCard(null)
-  }
-
-  useEffect(() => {
-    if (hoverName && !(hoverName in deckCards)) {
-      setHoverName(null)
-      setHoverCard(null)
-    }
-  }, [deckCards, hoverName])
 
   // Use the raw deck size (not the grouped-bucket count) because the Lands group now always
   // synthesizes the 5 basic-land rows even at count 0 — so an empty deck would otherwise still
@@ -3131,18 +3275,13 @@ function DeckCentricView({
                 onAdd={onAdd}
                 onRemove={onRemove}
                 onToggleCommander={onToggleCommander}
-                onEnter={() => handleEnter(entry)}
-                onLeave={handleLeave}
+                onEnter={() => onHoverEnter(entry)}
+                onLeave={onHoverLeave}
               />
             ))}
           </div>
         ))}
       </div>
-      <HoverFollowPreview
-        name={hoverName ? (dfc.displayName ?? hoverName) : null}
-        imageUri={hoverName ? (dfc.displayImageUri ?? hoverCard?.imageUri ?? null) : null}
-        overlay={dfc.hint}
-      />
     </div>
   )
 }
@@ -3208,45 +3347,47 @@ function BasicLandsPanel({
           Suggest
         </button>
       </div>
-      {basics.map((card) => {
-        const count = deckCards[card.name] ?? 0
-        const color = BASIC_LAND_COLOR[card.name]
-        return (
-          <div
-            key={card.name}
-            className={styles.basicLandRow}
-            onMouseEnter={() => setHoverCard(card)}
-            onMouseLeave={() => setHoverCard(null)}
-          >
-            <span className={styles.basicLandCount}>{count}</span>
-            {color ? (
-              <ManaSymbol symbol={color} size={16} />
-            ) : (
-              <span className={styles.colorDot} style={{ background: '#888' }} aria-hidden />
-            )}
-            <span className={styles.basicLandName}>{card.name}</span>
-            <div className={styles.basicLandButtons}>
-              <button
-                className={styles.basicLandBtn}
-                onClick={() => onRemove(card.name)}
-                disabled={count <= 0}
-                aria-label={`Remove ${card.name}`}
-                type="button"
-              >
-                −
-              </button>
-              <button
-                className={styles.basicLandBtnAdd}
-                onClick={() => onAdd(card)}
-                aria-label={`Add ${card.name}`}
-                type="button"
-              >
-                +
-              </button>
+      <div className={styles.basicLandsGrid}>
+        {basics.map((card) => {
+          const count = deckCards[card.name] ?? 0
+          const color = BASIC_LAND_COLOR[card.name]
+          return (
+            <div
+              key={card.name}
+              className={styles.basicLandTile}
+              onMouseEnter={() => setHoverCard(card)}
+              onMouseLeave={() => setHoverCard(null)}
+              title={card.name}
+            >
+              {color ? (
+                <ManaSymbol symbol={color} size={20} />
+              ) : (
+                <span className={styles.colorDot} style={{ background: '#888' }} aria-hidden />
+              )}
+              <span className={styles.basicLandTileCount}>{count}</span>
+              <div className={styles.basicLandTileButtons}>
+                <button
+                  className={styles.basicLandBtn}
+                  onClick={() => onRemove(card.name)}
+                  disabled={count <= 0}
+                  aria-label={`Remove ${card.name}`}
+                  type="button"
+                >
+                  −
+                </button>
+                <button
+                  className={styles.basicLandBtnAdd}
+                  onClick={() => onAdd(card)}
+                  aria-label={`Add ${card.name}`}
+                  type="button"
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
       <HoverFollowPreview
         name={hoverCard?.name ?? null}
         imageUri={hoverCard?.imageUri ?? null}
@@ -3351,26 +3492,60 @@ function suggestLandsForDeck(
 // Stats / helpers
 // ---------------------------------------------------------------------------
 
-function ManaCurveBars({ curve }: { curve: number[] }) {
+/** WUBRG order keeps the visual stack consistent with how mana costs are written. */
+const CURVE_COLOR_ORDER = ['WHITE', 'BLUE', 'BLACK', 'RED', 'GREEN', 'COLORLESS'] as const
+const CURVE_COLOR_HEX: Record<string, string> = {
+  WHITE: '#f5f3da',
+  BLUE: '#62a8ff',
+  BLACK: '#5a5a5a',
+  RED: '#ff6a4a',
+  GREEN: '#4ab86a',
+  COLORLESS: '#9aa3b2',
+}
+
+function ManaCurveBars({
+  curve,
+  curveByColor,
+}: {
+  curve: number[]
+  curveByColor: Array<Record<string, number>>
+}) {
   const max = Math.max(1, ...curve)
   return (
-    <div>
+    <div className={styles.curveContainer}>
       <div className={styles.curveBars}>
-        {curve.map((n, i) => (
-          <div
-            key={i}
-            className={styles.curveBar}
-            style={{ height: `${(n / max) * 100}%` }}
-            title={`CMC ${i === curve.length - 1 ? `${i}+` : i}: ${n}`}
-          />
-        ))}
-      </div>
-      <div className={styles.curveBars} style={{ height: 'auto' }}>
-        {curve.map((_, i) => (
-          <div key={i} className={styles.curveLabel}>
-            {i === curve.length - 1 ? `${i}+` : i}
-          </div>
-        ))}
+        {curve.map((n, i) => {
+          const segments = CURVE_COLOR_ORDER
+            .map((col) => ({ col, share: curveByColor[i]?.[col] ?? 0 }))
+            .filter((s) => s.share > 0)
+          const cmcLabel = i === curve.length - 1 ? `${i}+` : `${i}`
+          return (
+            <div key={i} className={styles.curveBarColumn}>
+              <div className={styles.curveBarCount}>{n > 0 ? n : ''}</div>
+              <div
+                className={styles.curveBarTrack}
+                title={`CMC ${cmcLabel}: ${n}`}
+              >
+                <div
+                  className={styles.curveBarStack}
+                  style={{ height: `${(n / max) * 100}%` }}
+                >
+                  {segments.map(({ col, share }) => (
+                    <div
+                      key={col}
+                      className={styles.curveBarSegment}
+                      style={{
+                        flex: share,
+                        background: CURVE_COLOR_HEX[col] ?? '#888',
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className={styles.curveLabel}>{cmcLabel}</div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -3379,6 +3554,10 @@ function ManaCurveBars({ curve }: { curve: number[] }) {
 function computeStats(deck: Record<string, number>, cards: Record<string, CardSummary>) {
   const colorCount: Record<string, number> = {}
   const curve = [0, 0, 0, 0, 0, 0, 0, 0]
+  const curveByColor: Array<Record<string, number>> = Array.from(
+    { length: curve.length },
+    () => ({}),
+  )
   for (const [name, count] of Object.entries(deck)) {
     if (count <= 0) continue
     const c = cards[name.split('#')[0] ?? name]
@@ -3387,11 +3566,19 @@ function computeStats(deck: Record<string, number>, cards: Record<string, CardSu
     if (!c.cardTypes.includes('LAND')) {
       const idx = Math.min(c.cmc, curve.length - 1)
       curve[idx] = (curve[idx] ?? 0) + count
+      // Multicolor cards split their count across each contributing color so the stacked
+      // segments add up to the total bar height. Colorless cards go in their own bucket.
+      const cs = c.colors.length === 0 ? ['COLORLESS'] : c.colors
+      const share = count / cs.length
+      for (const col of cs) {
+        curveByColor[idx]![col] = (curveByColor[idx]![col] ?? 0) + share
+      }
     }
   }
   return {
     colorCounts: Object.entries(colorCount).sort((a, b) => b[1] - a[1]),
     curve,
+    curveByColor,
   }
 }
 
