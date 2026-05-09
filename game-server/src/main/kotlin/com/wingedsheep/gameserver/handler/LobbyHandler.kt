@@ -249,6 +249,72 @@ class LobbyHandler(
         return lobby.lobbyId
     }
 
+    /**
+     * Programmatically create an AI-only tournament where each player is handed a fixed,
+     * pre-built deck. Skips sealed pool generation and deck-building entirely.
+     *
+     * Used by `just watch-ai-match` when DECK1/DECK2 paths are passed, and by anyone calling
+     * `/api/dev/ai-tournament` with a `decks` field.
+     */
+    fun createAiTournamentWithFixedDecks(
+        decks: List<Map<String, Int>>,
+        models: List<String>? = null,
+    ): String {
+        require(aiGameManager.isEnabled) { "AI opponent is not enabled on this server" }
+        require(decks.size in 2..8) { "Player count must be between 2 and 8 (got ${decks.size} decks)" }
+
+        // Validate all decks against the registry up front so we surface bad card names before
+        // creating the lobby.
+        decks.forEachIndexed { index, deck ->
+            val result = deckValidator.validate(deck, format = null)
+            require(result.valid) {
+                val msg = result.errors.firstOrNull()?.message ?: "Invalid deck"
+                "Deck ${index + 1} is invalid: $msg"
+            }
+        }
+
+        val lobby = TournamentLobby(
+            setCodes = emptyList(),
+            setNames = emptyList(),
+            boosterGenerator = boosterGenerator,
+            format = TournamentFormat.PREMADE_DECKS,
+            boosterCount = 0,
+            boosterDistribution = emptyMap(),
+            maxPlayers = decks.size
+        )
+
+        val playerIds = mutableListOf<EntityId>()
+        decks.forEachIndexed { index, _ ->
+            val modelOverride = models?.getOrNull(index)
+            val aiIdentity = aiGameManager.createAiIdentity(modelOverride = modelOverride)
+            lobby.addPlayer(aiIdentity)
+            playerIds += aiIdentity.playerId
+        }
+
+        // Submit each AI's pre-built deck while still in WAITING_FOR_PLAYERS — that's the
+        // PREMADE_DECKS-permitted state. Pool-free validation runs inside submitDeck.
+        playerIds.forEachIndexed { index, playerId ->
+            val result = lobby.submitDeck(playerId, decks[index])
+            require(result is TournamentLobby.DeckSubmissionResult.Success) {
+                "Failed to submit deck for AI player ${index + 1}: ${(result as TournamentLobby.DeckSubmissionResult.Error).message}"
+            }
+        }
+
+        // Skip DECK_BUILDING; jump straight into the tournament.
+        lobby.activatePremadeTournament()
+        lobbyRepository.saveLobby(lobby)
+
+        val tournament = tournamentMatchHandler.ensureTournamentCreated(lobby)
+        lobby.players.values.forEach { ps ->
+            tournamentMatchHandler.sendTournamentStartedToPlayer(lobby, tournament, ps.identity)
+        }
+        tournamentMatchHandler.autoReadyAiPlayers(lobby, tournament)
+        lobbyRepository.saveLobby(lobby)
+
+        logger.info("AI fixed-deck tournament created: ${lobby.lobbyId} (${decks.size} AI players, deck sizes: ${decks.map { it.values.sum() }})")
+        return lobby.lobbyId
+    }
+
     // =========================================================================
     // Sealed Game
     // =========================================================================

@@ -239,3 +239,22 @@ e2e-trace TRACE:
 [doc("AI vs AI match in a headed browser — params: MODEL1 MODEL2 SETS HEURISTIC PROFILE (pass \"\" \"\" for engine-vs-engine)")]
 watch-ai-match MODEL1="z-ai/glm-5.1" MODEL2="qwen/qwen3.6-plus" SETS="BLB" HEURISTIC="true" PROFILE="false":
     cd e2e-scenarios && AI_MATCH=true AI_MODEL_P1={{MODEL1}} AI_MODEL_P2={{MODEL2}} AI_HEURISTIC_DECK={{HEURISTIC}} AI_SET_CODES={{SETS}} PROFILE={{PROFILE}} SKIP_WEB_SERVER=true npx playwright test tests/general/ai-match --headed
+
+# Watch an engine-vs-engine AI match using two fixed pre-built decks. Sealed pool +
+# deckbuilding are skipped entirely. Each deck JSON is a `{ "Card Name": count }` object;
+# paths are resolved relative to the current working directory.
+# Examples:
+#   just watch-ai-match-decks e2e-scenarios/decks/uw-tempo.json e2e-scenarios/decks/standard-monou.json
+#   just watch-ai-match-decks decks/p1.json decks/p2.json "" ""                   # built-in engine AIs (no LLMs)
+#   just watch-ai-match-decks decks/p1.json decks/p2.json "anthropic/claude-..." ""
+[group: 'e2e']
+[doc("AI vs AI match with two fixed deck JSONs — params: DECK1 DECK2 [MODEL1 MODEL2 PROFILE]")]
+watch-ai-match-decks DECK1 DECK2 MODEL1="" MODEL2="" PROFILE="false":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Resolve deck paths against the caller's cwd before chdir into e2e-scenarios so
+    # relative paths like `e2e-scenarios/decks/uw-tempo.json` keep working.
+    DECK1_ABS="$(cd "$(dirname "{{DECK1}}")" && pwd)/$(basename "{{DECK1}}")"
+    DECK2_ABS="$(cd "$(dirname "{{DECK2}}")" && pwd)/$(basename "{{DECK2}}")"
+    cd e2e-scenarios
+    AI_MATCH=true AI_DECK_P1="$DECK1_ABS" AI_DECK_P2="$DECK2_ABS" AI_MODEL_P1="{{MODEL1}}" AI_MODEL_P2="{{MODEL2}}" PROFILE="{{PROFILE}}" SKIP_WEB_SERVER=true npx playwright test tests/general/ai-match --headed

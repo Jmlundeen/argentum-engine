@@ -304,7 +304,8 @@ class DynamicAmountEvaluator(
         ContextPropertyKey.TRIGGER_LIFE_GAINED,
         ContextPropertyKey.TRIGGER_LIFE_LOST -> context.triggerDamageAmount ?: 0
 
-        ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT -> context.triggerCounterCount ?: 0
+        ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT,
+        ContextPropertyKey.TRIGGER_COUNTERS_PLACED_AMOUNT -> context.triggerCounterCount ?: 0
         ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT -> context.triggerTotalCounterCount ?: 0
 
         ContextPropertyKey.ADDITIONAL_COST_EXILED_COUNT -> context.exiledCardCount

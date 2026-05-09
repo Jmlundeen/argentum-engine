@@ -65,7 +65,11 @@ data class EffectContext(
     // --- Trigger state ---
     /** Amount of damage from a trigger context (e.g., "Whenever ~ is dealt damage") */
     val triggerDamageAmount: Int? = null,
-    /** Last known +1/+1 counter count from a death trigger context (e.g., Hooded Hydra) */
+    /**
+     * Counter count from the triggering event payload.
+     * - Death triggers: last-known +1/+1 counter count when the source left the battlefield (Hooded Hydra).
+     * - CountersPlacedEvent triggers: number of counters placed in the triggering event (Simic Ascendancy).
+     */
     val triggerCounterCount: Int? = null,
     /** Last known total counter count (all types) from a death trigger context (e.g., Shadow Urchin) */
     val triggerTotalCounterCount: Int? = null,

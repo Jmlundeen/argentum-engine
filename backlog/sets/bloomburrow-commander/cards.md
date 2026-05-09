@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 3 / 312
+**Implemented:** 4 / 312
 
 | Color      | Total | Done |
 |------------|-------|------|
@@ -11,7 +11,7 @@
 | Black      | 20    | 0    |
 | Red        | 24    | 0    |
 | Green      | 62    | 1    |
-| Multicolor | 40    | 0    |
+| Multicolor | 40    | 1    |
 | Colorless  | 33    | 1    |
 | Land       | 69    | 1    |
 
@@ -249,7 +249,7 @@
 - [ ] Shield Broker
 - [ ] Shivan Reef
 - [ ] Siege-Gang Commander
-- [ ] Simic Ascendancy
+- [x] Simic Ascendancy
 - [ ] Skullclamp
 - [ ] Skyclave Apparition
 - [ ] Skycloud Expanse

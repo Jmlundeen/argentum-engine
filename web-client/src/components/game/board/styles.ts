@@ -1157,6 +1157,22 @@ export const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     zIndex: 5,
   } as React.CSSProperties,
+  // Growth counter badge (for Simic Ascendancy — 20 = win)
+  growthCounterBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: 'rgba(20, 60, 50, 0.95)',
+    borderRadius: 4,
+    border: '1px solid rgba(120, 220, 180, 0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 2,
+    color: '#a0e8c8',
+    fontWeight: 700,
+    zIndex: 5,
+    textShadow: '0 0 4px rgba(120, 220, 180, 0.8)',
+  } as React.CSSProperties,
   // Quest counter badge (for Beastmaster Ascension etc.)
   questCounterBadge: {
     position: 'absolute',

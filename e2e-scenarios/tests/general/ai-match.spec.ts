@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 /**
  * Watch an LLM vs LLM game using Bloomburrow decks.
@@ -16,6 +18,10 @@ import { test, expect } from '@playwright/test'
  *
  * Use heuristic deck building (fast — skips LLM deck build):
  *   AI_HEURISTIC_DECK=true ...
+ *
+ * Use fixed pre-built decks (skip sealed pool + deckbuilding entirely):
+ *   AI_DECK_P1=path/to/deck1.json AI_DECK_P2=path/to/deck2.json ...
+ *   Each deck JSON is a `{ "Card Name": count }` object.
  */
 
 // Run headed and maximized
@@ -46,10 +52,35 @@ test('AI vs AI Bloomburrow match', async ({ page, request }) => {
     .map((s) => s.trim())
     .filter((s) => s.length > 0)
 
+  const deckPathP1 = process.env.AI_DECK_P1?.trim() || null
+  const deckPathP2 = process.env.AI_DECK_P2?.trim() || null
+  const fixedDecksMode = !!(deckPathP1 && deckPathP2)
+  if ((deckPathP1 && !deckPathP2) || (!deckPathP1 && deckPathP2)) {
+    throw new Error('AI_DECK_P1 and AI_DECK_P2 must both be set (or both unset).')
+  }
+
+  const loadDeck = (p: string): Record<string, number> => {
+    const resolved = path.resolve(p)
+    const raw = fs.readFileSync(resolved, 'utf8')
+    const parsed = JSON.parse(raw)
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      throw new Error(`Deck JSON at ${resolved} must be an object of { "Card Name": count }`)
+    }
+    return parsed as Record<string, number>
+  }
+
   const body: Record<string, unknown> = {
-    setCodes,
     playerCount: 2,
-    heuristicDeckbuilding,
+  }
+  if (fixedDecksMode) {
+    const deck1 = loadDeck(deckPathP1!)
+    const deck2 = loadDeck(deckPathP2!)
+    body.decks = [deck1, deck2]
+    console.log(`Player 1 deck: ${deckPathP1} (${Object.values(deck1).reduce((a, b) => a + b, 0)} cards)`)
+    console.log(`Player 2 deck: ${deckPathP2} (${Object.values(deck2).reduce((a, b) => a + b, 0)} cards)`)
+  } else {
+    body.setCodes = setCodes
+    body.heuristicDeckbuilding = heuristicDeckbuilding
   }
   if (model1 || model2) {
     body.models = [model1 ?? null, model2 ?? null]
@@ -62,10 +93,12 @@ test('AI vs AI Bloomburrow match', async ({ page, request }) => {
   const { lobbyId, spectateUrl, message } = await response.json()
   console.log(`Tournament created: ${lobbyId}`)
   console.log(message)
-  console.log(`Sets: ${setCodes.join(', ')}`)
+  if (!fixedDecksMode) {
+    console.log(`Sets: ${setCodes.join(', ')}`)
+    console.log(`Deck building: ${heuristicDeckbuilding ? 'heuristic (fast)' : 'LLM'}`)
+  }
   if (model1) console.log(`Player 1 model: ${model1}`)
   if (model2) console.log(`Player 2 model: ${model2}`)
-  console.log(`Deck building: ${heuristicDeckbuilding ? 'heuristic (fast)' : 'LLM'}`)
 
   // Pre-inject the player name into localStorage so the app auto-connects
   // without showing the name-entry screen

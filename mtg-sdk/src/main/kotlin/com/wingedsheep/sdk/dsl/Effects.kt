@@ -225,6 +225,12 @@ object Effects {
         LoseGameEffect(target, message)
 
     /**
+     * Target player wins the game (e.g., Simic Ascendancy, Coalition Victory).
+     */
+    fun WinGame(target: EffectTarget = EffectTarget.Controller, message: String? = null): Effect =
+        com.wingedsheep.sdk.scripting.effects.WinGameEffect(target, message)
+
+    /**
      * Force a player to exile from multiple zones (battlefield, hand, graveyard).
      * Used for Lich's Mastery: "for each 1 life you lost, exile a permanent you control
      * or a card from your hand or graveyard."

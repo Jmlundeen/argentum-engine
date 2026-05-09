@@ -90,6 +90,13 @@ enum class ContextPropertyKey(val description: String) {
     TARGET_COUNT("the number of targets"),
     /** Number of +1/+1 counters on the source as it last existed on the battlefield (Hooded Hydra). */
     LAST_KNOWN_PLUS_ONE_COUNTER_COUNT("the number of +1/+1 counters on it"),
+    /**
+     * Number of counters placed in the triggering [CountersPlacedEvent] payload —
+     * used by abilities like Simic Ascendancy: "Whenever one or more +1/+1 counters
+     * are put on a creature you control, put **that many** growth counters on this
+     * enchantment."
+     */
+    TRIGGER_COUNTERS_PLACED_AMOUNT("that many"),
     /** Total counters of any kind on the source as it last existed on the battlefield (Shadow Urchin). */
     LAST_KNOWN_TOTAL_COUNTER_COUNT("the number of counters on it"),
     /** Total cards exiled and linked to the source permanent (Veteran Survivor). */

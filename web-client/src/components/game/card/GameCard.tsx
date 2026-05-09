@@ -36,6 +36,7 @@ import {
   getChorusCounters,
   getDreamCounters,
   getQuestCounters,
+  getGrowthCounters,
 } from '../board/shared'
 import { styles } from '../board/styles'
 import {
@@ -1388,6 +1389,20 @@ export function GameCard({
           <i className={`ms ms-${counterManaClass.CHORUS}`} style={{ fontSize: responsive.badges.counterIconFontSize }} />
           <span style={{ fontWeight: 700 }}>
             {getChorusCounters(card)}
+          </span>
+        </div>
+      )}
+
+      {/* Growth counter badge (Simic Ascendancy — 20 = win) */}
+      {battlefield && getGrowthCounters(card) > 0 && (
+        <div style={{
+          ...styles.growthCounterBadge,
+          fontSize: responsive.badges.counterTextFontSize,
+          padding: responsive.badges.badgePadding,
+        }}>
+          <i className={`ms ms-${counterManaClass.GROWTH}`} style={{ fontSize: responsive.badges.counterIconFontSize }} />
+          <span style={{ fontWeight: 700 }}>
+            {getGrowthCounters(card)}
           </span>
         </div>
       )}

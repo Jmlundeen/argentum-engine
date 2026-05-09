@@ -34,7 +34,8 @@ enum class CounterType {
     FLOOD,
     CHORUS,
     DREAM,
-    QUEST
+    QUEST,
+    GROWTH
 }
 
 /**
@@ -70,4 +71,5 @@ object Counters {
     const val CHORUS = "chorus"
     const val DREAM = "dream"
     const val QUEST = "quest"
+    const val GROWTH = "growth"
 }

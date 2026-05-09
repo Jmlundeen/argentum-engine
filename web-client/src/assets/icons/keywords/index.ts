@@ -84,4 +84,5 @@ export const counterManaClass: Record<string, string> = {
   CHORUS: 'counter-charge',
   DREAM: 'counter-charge',
   QUEST: 'counter-lore',
+  GROWTH: 'counter-charge',
 }

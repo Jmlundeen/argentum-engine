@@ -31,7 +31,13 @@ class AiTournamentController(
          *  Falls back to the server's configured model for any unspecified slots. */
         val models: List<String>? = null,
         /** Skip LLM deck building and use the fast heuristic builder instead. */
-        val heuristicDeckbuilding: Boolean? = null
+        val heuristicDeckbuilding: Boolean? = null,
+        /**
+         * Optional pre-built decks (one per player, indexed by slot) as cardName→count maps.
+         * When provided, the lobby is created in PREMADE_DECKS format and AI deckbuilding is
+         * skipped entirely — boosters are not generated and `setCodes` is ignored.
+         */
+        val decks: List<Map<String, Int>>? = null
     )
 
     data class AiTournamentResponse(
@@ -44,20 +50,34 @@ class AiTournamentController(
     fun createAiTournament(
         @RequestBody request: AiTournamentRequest?
     ): ResponseEntity<AiTournamentResponse> {
-        val setCodes = request?.setCodes?.ifEmpty { null }
-            ?: boosterGenerator.availableSets.keys.toList().let { listOf(it.random()) }
-        val playerCount = request?.playerCount?.coerceIn(2, 8) ?: 2
+        val decks = request?.decks?.takeIf { it.isNotEmpty() }
+        val playerCount = decks?.size
+            ?: request?.playerCount?.coerceIn(2, 8) ?: 2
 
         return try {
-            val lobbyId = lobbyHandler.createAiTournament(setCodes, playerCount, request?.models, request?.heuristicDeckbuilding)
+            val lobbyId = if (decks != null) {
+                if (decks.size < 2) {
+                    return ResponseEntity.badRequest().body(AiTournamentResponse(
+                        lobbyId = "", spectateUrl = "",
+                        message = "At least 2 decks are required for a fixed-deck AI tournament"
+                    ))
+                }
+                lobbyHandler.createAiTournamentWithFixedDecks(decks, request.models)
+            } else {
+                val setCodes = request?.setCodes?.ifEmpty { null }
+                    ?: boosterGenerator.availableSets.keys.toList().let { listOf(it.random()) }
+                lobbyHandler.createAiTournament(setCodes, playerCount, request?.models, request?.heuristicDeckbuilding)
+            }
 
-            logger.info("AI tournament created via REST: lobbyId=$lobbyId, sets=$setCodes, players=$playerCount")
+            val mode = if (decks != null) "fixed-decks" else "sealed (sets=${request?.setCodes ?: "auto"})"
+            logger.info("AI tournament created via REST: lobbyId=$lobbyId, mode=$mode, players=$playerCount")
 
             ResponseEntity.ok(AiTournamentResponse(
                 lobbyId = lobbyId,
                 spectateUrl = "/tournament/$lobbyId",
                 message = "AI tournament created. Open /tournament/$lobbyId to spectate. " +
-                    "AI players are building decks and will start playing shortly."
+                    if (decks != null) "Players will start playing shortly with the supplied decks."
+                    else "AI players are building decks and will start playing shortly."
             ))
         } catch (e: Exception) {
             logger.error("Failed to create AI tournament: ${e.message}", e)

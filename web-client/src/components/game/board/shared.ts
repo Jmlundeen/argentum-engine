@@ -413,6 +413,14 @@ export function getQuestCounters(card: ClientCard): number {
 }
 
 /**
+ * Get the number of growth counters on a card. Growth counters appear on
+ * Simic Ascendancy and accumulate toward a 20-counter win condition.
+ */
+export function getGrowthCounters(card: ClientCard): number {
+  return card.counters[CounterType.GROWTH] ?? 0
+}
+
+/**
  * Get an emoji or icon for an effect based on its icon identifier.
  */
 export function getEffectIcon(icon: string): string {

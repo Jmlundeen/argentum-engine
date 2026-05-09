@@ -50,6 +50,7 @@ class PlayerExecutors(
         GrantShroudExecutor(),
         HijackNextTurnExecutor(),
         LoseGameExecutor(),
+        WinGameExecutor(),
         payOrSufferExecutor,
         PlayAdditionalLandsExecutor(),
         PreventLandPlaysThisTurnExecutor(),

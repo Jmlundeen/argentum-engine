@@ -67,6 +67,10 @@ data class TriggerContext(
                     triggeringEntityId = event.targetId,
                     damageAmount = event.amount
                 )
+                is com.wingedsheep.engine.core.CountersAddedEvent -> TriggerContext(
+                    triggeringEntityId = event.entityId,
+                    counterCount = event.amount
+                )
                 is SpellCastEvent -> TriggerContext(
                     triggeringEntityId = event.spellEntityId,
                     triggeringPlayerId = event.casterId

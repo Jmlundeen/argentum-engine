@@ -258,6 +258,27 @@ data class LoseGameEffect(
 }
 
 /**
+ * Target player wins the game.
+ * Used for cards like Simic Ascendancy and Coalition Victory.
+ *
+ * Implemented as "all opponents of [target] lose the game" — state-based actions
+ * then resolve gameOver with the remaining player as winner.
+ *
+ * @param target The player who wins (default: controller)
+ * @param message Optional message describing the win condition (shown in game-over screen)
+ */
+@SerialName("WinGame")
+@Serializable
+data class WinGameEffect(
+    val target: EffectTarget = EffectTarget.Controller,
+    val message: String? = null
+) : Effect {
+    override val description: String = "${target.description.replaceFirstChar { it.uppercase() }} wins the game"
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect = this
+}
+
+/**
  * Grant shroud to a target entity for the specified duration.
  * Works for players, creatures, and planeswalkers.
  *
