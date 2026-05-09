@@ -160,7 +160,14 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     /**
-     * The total amount of mana spent to cast the current spell (sum of all colors + colorless + X).
+     * The total amount of mana paid from the pool to cast the current spell.
+     *
+     * Sums every per-color and colorless bucket recorded on the spell's stack object.
+     * For `{X}` spells the X portion is already included (the mana solver routes those
+     * payments through the same buckets), so this is **not** the same as [XValue]:
+     *  - `XValue` is the chosen value of X (e.g. 3 for Blaze cast with X=3).
+     *  - `TotalManaSpent` is the full mana paid (e.g. 4 for `{X}{R}` Blaze with X=3).
+     *
      * Used for effects like Memory Deluge: "where X is the amount of mana spent to cast this spell."
      */
     @SerialName("TotalManaSpent")
