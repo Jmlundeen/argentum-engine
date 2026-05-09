@@ -11,7 +11,7 @@ import { parseQuery } from '../index'
 import { CARDS } from './fixtures'
 
 function parse(q: string) {
-  return parseQuery(q, { withErrors: true })
+  return parseQuery(q)
 }
 function ok(q: string) {
   expect(parse(q).errors).toEqual([])
@@ -103,7 +103,7 @@ describe('Scryfall compliance — sanity', () => {
       '(c:r or c:b) t:creature', '!"Lightning Bolt"', 'name:/^bolt/',
     ]
     for (const q of examples) {
-      const { predicate } = parseQuery(q, { withErrors: true })
+      const { predicate } = parseQuery(q)
       expect(() => CARDS.filter(predicate)).not.toThrow()
     }
   })
