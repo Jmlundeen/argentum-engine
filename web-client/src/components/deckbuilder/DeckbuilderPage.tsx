@@ -761,14 +761,9 @@ export function DeckbuilderPage() {
               }
               rowViolations={rowViolations}
               isCommanderFormat={isCommanderFormat}
-            />
-
-            <BasicLandsPanel
-              catalog={catalog}
-              deckCards={deckCards}
-              onAdd={addCard}
-              onRemove={removeCard}
-              onSuggest={() => suggestLandsForDeck(deckCards, catalogIndex, catalog, setCardCount)}
+              onSuggestBasics={() =>
+                suggestLandsForDeck(deckCards, catalogIndex, catalog, setCardCount)
+              }
             />
 
             <DeckSummary
@@ -2728,6 +2723,7 @@ function DeckListPanel({
   onToggleCommander,
   rowViolations,
   isCommanderFormat,
+  onSuggestBasics,
 }: {
   deckCards: Record<string, number>
   catalog: Record<string, CardSummary>
@@ -2739,6 +2735,7 @@ function DeckListPanel({
   onToggleCommander: (name: string) => void
   rowViolations: Map<string, Set<string>>
   isCommanderFormat: boolean
+  onSuggestBasics: () => void
 }) {
   const grouped = useMemo(
     () => groupForDeckList(deckCards, catalog, commander),
@@ -2776,13 +2773,28 @@ function DeckListPanel({
     }
   }, [deckCards, hoverName])
 
+  const hasDeck = Object.keys(deckCards).length > 0
+
   return (
     <div className={styles.deckList}>
       {grouped.map((group) => (
         <div key={group.label} className={styles.deckGroup}>
-          <h3 className={styles.deckGroupLabel}>
-            {group.label} ({group.entries.reduce((a, e) => a + e.count, 0)})
-          </h3>
+          <div className={styles.deckGroupHeader}>
+            <h3 className={styles.deckGroupLabel}>
+              {group.label} ({group.entries.reduce((a, e) => a + e.count, 0)})
+            </h3>
+            {group.label === 'Lands' && (
+              <button
+                type="button"
+                className={styles.basicLandsSuggest}
+                onClick={onSuggestBasics}
+                disabled={!hasDeck}
+                title="Auto-fill basic lands from your deck's mana curve and color requirements"
+              >
+                Suggest basic lands
+              </button>
+            )}
+          </div>
           {group.entries.map((entry) => (
             <DeckRow
               key={entry.name}
@@ -3243,104 +3255,6 @@ const BASIC_LAND_COLOR: Record<string, string> = {
   Mountain: 'R',
   Forest: 'G',
 }
-function BasicLandsPanel({
-  catalog,
-  deckCards,
-  onAdd,
-  onRemove,
-  onSuggest,
-}: {
-  catalog: CardSummary[]
-  deckCards: Record<string, number>
-  onAdd: (card: CardSummary) => void
-  onRemove: (name: string) => void
-  onSuggest: () => void
-}) {
-  // Pick one printing per basic land name. Prefer the entry flagged basicLand
-  // but fall back to anything in the catalog with a matching name so the panel
-  // still works on a partially loaded catalog.
-  const basics = useMemo(() => {
-    const byName = new Map<string, CardSummary>()
-    for (const c of catalog) {
-      if (!BASIC_LAND_ORDER.includes(c.name)) continue
-      if (!byName.has(c.name) || c.basicLand) byName.set(c.name, c)
-    }
-    return BASIC_LAND_ORDER
-      .map((name) => byName.get(name))
-      .filter((c): c is CardSummary => Boolean(c))
-  }, [catalog])
-
-  const [hoverCard, setHoverCard] = useState<CardSummary | null>(null)
-
-  if (basics.length === 0) return null
-
-  const hasDeck = Object.keys(deckCards).length > 0
-
-  return (
-    <div className={styles.basicLands}>
-      <div className={styles.basicLandsHeader}>
-        <span className={styles.deckGroupLabel} style={{ margin: 0 }}>
-          Basic Lands
-        </span>
-        <button
-          className={styles.basicLandsSuggest}
-          onClick={onSuggest}
-          disabled={!hasDeck}
-          title="Auto-fill basic lands from your deck's mana curve and color requirements"
-          type="button"
-        >
-          Suggest
-        </button>
-      </div>
-      <div className={styles.basicLandsGrid}>
-        {basics.map((card) => {
-          const count = deckCards[card.name] ?? 0
-          const color = BASIC_LAND_COLOR[card.name]
-          return (
-            <div
-              key={card.name}
-              className={styles.basicLandTile}
-              onMouseEnter={() => setHoverCard(card)}
-              onMouseLeave={() => setHoverCard(null)}
-              title={card.name}
-            >
-              {color ? (
-                <ManaSymbol symbol={color} size={20} />
-              ) : (
-                <span className={styles.colorDot} style={{ background: '#888' }} aria-hidden />
-              )}
-              <span className={styles.basicLandTileCount}>{count}</span>
-              <div className={styles.basicLandTileButtons}>
-                <button
-                  className={styles.basicLandBtn}
-                  onClick={() => onRemove(card.name)}
-                  disabled={count <= 0}
-                  aria-label={`Remove ${card.name}`}
-                  type="button"
-                >
-                  −
-                </button>
-                <button
-                  className={styles.basicLandBtnAdd}
-                  onClick={() => onAdd(card)}
-                  aria-label={`Add ${card.name}`}
-                  type="button"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      <HoverFollowPreview
-        name={hoverCard?.name ?? null}
-        imageUri={hoverCard?.imageUri ?? null}
-      />
-    </div>
-  )
-}
-
 /**
  * Per-card deck-size override parsed from oracle text. Mirrors `DeckValidator.parseDeckSizeOverride`
  * on the server so the client `+` button respects "A deck can have any number / up to N cards
@@ -3457,7 +3371,8 @@ function groupForDeckList(
   for (const [name, count] of Object.entries(deck)) {
     if (count <= 0) continue
     const card = catalog[name]
-    // Basic lands have their own dedicated panel; skip them here to avoid duplication.
+    // Basics get appended below as sticky rows in canonical W/U/B/R/G order so 0-count basics
+    // still appear; skip them here to avoid double-listing the >0 ones.
     if (card?.basicLand) continue
     const entry = { name, count, card }
     if (commander !== null && name === commander) {
@@ -3469,10 +3384,17 @@ function groupForDeckList(
   }
   spells.sort(byCmcThenName)
   lands.sort(byCmcThenName)
+  const basicEntries: DeckGroup['entries'] = []
+  for (const basicName of BASIC_LAND_ORDER) {
+    const card = catalog[basicName]
+    if (!card) continue
+    basicEntries.push({ name: basicName, count: deck[basicName] ?? 0, card })
+  }
+  const allLands = [...lands, ...basicEntries]
   const groups: DeckGroup[] = []
   if (commanderEntry) groups.push({ label: 'Commander', entries: [commanderEntry] })
   if (spells.length > 0) groups.push({ label: 'Spells', entries: spells })
-  if (lands.length > 0) groups.push({ label: 'Lands', entries: lands })
+  if (allLands.length > 0) groups.push({ label: 'Lands', entries: allLands })
   return groups
 }
 

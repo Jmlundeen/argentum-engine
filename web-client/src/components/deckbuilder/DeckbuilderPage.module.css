@@ -1069,6 +1069,13 @@
   margin: 0 0 2px 0;
 }
 
+.deckGroupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
 .deckRow {
   display: grid;
   /* Columns: minus, plus, count, name (flex), commander-crown (optional, collapses to 0 when
@@ -1305,22 +1312,6 @@
   font-weight: 600;
 }
 
-.basicLands {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: var(--space-2) var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.basicLandsHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2px;
-}
-
 .basicLandsSuggest {
   background: rgba(106, 163, 255, 0.15);
   color: #a8c5ff;
@@ -1340,93 +1331,6 @@
 .basicLandsSuggest:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-/* Inline basic-land grid — 5 compact tiles (W/U/B/S/G) sitting side-by-side instead of
-   stacking as full rows. Saves a lot of vertical space in the right rail. Each tile shows
-   the mana symbol, current count, and small −/+ buttons. */
-.basicLandsGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.basicLandTile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 2px 4px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  min-width: 0;
-}
-
-.basicLandTile:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.basicLandTileCount {
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  font-size: 0.9rem;
-  line-height: 1;
-}
-
-.basicLandTileButtons {
-  display: flex;
-  gap: 2px;
-  width: 100%;
-}
-
-.basicLandTileButtons > .basicLandBtn,
-.basicLandTileButtons > .basicLandBtnAdd {
-  flex: 1;
-  width: auto;
-  height: 18px;
-}
-
-.basicLandBtn,
-.basicLandBtnAdd {
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.basicLandBtn {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary);
-}
-
-.basicLandBtn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.basicLandBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.basicLandBtnAdd {
-  background: rgba(76, 175, 80, 0.85);
-  color: #fff;
-}
-
-.basicLandBtnAdd:hover {
-  background: rgba(76, 175, 80, 1);
 }
 
 .summary {
