@@ -2,8 +2,10 @@ package com.wingedsheep.gameserver.scenarios
 
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.mechanics.layers.StateProjector
+import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.gameserver.session.GameSession
 import com.wingedsheep.gameserver.session.PlayerSession
@@ -166,6 +168,48 @@ class BlueSunsTwilightScenarioTest : ScenarioTestBase() {
                 }
                 withClue("xConstrainsTargetManaValue must be true so the client re-filters by chosen X") {
                     cast!!.xConstrainsTargetManaValue shouldBe true
+                }
+            }
+        }
+
+        context("Blue Sun's Twilight ruling: illegal target at resolution fizzles entirely") {
+            // Wizards ruling (2023-02-04): "If the target creature is an illegal target by
+            // the time the spell tries to resolve, the spell will not resolve. No token is
+            // created, even if X is 5 or more."
+            test("X=5 fizzles when target leaves the battlefield before resolution; no token is created") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardInHand(1, "Blue Sun's Twilight")
+                    .withLandsOnBattlefield(1, "Island", 7) // {X=5}{U}{U}
+                    .withCardOnBattlefield(2, "Hill Giant") // MV 4 — legal at cast (X=5)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val target = game.findPermanent("Hill Giant")!!
+
+                // Cast goes on the stack with Hill Giant as the chosen target.
+                val castResult = game.castBlueSunsTwilight(target, xValue = 5)
+                withClue("Cast should be legal at X=5 against an MV-4 creature") {
+                    castResult.error shouldBe null
+                }
+
+                // Simulate the target becoming illegal after cast but before resolution
+                // (e.g. an opponent kill spell, or any other state change that removes the
+                // creature from the battlefield).
+                game.state = game.state
+                    .removeFromZone(ZoneKey(game.player2Id, Zone.BATTLEFIELD), target)
+                    .addToZone(ZoneKey(game.player2Id, Zone.GRAVEYARD), target)
+
+                game.resolveStack()
+
+                // Per the ruling, the spell does NOT resolve. No token should be created
+                // even though X=5 — the conditional copy hangs off the same resolution.
+                val hillGiantsOnBattlefield = game.state.getBattlefield().count { entityId ->
+                    game.state.getEntity(entityId)?.get<CardComponent>()?.name == "Hill Giant"
+                }
+                withClue("Spell fizzled — no Hill Giant token should be on the battlefield") {
+                    hillGiantsOnBattlefield shouldBe 0
                 }
             }
         }
