@@ -35,6 +35,7 @@ import {
   getCoinCounters,
   getChorusCounters,
   getDreamCounters,
+  getQuestCounters,
 } from '../board/shared'
 import { styles } from '../board/styles'
 import {
@@ -42,7 +43,8 @@ import {
   SELECTED_COLOR, SELECTED_GLOW, SELECTED_SHADOW,
 } from '@/styles/targetingColors.ts'
 import { KeywordIcons, ActiveEffectBadges } from './CardOverlays'
-import { counterManaClass } from '@/assets/icons/keywords'
+import { counterManaClass, counterSvgIcon } from '@/assets/icons/keywords'
+import { SvgGlyph } from '@/assets/icons/SvgGlyph'
 import { RenderProfiler } from '@/utils/renderProfiler'
 
 interface GameCardProps {
@@ -1386,6 +1388,20 @@ export function GameCard({
           <i className={`ms ms-${counterManaClass.CHORUS}`} style={{ fontSize: responsive.badges.counterIconFontSize }} />
           <span style={{ fontWeight: 700 }}>
             {getChorusCounters(card)}
+          </span>
+        </div>
+      )}
+
+      {/* Quest counter badge (Beastmaster Ascension etc.) */}
+      {battlefield && getQuestCounters(card) > 0 && (
+        <div style={{
+          ...styles.questCounterBadge,
+          fontSize: responsive.badges.counterTextFontSize,
+          padding: responsive.badges.badgePadding,
+        }}>
+          <SvgGlyph url={counterSvgIcon.QUEST!} size={responsive.badges.counterIconFontSize} />
+          <span style={{ fontWeight: 700 }}>
+            {getQuestCounters(card)}
           </span>
         </div>
       )}

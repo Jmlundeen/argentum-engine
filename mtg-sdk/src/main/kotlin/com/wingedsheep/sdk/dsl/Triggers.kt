@@ -255,6 +255,20 @@ object Triggers {
     )
 
     /**
+     * When a creature you control attacks (token or nontoken).
+     * Creates one trigger per attacker controlled by the ability's controller.
+     */
+    val CreatureYouControlAttacks: TriggerSpec = TriggerSpec(
+        event = AttackEvent(
+            filter = GameObjectFilter(
+                cardPredicates = listOf(CardPredicate.IsCreature),
+                controllerPredicate = ControllerPredicate.ControlledByYou
+            )
+        ),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * When you attack (declare attackers).
      */
     val YouAttack: TriggerSpec = TriggerSpec(

@@ -1,6 +1,7 @@
 import React from 'react'
 import type { Keyword, AbilityFlag, ClientCardEffect, Color } from '@/types'
-import { keywordManaClass, displayableKeywords } from '@/assets/icons/keywords'
+import { keywordManaClass, keywordSvgIcon, displayableKeywords } from '@/assets/icons/keywords'
+import { SvgGlyph } from '@/assets/icons/SvgGlyph'
 import { styles } from '../board/styles'
 
 /** MTG color to mana-font protection class mapping */
@@ -19,6 +20,28 @@ const COLOR_TINTS: Record<string, string> = {
   BLACK: '#888888',
   RED: '#d04040',
   GREEN: '#40a050',
+}
+
+/**
+ * Renders a single keyword glyph: prefer a local SVG when mapped (for keywords
+ * the mana-font Arena set lacks, e.g. PERSIST), otherwise fall back to mana-font.
+ */
+function KeywordGlyph({ name, size }: { name: string; size: number }) {
+  const svgUrl = keywordSvgIcon[name]
+  if (svgUrl) {
+    return <SvgGlyph url={svgUrl} size={size} color="#ffffff" />
+  }
+  return (
+    <i
+      className={`ms ms-${keywordManaClass[name] ?? 'ability-static'}`}
+      style={{
+        fontSize: size,
+        color: '#ffffff',
+        display: 'block',
+        lineHeight: 1,
+      }}
+    />
+  )
 }
 
 /**
@@ -61,28 +84,12 @@ export function KeywordIcons({
     <div style={styles.keywordIconsContainer}>
       {filteredKeywords.map((keyword) => (
         <div key={keyword} style={styles.keywordIconWrapper} title={keyword.replace(/_/g, ' ')}>
-          <i
-            className={`ms ms-${keywordManaClass[keyword] ?? 'ability-static'}`}
-            style={{
-              fontSize: size,
-              color: '#ffffff',
-              display: 'block',
-              lineHeight: 1,
-            }}
-          />
+          <KeywordGlyph name={keyword} size={size} />
         </div>
       ))}
       {displayableFlags.map((flag) => (
         <div key={flag} style={styles.keywordIconWrapper} title={flag.replace(/_/g, ' ')}>
-          <i
-            className={`ms ms-${keywordManaClass[flag] ?? 'ability-static'}`}
-            style={{
-              fontSize: size,
-              color: '#ffffff',
-              display: 'block',
-              lineHeight: 1,
-            }}
-          />
+          <KeywordGlyph name={flag} size={size} />
         </div>
       ))}
       {protections.map((color) => (

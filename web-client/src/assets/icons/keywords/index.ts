@@ -2,7 +2,21 @@
  * Keyword ability icon mappings using mana-font CSS classes.
  * Uses the Arena ability icon set from the mana-font package.
  * Class format: "ms ms-ability-{name}" rendered via <i> elements.
+ *
+ * Keywords without a mana-font glyph fall back to a local SVG via `keywordSvgIcon`.
  */
+import persistSvgUrl from './persist.svg'
+import questCounterSvgUrl from '../counters/quest.svg'
+
+/** Maps engine keyword names to local SVG URLs (used when mana-font has no glyph). */
+export const keywordSvgIcon: Record<string, string> = {
+  PERSIST: persistSvgUrl,
+}
+
+/** Maps engine CounterType names to local SVG URLs (used when mana-font has no glyph or we prefer custom art). */
+export const counterSvgIcon: Record<string, string> = {
+  QUEST: questCounterSvgUrl,
+}
 
 /** Maps engine keyword names to mana-font ability class suffixes */
 export const keywordManaClass: Record<string, string> = {
@@ -39,8 +53,9 @@ export const displayableKeywords = new Set([
   'FIRST_STRIKE', 'DOUBLE_STRIKE', 'DEATHTOUCH',
   'LIFELINK', 'VIGILANCE', 'HASTE', 'HEXPROOF',
   'SHROUD', 'INDESTRUCTIBLE', 'DEFENDER', 'MENACE', 'FEAR',
-  'FLASH', 'PROWESS', 'WARD', 'INTIMIDATE', 'INFECT',
+  'PROWESS', 'WARD', 'INTIMIDATE', 'INFECT',
   'WITHER', 'TOXIC', 'CANT_BE_BLOCKED', 'CHANGELING',
+  'PERSIST',
 ])
 
 /** Maps engine CounterType to mana-font counter class suffixes */
@@ -68,4 +83,5 @@ export const counterManaClass: Record<string, string> = {
   FLOOD: 'counter-flood',
   CHORUS: 'counter-charge',
   DREAM: 'counter-charge',
+  QUEST: 'counter-lore',
 }

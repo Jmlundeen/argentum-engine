@@ -190,6 +190,8 @@ export enum Keyword {
   // Damage modification
   WITHER = 'WITHER',
   TOXIC = 'TOXIC',
+  // Death replacement
+  PERSIST = 'PERSIST',
   // Ability words
   EERIE = 'EERIE',
 }
@@ -235,6 +237,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.OFFSPRING]: 'Offspring',
   [Keyword.WITHER]: 'Wither',
   [Keyword.TOXIC]: 'Toxic',
+  [Keyword.PERSIST]: 'Persist',
   [Keyword.EERIE]: 'Eerie',
 }
 
@@ -312,6 +315,7 @@ export enum CounterType {
   FLOOD = 'FLOOD',
   CHORUS = 'CHORUS',
   DREAM = 'DREAM',
+  QUEST = 'QUEST',
 }
 
 export const CounterTypeDisplayNames: Record<CounterType, string> = {
@@ -340,6 +344,7 @@ export const CounterTypeDisplayNames: Record<CounterType, string> = {
   [CounterType.FLOOD]: 'Flood',
   [CounterType.CHORUS]: 'Chorus',
   [CounterType.DREAM]: 'Dream',
+  [CounterType.QUEST]: 'Quest',
 }
 
 /**

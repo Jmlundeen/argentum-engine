@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets
 
 import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
+import com.wingedsheep.mtg.sets.definitions.blc.BloomburrowCommanderSet
 import com.wingedsheep.mtg.sets.definitions.bro.BrothersWarSet
 import com.wingedsheep.mtg.sets.definitions.dft.AetherdriftSet
 import com.wingedsheep.mtg.sets.definitions.dom.DominariaSet
@@ -54,6 +55,7 @@ object MtgSetCatalog {
         WildsOfEldrainSet,
         LostCavernsOfIxalanSet,
         BloomburrowSet,
+        BloomburrowCommanderSet,
         FoundationsSet,
         FinalFantasySet,
         DuskmournSet,

@@ -1157,6 +1157,21 @@ export const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     zIndex: 5,
   } as React.CSSProperties,
+  // Quest counter badge (for Beastmaster Ascension etc.)
+  questCounterBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: 'rgba(50, 70, 30, 0.95)',
+    borderRadius: 4,
+    border: '1px solid rgba(180, 200, 100, 0.6)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 2,
+    color: '#d8e8a0',
+    fontWeight: 700,
+    zIndex: 5,
+  } as React.CSSProperties,
   // Dream counter badge (for Goliath Daydreamer's exiled instants/sorceries)
   dreamCounterBadge: {
     position: 'absolute',

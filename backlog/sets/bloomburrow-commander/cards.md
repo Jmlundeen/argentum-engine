@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 0 / 312
+**Implemented:** 1 / 312
 
 | Color      | Total | Done |
 |------------|-------|------|
@@ -10,7 +10,7 @@
 | Blue       | 27    | 0    |
 | Black      | 20    | 0    |
 | Red        | 24    | 0    |
-| Green      | 62    | 0    |
+| Green      | 62    | 1    |
 | Multicolor | 40    | 0    |
 | Colorless  | 33    | 0    |
 | Land       | 69    | 0    |
@@ -37,7 +37,7 @@
 - [ ] Bastion of Remembrance
 - [ ] Battlefield Forge
 - [ ] Beast Within
-- [ ] Beastmaster Ascension
+- [x] Beastmaster Ascension
 - [ ] Beledros Witherbloom
 - [ ] Bello, Bard of the Brambles
 - [ ] Berserkers' Onslaught

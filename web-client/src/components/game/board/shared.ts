@@ -405,6 +405,14 @@ export function getDreamCounters(card: ClientCard): number {
 }
 
 /**
+ * Get the number of quest counters on a card. Quest counters appear on
+ * enchantments like Beastmaster Ascension that build up toward a threshold.
+ */
+export function getQuestCounters(card: ClientCard): number {
+  return card.counters[CounterType.QUEST] ?? 0
+}
+
+/**
  * Get an emoji or icon for an effect based on its icon identifier.
  */
 export function getEffectIcon(icon: string): string {
