@@ -15,6 +15,7 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
+import com.wingedsheep.engine.state.components.identity.RevealedToComponent
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -164,7 +165,27 @@ class MoveCollectionExecutor(
             }
         }
 
-        return moveCardsToZone(state, context, cards, destination, destPlayerId, revealed, moveType, faceDown, noRegenerate, storeMovedAs, underOwnersControl, revealToSelf)
+        // Random ordering: shuffle the cards before placing them (player has no knowledge of order)
+        val orderedCards = if (order == CardOrder.Random) cards.shuffled() else cards
+
+        val result = moveCardsToZone(state, context, orderedCards, destination, destPlayerId, revealed, moveType, faceDown, noRegenerate, storeMovedAs, underOwnersControl, revealToSelf)
+
+        // After random-order library placement, strip any reveal markers from the moved cards.
+        // moveCardsToZone marks them as revealed to the controller (so the UI can show "you know
+        // this card"), but for random placement the player doesn't know positions — clearing
+        // prevents the frontend from exposing the shuffled order. Analogous to how ZonePlacement.Shuffled
+        // calls clearLibraryReveals() after a full shuffle.
+        if (order == CardOrder.Random && destination.zone == Zone.LIBRARY && result.isSuccess) {
+            var clearedState = result.state
+            for (cardId in orderedCards) {
+                if (clearedState.getEntity(cardId)?.has<RevealedToComponent>() == true) {
+                    clearedState = clearedState.updateEntity(cardId) { c -> c.without<RevealedToComponent>() }
+                }
+            }
+            return result.copy(state = clearedState)
+        }
+
+        return result
     }
 
     /**

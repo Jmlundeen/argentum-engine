@@ -27,6 +27,8 @@ data class EffectContext(
     val opponentId: EntityId?,
     val targets: List<ChosenTarget> = emptyList(),
     val xValue: Int? = null,
+    /** Total mana spent to cast this spell (sum of all colors + colorless + X). Used by DynamicAmount.TotalManaSpent. */
+    val totalManaSpent: Int = 0,
     val wasKicked: Boolean = false,
     /** True if the spell's optional Blight additional cost was paid (BlightOrPay path chosen). */
     val wasBlightPaid: Boolean = false,

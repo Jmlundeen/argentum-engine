@@ -160,6 +160,17 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     /**
+     * The total amount of mana spent to cast the current spell (sum of all colors + colorless + X).
+     * Used for effects like Memory Deluge: "where X is the amount of mana spent to cast this spell."
+     */
+    @SerialName("TotalManaSpent")
+    @Serializable
+    data object TotalManaSpent : DynamicAmount {
+        override val description: String = "the total mana spent to cast this spell"
+        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
+    }
+
+    /**
      * Reference to a stored variable by name.
      * Used for effects that need to reference a previously computed/stored value.
      * Example: Scapeshift stores "sacrificedCount" and SearchLibrary reads it.
