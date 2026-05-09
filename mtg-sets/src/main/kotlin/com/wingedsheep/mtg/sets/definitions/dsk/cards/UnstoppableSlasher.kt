@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -36,15 +37,18 @@ val UnstoppableSlasher = card("Unstoppable Slasher") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        triggerCondition = Compare(
-            DynamicAmount.LastKnownTotalCounterCount,
-            ComparisonOperator.EQ,
-            DynamicAmount.Fixed(0)
+        effect = ConditionalEffect(
+            condition = Compare(
+                DynamicAmount.LastKnownTotalCounterCount,
+                ComparisonOperator.EQ,
+                DynamicAmount.Fixed(0)
+            ),
+            effect = CompositeEffect(listOf(
+                Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
+                Effects.AddCounters(Counters.STUN, 2, EffectTarget.Self)
+            ))
         )
-        effect = CompositeEffect(listOf(
-            Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
-            Effects.AddCounters(Counters.STUN, 2, EffectTarget.Self)
-        ))
+        description = "When this creature dies, if it had no counters on it, return it to the battlefield tapped under its owner's control with two stun counters on it."
     }
 
     metadata {
