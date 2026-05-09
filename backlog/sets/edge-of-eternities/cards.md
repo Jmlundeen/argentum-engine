@@ -143,7 +143,7 @@
 - [x] Memorial Team Leader
 - [ ] Memorial Vault
 - [ ] Mental Modulation
-- [ ] Mightform Harmonizer
+- [x] Mightform Harmonizer
 - [ ] Mm'menon, the Right Hand
 - [x] Mm'menon, Uthros Exile
 - [x] Molecular Modifier
