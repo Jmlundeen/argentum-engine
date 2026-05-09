@@ -8,6 +8,7 @@ import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.createFloatingEffect
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.scripting.effects.GainControlByActivePlayerEffect
@@ -64,9 +65,9 @@ class GainControlByActivePlayerExecutor : EffectExecutor<GainControlByActivePlay
             context = controlContext
         )
 
-        val newState = state.copy(
-            floatingEffects = filteredEffects + floatingEffect
-        )
+        // Rule 302.6: new controller hasn't had this permanent since their most recent turn began.
+        val newState = state.copy(floatingEffects = filteredEffects + floatingEffect)
+            .updateEntity(targetId) { it.with(SummoningSicknessComponent) }
 
         val events = listOf(
             ControlChangedEvent(

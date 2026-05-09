@@ -8,6 +8,7 @@ import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.createFloatingEffect
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.scripting.effects.GainControlEffect
@@ -58,9 +59,11 @@ class GainControlExecutor : EffectExecutor<GainControlEffect> {
             context = context
         )
 
-        val newState = state.copy(
-            floatingEffects = filteredEffects + floatingEffect
-        )
+        // Rule 302.6: the new controller hasn't had this creature continuously since their
+        // most recent turn began, so it gains summoning sickness until their next untap step.
+        val stateWithSickness = state.copy(floatingEffects = filteredEffects + floatingEffect)
+            .updateEntity(targetId) { it.with(SummoningSicknessComponent) }
+        val newState = stateWithSickness
 
         val events = listOf(
             ControlChangedEvent(
