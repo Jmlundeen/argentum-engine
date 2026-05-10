@@ -18,7 +18,7 @@
 - [x] Atmospheric Greenhouse
 - [x] Atomic Microsizer
 - [x] Auxiliary Boosters
-- [ ] Banishing Light
+- [x] Banishing Light
 - [x] Beamsaw Prospector
 - [x] Beyond the Quiet
 - [ ] Bioengineered Future
