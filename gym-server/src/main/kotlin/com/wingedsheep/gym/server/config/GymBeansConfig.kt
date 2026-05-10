@@ -3,6 +3,7 @@ package com.wingedsheep.gym.server.config
 import com.wingedsheep.engine.limited.BoosterGenerator
 import com.wingedsheep.gym.service.MultiEnvService
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.registry.PrintingRegistry
 import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import org.springframework.context.annotation.Bean
@@ -27,6 +28,16 @@ class GymBeansConfig {
         // Basic-land variants are needed for the RandomSealed path so that
         // variant names like "Swamp#BLB-270" resolve during GameInitializer.
         register(BloomburrowSet.basicLands)
+    }
+
+    @Bean
+    fun printingRegistry(cardRegistry: CardRegistry): PrintingRegistry = PrintingRegistry().apply {
+        for (name in cardRegistry.allCardNames()) {
+            cardRegistry.getCardsByName(name).forEach(::registerSynthesizedDefault)
+        }
+        // Each set may contribute reprint rows for cards canonically defined elsewhere.
+        register(PortalSet.printings)
+        register(BloomburrowSet.printings)
     }
 
     @Bean

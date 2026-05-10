@@ -1,36 +1,43 @@
 package com.wingedsheep.mtg.sets.discovery
 
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.Printing
 import io.github.classgraph.ClassGraph
 import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Auto-discovers `CardDefinition` values declared as top-level Kotlin `val`s in a given package,
- * so a set's `cards` and `basicLands` lists do not have to be maintained by hand.
+ * Auto-discovers card-shaped values declared as top-level Kotlin `val`s in a given package,
+ * so a set's `cards`, `basicLands`, and `printings` lists do not have to be maintained by hand.
  *
- * Each card file in `definitions/{set}/cards/` declares one `val Foo = card("Foo") { ... }`
- * (or `val FooPlains1 = basicLand("Plains") { ... }` for basics). Those compile to static
- * fields on a synthetic `*Kt` class per file; we scan the package, read those fields
- * reflectively, and split them into:
+ * Each file in `definitions/{set}/cards/` declares one of:
+ *   - `val Foo = card("Foo") { ... }` — a [CardDefinition] for a new card,
+ *   - `val FooPlains1 = basicLand("Plains") { ... }` — a basic-land variant (also a CardDefinition),
+ *   - `val FooReprint = Printing(...)` — a [Printing] row for a card that already exists
+ *     elsewhere in the codebase, contributing this set's art / collector number.
  *
- *   - [findIn] — non-basic-land cards, suitable for `MtgSet.cards`.
- *   - [findBasicLandsIn] — basic-land variants, suitable for `MtgSet.basicLands`.
+ * Those compile to static fields on a synthetic `*Kt` class per file; we scan the package,
+ * read those fields reflectively, and split them into:
  *
- * The split is by `typeLine.isBasicLand`. The aggregate `val FooBasicLands = listOf(...)`
- * is skipped automatically because its field type is `List<CardDefinition>`, not
- * `CardDefinition`.
+ *   - [findIn] — non-basic-land [CardDefinition]s, suitable for `MtgSet.cards`.
+ *   - [findBasicLandsIn] — basic-land [CardDefinition]s, suitable for `MtgSet.basicLands`.
+ *   - [findPrintingsIn] — [Printing] rows, suitable for `MtgSet.printings`.
+ *
+ * The split is by static type + `typeLine.isBasicLand`. Aggregate vals like
+ * `val FooBasicLands = listOf(...)` are skipped automatically because their field type
+ * is `List<CardDefinition>`, not `CardDefinition`.
  *
  * `setCode` is **not** stamped here. Today, `cards` are stamped centrally at registry-load
  * time (`GameBeansConfig.stamp(...)`), and `basicLands` are stamped by each set via
  * `.copy(setCode = code)`. Discovery preserves both behaviors — call sites stamp as they
- * do today.
+ * do today. Printings already carry their own `setCode` so no stamping is needed.
  */
 object CardDiscovery {
 
     private data class ScannedPackage(
         val cards: List<CardDefinition>,
         val basicLands: List<CardDefinition>,
+        val printings: List<Printing>,
     )
 
     private val cache = ConcurrentHashMap<String, ScannedPackage>()
@@ -41,9 +48,13 @@ object CardDiscovery {
     fun findBasicLandsIn(packageName: String): List<CardDefinition> =
         cache.getOrPut(packageName) { scan(packageName) }.basicLands
 
+    fun findPrintingsIn(packageName: String): List<Printing> =
+        cache.getOrPut(packageName) { scan(packageName) }.printings
+
     private fun scan(packageName: String): ScannedPackage {
         val cards = mutableListOf<CardDefinition>()
         val basicLands = mutableListOf<CardDefinition>()
+        val printings = mutableListOf<Printing>()
         ClassGraph()
             .acceptPackages(packageName)
             .enableClassInfo()
@@ -52,26 +63,47 @@ object CardDiscovery {
                 for (classInfo in scanResult.allClasses) {
                     if (!classInfo.name.endsWith("Kt")) continue
                     val cls = runCatching { classInfo.loadClass() }.getOrNull() ?: continue
-                    val publicGetterFieldNames = cls.declaredMethods
+                    // A top-level `val` produces a private static field plus a public static
+                    // getter. The getter's return type is what we trust as the val's declared
+                    // type; the field's name pairs them up. This filters out synthetic helpers
+                    // (private-by-default) and aggregate `List<...>` vals.
+                    val exposedFields = cls.declaredMethods
                         .asSequence()
                         .filter { Modifier.isStatic(it.modifiers) && Modifier.isPublic(it.modifiers) }
-                        .filter { it.parameterCount == 0 && it.returnType == CardDefinition::class.java }
+                        .filter { it.parameterCount == 0 }
+                        .filter { it.returnType == CardDefinition::class.java || it.returnType == Printing::class.java }
                         .filter { it.name.startsWith("get") && it.name.length > 3 }
-                        .map { it.name.substring(3).replaceFirstChar { c -> c.lowercase() } }
-                        .toSet()
+                        .associateBy(
+                            { it.name.substring(3).replaceFirstChar { c -> c.lowercase() } },
+                            { it.returnType },
+                        )
                     for (field in cls.declaredFields) {
                         if (!Modifier.isStatic(field.modifiers)) continue
-                        if (field.type != CardDefinition::class.java) continue
-                        if (field.name.replaceFirstChar { it.lowercase() } !in publicGetterFieldNames) continue
+                        val key = field.name.replaceFirstChar { it.lowercase() }
+                        val declaredType = exposedFields[key] ?: continue
                         field.isAccessible = true
-                        val value = field.get(null) as? CardDefinition ?: continue
-                        if (value.typeLine.isBasicLand) basicLands += value else cards += value
+                        when (declaredType) {
+                            CardDefinition::class.java -> {
+                                val v = field.get(null) as? CardDefinition ?: continue
+                                if (v.typeLine.isBasicLand) basicLands += v else cards += v
+                            }
+                            Printing::class.java -> {
+                                val v = field.get(null) as? Printing ?: continue
+                                printings += v
+                            }
+                        }
                     }
                 }
             }
         return ScannedPackage(
             cards = cards.sortedBy { it.name },
             basicLands = basicLands.sortedBy { it.name },
+            // Sort by name first so `printings.toString()` reads naturally; the
+            // (setCode, collectorNumber) tiebreakers are only relevant if a future
+            // discovery picks up >1 reprint of the same card from the same package.
+            printings = printings.sortedWith(
+                compareBy({ it.name }, { it.setCode }, { it.collectorNumber }),
+            ),
         )
     }
 }

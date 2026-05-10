@@ -25,6 +25,7 @@ class TournamentMatchHandler(
     private val ctx: LobbySharedContext,
     private val spectatingHandler: SpectatingHandler,
     private val cardRegistry: CardRegistry,
+    private val printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry,
     private val gamePlayHandler: GamePlayHandler,
     private val gameProperties: GameProperties,
     private val gameRepository: GameRepository,
@@ -453,7 +454,8 @@ class TournamentMatchHandler(
         val gameSession = GameSession(
             cardRegistry = cardRegistry,
             useHandSmoother = gameProperties.handSmoother.enabled,
-            debugMode = gameProperties.debugMode
+            debugMode = gameProperties.debugMode,
+            printingRegistry = printingRegistry,
         )
         if (isCommanderShape) {
             gameSession.engineFormat = com.wingedsheep.sdk.core.Format.Commander()

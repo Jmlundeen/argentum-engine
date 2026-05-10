@@ -57,6 +57,7 @@ private val logger = LoggerFactory.getLogger(DevScenarioController::class.java)
 @Tag(name = "Dev Scenarios", description = "Development-only endpoints for creating test game scenarios")
 class DevScenarioController(
     private val cardRegistry: CardRegistry,
+    private val printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry,
     private val gameRepository: GameRepository,
     private val sessionRegistry: SessionRegistry
 ) {
@@ -464,7 +465,8 @@ class DevScenarioController(
             // Create the game session
             val gameSession = GameSession(
                 cardRegistry = cardRegistry,
-                stateTransformer = stateTransformer
+                stateTransformer = stateTransformer,
+                printingRegistry = printingRegistry,
             )
 
             // Inject the pre-built state (without player sessions - they'll connect later)

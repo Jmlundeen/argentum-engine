@@ -2,8 +2,11 @@ package com.wingedsheep.gameserver.controller
 
 import com.wingedsheep.gameserver.deck.DeckValidationResult
 import com.wingedsheep.gameserver.deck.DeckValidator
+import com.wingedsheep.gameserver.protocol.DeckEntryDTO
+import com.wingedsheep.gameserver.protocol.DeckRequestConverter
 import com.wingedsheep.sdk.core.DeckFormat
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.PrintingRef
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -44,6 +47,13 @@ class DecksController(
          * zone instead of the library.
          */
         val commander: String? = null,
+        /**
+         * Optional rich entries with pinned printings. When non-empty, this is authoritative
+         * over [deckList] for both copy-counting and printing validation. The deckbuilder
+         * picker emits this when the user has explicitly chosen non-default printings.
+         */
+        val cardEntries: List<DeckEntryDTO>? = null,
+        val commanderPrinting: PrintingRef? = null,
     )
 
     @GetMapping("/examples")
@@ -53,15 +63,23 @@ class DecksController(
     fun validate(@RequestBody request: ValidateRequest): DeckValidationResult {
         // Route through the Deck overload only when the caller has supplied a commander —
         // an absent field means the (legacy) Map-based validation path, which doesn't enforce
-        // commander rules. The deckList already carries flat card counts; the Deck overload
-        // re-explodes the map into Deck.cards, which gives the validator the same total
-        // counts a Map call would (the commander entry is added on top, matching the
-        // singleton-cap and totalCards expectations).
+        // commander rules. When [cardEntries] is also present, [DeckRequestConverter] folds
+        // the rich entries into the Deck so pinned printings are validated.
         if (request.commander != null) {
-            val cards = request.deckList.flatMap { (name, count) -> List(count) { name } }
-            return deckValidator.validate(Deck(cards = cards, commander = request.commander), request.format)
+            val deck = DeckRequestConverter.toDeck(
+                deckList = request.deckList,
+                cardEntries = request.cardEntries,
+                commander = request.commander,
+                commanderPrinting = request.commanderPrinting,
+            )
+            return deckValidator.validate(deck, request.format)
         }
-        return deckValidator.validate(request.deckList, request.format)
+        return deckValidator.validate(
+            deckList = request.deckList,
+            format = request.format,
+            cardEntries = request.cardEntries,
+            commanderPrinting = request.commanderPrinting,
+        )
     }
 
     /**

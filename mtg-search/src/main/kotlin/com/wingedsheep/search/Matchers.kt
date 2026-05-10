@@ -199,7 +199,15 @@ object Matchers {
 
     private val set: (AtomNode) -> MatcherResult = { atom ->
         val target = atom.value.lowercase().trim()
-        if (target.isEmpty()) ok(ALWAYS_TRUE) else ok { c -> c.setCode?.lowercase() == target }
+        if (target.isEmpty()) ok(ALWAYS_TRUE)
+        else ok { c ->
+            // Match the canonical printing or any reprint set the card has a printing in.
+            // Reprint coverage is what makes `s:EOE Banishing Light` work for cards whose
+            // canonical [setCode] is the original printing (BLB) but which also have an
+            // EOE reprint row in PrintingRegistry.
+            c.setCode?.lowercase() == target ||
+                c.printingSetCodes.any { it.lowercase() == target }
+        }
     }
 
     private val format: (AtomNode) -> MatcherResult = { atom ->

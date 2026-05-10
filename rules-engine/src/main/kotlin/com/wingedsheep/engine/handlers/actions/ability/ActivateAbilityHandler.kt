@@ -104,14 +104,17 @@ class ActivateAbilityHandler(
         val cardComponent = container.get<CardComponent>()
             ?: return "Source is not a card"
 
+        // Tokens (and other entities without a registered CardDefinition) only have abilities
+        // via static grants (e.g., Brightcap Badger granting "{T}: Add {G}" to Saproling tokens),
+        // intrinsic mana abilities (basic-land subtypes), or temporarily granted abilities. Don't
+        // bail out when the lookup fails — fall through to those sources instead.
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
-            ?: return "Card definition not found"
 
         // Look up ability from card definition (including class-level abilities), granted abilities, or static grants
         val classLevel = container.get<ClassLevelComponent>()?.currentLevel
         val staticGrants = getStaticGrantedAbilitiesWithGranter(action.sourceId, state)
-        val ability = cardDef.script.effectiveActivatedAbilities(classLevel).find { it.id == action.abilityId }
-            ?: findClassLevelUpAbility(cardDef, container, action.abilityId)
+        val ability = cardDef?.script?.effectiveActivatedAbilities(classLevel)?.find { it.id == action.abilityId }
+            ?: cardDef?.let { findClassLevelUpAbility(it, container, action.abilityId) }
             ?: state.grantedActivatedAbilities
                 .filter { it.entityId == action.sourceId }
                 .map { it.ability }
@@ -148,7 +151,7 @@ class ActivateAbilityHandler(
             // Creatures that have lost all abilities cannot activate them (e.g., Deep Freeze)
             if (state.projectedState.hasLostAllAbilities(action.sourceId)) {
                 // Only block the creature's own abilities, not granted ones
-                val isOwnAbility = cardDef.script.effectiveActivatedAbilities(classLevel).any { it.id == action.abilityId }
+                val isOwnAbility = (cardDef?.script?.effectiveActivatedAbilities(classLevel)?.any { it.id == action.abilityId } == true)
                     || action.abilityId.value.startsWith("class_level_up_")
                 if (isOwnAbility) {
                     return "This permanent has lost all abilities"
@@ -312,15 +315,16 @@ class ActivateAbilityHandler(
         val cardComponent = container.get<CardComponent>()
             ?: return ExecutionResult.error(state, "Source is not a card")
 
+        // Tokens (no registered CardDefinition) reach this path when activating granted abilities;
+        // fall through with a null cardDef and let the granted-ability lookup succeed.
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
-            ?: return ExecutionResult.error(state, "Card definition not found")
 
         // Look up ability from card definition (including class-level abilities), granted abilities, or static grants
         val classLevel = container.get<ClassLevelComponent>()?.currentLevel
         val staticGrants = getStaticGrantedAbilitiesWithGranter(action.sourceId, state)
         val staticGrantMatch = staticGrants.firstOrNull { it.first.id == action.abilityId }
-        val ability = cardDef.script.effectiveActivatedAbilities(classLevel).find { it.id == action.abilityId }
-            ?: findClassLevelUpAbility(cardDef, container, action.abilityId)
+        val ability = cardDef?.script?.effectiveActivatedAbilities(classLevel)?.find { it.id == action.abilityId }
+            ?: cardDef?.let { findClassLevelUpAbility(it, container, action.abilityId) }
             ?: state.grantedActivatedAbilities
                 .filter { it.entityId == action.sourceId }
                 .map { it.ability }

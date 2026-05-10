@@ -305,7 +305,13 @@ class CastPermissionUtils(
             }
         }
 
-        return result
+        // Multiple granters can hand the same ability to a permanent — e.g., two Brightcap
+        // Badgers each grant Saproling tokens "{T}: Add {G}." The cards share a CardDefinition
+        // and therefore reference the same ActivatedAbility instance (same `id`), so the
+        // duplicate grants are functionally identical: the same one-shot ability surfaced as
+        // two buttons confuses the UI and adds nothing in play (you can only tap once anyway).
+        // Collapse them to a single entry, keeping the first granter we found.
+        return result.distinctBy { it.ability.id }
     }
 
     /**

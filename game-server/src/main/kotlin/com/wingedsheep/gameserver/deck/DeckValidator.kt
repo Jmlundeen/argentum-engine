@@ -1,10 +1,14 @@
 package com.wingedsheep.gameserver.deck
 
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.registry.PrintingRegistry
+import com.wingedsheep.gameserver.protocol.DeckEntryDTO
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.DeckFormat
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.model.PrintingRef
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 /**
@@ -31,18 +35,31 @@ import org.springframework.stereotype.Component
  * flips `valid = false`. Warnings are reserved for "unusual but allowed" (currently unused).
  */
 @Component
-class DeckValidator(
-    private val cardRegistry: CardRegistry
+class DeckValidator @Autowired constructor(
+    private val cardRegistry: CardRegistry,
+    /**
+     * Optional — when injected, validation cross-checks every pinned [PrintingRef] in
+     * `cardEntries` against this registry. When absent (e.g. unit tests that don't care
+     * about printings), the printing check is skipped silently.
+     */
+    private val printingRegistry: PrintingRegistry? = null,
 ) {
+
+    /** Convenience constructor for tests / callers that don't care about printings. */
+    constructor(cardRegistry: CardRegistry) : this(cardRegistry, null)
 
     fun validate(
         deckList: Map<String, Int>,
         format: DeckFormat? = null,
+        cardEntries: List<DeckEntryDTO>? = null,
+        commanderPrinting: PrintingRef? = null,
     ): DeckValidationResult = runValidation(
         deckList = deckList,
         format = format,
         commander = null,
         commanderAware = false,
+        cardEntries = cardEntries,
+        commanderPrinting = commanderPrinting,
     )
 
     /**
@@ -61,7 +78,19 @@ class DeckValidator(
         if (commander != null) {
             counts.merge(commander, 1, Int::plus)
         }
-        return runValidation(counts, format, commander = commander, commanderAware = true)
+        // Mirror the rich-entry check from the Map overload: if the [Deck] carries pinned
+        // printings, validate them against [printingRegistry].
+        val richEntries = deck.cardEntries.takeIf { it.isNotEmpty() }?.map {
+            DeckEntryDTO(it.name, it.printing)
+        }
+        return runValidation(
+            counts,
+            format,
+            commander = commander,
+            commanderAware = true,
+            cardEntries = richEntries,
+            commanderPrinting = deck.commanderPrinting,
+        )
     }
 
     /**
@@ -75,9 +104,51 @@ class DeckValidator(
         format: DeckFormat?,
         commander: String?,
         commanderAware: Boolean,
+        cardEntries: List<DeckEntryDTO>? = null,
+        commanderPrinting: PrintingRef? = null,
     ): DeckValidationResult {
         val errors = mutableListOf<DeckValidationIssue>()
         val warnings = mutableListOf<DeckValidationIssue>()
+
+        // Pinned-printing checks. Skipped when no [printingRegistry] is wired or when the
+        // caller didn't supply rich entries. INVALID_PRINTING fires for: (a) the ref doesn't
+        // resolve, (b) it resolves but its name doesn't match the entry's name (the client
+        // tried to bind a Lightning Bolt entry to a Counterspell printing).
+        val printings = printingRegistry
+        if (printings != null) {
+            cardEntries?.forEach { entry ->
+                val ref = entry.printing ?: return@forEach
+                val printing = printings.getPrinting(ref)
+                if (printing == null) {
+                    errors += DeckValidationIssue(
+                        code = "INVALID_PRINTING",
+                        message = "Unknown printing ${ref.identifier()} for ${entry.name}",
+                        cardName = entry.name,
+                    )
+                } else if (printing.name != entry.name) {
+                    errors += DeckValidationIssue(
+                        code = "INVALID_PRINTING",
+                        message = "Printing ${ref.identifier()} is ${printing.name}, not ${entry.name}",
+                        cardName = entry.name,
+                    )
+                }
+            }
+            if (commander != null && commanderPrinting != null) {
+                val printing = printings.getPrinting(commanderPrinting)
+                when {
+                    printing == null -> errors += DeckValidationIssue(
+                        code = "INVALID_PRINTING",
+                        message = "Unknown printing ${commanderPrinting.identifier()} for commander $commander",
+                        cardName = commander,
+                    )
+                    printing.name != commander -> errors += DeckValidationIssue(
+                        code = "INVALID_PRINTING",
+                        message = "Printing ${commanderPrinting.identifier()} is ${printing.name}, not $commander",
+                        cardName = commander,
+                    )
+                }
+            }
+        }
 
         // Filter out zero/negative counts up front; treat them as if they weren't submitted.
         val sanitized = deckList.filterValues { it > 0 }

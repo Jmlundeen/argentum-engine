@@ -1,6 +1,10 @@
 package com.wingedsheep.gameserver.deck
 
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.registry.PrintingRegistry
+import com.wingedsheep.gameserver.protocol.DeckEntryDTO
+import com.wingedsheep.sdk.model.Printing
+import com.wingedsheep.sdk.model.PrintingRef
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.sdk.core.DeckFormat
 import com.wingedsheep.sdk.core.ManaCost
@@ -314,5 +318,99 @@ class DeckValidatorTest : FunSpec({
         result.errors.any {
             it.code == "TOO_MANY_COPIES" && it.cardName == "Test Mono-Green Commander"
         } shouldBe true
+    }
+
+    // -----------------------------------------------------------------------
+    // Pinned-printing validation (Phase 4 of the multi-printing plan).
+    // The validator only enforces printings when a [PrintingRegistry] is wired —
+    // legacy callers without one continue to pass-through silently.
+    // -----------------------------------------------------------------------
+
+    test("printing-aware: unknown PrintingRef raises INVALID_PRINTING") {
+        val printings = PrintingRegistry().apply {
+            register(Printing(
+                oracleId = "balsam-oracle",
+                name = "Balsam Wolf",
+                setCode = "POR",
+                collectorNumber = "194",
+            ))
+        }
+        val printingValidator = DeckValidator(registry, printings)
+        val entries = List(60) { DeckEntryDTO("Balsam Wolf", PrintingRef("UNKNOWN", "999")) }
+        val result = printingValidator.validate(
+            deckList = mapOf("Balsam Wolf" to 60),
+            cardEntries = entries,
+        )
+        result.valid shouldBe false
+        result.errors.any { it.code == "INVALID_PRINTING" } shouldBe true
+    }
+
+    test("printing-aware: PrintingRef pointing at a different card raises INVALID_PRINTING") {
+        val printings = PrintingRegistry().apply {
+            register(Printing(
+                oracleId = "wolf-oracle",
+                name = "Balsam Wolf",
+                setCode = "POR",
+                collectorNumber = "194",
+            ))
+            register(Printing(
+                oracleId = "barbarian-oracle",
+                name = "Mountain Bandit",
+                setCode = "POR",
+                collectorNumber = "143",
+            ))
+        }
+        val printingValidator = DeckValidator(registry, printings)
+        // Trying to bind a Balsam Wolf entry to the Mountain Bandit printing.
+        val result = printingValidator.validate(
+            deckList = mapOf("Balsam Wolf" to 60),
+            cardEntries = List(60) { DeckEntryDTO("Balsam Wolf", PrintingRef("POR", "143")) },
+        )
+        result.valid shouldBe false
+        val issue = result.errors.first { it.code == "INVALID_PRINTING" }
+        issue.message shouldContainString "Mountain Bandit"
+    }
+
+    test("printing-aware: matching PrintingRef passes printing check") {
+        val printings = PrintingRegistry().apply {
+            register(Printing(
+                oracleId = "wolf-oracle",
+                name = "Balsam Wolf",
+                setCode = "POR",
+                collectorNumber = "194",
+            ))
+        }
+        val printingValidator = DeckValidator(registry, printings)
+        val entries = List(20) { DeckEntryDTO("Balsam Wolf", PrintingRef("POR", "194")) } +
+            List(40) { DeckEntryDTO("Forest") }
+        val result = printingValidator.validate(
+            deckList = mapOf("Balsam Wolf" to 20, "Forest" to 40),
+            cardEntries = entries,
+        )
+        result.errors.none { it.code == "INVALID_PRINTING" } shouldBe true
+    }
+
+    test("printing-aware: null entries are skipped (entry without pinned printing)") {
+        val printings = PrintingRegistry()  // empty registry — would reject any printing
+        val printingValidator = DeckValidator(registry, printings)
+        // None of the entries pin a printing; the registry being empty is irrelevant.
+        val entries = List(60) { DeckEntryDTO("Forest") }
+        val result = printingValidator.validate(
+            deckList = mapOf("Forest" to 60),
+            cardEntries = entries,
+        )
+        result.errors.none { it.code == "INVALID_PRINTING" } shouldBe true
+    }
+
+    test("legacy validator without PrintingRegistry skips printing check entirely") {
+        // Same payload as the failing tests above — but without [PrintingRegistry] the
+        // validator silently accepts any printing string. This keeps existing call sites
+        // backward-compatible until they migrate to the new constructor.
+        val entries = List(60) { DeckEntryDTO("Balsam Wolf", PrintingRef("UNKNOWN", "999")) }
+        val result = validator.validate(
+            deckList = mapOf("Balsam Wolf" to 60),
+            cardEntries = entries,
+        )
+        result.errors.none { it.code == "INVALID_PRINTING" } shouldBe true
     }
 })

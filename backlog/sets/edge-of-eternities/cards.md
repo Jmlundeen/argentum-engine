@@ -18,7 +18,7 @@
 - [x] Atmospheric Greenhouse
 - [x] Atomic Microsizer
 - [x] Auxiliary Boosters
-- [ ] Banishing Light
+- [x] Banishing Light
 - [x] Beamsaw Prospector
 - [x] Beyond the Quiet
 - [ ] Bioengineered Future
@@ -113,7 +113,7 @@
 - [x] Illvoi Light Jammer
 - [x] Illvoi Operative
 - [ ] Infinite Guideline Station
-- [ ] Insatiable Skittermaw
+- [x] Insatiable Skittermaw
 - [ ] Interceptor Mechan
 - [x] Intrepid Tenderfoot
 - [x] Invasive Maneuvers

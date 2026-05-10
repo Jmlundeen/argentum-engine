@@ -47,4 +47,18 @@ interface MtgSet {
 
     /** Whether the set is wired into the booster generator for sealed/draft. */
     val sealedSupported: Boolean get() = false
+
+    /**
+     * Per-printing rows this set contributes to [com.wingedsheep.engine.registry.PrintingRegistry].
+     *
+     * Most printings are synthesised at startup from each registered [CardDefinition]'s
+     * `setCode` + `metadata.collectorNumber`, so this list can stay empty for the canonical
+     * printing of each card. Use it to register **additional** printings — e.g. when a card
+     * is reprinted in a later set, the canonical [CardDefinition] (script, types, P/T) lives
+     * in the original set's package, but the new set's package can contribute a [Printing]
+     * row carrying the reprint's art, set code, collector number, and Scryfall metadata.
+     *
+     * Each entry's `name` must match an existing [CardDefinition.name] in some registered set.
+     */
+    val printings: List<Printing> get() = emptyList()
 }

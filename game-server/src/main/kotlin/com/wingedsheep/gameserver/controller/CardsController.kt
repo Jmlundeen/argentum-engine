@@ -2,12 +2,14 @@ package com.wingedsheep.gameserver.controller
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.registry.PrintingRegistry
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.search.ParseError
 import com.wingedsheep.search.SearchCard
 import com.wingedsheep.search.SearchService
 import com.wingedsheep.search.Span
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.PrintingRef
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/cards")
 class CardsController(
     private val cardRegistry: CardRegistry,
+    private val printingRegistry: PrintingRegistry,
 ) {
 
     @GetMapping
@@ -110,6 +113,19 @@ class CardsController(
         override val isDoubleFaced: Boolean = false,
         val backFaceName: String? = null,
         val backFaceImageUri: String? = null,
+        /**
+         * The printing the catalog grid renders by default. Lets the deckbuilder picker
+         * highlight the row that matches the catalog thumbnail without re-deriving it from
+         * `setCode + collectorNumber` on the client. Null only for cards missing both
+         * `setCode` and `metadata.collectorNumber`.
+         */
+        val defaultPrinting: PrintingRef? = null,
+        /**
+         * Every set this card has a registered printing in (canonical + reprints). Drives
+         * the `s:`/`set:` search matcher so a reprint surfaces under its new set code even
+         * though its [setCode] still points at the original printing's set.
+         */
+        override val printingSetCodes: List<String> = emptyList(),
     ) : SearchCard
 
     private fun CardDefinition.toSummary(): CardSummaryDTO = CardSummaryDTO(
@@ -134,6 +150,10 @@ class CardsController(
         isDoubleFaced = isDoubleFaced,
         backFaceName = backFace?.name,
         backFaceImageUri = backFace?.metadata?.imageUri,
+        defaultPrinting = defaultPrintingRef,
+        printingSetCodes = printingRegistry.printingsOf(name)
+            .map { it.setCode }
+            .distinct(),
     )
 
     companion object {

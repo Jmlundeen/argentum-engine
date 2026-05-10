@@ -91,6 +91,28 @@ describe('end-to-end search', () => {
     expect(run('s:grn')).toEqual(['Niv-Mizzet, Parun'])
   })
 
+  it('s: matches reprints, not just the canonical printing', () => {
+    // Banishing Light's canonical setCode is BLB; it's reprinted in EOE. Both
+    // should match, and an unrelated set must not.
+    expect(run('s:eoe')).toContain('Banishing Light')
+    expect(run('s:blb')).toContain('Banishing Light')
+    expect(run('s:eoe')).not.toContain('Lightning Bolt')
+  })
+
+  it('s:EOE Banishing Light combines reprint set with name match', () => {
+    expect(run('s:eoe banishing')).toEqual(['Banishing Light'])
+  })
+
+  it('extractSetFilter returns the dominant set code from a top-level AND query', async () => {
+    const { extractSetFilter, parseQuery } = await import('../index')
+    expect(extractSetFilter(parseQuery('s:eoe banishing').ast)).toBe('EOE')
+    expect(extractSetFilter(parseQuery('set:GRN t:creature').ast)).toBe('GRN')
+    expect(extractSetFilter(parseQuery('').ast)).toBeNull()
+    expect(extractSetFilter(parseQuery('lightning').ast)).toBeNull()
+    // OR/NOT branches break the "every result is from this set" invariant — bail out.
+    expect(extractSetFilter(parseQuery('s:eoe or t:creature').ast)).toBeNull()
+  })
+
   it('format legality', () => {
     expect(run('f:commander')).toContain('Forest')
     expect(run('f:commander')).toContain('Niv-Mizzet, Parun')

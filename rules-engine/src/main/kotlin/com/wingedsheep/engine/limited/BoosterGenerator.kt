@@ -50,6 +50,17 @@ class BoosterGenerator(
          * Replaces plain land names (e.g., "Plains" → 8) with variant identifiers
          * (e.g., "Plains#331" → 2, "Plains#332" → 2, "Plains#333" → 2, "Plains#334" → 2).
          *
+         * The variant identifiers are `Name#SetCode-CollectorNumber` strings that resolve
+         * via [com.wingedsheep.engine.registry.CardRegistry]'s secondary index — predating
+         * the multi-printing system. This works correctly under multi-printing because the
+         * resolved [CardDefinition.metadata.imageUri] is stamped onto each entity's
+         * [com.wingedsheep.engine.state.components.identity.CardComponent.imageUri] at
+         * game-init, which then beats the canonical metadata via the precedence flip in
+         * `ClientStateTransformer`. The rich `cardEntries` channel (Phase 4 of the
+         * multi-printing plan) is not used here — switching is part of the Phase 6.5
+         * cleanup that retires the `Name#SET-CN` secondary index. See
+         * `backlog/multi-printing-system.md`.
+         *
          * @param deckList The original deck list with basic land names
          * @param variants Map of land name to all art variants from the set
          * @return Modified deck list with basic lands distributed across variants

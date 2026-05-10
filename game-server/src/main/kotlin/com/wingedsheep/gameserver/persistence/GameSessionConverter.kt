@@ -51,11 +51,13 @@ private val logger = org.slf4j.LoggerFactory.getLogger("GameSessionConverter")
 
 fun restoreGameSession(
     persistent: PersistentGameSession,
-    cardRegistry: CardRegistry
+    cardRegistry: CardRegistry,
+    printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry? = null,
 ): Pair<GameSession, List<PlayerIdentity>> {
     val session = GameSession(
         sessionId = persistent.sessionId,
-        cardRegistry = cardRegistry
+        cardRegistry = cardRegistry,
+        printingRegistry = printingRegistry,
     )
 
     logger.info("Restoring game ${persistent.sessionId}: gameState=${if (persistent.gameState != null) "present" else "NULL"}, players=${persistent.playerInfos.size}")

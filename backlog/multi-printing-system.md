@@ -6,6 +6,28 @@ alternative-art versions. A player can pick a specific printing for their deck
 and the UI shows that printing's art, while the engine still treats them as one
 logical card.
 
+## Status (2026-05-10)
+
+Phases 1–4 are merged. The plumbing is end-to-end functional: a deck pinned with
+`PrintingRef` flows through `Deck.cardEntries` → `DeckEntryDTO` → server →
+`GameInitializer` (override) → `CardComponent.imageUri` → projection → client.
+What's missing is the *user-facing* picker UX (Phase 7) and the Scryfall-driven
+printings catalogue (Phase 5) — until those land, `PrintingRegistry` is
+populated only by synthesised defaults plus any per-set `MtgSet.printings`
+contributions, and the deckbuilder still emits name-only decks.
+
+| Phase | Done? | Notes |
+|-------|-------|-------|
+| 1 — `Printing` / `PrintingRef` SDK model | ✅ | `mtg-sdk/.../sdk/model/{Printing,PrintingRef}.kt` |
+| 2 — `PrintingRegistry` alongside `CardRegistry` | ✅ | + Spring beans in game-server, gym-server |
+| 3 — `ClientStateTransformer` precedence flip + `CardComponent.backFaceImageUri` | ✅ | The single highest-leverage line in the plan |
+| 4 — `Deck.cardEntries`, DTOs, validator, handlers, web-client storage v2 | ✅ | Six commits across SDK, engine, game-server, web-client |
+| 5 — Scryfall printings ingestion (`SyncPrintingsFromDump` + jsonl loader) | ⏳ | Net-new — no current home |
+| 6 — `/api/cards/{name}/printings` + `/api/printings?names=...` endpoints | ✅ | `PrintingsController` + `CardSummaryDTO.defaultPrinting`; falls back to synthesised default when registry is empty |
+| 7 — Web-client deckbuilder printing picker UX | 🟡 | `PrintingPicker` popover + per-row chip in deckbuilder, pinned-printing art on hover preview, `/api/printings` batch on saved-deck browser. Wiring `cardEntries` into game-creation messages (DeckPicker → CreateGame/JoinLobby) is the remaining gap. |
+| 8 — DFC / split / adventure (incidental) | ✅ | Covered by `backFaceImageUri` |
+| 6.5 — Cleanup: retire `Name#SetCode-CN` secondary index, drop `CardDefinition.setCode`, drop `Deck.cards` legacy field, switch booster basic-land variants to `cardEntries` | ⏳ | Wait until Phase 7 has been live for a release |
+
 ---
 
 ## Design summary

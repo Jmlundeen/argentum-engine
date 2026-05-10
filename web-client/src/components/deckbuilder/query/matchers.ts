@@ -279,7 +279,18 @@ const RARITY: Matcher['build'] = (atom) => {
 const SET: Matcher['build'] = (atom) => {
   const target = lc(atom.value).trim()
   if (!target) return ok(() => true)
-  return ok((c) => !!c.setCode && lc(c.setCode) === target)
+  // Match the canonical printing's set OR any reprint set the card has a printing in,
+  // so `s:EOE Banishing Light` works for cards reprinted in EOE even though their
+  // canonical setCode points at the original printing (BLB).
+  return ok((c) => {
+    if (c.setCode && lc(c.setCode) === target) return true
+    if (c.printingSetCodes) {
+      for (const code of c.printingSetCodes) {
+        if (lc(code) === target) return true
+      }
+    }
+    return false
+  })
 }
 
 const FORMAT: Matcher['build'] = (atom) => {

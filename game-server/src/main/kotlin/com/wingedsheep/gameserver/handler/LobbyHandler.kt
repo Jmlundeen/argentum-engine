@@ -39,6 +39,7 @@ class LobbyHandler(
     private val lobbyRepository: LobbyRepository,
     private val sender: MessageSender,
     private val cardRegistry: CardRegistry,
+    private val printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry,
     private val gamePlayHandler: GamePlayHandler,
     private val gameProperties: GameProperties,
     private val boosterGenerator: BoosterGenerator,
@@ -407,7 +408,16 @@ class LobbyHandler(
         val identity = token?.let { sessionRegistry.getIdentityByToken(it) }
         val lobbyId = identity?.currentLobbyId
         if (lobbyId != null) {
-            handleLobbyDeckSubmit(session, playerSession, identity, lobbyId, message.deckList, message.commander)
+            handleLobbyDeckSubmit(
+                session,
+                playerSession,
+                identity,
+                lobbyId,
+                message.deckList,
+                message.commander,
+                message.cardEntries,
+                message.commanderPrinting,
+            )
             return
         }
 
@@ -471,7 +481,8 @@ class LobbyHandler(
         val gameSession = GameSession(
             cardRegistry = cardRegistry,
             useHandSmoother = gameProperties.handSmoother.enabled,
-            debugMode = gameProperties.debugMode
+            debugMode = gameProperties.debugMode,
+            printingRegistry = printingRegistry,
         )
 
         sealedSession.players.forEach { (playerId, playerState) ->
@@ -1883,6 +1894,8 @@ class LobbyHandler(
         lobbyId: String,
         deckList: Map<String, Int>,
         commander: String? = null,
+        cardEntries: List<com.wingedsheep.gameserver.protocol.DeckEntryDTO>? = null,
+        commanderPrinting: com.wingedsheep.sdk.model.PrintingRef? = null,
     ) {
         val lobby = lobbyRepository.findLobbyById(lobbyId)
         if (lobby == null) {
@@ -1896,6 +1909,7 @@ class LobbyHandler(
         val commanderShape = lobby.format == TournamentFormat.PREMADE_DECKS &&
             lobby.deckFormat?.isCommanderShape == true
         val effectiveCommander = if (commanderShape) commander?.takeIf { it.isNotBlank() } else null
+        val effectiveCommanderPrinting = if (commanderShape) commanderPrinting else null
 
         // For PREMADE_DECKS, the deck didn't come from a generated card pool — validate
         // against the registry (≥40 cards, 4-of, all cards must resolve) before storing it.
@@ -1910,9 +1924,31 @@ class LobbyHandler(
                     ?.let { stripCommanderFromCards(deckList, it) }
                     ?: deckList
                 val deckCards = withoutCommander.flatMap { (name, count) -> List(count) { name } }
-                deckValidator.validate(Deck(cards = deckCards, commander = effectiveCommander), lobby.deckFormat)
+                val richEntries = cardEntries
+                    ?.filterNot { it.name == effectiveCommander && it.printing == effectiveCommanderPrinting }
+                    ?.takeIf { it.isNotEmpty() }
+                val deck = if (richEntries != null) {
+                    com.wingedsheep.sdk.model.Deck.fromEntries(
+                        entries = richEntries.map {
+                            com.wingedsheep.sdk.model.CardEntry(it.name, it.printing)
+                        },
+                        commander = effectiveCommander,
+                        commanderPrinting = effectiveCommanderPrinting,
+                    )
+                } else {
+                    com.wingedsheep.sdk.model.Deck(
+                        cards = deckCards,
+                        commander = effectiveCommander,
+                        commanderPrinting = effectiveCommanderPrinting,
+                    )
+                }
+                deckValidator.validate(deck, lobby.deckFormat)
             } else {
-                deckValidator.validate(deckList, lobby.deckFormat)
+                deckValidator.validate(
+                    deckList = deckList,
+                    format = lobby.deckFormat,
+                    cardEntries = cardEntries,
+                )
             }
             if (!validation.valid) {
                 val msg = validation.errors.firstOrNull()?.message ?: "Invalid deck"

@@ -48,6 +48,7 @@ class QuickGameLobbyHandler(
     private val gameRepository: GameRepository,
     private val sender: MessageSender,
     private val cardRegistry: CardRegistry,
+    private val printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry,
     private val deckValidator: DeckValidator,
     private val deckGenerator: SealedDeckGenerator,
     private val gameProperties: GameProperties,
@@ -277,9 +278,29 @@ class QuickGameLobbyHandler(
             val result = if (message.commander != null) {
                 val cardsWithoutCommander = stripCommanderFromCards(message.deckList, message.commander)
                 val deckCards = cardsWithoutCommander.flatMap { (name, count) -> List(count) { name } }
-                deckValidator.validate(Deck(cards = deckCards, commander = message.commander), lobby.format)
+                val richEntries = message.cardEntries
+                    ?.filterNot { it.name == message.commander && it.printing == message.commanderPrinting }
+                    ?.takeIf { it.isNotEmpty() }
+                val deck = if (richEntries != null) {
+                    com.wingedsheep.sdk.model.Deck.fromEntries(
+                        entries = richEntries.map { com.wingedsheep.sdk.model.CardEntry(it.name, it.printing) },
+                        commander = message.commander,
+                        commanderPrinting = message.commanderPrinting,
+                    )
+                } else {
+                    com.wingedsheep.sdk.model.Deck(
+                        cards = deckCards,
+                        commander = message.commander,
+                        commanderPrinting = message.commanderPrinting,
+                    )
+                }
+                deckValidator.validate(deck, lobby.format)
             } else {
-                deckValidator.validate(message.deckList, lobby.format)
+                deckValidator.validate(
+                    deckList = message.deckList,
+                    format = lobby.format,
+                    cardEntries = message.cardEntries,
+                )
             }
             if (!result.valid) {
                 sender.sendError(
@@ -352,7 +373,8 @@ class QuickGameLobbyHandler(
         val gameSession = GameSession(
             cardRegistry = cardRegistry,
             useHandSmoother = gameProperties.handSmoother.enabled,
-            debugMode = gameProperties.debugMode
+            debugMode = gameProperties.debugMode,
+            printingRegistry = printingRegistry,
         )
         // Commander-shape formats (Commander / Brawl / Standard Brawl) run on the engine's 1v1
         // Commander rules. Other formats fall through to Standard. Brawl-specific tweaks

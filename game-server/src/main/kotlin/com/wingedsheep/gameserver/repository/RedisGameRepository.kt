@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit
 class RedisGameRepository(
     private val redisTemplate: RedisTemplate<String, String>,
     private val cardRegistry: CardRegistry,
+    private val printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry,
     private val sessionRegistry: SessionRegistry,
     private val redisProperties: RedisProperties
 ) : GameRepository {
@@ -75,7 +76,7 @@ class RedisGameRepository(
         return try {
             val json = redisTemplate.opsForValue().get(gameKey(sessionId)) ?: return null
             val persistent = persistenceJson.decodeFromString(PersistentGameSession.serializer(), json)
-            val (session, _) = restoreGameSession(persistent, cardRegistry)
+            val (session, _) = restoreGameSession(persistent, cardRegistry, printingRegistry)
 
             // Cache the restored session
             sessionCache[sessionId] = session
@@ -170,7 +171,7 @@ class RedisGameRepository(
                 try {
                     val json = redisTemplate.opsForValue().get(key) ?: continue
                     val persistent = persistenceJson.decodeFromString(PersistentGameSession.serializer(), json)
-                    val (session, identities) = restoreGameSession(persistent, cardRegistry)
+                    val (session, identities) = restoreGameSession(persistent, cardRegistry, printingRegistry)
 
                     sessionCache[session.sessionId] = session
                     persistent.lobbyId?.let { gameToLobby[session.sessionId] = it }

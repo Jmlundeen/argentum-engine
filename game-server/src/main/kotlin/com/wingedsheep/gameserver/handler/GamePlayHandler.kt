@@ -36,6 +36,7 @@ class GamePlayHandler(
     private val lobbyRepository: LobbyRepository,
     private val sender: MessageSender,
     private val cardRegistry: CardRegistry,
+    private val printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry,
     private val deckGenerator: SealedDeckGenerator,
     private val gameProperties: GameProperties,
     private val gameHistoryRepository: GameHistoryRepository,
@@ -112,7 +113,8 @@ class GamePlayHandler(
         val gameSession = GameSession(
             cardRegistry = cardRegistry,
             useHandSmoother = gameProperties.handSmoother.enabled,
-            debugMode = gameProperties.debugMode
+            debugMode = gameProperties.debugMode,
+            printingRegistry = printingRegistry,
         )
         gameSession.quickGameSetCode = quickGameSetCode
         gameSession.addPlayer(playerSession, deckList)
