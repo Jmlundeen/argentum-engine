@@ -1330,7 +1330,7 @@ Used in `OptionalCostEffect`, `MayPayManaEffect`, `AnyPlayerMayPayEffect`, `PayO
 
 - `NORMAL` — single-face card. All characteristics live on the top-level `CardDefinition`.
 - `SPLIT` — two halves with a shared off-battlefield card (CR 709). Each face in `cardFaces[]` carries its own name / mana cost / type line / oracle text / abilities. Casting passes `CastSpell.faceIndex` to pick a half.
-- `ADVENTURE` — adventurer card (CR 715). The top-level `CardDefinition` describes the creature; `cardFaces[0]` is the Adventure (instant or sorcery — Adventure) with its own mana cost, type line, target requirements, and `spell { … }` effect. Casting `faceIndex = 0` runs the Adventure: on resolution the card is exiled (instead of going to the graveyard) and the caster gains `MayPlayFromExileComponent` so the creature can be cast from exile while it remains there. Casting with `faceIndex = null` casts the creature normally.
+- `ADVENTURE` — adventurer card (CR 715). The top-level `CardDefinition` describes the creature; `cardFaces[0]` is the Adventure (instant or sorcery — Adventure) with its own mana cost, type line, target requirements, and `spell { … }` effect. Casting `faceIndex = 0` runs the Adventure: on resolution the card is exiled (instead of going to the graveyard) and the engine registers a permanent `MayPlayPermission` so the creature can be cast from exile while it remains there. Casting with `faceIndex = null` casts the creature normally.
 
 Adventure DSL example:
 
