@@ -1,12 +1,16 @@
 package com.wingedsheep.gameserver.scenarios
 
+import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.MayPlayFromExileComponent
+import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -166,6 +170,106 @@ class BrightcapBadgerScenarioTest : ScenarioTestBase() {
 
                 withClue("One Saproling token should now be on the battlefield") {
                     saprolingsControlledBy(game, 1) shouldBe 1
+                }
+            }
+        }
+
+        context("Granted activated abilities on tokens") {
+
+            // A Saproling token created by Brightcap Badger has no registered CardDefinition;
+            // its only abilities come from Brightcap's static `GrantActivatedAbility`. Earlier,
+            // ActivateAbilityHandler bailed with "Card definition not found" for any source whose
+            // cardDefinitionId wasn't in the registry, even though the granted ability was the
+            // one being activated. This regression test pins the fix.
+            test("Saproling token can tap for {G} via Brightcap Badger's granted mana ability") {
+                val game = scenario()
+                    .withPlayers()
+                    .withCardOnBattlefield(1, "Brightcap Badger")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(2, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.POSTCOMBAT_MAIN, Step.POSTCOMBAT_MAIN)
+                    .build()
+
+                // Run Brightcap's end-step trigger to create the Saproling token.
+                advanceToEndStep(game)
+                game.resolveStack()
+
+                val saprolingId = game.state.getBattlefield(game.player1Id).first { entityId ->
+                    game.state.getEntity(entityId)?.get<CardComponent>()?.let { card ->
+                        Subtype.SAPROLING in card.typeLine.subtypes
+                    } == true
+                }
+
+                // Newly-created tokens have summoning sickness, which would block tap costs
+                // (CR 302.1). Strip it so we can exercise the granted ability directly — the bug
+                // we're guarding against fired before the summoning-sickness check.
+                game.state = game.state.updateEntity(saprolingId) { c ->
+                    c.without<SummoningSicknessComponent>()
+                }
+
+                // The granted ability lives on Brightcap's static GrantActivatedAbility.
+                val brightcapDef = cardRegistry.getCard("Brightcap Badger")!!
+                val grantedAbility = brightcapDef.script.staticAbilities
+                    .filterIsInstance<GrantActivatedAbility>()
+                    .first()
+                    .ability
+
+                val activateResult = game.execute(
+                    ActivateAbility(
+                        playerId = game.player1Id,
+                        sourceId = saprolingId,
+                        abilityId = grantedAbility.id
+                    )
+                )
+
+                withClue("Granted mana ability should activate without 'Card definition not found': ${activateResult.error}") {
+                    activateResult.error shouldBe null
+                }
+
+                val manaPool = game.state.getEntity(game.player1Id)?.get<ManaPoolComponent>()
+                manaPool.shouldNotBeNull()
+                withClue("Tapping the Saproling should add one green mana") {
+                    manaPool.green shouldBe 1
+                }
+            }
+
+            // When two Brightcap Badgers are on the battlefield, both grant Saprolings the
+            // identical "{T}: Add {G}" ability. They reference the same ActivatedAbility
+            // instance (same id), so the duplicates are functionally identical — surfacing two
+            // buttons would confuse the UI and adds nothing in play (only one tap is available).
+            // CastPermissionUtils.getStaticGrantedAbilitiesWithGranter dedups by ability id.
+            test("identical granted abilities from two granters appear once on the recipient") {
+                val game = scenario()
+                    .withPlayers()
+                    .withCardOnBattlefield(1, "Brightcap Badger")
+                    .withCardOnBattlefield(1, "Brightcap Badger")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(2, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.POSTCOMBAT_MAIN, Step.POSTCOMBAT_MAIN)
+                    .build()
+
+                advanceToEndStep(game)
+                game.resolveStack()
+
+                val saprolingId = game.state.getBattlefield(game.player1Id).first { entityId ->
+                    game.state.getEntity(entityId)?.get<CardComponent>()?.let { card ->
+                        Subtype.SAPROLING in card.typeLine.subtypes
+                    } == true
+                }
+
+                val grantedAbilities = com.wingedsheep.engine.legalactions.utils.CastPermissionUtils(
+                    cardRegistry,
+                    com.wingedsheep.engine.handlers.PredicateEvaluator(),
+                    com.wingedsheep.engine.handlers.ConditionEvaluator()
+                ).getStaticGrantedActivatedAbilities(saprolingId, game.state)
+
+                withClue("Two Brightcap Badgers must not surface two identical grants on a Saproling: $grantedAbilities") {
+                    grantedAbilities.size shouldBe 1
+                }
+                withClue("The single surviving grant should be Brightcap's '{T}: Add {G}' mana ability") {
+                    grantedAbilities.single().isManaAbility shouldBe true
                 }
             }
         }
