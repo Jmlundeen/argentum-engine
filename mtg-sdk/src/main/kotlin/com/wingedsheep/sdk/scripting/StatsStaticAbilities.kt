@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+
 /**
  * Modifies power/toughness on a filtered set of permanents.
  *
