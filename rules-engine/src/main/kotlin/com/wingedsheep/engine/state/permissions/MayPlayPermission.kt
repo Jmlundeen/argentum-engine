@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 /**
  * A "you may play this card" permission held in [com.wingedsheep.engine.state.GameState].
  *
- * Replaces the per-card stamped `MayPlayFromExileComponent`. Permissions live as a list on
- * the game state — like [com.wingedsheep.engine.mechanics.layers.ActiveFloatingEffect] for
- * continuous P/T effects — and read sites query the list rather than inspect the card.
+ * Permissions live as a list on the game state — like
+ * [com.wingedsheep.engine.mechanics.layers.ActiveFloatingEffect] for continuous P/T effects —
+ * and read sites query the list rather than inspect the card.
  *
  * Why a list instead of a stamp:
  * - The same permission may apply to multiple cards (Mind's Desire storm, Cruelclaw exile pile).
@@ -22,9 +22,9 @@ import kotlinx.serialization.Serializable
  * @param cardIds Which cards this permission applies to. Read sites do their own zone check —
  *   a permission targeting an exiled card is irrelevant once the card moves to the graveyard.
  * @param controllerId Who may play the cards.
- * @param sourceId Granting permanent / spell, for trigger-context reconstruction. Not used by
- *   the current condition shapes (`Exists`, `Compare`) but reserved for future source-keyed
- *   conditions (`SourceHas*`, `SourceIs*`).
+ * @param sourceId Granting permanent / spell, for trigger-context reconstruction. Required when
+ *   [condition] is set so source-keyed conditions (`SourceHas*`, `SourceIs*`) can resolve
+ *   correctly; optional otherwise.
  * @param condition Optional gate re-evaluated on every query. When present, the permission is
  *   only honored while the condition holds.
  * @param withAnyManaType If true, mana of any type can be spent to cast (Taster of Wares).
@@ -47,4 +47,13 @@ data class MayPlayPermission(
     val permanent: Boolean = false,
     val expiresAfterTurn: Int? = null,
     val timestamp: Long
-)
+) {
+    init {
+        // gateOpen falls back sourceId ?: cardId when building the EffectContext, which would
+        // make SourceHas* / SourceIs* conditions silently misfire (they'd read the exiled card
+        // as the source). Require a real sourceId whenever a condition is attached.
+        require(condition == null || sourceId != null) {
+            "MayPlayPermission with a condition must specify sourceId (condition: ${condition!!.description})"
+        }
+    }
+}

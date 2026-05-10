@@ -39,8 +39,8 @@ data class WarpExiledComponent(
 /**
  * Marks a card as playable without paying its mana cost.
  * Applied by effects like Mind's Desire, Cascade, Omniscience.
- * This only waives the mana cost — the card must still be in a zone where
- * it can be played (hand, or exile with a [com.wingedsheep.engine.state.permissions.MayPlayPermission]).
+ * This only waives the mana cost — the card must still be in a zone where it can
+ * be played (hand, or exile with a may-play permission).
  *
  * @param controllerId The player who may play this card for free.
  * @param permanent If true, this permission persists indefinitely (not cleaned up at end of turn).
@@ -54,7 +54,7 @@ data class PlayWithoutPayingCostComponent(
 
 /**
  * Marks a card in exile as requiring an additional cost when cast.
- * Used with [com.wingedsheep.engine.state.permissions.MayPlayPermission] + [PlayWithoutPayingCostComponent] to model
+ * Used with a may-play permission + [PlayWithoutPayingCostComponent] to model
  * "may cast by paying [cost] rather than its mana cost" — the mana is waived,
  * but this non-mana cost must still be paid.
  *

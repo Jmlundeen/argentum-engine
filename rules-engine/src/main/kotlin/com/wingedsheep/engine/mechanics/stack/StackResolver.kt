@@ -1167,7 +1167,7 @@ class StackResolver(
                 }
                 pausedState = pausedState.addToZone(pausedDestZoneKey, spellId)
 
-                // CR 715.5 — Adventure exiled by its own resolution: re-grant cast-from-exile.
+                // CR 715.3d — Adventure exiled by its own resolution: re-grant cast-from-exile.
                 if (pausedAdventureFaceExile && pausedDestZone == Zone.EXILE) {
                     pausedState = pausedState.addMayPlayPermission(
                         com.wingedsheep.engine.state.permissions.MayPlayPermission(
@@ -1231,9 +1231,9 @@ class StackResolver(
             cardDef?.keywordAbilities?.any { it is KeywordAbility.Flashback } == true
         val exileAfterResolveComp = newState.getEntity(spellId)?.get<ExileAfterResolveComponent>()
         val exileAfterResolve = exileAfterResolveComp != null
-        // Adventure face (CR 715.4): when an Adventure resolves, exile it instead of putting
+        // Adventure face (CR 715.3d): when an Adventure resolves, exile it instead of putting
         // it in its owner's graveyard, and grant the caster permission to cast it as the
-        // creature spell while it remains exiled (CR 715.5).
+        // creature spell while it remains exiled.
         val adventureFaceExile = cardDef?.layout == com.wingedsheep.sdk.model.CardLayout.ADVENTURE &&
             spellComponent.faceIndex != null
         val intendedDestination = if (selfExile || flashbackExile || exileAfterResolve || adventureFaceExile) Zone.EXILE else Zone.GRAVEYARD
@@ -1256,7 +1256,7 @@ class StackResolver(
         newState = newState.removeMayPlayPermissionsForCard(spellId)
         newState = newState.addToZone(destZoneKey, spellId)
 
-        // CR 715.5 — an Adventure card exiled by its own resolution may be cast as the creature
+        // CR 715.3d — an Adventure card exiled by its own resolution may be cast as the creature
         // by the spell's controller while it remains in exile. Re-add the permission after
         // the prior removeMayPlayPermissionsForCard so the cast-from-exile enumerator picks
         // it up on the next priority pass.
