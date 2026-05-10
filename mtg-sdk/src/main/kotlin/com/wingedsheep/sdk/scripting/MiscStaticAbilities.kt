@@ -98,31 +98,59 @@ data class OverrideEnchantedLandManaColor(
 }
 
 /**
- * Whenever a player taps a land matching [filter] for mana, that player adds
- * [amount] additional mana of any type that land produced.
+ * Whenever a permanent matching [sourceFilter] is tapped for mana, the tapping
+ * player adds [amount] additional mana to their pool.
  *
- * Used for Mana Flare–style global land-mana amplifiers. Lavaleaper uses this
- * with `GameObjectFilter.BasicLand` and `DynamicAmount.Fixed(1)`.
+ * Unifies the "Mana Flare on a filter" and "Badgermole Cub on creature taps" shapes:
  *
- * This is a triggered mana ability — it resolves immediately without using the
- * stack (per Rule 605). The controller of the land (the player tapping) receives
- * the bonus mana of the same color(s) that were produced by the tap.
+ * - **Lavaleaper** ("Whenever a player taps a basic land for mana, that player adds
+ *   one mana of any type that land produced") →
+ *   `AdditionalManaOnSourceTap(sourceFilter = GameObjectFilter.BasicLand, color = null)`.
+ *   `color = null` means **mirror the produced color** — the bonus matches whatever
+ *   color the source produced.
  *
- * @property filter Which lands qualify (e.g., basic, snow, Forest)
- * @property amount How many additional mana to produce per tap
+ * - **Badgermole Cub** ("Whenever you tap a creature for mana, add an additional {G}") →
+ *   `AdditionalManaOnSourceTap(sourceFilter = GameObjectFilter.Creature.youControl(),
+ *   color = Color.GREEN)`. The "you tap" wording is captured by the filter's controller
+ *   predicate: the source must be controlled by the static-ability controller, and since
+ *   only that controller can activate the source's mana ability (mana-ability rules), the
+ *   trigger only fires when "you" tap a matching creature.
+ *
+ * Triggered mana ability — resolves immediately without using the stack (Rule 605.1).
+ * Filter matching uses projected state, so animated creature-lands count as creatures
+ * and typeshifted lands count under their projected types. The filter's controller
+ * predicate is evaluated against the static-ability source's projected controller (i.e.
+ * `youControl` means "controlled by you, the controller of this static").
+ *
+ * @property sourceFilter Which permanents, when tapped for mana, trigger this bonus.
+ *   Use `.youControl()` for the "Whenever you tap..." wording.
+ * @property color The bonus mana color. `null` means mirror the color the source produced
+ *   (used by Lavaleaper). When set, the bonus is always that color regardless of the source.
+ * @property amount How many additional mana per tap (default 1).
  */
-@SerialName("AdditionalManaOnLandTap")
+@SerialName("AdditionalManaOnSourceTap")
 @Serializable
-data class AdditionalManaOnLandTap(
-    val filter: GameObjectFilter,
+data class AdditionalManaOnSourceTap(
+    val sourceFilter: GameObjectFilter,
+    val color: Color? = null,
     val amount: DynamicAmount = DynamicAmount.Fixed(1)
 ) : StaticAbility {
-    override val description: String =
-        "Whenever a player taps a ${filter.description} for mana, that player adds one mana of any type that land produced."
+    override val description: String = buildString {
+        append("Whenever a ")
+        append(sourceFilter.description)
+        append(" is tapped for mana, ")
+        if (color == null) {
+            append("that player adds one mana of any type that source produced.")
+        } else {
+            append("add an additional {${color.symbol}}.")
+        }
+    }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
-        val newFilter = filter.applyTextReplacement(replacer)
+        val newFilter = sourceFilter.applyTextReplacement(replacer)
         val newAmount = amount.applyTextReplacement(replacer)
-        return if (newFilter !== filter || newAmount !== amount) copy(filter = newFilter, amount = newAmount) else this
+        return if (newFilter !== sourceFilter || newAmount !== amount) {
+            copy(sourceFilter = newFilter, amount = newAmount)
+        } else this
     }
 }
 
