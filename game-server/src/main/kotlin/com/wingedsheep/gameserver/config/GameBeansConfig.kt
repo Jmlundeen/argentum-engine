@@ -4,6 +4,7 @@ import com.wingedsheep.ai.engine.SealedDeckGenerator
 import com.wingedsheep.ai.engine.deck.RandomDeckGenerator
 import com.wingedsheep.engine.limited.BoosterGenerator
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.registry.PrintingRegistry
 import com.wingedsheep.mtg.sets.MtgSetCatalog
 import com.wingedsheep.mtg.sets.definitions.custom.JustOneGlassToken
 import com.wingedsheep.mtg.sets.definitions.custom.SekshaasEarlySleeper
@@ -40,6 +41,19 @@ class GameBeansConfig(
         // Easter egg card — injected into Rick's deck at game start
         register(LegalityData.stamp(SekshaasEarlySleeper))
         register(LegalityData.stamp(JustOneGlassToken))
+    }
+
+    /**
+     * Per-printing index. Populated with synthesised defaults from every registered
+     * card (one printing per `CardDefinition`). Real Scryfall printing data lands in a
+     * later phase via a classpath-loaded jsonl; until then this is enough for the
+     * deckbuilder picker and game-init art override to function.
+     */
+    @Bean
+    fun printingRegistry(cardRegistry: CardRegistry): PrintingRegistry = PrintingRegistry().apply {
+        for (name in cardRegistry.allCardNames()) {
+            cardRegistry.getCardsByName(name).forEach(::registerSynthesizedDefault)
+        }
     }
 
     @Bean
