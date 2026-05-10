@@ -27,7 +27,9 @@ object EdgeOfEternitiesSet : MtgSet {
         CardDiscovery.findBasicLandsIn(CARDS_PACKAGE).map { it.copy(setCode = code) }
     }
 
-    override val printings: List<Printing> = EOEReprints
+    override val printings: List<Printing> by lazy {
+        CardDiscovery.findPrintingsIn(CARDS_PACKAGE)
+    }
 
     private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.eoe.cards"
 }
