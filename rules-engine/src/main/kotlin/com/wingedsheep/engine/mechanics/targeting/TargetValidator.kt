@@ -6,7 +6,6 @@ import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CantBeTargetedByOpponentAbilitiesComponent
-import com.wingedsheep.engine.state.components.battlefield.SuppressesHexproofForGroupComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantsControllerHexproofComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantsControllerShroudComponent
 import com.wingedsheep.engine.state.components.player.PlayerHexproofComponent
@@ -161,7 +160,7 @@ class TargetValidator {
             return "$cardName has shroud"
         }
         if (projected.hasKeyword(entityId, Keyword.HEXPROOF) && entityController != casterId &&
-            !isHexproofSuppressedForCaster(state, projected, entityId, casterId)
+            !HexproofSuppression.isSuppressedForCaster(state, projected, entityId, casterId)
         ) {
             val cardName = state.getEntity(entityId)?.get<CardComponent>()?.name ?: "target"
             return "$cardName has hexproof"
@@ -195,7 +194,7 @@ class TargetValidator {
         if (entityController == casterId) return null
 
         val projected = state.projectedState
-        val hexproofSuppressed = isHexproofSuppressedForCaster(state, projected, entityId, casterId)
+        val hexproofSuppressed = HexproofSuppression.isSuppressedForCaster(state, projected, entityId, casterId)
         if (!hexproofSuppressed) {
             for (color in sourceColors) {
                 if (projected.hasKeyword(entityId, "HEXPROOF_FROM_${color.name}")) {
@@ -624,30 +623,5 @@ class TargetValidator {
 
     private fun playerHasHexproofAgainst(state: GameState, playerId: EntityId, casterId: EntityId): Boolean {
         return playerId != casterId && playerHasHexproof(state, playerId)
-    }
-
-    /**
-     * Returns true if any permanent the [casterId] controls suppresses hexproof for [targetId].
-     *
-     * Implements "creatures can be targeted as though they didn't have hexproof" (Nowhere to Run).
-     * The filter stored on [SuppressesHexproofForGroupComponent] is evaluated with the
-     * suppressor's controller as context.
-     */
-    private fun isHexproofSuppressedForCaster(
-        state: GameState,
-        projected: com.wingedsheep.engine.mechanics.layers.ProjectedState,
-        targetId: EntityId,
-        casterId: EntityId
-    ): Boolean {
-        return state.getBattlefield().any { suppressorId ->
-            val suppressorController = projected.getController(suppressorId)
-            if (suppressorController != casterId) return@any false
-            val suppressComponent = state.getEntity(suppressorId)
-                ?.get<SuppressesHexproofForGroupComponent>() ?: return@any false
-            val ctx = PredicateContext(controllerId = casterId, sourceId = suppressorId)
-            suppressComponent.filters.any { filter ->
-                predicateEvaluator.matchesWithProjection(state, projected, targetId, filter, ctx)
-            }
-        }
     }
 }

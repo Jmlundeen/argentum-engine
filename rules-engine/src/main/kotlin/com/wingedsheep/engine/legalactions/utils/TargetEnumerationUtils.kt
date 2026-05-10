@@ -3,11 +3,11 @@ package com.wingedsheep.engine.legalactions.utils
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.TargetInfo
+import com.wingedsheep.engine.mechanics.targeting.HexproofSuppression
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.GrantsControllerHexproofComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantsControllerShroudComponent
-import com.wingedsheep.engine.state.components.battlefield.SuppressesHexproofForGroupComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.player.PlayerHexproofComponent
@@ -85,7 +85,7 @@ class TargetEnumerationUtils(
                         val entityController = container.get<ControllerComponent>()?.playerId
                         if (projected.hasKeyword(entityId, Keyword.HEXPROOF) &&
                             entityController != playerId &&
-                            !isHexproofSuppressedForCaster(state, projected, entityId, playerId)
+                            !HexproofSuppression.isSuppressedForCaster(state, projected, entityId, playerId)
                         ) return@filter false
                         if (projected.hasKeyword(entityId, Keyword.SHROUD)) return@filter false
                         predicateEvaluator.matchesWithProjection(state, projected, entityId, permanentFilter, context)
@@ -120,7 +120,7 @@ class TargetEnumerationUtils(
             if (filter.excludeSelf && entityId == sourceId) return@filter false
             val entityController = state.getEntity(entityId)?.get<ControllerComponent>()?.playerId
             if (projected.hasKeyword(entityId, Keyword.HEXPROOF) && entityController != playerId &&
-                !isHexproofSuppressedForCaster(state, projected, entityId, playerId)
+                !HexproofSuppression.isSuppressedForCaster(state, projected, entityId, playerId)
             ) return@filter false
             if (projected.hasKeyword(entityId, Keyword.SHROUD)) return@filter false
             predicateEvaluator.matchesWithProjection(state, projected, entityId, filter.baseFilter, context)
@@ -260,31 +260,5 @@ class TargetEnumerationUtils(
 
     fun playerHasHexproofAgainst(state: GameState, playerId: EntityId, controllerId: EntityId): Boolean {
         return playerId != controllerId && playerHasHexproof(state, playerId)
-    }
-
-    /**
-     * Returns true if any permanent the [casterId] controls suppresses hexproof for [targetId].
-     *
-     * Used to implement "Creatures your opponents control can be targeted as though they
-     * didn't have hexproof" (Nowhere to Run). The filter stored on
-     * [SuppressesHexproofForGroupComponent] is evaluated with the suppressor's controller
-     * as context, so [GameObjectFilter.opponentControls()] correctly matches opponent creatures.
-     */
-    private fun isHexproofSuppressedForCaster(
-        state: GameState,
-        projected: com.wingedsheep.engine.mechanics.layers.ProjectedState,
-        targetId: EntityId,
-        casterId: EntityId
-    ): Boolean {
-        return state.getBattlefield().any { suppressorId ->
-            val suppressorController = projected.getController(suppressorId)
-            if (suppressorController != casterId) return@any false
-            val suppressComponent = state.getEntity(suppressorId)
-                ?.get<SuppressesHexproofForGroupComponent>() ?: return@any false
-            val ctx = PredicateContext(controllerId = casterId, sourceId = suppressorId)
-            suppressComponent.filters.any { filter ->
-                predicateEvaluator.matchesWithProjection(state, projected, targetId, filter, ctx)
-            }
-        }
     }
 }

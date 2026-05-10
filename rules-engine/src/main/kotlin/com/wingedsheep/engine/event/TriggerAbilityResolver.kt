@@ -289,7 +289,7 @@ class TriggerAbilityResolver(
 
         // Check suppression before generating any ward triggers — suppresses both intrinsic
         // and granted ward (Nowhere to Run: "Ward abilities of those creatures don't trigger.")
-        if (isWardSuppressed(entityId, targetControllerId, state, projected)) return result
+        if (isWardSuppressed(entityId, state, projected)) return result
 
         // 1. Intrinsic ward from card definition
         val cardDef = cardRegistry.getCard(cardDefinitionId)
@@ -439,27 +439,30 @@ class TriggerAbilityResolver(
     }
 
     /**
-     * Returns true if any opponent of [targetControllerId] controls a permanent that
-     * suppresses ward triggers for [entityId] (e.g. Nowhere to Run).
-     *
-     * The filter stored on [SuppressesWardForGroupComponent] is evaluated with the
-     * suppressor's controller as the "you" context using [PredicateEvaluator].
+     * Returns true if any permanent on the battlefield suppresses ward triggers for [entityId]
+     * (e.g. Nowhere to Run). The [GroupFilter] stored on [SuppressesWardForGroupComponent] is
+     * evaluated with the suppressor's controller as the "you" context — for a filter like
+     * `AllCreaturesOpponentsControl` that already restricts matches to creatures the
+     * suppressor's opponents control, so no additional opponent check is needed here.
      */
     private fun isWardSuppressed(
         entityId: EntityId,
-        targetControllerId: EntityId?,
         state: GameState,
         projected: com.wingedsheep.engine.mechanics.layers.ProjectedState
     ): Boolean {
-        if (targetControllerId == null) return false
         return state.getBattlefield().any { suppressorId ->
             val suppressorController = projected.getController(suppressorId) ?: return@any false
-            if (suppressorController == targetControllerId) return@any false  // Must be an opponent
             val suppressComponent = state.getEntity(suppressorId)
                 ?.get<SuppressesWardForGroupComponent>() ?: return@any false
             val ctx = PredicateContext(controllerId = suppressorController, sourceId = suppressorId)
-            suppressComponent.filters.any { filter ->
-                predicateEvaluator.matchesWithProjection(state, projected, entityId, filter, ctx)
+            suppressComponent.filters.any { groupFilter ->
+                when {
+                    groupFilter.scope !is com.wingedsheep.sdk.scripting.filters.unified.Scope.Battlefield -> false
+                    groupFilter.excludeSelf && entityId == suppressorId -> false
+                    else -> predicateEvaluator.matchesWithProjection(
+                        state, projected, entityId, groupFilter.baseFilter, ctx
+                    )
+                }
             }
         }
     }

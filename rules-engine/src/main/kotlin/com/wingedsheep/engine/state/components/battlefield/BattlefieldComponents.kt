@@ -4,8 +4,8 @@ import com.wingedsheep.engine.state.Component
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ReplacementEffect
+import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import kotlinx.serialization.Serializable
 
 /**
@@ -375,7 +375,7 @@ data class GrantCantBeBlockedToSmallCreaturesComponent(val maxValue: Int) : Comp
  */
 @Serializable
 data class SuppressesHexproofForGroupComponent(
-    val filters: List<GameObjectFilter>
+    val filters: List<GroupFilter>
 ) : Component
 
 /**
@@ -389,7 +389,7 @@ data class SuppressesHexproofForGroupComponent(
  */
 @Serializable
 data class SuppressesWardForGroupComponent(
-    val filters: List<GameObjectFilter>
+    val filters: List<GroupFilter>
 ) : Component
 
 /**

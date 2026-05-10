@@ -157,7 +157,7 @@ class StaticAbilityHandler(
         // Add component for "creatures matching filter can be targeted as though they didn't have hexproof"
         val suppressHexproofFilters = allStaticAbilities
             .filterIsInstance<com.wingedsheep.sdk.scripting.SuppressHexproofForGroup>()
-            .map { it.filter.baseFilter }
+            .map { it.filter }
         if (suppressHexproofFilters.isNotEmpty()) {
             result = result.with(SuppressesHexproofForGroupComponent(suppressHexproofFilters))
         }
@@ -165,7 +165,7 @@ class StaticAbilityHandler(
         // Add component for "ward abilities of creatures matching filter don't trigger"
         val suppressWardFilters = allStaticAbilities
             .filterIsInstance<com.wingedsheep.sdk.scripting.SuppressWardForGroup>()
-            .map { it.filter.baseFilter }
+            .map { it.filter }
         if (suppressWardFilters.isNotEmpty()) {
             result = result.with(SuppressesWardForGroupComponent(suppressWardFilters))
         }
