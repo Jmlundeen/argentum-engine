@@ -29,7 +29,7 @@ https://api.scryfall.com/cards/named?exact=Beyond%20the%20Quiet&set=eoe
 
 ## Void:
 
-- [ ] Alpharael, Stonechosen
+- [x] Alpharael, Stonechosen
 - [ ] Chorale of the Void
 - [ ] Decode Transmissions
 - [ ] Elegy Acolyte

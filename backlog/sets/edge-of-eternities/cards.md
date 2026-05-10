@@ -9,7 +9,7 @@
 - [x] All-Fates Scroll
 - [x] All-Fates Stalker
 - [x] Alpharael, Dreaming Acolyte
-- [ ] Alpharael, Stonechosen
+- [x] Alpharael, Stonechosen
 - [x] Annul
 - [x] Anticausal Vestige
 - [x] Archenemy's Charm
