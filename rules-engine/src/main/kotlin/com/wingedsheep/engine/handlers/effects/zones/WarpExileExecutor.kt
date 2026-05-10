@@ -6,7 +6,6 @@ import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.MayPlayFromExileComponent
 import com.wingedsheep.engine.state.components.identity.WarpExiledComponent
 import com.wingedsheep.engine.state.permissions.MayPlayPermission
 import com.wingedsheep.engine.state.permissions.addMayPlayPermission
@@ -58,8 +57,7 @@ class WarpExileExecutor : EffectExecutor<WarpExileEffect> {
         // Grant cast-from-exile permission (regular mana cost — warp's alt cost is
         // hand-only per CR 702.185a) and mark the card as a "warped" exile (CR 702.185b).
         var newState = transitionResult.state.updateEntity(targetId) { c ->
-            c.with(MayPlayFromExileComponent(controllerId = context.controllerId, permanent = true))
-                .with(WarpExiledComponent(controllerId = context.controllerId))
+            c.with(WarpExiledComponent(controllerId = context.controllerId))
         }
 
         newState = newState.addMayPlayPermission(

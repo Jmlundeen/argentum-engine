@@ -61,7 +61,7 @@ class CastZoneResolver(
     }
 
     /**
-     * Check if a card is in exile or a graveyard and has `MayPlayFromExileComponent`
+     * Check if a card is in exile or a graveyard and has an active `MayPlayPermission`
      * granting the player permission to play it. Checks all players' exile zones
      * because cards like Villainous Wealth exile from an opponent's library (cards
      * remain in their owner's exile zone but are castable by the spell's controller).

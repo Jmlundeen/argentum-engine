@@ -2,7 +2,6 @@ package com.wingedsheep.gameserver.scenarios
 
 import com.wingedsheep.engine.core.PlayLand
 import com.wingedsheep.engine.state.ZoneKey
-import com.wingedsheep.engine.state.components.identity.MayPlayFromExileComponent
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -21,7 +20,7 @@ import io.kotest.matchers.shouldNotBe
  *    Warp {1}{R}"
  *
  * Exercises the new conditional gate on `GrantMayPlayFromExileEffect.condition` /
- * `MayPlayFromExileComponent.condition` — the play permission persists with the card in
+ * `MayPlayPermission.condition` — the play permission persists with the card in
  * exile, but is only honored while the controller has a Kavu in play.
  */
 class PossibilityTechnicianScenarioTest : ScenarioTestBase() {
@@ -51,7 +50,7 @@ class PossibilityTechnicianScenarioTest : ScenarioTestBase() {
                 }
                 val shockId = game.state.getExile(game.player1Id).first()
                 withClue("Shock should be in exile with may-play permission") {
-                    val mayPlay = game.state.getEntity(shockId)!!.get<MayPlayFromExileComponent>()
+                    val mayPlay = game.state.mayPlayPermissions.firstOrNull { shockId in it.cardIds }
                     mayPlay shouldNotBe null
                     mayPlay!!.controllerId shouldBe game.player1Id
                     mayPlay.permanent shouldBe true
@@ -154,7 +153,7 @@ class PossibilityTechnicianScenarioTest : ScenarioTestBase() {
                 }
                 withClue("Each exiled card carries the conditional may-play stamp owned by player1") {
                     for (cardId in exileIds) {
-                        val mayPlay = game.state.getEntity(cardId)!!.get<MayPlayFromExileComponent>()
+                        val mayPlay = game.state.mayPlayPermissions.firstOrNull { cardId in it.cardIds }
                         mayPlay shouldNotBe null
                         mayPlay!!.controllerId shouldBe game.player1Id
                         mayPlay.condition shouldNotBe null

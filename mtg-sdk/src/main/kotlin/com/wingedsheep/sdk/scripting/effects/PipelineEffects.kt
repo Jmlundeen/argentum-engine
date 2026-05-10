@@ -732,8 +732,9 @@ data class SelectTargetEffect(
 
 /**
  * Grant "may play from exile" permission to all cards in a named collection.
- * The cards must already be in exile. This adds a MayPlayFromExileComponent,
- * allowing the controller to play them as if they were in hand until end of turn.
+ * The cards must already be in exile. The engine registers a MayPlayPermission
+ * on the game state, allowing the controller to play them as if they were in
+ * hand until end of turn (or the configured expiry).
  *
  * Does NOT waive the mana cost — pair with [GrantPlayWithoutPayingCostEffect]
  * to also make them free. Used by impulse-draw effects (Chandra, Act on Impulse, etc.).
@@ -865,9 +866,10 @@ data class GrantPlayWithAdditionalCostEffect(
 
 /**
  * Grant a single target entity in exile permission to be cast without paying
- * its mana cost. Adds MayPlayFromExileComponent and PlayWithoutPayingCostComponent
- * to the target entity. Optionally marks the spell with ExileAfterResolveComponent
- * so it goes to exile instead of graveyard after resolving or being countered.
+ * its mana cost. The engine registers a MayPlayPermission and stamps
+ * PlayWithoutPayingCostComponent on the target. Optionally marks the spell
+ * with ExileAfterResolveComponent so it goes to exile instead of graveyard
+ * after resolving or being countered.
  *
  * Unlike the collection-based [GrantMayPlayFromExileEffect] + [GrantPlayWithoutPayingCostEffect],
  * this works on a single targeted entity referenced by [EffectTarget].
