@@ -454,17 +454,24 @@ export function DeckbuilderPage() {
     setVisibleCount(PAGE_SIZE)
   }, [query, sortMode, activeFormat])
 
-  // Reprint-art override map: card name → that set's printing art. Populated lazily via
-  // /api/printings whenever an `s:` filter is active and the visible set of card names
-  // changes. One batched request per filter change covers every visible tile + the
-  // hover preview. When [activeSetFilter] is null this stays empty and renders fall back
-  // to the catalog's default printing art.
-  const [setArtOverride, setSetArtOverride] = useState<
-    Record<string, { imageUri: string | null; backFaceImageUri: string | null }>
+  // Reprint override map: card name → the matching set's printing (ref + art). Populated
+  // lazily via /api/printings whenever an `s:` filter is active and the visible set of
+  // card names changes. One batched request per filter change covers (a) the catalog grid
+  // and hover preview's art swap, and (b) the auto-pin behavior in `addCard` so adding a
+  // reprint while filtered to that set automatically pins its printing on the deck row.
+  // When [activeSetFilter] is null this stays empty and renders fall back to the
+  // catalog's default printing.
+  const [setPrintingOverride, setSetPrintingOverride] = useState<
+    Record<string, {
+      setCode: string
+      collectorNumber: string
+      imageUri: string | null
+      backFaceImageUri: string | null
+    }>
   >({})
   useEffect(() => {
     if (!activeSetFilter || filtered.length === 0) {
-      setSetArtOverride({})
+      setSetPrintingOverride({})
       return
     }
     let cancelled = false
@@ -475,17 +482,34 @@ export function DeckbuilderPage() {
     names.forEach((n) => params.append('names', n))
     fetch(`/api/printings?${params.toString()}`)
       .then((r) => (r.ok ? r.json() : {}))
-      .then((data: Record<string, Array<{ setCode: string; imageUri: string | null; backFaceImageUri: string | null }>>) => {
+      .then((data: Record<string, Array<{
+        setCode: string
+        collectorNumber: string
+        imageUri: string | null
+        backFaceImageUri: string | null
+      }>>) => {
         if (cancelled) return
-        const next: Record<string, { imageUri: string | null; backFaceImageUri: string | null }> = {}
+        const next: Record<string, {
+          setCode: string
+          collectorNumber: string
+          imageUri: string | null
+          backFaceImageUri: string | null
+        }> = {}
         for (const name of names) {
           const match = data[name]?.find((p) => p.setCode.toUpperCase() === activeSetFilter)
-          if (match) next[name] = { imageUri: match.imageUri, backFaceImageUri: match.backFaceImageUri }
+          if (match) {
+            next[name] = {
+              setCode: match.setCode,
+              collectorNumber: match.collectorNumber,
+              imageUri: match.imageUri,
+              backFaceImageUri: match.backFaceImageUri,
+            }
+          }
         }
-        setSetArtOverride(next)
+        setSetPrintingOverride(next)
       })
       .catch(() => {
-        if (!cancelled) setSetArtOverride({})
+        if (!cancelled) setSetPrintingOverride({})
       })
     return () => {
       cancelled = true
@@ -496,9 +520,9 @@ export function DeckbuilderPage() {
   // grid, the hover preview, and the in-deck-row hover all see the same imageUri without
   // each component needing to know about the override.
   const filteredWithArt = useMemo<CardSummary[]>(() => {
-    if (!activeSetFilter || Object.keys(setArtOverride).length === 0) return filtered
+    if (!activeSetFilter || Object.keys(setPrintingOverride).length === 0) return filtered
     return filtered.map((c) => {
-      const override = setArtOverride[c.name]
+      const override = setPrintingOverride[c.name]
       if (!override) return c
       // Only override fields that are actually set on the override; leaving the source
       // value untouched preserves CardSummary's exactOptionalPropertyTypes contract
@@ -508,7 +532,7 @@ export function DeckbuilderPage() {
       if (override.backFaceImageUri !== null) next.backFaceImageUri = override.backFaceImageUri
       return next
     })
-  }, [filtered, activeSetFilter, setArtOverride])
+  }, [filtered, activeSetFilter, setPrintingOverride])
 
   const displayed = useMemo(
     () => filteredWithArt.slice(0, visibleCount),
@@ -592,6 +616,25 @@ export function DeckbuilderPage() {
       if (current >= max) return prev
       return { ...prev, [card.name]: current + 1 }
     })
+    // When the user adds a card while filtered to a specific set, pin that set's printing
+    // automatically — they're staring at the EOE Banishing Light art when they click +,
+    // so the saved entry should remember "EOE printing", not silently fall back to the
+    // canonical default. Skips the override when the row already has a manual pin (the
+    // user picked something else explicitly) or when the override doesn't carry a setCode
+    // (defensive: shouldn't happen for a populated cache).
+    if (activeSetFilter) {
+      const override = setPrintingOverride[card.name]
+      if (override && !pinnedPrintings[card.name]) {
+        setPinnedPrintings((prev) => ({
+          ...prev,
+          [card.name]: { setCode: override.setCode, collectorNumber: override.collectorNumber },
+        }))
+        setPinnedPrintingArt((prev) => ({
+          ...prev,
+          [card.name]: { imageUri: override.imageUri, backFaceImageUri: override.backFaceImageUri },
+        }))
+      }
+    }
   }
 
   const removeCard = (name: string) => {
