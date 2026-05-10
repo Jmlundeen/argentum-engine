@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 4 / 312
+**Implemented:** 5 / 312
 
 | Color      | Total | Done |
 |------------|-------|------|
@@ -39,7 +39,7 @@
 - [ ] Beast Within
 - [x] Beastmaster Ascension
 - [ ] Beledros Witherbloom
-- [ ] Bello, Bard of the Brambles
+- [x] Bello, Bard of the Brambles
 - [ ] Berserkers' Onslaught
 - [ ] Bident of Thassa
 - [ ] Big Score
