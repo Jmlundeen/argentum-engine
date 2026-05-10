@@ -1127,8 +1127,8 @@ object Effects {
      * Target creature explores.
      *
      * "Reveal the top card of your library. If it's a land card, put it into your hand.
-     * Otherwise, put a +1/+1 counter on this creature, then put the revealed card into
-     * your hand or graveyard."
+     * Otherwise, put a +1/+1 counter on this creature, then put the card back on top of
+     * your library or put it into your graveyard."
      *
      * @param target The creature that explores (default: context target 0)
      */
@@ -1137,7 +1137,7 @@ object Effects {
 
     /**
      * Create a Map artifact token.
-     * "{1}, {T}, Sacrifice this token: Target creature you control explores.
+     * "{1}, {T}, Sacrifice this artifact: Target creature you control explores.
      *  Activate only as a sorcery."
      *
      * @param count Number of tokens to create

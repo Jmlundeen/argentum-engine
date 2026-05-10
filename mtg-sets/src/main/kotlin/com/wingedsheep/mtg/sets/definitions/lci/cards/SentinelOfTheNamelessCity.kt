@@ -12,14 +12,14 @@ import com.wingedsheep.sdk.model.Rarity
  * 3/4
  * Vigilance
  * Whenever this creature enters or attacks, create a Map token.
- * (It's an artifact with "{1}, {T}, Sacrifice this token: Target creature you control
+ * (It's an artifact with "{1}, {T}, Sacrifice this artifact: Target creature you control
  *  explores. Activate only as a sorcery.")
  */
 val SentinelOfTheNamelessCity = card("Sentinel of the Nameless City") {
     manaCost = "{2}{G}"
     colorIdentity = "G"
     typeLine = "Creature — Merfolk Warrior Scout"
-    oracleText = "Vigilance\nWhenever this creature enters or attacks, create a Map token. (It's an artifact with \"{1}, {T}, Sacrifice this token: Target creature you control explores. Activate only as a sorcery.\")"
+    oracleText = "Vigilance\nWhenever this creature enters or attacks, create a Map token. (It's an artifact with \"{1}, {T}, Sacrifice this artifact: Target creature you control explores. Activate only as a sorcery.\")"
     power = 3
     toughness = 4
 

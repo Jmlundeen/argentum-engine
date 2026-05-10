@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.identity.RevealedToComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
@@ -189,6 +190,14 @@ class ExploreScenarioTest : ScenarioTestBase() {
                 }
                 withClue("Exploring creature should receive a +1/+1 counter") {
                     plusOneCounters(game, creatureId) shouldBe 1
+                }
+                // The card sits on top of the library face-up — both players know what it is.
+                val topCardId = game.state.getLibrary(game.player1Id).first()
+                val revealedTo = game.state.getEntity(topCardId)?.get<RevealedToComponent>()
+                withClue("Top card should still be marked revealed after going back to library") {
+                    revealedTo shouldNotBe null
+                    revealedTo!!.isRevealedTo(game.player1Id) shouldBe true
+                    revealedTo.isRevealedTo(game.player2Id) shouldBe true
                 }
                 withClue("Exploring creature should be 3/3 after the +1/+1 counter") {
                     val clientState = game.getClientState(1)

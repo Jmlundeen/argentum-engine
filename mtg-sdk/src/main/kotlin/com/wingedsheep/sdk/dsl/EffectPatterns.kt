@@ -202,6 +202,12 @@ object EffectPatterns {
     fun surveil(count: Int): CompositeEffect =
         LibraryPatterns.surveil(count)
 
+    // Explore is intentionally NOT a CompositeEffect here. It branches on whether the top
+    // card is a land — a conditional the Gather/Select/Move pipeline AST can't yet express
+    // — and it must keep the card revealed to both players while it sits back on top of
+    // the library. Implemented as a dedicated `ExploreEffect` + executor; revisit if the
+    // pipeline grows a "branch on gathered card type" primitive.
+
     fun searchLibrary(
         filter: GameObjectFilter = GameObjectFilter.Any,
         count: Int = 1,

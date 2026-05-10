@@ -277,7 +277,7 @@ object PredefinedTokens {
 
     /**
      * Map token — an artifact with:
-     * "{1}, {T}, Sacrifice this token: Target creature you control explores.
+     * "{1}, {T}, Sacrifice this artifact: Target creature you control explores.
      *  Activate only as a sorcery."
      */
     val Map = card("Map") {

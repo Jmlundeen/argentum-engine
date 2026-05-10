@@ -8,15 +8,14 @@ import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.RevealedToComponent
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.engine.state.components.identity.RevealedToComponent
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ExploreEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
-import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import java.util.UUID
@@ -79,15 +78,6 @@ class ExploreEffectExecutor : EffectExecutor<ExploreEffect> {
 
             val (stateAfterCounter, counterEvents) = addPlusOneCounter(stateWithRevealed, exploringCreatureId, context)
 
-            // Store the card in pipeline so RevealCollectionEffect can reference it when the
-            // player puts it back on top, confirming visibility to both players.
-            val contextWithCard = context.copy(
-                pipeline = context.pipeline.copy(
-                    storedCollections = context.pipeline.storedCollections +
-                        ("explore_revealed" to listOf(topCardId))
-                )
-            )
-
             val decisionId = UUID.randomUUID().toString()
             val decision = YesNoDecision(
                 id = decisionId,
@@ -117,7 +107,7 @@ class ExploreEffectExecutor : EffectExecutor<ExploreEffect> {
                     target = EffectTarget.SpecificEntity(topCardId),
                     destination = Zone.GRAVEYARD
                 ),
-                effectContext = contextWithCard
+                effectContext = context
             )
 
             val stateWithContinuation = stateAfterCounter
