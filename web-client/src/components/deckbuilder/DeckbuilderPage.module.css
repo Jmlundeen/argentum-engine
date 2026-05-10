@@ -519,6 +519,21 @@
   font-variant-numeric: tabular-nums;
 }
 
+.deckCardPinBadge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1;
+  background: rgba(108, 210, 255, 0.18);
+  color: #6cd2ff;
+  border: 1px solid rgba(108, 210, 255, 0.45);
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .deckCardBody {
   display: flex;
   flex-direction: column;
@@ -1289,6 +1304,40 @@
 .deckRowCommander {
   background: rgba(214, 185, 106, 0.08);
   box-shadow: inset 0 0 0 1px rgba(214, 185, 106, 0.45);
+}
+
+.deckRowPrintingChip {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted, #8b94a4);
+  cursor: pointer;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding: 0 4px;
+  height: 18px;
+  min-width: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.deckRowPrintingChip:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.deckRowPrintingChipActive {
+  color: #6cd2ff;
+  background: rgba(108, 210, 255, 0.1);
+  border-color: rgba(108, 210, 255, 0.3);
+}
+
+.deckRowPrintingChipActive:hover {
+  color: #8edcff;
+  background: rgba(108, 210, 255, 0.18);
 }
 
 /* Sticky 0-count placeholder row — used for the basic-land rows synthesized into the Lands

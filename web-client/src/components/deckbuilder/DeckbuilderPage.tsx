@@ -16,7 +16,10 @@ import {
   mergeCommanderIntoCards,
   stripCommanderFromCards,
   type SavedDeck,
+  type SavedDeckEntry,
 } from '@/store/deckLibrary'
+import type { PrintingRef } from '@/types'
+import { PrintingPicker, type PrintingDTO } from './PrintingPicker'
 import { ManaCost, ManaSymbol } from '@/components/ui/ManaSymbols'
 import { HoverCardPreview } from '@/components/ui/HoverCardPreview'
 import { useDfcHoverFlip } from '@/components/ui/useDfcHoverFlip'
@@ -31,6 +34,7 @@ import {
   type CardSummary,
   type ParseError,
 } from './cardFilter'
+import { extractSetFilter } from './query'
 import {
   parseArenaDeckList,
   resolveAgainstCatalog,
@@ -129,6 +133,51 @@ const KEYWORD_TOKENS = [
 ]
 
 // ---------------------------------------------------------------------------
+// Pinned-printing helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Build the [SavedDeckEntry] rows that get persisted on save. Returns `undefined`
+ * when no rows pin a printing — the legacy name-only path is sufficient and stays
+ * cheaper to round-trip. When at least one pin exists, every card in [cards] gets
+ * an entry so the persisted shape is internally consistent (a row count survey
+ * over `entries` matches `cards`, regardless of which rows pinned a printing).
+ */
+function entriesFromCards(
+  cards: Record<string, number>,
+  pinned: Record<string, PrintingRef>,
+): readonly SavedDeckEntry[] | undefined {
+  const hasAnyPin = Object.keys(pinned).some((name) => name in cards)
+  if (!hasAnyPin) return undefined
+  const out: SavedDeckEntry[] = []
+  for (const [name, count] of Object.entries(cards)) {
+    if (count <= 0) continue
+    const ref = pinned[name]
+    out.push(ref ? { name, count, printing: ref } : { name, count })
+  }
+  return out
+}
+
+/**
+ * Inverse of [entriesFromCards]: rebuild the per-name pin map from a persisted
+ * deck's `entries` field. The optional [commanderName] / [commanderPrinting]
+ * pair is folded in so the commander's pinned printing survives a save → load
+ * round-trip alongside the rest.
+ */
+function pinnedPrintingsFromEntries(
+  entries: readonly SavedDeckEntry[] | undefined,
+  commanderName?: string | null,
+  commanderPrinting?: PrintingRef,
+): Record<string, PrintingRef> {
+  const out: Record<string, PrintingRef> = {}
+  for (const e of entries ?? []) {
+    if (e.printing) out[e.name] = e.printing
+  }
+  if (commanderName && commanderPrinting) out[commanderName] = commanderPrinting
+  return out
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
@@ -200,6 +249,22 @@ export function DeckbuilderPage() {
   const [deckName, setDeckName] = useState('Untitled deck')
   const [deckCards, setDeckCards] = useState<Record<string, number>>({})
   const [activeDeckId, setActiveDeckId] = useState<string | null>(null)
+  // Pinned printings, keyed by card name. Empty unless the user opens the printing picker
+  // and chooses a non-default printing for some row. Persisted via [SavedDeck.entries] (v2)
+  // and round-tripped on load. Same-name-different-printing rows are not surfaced as separate
+  // UI rows yet — Phase 7's first ship pins one printing per name; the storage shape supports
+  // splitting later without a v3 bump. Counts collapse on name regardless, so the singleton /
+  // 4-of cap stays correct either way (CR 100.4).
+  const [pinnedPrintings, setPinnedPrintings] = useState<Record<string, PrintingRef>>({})
+  // Art for pinned printings, keyed by card name. Populated from two sources: (a) the
+  // printing picker, which already has every printing's image URL on hand when the user
+  // clicks a thumbnail, so a fresh pin populates here for free; (b) a batched
+  // `/api/printings?names=…` fetch when a saved deck loads carrying entries that pin
+  // printings the picker hasn't been opened for yet. Hover-preview / saved-deck art read
+  // from this cache so they reflect the user's choice rather than the catalog default.
+  const [pinnedPrintingArt, setPinnedPrintingArt] = useState<
+    Record<string, { imageUri: string | null; backFaceImageUri: string | null }>
+  >({})
   // Designated commander for Commander/Brawl/Standard Brawl decks. Null when no commander has
   // been picked yet, or when the current format doesn't use a commander. The deckbuilder UI
   // exposes a crown toggle on each row to set/clear this — see DeckListPanel below.
@@ -225,6 +290,7 @@ export function DeckbuilderPage() {
       setDeckCards(mergeCommanderIntoCards(existing.cards, existing.commander ?? null))
       setCommander(existing.commander ?? null)
       setActiveDeckId(existing.id)
+      setPinnedPrintings(pinnedPrintingsFromEntries(existing.entries))
       if (existing.format) {
         setSearchParams(
           (prev) => {
@@ -366,6 +432,10 @@ export function DeckbuilderPage() {
   const predicate = parseResult.predicate
   const queryErrors = parseResult.errors
   const advanced = useMemo(() => isAdvancedQuery(query), [query])
+  // Dominant set filter (`s:EOE`, `set:eoe`) extracted from the parsed AST. Drives the
+  // catalog grid + hover preview to render the *reprint's* art when a card has a printing
+  // in that set, instead of always showing the canonical CardDefinition's image.
+  const activeSetFilter = useMemo(() => extractSetFilter(parseResult.ast), [parseResult.ast])
   // When a deck format is selected, scope the catalog to format-legal cards automatically so
   // the user only sees plays they can actually run. The `format:` query token still works as
   // an extra filter (intersected on top), but isn't required for this default behavior.
@@ -384,7 +454,90 @@ export function DeckbuilderPage() {
     setVisibleCount(PAGE_SIZE)
   }, [query, sortMode, activeFormat])
 
-  const displayed = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount])
+  // Reprint override map: card name → the matching set's printing (ref + art). Populated
+  // lazily via /api/printings whenever an `s:` filter is active and the visible set of
+  // card names changes. One batched request per filter change covers (a) the catalog grid
+  // and hover preview's art swap, and (b) the auto-pin behavior in `addCard` so adding a
+  // reprint while filtered to that set automatically pins its printing on the deck row.
+  // When [activeSetFilter] is null this stays empty and renders fall back to the
+  // catalog's default printing.
+  const [setPrintingOverride, setSetPrintingOverride] = useState<
+    Record<string, {
+      setCode: string
+      collectorNumber: string
+      imageUri: string | null
+      backFaceImageUri: string | null
+    }>
+  >({})
+  useEffect(() => {
+    if (!activeSetFilter || filtered.length === 0) {
+      setSetPrintingOverride({})
+      return
+    }
+    let cancelled = false
+    const params = new URLSearchParams()
+    // De-dupe — `filtered` is already unique by name but be explicit; URLSearchParams
+    // doesn't dedupe and we don't want to send the same name twice.
+    const names = Array.from(new Set(filtered.map((c) => c.name)))
+    names.forEach((n) => params.append('names', n))
+    fetch(`/api/printings?${params.toString()}`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: Record<string, Array<{
+        setCode: string
+        collectorNumber: string
+        imageUri: string | null
+        backFaceImageUri: string | null
+      }>>) => {
+        if (cancelled) return
+        const next: Record<string, {
+          setCode: string
+          collectorNumber: string
+          imageUri: string | null
+          backFaceImageUri: string | null
+        }> = {}
+        for (const name of names) {
+          const match = data[name]?.find((p) => p.setCode.toUpperCase() === activeSetFilter)
+          if (match) {
+            next[name] = {
+              setCode: match.setCode,
+              collectorNumber: match.collectorNumber,
+              imageUri: match.imageUri,
+              backFaceImageUri: match.backFaceImageUri,
+            }
+          }
+        }
+        setSetPrintingOverride(next)
+      })
+      .catch(() => {
+        if (!cancelled) setSetPrintingOverride({})
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [activeSetFilter, filtered])
+
+  // Apply the set-filter art override to filtered cards. Done once here so the catalog
+  // grid, the hover preview, and the in-deck-row hover all see the same imageUri without
+  // each component needing to know about the override.
+  const filteredWithArt = useMemo<CardSummary[]>(() => {
+    if (!activeSetFilter || Object.keys(setPrintingOverride).length === 0) return filtered
+    return filtered.map((c) => {
+      const override = setPrintingOverride[c.name]
+      if (!override) return c
+      // Only override fields that are actually set on the override; leaving the source
+      // value untouched preserves CardSummary's exactOptionalPropertyTypes contract
+      // (the optional fields can't be assigned `undefined` explicitly).
+      const next: CardSummary = { ...c }
+      if (override.imageUri !== null) next.imageUri = override.imageUri
+      if (override.backFaceImageUri !== null) next.backFaceImageUri = override.backFaceImageUri
+      return next
+    })
+  }, [filtered, activeSetFilter, setPrintingOverride])
+
+  const displayed = useMemo(
+    () => filteredWithArt.slice(0, visibleCount),
+    [filteredWithArt, visibleCount],
+  )
 
   // Server-side validation (debounced via abort controllers, like DeckPicker).
   const [validation, setValidation] = useState<ValidationResult | null>(null)
@@ -463,6 +616,25 @@ export function DeckbuilderPage() {
       if (current >= max) return prev
       return { ...prev, [card.name]: current + 1 }
     })
+    // When the user adds a card while filtered to a specific set, pin that set's printing
+    // automatically — they're staring at the EOE Banishing Light art when they click +,
+    // so the saved entry should remember "EOE printing", not silently fall back to the
+    // canonical default. Skips the override when the row already has a manual pin (the
+    // user picked something else explicitly) or when the override doesn't carry a setCode
+    // (defensive: shouldn't happen for a populated cache).
+    if (activeSetFilter) {
+      const override = setPrintingOverride[card.name]
+      if (override && !pinnedPrintings[card.name]) {
+        setPinnedPrintings((prev) => ({
+          ...prev,
+          [card.name]: { setCode: override.setCode, collectorNumber: override.collectorNumber },
+        }))
+        setPinnedPrintingArt((prev) => ({
+          ...prev,
+          [card.name]: { imageUri: override.imageUri, backFaceImageUri: override.backFaceImageUri },
+        }))
+      }
+    }
   }
 
   const removeCard = (name: string) => {
@@ -470,8 +642,17 @@ export function DeckbuilderPage() {
       const current = prev[name] ?? 0
       if (current <= 0) return prev
       const next = { ...prev }
-      if (current === 1) delete next[name]
-      else next[name] = current - 1
+      if (current === 1) {
+        delete next[name]
+        // Drop the pin once no copies remain so it doesn't silently resurrect when
+        // the user re-adds the card later expecting the default printing.
+        setPinnedPrintings((prevPins) => {
+          if (!(name in prevPins)) return prevPins
+          const nextPins = { ...prevPins }
+          delete nextPins[name]
+          return nextPins
+        })
+      } else next[name] = current - 1
       return next
     })
   }
@@ -479,8 +660,41 @@ export function DeckbuilderPage() {
   const setCardCount = useCallback((name: string, count: number) => {
     setDeckCards((prev) => {
       const next = { ...prev }
-      if (count <= 0) delete next[name]
-      else next[name] = count
+      if (count <= 0) {
+        delete next[name]
+        setPinnedPrintings((prevPins) => {
+          if (!(name in prevPins)) return prevPins
+          const nextPins = { ...prevPins }
+          delete nextPins[name]
+          return nextPins
+        })
+      } else next[name] = count
+      return next
+    })
+  }, [])
+
+  const setPinnedPrinting = useCallback((name: string, printing: PrintingDTO) => {
+    setPinnedPrintings((prev) => ({
+      ...prev,
+      [name]: { setCode: printing.setCode, collectorNumber: printing.collectorNumber },
+    }))
+    setPinnedPrintingArt((prev) => ({
+      ...prev,
+      [name]: { imageUri: printing.imageUri, backFaceImageUri: printing.backFaceImageUri },
+    }))
+  }, [])
+
+  const clearPinnedPrinting = useCallback((name: string) => {
+    setPinnedPrintings((prev) => {
+      if (!(name in prev)) return prev
+      const next = { ...prev }
+      delete next[name]
+      return next
+    })
+    setPinnedPrintingArt((prev) => {
+      if (!(name in prev)) return prev
+      const next = { ...prev }
+      delete next[name]
       return next
     })
   }, [])
@@ -490,6 +704,7 @@ export function DeckbuilderPage() {
     setDeckCards({})
     setCommander(null)
     setActiveDeckId(null)
+    setPinnedPrintings({})
     navigate(`/deckbuilder${searchSuffix()}`)
   }
 
@@ -498,12 +713,17 @@ export function DeckbuilderPage() {
     // library), matching the server's `Deck.cards` convention. Strip it out on save so
     // reloading + re-validating doesn't double-count.
     const designated = isCommanderFormat ? commander : null
+    const cardsForSave = stripCommanderFromCards(deckCards, designated)
+    const entries = entriesFromCards(cardsForSave, pinnedPrintings)
+    const commanderPrintingForSave = designated ? pinnedPrintings[designated] : undefined
     const saved = saveDeck({
       ...(activeDeckId ? { id: activeDeckId } : {}),
       name: deckName.trim() || 'Untitled deck',
-      cards: stripCommanderFromCards(deckCards, designated),
+      cards: cardsForSave,
       ...(activeFormat ? { format: activeFormat } : {}),
       ...(designated ? { commander: designated } : {}),
+      ...(commanderPrintingForSave ? { commanderPrinting: commanderPrintingForSave } : {}),
+      ...(entries ? { entries } : {}),
     })
     setActiveDeckId(saved.id)
     if (saved.id !== deckId) navigate(`/deckbuilder/${saved.id}${searchSuffix()}`, { replace: true })
@@ -513,11 +733,16 @@ export function DeckbuilderPage() {
     const name = window.prompt('New deck name', `${deckName} (copy)`)
     if (!name) return
     const designated = isCommanderFormat ? commander : null
+    const cardsForSave = stripCommanderFromCards(deckCards, designated)
+    const entries = entriesFromCards(cardsForSave, pinnedPrintings)
+    const commanderPrintingForSave = designated ? pinnedPrintings[designated] : undefined
     const saved = saveDeck({
       name: name.trim(),
-      cards: stripCommanderFromCards(deckCards, designated),
+      cards: cardsForSave,
       ...(activeFormat ? { format: activeFormat } : {}),
       ...(designated ? { commander: designated } : {}),
+      ...(commanderPrintingForSave ? { commanderPrinting: commanderPrintingForSave } : {}),
+      ...(entries ? { entries } : {}),
     })
     setDeckName(saved.name)
     setActiveDeckId(saved.id)
@@ -536,6 +761,7 @@ export function DeckbuilderPage() {
     setDeckCards(mergeCommanderIntoCards(deck.cards, deck.commander ?? null))
     setCommander(deck.commander ?? null)
     setActiveDeckId(deck.id)
+    setPinnedPrintings(pinnedPrintingsFromEntries(deck.entries, deck.commander, deck.commanderPrinting))
     // Restore the deck's stamped format into the URL alongside the existing search
     // params. Without this, `activeFormat` stays whatever was selected before, and
     // the "clear commander when not a commander format" effect would immediately
@@ -572,6 +798,7 @@ export function DeckbuilderPage() {
     // section; otherwise reset so a stale value from the previous deck doesn't leak.
     setCommander(importedCommander)
     setActiveDeckId(null)
+    setPinnedPrintings({})
     if (suggestedName) setDeckName(suggestedName)
     navigate(`/deckbuilder${searchSuffix()}`)
     setImportOpen(false)
@@ -587,6 +814,7 @@ export function DeckbuilderPage() {
     setDeckCards({ ...ex.cards })
     setCommander(null)
     setActiveDeckId(null)
+    setPinnedPrintings({})
     setDeckName(ex.name)
     navigate(`/deckbuilder${searchSuffix()}`)
     setExamplesOpen(false)
@@ -597,18 +825,72 @@ export function DeckbuilderPage() {
   const totalCards = Object.values(deckCards).reduce((a, b) => a + b, 0)
   const stats = useMemo(() => computeStats(deckCards, catalogIndex), [deckCards, catalogIndex])
 
+  // Lazily fill the art cache for any pinned printing the picker hasn't seen yet.
+  // Triggered after a saved deck loads with `entries` carrying pins the user picked in
+  // a prior session; one batched call per deck-load (the cache short-circuits names we
+  // already know). Failures are silent — the catalog default art still renders.
+  useEffect(() => {
+    const missing = Object.keys(pinnedPrintings).filter((name) => !(name in pinnedPrintingArt))
+    if (missing.length === 0) return
+    let cancelled = false
+    const params = new URLSearchParams()
+    missing.forEach((n) => params.append('names', n))
+    fetch(`/api/printings?${params.toString()}`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: Record<string, PrintingDTO[]>) => {
+        if (cancelled) return
+        const updates: Record<string, { imageUri: string | null; backFaceImageUri: string | null }> = {}
+        for (const name of missing) {
+          const ref = pinnedPrintings[name]
+          if (!ref) continue
+          const match = data[name]?.find(
+            (p) => p.setCode === ref.setCode && p.collectorNumber === ref.collectorNumber,
+          )
+          if (match) updates[name] = { imageUri: match.imageUri, backFaceImageUri: match.backFaceImageUri }
+        }
+        if (Object.keys(updates).length > 0) {
+          setPinnedPrintingArt((prev) => ({ ...prev, ...updates }))
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [pinnedPrintings, pinnedPrintingArt])
+
+  // Currently-open printing picker. `anchor` is the chip's bounding box so the popover
+  // can position itself relative to the row that opened it. Stored at the page level so
+  // (a) the popover escapes the deck-list scroll container and (b) only one picker is
+  // ever open at a time without each row needing to know about the others.
+  const [pickerOpenFor, setPickerOpenFor] = useState<{ name: string; anchor: DOMRect } | null>(null)
+  const handleOpenPicker = useCallback(
+    (name: string, anchor: DOMRect) => setPickerOpenFor({ name, anchor }),
+    [],
+  )
+  const handleClosePicker = useCallback(() => setPickerOpenFor(null), [])
+
   // Deck-mode left-rail card preview. Hover state is lifted out of DeckCentricView so the
   // (Moxfield-style) preview can live in the left rail instead of floating near the cursor.
   const [deckHoverName, setDeckHoverName] = useState<string | null>(null)
   const [deckHoverCard, setDeckHoverCard] = useState<CardSummary | null>(null)
-  const deckHoverDfc = useDfcHoverFlip(
-    deckHoverCard
+  const deckHoverArtOverride = deckHoverName ? pinnedPrintingArt[deckHoverName] : undefined
+  const effectiveDeckHoverCard = deckHoverCard
+    ? deckHoverArtOverride
       ? {
-          name: deckHoverCard.name,
-          imageUri: deckHoverCard.imageUri ?? null,
-          isDoubleFaced: deckHoverCard.isDoubleFaced ?? false,
-          backFaceName: deckHoverCard.backFaceName ?? null,
-          backFaceImageUri: deckHoverCard.backFaceImageUri ?? null,
+          ...deckHoverCard,
+          imageUri: deckHoverArtOverride.imageUri ?? deckHoverCard.imageUri,
+          backFaceImageUri: deckHoverArtOverride.backFaceImageUri ?? deckHoverCard.backFaceImageUri,
+        }
+      : deckHoverCard
+    : null
+  const deckHoverDfc = useDfcHoverFlip(
+    effectiveDeckHoverCard
+      ? {
+          name: effectiveDeckHoverCard.name,
+          imageUri: effectiveDeckHoverCard.imageUri ?? null,
+          isDoubleFaced: effectiveDeckHoverCard.isDoubleFaced ?? false,
+          backFaceName: effectiveDeckHoverCard.backFaceName ?? null,
+          backFaceImageUri: effectiveDeckHoverCard.backFaceImageUri ?? null,
         }
       : null,
   )
@@ -745,7 +1027,7 @@ export function DeckbuilderPage() {
             name={deckHoverName ? (deckHoverDfc.displayName ?? deckHoverName) : null}
             imageUri={
               deckHoverName
-                ? (deckHoverDfc.displayImageUri ?? deckHoverCard?.imageUri ?? null)
+                ? (deckHoverDfc.displayImageUri ?? effectiveDeckHoverCard?.imageUri ?? null)
                 : null
             }
             overlay={deckHoverDfc.hint}
@@ -822,6 +1104,9 @@ export function DeckbuilderPage() {
               onSuggestBasics={() =>
                 suggestLandsForDeck(deckCards, catalogIndex, catalog, setCardCount)
               }
+              pinnedPrintings={pinnedPrintings}
+              pinnedPrintingArt={pinnedPrintingArt}
+              onOpenPicker={handleOpenPicker}
             />
 
             <div className={styles.deckSummaryWrap}>
@@ -881,6 +1166,8 @@ export function DeckbuilderPage() {
             isCommanderFormat={isCommanderFormat}
             onHoverEnter={handleDeckHoverEnter}
             onHoverLeave={handleDeckHoverLeave}
+            pinnedPrintings={pinnedPrintings}
+            onOpenPicker={handleOpenPicker}
           />
 
           <DeckCentricFooter
@@ -894,6 +1181,22 @@ export function DeckbuilderPage() {
             onDelete={handleDelete}
           />
         </main>
+      )}
+      {pickerOpenFor && (
+        <PrintingPicker
+          cardName={pickerOpenFor.name}
+          pinned={pinnedPrintings[pickerOpenFor.name]}
+          anchor={pickerOpenFor.anchor}
+          onPick={(ref) => {
+            setPinnedPrinting(pickerOpenFor.name, ref)
+            handleClosePicker()
+          }}
+          onClear={() => {
+            clearPinnedPrinting(pickerOpenFor.name)
+            handleClosePicker()
+          }}
+          onClose={handleClosePicker}
+        />
       )}
     </div>
   )
@@ -1623,6 +1926,7 @@ function SavedDecksBrowser({
     return out
   }, [decks])
   const legalityMap = useDeckLegalFormats(legalityInput)
+  const heroArtMap = useDeckHeroArt(decks)
 
   // Pre-compute per-deck metadata once. Doing this up front keeps sort/filter
   // O(n) for hundreds of decks even when the user types fast. Card totals and
@@ -1773,6 +2077,7 @@ function SavedDecksBrowser({
                 colors={colors}
                 legalFormats={legalFormats}
                 isActive={deck.id === activeDeckId}
+                heroArt={heroArtMap[deck.id]}
                 onLoad={onLoad}
                 onRename={onRename}
                 onDelete={onDelete}
@@ -1785,12 +2090,71 @@ function SavedDecksBrowser({
   )
 }
 
+/**
+ * Bulk-fetch chosen-printing art for every saved deck that has pinned entries.
+ *
+ * One round-trip across the whole browser using `/api/printings?names=…` rather than
+ * one request per deck — the saved-deck overlay can render dozens of cards at once.
+ * For each deck we surface a single representative thumbnail (the first pinned entry
+ * in the deck's stored order) so the user can recognise their deck at a glance by
+ * the printing they actually chose, not the catalog default.
+ *
+ * Returns a map keyed by `deck.id`. Decks with no pins (or whose pinned printing
+ * isn't in the registry) are simply absent — DeckCard falls back to its gradient banner.
+ */
+function useDeckHeroArt(decks: SavedDeck[]): Record<string, string> {
+  const [art, setArt] = useState<Record<string, string>>({})
+  // Per-deck "(name, printing)" representative — first pinned entry in the deck's order.
+  // Recomputed when the decks change so renames / loads stay in sync. Memoised separately
+  // from the fetch so we don't re-fire when the parent re-renders for unrelated reasons.
+  const reps = useMemo(() => {
+    const out: Array<{ deckId: string; name: string; ref: PrintingRef }> = []
+    for (const d of decks) {
+      const pinned = d.entries?.find((e) => e.printing) ?? null
+      if (pinned?.printing) out.push({ deckId: d.id, name: pinned.name, ref: pinned.printing })
+    }
+    return out
+  }, [decks])
+
+  useEffect(() => {
+    if (reps.length === 0) {
+      setArt({})
+      return
+    }
+    let cancelled = false
+    const params = new URLSearchParams()
+    new Set(reps.map((r) => r.name)).forEach((n) => params.append('names', n))
+    fetch(`/api/printings?${params.toString()}`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: Record<string, PrintingDTO[]>) => {
+        if (cancelled) return
+        const next: Record<string, string> = {}
+        for (const { deckId, name, ref } of reps) {
+          const match = data[name]?.find(
+            (p) => p.setCode === ref.setCode && p.collectorNumber === ref.collectorNumber,
+          )
+          if (match?.imageUri) next[deckId] = match.imageUri
+        }
+        setArt(next)
+      })
+      .catch(() => {
+        if (!cancelled) setArt({})
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [reps])
+
+  return art
+}
+
 function DeckCard({
   deck,
   total,
   colors,
   legalFormats,
   isActive,
+  heroArt,
   onLoad,
   onRename,
   onDelete,
@@ -1800,6 +2164,7 @@ function DeckCard({
   colors: string[]
   legalFormats: string[]
   isActive: boolean
+  heroArt: string | undefined
   onLoad: (d: SavedDeck) => void
   onRename: (d: SavedDeck) => void
   onDelete: (d: SavedDeck) => void
@@ -1808,6 +2173,17 @@ function DeckCard({
   // Banner gradient derived from the deck's colour identity. Falls back to a
   // neutral gradient for colourless / empty decks.
   const banner = useMemo(() => deckBannerGradient(colors), [colors])
+  // When the deck has at least one pinned printing, layer that printing's art
+  // *under* the colour-identity gradient so the deck is recognisable by what the user
+  // actually picked. The gradient stays — without it, art at this size is hard to read
+  // and the colour cue is the primary way users scan the browser.
+  const bannerStyle = heroArt
+    ? { background: `${banner}, url(${heroArt}) center/cover` }
+    : { background: banner }
+  const pinCount = useMemo(
+    () => (deck.entries ?? []).filter((e) => e.printing).length,
+    [deck.entries],
+  )
 
   return (
     <button
@@ -1816,7 +2192,15 @@ function DeckCard({
       onClick={() => onLoad(deck)}
       title={`Load ${deck.name}`}
     >
-      <div className={styles.deckCardBanner} style={{ background: banner }}>
+      <div className={styles.deckCardBanner} style={bannerStyle}>
+        {pinCount > 0 && (
+          <span
+            className={styles.deckCardPinBadge}
+            title={`${pinCount} pinned printing${pinCount === 1 ? '' : 's'}`}
+          >
+            ◧ {pinCount}
+          </span>
+        )}
         {colors.length > 0 ? (
           <div className={styles.deckCardColors}>
             {colors.map((c) => (
@@ -2849,6 +3233,9 @@ function DeckListPanel({
   rowViolations,
   isCommanderFormat,
   onSuggestBasics,
+  pinnedPrintings,
+  pinnedPrintingArt,
+  onOpenPicker,
 }: {
   deckCards: Record<string, number>
   catalog: Record<string, CardSummary>
@@ -2861,6 +3248,9 @@ function DeckListPanel({
   rowViolations: Map<string, Set<string>>
   isCommanderFormat: boolean
   onSuggestBasics: () => void
+  pinnedPrintings: Record<string, PrintingRef>
+  pinnedPrintingArt: Record<string, { imageUri: string | null; backFaceImageUri: string | null }>
+  onOpenPicker: (name: string, anchor: DOMRect) => void
 }) {
   const grouped = useMemo(
     () => groupForDeckList(deckCards, catalog, commander),
@@ -2868,14 +3258,27 @@ function DeckListPanel({
   )
   const [hoverCard, setHoverCard] = useState<CardSummary | null>(null)
   const [hoverName, setHoverName] = useState<string | null>(null)
-  const dfc = useDfcHoverFlip(
-    hoverCard
+  // Prefer the pinned printing's art when one exists for the hovered row; fall back to
+  // the catalog default. Same fallback applies to the back face for DFCs — pinned printings
+  // always carry both faces if applicable, so a missing field really does mean "no override".
+  const hoverArtOverride = hoverName ? pinnedPrintingArt[hoverName] : undefined
+  const effectiveHoverCard = hoverCard
+    ? hoverArtOverride
       ? {
-          name: hoverCard.name,
-          imageUri: hoverCard.imageUri ?? null,
-          isDoubleFaced: hoverCard.isDoubleFaced ?? false,
-          backFaceName: hoverCard.backFaceName ?? null,
-          backFaceImageUri: hoverCard.backFaceImageUri ?? null,
+          ...hoverCard,
+          imageUri: hoverArtOverride.imageUri ?? hoverCard.imageUri,
+          backFaceImageUri: hoverArtOverride.backFaceImageUri ?? hoverCard.backFaceImageUri,
+        }
+      : hoverCard
+    : null
+  const dfc = useDfcHoverFlip(
+    effectiveHoverCard
+      ? {
+          name: effectiveHoverCard.name,
+          imageUri: effectiveHoverCard.imageUri ?? null,
+          isDoubleFaced: effectiveHoverCard.isDoubleFaced ?? false,
+          backFaceName: effectiveHoverCard.backFaceName ?? null,
+          backFaceImageUri: effectiveHoverCard.backFaceImageUri ?? null,
         }
       : null,
   )
@@ -2942,6 +3345,8 @@ function DeckListPanel({
               onToggleCommander={onToggleCommander}
               onEnter={handleEnter}
               onLeave={handleLeave}
+              pinnedPrinting={pinnedPrintings[entry.name]}
+              onOpenPicker={onOpenPicker}
             />
           ))}
         </div>
@@ -2953,7 +3358,7 @@ function DeckListPanel({
       )}
       <HoverFollowPreview
         name={hoverName ? (dfc.displayName ?? hoverName) : null}
-        imageUri={hoverName ? (dfc.displayImageUri ?? hoverCard?.imageUri ?? null) : null}
+        imageUri={hoverName ? (dfc.displayImageUri ?? effectiveHoverCard?.imageUri ?? null) : null}
         overlay={dfc.hint}
       />
     </div>
@@ -2983,6 +3388,8 @@ const DeckRow = memo(function DeckRow({
   onToggleCommander,
   onEnter,
   onLeave,
+  pinnedPrinting,
+  onOpenPicker,
 }: {
   entry: { name: string; count: number; card: CardSummary | undefined }
   activeFormat: string | null
@@ -2995,6 +3402,8 @@ const DeckRow = memo(function DeckRow({
   onToggleCommander: (name: string) => void
   onEnter: (entry: { name: string; card: CardSummary | undefined }) => void
   onLeave: () => void
+  pinnedPrinting: PrintingRef | undefined
+  onOpenPicker: (name: string, anchor: DOMRect) => void
 }) {
   const illegal =
     activeFormat !== null &&
@@ -3131,6 +3540,26 @@ const DeckRow = memo(function DeckRow({
           }
         >
           ♛
+        </button>
+      )}
+      {entry.card && entry.count > 0 && (
+        <button
+          type="button"
+          className={`${styles.deckRowPrintingChip} ${
+            pinnedPrinting ? styles.deckRowPrintingChipActive : ''
+          }`}
+          onClick={(e) => {
+            e.stopPropagation()
+            onOpenPicker(entry.name, e.currentTarget.getBoundingClientRect())
+          }}
+          title={
+            pinnedPrinting
+              ? `Pinned printing: ${pinnedPrinting.setCode} #${pinnedPrinting.collectorNumber} — click to change`
+              : 'Pick a specific printing'
+          }
+          aria-label={`Pick printing for ${entry.name}`}
+        >
+          {pinnedPrinting ? pinnedPrinting.setCode : '◧'}
         </button>
       )}
       <span className={styles.deckRowCost}>
@@ -3318,6 +3747,8 @@ function DeckCentricView({
   isCommanderFormat,
   onHoverEnter,
   onHoverLeave,
+  pinnedPrintings,
+  onOpenPicker,
 }: {
   deckCards: Record<string, number>
   catalog: Record<string, CardSummary>
@@ -3331,6 +3762,8 @@ function DeckCentricView({
   isCommanderFormat: boolean
   onHoverEnter: (entry: { name: string; card: CardSummary | undefined }) => void
   onHoverLeave: () => void
+  pinnedPrintings: Record<string, PrintingRef>
+  onOpenPicker: (name: string, anchor: DOMRect) => void
 }) {
   const grouped = useMemo(
     () => groupByCardType(deckCards, catalog, commander),
@@ -3372,6 +3805,8 @@ function DeckCentricView({
                 onToggleCommander={onToggleCommander}
                 onEnter={onHoverEnter}
                 onLeave={onHoverLeave}
+                pinnedPrinting={pinnedPrintings[entry.name]}
+                onOpenPicker={onOpenPicker}
               />
             ))}
           </div>

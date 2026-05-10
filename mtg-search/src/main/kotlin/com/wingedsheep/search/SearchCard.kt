@@ -33,4 +33,14 @@ interface SearchCard {
     val keywords: List<String>
     val legalFormats: List<String>
     val isDoubleFaced: Boolean
+    /**
+     * Every set this card has a printing in — the canonical [setCode] plus every reprint
+     * registered in `PrintingRegistry`. Used by the `s:`/`set:` matcher so a query like
+     * `s:EOE Banishing Light` matches the card via its EOE reprint even though its
+     * canonical [setCode] is BLB.
+     *
+     * Defaults to empty so existing implementers aren't forced to populate it; the
+     * matcher always falls back to [setCode] for backwards compatibility.
+     */
+    val printingSetCodes: List<String> get() = emptyList()
 }

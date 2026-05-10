@@ -84,6 +84,20 @@ class SearchServiceTest : StringSpec({
         run("f:commander") shouldContain "Niv-Mizzet, Parun"
     }
 
+    "set: matches reprints, not just the canonical printing" {
+        // Banishing Light's canonical setCode is BLB, but it's reprinted in EOE.
+        // `s:EOE` must surface it via the reprint set; `s:BLB` still works for the
+        // canonical printing.
+        run("s:eoe") shouldContain "Banishing Light"
+        run("s:blb") shouldContain "Banishing Light"
+        // Cards without an EOE printing must not leak in.
+        run("s:eoe") shouldNotContain "Lightning Bolt"
+    }
+
+    "set: filter combines with name match for 's:EOE Banishing Light'" {
+        run("s:eoe banishing") shouldContainExactly listOf("Banishing Light")
+    }
+
     "keywords and is: shortcuts" {
         run("kw:flying") shouldContain "Niv-Mizzet, Parun"
         run("kw:flying") shouldContain "Serra Angel"

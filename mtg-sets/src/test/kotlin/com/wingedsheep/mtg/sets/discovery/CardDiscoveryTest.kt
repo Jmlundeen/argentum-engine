@@ -3,7 +3,9 @@ package com.wingedsheep.mtg.sets.discovery
 import com.wingedsheep.mtg.sets.definitions.scg.ScourgeSet
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.shouldBe
 
 /**
  * Smoke test for [CardDiscovery] against the real Scourge package.
@@ -28,5 +30,24 @@ class CardDiscoveryTest : FunSpec({
         val discoveredNames = CardDiscovery.findIn(scourgePackage).map { it.name }
         val manualNames = ScourgeSet.cards.map { it.name }
         discoveredNames.shouldContainExactlyInAnyOrder(manualNames)
+    }
+
+    test("discovery picks up Printing reprints declared in the cards package") {
+        // EOE's only reprint is `cards/BanishingLightReprint.kt`; KTK's is `cards/NaturalizeReprint.kt`.
+        // Both should surface via [findPrintingsIn] without a hand-maintained list.
+        val eoePrintings = CardDiscovery.findPrintingsIn("com.wingedsheep.mtg.sets.definitions.eoe.cards")
+        eoePrintings.map { it.name } shouldContainExactlyInAnyOrder listOf("Banishing Light")
+        eoePrintings.first().setCode shouldBe "EOE"
+
+        val ktkPrintings = CardDiscovery.findPrintingsIn("com.wingedsheep.mtg.sets.definitions.ktk.cards")
+        ktkPrintings.map { it.name } shouldContainExactlyInAnyOrder listOf("Naturalize")
+        ktkPrintings.first().setCode shouldBe "KTK"
+    }
+
+    test("discovery skips Printing-typed vals as cards (and vice versa)") {
+        // CardDefinition discovery must not leak the Printing entries; otherwise EOE's
+        // `cards` list would be polluted with non-CardDefinition rows.
+        val eoeCards = CardDiscovery.findIn("com.wingedsheep.mtg.sets.definitions.eoe.cards")
+        eoeCards.map { it.name } shouldNotContain "Banishing Light"
     }
 })

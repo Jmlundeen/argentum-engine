@@ -23,8 +23,8 @@ contributions, and the deckbuilder still emits name-only decks.
 | 3 — `ClientStateTransformer` precedence flip + `CardComponent.backFaceImageUri` | ✅ | The single highest-leverage line in the plan |
 | 4 — `Deck.cardEntries`, DTOs, validator, handlers, web-client storage v2 | ✅ | Six commits across SDK, engine, game-server, web-client |
 | 5 — Scryfall printings ingestion (`SyncPrintingsFromDump` + jsonl loader) | ⏳ | Net-new — no current home |
-| 6 — `/api/cards/{name}/printings` + `/api/printings?names=...` endpoints | ⏳ | Needed before the deckbuilder picker |
-| 7 — Web-client deckbuilder printing picker UX | ⏳ | Consumes Phase 5 + 6 |
+| 6 — `/api/cards/{name}/printings` + `/api/printings?names=...` endpoints | ✅ | `PrintingsController` + `CardSummaryDTO.defaultPrinting`; falls back to synthesised default when registry is empty |
+| 7 — Web-client deckbuilder printing picker UX | 🟡 | `PrintingPicker` popover + per-row chip in deckbuilder, pinned-printing art on hover preview, `/api/printings` batch on saved-deck browser. Wiring `cardEntries` into game-creation messages (DeckPicker → CreateGame/JoinLobby) is the remaining gap. |
 | 8 — DFC / split / adventure (incidental) | ✅ | Covered by `backFaceImageUri` |
 | 6.5 — Cleanup: retire `Name#SetCode-CN` secondary index, drop `CardDefinition.setCode`, drop `Deck.cards` legacy field, switch booster basic-land variants to `cardEntries` | ⏳ | Wait until Phase 7 has been live for a release |
 

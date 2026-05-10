@@ -20,6 +20,7 @@ data class TestCard(
     override val keywords: List<String> = emptyList(),
     override val legalFormats: List<String> = emptyList(),
     override val isDoubleFaced: Boolean = false,
+    override val printingSetCodes: List<String> = emptyList(),
 ) : SearchCard
 
 object Fixtures {
@@ -117,6 +118,17 @@ object Fixtures {
             power = "1", toughness = "1",
             legalFormats = listOf("MODERN", "LEGACY"),
             isDoubleFaced = true,
+        ),
+        // Reprint case for the `s:` matcher: canonical printing in BLB, reprinted in EOE.
+        // `s:EOE` must surface this card via the reprint even though `setCode` is "BLB".
+        TestCard(
+            name = "Banishing Light", manaCost = "{2}{W}", cmc = 3,
+            colors = listOf("WHITE"), colorIdentity = listOf("WHITE"),
+            cardTypes = listOf("ENCHANTMENT"),
+            rarity = "UNCOMMON", setCode = "BLB",
+            oracleText = "When Banishing Light enters, exile target nonland permanent an opponent controls until Banishing Light leaves the battlefield.",
+            legalFormats = listOf("STANDARD", "MODERN"),
+            printingSetCodes = listOf("BLB", "EOE"),
         ),
     )
 }

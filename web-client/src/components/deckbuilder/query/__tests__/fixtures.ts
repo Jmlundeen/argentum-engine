@@ -129,6 +129,26 @@ export const CARDS: CardSummary[] = [
     keywords: [],
     legalFormats: ['MODERN', 'LEGACY'],
   },
+  // Reprint case for the `s:` matcher: canonical printing in BLB, reprinted in EOE.
+  // `s:EOE` must surface this card via the reprint even though `setCode` is 'BLB'.
+  {
+    name: 'Banishing Light',
+    manaCost: '{2}{W}',
+    cmc: 3,
+    colors: ['WHITE'],
+    colorIdentity: ['WHITE'],
+    cardTypes: ['ENCHANTMENT'],
+    supertypes: [],
+    subtypes: [],
+    basicLand: false,
+    rarity: 'UNCOMMON',
+    setCode: 'BLB',
+    collectorNumber: '4',
+    oracleText: 'When Banishing Light enters, exile target nonland permanent an opponent controls until Banishing Light leaves the battlefield.',
+    keywords: [],
+    legalFormats: ['STANDARD', 'MODERN'],
+    printingSetCodes: ['BLB', 'EOE'],
+  },
 ]
 
 export function names(cards: CardSummary[]): string[] {

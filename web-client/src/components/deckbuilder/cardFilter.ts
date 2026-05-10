@@ -40,6 +40,12 @@ export interface CardSummary {
   rarity: string
   setCode: string | null
   collectorNumber: string | null
+  /**
+   * All sets this card has a printing in (canonical + reprints). Used by the `s:`/`set:`
+   * query so a reprint surfaces under its new set code even when [setCode] still points
+   * at the original printing's set. Defaults to empty for legacy fixtures.
+   */
+  printingSetCodes?: string[]
   oracleText?: string | null
   power?: string | null
   toughness?: string | null

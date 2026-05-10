@@ -286,50 +286,52 @@ card's file.
    Extract: `set`, `collector_number`, `artist`, `image_uris.normal`, `rarity`,
    `released_at`, `id` (scryfallId), and `image_uris.normal` of any back face.
 
-3. **Create a per-set `Reprints.kt`** if it doesn't exist:
-   `mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/{set}/Reprints.kt`
+3. **Add the printing as a top-level val in the set's `cards/` package**:
+   `mtg-sets/.../definitions/{set}/cards/<CardName>Reprint.kt`
 
    ```kotlin
-   package com.wingedsheep.mtg.sets.definitions.{set}
+   package com.wingedsheep.mtg.sets.definitions.{set}.cards
 
    import com.wingedsheep.sdk.model.Printing
    import com.wingedsheep.sdk.model.Rarity
 
    /**
-    * Per-printing rows for cards that are reprinted in {Set Name} but whose canonical
-    * [com.wingedsheep.sdk.model.CardDefinition] lives elsewhere. Pure presentation data —
-    * no script, no behavior. Engine identity is the card name.
+    * <Card Name> reprint in <Set Name>. Canonical [com.wingedsheep.sdk.model.CardDefinition]
+    * lives in another set's `cards/` package; this file contributes only presentation data.
     */
-   internal val {SetCode}Reprints: List<Printing> = listOf(
-       Printing(
-           oracleId = "<Scryfall oracle_id, e.g. 'abc12345-...'>",
-           name = "Lightning Bolt",
-           setCode = "<NEW_SET_CODE>",
-           collectorNumber = "<COLLECTOR_NUMBER>",
-           scryfallId = "<Scryfall id>",
-           artist = "<Artist Name>",
-           imageUri = "<image_uris.normal — verify with HEAD request, must return 200>",
-           releaseDate = "<YYYY-MM-DD>",
-           rarity = Rarity.COMMON,
-       ),
-       // Add additional reprints in this set here.
+   val <CardName>Reprint = Printing(
+       oracleId = "<Scryfall oracle_id, e.g. 'abc12345-...'>",
+       name = "<Card Name>",
+       setCode = "<NEW_SET_CODE>",
+       collectorNumber = "<COLLECTOR_NUMBER>",
+       scryfallId = "<Scryfall id>",
+       artist = "<Artist Name>",
+       imageUri = "<image_uris.normal — verify with HEAD request, must return 200>",
+       releaseDate = "<YYYY-MM-DD>",
+       rarity = Rarity.COMMON,
    )
    ```
 
-4. **Wire it into the set object.** In the same package's `{Set}Set.kt`:
+   `CardDiscovery` scans the `cards/` package for top-level `Printing` vals automatically,
+   so no other registration is needed.
+
+4. **Wire `printings` in the set object** if not already done. In the same package's
+   `{Set}Set.kt`:
 
    ```kotlin
    object MySet : MtgSet {
        override val code = "MYS"
-       override val cards = ...                    // existing
-       override val printings = MYSReprints        // NEW — reprints contributed by this set
+       override val cards = ...
+       override val printings: List<Printing> by lazy {
+           CardDiscovery.findPrintingsIn(CARDS_PACKAGE)
+       }
    }
    ```
 
-   `MtgSet.printings` defaults to an empty list, so sets that don't reprint anything need
-   no change. `GameBeansConfig` registers `set.printings` alongside the synthesised
-   defaults — explicit reprints win when they share `(setCode, collectorNumber)` with a
-   synthesised entry.
+   `MtgSet.printings` defaults to an empty list, so a set with no reprint files
+   automatically returns an empty list. `GameBeansConfig` registers `set.printings`
+   alongside synthesised defaults — explicit reprints win when they share
+   `(setCode, collectorNumber)` with a synthesised entry.
 
 5. **Per-printing fields** — what to fill in:
    - `oracleId` — the canonical Scryfall `oracle_id` (same value across every printing of
@@ -355,19 +357,22 @@ Lightning Bolt's canonical `CardDefinition` (its spell script) lives in
 `mtg-sets/.../definitions/m10/cards/LightningBolt.kt`. To add the 2X2 reprint:
 
 ```kotlin
-// mtg-sets/.../definitions/2x2/Reprints.kt
-internal val M2X2Reprints = listOf(
-    Printing(
-        oracleId = "4457ed35-7c10-48c8-9776-456485fdf070",
-        name = "Lightning Bolt",
-        setCode = "2X2",
-        collectorNumber = "117",
-        artist = "Christopher Moeller",
-        imageUri = "https://cards.scryfall.io/normal/front/.../bolt-2x2.jpg?...",
-        releaseDate = "2022-04-22",
-        rarity = Rarity.UNCOMMON,
-        scryfallId = "...",
-    ),
+// mtg-sets/.../definitions/2x2/cards/LightningBoltReprint.kt
+package com.wingedsheep.mtg.sets.definitions.m2x2.cards
+
+import com.wingedsheep.sdk.model.Printing
+import com.wingedsheep.sdk.model.Rarity
+
+val LightningBoltReprint = Printing(
+    oracleId = "4457ed35-7c10-48c8-9776-456485fdf070",
+    name = "Lightning Bolt",
+    setCode = "2X2",
+    collectorNumber = "117",
+    artist = "Christopher Moeller",
+    imageUri = "https://cards.scryfall.io/normal/front/.../bolt-2x2.jpg?...",
+    releaseDate = "2022-04-22",
+    rarity = Rarity.UNCOMMON,
+    scryfallId = "...",
 )
 ```
 
@@ -375,8 +380,9 @@ internal val M2X2Reprints = listOf(
 // mtg-sets/.../definitions/2x2/M2X2Set.kt
 object M2X2Set : MtgSet {
     override val code = "2X2"
-    override val cards = ...
-    override val printings = M2X2Reprints
+    override val cards by lazy { CardDiscovery.findIn(CARDS_PACKAGE) }
+    override val printings by lazy { CardDiscovery.findPrintingsIn(CARDS_PACKAGE) }
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.m2x2.cards"
 }
 ```
 
