@@ -20,6 +20,7 @@ object OutlawsOfThunderJunctionSet : MtgSet {
         BloomingMarsh,
         ConcealedCourtyard,
         ForsakenMiner,
+        InspiringVantage,
         ShootTheSheriff,
         SpirebluffCanal,
     )
