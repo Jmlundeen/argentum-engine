@@ -8,6 +8,7 @@ import com.wingedsheep.search.SearchCard
 import com.wingedsheep.search.SearchService
 import com.wingedsheep.search.Span
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.PrintingRef
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -110,6 +111,13 @@ class CardsController(
         override val isDoubleFaced: Boolean = false,
         val backFaceName: String? = null,
         val backFaceImageUri: String? = null,
+        /**
+         * The printing the catalog grid renders by default. Lets the deckbuilder picker
+         * highlight the row that matches the catalog thumbnail without re-deriving it from
+         * `setCode + collectorNumber` on the client. Null only for cards missing both
+         * `setCode` and `metadata.collectorNumber`.
+         */
+        val defaultPrinting: PrintingRef? = null,
     ) : SearchCard
 
     private fun CardDefinition.toSummary(): CardSummaryDTO = CardSummaryDTO(
@@ -134,6 +142,7 @@ class CardsController(
         isDoubleFaced = isDoubleFaced,
         backFaceName = backFace?.name,
         backFaceImageUri = backFace?.metadata?.imageUri,
+        defaultPrinting = defaultPrintingRef,
     )
 
     companion object {
