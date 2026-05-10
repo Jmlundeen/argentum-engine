@@ -50,4 +50,14 @@ sealed interface EntityNumericProperty {
     data object BlockerCount : EntityNumericProperty {
         override val description: String = "the number of creatures blocking"
     }
+
+    /**
+     * The number of distinct creature types this entity has (from projected state).
+     * Used by BonusPerCreatureType static ability (e.g., Diligent Zookeeper).
+     */
+    @SerialName("CreatureTypeCount")
+    @Serializable
+    data object CreatureTypeCount : EntityNumericProperty {
+        override val description: String = "the number of its creature types"
+    }
 }
