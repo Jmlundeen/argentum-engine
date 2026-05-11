@@ -228,9 +228,6 @@ https://api.scryfall.com/cards/named?exact=Beyond%20the%20Quiet&set=eoe
 ## return target creature or enchantment card from your graveyard to the battlefield
 - [ ] Rescue Skiff
 
-## Exile all artifacts with mana value 3 or less
-- [ ] Ruinous Rampage
-
 ## Return up to three target creature cards with total mana value 3 or less from your graveyard to the battlefield. Put a +1/+1 counter on each of them
 - [ ] Scout for Survivors
 

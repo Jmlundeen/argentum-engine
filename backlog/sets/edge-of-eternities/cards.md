@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 143 / 261
+**Implemented:** 144 / 261
 
 - [x] Adagia, Windswept Bastion
 - [x] All-Fates Scroll
@@ -177,7 +177,7 @@
 - [ ] Rescue Skiff
 - [x] Rig for War
 - [ ] Roving Actuator
-- [ ] Ruinous Rampage
+- [x] Ruinous Rampage
 - [x] Rust Harvester
 - [x] Sacred Foundry
 - [x] Sami's Curiosity
