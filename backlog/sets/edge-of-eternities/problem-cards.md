@@ -140,9 +140,6 @@ https://api.scryfall.com/cards/named?exact=Beyond%20the%20Quiet&set=eoe
 ## Devour land 3
 - [ ] Famished Worldsire
 
-## then return a creature or Spacecraft card from your graveyard to your hand. (not target)
-- [ ] Fell Gravship
-
 ## X is 2 plus the number of creatures and/or Spacecraft you control.
 - [ ] Focus Fire
 
