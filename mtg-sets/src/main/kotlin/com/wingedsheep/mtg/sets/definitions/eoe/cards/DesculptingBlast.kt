@@ -28,7 +28,7 @@ val DesculptingBlast = card("Desculpting Blast") {
         effect = Effects.Composite(
             ConditionalEffect(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.attacking()),
-                effect = Effects.CreateDrone()
+                effect = Effects.CreateDroneToken()
             ),
             Effects.ReturnToHand(permanent)
         )

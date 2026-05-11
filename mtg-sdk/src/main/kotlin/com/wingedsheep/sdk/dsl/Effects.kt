@@ -1152,7 +1152,7 @@ object Effects {
      *
      * @param count Number of tokens to create
      */
-    fun CreateDrone(count: Int = 1): Effect =
+    fun CreateDroneToken(count: Int = 1): Effect =
         CreatePredefinedTokenEffect("Drone", count)
 
     // =========================================================================
