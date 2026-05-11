@@ -376,7 +376,9 @@ class ManaSolver(
             genericRemaining--
         }
 
-        val usedUncounterableMana = usedSources.any { it.grantCantBeCountered }
+        val usedUncounterableMana = usedSources.any { source ->
+            source.grantCantBeCountered && manaProduced[source.entityId]?.color != null
+        }
         return ManaSolution(usedSources, manaProduced, bonusManaPool.filter { it.value > 0 }, usedUncounterableMana)
     }
 

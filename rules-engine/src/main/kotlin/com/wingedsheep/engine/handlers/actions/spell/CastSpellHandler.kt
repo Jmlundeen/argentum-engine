@@ -1848,7 +1848,7 @@ class CastSpellHandler(
         var currentCastState = castResult.newState
         var allEvents = events + castResult.events
 
-        // If Cavern-of-Souls-style uncounterable mana was spent, stamp the spell
+        // Stamp spell as uncounterable when restricted mana with grantCantBeCountered was spent
         if (paymentResult.usedUncounterableMana) {
             currentCastState = currentCastState.updateEntity(action.cardId) { c ->
                 c.with(CantBeCounteredComponent)

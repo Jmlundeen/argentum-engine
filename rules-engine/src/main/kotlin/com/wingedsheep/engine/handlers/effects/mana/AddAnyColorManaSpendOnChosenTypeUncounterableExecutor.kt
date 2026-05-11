@@ -16,8 +16,8 @@ import kotlin.reflect.KClass
  * Executor for [AddAnyColorManaSpendOnChosenTypeUncounterableEffect].
  *
  * Reads the source permanent's [ChosenCreatureTypeComponent] and adds mana of the
- * player's chosen color with a [ManaRestriction.CreatureSubtypeUncounterableOnly]
- * restriction baked to that specific subtype.
+ * player's chosen color with a [ManaRestriction.CreatureSubtypeOnly]
+ * restriction baked to that specific subtype, with [grantCantBeCountered] set.
  * If no creature type has been chosen on the source, no mana is produced.
  */
 class AddAnyColorManaSpendOnChosenTypeUncounterableExecutor(

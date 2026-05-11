@@ -132,6 +132,33 @@ class CavernOfSoulsScenarioTest : ScenarioTestBase() {
             }
         }
 
+        context("Cavern of Souls — AutoPay path: solver taps Cavern directly") {
+            test("Goblin cast when Cavern is the only mana source gets CantBeCounteredComponent") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardOnBattlefield(1, "Cavern of Souls") // only mana source
+                    .withCardInHand(1, "Goblin Sledder")
+                    .withCardInLibrary(1, "Mountain")
+                    .withCardInLibrary(2, "Island")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val cavernId = game.findPermanent("Cavern of Souls")!!
+                game.state = game.state.updateEntity(cavernId) { c -> c.with(ChosenCreatureTypeComponent("Goblin")) }
+
+                // No pre-floating: AutoPay taps Cavern directly via the solver path
+                game.castSpell(1, "Goblin Sledder")
+
+                val sledderOnStack = game.state.stack.find { entityId ->
+                    game.state.getEntity(entityId)?.get<CardComponent>()?.name == "Goblin Sledder"
+                }
+                withClue("AutoPay solver path should also stamp CantBeCounteredComponent") {
+                    game.state.getEntity(sledderOnStack!!)?.has<CantBeCounteredComponent>() shouldBe true
+                }
+            }
+        }
+
         context("Cavern of Souls — spell cast WITHOUT Cavern mana can be countered") {
             test("Goblin cast using regular Mountain mana IS counterable") {
                 val game = scenario()
