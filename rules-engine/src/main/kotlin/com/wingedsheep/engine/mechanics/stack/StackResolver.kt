@@ -236,11 +236,18 @@ class StackResolver(
             updated = updated.without<com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComponent>()
             updated
         }
-        // Drop one-shot may-play grants targeting this card. Permanent grants survive
+        // Drop this card from one-shot may-play grants. Permanent grants survive
         // (e.g. Adventure / Warp / Possibility Technician) and are stripped on resolve.
+        // Multi-card permissions (Etali / Narset / Mind's Desire) keep authorising the
+        // remaining cards — only the cast card loses its grant.
         newState = newState.copy(
-            mayPlayPermissions = newState.mayPlayPermissions.filterNot { permission ->
-                cardId in permission.cardIds && !permission.permanent
+            mayPlayPermissions = newState.mayPlayPermissions.mapNotNull { permission ->
+                if (permission.permanent || cardId !in permission.cardIds) {
+                    permission
+                } else {
+                    val remaining = permission.cardIds - cardId
+                    if (remaining.isEmpty()) null else permission.copy(cardIds = remaining)
+                }
             }
         )
 

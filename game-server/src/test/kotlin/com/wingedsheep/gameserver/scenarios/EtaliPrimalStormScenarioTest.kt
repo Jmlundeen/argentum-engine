@@ -72,6 +72,46 @@ class EtaliPrimalStormScenarioTest : ScenarioTestBase() {
                 }
             }
 
+            test("controller may cast every non-land card exiled by the trigger, not just one") {
+                val game = scenario()
+                    .withPlayers("Etali Player", "Opponent")
+                    // Two non-land cards, one per library — Etali's controller should be
+                    // able to cast both for free off a single trigger.
+                    .withCardInLibrary(1, "Feed the Clan")
+                    .withCardInLibrary(1, "Mountain")
+                    .withCardInLibrary(2, "Renewed Faith")
+                    .withCardInLibrary(2, "Forest")
+                    .withCardOnBattlefield(1, "Etali, Primal Storm")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                game.declareAttackers(mapOf("Etali, Primal Storm" to 2))
+                game.resolveStack()
+
+                val feedId = game.state.getExile(game.player1Id).first {
+                    game.state.getEntity(it)?.get<CardComponent>()?.name == "Feed the Clan"
+                }
+                val gloryId = game.state.getExile(game.player2Id).first {
+                    game.state.getEntity(it)?.get<CardComponent>()?.name == "Renewed Faith"
+                }
+
+                val firstCast = game.execute(CastSpell(game.player1Id, feedId))
+                withClue("First free cast should succeed: ${firstCast.error}") {
+                    firstCast.error shouldBe null
+                }
+                game.resolveStack()
+
+                withClue("Second free cast should still be authorized after the first resolved: ${'$'}{game.state.mayPlayPermissions}") {
+                    game.state.mayPlayPermissions.any { gloryId in it.cardIds } shouldBe true
+                }
+                val secondCast = game.execute(CastSpell(game.player1Id, gloryId))
+                withClue("Second free cast should succeed: ${secondCast.error}") {
+                    secondCast.error shouldBe null
+                }
+            }
+
             test("Etali's controller may cast a spell exiled from the opponent's library without paying its mana cost") {
                 val game = scenario()
                     .withPlayers("Etali Player", "Opponent")

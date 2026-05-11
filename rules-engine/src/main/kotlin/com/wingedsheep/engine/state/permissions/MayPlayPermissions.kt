@@ -18,14 +18,26 @@ fun GameState.removeMayPlayPermission(id: EntityId): GameState =
     copy(mayPlayPermissions = mayPlayPermissions.filterNot { it.id == id })
 
 /**
- * Remove every permission that targets [cardId]. Used when a card moves to a zone where
+ * Drop [cardId] from every permission's `cardIds`. Used when a card moves to a zone where
  * the permission is no longer meaningful (e.g., on resolve), to keep the list compact.
  *
- * Note: read sites already check zone membership, so this is opportunistic cleanup
- * rather than a correctness requirement.
+ * Multi-card permissions (e.g., Etali / Narset / Mind's Desire grant a single permission
+ * spanning all exiled cards) MUST keep authorising the remaining cards after one of them
+ * is cast. Removing the whole permission would silently revoke "any number of spells"
+ * after the first cast.
+ *
+ * Permissions whose `cardIds` becomes empty are dropped entirely.
  */
 fun GameState.removeMayPlayPermissionsForCard(cardId: EntityId): GameState =
-    copy(mayPlayPermissions = mayPlayPermissions.filterNot { cardId in it.cardIds })
+    copy(
+        mayPlayPermissions = mayPlayPermissions.mapNotNull { permission ->
+            if (cardId !in permission.cardIds) permission
+            else {
+                val remaining = permission.cardIds - cardId
+                if (remaining.isEmpty()) null else permission.copy(cardIds = remaining)
+            }
+        }
+    )
 
 /**
  * Find every active permission that authorizes [playerId] to play [cardId], with the gate
