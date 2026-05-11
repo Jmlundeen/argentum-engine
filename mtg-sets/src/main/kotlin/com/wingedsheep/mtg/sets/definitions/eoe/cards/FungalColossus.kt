@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostModification
@@ -26,7 +27,7 @@ val FungalColossus = card("Fungal Colossus") {
         ability = ModifySpellCost(
             target = SpellCostTarget.SelfCast,
             modification = CostModification.ReduceGenericBy(
-                CostReductionSource.DifferentlyNamedLandsYouControl,
+                CostReductionSource.DifferentlyNamedPermanentsYouControl(Filters.Land),
             ),
         )
     }

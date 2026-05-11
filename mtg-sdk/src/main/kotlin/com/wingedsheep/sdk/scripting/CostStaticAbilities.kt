@@ -360,13 +360,17 @@ sealed interface CostReductionSource {
     }
 
     /**
-     * Reduces cost by the number of differently named lands the caster controls.
-     * Used for Fungal Colossus ("This spell costs {X} less to cast, where X is
-     * the number of differently named lands you control").
+     * Reduces cost by the number of differently named permanents the caster controls
+     * matching a filter. Used for Fungal Colossus ("This spell costs {X} less to cast,
+     * where X is the number of differently named lands you control") via
+     * `DifferentlyNamedPermanentsYouControl(Filters.Land)`.
      */
-    @SerialName("DifferentlyNamedLandsYouControl")
+    @SerialName("DifferentlyNamedPermanentsYouControl")
     @Serializable
-    data object DifferentlyNamedLandsYouControl : CostReductionSource {
-        override val description: String = "the number of differently named lands you control"
+    data class DifferentlyNamedPermanentsYouControl(
+        val filter: GameObjectFilter
+    ) : CostReductionSource {
+        override val description: String =
+            "the number of differently named ${filter.description} you control"
     }
 }

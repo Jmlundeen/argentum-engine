@@ -303,7 +303,8 @@ class CostCalculator(
                     source.amount
                 else 0
             }
-            is CostReductionSource.DifferentlyNamedLandsYouControl -> countDifferentlyNamedLands(state, playerId)
+            is CostReductionSource.DifferentlyNamedPermanentsYouControl ->
+                countDifferentlyNamedPermanents(state, playerId, source.filter)
         }
     }
 
@@ -598,16 +599,20 @@ class CostCalculator(
         return colors.size
     }
 
-    /**
-     * Count differently named lands controlled by a player.
-     * Each land's English name is counted once — duplicates don't increase the total.
-     */
-    private fun countDifferentlyNamedLands(state: GameState, playerId: EntityId): Int {
+    private fun countDifferentlyNamedPermanents(
+        state: GameState,
+        playerId: EntityId,
+        filter: GameObjectFilter
+    ): Int {
+        val projectedState = state.projectedState
         val names = mutableSetOf<String>()
-        state.getBattlefield(playerId).forEach { entityId ->
-            val card = state.getEntity(entityId)?.get<CardComponent>() ?: return@forEach
-            if (!card.typeLine.isLand) return@forEach
-            names.add(card.name)
+        for (entityId in state.getBattlefield(playerId)) {
+            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
+            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val matches = filter.cardPredicates.all { predicate ->
+                matchesBattlefieldPredicate(entityId, cardDef, predicate, projectedState)
+            }
+            if (matches) names.add(card.name)
         }
         return names.size
     }
