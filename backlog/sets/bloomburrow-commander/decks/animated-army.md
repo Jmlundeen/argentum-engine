@@ -17,7 +17,7 @@
 - [x] 1 Garruk's Packleader
 - [x] 1 Ghalta, Primal Hunger
 - [x] 1 Goreclaw, Terror of Qal Sisma
-- [ ] 1 Grothama, All-Devouring
+- [x] 1 Grothama, All-Devouring
 - [ ] 1 Grumgully, the Generous
 - [ ] 1 Kodama of the East Tree
 - [ ] 1 Llanowar Loamspeaker
