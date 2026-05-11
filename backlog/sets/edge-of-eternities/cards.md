@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 143 / 261
+**Implemented:** 145 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -32,7 +32,7 @@
 - [ ] Broodguard Elite
 - [x] Bygone Colossus
 - [x] Cerebral Download
-- [ ] Chorale of the Void
+- [x] Chorale of the Void
 - [x] Chrome Companion
 - [ ] Close Encounter
 - [x] Cloudsculpt Technician
