@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.scenarios
 
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.gameserver.ScenarioTestBase
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import io.kotest.assertions.withClue
@@ -80,6 +81,23 @@ class RoboticsMasteryScenarioTest : ScenarioTestBase() {
                 val robotTokens = game.findAllPermanents("Robot Token")
                 withClue("ETB should create exactly two Robot tokens") {
                     robotTokens.size shouldBe 2
+                }
+
+                val projected = StateProjector().project(game.state)
+                robotTokens.forEach { tokenId ->
+                    withClue("Robot token $tokenId should be a 1/1") {
+                        projected.getPower(tokenId) shouldBe 1
+                        projected.getToughness(tokenId) shouldBe 1
+                    }
+                    withClue("Robot token $tokenId should have flying") {
+                        projected.hasKeyword(tokenId, Keyword.FLYING) shouldBe true
+                    }
+                    withClue("Robot token $tokenId should be a colorless artifact creature with the Robot subtype") {
+                        projected.getColors(tokenId) shouldBe emptySet<String>()
+                        projected.isCreature(tokenId) shouldBe true
+                        projected.hasType(tokenId, "ARTIFACT") shouldBe true
+                        projected.hasSubtype(tokenId, "Robot") shouldBe true
+                    }
                 }
             }
         }

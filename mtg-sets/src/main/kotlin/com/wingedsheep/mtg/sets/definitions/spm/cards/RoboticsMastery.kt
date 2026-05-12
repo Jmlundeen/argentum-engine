@@ -47,6 +47,9 @@ val RoboticsMastery = card("Robotics Mastery") {
 
     metadata {
         rarity = Rarity.UNCOMMON
-        collectorNumber = "TBD"
+        collectorNumber = "41"
+        artist = "Domenico Cava"
+        flavorText = "Mendel Stromm didn't just seek revenge. He engineered it."
+        imageUri = "https://cards.scryfall.io/normal/front/d/0/d0e92939-6d86-44b4-8a43-1963e97a2bb3.jpg?1757377005"
     }
 }
