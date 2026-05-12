@@ -7,7 +7,7 @@
 
 - [x] Agent Venom
 - [ ] Alien Symbiosis
-- [ ] Amazing Acrobatics
+- [x] Amazing Acrobatics
 - [ ] Angry Rabble
 - [ ] Anti-Venom, Horrifying Healer
 - [ ] Arachne, Psionic Weaver
