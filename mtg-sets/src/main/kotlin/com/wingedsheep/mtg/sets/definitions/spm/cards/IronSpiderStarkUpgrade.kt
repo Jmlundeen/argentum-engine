@@ -1,0 +1,56 @@
+package com.wingedsheep.mtg.sets.definitions.spm.cards
+
+import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
+import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+
+/**
+ * Iron Spider, Stark Upgrade
+ * {1}{W}{U}
+ * Legendary Artifact Creature — Spider Hero
+ * 2/3
+ *
+ * Vigilance
+ * {T}: Put a +1/+1 counter on each artifact creature and Vehicle you control.
+ * {2}, Remove two +1/+1 counters from among artifacts you control: Draw a card.
+ */
+val IronSpiderStarkUpgrade = card("Iron Spider, Stark Upgrade") {
+    manaCost = "{1}{W}{U}"
+    colorIdentity = "WU"
+    typeLine = "Legendary Artifact Creature — Spider Hero"
+    power = 2
+    toughness = 3
+    oracleText = "Vigilance\n{T}: Put a +1/+1 counter on each artifact creature and Vehicle you control.\n{2}, Remove two +1/+1 counters from among artifacts you control: Draw a card."
+
+    keywords(Keyword.VIGILANCE)
+
+    activatedAbility {
+        cost = Costs.Tap
+        val artifactCreaturesAndVehicles =
+            (GameObjectFilter.Artifact and GameObjectFilter.Creature) or
+                GameObjectFilter.Any.withSubtype("Vehicle")
+        effect = ForEachInGroupEffect(
+            filter = GroupFilter(artifactCreaturesAndVehicles.youControl()),
+            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        )
+    }
+
+    activatedAbility {
+        cost = Costs.Composite(Costs.Mana("{2}"), Costs.RemoveXPlusOnePlusOneCounters)
+        effect = Effects.DrawCards(1)
+    }
+
+    metadata {
+        rarity = Rarity.RARE
+        collectorNumber = "53"
+        artist = "Trung Tin Shinji"
+        imageUri = "https://cards.scryfall.io/normal/front/b/1/b1d6f023-b7c8-47a6-86e4-10c43c4ab8bc.jpg?1757377677"
+    }
+}

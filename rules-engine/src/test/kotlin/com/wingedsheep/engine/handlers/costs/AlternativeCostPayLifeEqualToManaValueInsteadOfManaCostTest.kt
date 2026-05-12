@@ -21,7 +21,7 @@ import io.kotest.matchers.shouldBe
  * The engine must deduct the declared life amount when the alternative cost is chosen, and must
  * reject the cast when the caster's life total is below the required payment.
  *
- * These tests are RED until AlternativeCostPayLifeEqualToManaValueInsteadOfManaCostHandler
+ * These tests are GREEN: AlternativeCostPayLifeEqualToManaValueInsteadOfManaCostHandler
  * is wired into the cast-spell execution path.
  */
 class AlternativeCostPayLifeEqualToManaValueInsteadOfManaCostTest : FunSpec({

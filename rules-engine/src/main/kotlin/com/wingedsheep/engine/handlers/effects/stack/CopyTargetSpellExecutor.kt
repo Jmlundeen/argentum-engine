@@ -94,6 +94,25 @@ class CopyTargetSpellExecutor(
 
         // If the original spell has no targets, create the copy immediately
         if (targetRequirements.isEmpty()) {
+            if (effect.stripSupertypes) {
+                val copyResult = stackResolver.putSpellCopy(
+                    state = state,
+                    sourceSpellId = spellEntityId,
+                    copyIndex = 1,
+                    copyTotal = 1,
+                    controllerId = context.controllerId
+                )
+                if (!copyResult.isSuccess) return EffectResult.from(copyResult)
+                val copyId = copyResult.events.asReversed().firstNotNullOfOrNull { event ->
+                    if (event is com.wingedsheep.engine.core.SpellCopiedEvent) event.copyEntityId else null
+                } ?: return EffectResult.from(copyResult)
+                val strippedState = copyResult.state.updateEntity(copyId) { container ->
+                    val card = container.get<CardComponent>()
+                    if (card != null) container.with(card.copy(typeLine = card.typeLine.copy(supertypes = emptySet())))
+                    else container
+                }
+                return EffectResult.success(strippedState, copyResult.events)
+            }
             val copyAbility = TriggeredAbilityOnStackComponent(
                 sourceId = context.sourceId ?: EntityId.generate(),
                 sourceName = spellName,

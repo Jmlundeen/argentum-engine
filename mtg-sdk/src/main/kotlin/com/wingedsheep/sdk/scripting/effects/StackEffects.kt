@@ -415,7 +415,13 @@ data class CopyTargetSpellEffect(
      * Each granted keyword is treated as if the spell itself had it for damage and
      * source-keyword checks (e.g., wither, lifelink). Empty by default.
      */
-    val keywordsForCopy: List<String> = emptyList()
+    val keywordsForCopy: List<String> = emptyList(),
+    /**
+     * When true, all supertypes (e.g. Legendary) are stripped from the copy's type line.
+     * The copy retains all card types (e.g. Creature) and subtypes.
+     * Used by effects like Jackal Genius that produce a non-legendary copy of a legendary spell.
+     */
+    val stripSupertypes: Boolean = false
 ) : Effect {
     override val description: String = "Copy target instant or sorcery spell"
 
