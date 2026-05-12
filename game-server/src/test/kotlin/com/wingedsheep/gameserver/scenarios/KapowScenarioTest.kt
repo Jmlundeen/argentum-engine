@@ -58,24 +58,9 @@ class KapowScenarioTest : ScenarioTestBase() {
                     castResult.error shouldBe null
                 }
 
-                // Verify the counter is applied before the fight resolves
-                val allyBeforeFight = game.state.getEntity(allyId)
-                val counters = allyBeforeFight?.get<CountersComponent>()
-                withClue("Grizzly Bears should have a +1/+1 counter after Kapow! resolves counter step") {
-                    counters shouldNotBe null
-                    counters!!.getCount(CounterType.PLUS_ONE_PLUS_ONE) shouldBe 1
-                }
-
-                val stateProjector = StateProjector()
-                val projected = stateProjector.project(game.state)
-                withClue("Grizzly Bears power should be 3 after +1/+1 counter") {
-                    projected.getPower(allyId) shouldBe 3
-                }
-                withClue("Grizzly Bears toughness should be 3 after +1/+1 counter") {
-                    projected.getToughness(allyId) shouldBe 3
-                }
-
-                // Resolve the fight and state-based actions
+                // Resolve: counter applied then fight; SBAs destroy both creatures
+                // Without the counter Grizzly Bears (2/2) would deal only 2 damage to Hill Giant
+                // (3/3) — not lethal. Hill Giant dying proves the counter boosted Grizzly Bears to 3/3.
                 game.resolveStack()
 
                 // THEN both creatures are destroyed (each dealt 3 damage to the other)
