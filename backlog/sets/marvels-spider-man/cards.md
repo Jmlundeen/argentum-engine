@@ -2,7 +2,7 @@
 
 **Set Size:** 188 booster cards (excluding basic lands and tokens)
 **Release Date:** September 26, 2025
-**Implemented:** 1 / 188
+**Implemented:** 4 / 188
 ---
 
 - [x] Agent Venom
