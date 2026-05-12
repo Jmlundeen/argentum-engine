@@ -143,6 +143,46 @@ class ScorpionSeethingStrikerScenarioTest : ScenarioTestBase() {
             }
         }
 
+        context("Scorpion, Seething Striker — intervening-if suppresses trigger when no creature died") {
+
+            test("end-step trigger does not fire when no creature died this turn and no connive occurs") {
+                // No creature has died this turn — CreaturesDiedThisTurnComponent is absent.
+                // Glory Seeker stays 2/2; no card is drawn or discarded from the ability.
+                val game = scenario()
+                    .withPlayers("Active", "Opponent")
+                    .withCardOnBattlefield(1, "Scorpion, Seething Striker")
+                    .withCardOnBattlefield(1, "Glory Seeker")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(1, "Island")
+                    .withCardInLibrary(2, "Island")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val glorySeekerIdBefore = game.findPermanent("Glory Seeker")!!
+                val initialHandSize = game.handSize(1)
+                val initialLibrarySize = game.librarySize(1)
+
+                game.passUntilPhase(Phase.ENDING, Step.END)
+                game.resolveStack()
+
+                withClue("triggered ability must not fire — no creature died this turn") {
+                    game.hasPendingDecision() shouldBe false
+                }
+                withClue("no card should be drawn from suppressed trigger") {
+                    game.handSize(1) shouldBe initialHandSize
+                }
+                withClue("no card should be drawn from library") {
+                    game.librarySize(1) shouldBe initialLibrarySize
+                }
+                val projected = stateProjector.project(game.state)
+                withClue("Glory Seeker should still be 2/2 — no connive counter placed") {
+                    projected.getPower(glorySeekerIdBefore) shouldBe 2
+                    projected.getToughness(glorySeekerIdBefore) shouldBe 2
+                }
+            }
+        }
+
         context("Scorpion, Seething Striker — metadata matches Scryfall") {
 
             test("card definition has correct rarity, collector number, artist, oracle text, and image URI") {
