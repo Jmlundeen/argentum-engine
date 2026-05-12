@@ -89,4 +89,10 @@ sealed interface ManaRestriction {
             "Spend this mana only to cast a spell of the chosen type or activate an ability of a source of the chosen type"
         }
     }
+
+    @SerialName("CastFromExileOnly")
+    @Serializable
+    data object CastFromExileOnly : ManaRestriction {
+        override val description: String = "Spend this mana only to cast spells from exile"
+    }
 }
