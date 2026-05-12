@@ -44,6 +44,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.stats.SetBasePowerTough
 import com.wingedsheep.engine.handlers.effects.permanent.tapping.TapTargetCreaturesExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.tapping.TapUntapCollectionExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.tapping.TapUntapExecutor
+import com.wingedsheep.engine.handlers.effects.BecomesALandAndNotACreatureUntilYourNextTurnHandler
 import com.wingedsheep.engine.handlers.effects.permanent.types.AddCardTypeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.AddCreatureTypeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.AddSubtypeExecutor
@@ -104,6 +105,7 @@ class PermanentExecutors(
         GainControlByMostOfSubtypeExecutor(),
         GiveControlToTargetPlayerExecutor(),
         // types
+        BecomesALandAndNotACreatureUntilYourNextTurnHandler(),
         AddCardTypeExecutor(),
         AddCreatureTypeExecutor(),
         AddSubtypeExecutor(),
