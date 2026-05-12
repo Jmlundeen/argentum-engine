@@ -88,6 +88,28 @@ class ConditionalTriggerIfACreatureDiedThisTurnTest : FunSpec({
         driver.getLifeTotal(you) shouldBe lifeBefore + 1
     }
 
+    test("intervening-if predicate is true when only an opponent's creature died this turn") {
+        val driver = buildDriver()
+        injectEndStepAbility(driver)
+        val you = driver.player1
+        val opponent = driver.player2
+        val lifeBefore = driver.getLifeTotal(you)
+
+        // Only the opponent has had a creature die — "a creature died this turn" is global
+        driver.replaceState(
+            driver.state.updateEntity(opponent) { container ->
+                container.with(CreaturesDiedThisTurnComponent(count = 1))
+            }
+        )
+        driver.state.getEntity(you)?.get<CreaturesDiedThisTurnComponent>().shouldBeNull()
+
+        driver.passPriorityUntil(Step.END)
+
+        driver.stackSize shouldBe 1
+        driver.bothPass()
+        driver.getLifeTotal(you) shouldBe lifeBefore + 1
+    }
+
     test("per-turn creature died tracker is reset at cleanup so a subsequent turn re-evaluates to false") {
         val driver = buildDriver()
         val you = driver.player1

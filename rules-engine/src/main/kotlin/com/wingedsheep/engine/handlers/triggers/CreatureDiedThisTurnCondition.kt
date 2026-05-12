@@ -8,10 +8,9 @@ import kotlin.reflect.KClass
 
 /**
  * Evaluator for CreatureDiedThisTurnCondition.
- * Rule 603.4 intervening-if: "if a creature died this turn".
- * Checks CreaturesDiedThisTurnComponent on the ability controller's player entity.
- * The component is incremented by ZoneTransitionService on every creature death and
- * cleared by CleanupPhaseManager at end of turn.
+ * Intervening-if: "if a creature died this turn" — global, any creature, any controller.
+ * ZoneTransitionService increments CreaturesDiedThisTurnComponent on the dying creature's
+ * controller, so this sums across every player. CleanupPhaseManager clears at end of turn.
  */
 class CreatureDiedThisTurnConditionEvaluator {
 
@@ -20,10 +19,10 @@ class CreatureDiedThisTurnConditionEvaluator {
     fun evaluate(
         state: GameState,
         @Suppress("UNUSED_PARAMETER") condition: CreatureDiedThisTurnSdkCondition,
-        context: EffectContext
+        @Suppress("UNUSED_PARAMETER") context: EffectContext
     ): Boolean {
-        val count = state.getEntity(context.controllerId)
-            ?.get<CreaturesDiedThisTurnComponent>()?.count ?: 0
-        return count > 0
+        return state.turnOrder.any { playerId ->
+            (state.getEntity(playerId)?.get<CreaturesDiedThisTurnComponent>()?.count ?: 0) > 0
+        }
     }
 }
