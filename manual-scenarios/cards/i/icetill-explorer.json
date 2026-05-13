@@ -3,7 +3,7 @@
   "player2Name": "Bob",
   "player1": {
     "lifeTotal": 20,
-    "hand": ["Forest", "Forest"],
+    "hand": ["Forest", "Evolving Wilds"],
     "battlefield": [
       {"name": "Icetill Explorer"},
       {"name": "Forest", "tapped": false},
