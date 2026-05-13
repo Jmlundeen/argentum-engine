@@ -461,16 +461,32 @@ object ZoneTransitionService {
      * Emits the standard `CardsDiscardedEvent` plus the `ZoneChangeEvent` produced by
      * `moveToZone`, so dies/discard triggers and animations both see the canonical pair.
      */
-    fun discardCard(state: GameState, playerId: EntityId, cardId: EntityId): ZoneTransitionResult {
-        val cardName = state.getEntity(cardId)?.get<CardComponent>()?.name ?: "Card"
-        val moveResult = moveToZone(
-            state = state,
-            entityId = cardId,
-            destinationZone = Zone.GRAVEYARD,
-            fromZoneKey = ZoneKey(playerId, Zone.HAND)
-        )
-        val discardEvent = CardsDiscardedEvent(playerId, listOf(cardId), listOf(cardName))
-        return moveResult.copy(events = listOf(discardEvent) + moveResult.events)
+    fun discardCard(state: GameState, playerId: EntityId, cardId: EntityId): ZoneTransitionResult =
+        discardCards(state, playerId, listOf(cardId))
+
+    /**
+     * Move multiple cards from a player's hand to their graveyard as a single discard.
+     *
+     * Emits one combined `CardsDiscardedEvent` (so the client renders "You discarded X, Y"
+     * as a single log entry) plus one `ZoneChangeEvent` per card from `moveToZone`.
+     */
+    fun discardCards(state: GameState, playerId: EntityId, cardIds: List<EntityId>): ZoneTransitionResult {
+        if (cardIds.isEmpty()) return ZoneTransitionResult(state, emptyList())
+        val cardNames = cardIds.map { state.getEntity(it)?.get<CardComponent>()?.name ?: "Card" }
+        var newState = state
+        val moveEvents = mutableListOf<EngineGameEvent>()
+        for (cardId in cardIds) {
+            val result = moveToZone(
+                state = newState,
+                entityId = cardId,
+                destinationZone = Zone.GRAVEYARD,
+                fromZoneKey = ZoneKey(playerId, Zone.HAND)
+            )
+            newState = result.state
+            moveEvents.addAll(result.events)
+        }
+        val discardEvent = CardsDiscardedEvent(playerId, cardIds, cardNames)
+        return ZoneTransitionResult(newState, listOf(discardEvent) + moveEvents)
     }
 
     /**
