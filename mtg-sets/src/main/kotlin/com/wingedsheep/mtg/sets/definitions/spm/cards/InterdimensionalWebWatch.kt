@@ -21,15 +21,15 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Interdimensional Web Watch
  * {4}
  * Artifact
- * When Interdimensional Web Watch enters, exile the top two cards of your library.
+ * When this artifact enters, exile the top two cards of your library.
  * Until the end of your next turn, you may play those cards.
- * {T}: Add one mana of any color. Spend this mana only to cast spells from exile.
+ * {T}: Add two mana in any combination of colors. Spend this mana only to cast spells from exile.
  */
 val InterdimensionalWebWatch = card("Interdimensional Web Watch") {
     manaCost = "{4}"
     colorIdentity = ""
     typeLine = "Artifact"
-    oracleText = "When Interdimensional Web Watch enters, exile the top two cards of your library. Until the end of your next turn, you may play those cards.\n{T}: Add one mana of any color. Spend this mana only to cast spells from exile."
+    oracleText = "When this artifact enters, exile the top two cards of your library. Until the end of your next turn, you may play those cards.\n{T}: Add two mana in any combination of colors. Spend this mana only to cast spells from exile."
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
@@ -57,8 +57,8 @@ val InterdimensionalWebWatch = card("Interdimensional Web Watch") {
 
     metadata {
         rarity = Rarity.RARE
-        collectorNumber = "1"
-        artist = "Unknown"
-        imageUri = "https://cards.scryfall.io/normal/front/0/0/00000000-0000-0000-0000-000000000000.jpg"
+        collectorNumber = "165"
+        artist = "Toni Infante"
+        imageUri = "https://cards.scryfall.io/normal/front/8/7/87a8e112-e72f-413f-88a3-e7ce72c2ec53.jpg?1757378025"
     }
 }

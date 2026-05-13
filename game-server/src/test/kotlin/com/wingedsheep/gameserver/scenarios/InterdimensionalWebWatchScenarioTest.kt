@@ -1,17 +1,20 @@
 package com.wingedsheep.gameserver.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
+import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.MayPlayFromExileComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.engine.state.permissions.MayPlayPermission
 import com.wingedsheep.gameserver.ScenarioTestBase
+import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 
 /**
  * Scenario tests for Interdimensional Web Watch.
@@ -98,8 +101,11 @@ class InterdimensionalWebWatchScenarioTest : ScenarioTestBase() {
                 withClue("ETB should exile two cards") { exile.size shouldBe 2 }
 
                 val exiledId = exile.first()
+                fun hasMayPlayFor(id: EntityId): Boolean =
+                    game.state.mayPlayPermissions.any { id in it.cardIds }
+
                 withClue("Permission should be active immediately after ETB") {
-                    game.state.getEntity(exiledId)?.get<MayPlayFromExileComponent>() shouldNotBe null
+                    hasMayPlayFor(exiledId) shouldBe true
                 }
 
                 // Step through two full turns using alternating waypoints so no call is a no-op.
@@ -115,7 +121,7 @@ class InterdimensionalWebWatchScenarioTest : ScenarioTestBase() {
                 game.passUntilPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
 
                 withClue("Permission should still be active during controller's next turn") {
-                    game.state.getEntity(exiledId)?.get<MayPlayFromExileComponent>() shouldNotBe null
+                    hasMayPlayFor(exiledId) shouldBe true
                 }
 
                 // [6] P1's PRECOMBAT_MAIN (turn 2) → P2's UPKEEP (through P1's end + cleanup round 2)
@@ -123,7 +129,7 @@ class InterdimensionalWebWatchScenarioTest : ScenarioTestBase() {
                 game.passUntilPhase(Phase.BEGINNING, Step.UPKEEP)
 
                 withClue("Permission must be removed after the controller's next turn ends") {
-                    game.state.getEntity(exiledId)?.get<MayPlayFromExileComponent>() shouldBe null
+                    hasMayPlayFor(exiledId) shouldBe false
                 }
             }
         }
@@ -163,14 +169,81 @@ class InterdimensionalWebWatchScenarioTest : ScenarioTestBase() {
                 }
 
                 exile.forEach { cardId ->
-                    val mayPlay = game.state.getEntity(cardId)?.get<MayPlayFromExileComponent>()
                     val cardName = game.state.getEntity(cardId)?.get<CardComponent>()?.name
+                    val permission = game.state.mayPlayPermissions.firstOrNull { cardId in it.cardIds }
                     withClue("Exiled card '$cardName' should be tagged with play permission for the controller") {
-                        mayPlay shouldNotBe null
+                        permission shouldNotBe null
                     }
                     withClue("Play permission on '$cardName' should be granted to player 1 (the controller)") {
-                        mayPlay!!.controllerId shouldBe game.player1Id
+                        permission!!.controllerId shouldBe game.player1Id
                     }
+                }
+            }
+        }
+
+        context("Interdimensional Web Watch — restricted mana spending") {
+
+            test("restricted mana pays for an exile-cast spell but is refused for the same spell in hand") {
+                val game = scenario()
+                    .withPlayers("Caster", "Opponent")
+                    .withCardOnBattlefield(1, "Interdimensional Web Watch")
+                    .withCardInExile(1, "Grizzly Bears")
+                    .withCardInHand(1, "Grizzly Bears")
+                    .withCardInLibrary(2, "Island")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val watchId = game.findPermanent("Interdimensional Web Watch")!!
+                val exiledBears = game.state.getExile(game.player1Id).first()
+                val handBears = game.state.getHand(game.player1Id).first()
+
+                // Manually grant cast-from-exile permission on the exiled Bears so this test
+                // exercises the mana restriction without depending on the ETB pipeline.
+                game.state = game.state.copy(
+                    mayPlayPermissions = game.state.mayPlayPermissions + MayPlayPermission(
+                        id = EntityId.generate(),
+                        cardIds = setOf(exiledBears),
+                        controllerId = game.player1Id,
+                        sourceId = watchId,
+                        permanent = true,
+                        timestamp = game.state.timestamp
+                    )
+                )
+
+                val cardDef = cardRegistry.getCard("Interdimensional Web Watch")!!
+                val manaAbility = cardDef.script.activatedAbilities.first()
+                val activate = game.execute(
+                    ActivateAbility(
+                        playerId = game.player1Id,
+                        sourceId = watchId,
+                        abilityId = manaAbility.id
+                    )
+                )
+                withClue("Tap ability should activate: ${activate.error}") {
+                    activate.error shouldBe null
+                }
+
+                val manaPool = game.state.getEntity(game.player1Id)?.get<ManaPoolComponent>()
+                withClue("Two restricted mana entries should be in the pool") {
+                    manaPool?.restrictedMana?.size shouldBe 2
+                }
+
+                // The hand copy must NOT be castable with the restricted mana.
+                val handCast = game.execute(CastSpell(game.player1Id, handBears))
+                withClue("Casting from hand with cast-from-exile-restricted mana must fail") {
+                    handCast.error shouldNotBe null
+                    handCast.error!!.shouldContain("mana")
+                }
+
+                // The exile copy must be castable with the restricted mana.
+                val exileCast = game.execute(CastSpell(game.player1Id, exiledBears))
+                withClue("Casting from exile with cast-from-exile-restricted mana must succeed: ${exileCast.error}") {
+                    exileCast.error shouldBe null
+                }
+                game.resolveStack()
+                withClue("Grizzly Bears cast from exile should land on the battlefield") {
+                    game.isOnBattlefield("Grizzly Bears") shouldBe true
                 }
             }
         }
