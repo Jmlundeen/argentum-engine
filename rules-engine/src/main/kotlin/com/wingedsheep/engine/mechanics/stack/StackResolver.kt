@@ -1287,6 +1287,20 @@ class StackResolver(
             newState = applyExileCounters(newState, spellId, exileAfterResolveComp.withCounters, events)
         }
 
+        // Link the exiled spell back to the source permanent (Goliath Daydreamer)
+        // so the UI can display it tethered under the source and so the attack-trigger
+        // free-cast ability can find it via the linked-exile pile.
+        if (destinationZone == Zone.EXILE && exileAfterResolveComp?.linkedSourceId != null) {
+            val sourceId = exileAfterResolveComp.linkedSourceId
+            if (newState.getEntity(sourceId) != null) {
+                newState = newState.updateEntity(sourceId) { c ->
+                    val existing = c.get<com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent>()
+                    val updated = (existing?.exiledIds ?: emptyList()) + spellId
+                    c.with(com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent(updated))
+                }
+            }
+        }
+
         redirect.additionalEffect?.let { extra ->
             newState = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.applyReplacementAdditionalEffect(
                 newState, extra, redirect.effectControllerId, spellId

@@ -99,7 +99,15 @@ enum class Keyword(val displayName: String) {
      * out its own effect. Wired via the `vivid…` DSL helpers on [CardBuilder]
      * or by adding the appropriate effect/static ability directly.
      */
-    VIVID("Vivid");
+    VIVID("Vivid"),
+
+    /**
+     * Fateful Bite (Marvel's Spider-Man).
+     * Ability word — flavor prefix used on Spider creatures whose activated abilities
+     * tutor up other Spider-related cards. Per CR 207.2c, ability words have no rules
+     * meaning; the prefix is metadata only and does not modify resolution.
+     */
+    FATEFUL_BITE("Fateful Bite");
 
     companion object {
         fun fromString(value: String): Keyword? =
@@ -119,6 +127,12 @@ enum class Keyword(val displayName: String) {
                     trimmed.split(",").forEach { part ->
                         fromString(part.trim())?.let { keywords.add(it) }
                     }
+                }
+
+                // Check for ability word prefix: "Ability Word — effect description" (CR 207.2c)
+                if (trimmed.contains('—')) {
+                    val prefix = trimmed.substringBefore('—').trim()
+                    fromString(prefix)?.let { keywords.add(it) }
                 }
             }
 
