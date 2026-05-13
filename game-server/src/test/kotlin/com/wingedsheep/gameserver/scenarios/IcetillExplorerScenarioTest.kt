@@ -70,16 +70,17 @@ class IcetillExplorerScenarioTest : ScenarioTestBase() {
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
+                val landDropsBefore = game.state.getEntity(game.player1Id)?.get<LandDropsComponent>()!!.remaining
                 val forestId = findInGraveyard(game, 1, "Forest")
                 game.execute(PlayLand(game.player1Id, forestId))
 
-                // The additional land drop from Icetill Explorer allows one more play,
-                // but we already used the base drop; so the effective remaining is still 1
-                // (remaining = 0, static bonus = 1).  A second play uses the bonus.
-                val landDrops = game.state.getEntity(game.player1Id)?.get<LandDropsComponent>()
-                withClue("One land drop should have been consumed") {
-                    landDrops shouldNotBe null
-                    landDrops!!.remaining shouldBe 0
+                // Playing a land from the graveyard must consume the same `remaining` counter
+                // a hand play would: the new Crucible-style permission shortcuts the Muldrotha
+                // tracker but still routes through `landDrops.use()`.
+                val landDropsAfter = game.state.getEntity(game.player1Id)?.get<LandDropsComponent>()
+                withClue("Graveyard land play should decrement LandDropsComponent.remaining by 1") {
+                    landDropsAfter shouldNotBe null
+                    landDropsAfter!!.remaining shouldBe landDropsBefore - 1
                 }
             }
 
@@ -140,6 +141,7 @@ class IcetillExplorerScenarioTest : ScenarioTestBase() {
                     .withCardOnBattlefield(1, "Icetill Explorer")
                     .withCardInGraveyard(1, "Forest")
                     .withCardInHand(1, "Forest")
+                    .withCardInHand(1, "Forest")  // third land — should fail to play
                     .withCardInLibrary(1, "Forest")
                     .withCardInLibrary(1, "Forest")
                     .withCardInLibrary(2, "Forest")
@@ -156,24 +158,22 @@ class IcetillExplorerScenarioTest : ScenarioTestBase() {
                 }
 
                 // Second land: from hand (using the bonus land drop)
-                val handForestId = game.state.getHand(game.player1Id).find { id ->
+                val handForestId = game.state.getHand(game.player1Id).first { id ->
                     game.state.getEntity(id)?.get<CardComponent>()?.name == "Forest"
-                }!!
+                }
                 val result2 = game.execute(PlayLand(game.player1Id, handForestId))
                 game.resolveStack()  // resolve second landfall trigger
                 withClue("Second land (from hand via bonus drop) should succeed: ${result2.error}") {
                     result2.error shouldBe null
                 }
 
-                // Third land should fail — no more drops
-                val handForestIds = game.state.getHand(game.player1Id).filter { id ->
+                // Third land should fail — base drop + Icetill bonus is 2 per turn, both spent.
+                val remainingForest = game.state.getHand(game.player1Id).first { id ->
                     game.state.getEntity(id)?.get<CardComponent>()?.name == "Forest"
                 }
-                if (handForestIds.isNotEmpty()) {
-                    val result3 = game.execute(PlayLand(game.player1Id, handForestIds.first()))
-                    withClue("Third land should fail — no more land drops") {
-                        result3.error shouldNotBe null
-                    }
+                val result3 = game.execute(PlayLand(game.player1Id, remainingForest))
+                withClue("Third land should fail — Icetill grants exactly one extra drop") {
+                    result3.error shouldNotBe null
                 }
             }
         }

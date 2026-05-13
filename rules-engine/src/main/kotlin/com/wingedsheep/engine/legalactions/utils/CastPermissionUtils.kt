@@ -245,7 +245,9 @@ class CastPermissionUtils(
                 }
             }
             // Crucible of Worlds style: unlimited land plays from graveyard (land-drop is the limit)
-            if (typeName == "LAND" && cardDef.script.staticAbilities.any { it is MayPlayLandsFromGraveyard }) {
+            if (typeName == com.wingedsheep.sdk.core.CardType.LAND.name &&
+                cardDef.script.staticAbilities.any { it is MayPlayLandsFromGraveyard }
+            ) {
                 return true
             }
         }

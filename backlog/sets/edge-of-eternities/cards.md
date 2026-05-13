@@ -2,11 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-<<<<<<< HEAD
 **Implemented:** 167 / 261
-=======
-**Implemented:** 168 / 261
->>>>>>> 4408d2830 (Add Icetill Explorer to Edge of Eternities with MayPlayLandsFromGraveyard support)
 ---
 
 - [x] Adagia, Windswept Bastion
