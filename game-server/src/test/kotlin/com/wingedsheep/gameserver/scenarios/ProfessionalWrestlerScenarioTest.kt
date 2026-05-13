@@ -16,7 +16,7 @@ import io.kotest.matchers.shouldBe
  * Card reference:
  * - Professional Wrestler ({3}{G}): Creature — Human Warrior Performer, 4/4
  *   "When this creature enters, create a Treasure token."
- *   "Professional Wrestler can't be blocked by more than one creature."
+ *   "This creature can't be blocked by more than one creature."
  */
 class ProfessionalWrestlerScenarioTest : ScenarioTestBase() {
 

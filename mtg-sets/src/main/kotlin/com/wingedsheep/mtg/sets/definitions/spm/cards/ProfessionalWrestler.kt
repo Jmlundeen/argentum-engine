@@ -6,21 +6,13 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan
 
-/**
- * Professional Wrestler
- * {3}{G}
- * Creature — Human Warrior Performer
- * 4/4
- * When this creature enters, create a Treasure token.
- * Professional Wrestler can't be blocked by more than one creature.
- */
 val ProfessionalWrestler = card("Professional Wrestler") {
     manaCost = "{3}{G}"
     colorIdentity = "G"
     typeLine = "Creature — Human Warrior Performer"
     power = 4
     toughness = 4
-    oracleText = "When this creature enters, create a Treasure token.\nProfessional Wrestler can't be blocked by more than one creature."
+    oracleText = "When this creature enters, create a Treasure token.\nThis creature can't be blocked by more than one creature."
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
@@ -33,8 +25,8 @@ val ProfessionalWrestler = card("Professional Wrestler") {
 
     metadata {
         rarity = Rarity.COMMON
-        collectorNumber = "175"
-        artist = "Igor Krstic"
-        imageUri = "https://cards.scryfall.io/normal/front/3/f/3f4c85b1-8c5b-4c6e-8e4e-d4b2a4e5f7a9.jpg?1757377869"
+        collectorNumber = "110"
+        artist = "Kevin Sidharta"
+        imageUri = "https://cards.scryfall.io/normal/front/8/a/8a5381e7-ddda-47e7-886d-812250ffb745.jpg?1757377496"
     }
 }
