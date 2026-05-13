@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.continuations
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.effects.drawing.EachPlayerDiscardsOrLoseLifeExecutor
+import com.wingedsheep.engine.handlers.effects.drawing.ReadTheRunesExecutor
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -281,24 +282,18 @@ class DiscardAndDrawContinuationResumer(
 
         val selectedCards = response.selectedCards
         val playerId = continuation.controllerId
-        val handZone = ZoneKey(playerId, Zone.HAND)
-        val graveyardZone = ZoneKey(playerId, Zone.GRAVEYARD)
 
         var newState = state
-        for (cardId in selectedCards) {
-            newState = newState.removeFromZone(handZone, cardId)
-            newState = newState.addToZone(graveyardZone, cardId)
-        }
-
         val events = mutableListOf<GameEvent>()
 
-        if (selectedCards.isNotEmpty()) {
-            val discardNames = selectedCards.map { state.getEntity(it)?.get<CardComponent>()?.name ?: "Card" }
-            events.add(CardsDiscardedEvent(playerId, selectedCards, discardNames))
+        for (cardId in selectedCards) {
+            val discardResult = ReadTheRunesExecutor.discardCard(newState, playerId, cardId)
+            newState = discardResult.state
+            events.addAll(discardResult.events)
         }
 
         // If any discarded card is a nonland, put a +1/+1 counter on the connive source
-        val discardedNonland = selectedCards.isNotEmpty() && selectedCards.any { cardId ->
+        val discardedNonland = selectedCards.any { cardId ->
             state.getEntity(cardId)?.get<CardComponent>()?.isLand == false
         }
 
