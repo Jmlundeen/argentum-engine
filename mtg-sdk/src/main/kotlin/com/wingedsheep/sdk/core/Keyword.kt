@@ -102,9 +102,9 @@ enum class Keyword(val displayName: String) {
     VIVID("Vivid"),
 
     /**
-     * Fateful Bite (Scourge of the Skyclaves / custom set).
-     * Ability word — flavor prefix for effects that deal damage equal to a creature's
-     * power to another target creature. Per CR 207.2c, ability words have no rules
+     * Fateful Bite (Marvel's Spider-Man).
+     * Ability word — flavor prefix used on Spider creatures whose activated abilities
+     * tutor up other Spider-related cards. Per CR 207.2c, ability words have no rules
      * meaning; the prefix is metadata only and does not modify resolution.
      */
     FATEFUL_BITE("Fateful Bite");
