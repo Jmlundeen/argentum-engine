@@ -2,8 +2,7 @@
 
 **Set Size:** 188 booster cards (excluding basic lands and tokens)
 **Release Date:** September 26, 2025
-**Implemented:** 6 / 188
----
+**Implemented:** 7 / 188
 
 - [x] Agent Venom
 - [ ] Alien Symbiosis
@@ -112,7 +111,7 @@
 - [ ] Scarlet Spider, Ben Reilly
 - [ ] Scarlet Spider, Kaine
 - [ ] School Daze
-- [ ] Scorpion's Sting
+- [x] Scorpion's Sting
 - [ ] Scorpion, Seething Striker
 - [ ] Scout the City
 - [ ] Secret Identity
