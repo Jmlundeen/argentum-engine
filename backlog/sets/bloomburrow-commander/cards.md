@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 52 / 312
+**Implemented:** 53 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -208,7 +208,7 @@
 - [ ] Prairie Stream
 - [ ] Primeval Bounty
 - [ ] Promise of Loyalty
-- [ ] Prosperous Bandit
+- [x] Prosperous Bandit
 - [ ] Prosperous Innkeeper
 - [ ] Psychosis Crawler
 - [ ] Pull from Tomorrow
