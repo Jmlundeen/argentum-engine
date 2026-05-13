@@ -41,9 +41,12 @@ class CopyTargetSpellExecutor(
             ?: return EffectResult.error(state, "Target spell entity not found on stack")
 
         val cardComponent = container.get<CardComponent>()
-        val spellEffect = cardComponent?.spellEffect
-            ?: return EffectResult.error(state, "Target spell has no effect to copy")
+            ?: return EffectResult.error(state, "Target spell has no CardComponent")
 
+        // Permanent spells (creatures, artifacts, ...) have no spellEffect; their
+        // resolution puts a permanent onto the battlefield. Only the
+        // TriggeredAbilityOnStackComponent fallback path needs a spellEffect.
+        val spellEffect = cardComponent.spellEffect
         val spellName = cardComponent.name
         val targetsComponent = container.get<TargetsComponent>()
         val targetRequirements = targetsComponent?.targetRequirements ?: emptyList()
@@ -93,11 +96,13 @@ class CopyTargetSpellExecutor(
         }
 
         // If the original spell has no targets, create the copy immediately.
-        // When stripSupertypes is requested use putSpellCopy so we get a real spell entity
-        // whose CardComponent we can patch; otherwise fall back to the lightweight
-        // TriggeredAbilityOnStackComponent path.
+        // For permanent spells (no spellEffect) and for stripSupertypes we use
+        // putSpellCopy so we get a real spell entity whose CardComponent can be
+        // patched and which resolves into a token permanent. For instant/sorcery
+        // spells without strip, the lightweight TriggeredAbilityOnStackComponent
+        // path is sufficient.
         if (targetRequirements.isEmpty()) {
-            if (effect.stripSupertypes) {
+            if (effect.stripSupertypes || spellEffect == null) {
                 val copyResult = stackResolver.putSpellCopy(
                     state = state,
                     sourceSpellId = spellEntityId,
@@ -107,7 +112,7 @@ class CopyTargetSpellExecutor(
                 )
                 if (!copyResult.isSuccess) return EffectResult.from(copyResult)
                 val copyId = copyResult.events.filterIsInstance<SpellCopiedEvent>().firstOrNull()?.copyEntityId
-                val stripped = if (copyId != null) {
+                val stripped = if (effect.stripSupertypes && copyId != null) {
                     copyResult.newState.updateEntity(copyId) { container ->
                         val card = container.get<CardComponent>() ?: return@updateEntity container
                         container.with(card.copy(typeLine = card.typeLine.copy(supertypes = emptySet())))
@@ -130,7 +135,12 @@ class CopyTargetSpellExecutor(
             ))
         }
 
-        // Spell has targets — prompt for new target selection
+        // Spell has targets — prompt for new target selection. Targeted permanent
+        // spells (no spellEffect) are not supported via this path; the caller must
+        // not invoke CopyTargetSpell on a permanent spell with targets.
+        if (spellEffect == null) {
+            return EffectResult.error(state, "Cannot copy target permanent spell with targets")
+        }
         return promptForCopyTargets(
             state, context, spellEntityId, spellEffect, targetRequirements, spellName,
             effect.keywordsForCopy.toSet()
