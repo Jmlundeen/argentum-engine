@@ -193,6 +193,8 @@ export enum Keyword {
   TOXIC = 'TOXIC',
   // Death replacement
   PERSIST = 'PERSIST',
+  // Resolution-time city's blessing grant (Ixalan)
+  ASCEND = 'ASCEND',
   // Ability words
   EERIE = 'EERIE',
 }
@@ -240,6 +242,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.WITHER]: 'Wither',
   [Keyword.TOXIC]: 'Toxic',
   [Keyword.PERSIST]: 'Persist',
+  [Keyword.ASCEND]: 'Ascend',
   [Keyword.EERIE]: 'Eerie',
 }
 

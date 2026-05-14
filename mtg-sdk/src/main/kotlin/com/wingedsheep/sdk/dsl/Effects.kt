@@ -493,6 +493,16 @@ object Effects {
     )
 
     /**
+     * Grants the city's blessing to a player (CR 702.131 / 700.5).
+     *
+     * Once granted, never lost — applying again is a no-op. Used as the
+     * resolution effect of Ascend triggers, typically gated by an intervening-if
+     * such as `Conditions.ControlPermanentsAtLeast(10)`.
+     */
+    fun GainCitysBlessing(target: EffectTarget = EffectTarget.Controller): Effect =
+        com.wingedsheep.sdk.scripting.effects.GainCitysBlessingEffect(target)
+
+    /**
      * Return to hand.
      */
     fun ReturnToHand(target: EffectTarget): Effect =

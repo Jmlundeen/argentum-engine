@@ -339,6 +339,14 @@ sealed interface SourceProjectionCondition {
         val filter: GameObjectFilter,
         val atLeast: Int
     ) : SourceProjectionCondition
+
+    /**
+     * The source permanent's controller has the city's blessing (CR 702.131 / 700.5).
+     * Used for static abilities gated on the blessing, e.g. Tendershoot Dryad:
+     * "Saprolings you control get +2/+2 as long as you have the city's blessing."
+     */
+    @Serializable
+    data object ControllerHasCitysBlessing : SourceProjectionCondition
 }
 
 /**

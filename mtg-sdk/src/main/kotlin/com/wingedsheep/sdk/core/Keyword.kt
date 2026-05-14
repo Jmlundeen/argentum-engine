@@ -65,6 +65,14 @@ enum class Keyword(val displayName: String) {
     OFFSPRING("Offspring"),
     PERSIST("Persist"),
 
+    /**
+     * Ascend (Ixalan, CR 702.131). On a permanent spell, means "When this permanent
+     * enters, if you control ten or more permanents, you get the city's blessing
+     * for the rest of the game." Engine wires the trigger explicitly per card; the
+     * keyword itself is only a textual marker for rules-text display.
+     */
+    ASCEND("Ascend"),
+
     // ── Damage modification ──────────────────────────────
     WITHER("Wither"),
     TOXIC("Toxic"),
