@@ -26,7 +26,7 @@
 - [x] 1 Pyreswipe Hawk
 - [x] 1 Rampaging Baloths
 - [x] 1 Sakura-Tribe Elder
-- [ ] 1 Teapot Slinger
+- [x] 1 Teapot Slinger
 - [ ] 1 Tendershoot Dryad
 - [ ] 1 Trailtracker Scout
 - [ ] 1 Wandertale Mentor
