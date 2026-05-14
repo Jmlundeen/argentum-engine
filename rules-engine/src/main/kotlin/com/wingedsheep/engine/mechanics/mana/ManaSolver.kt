@@ -90,6 +90,14 @@ data class ManaSource(
     /** Per-color mana restrictions. Colors not in this map are unrestricted. */
     val colorRestrictions: Map<Color, ManaRestriction> = emptyMap(),
     /**
+     * True when this source has multiple mana abilities with mutually-different
+     * restrictions (e.g. Steelswarm Operator's two abilities), so the cached aggregate
+     * collapses to "unrestricted" and is only correct without a spell/ability payment
+     * context. The solver re-runs [findAvailableManaSources] with the context when any
+     * cached source carries this flag.
+     */
+    val hasContextSensitiveAbilities: Boolean = false,
+    /**
      * Additional mana cost required (beyond tapping) to produce each color.
      * Entries reflect the *cheapest* ability producing that color on this permanent.
      * For filter lands like Hidden Grotto ({1}, {T}: Add one mana of any color),
@@ -180,14 +188,22 @@ class ManaSolver(
         precomputedSources: List<ManaSource>? = null
     ): ManaSolution? {
         // Get all untapped mana sources controlled by the player.
-        // When a spell/ability payment context is provided, recompute (bypass the
-        // pre-built cache) so that sources with mixed-restriction mana abilities are
-        // built with the right per-ability filtering. Then drop restricted sources whose
-        // (combined) restriction is still incompatible with the context.
-        val rawSources = if (spellContext != null) {
+        //
+        // The cached `precomputedSources` is built without a payment context, so for
+        // sources that have multiple mana abilities with mismatched restrictions
+        // (e.g. Steelswarm Operator) the cached aggregate collapses to "unrestricted"
+        // and over-states what the source can produce for a specific spend. When such
+        // a source is present and a context is provided, re-run findAvailableManaSources
+        // with the context to filter abilities accurately. Otherwise reuse the cache.
+        val cachedSources = precomputedSources
+        val needsContextRebuild = spellContext != null && (
+            cachedSources == null ||
+                cachedSources.any { it.hasContextSensitiveAbilities }
+            )
+        val rawSources = if (needsContextRebuild) {
             findAvailableManaSources(state, playerId, spellContext)
         } else {
-            precomputedSources ?: findAvailableManaSources(state, playerId)
+            cachedSources ?: findAvailableManaSources(state, playerId)
         }
         val availableSources = rawSources
             .filter { it.entityId !in excludeSources }
@@ -555,8 +571,9 @@ class ManaSolver(
             // When a spell/ability payment context is provided, drop mana abilities whose
             // restriction is incompatible. Otherwise the combiner below would treat a
             // source with two mutually-exclusive restricted abilities (e.g. Steelswarm
-            // Operator's ArtifactSpellsOnly + ArtifactSourceAbilitiesOnly) as unrestricted
-            // and over-produce mana for the actual spend.
+            // Operator's "spells only" + "abilities only" variants of
+            // CardTypeSpellsOrAbilitiesOnly) as unrestricted and over-produce mana for the
+            // actual spend.
             val manaAbilities = if (spellContext != null) {
                 rawManaAbilities.filter { ability ->
                     val r = extractManaRestriction(ability.effect)
@@ -621,6 +638,10 @@ class ManaSolver(
             var hasUnrestrictedAbility = false
             var commonRestriction: ManaRestriction? = null
             var firstRestrictionSeen = false
+            // Set when two abilities on this source have different non-null restrictions —
+            // the cached aggregate then mis-represents what the source can produce for a
+            // specific context, and the solver re-runs us with a context to disambiguate.
+            var hasMixedRestrictions = false
             // Track per-color restrictions (for sources with mixed restricted/unrestricted abilities)
             val perColorRestrictions = mutableMapOf<Color, ManaRestriction?>()
             // Track the minimum mana-cost-to-activate per color (cheapest ability producing it)
@@ -822,8 +843,12 @@ class ManaSolver(
                         // First ability for this color — record its restriction
                         perColorRestrictions[color] = effectRestriction
                     } else if (existing != null && existing != effectRestriction) {
-                        // Different restriction — treat as unrestricted (player can choose)
+                        // Different restriction — collapse for the cached aggregate
+                        // (player can choose which ability to activate) and flag this
+                        // source as context-sensitive so solve() re-runs us with the
+                        // payment context.
                         perColorRestrictions[color] = null
+                        hasMixedRestrictions = true
                     }
                 }
 
@@ -835,8 +860,10 @@ class ManaSolver(
                     firstRestrictionSeen = true
                 } else if (commonRestriction != effectRestriction) {
                     // Different restrictions across abilities — treat as unrestricted
-                    // (player can choose which ability to activate)
+                    // (player can choose which ability to activate); flag for the
+                    // context-aware re-solve.
                     hasUnrestrictedAbility = true
+                    hasMixedRestrictions = true
                 }
             }
 
@@ -874,7 +901,8 @@ class ManaSolver(
                     restriction = sourceRestriction,
                     colorRiders = perColorRiders.mapValues { (_, v) -> v.toSet() },
                     colorRestrictions = restrictedColors,
-                    colorActivationManaCost = colorActivationCosts
+                    colorActivationManaCost = colorActivationCosts,
+                    hasContextSensitiveAbilities = hasMixedRestrictions,
                 )
             }
 

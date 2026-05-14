@@ -59,10 +59,8 @@ class GraveyardAbilityEnumerator : ActionEnumerator {
                 var blightCost: AbilityCost.Blight? = null
                 var blightCreatures: List<EntityId> = emptyList()
 
-                val abilityContext = com.wingedsheep.engine.mechanics.mana.SpellPaymentContext(
-                    isAbilityActivation = true,
-                    isAbilityFromArtifactSource = cardComponent.typeLine.isArtifact,
-                    subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                val abilityContext = com.wingedsheep.engine.mechanics.mana.buildAbilityPaymentContext(
+                    cardComponent, context.projected, entityId
                 )
 
                 when (effectiveCost) {

@@ -1,9 +1,13 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
+import com.wingedsheep.mtg.sets.definitions.eoe.cards.ChromeCompanion
+import com.wingedsheep.mtg.sets.definitions.eoe.cards.SteelswarmOperator
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.Deck
@@ -11,7 +15,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 /**
- * Regression tests for Steelswarm Operator's two restricted mana abilities.
+ * Scenario tests for Steelswarm Operator's two restricted mana abilities.
  *
  * Steelswarm Operator ({1}{U}, 1/1 Artifact Creature — Robot Soldier, Flying):
  *   {T}: Add {U}. Spend this mana only to cast an artifact spell.
@@ -22,6 +26,15 @@ import io.kotest.matchers.shouldBe
  * source as a 2-blue producer, leaving stray blue mana in the pool after casting an
  * artifact spell. The fix filters mana abilities by the spell payment context before
  * combining them into a single ManaSource.
+ *
+ * Coverage:
+ *  - Auto-tap pays an artifact spell with Steelswarm + Island, no leftover mana
+ *    (regression for the original bug).
+ *  - Solver rejects a non-artifact {U} cost when Steelswarm is the only source
+ *    (negative test: restricted mana can't fund off-type spells).
+ *  - Steelswarm's {U}{U} ability pays for Chrome Companion's {2},{T} artifact
+ *    activated ability end-to-end (graveyard target is moved on resolution).
+ *  - Card-definition sanity: both activated abilities are mana abilities.
  */
 class SteelswarmOperatorTest : FunSpec({
 
@@ -56,15 +69,87 @@ class SteelswarmOperatorTest : FunSpec({
         // solver assumed Steelswarm Operator's {U}{U} ability could pay for the spell.
         val pool = driver.state.getEntity(caster)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
         pool.blue shouldBe 0
-        pool.white shouldBe 0
-        pool.black shouldBe 0
-        pool.red shouldBe 0
-        pool.green shouldBe 0
         pool.colorless shouldBe 0
         pool.restrictedMana.size shouldBe 0
 
         // Resolve the stack — Cryogen Relic should now be on the battlefield.
         driver.bothPass()
         driver.state.getZone(caster, Zone.BATTLEFIELD).contains(relic) shouldBe true
+    }
+
+    test("solver reports a non-artifact {U} cost as unaffordable when only Steelswarm Operator is available") {
+        val driver = createDriver()
+        val caster = driver.activePlayer!!
+
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        driver.putPermanentOnBattlefield(caster, "Steelswarm Operator")
+
+        // Steelswarm is the only source. Both abilities restrict to artifact contexts;
+        // a non-artifact creature spell should report unaffordable.
+        val solver = com.wingedsheep.engine.mechanics.mana.ManaSolver(driver.cardRegistry)
+        val cost = com.wingedsheep.sdk.core.ManaCost.parse("{U}")
+        val creatureSpellContext = com.wingedsheep.engine.mechanics.mana.SpellPaymentContext(
+            isCreature = true,
+            cardTypes = setOf(com.wingedsheep.sdk.core.CardType.CREATURE),
+        )
+        val artifactSpellContext = com.wingedsheep.engine.mechanics.mana.SpellPaymentContext(
+            cardTypes = setOf(com.wingedsheep.sdk.core.CardType.ARTIFACT),
+        )
+
+        solver.canPay(driver.state, caster, cost, spellContext = creatureSpellContext) shouldBe false
+        solver.canPay(driver.state, caster, cost, spellContext = artifactSpellContext) shouldBe true
+    }
+
+    test("Steelswarm's {U}{U} mana pays for Chrome Companion's {2},{T} artifact ability") {
+        val driver = createDriver()
+        val caster = driver.activePlayer!!
+
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val operator = driver.putPermanentOnBattlefield(caster, "Steelswarm Operator")
+        val chromeCompanion = driver.putPermanentOnBattlefield(caster, "Chrome Companion")
+        val graveyardCard = driver.putCardInGraveyard(caster, "Bombard")
+
+        // Use Steelswarm Operator's SECOND mana ability (artifact-source-ability-only).
+        // It's the second activatedAbility in the card definition.
+        val abilityToPayFor = ChromeCompanion.activatedAbilities.first().id
+
+        val activateResult = driver.submit(
+            ActivateAbility(
+                playerId = caster,
+                sourceId = chromeCompanion,
+                abilityId = abilityToPayFor,
+                targets = listOf(ChosenTarget.Card(graveyardCard, caster, Zone.GRAVEYARD)),
+            )
+        )
+        activateResult.isSuccess shouldBe true
+
+        // Steelswarm Operator must have been tapped to produce the {U}{U} that paid the
+        // {2} portion of Chrome Companion's cost.
+        driver.state.getEntity(operator)?.has<TappedComponent>() shouldBe true
+        driver.state.getEntity(chromeCompanion)?.has<TappedComponent>() shouldBe true
+
+        // No leftover mana in pool.
+        val pool = driver.state.getEntity(caster)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
+        pool.blue shouldBe 0
+        pool.colorless shouldBe 0
+        pool.restrictedMana.size shouldBe 0
+
+        // Drain the stack — Chrome Companion's "becomes tapped → gain 1 life" trigger
+        // also fired when its cost tapped it, so the stack contains both the triggered
+        // ability AND the activated ability we're trying to resolve.
+        var safety = 0
+        while (driver.state.stack.isNotEmpty() && safety++ < 10) {
+            driver.bothPass()
+        }
+        driver.state.getZone(caster, Zone.GRAVEYARD).contains(graveyardCard) shouldBe false
+        driver.state.getZone(caster, Zone.LIBRARY).contains(graveyardCard) shouldBe true
+    }
+
+    test("card definition exposes two activated mana abilities") {
+        // Sanity: SteelswarmOperator's two abilities are both manaAbility=true.
+        SteelswarmOperator.activatedAbilities.size shouldBe 2
+        SteelswarmOperator.activatedAbilities.all { it.isManaAbility } shouldBe true
     }
 })

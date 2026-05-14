@@ -16,23 +16,25 @@ import kotlinx.serialization.Serializable
  * Context about the spell being cast or the ability being activated, used to evaluate
  * mana spending restrictions.
  *
- * Spell-cast fields (isInstantOrSorcery, isKicked, isCreature, isArtifact, manaValue,
- * hasXInCost, subtypes, isFromExile) describe a spell being cast. When [isAbilityActivation]
- * is true, the context instead describes an activated ability being paid for, and only
- * [isAbilityFromArtifactSource] (plus any future ability-payment fields) is meaningful for
- * restriction checks.
+ * Spell-cast fields (isInstantOrSorcery, isKicked, isCreature, manaValue, hasXInCost,
+ * subtypes, isFromExile, [cardTypes]) describe a spell being cast. When [isAbilityActivation]
+ * is true, the context instead describes an activated ability being paid for, and
+ * [abilitySourceCardTypes] (plus [subtypes] of the source) carry the source's type
+ * information for restrictions that check it.
  */
 data class SpellPaymentContext(
     val isInstantOrSorcery: Boolean = false,
     val isKicked: Boolean = false,
     val isCreature: Boolean = false,
-    val isArtifact: Boolean = false,
     val manaValue: Int = 0,
     val hasXInCost: Boolean = false,
     val subtypes: Set<String> = emptySet(),
     val isFromExile: Boolean = false,
+    /** Card types of the spell being cast (empty for non-spell contexts). */
+    val cardTypes: Set<com.wingedsheep.sdk.core.CardType> = emptySet(),
     val isAbilityActivation: Boolean = false,
-    val isAbilityFromArtifactSource: Boolean = false,
+    /** Card types of the source whose ability is being activated (empty for spell-cast contexts). */
+    val abilitySourceCardTypes: Set<com.wingedsheep.sdk.core.CardType> = emptySet(),
 )
 
 /**
@@ -49,9 +51,9 @@ fun ManaRestriction.isSatisfiedBy(context: SpellPaymentContext): Boolean = when 
         (!creatureOnly || (!context.isAbilityActivation && context.isCreature)) &&
             context.subtypes.any { it.equals(subtype, ignoreCase = true) }
     is ManaRestriction.CastFromExileOnly -> !context.isAbilityActivation && context.isFromExile
-    is ManaRestriction.ArtifactSpellsOnly -> !context.isAbilityActivation && context.isArtifact
-    is ManaRestriction.ArtifactSourceAbilitiesOnly ->
-        context.isAbilityActivation && context.isAbilityFromArtifactSource
+    is ManaRestriction.CardTypeSpellsOrAbilitiesOnly ->
+        if (context.isAbilityActivation) allowAbilities && cardType in context.abilitySourceCardTypes
+        else allowSpells && cardType in context.cardTypes
 }
 
 @Serializable

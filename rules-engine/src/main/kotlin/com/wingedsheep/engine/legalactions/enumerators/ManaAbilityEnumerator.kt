@@ -94,12 +94,8 @@ class ManaAbilityEnumerator : ActionEnumerator {
             // Apply text-changing effects to mana ability costs
             val manaTextReplacement = container.get<TextReplacementComponent>()
 
-            val manaAbilityContext = com.wingedsheep.engine.mechanics.mana.SpellPaymentContext(
-                isAbilityActivation = true,
-                isAbilityFromArtifactSource = cardComponent.typeLine.isArtifact ||
-                    projected.hasType(entityId, "ARTIFACT"),
-                subtypes = (cardComponent.typeLine.subtypes.map { it.value } +
-                    projected.getSubtypes(entityId)).toSet(),
+            val manaAbilityContext = com.wingedsheep.engine.mechanics.mana.buildAbilityPaymentContext(
+                cardComponent, projected, entityId
             )
 
             for (ability in manaAbilities) {

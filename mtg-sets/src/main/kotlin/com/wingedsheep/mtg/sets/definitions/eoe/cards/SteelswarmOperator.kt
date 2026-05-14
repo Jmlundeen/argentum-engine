@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
@@ -30,7 +31,14 @@ val SteelswarmOperator = card("Steelswarm Operator") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddMana(Color.BLUE, 1, restriction = ManaRestriction.ArtifactSpellsOnly)
+        effect = Effects.AddMana(
+            Color.BLUE, 1,
+            restriction = ManaRestriction.CardTypeSpellsOrAbilitiesOnly(
+                cardType = CardType.ARTIFACT,
+                allowSpells = true,
+                allowAbilities = false,
+            ),
+        )
         manaAbility = true
         timing = TimingRule.ManaAbility
         description = "{T}: Add {U}. Spend this mana only to cast an artifact spell."
@@ -38,7 +46,14 @@ val SteelswarmOperator = card("Steelswarm Operator") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddMana(Color.BLUE, 2, restriction = ManaRestriction.ArtifactSourceAbilitiesOnly)
+        effect = Effects.AddMana(
+            Color.BLUE, 2,
+            restriction = ManaRestriction.CardTypeSpellsOrAbilitiesOnly(
+                cardType = CardType.ARTIFACT,
+                allowSpells = false,
+                allowAbilities = true,
+            ),
+        )
         manaAbility = true
         timing = TimingRule.ManaAbility
         description = "{T}: Add {U}{U}. Spend this mana only to activate abilities of artifact sources."

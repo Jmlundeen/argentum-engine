@@ -22,6 +22,7 @@ import com.wingedsheep.engine.mechanics.mana.IntrinsicManaAbilities
 import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
+import com.wingedsheep.engine.mechanics.mana.buildAbilityPaymentContext
 import com.wingedsheep.engine.mechanics.stack.StackResolver
 import com.wingedsheep.engine.mechanics.targeting.TargetValidator
 import com.wingedsheep.engine.registry.CardRegistry
@@ -253,7 +254,7 @@ class ActivateAbilityHandler(
             } else effectiveCost
         } else effectiveCost
 
-        val abilityPaymentContext = buildAbilityPaymentContext(state, action.sourceId, cardComponent)
+        val abilityPaymentContext = buildAbilityPaymentContext(cardComponent, state.projectedState, action.sourceId)
 
         if (action.paymentStrategy !is PaymentStrategy.Explicit && !canPayAbilityCostWithSources(state, costAfterConvokeReduction, action.sourceId, action.playerId, abilityPaymentContext)) {
             return when (effectiveCost) {
@@ -348,7 +349,7 @@ class ActivateAbilityHandler(
         // "{X} less, where X is this creature's power"). Locked in before payment.
         val effectiveCost = applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId)
 
-        val executeAbilityContext = buildAbilityPaymentContext(state, action.sourceId, cardComponent)
+        val executeAbilityContext = buildAbilityPaymentContext(cardComponent, state.projectedState, action.sourceId)
 
         var currentState = state
         val events = mutableListOf<GameEvent>()
@@ -1009,33 +1010,6 @@ class ActivateAbilityHandler(
             }
             else -> costHandler.canPayAbilityCost(state, cost, sourceId, playerId, manaPool, abilityContext)
         }
-    }
-
-    /**
-     * Build a [SpellPaymentContext] flagged as an ability activation, capturing properties of
-     * the source object that mana-spending restrictions check at payment time
-     * (e.g. [com.wingedsheep.sdk.scripting.effects.ManaRestriction.ArtifactSourceAbilitiesOnly],
-     * [com.wingedsheep.sdk.scripting.effects.ManaRestriction.SubtypeSpellsOrAbilitiesOnly]).
-     *
-     * The source's card-type and subtypes are read from its [CardComponent] so the context is
-     * meaningful regardless of which zone the ability is activated from (battlefield, hand,
-     * graveyard, etc.).
-     */
-    private fun buildAbilityPaymentContext(
-        state: GameState,
-        sourceId: EntityId,
-        cardComponent: CardComponent,
-    ): SpellPaymentContext {
-        val projected = state.projectedState
-        val isArtifactSource = cardComponent.typeLine.isArtifact ||
-            projected.hasType(sourceId, "ARTIFACT")
-        val subtypes = (cardComponent.typeLine.subtypes.map { it.value } +
-            projected.getSubtypes(sourceId)).toSet()
-        return SpellPaymentContext(
-            isAbilityActivation = true,
-            isAbilityFromArtifactSource = isArtifactSource,
-            subtypes = subtypes,
-        )
     }
 
     /**

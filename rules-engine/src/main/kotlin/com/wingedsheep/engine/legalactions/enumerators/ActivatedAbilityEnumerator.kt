@@ -138,13 +138,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                 // Ability payment context — lets the solver consider restricted mana that's
                 // only spendable on this kind of activation (e.g., Steelswarm Operator's mana
                 // restricted to abilities of artifact sources).
-                val abilityContext = com.wingedsheep.engine.mechanics.mana.SpellPaymentContext(
-                    isAbilityActivation = true,
-                    isAbilityFromArtifactSource = cardComponent.typeLine.isArtifact ||
-                        projected.hasType(entityId, "ARTIFACT"),
-                    subtypes = (cardComponent.typeLine.subtypes.map { it.value } +
-                        projected.getSubtypes(entityId)).toSet(),
-                )
+                val abilityContext = com.wingedsheep.engine.mechanics.mana.buildAbilityPaymentContext(cardComponent, projected, entityId)
 
                 // Check cost requirements and gather sacrifice/tap/bounce targets if needed
                 var sacrificeTargets: List<EntityId>? = null
@@ -652,13 +646,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                 }
 
                 // Check cost payability (Free cost always passes)
-                val anyPlayerAbilityContext = com.wingedsheep.engine.mechanics.mana.SpellPaymentContext(
-                    isAbilityActivation = true,
-                    isAbilityFromArtifactSource = cardComponent.typeLine.isArtifact ||
-                        projected.hasType(entityId, "ARTIFACT"),
-                    subtypes = (cardComponent.typeLine.subtypes.map { it.value } +
-                        projected.getSubtypes(entityId)).toSet(),
-                )
+                val anyPlayerAbilityContext = com.wingedsheep.engine.mechanics.mana.buildAbilityPaymentContext(cardComponent, projected, entityId)
                 val anyPlayerManaCostString = when (effectiveCost) {
                     is AbilityCost.Free -> null
                     is AbilityCost.Mana -> {

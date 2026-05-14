@@ -292,10 +292,10 @@ class CastSpellEnumerator : ActionEnumerator {
                 isInstantOrSorcery = cardComponent.typeLine.isInstant || cardComponent.typeLine.isSorcery,
                 isKicked = false,
                 isCreature = cardComponent.typeLine.isCreature,
-                isArtifact = cardComponent.typeLine.isArtifact,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet()
+                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                cardTypes = cardComponent.typeLine.cardTypes,
             )
 
             // For Convoke/Delve spells, check if affordable with alternative payment help
@@ -1050,10 +1050,10 @@ class CastSpellEnumerator : ActionEnumerator {
                 isInstantOrSorcery = cardComponent.typeLine.isInstant || cardComponent.typeLine.isSorcery,
                 isKicked = false,
                 isCreature = cardComponent.typeLine.isCreature,
-                isArtifact = cardComponent.typeLine.isArtifact,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet()
+                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                cardTypes = cardComponent.typeLine.cardTypes,
             )
             val canAfford = context.manaSolver.canPay(state, playerId, baseCost, spellContext = spellContext, precomputedSources = context.availableManaSources)
             val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -1149,10 +1149,10 @@ class CastSpellEnumerator : ActionEnumerator {
                 isInstantOrSorcery = cardComponent.typeLine.isInstant || cardComponent.typeLine.isSorcery,
                 isKicked = true,
                 isCreature = cardComponent.typeLine.isCreature,
-                isArtifact = cardComponent.typeLine.isArtifact,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet()
+                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                cardTypes = cardComponent.typeLine.cardTypes,
             )
             val canAffordKickedMana = context.manaSolver.canPay(state, playerId, kickedCost, spellContext = kickedSpellContext, precomputedSources = context.availableManaSources)
             val kickedCostString = kickedCost.toString()
