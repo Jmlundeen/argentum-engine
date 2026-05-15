@@ -1140,6 +1140,7 @@ Set via `staticAbility { ability = ... }`:
 - `LookAtFaceDownCreatures` — look at face-down creatures you don't control any time
 - `PreventCycling` — players can't cycle cards
 - `PreventManaPoolEmptying` — players don't lose unspent mana as steps and phases end
+- `NoMaximumHandSize` — controller has no maximum hand size; cleanup step skips the discard check (Thought Vessel, Reliquary Tower)
 - `IncreaseMorphCost(amount: Int)` — all morph (turn face-up) costs cost more
 - `IncreaseSpellCostByFilter(filter: GameObjectFilter, amount: Int)` — spells matching filter cost more (global tax effect)
 - `IncreaseSpellCostByPlayerSpellsCast(amountPerSpell: Int = 1)` — each spell costs {N} more per other spell that player has cast this turn (Damping Sphere)

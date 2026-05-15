@@ -311,6 +311,21 @@ data object PreventManaPoolEmptying : StaticAbility {
 }
 
 /**
+ * Removes the maximum hand size limit for the controller.
+ * Used for cards like Thought Vessel and Reliquary Tower: "You have no maximum hand size."
+ *
+ * The engine checks for this static ability during the cleanup step. If the active player
+ * controls any permanent on the battlefield with this ability, the discard-down-to-hand-size
+ * action is skipped.
+ */
+@SerialName("NoMaximumHandSize")
+@Serializable
+data object NoMaximumHandSize : StaticAbility {
+    override val description: String = "You have no maximum hand size"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility = this
+}
+
+/**
  * Reveal the first card the controller draws each turn.
  * Used for Primitive Etchings and similar "reveal as you draw" effects.
  *

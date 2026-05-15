@@ -4,6 +4,7 @@ import com.wingedsheep.mtg.sets.definitions.avr.AvacynRestoredSet
 import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
 import com.wingedsheep.mtg.sets.definitions.blc.BloomburrowCommanderSet
 import com.wingedsheep.mtg.sets.definitions.bro.BrothersWarSet
+import com.wingedsheep.mtg.sets.definitions.c15.Commander2015Set
 import com.wingedsheep.mtg.sets.definitions.dft.AetherdriftSet
 import com.wingedsheep.mtg.sets.definitions.dom.DominariaSet
 import com.wingedsheep.mtg.sets.definitions.dmu.DominariaUnitedSet
@@ -70,6 +71,7 @@ object MtgSetCatalog {
         DominariaUnitedSet,
         PhyrexiaAllWillBeOneSet,
         BrothersWarSet,
+        Commander2015Set,
         InnistradRemasteredSet,
         InnistradMidnightHuntSet,
         InnistradCrimsonVowSet,

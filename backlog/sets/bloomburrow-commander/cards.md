@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 75 / 312
+**Implemented:** 76 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -301,7 +301,7 @@
 - [ ] The Odd Acorn Gang
 - [ ] Thickest in the Thicket
 - [ ] Thopter Engineer
-- [ ] Thought Vessel
+- [x] Thought Vessel
 - [ ] Thran Dynamo
 - [ ] Thriving Bluff
 - [ ] Thriving Grove

@@ -68,7 +68,7 @@
 - [x] 1 Sol Ring
 - [x] 1 Spine of Ish Sah
 - [x] 1 Talisman of Impulse
-- [ ] 1 Thought Vessel
+- [x] 1 Thought Vessel
 - [ ] 1 Thran Dynamo
 
 ## Enchantments (13)
