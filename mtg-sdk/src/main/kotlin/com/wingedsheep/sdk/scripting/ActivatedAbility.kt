@@ -459,4 +459,25 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
         override val description: String = "Blight $amount"
         override fun applyTextReplacement(replacer: TextReplacer): AbilityCost = this
     }
+
+    /**
+     * Remove N counters of a specific type from among permanents matching a filter you control.
+     * The player distributes which permanents contribute counters toward the total.
+     *
+     * Example: "Remove two +1/+1 counters from among artifacts you control"
+     */
+    @SerialName("CostRemoveCountersFromAmongFilteredPermanents")
+    @Serializable
+    data class RemoveCountersFromAmongFilteredPermanents(
+        val counterType: String,
+        val count: Int,
+        val filter: GameObjectFilter
+    ) : AbilityCost {
+        override val description: String =
+            "Remove $count $counterType counter${if (count == 1) "" else "s"} from among ${filter.description}s you control"
+        override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+    }
 }

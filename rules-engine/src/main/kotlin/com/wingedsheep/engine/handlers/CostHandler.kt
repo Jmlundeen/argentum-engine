@@ -195,6 +195,9 @@ class CostHandler(
                 val projected = state.projectedState
                 projected.getBattlefieldControlledBy(controllerId).any { projected.isCreature(it) }
             }
+            is AbilityCost.RemoveCountersFromAmongFilteredPermanents ->
+                com.wingedsheep.engine.handlers.costs.RemoveCountersFromAmongFilteredPermanentsCostHandler
+                    .canPay(state, cost, controllerId)
             is AbilityCost.Composite -> {
                 cost.costs.all { canPayAbilityCost(state, it, sourceId, controllerId, manaPool, abilityContext) }
             }
@@ -606,6 +609,9 @@ class CostHandler(
                 )
                 CostPaymentResult.success(newState, manaPool, events)
             }
+            is AbilityCost.RemoveCountersFromAmongFilteredPermanents ->
+                com.wingedsheep.engine.handlers.costs.RemoveCountersFromAmongFilteredPermanentsCostHandler
+                    .pay(state, cost, controllerId, manaPool, choices.counterRemovalChoices)
             is AbilityCost.Composite -> {
                 var currentState = state
                 var currentPool = manaPool
