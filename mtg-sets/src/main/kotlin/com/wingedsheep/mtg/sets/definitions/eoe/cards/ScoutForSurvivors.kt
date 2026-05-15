@@ -24,10 +24,13 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * from your graveyard to the battlefield. Put a +1/+1 counter on each of them.
  *
  * Implementation note: cards are chosen at resolution via a SelectFromCollection
- * pipeline rather than as cast-time targets. The SDK has no multi-target
- * cross-sum validator; for graveyard cards this is observationally equivalent
- * (no hexproof/shroud applies and "becomes the target" triggers from graveyard
- * are vanishingly rare), but countermagic that inspects targets won't see them.
+ * pipeline rather than as cast-time targets, because the SDK has no multi-target
+ * validator with a cross-target sum constraint. For graveyard targets this has
+ * no observable consequence on any current card — hexproof/shroud don't apply
+ * in the graveyard, no printed trigger fires from being targeted in the
+ * graveyard, and no printed counterspell branches on a spell's target count
+ * for graveyard targets. The visible difference is cosmetic: the spell sits on
+ * the stack with no `targets` list until it resolves.
  */
 val ScoutForSurvivors = card("Scout for Survivors") {
     manaCost = "{2}{W}"

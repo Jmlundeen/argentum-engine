@@ -349,7 +349,13 @@ class SelectFromCollectionExecutor : EffectExecutor<SelectFromCollectionEffect> 
             onePerCardName = effect.restrictions.any { it is SelectionRestriction.OnePerCardName },
             maxTotalManaValue = effect.restrictions
                 .filterIsInstance<SelectionRestriction.TotalManaValueAtMost>()
-                .minOfOrNull { it.max }
+                .also {
+                    require(it.size <= 1) {
+                        "SelectFromCollectionEffect has multiple TotalManaValueAtMost restrictions; " +
+                            "compose a single cap instead."
+                    }
+                }
+                .singleOrNull()?.max
         )
 
         val continuation = SelectFromCollectionContinuation(
