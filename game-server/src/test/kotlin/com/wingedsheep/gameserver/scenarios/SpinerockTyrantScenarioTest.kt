@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.scenarios
 
+import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
@@ -7,6 +8,7 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
  * Scenario tests for Spinerock Tyrant.
@@ -69,7 +71,7 @@ class SpinerockTyrantScenarioTest : ScenarioTestBase() {
                 game.isInGraveyard(1, "Sear") shouldBe true
             }
 
-            test("declining the may-copy leaves a single resolution with no wither granted") {
+            test("declining the may-copy skips the copy and leaves the original spell un-wither'd") {
                 val game = scenario()
                     .withPlayers("Player1", "Player2")
                     .withCardOnBattlefield(1, "Spinerock Tyrant", summoningSickness = false)
@@ -86,17 +88,26 @@ class SpinerockTyrantScenarioTest : ScenarioTestBase() {
 
                 game.castSpell(1, "Sear", targetId = baloth)
 
-                // Trigger asks "may copy" — decline.
+                // The trigger goes on top of the stack; resolving it should prompt
+                // the controller of Spinerock Tyrant with a yes/no decision.
                 game.resolveStack()
+                val decision = game.getPendingDecision()
+                decision.shouldNotBeNull()
+                decision.shouldBeInstanceOf<YesNoDecision>()
+
+                // Decline the optional copy.
                 game.answerYesNo(false)
 
+                // Resolve the remainder of the stack: only the original Sear is left.
                 game.resolveStack()
 
-                // Without the optional copy/wither path, Sear deals normal 4 damage to the Baloth.
-                // 4 damage to a 7/6 leaves it on the battlefield with no -1/-1 counters
-                // (regular damage, not wither).
+                // No copy was created and the original Sear was not granted wither, so the
+                // Baloth takes 4 regular damage (no -1/-1 counters) and survives as a 7/6.
                 val counters = game.state.getEntity(baloth)?.get<CountersComponent>()
                 (counters?.getCount(CounterType.MINUS_ONE_MINUS_ONE) ?: 0) shouldBe 0
+
+                // Original Sear still resolved into the graveyard.
+                game.isInGraveyard(1, "Sear") shouldBe true
             }
         }
     }
