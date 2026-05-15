@@ -15,6 +15,7 @@ import com.wingedsheep.mtg.sets.definitions.dmu.DominariaUnitedSet
 import com.wingedsheep.mtg.sets.definitions.dsk.DuskmournSet
 import com.wingedsheep.mtg.sets.definitions.gpt.GuildpactSet
 import com.wingedsheep.mtg.sets.definitions.m10.Magic2010Set
+import com.wingedsheep.mtg.sets.definitions.m21.CoreSet2021Set
 import com.wingedsheep.mtg.sets.definitions.ody.OdysseySet
 import com.wingedsheep.mtg.sets.definitions.tsp.TimeSpiralSet
 import com.wingedsheep.mtg.sets.definitions.eoe.EdgeOfEternitiesSet
@@ -106,6 +107,7 @@ object MtgSetCatalog {
         TimeSpiralSet,
         ConfluxSet,
         Magic2010Set,
+        CoreSet2021Set,
         BattleForZendikarSet,
         AmonkhetSet,
     )

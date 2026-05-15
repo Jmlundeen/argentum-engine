@@ -75,7 +75,7 @@
 
 - [x] 1 Alchemist's Talent
 - [x] 1 Berserkers' Onslaught
-- [ ] 1 Garruk's Uprising
+- [x] 1 Garruk's Uprising
 - [x] 1 Gratuitous Violence
 - [ ] 1 Greater Good
 - [ ] 1 Outpost Siege
