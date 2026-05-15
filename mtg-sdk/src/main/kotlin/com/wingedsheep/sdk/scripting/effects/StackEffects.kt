@@ -415,9 +415,18 @@ data class CopyTargetSpellEffect(
      * Each granted keyword is treated as if the spell itself had it for damage and
      * source-keyword checks (e.g., wither, lifelink). Empty by default.
      */
-    val keywordsForCopy: List<String> = emptyList()
+    val keywordsForCopy: List<String> = emptyList(),
+    /**
+     * When true, the Legendary supertype is removed from the copy's type line so the resulting
+     * token is not legendary (e.g., Jackal, Genius Geneticist's "except the copy isn't legendary").
+     *
+     * Honored only when the targeted spell has no targets and no chosen modes with target
+     * requirements. The modal-with-targets path silently drops it; the targeted permanent-spell
+     * path returns an error (copying a targeted permanent spell is not supported).
+     */
+    val removeLegendary: Boolean = false
 ) : Effect {
-    override val description: String = "Copy target instant or sorcery spell"
+    override val description: String = "Copy target spell"
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect = this
 }

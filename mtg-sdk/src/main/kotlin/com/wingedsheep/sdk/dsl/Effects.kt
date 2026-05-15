@@ -1476,9 +1476,10 @@ object Effects {
      */
     fun CopyTargetSpell(
         target: EffectTarget = EffectTarget.ContextTarget(0),
-        keywordsForCopy: List<com.wingedsheep.sdk.core.Keyword> = emptyList()
+        keywordsForCopy: List<com.wingedsheep.sdk.core.Keyword> = emptyList(),
+        removeLegendary: Boolean = false
     ): Effect =
-        CopyTargetSpellEffect(target, keywordsForCopy.map { it.name })
+        CopyTargetSpellEffect(target, keywordsForCopy.map { it.name }, removeLegendary)
 
     /**
      * Grant a keyword to a spell or ability on the stack (e.g., wither, lifelink).

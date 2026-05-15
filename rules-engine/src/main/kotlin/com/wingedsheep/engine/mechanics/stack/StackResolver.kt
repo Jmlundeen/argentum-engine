@@ -29,6 +29,7 @@ import com.wingedsheep.engine.state.components.identity.MorphDataComponent
 import com.wingedsheep.engine.state.components.identity.ExileAfterResolveComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
+import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.state.components.identity.TextReplacementComponent
 import com.wingedsheep.engine.state.permissions.addMayPlayPermission
 import com.wingedsheep.engine.state.permissions.removeMayPlayPermissionsForCard
@@ -834,11 +835,22 @@ class StackResolver(
             }
         } else null
 
-        // Update entity: remove spell components, add permanent components
+        // Update entity: remove spell components, add permanent components.
+        // CR 707.10f: a copy of a permanent spell becomes a token as it resolves.
+        // Distinguish from "enters as a copy" effects (Clone, Mockingbird) which set
+        // originalCardComponent for the revert-on-leave rule; those produce real
+        // permanents, not tokens.
+        val copyOf = state.getEntity(spellId)
+            ?.get<com.wingedsheep.engine.state.components.identity.CopyOfComponent>()
+        val resolvingAsSpellCopy = copyOf != null && copyOf.originalCardComponent == null
         var newState = state.updateEntity(spellId) { c ->
             var updated = c.without<SpellOnStackComponent>()
                 .without<TargetsComponent>()
                 .with(ControllerComponent(controllerId))
+
+            if (resolvingAsSpellCopy) {
+                updated = updated.with(TokenComponent)
+            }
 
             // If cast face-down (morph), add FaceDownComponent and strip any
             // RevealedToComponent from hand-peek effects (zone change = new object)
