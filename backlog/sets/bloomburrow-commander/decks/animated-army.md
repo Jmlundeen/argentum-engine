@@ -34,7 +34,7 @@
 
 ## Planeswalkers (1)
 
-- [ ] 1 Domri, Anarch of Bolas
+- [x] 1 Domri, Anarch of Bolas
 
 ## Instants (5)
 
