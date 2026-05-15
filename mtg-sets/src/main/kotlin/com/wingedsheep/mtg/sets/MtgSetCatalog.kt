@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets
 
+import com.wingedsheep.mtg.sets.definitions.avr.AvacynRestoredSet
 import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
 import com.wingedsheep.mtg.sets.definitions.blc.BloomburrowCommanderSet
 import com.wingedsheep.mtg.sets.definitions.bro.BrothersWarSet
@@ -15,6 +16,7 @@ import com.wingedsheep.mtg.sets.definitions.inv.InvasionSet
 import com.wingedsheep.mtg.sets.definitions.mid.InnistradMidnightHuntSet
 import com.wingedsheep.mtg.sets.definitions.vow.InnistradCrimsonVowSet
 import com.wingedsheep.mtg.sets.definitions.ktk.KhansOfTarkirSet
+import com.wingedsheep.mtg.sets.definitions.lea.AlphaSet
 import com.wingedsheep.mtg.sets.definitions.lgn.LegionsSet
 import com.wingedsheep.mtg.sets.definitions.ecl.LorwynEclipsedSet
 import com.wingedsheep.mtg.sets.definitions.lci.LostCavernsOfIxalanSet
@@ -25,6 +27,7 @@ import com.wingedsheep.mtg.sets.definitions.ons.OnslaughtSet
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.mtg.sets.definitions.scg.ScourgeSet
 import com.wingedsheep.mtg.sets.definitions.tmp.TempestSet
+import com.wingedsheep.mtg.sets.definitions.usg.UrzasSagaSet
 import com.wingedsheep.mtg.sets.definitions.otj.OutlawsOfThunderJunctionSet
 import com.wingedsheep.mtg.sets.definitions.spm.SpiderManSet
 import com.wingedsheep.mtg.sets.definitions.tdm.TarkirDragonstormSet
@@ -43,13 +46,16 @@ import com.wingedsheep.sdk.model.MtgSet
 object MtgSetCatalog {
 
     val all: List<MtgSet> = listOf(
+        AlphaSet,
         PortalSet,
         TempestSet,
+        UrzasSagaSet,
         InvasionSet,
         OnslaughtSet,
         ScourgeSet,
         LegionsSet,
         KhansOfTarkirSet,
+        AvacynRestoredSet,
         DominariaSet,
         DominariaUnitedSet,
         PhyrexiaAllWillBeOneSet,
