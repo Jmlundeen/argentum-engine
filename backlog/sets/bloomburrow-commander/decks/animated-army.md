@@ -77,7 +77,7 @@
 - [x] 1 Berserkers' Onslaught
 - [x] 1 Garruk's Uprising
 - [x] 1 Gratuitous Violence
-- [ ] 1 Greater Good
+- [x] 1 Greater Good
 - [ ] 1 Outpost Siege
 - [ ] 1 Path of Discovery
 - [ ] 1 Primeval Bounty
