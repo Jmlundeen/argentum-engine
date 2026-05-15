@@ -31,7 +31,7 @@ val JackalGeniusGeneticist = card("Jackal, Genius Geneticist") {
             DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
         )
         effect = Effects.Composite(
-            Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity, stripSupertypes = true),
+            Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity, removeLegendary = true),
             Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }

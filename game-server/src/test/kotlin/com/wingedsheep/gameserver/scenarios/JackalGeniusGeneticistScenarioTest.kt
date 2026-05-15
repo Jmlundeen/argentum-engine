@@ -7,8 +7,11 @@ import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.core.Supertype
+import com.wingedsheep.sdk.model.CardDefinition
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -28,6 +31,20 @@ class JackalGeniusGeneticistScenarioTest : ScenarioTestBase() {
     private val stateProjector = StateProjector()
 
     init {
+        // 1-MV legendary creature used to exercise the "except the copy isn't legendary"
+        // clause. Registered here because `ScenarioTestBase` only loads cards from registered
+        // sets, and we want a guaranteed 1-MV legendary that matches Jackal's printed power.
+        cardRegistry.register(
+            CardDefinition.creature(
+                name = "Test Legendary Elf",
+                manaCost = ManaCost.parse("{G}"),
+                subtypes = emptySet(),
+                power = 1,
+                toughness = 1,
+                supertypes = setOf(Supertype.LEGENDARY)
+            )
+        )
+
         context("Jackal, Genius Geneticist — card definition") {
 
             test("casts for {G}{U} and enters as a legendary green-blue 1/1 creature with trample") {
@@ -129,6 +146,45 @@ class JackalGeniusGeneticistScenarioTest : ScenarioTestBase() {
                 val projected = stateProjector.project(game.state)
                 withClue("Jackal's power should be 2 after gaining a +1/+1 counter") {
                     projected.getPower(jackal) shouldBe 2
+                }
+            }
+
+            test("the token copy of a legendary creature spell is not legendary (CR 707.10f)") {
+                val game = scenario()
+                    .withPlayers("Caster", "Opponent")
+                    .withCardOnBattlefield(1, "Jackal, Genius Geneticist")
+                    .withCardInHand(1, "Test Legendary Elf")
+                    .withLandsOnBattlefield(1, "Forest", 1)
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(2, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val castResult = game.castSpell(1, "Test Legendary Elf")
+                withClue("Casting Test Legendary Elf should succeed: ${castResult.error}") {
+                    castResult.error shouldBe null
+                }
+                game.resolveStack()
+
+                val elves = game.findAllPermanents("Test Legendary Elf")
+                withClue("Both the original and the token copy should survive — the copy isn't legendary so the legend rule doesn't kill one") {
+                    elves.size shouldBe 2
+                }
+
+                val tokenId = elves.first { id ->
+                    game.state.getEntity(id)?.has<TokenComponent>() == true
+                }
+                val originalId = elves.first { id ->
+                    game.state.getEntity(id)?.has<TokenComponent>() == false
+                }
+
+                val projected = stateProjector.project(game.state)
+                withClue("Original Test Legendary Elf is still legendary") {
+                    projected.isLegendary(originalId) shouldBe true
+                }
+                withClue("Token copy must not be legendary (oracle: \"except the copy isn't legendary\")") {
+                    projected.isLegendary(tokenId) shouldBe false
                 }
             }
 

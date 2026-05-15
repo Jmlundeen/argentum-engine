@@ -96,13 +96,13 @@ class CopyTargetSpellExecutor(
         }
 
         // If the original spell has no targets, create the copy immediately.
-        // For permanent spells (no spellEffect) and for stripSupertypes we use
-        // putSpellCopy so we get a real spell entity whose CardComponent can be
-        // patched and which resolves into a token permanent. For instant/sorcery
-        // spells without strip, the lightweight TriggeredAbilityOnStackComponent
+        // For permanent spells (no spellEffect) and when removing the Legendary supertype
+        // (CR 707.10f resolves the copy into a token), we use putSpellCopy so we get a real
+        // spell entity whose CardComponent can be patched. For instant/sorcery spells
+        // without the legendary clause, the lightweight TriggeredAbilityOnStackComponent
         // path is sufficient.
         if (targetRequirements.isEmpty()) {
-            if (effect.stripSupertypes || spellEffect == null) {
+            if (effect.removeLegendary || spellEffect == null) {
                 val copyResult = stackResolver.putSpellCopy(
                     state = state,
                     sourceSpellId = spellEntityId,
@@ -112,10 +112,10 @@ class CopyTargetSpellExecutor(
                 )
                 if (!copyResult.isSuccess) return EffectResult.from(copyResult)
                 val copyId = copyResult.events.filterIsInstance<SpellCopiedEvent>().firstOrNull()?.copyEntityId
-                val stripped = if (effect.stripSupertypes && copyId != null) {
+                val stripped = if (effect.removeLegendary && copyId != null) {
                     copyResult.newState.updateEntity(copyId) { container ->
                         val card = container.get<CardComponent>() ?: return@updateEntity container
-                        container.with(card.copy(typeLine = card.typeLine.copy(supertypes = emptySet())))
+                        container.with(card.copy(typeLine = card.typeLine.withoutLegendary()))
                     }
                 } else copyResult.newState
                 return EffectResult.from(applyKeywordsToCopy(

@@ -417,13 +417,14 @@ data class CopyTargetSpellEffect(
      */
     val keywordsForCopy: List<String> = emptyList(),
     /**
-     * When true, all supertypes (including Legendary) are stripped from the copy's type line
-     * so the resulting token/copy is not legendary. Used by Jackal, Genius Geneticist.
+     * When true, the Legendary supertype is removed from the copy's type line so the resulting
+     * token is not legendary (e.g., Jackal, Genius Geneticist's "except the copy isn't legendary").
      *
-     * Currently only honored when the targeted spell has no targets and no chosen modes
-     * with target requirements; the targeted/modal-with-targets paths drop this flag.
+     * Honored only when the targeted spell has no targets and no chosen modes with target
+     * requirements. The modal-with-targets path silently drops it; the targeted permanent-spell
+     * path returns an error (copying a targeted permanent spell is not supported).
      */
-    val stripSupertypes: Boolean = false
+    val removeLegendary: Boolean = false
 ) : Effect {
     override val description: String = "Copy target spell"
 
