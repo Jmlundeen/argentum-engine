@@ -1146,6 +1146,21 @@ class CastSpellHandler(
                         return "Not enough life to pay ${additionalCost.amount} life"
                     }
                 }
+                is AdditionalCost.ChooseEntity -> {
+                    val chosen = action.additionalCostPayment?.beheldCards ?: emptyList()
+                    if (chosen.isEmpty()) {
+                        return "You must ${additionalCost.description}"
+                    }
+                    if (chosen.size > 1) {
+                        return "You may only choose one entity for: ${additionalCost.description}"
+                    }
+                    val entityId = chosen.first()
+                    val candidates = costHandler.findChooseEntityCandidates(state, additionalCost, action.playerId)
+                    if (entityId !in candidates) {
+                        val name = state.getEntity(entityId)?.get<CardComponent>()?.name ?: entityId.toString()
+                        return "$name is not a valid choice for: ${additionalCost.description}"
+                    }
+                }
                 else -> {}
             }
         }
@@ -1305,6 +1320,13 @@ class CastSpellHandler(
         val sacrificedSnapshots = mutableListOf<PermanentSnapshot>()
         var exiledCardCount = 0
         val beheldCards = mutableListOf<EntityId>()
+        /**
+         * LKI snapshots for entities chosen via [AdditionalCost.ChooseEntity] when
+         * `captureSnapshot = true`. Captured at cost-pay time so downstream effects
+         * (e.g. `EntityProperty(FromCostStorage(...), Power)`) can read "power as it
+         * last existed on the battlefield" if the chosen entity leaves before resolution.
+         */
+        val chosenEntitySnapshots = mutableListOf<PermanentSnapshot>()
         /** Pipeline storage populated by Behold, consumed by ExileFromStorage */
         val costPipelineCollections = mutableMapOf<String, List<EntityId>>()
 
@@ -1669,6 +1691,28 @@ class CastSpellHandler(
                     is AdditionalCost.PayLife -> {
                         // Handled in the auto-pay pre-pass above (PayLife requires no player choice).
                     }
+                    is AdditionalCost.ChooseEntity -> {
+                        // Choosing does not change zones. Record the chosen entity id under
+                        // [beheldCards] (shared "chosen-as-additional-cost" storage) and in
+                        // the pipeline under [storeAs] so the spell effect can reference it.
+                        // When `captureSnapshot` is set, freeze a power/toughness/subtype
+                        // snapshot for battlefield choices so downstream effects can fall
+                        // back to LKI when the entity leaves between cost-pay and resolution
+                        // (Rule 112.7a).
+                        val chosen = action.additionalCostPayment.beheldCards
+                        if (chosen.isNotEmpty()) {
+                            beheldCards.addAll(chosen)
+                            costPipelineCollections[additionalCost.storeAs] = chosen
+                            if (additionalCost.captureSnapshot) {
+                                val battlefieldChosen = chosen.filter { it in currentState.getBattlefield() }
+                                if (battlefieldChosen.isNotEmpty()) {
+                                    chosenEntitySnapshots.addAll(
+                                        capturePermanentSnapshots(battlefieldChosen, currentState.projectedState)
+                                    )
+                                }
+                            }
+                        }
+                    }
                     else -> {}
                 }
             }
@@ -1936,6 +1980,7 @@ class CastSpellHandler(
             modeDamageDistribution = action.modeDamageDistribution,
             totalManaSpent = manaSpentThisCast,
             beheldCards = beheldCards,
+            chosenEntitySnapshots = chosenEntitySnapshots,
             manaSpentWhite = manaSpentEvent?.white ?: 0,
             manaSpentBlue = manaSpentEvent?.blue ?: 0,
             manaSpentBlack = manaSpentEvent?.black ?: 0,

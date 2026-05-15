@@ -33,6 +33,16 @@ data class SpellOnStackComponent(
     val wasWarped: Boolean = false,  // For warp - permanent is exiled at end step
     val wasEvoked: Boolean = false,  // For evoke - permanent is sacrificed on ETB
     val beheldCards: List<EntityId> = emptyList(),  // Cards chosen via Behold (stored in pipeline as named collection)
+    /**
+     * Last-known-info snapshots (Rule 112.7a) for entities chosen at cost-pay time
+     * that may later leave the battlefield before the spell resolves. Populated
+     * when an [com.wingedsheep.sdk.scripting.AdditionalCost.ChooseEntity] step
+     * has `captureSnapshot = true` — freezes the chosen entity's projected
+     * power / toughness / subtypes / controller so downstream effects (e.g.
+     * `DynamicAmount.EntityProperty(EntityReference.FromCostStorage(…), …)`)
+     * can read "values as they last existed on the battlefield" at resolution.
+     */
+    val chosenEntitySnapshots: List<PermanentSnapshot> = emptyList(),
     val manaSpentWhite: Int = 0,  // Mana colors spent for mana-spent-gated triggers
     val manaSpentBlue: Int = 0,
     val manaSpentBlack: Int = 0,

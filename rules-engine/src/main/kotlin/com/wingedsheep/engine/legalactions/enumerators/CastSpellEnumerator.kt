@@ -243,6 +243,35 @@ class CastSpellEnumerator : ActionEnumerator {
                             .filter { context.predicateEvaluator.matches(state, it, cost.filter, predicateContext) }
                         beholdOrPayTargets = battlefieldMatches + handMatches
                     }
+                    is AdditionalCost.ChooseEntity -> {
+                        // Search each (zone, filter) pair in `cost.zoneFilters`. Battlefield
+                        // uses projected state (continuous effects matter); hidden / card
+                        // zones use base state, mirroring the Behold convention.
+                        val projected = state.projectedState
+                        val predicateContext = PredicateContext(controllerId = playerId)
+                        val allTargets = cost.zoneFilters.flatMap { (zone, filter) ->
+                            when (zone) {
+                                Zone.BATTLEFIELD -> projected.getBattlefieldControlledBy(playerId)
+                                    .filter {
+                                        context.predicateEvaluator.matchesWithProjection(
+                                            state, projected, it, filter, predicateContext
+                                        )
+                                    }
+                                else -> state.getZone(ZoneKey(playerId, zone))
+                                    .filter { it != cardId } // exclude the spell being cast
+                                    .filter {
+                                        context.predicateEvaluator.matches(
+                                            state, it, filter, predicateContext
+                                        )
+                                    }
+                            }
+                        }
+                        if (allTargets.isEmpty()) {
+                            canPayAdditionalCosts = false
+                        }
+                        beholdTargets = allTargets
+                        beholdCount = 1
+                    }
                     else -> {}
                 }
             }
@@ -1342,9 +1371,10 @@ class CastSpellEnumerator : ActionEnumerator {
         } else if (beholdTargets.isNotEmpty()) {
             val flatCosts = additionalCosts.flatMap { if (it is AdditionalCost.Composite) it.steps else listOf(it) }
             val beholdCost = flatCosts.filterIsInstance<AdditionalCost.Behold>().firstOrNull()
+            val chooseCost = flatCosts.filterIsInstance<AdditionalCost.ChooseEntity>().firstOrNull()
             AdditionalCostData(
-                description = beholdCost?.description ?: "Behold a card",
-                costType = "Behold",
+                description = chooseCost?.description ?: beholdCost?.description ?: "Behold a card",
+                costType = if (chooseCost != null) "ChooseEntity" else "Behold",
                 validBeholdTargets = beholdTargets,
                 beholdCount = beholdCount
             )

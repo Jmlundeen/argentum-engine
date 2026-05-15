@@ -118,6 +118,7 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
       'ExileFromZone',
       'RevealCard',
       'Behold',
+      'ChooseEntity',
       'Blight',
       'Conspire',
     ]
@@ -282,7 +283,7 @@ export function mergeResult(
             ? { discardedCards: selectedTargets }
             : costType === 'ExileFromGraveyard'
               ? { exiledCards: selectedTargets }
-              : costType === 'Behold'
+              : costType === 'Behold' || costType === 'ChooseEntity'
                 ? { beheldCards: selectedTargets }
                 : costType === 'Blight' || costType === 'BlightVariable'
                   ? { blightTargets: selectedTargets }
@@ -543,6 +544,7 @@ export function enterPhase(
           flags.isRevealSelection = true
           break
         case 'Behold':
+        case 'ChooseEntity':
           validTargets = [...(costInfo.validBeholdTargets ?? [])]
           minTargets = costInfo.beholdCount ?? 1
           maxTargets = costInfo.beholdCount ?? 1

@@ -169,6 +169,31 @@ class DynamicAmountEvaluator(
                     }
                     return resolveNumericProperty(state, entityId, amount.numericProperty, context, useProjected = false)
                 }
+                // Cost-storage reads of Power/Toughness mirror the Sacrificed path — the
+                // chosen entity may have left the battlefield (or never been on it, for an
+                // exile-zone pick) between cost payment and resolution (Rule 112.7a).
+                // Resolution order: live projected value if still on battlefield → snapshot
+                // captured at cost-pay time → base stats.
+                if (amount.entity is EntityReference.FromCostStorage) {
+                    val onBattlefield = entityId in state.getBattlefield()
+                    when (amount.numericProperty) {
+                        is EntityNumericProperty.Power,
+                        is EntityNumericProperty.Toughness -> {
+                            if (!onBattlefield) {
+                                val snapshot = context.chosenEntitySnapshots.firstOrNull { it.entityId == entityId }
+                                val snapVal = when (amount.numericProperty) {
+                                    is EntityNumericProperty.Power -> snapshot?.power
+                                    is EntityNumericProperty.Toughness -> snapshot?.toughness
+                                    else -> null
+                                }
+                                if (snapVal != null) return snapVal
+                                return resolveNumericProperty(state, entityId, amount.numericProperty, context, useProjected = false)
+                            }
+                        }
+                        else -> { /* fall through to projected path */ }
+                    }
+                    return resolveNumericProperty(state, entityId, amount.numericProperty, context, useProjected = true, explicitProjected = projectedState)
+                }
                 // Tap-as-cost reads of Power/Toughness mirror the Sacrificed path — the tapped
                 // permanent may have left the battlefield between cost payment and resolution
                 // (Rule 112.7a). Power reads additionally get the Station-using-toughness
@@ -642,6 +667,8 @@ class DynamicAmountEvaluator(
             is EntityReference.Triggering -> context.triggeringEntityId
             is EntityReference.AffectedEntity -> context.affectedEntityId
             is EntityReference.IterationEntity -> context.pipeline.iterationTarget
+            is EntityReference.FromCostStorage ->
+                context.pipeline.storedCollections[ref.collectionName]?.getOrNull(ref.index)
         }
 
     // =========================================================================

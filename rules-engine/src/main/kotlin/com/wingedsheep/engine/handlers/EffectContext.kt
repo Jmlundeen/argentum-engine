@@ -64,6 +64,15 @@ data class EffectContext(
     val tappedPermanents: List<EntityId> = emptyList(),
     /** LKI snapshots for [tappedPermanents] (Rule 112.7a). See [PermanentSnapshot]. */
     val tappedPermanentSnapshots: List<PermanentSnapshot> = emptyList(),
+    /**
+     * LKI snapshots (Rule 112.7a) for entities chosen via an additional cost
+     * step like [com.wingedsheep.sdk.scripting.AdditionalCost.ChooseEntity]
+     * with `captureSnapshot = true`. Indexed by entity id via
+     * [com.wingedsheep.engine.state.components.stack.snapshotFor]. Read by
+     * [DynamicAmountEvaluator] when the `EntityProperty` path resolves an
+     * [com.wingedsheep.sdk.scripting.values.EntityReference.FromCostStorage].
+     */
+    val chosenEntitySnapshots: List<PermanentSnapshot> = emptyList(),
     // --- Trigger state ---
     /** Amount of damage from a trigger context (e.g., "Whenever ~ is dealt damage") */
     val triggerDamageAmount: Int? = null,
