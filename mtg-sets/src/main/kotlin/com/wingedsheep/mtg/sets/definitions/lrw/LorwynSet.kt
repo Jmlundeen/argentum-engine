@@ -21,6 +21,7 @@ object LorwynSet : MtgSet {
 
     override val code = "LRW"
     override val displayName = "Lorwyn"
+    override val releaseDate = "2007-10-12"
     override val block = "Lorwyn"
     override val basicLandsFallback = PortalSet
     override val incomplete = true

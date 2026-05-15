@@ -19,6 +19,7 @@ object MirrodinBesiegedSet : MtgSet {
 
     override val code = "MBS"
     override val displayName = "Mirrodin Besieged"
+    override val releaseDate = "2011-02-04"
     override val block = "Scars of Mirrodin"
     override val basicLandsFallback = PortalSet
     override val incomplete = true

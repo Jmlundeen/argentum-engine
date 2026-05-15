@@ -22,6 +22,7 @@ object RiseOfTheEldraziSet : MtgSet {
 
     override val code = "ROE"
     override val displayName = "Rise of the Eldrazi"
+    override val releaseDate = "2010-04-23"
     override val block = "Zendikar"
     override val basicLandsFallback = PortalSet
     override val incomplete = true

@@ -22,6 +22,7 @@ object UrzasSagaSet : MtgSet {
 
     override val code = "USG"
     override val displayName = "Urza's Saga"
+    override val releaseDate = "1998-10-12"
     override val block = "Urza"
     override val basicLandsFallback = PortalSet
     override val incomplete = true

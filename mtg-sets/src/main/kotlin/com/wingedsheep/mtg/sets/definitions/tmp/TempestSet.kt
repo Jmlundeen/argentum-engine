@@ -20,6 +20,7 @@ object TempestSet : MtgSet {
 
     override val code = "TMP"
     override val displayName = "Tempest"
+    override val releaseDate = "1997-10-14"
     override val block = "Tempest"
     override val basicLandsFallback = PortalSet
     override val incomplete = true

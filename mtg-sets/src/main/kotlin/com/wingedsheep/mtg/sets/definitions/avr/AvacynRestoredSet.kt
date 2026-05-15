@@ -21,6 +21,7 @@ object AvacynRestoredSet : MtgSet {
 
     override val code = "AVR"
     override val displayName = "Avacyn Restored"
+    override val releaseDate = "2012-05-04"
     override val block = "Innistrad"
     override val basicLandsFallback = PortalSet
     override val incomplete = true

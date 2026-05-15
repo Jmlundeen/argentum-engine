@@ -19,6 +19,7 @@ object MirrodinSet : MtgSet {
 
     override val code = "MRD"
     override val displayName = "Mirrodin"
+    override val releaseDate = "2003-10-02"
     override val block = "Mirrodin"
     override val basicLandsFallback = PortalSet
     override val incomplete = true

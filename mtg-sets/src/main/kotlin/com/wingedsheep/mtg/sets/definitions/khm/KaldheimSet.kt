@@ -20,6 +20,7 @@ object KaldheimSet : MtgSet {
 
     override val code = "KHM"
     override val displayName = "Kaldheim"
+    override val releaseDate = "2021-02-05"
     override val block = "Kaldheim"
     override val basicLandsFallback = PortalSet
     override val incomplete = true
