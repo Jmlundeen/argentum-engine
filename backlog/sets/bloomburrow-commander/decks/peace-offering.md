@@ -71,10 +71,10 @@
 - [ ] 1 Coveted Jewel
 - [x] 1 Fellwar Stone
 - [ ] 1 Ghirapur Orrery
-- [ ] 1 Mind Stone
-- [ ] 1 Sol Ring
+- [x] 1 Mind Stone
+- [x] 1 Sol Ring
 - [ ] 1 Swiftfoot Boots
-- [ ] 1 Thought Vessel
+- [x] 1 Thought Vessel
 
 ## Enchantments (8)
 

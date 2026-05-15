@@ -73,7 +73,7 @@
 - [ ] 1 Idol of Oblivion
 - [ ] 1 Maskwood Nexus
 - [ ] 1 Skullclamp
-- [ ] 1 Sol Ring
+- [x] 1 Sol Ring
 - [ ] 1 Sword of the Squeak
 - [ ] 1 Talisman of Resilience
 

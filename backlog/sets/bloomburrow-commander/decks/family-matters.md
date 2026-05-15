@@ -78,8 +78,8 @@
 - [x] 1 Fellwar Stone
 - [x] 1 Helm of the Host
 - [ ] 1 Izzet Signet
-- [ ] 1 Mind Stone
-- [ ] 1 Sol Ring
+- [x] 1 Mind Stone
+- [x] 1 Sol Ring
 
 ## Enchantments (3)
 

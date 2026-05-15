@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 77 / 312
+**Implemented:** 83 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -87,7 +87,7 @@
 - [ ] Deep Forest Hermit
 - [ ] Derevi, Empyrial Tactician
 - [ ] Devilish Valet
-- [ ] Domri, Anarch of Bolas
+- [x] Domri, Anarch of Bolas
 - [ ] Dusk // Dawn
 - [ ] Echoing Assault
 - [ ] Elspeth, Sun's Champion
@@ -135,7 +135,7 @@
 - [ ] Haywire Mite
 - [ ] Hazel of the Rootbloom
 - [ ] Hazel's Brewmaster
-- [ ] Hedron Archive
+- [x] Hedron Archive
 - [x] Helm of the Host
 - [x] Hinterland Harbor
 - [ ] Hoofprints of the Stag
@@ -228,7 +228,7 @@
 - [ ] Riot Control
 - [ ] Rishkar, Peema Renegade
 - [ ] Rites of Flourishing
-- [ ] Rolling Hamsphere
+- [x] Rolling Hamsphere
 - [ ] Rootbound Crag
 - [ ] Rootcast Apprenticeship
 - [ ] Rose Room Treasurer
@@ -253,10 +253,10 @@
 - [ ] Skyclave Apparition
 - [ ] Skycloud Expanse
 - [ ] Skyfisher Spider
-- [ ] Sol Ring
+- [x] Sol Ring
 - [ ] Solemn Simulacrum
 - [ ] Sphinx of Enlightenment
-- [ ] Spine of Ish Sah
+- [x] Spine of Ish Sah
 - [ ] Spirited Companion
 - [ ] Spore Frog
 - [ ] Squirrel Mob
@@ -279,7 +279,7 @@
 - [ ] Sword of the Squeak
 - [ ] Swords to Plowshares
 - [ ] Tainted Wood
-- [ ] Talisman of Impulse
+- [x] Talisman of Impulse
 - [ ] Talisman of Resilience
 - [ ] Tamiyo, Field Researcher
 - [ ] Tear Asunder
