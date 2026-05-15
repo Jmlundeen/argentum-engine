@@ -15,9 +15,11 @@ import com.wingedsheep.mtg.sets.definitions.inr.InnistradRemasteredSet
 import com.wingedsheep.mtg.sets.definitions.inv.InvasionSet
 import com.wingedsheep.mtg.sets.definitions.mid.InnistradMidnightHuntSet
 import com.wingedsheep.mtg.sets.definitions.vow.InnistradCrimsonVowSet
+import com.wingedsheep.mtg.sets.definitions.khm.KaldheimSet
 import com.wingedsheep.mtg.sets.definitions.ktk.KhansOfTarkirSet
 import com.wingedsheep.mtg.sets.definitions.lea.AlphaSet
 import com.wingedsheep.mtg.sets.definitions.lgn.LegionsSet
+import com.wingedsheep.mtg.sets.definitions.lrw.LorwynSet
 import com.wingedsheep.mtg.sets.definitions.ecl.LorwynEclipsedSet
 import com.wingedsheep.mtg.sets.definitions.lci.LostCavernsOfIxalanSet
 import com.wingedsheep.mtg.sets.definitions.mkm.MurdersAtKarlovManorSet
@@ -25,6 +27,7 @@ import com.wingedsheep.mtg.sets.definitions.mom.MarchOfTheMachineSet
 import com.wingedsheep.mtg.sets.definitions.one.PhyrexiaAllWillBeOneSet
 import com.wingedsheep.mtg.sets.definitions.ons.OnslaughtSet
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
+import com.wingedsheep.mtg.sets.definitions.roe.RiseOfTheEldraziSet
 import com.wingedsheep.mtg.sets.definitions.scg.ScourgeSet
 import com.wingedsheep.mtg.sets.definitions.tmp.TempestSet
 import com.wingedsheep.mtg.sets.definitions.usg.UrzasSagaSet
@@ -51,10 +54,13 @@ object MtgSetCatalog {
         TempestSet,
         UrzasSagaSet,
         InvasionSet,
+        LorwynSet,
+        KaldheimSet,
         OnslaughtSet,
         ScourgeSet,
         LegionsSet,
         KhansOfTarkirSet,
+        RiseOfTheEldraziSet,
         AvacynRestoredSet,
         DominariaSet,
         DominariaUnitedSet,
