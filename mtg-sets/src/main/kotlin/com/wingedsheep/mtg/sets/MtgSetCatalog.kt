@@ -1,14 +1,21 @@
 package com.wingedsheep.mtg.sets
 
+import com.wingedsheep.mtg.sets.definitions.akh.AmonkhetSet
 import com.wingedsheep.mtg.sets.definitions.avr.AvacynRestoredSet
+import com.wingedsheep.mtg.sets.definitions.bfz.BattleForZendikarSet
 import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
 import com.wingedsheep.mtg.sets.definitions.blc.BloomburrowCommanderSet
 import com.wingedsheep.mtg.sets.definitions.bro.BrothersWarSet
 import com.wingedsheep.mtg.sets.definitions.c15.Commander2015Set
+import com.wingedsheep.mtg.sets.definitions.con.ConfluxSet
 import com.wingedsheep.mtg.sets.definitions.dft.AetherdriftSet
 import com.wingedsheep.mtg.sets.definitions.dom.DominariaSet
 import com.wingedsheep.mtg.sets.definitions.dmu.DominariaUnitedSet
 import com.wingedsheep.mtg.sets.definitions.dsk.DuskmournSet
+import com.wingedsheep.mtg.sets.definitions.gpt.GuildpactSet
+import com.wingedsheep.mtg.sets.definitions.m10.Magic2010Set
+import com.wingedsheep.mtg.sets.definitions.ody.OdysseySet
+import com.wingedsheep.mtg.sets.definitions.tsp.TimeSpiralSet
 import com.wingedsheep.mtg.sets.definitions.eoe.EdgeOfEternitiesSet
 import com.wingedsheep.mtg.sets.definitions.fdn.FoundationsSet
 import com.wingedsheep.mtg.sets.definitions.fin.FinalFantasySet
@@ -92,6 +99,13 @@ object MtgSetCatalog {
         TarkirDragonstormSet,
         AvatarTheLastAirbenderSet,
         WarOfTheSparkSet,
+        OdysseySet,
+        GuildpactSet,
+        TimeSpiralSet,
+        ConfluxSet,
+        Magic2010Set,
+        BattleForZendikarSet,
+        AmonkhetSet,
     )
 
     private val byCode: Map<String, MtgSet> = all.associateBy { it.code }

@@ -89,27 +89,27 @@
 
 ## Lands (38)
 
-- [ ] 1 Cinder Glade
+- [x] 1 Cinder Glade
 - [ ] 1 Command Tower
 - [x] 1 Copperline Gorge
 - [x] 1 Evolving Wilds
 - [ ] 1 Exotic Orchard
-- [ ] 5 Forest
-- [ ] 5 Forest
+- [x] 5 Forest
+- [x] 5 Forest
 - [x] 1 Forgotten Cave
 - [ ] 1 Game Trail
-- [ ] 1 Gruul Turf
+- [x] 1 Gruul Turf
 - [x] 1 Karplusan Forest
-- [ ] 1 Mossfire Valley
+- [x] 1 Mossfire Valley
 - [ ] 1 Mosswort Bridge
-- [ ] 4 Mountain
-- [ ] 4 Mountain
+- [x] 4 Mountain
+- [x] 4 Mountain
 - [ ] 1 Path of Ancestry
 - [ ] 1 Raging Ravine
-- [ ] 1 Reliquary Tower
-- [ ] 1 Rootbound Crag
-- [ ] 1 Sheltered Thicket
+- [x] 1 Reliquary Tower
+- [x] 1 Rootbound Crag
+- [x] 1 Sheltered Thicket
 - [x] 1 Temple of Abandon
-- [ ] 1 Terramorphic Expanse
+- [x] 1 Terramorphic Expanse
 - [x] 1 Tranquil Thicket
-- [ ] 1 Wooded Ridgeline
+- [x] 1 Wooded Ridgeline
