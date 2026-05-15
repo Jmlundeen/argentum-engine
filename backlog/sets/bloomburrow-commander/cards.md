@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 63 / 312
+**Implemented:** 72 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -27,7 +27,7 @@
 - [ ] Angel of the Ruins
 - [ ] Ant Queen
 - [ ] Arasta of the Endless Web
-- [ ] Arcane Signet
+- [x] Arcane Signet
 - [ ] Arthur, Marigold Knight
 - [ ] Azorius Signet
 - [x] Baird, Steward of Argive
@@ -45,11 +45,11 @@
 - [ ] Binding the Old Gods
 - [ ] Birds of Paradise
 - [ ] Blade Splicer
-- [ ] Blasphemous Act
+- [x] Blasphemous Act
 - [ ] Bloodroot Apothecary
 - [ ] Body of Knowledge
 - [ ] Bojuka Bog
-- [ ] Bootleggers' Stash
+- [x] Bootleggers' Stash
 - [ ] Boros Signet
 - [ ] Boss's Chauffeur
 - [x] Brightcap Badger // Fungus Frolic
@@ -78,11 +78,11 @@
 - [ ] Communal Brewing
 - [x] Copperline Gorge
 - [ ] Coveted Jewel
-- [ ] Cultivate
+- [x] Cultivate
 - [ ] Curiosity Crafter
 - [ ] Cut a Deal
 - [ ] Deadly Dispute
-- [ ] Decimate
+- [x] Decimate
 - [x] Decree of Pain
 - [ ] Deep Forest Hermit
 - [ ] Derevi, Empyrial Tactician
@@ -97,9 +97,9 @@
 - [x] Evercoat Ursine
 - [x] Evolving Wilds
 - [ ] Exotic Orchard
-- [ ] Explore
+- [x] Explore
 - [ ] Faeburrow Elder
-- [ ] Farseek
+- [x] Farseek
 - [x] Fellwar Stone
 - [ ] Ferrous Lake
 - [ ] Fisher's Talent
@@ -130,7 +130,7 @@
 - [ ] Gruul Signet
 - [ ] Gruul Turf
 - [ ] Hanged Executioner
-- [ ] Harmonize
+- [x] Harmonize
 - [ ] Haunted Mire
 - [ ] Haywire Mite
 - [ ] Hazel of the Rootbloom
@@ -217,7 +217,7 @@
 - [ ] Raging Ravine
 - [ ] Rain of Riches
 - [x] Rampaging Baloths
-- [ ] Rampant Growth
+- [x] Rampant Growth
 - [ ] Rapid Augmenter
 - [ ] Rapid Hybridization
 - [ ] Ravenous Squirrel

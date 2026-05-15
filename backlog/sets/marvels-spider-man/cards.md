@@ -2,8 +2,7 @@
 
 **Set Size:** 188 booster cards (excluding basic lands and tokens)
 **Release Date:** September 26, 2025
-**Implemented:** 21 / 189
-
+**Implemented:** 22 / 189
 - [x] Agent Venom
 - [x] Angry Rabble
 - [x] Amazing Acrobatics
@@ -47,7 +46,7 @@
 - [ ] Heroes' Hangout
 - [ ] Hide on the Ceiling
 - [ ] Hobgoblin, Mantled Marauder
-- [ ] Hot Dog Cart
+- [x] Hot Dog Cart
 - [ ] Hydro-Man, Fluid Felon
 - [x] Impostor Syndrome
 - [ ] Inner Demons Gangsters
