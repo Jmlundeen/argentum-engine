@@ -57,7 +57,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
         enumerateGraveyardCreaturesWithForage(context, result)
         enumerateFlashback(context, result)
         enumerateGraveyardWithLifeCost(context, result)
-        enumerateWarpFromHand(context, result)
+        enumerateWarp(context, result)
         enumerateCommandZone(context, result)
         enumerateKickerForZoneCasts(context, result)
 
@@ -1156,7 +1156,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
     // Warp from hand (and graveyard for warp abilities that opt in)
     // =========================================================================
 
-    private fun enumerateWarpFromHand(
+    private fun enumerateWarp(
         context: EnumerationContext,
         result: MutableList<LegalAction>
     ) {

@@ -315,6 +315,10 @@ sealed interface KeywordAbility {
      * [fromGraveyard] permits warp to be paid while the card is in the caster's
      * graveyard. Default warp (CR 702.185a) is hand-only; cards like Timeline
      * Culler explicitly grant graveyard access via their oracle text.
+     *
+     * Provisional: if a sibling keyword ever needs the same "you may cast this
+     * from your graveyard using its X ability" wording, extract a generic
+     * cast-from-zone permission rather than duplicating this flag.
      */
     @SerialName("Warp")
     @Serializable

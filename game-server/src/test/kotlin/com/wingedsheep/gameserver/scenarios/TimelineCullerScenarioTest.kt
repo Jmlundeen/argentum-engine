@@ -134,6 +134,36 @@ class TimelineCullerScenarioTest : ScenarioTestBase() {
                 }
             }
 
+            test("warp is rejected when player can't afford the life payment") {
+                // CR 119.4 — a player can't pay life unless their life total is at
+                // least the amount of the payment. Timeline Culler's warp costs 2 life,
+                // so a player at 1 life must not be allowed to warp it.
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardInHand(1, "Timeline Culler")
+                    .withLandsOnBattlefield(1, "Swamp", 1)
+                    .withLifeTotal(1, 1)
+                    .withCardInLibrary(1, "Swamp")
+                    .withCardInLibrary(2, "Mountain")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val cardId = game.state.getHand(game.player1Id).first { id ->
+                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Timeline Culler"
+                }
+
+                val result = game.execute(
+                    CastSpell(game.player1Id, cardId, useAlternativeCost = true)
+                )
+                withClue("Warp should be rejected at 1 life (needs 2): ${result.error}") {
+                    result.error shouldNotBe null
+                }
+                withClue("Life total must remain unchanged on rejected cast") {
+                    game.getLifeTotal(1) shouldBe 1
+                }
+            }
+
             test("warp from graveyard requires the graveyard opt-in (regression guard)") {
                 // Sinister Cryologist's warp has fromGraveyard = false (default).
                 // It must NOT be castable from the graveyard via warp.
