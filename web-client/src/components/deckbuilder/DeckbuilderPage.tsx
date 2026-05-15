@@ -438,8 +438,11 @@ export function DeckbuilderPage() {
   // When a deck format is selected, scope the catalog to format-legal cards automatically so
   // the user only sees plays they can actually run. The `format:` query token still works as
   // an extra filter (intersected on top), but isn't required for this default behavior.
+  // Basic lands are hidden from the catalog grid — users add them from the sticky deck-list
+  // rows or via "Suggest basic lands", and clogging the search results with five always-legal
+  // names that match every color/land filter is just noise.
   const filtered = useMemo(() => {
-    let result = catalog.filter(predicate)
+    let result = catalog.filter((c) => !c.basicLand && predicate(c))
     if (activeFormat) {
       result = result.filter((c) => c.legalFormats?.includes(activeFormat) ?? false)
     }
@@ -476,8 +479,10 @@ export function DeckbuilderPage() {
     let cancelled = false
     const params = new URLSearchParams()
     // De-dupe — `filtered` is already unique by name but be explicit; URLSearchParams
-    // doesn't dedupe and we don't want to send the same name twice.
-    const names = Array.from(new Set(filtered.map((c) => c.name)))
+    // doesn't dedupe and we don't want to send the same name twice. Basic lands are
+    // appended unconditionally so the sticky deck-list +/- and "Suggest basic lands"
+    // can pin the active set's printing even though basics no longer appear in `filtered`.
+    const names = Array.from(new Set([...filtered.map((c) => c.name), ...BASIC_LAND_ORDER]))
     names.forEach((n) => params.append('names', n))
     fetch(`/api/printings?${params.toString()}`)
       .then((r) => (r.ok ? r.json() : {}))
@@ -608,6 +613,27 @@ export function DeckbuilderPage() {
 
   // ----- Mutations -----
 
+  // When a card is added while filtered to a specific set, pin that set's printing
+  // automatically — the user is staring at the EOE Banishing Light art when they click +,
+  // so the saved entry should remember "EOE printing", not silently fall back to the
+  // canonical default. Skips the override when the row already has a manual pin (the
+  // user picked something else explicitly). Also drives the basic-land path: basics no
+  // longer appear in the catalog grid, but the sticky deck-list +/- and "Suggest basic
+  // lands" still run this so basics align with the selected set's art when available.
+  const applySetPinIfAvailable = useCallback((name: string) => {
+    if (!activeSetFilter) return
+    const override = setPrintingOverride[name]
+    if (!override || pinnedPrintings[name]) return
+    setPinnedPrintings((prev) => ({
+      ...prev,
+      [name]: { setCode: override.setCode, collectorNumber: override.collectorNumber },
+    }))
+    setPinnedPrintingArt((prev) => ({
+      ...prev,
+      [name]: { imageUri: override.imageUri, backFaceImageUri: override.backFaceImageUri },
+    }))
+  }, [activeSetFilter, setPrintingOverride, pinnedPrintings])
+
   const addCard = (card: CardSummary) => {
     setDeckCards((prev) => {
       const current = prev[card.name] ?? 0
@@ -615,25 +641,7 @@ export function DeckbuilderPage() {
       if (current >= max) return prev
       return { ...prev, [card.name]: current + 1 }
     })
-    // When the user adds a card while filtered to a specific set, pin that set's printing
-    // automatically — they're staring at the EOE Banishing Light art when they click +,
-    // so the saved entry should remember "EOE printing", not silently fall back to the
-    // canonical default. Skips the override when the row already has a manual pin (the
-    // user picked something else explicitly) or when the override doesn't carry a setCode
-    // (defensive: shouldn't happen for a populated cache).
-    if (activeSetFilter) {
-      const override = setPrintingOverride[card.name]
-      if (override && !pinnedPrintings[card.name]) {
-        setPinnedPrintings((prev) => ({
-          ...prev,
-          [card.name]: { setCode: override.setCode, collectorNumber: override.collectorNumber },
-        }))
-        setPinnedPrintingArt((prev) => ({
-          ...prev,
-          [card.name]: { imageUri: override.imageUri, backFaceImageUri: override.backFaceImageUri },
-        }))
-      }
-    }
+    applySetPinIfAvailable(card.name)
   }
 
   const removeCard = (name: string) => {
@@ -1101,7 +1109,7 @@ export function DeckbuilderPage() {
               rowViolations={rowViolations}
               isCommanderFormat={isCommanderFormat}
               onSuggestBasics={() =>
-                suggestLandsForDeck(deckCards, catalogIndex, catalog, setCardCount)
+                suggestLandsForDeck(deckCards, catalogIndex, catalog, setCardCount, applySetPinIfAvailable)
               }
               pinnedPrintings={pinnedPrintings}
               pinnedPrintingArt={pinnedPrintingArt}
@@ -1146,7 +1154,7 @@ export function DeckbuilderPage() {
             isCommanderFormat={isCommanderFormat}
             onAdd={addCard}
             onSuggestBasics={() =>
-              suggestLandsForDeck(deckCards, catalogIndex, catalog, setCardCount)
+              suggestLandsForDeck(deckCards, catalogIndex, catalog, setCardCount, applySetPinIfAvailable)
             }
           />
 
@@ -3687,6 +3695,7 @@ function AddCardSearch({
     if (t.length < 1) return []
     const out: CardSummary[] = []
     for (const c of catalog) {
+      if (c.basicLand) continue
       if (c.name.toLowerCase().includes(t)) out.push(c)
     }
     out.sort((a, b) => {
@@ -3956,6 +3965,7 @@ function suggestLandsForDeck(
   catalog: Record<string, CardSummary>,
   catalogList: CardSummary[],
   setCount: (name: string, count: number) => void,
+  onBasicAdded?: (name: string) => void,
 ) {
   const basicByName = new Map<string, CardSummary>()
   for (const c of catalogList) {
@@ -3989,7 +3999,11 @@ function suggestLandsForDeck(
   }
 
   const result = suggestBasicLands({ entries, availableBasics })
-  for (const basic of availableBasics) setCount(basic.name, result[basic.name] ?? 0)
+  for (const basic of availableBasics) {
+    const count = result[basic.name] ?? 0
+    setCount(basic.name, count)
+    if (count > 0) onBasicAdded?.(basic.name)
+  }
 }
 
 // ---------------------------------------------------------------------------
