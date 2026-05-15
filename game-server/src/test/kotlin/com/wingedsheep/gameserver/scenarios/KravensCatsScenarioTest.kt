@@ -1,6 +1,7 @@
 package com.wingedsheep.gameserver.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
+import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -55,6 +56,13 @@ class KravensCatsScenarioTest : ScenarioTestBase() {
                     projectedAfter.getPower(cats) shouldBe 4
                     projectedAfter.getToughness(cats) shouldBe 4
                 }
+
+                game.passUntilPhase(Phase.BEGINNING, Step.UNTAP)
+                val projectedNextTurn = game.state.projectedState
+                withClue("+2/+2 should expire during cleanup; Kraven's Cats back to 2/2 next turn") {
+                    projectedNextTurn.getPower(cats) shouldBe 2
+                    projectedNextTurn.getToughness(cats) shouldBe 2
+                }
             }
 
             test("second activation in the same turn is rejected by the once-per-turn restriction") {
@@ -81,6 +89,8 @@ class KravensCatsScenarioTest : ScenarioTestBase() {
                 }
                 game.resolveStack()
 
+                val poolBefore = game.state.getEntity(game.player1Id)?.get<ManaPoolComponent>()
+
                 val second = game.execute(
                     ActivateAbility(
                         playerId = game.player1Id,
@@ -96,6 +106,10 @@ class KravensCatsScenarioTest : ScenarioTestBase() {
                     val projected = game.state.projectedState
                     projected.getPower(cats) shouldBe 4
                     projected.getToughness(cats) shouldBe 4
+                }
+
+                withClue("Rejected activation should not have spent mana") {
+                    game.state.getEntity(game.player1Id)?.get<ManaPoolComponent>() shouldBe poolBefore
                 }
             }
         }
