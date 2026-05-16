@@ -403,6 +403,8 @@ sealed interface ServerMessage {
         val allowDuplicates: Boolean = true,
         /** Commander Draft/Sealed only — "BRAWL" (25 life / 16 cmdr damage) or "COMMANDER" (30/21). */
         val commanderPreset: String = "BRAWL",
+        /** When true, each booster mixes cards from the union of all selected sets. */
+        val chaosBoosters: Boolean = false,
     )
 
     /**

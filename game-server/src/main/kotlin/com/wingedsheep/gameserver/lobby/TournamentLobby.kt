@@ -232,6 +232,13 @@ class TournamentLobby(
      */
     var commanderPreset: com.wingedsheep.sdk.core.CommanderPreset =
         com.wingedsheep.sdk.core.CommanderPreset.BRAWL,
+    /**
+     * When true, every booster pack (sealed pool, draft pack, Winston/Grid deck) is generated
+     * from the union of all selected sets' card pools rather than from a single set per pack.
+     * Has no effect when only one set is selected. [boosterDistribution] is ignored in this mode
+     * — only [boosterCount] matters.
+     */
+    var chaosBoosters: Boolean = false,
 ) {
 
     /**
@@ -526,7 +533,7 @@ class TournamentLobby(
 
         if (effectiveDistribution != null) {
             players.forEach { (playerId, playerState) ->
-                val pool = boosterGenerator.generateSealedPool(effectiveDistribution, strategy)
+                val pool = boosterGenerator.generateSealedPool(effectiveDistribution, strategy, chaos = chaosBoosters)
                 players[playerId] = playerState.copy(cardPool = pool)
             }
         } else {
@@ -539,6 +546,7 @@ class TournamentLobby(
                     boosterCount,
                     distributionSeed,
                     strategy,
+                    chaos = chaosBoosters,
                 )
                 players[playerId] = playerState.copy(cardPool = pool)
             }
@@ -586,8 +594,9 @@ class TournamentLobby(
      * E.g., with {ONS: 1, LGN: 1, SCG: 1}, pack 1 = ONS, pack 2 = LGN, pack 3 = SCG.
      */
     private fun distributeNewPacks() {
-        // Build a sequence of set codes from the distribution (e.g., [ONS, LGN, SCG] for 1/1/1)
-        val setSequence = if (boosterDistribution.isNotEmpty()) {
+        // Build a sequence of set codes from the distribution (e.g., [ONS, LGN, SCG] for 1/1/1).
+        // Chaos mode ignores per-pack assignments and pulls every pack from the combined pool.
+        val setSequence = if (!chaosBoosters && boosterDistribution.isNotEmpty()) {
             boosterDistribution.flatMap { (code, count) -> List(count) { code } }
         } else {
             null
@@ -601,7 +610,7 @@ class TournamentLobby(
             val newPack = if (packSetCode != null) {
                 boosterGenerator.generateBooster(packSetCode, strategy)
             } else {
-                boosterGenerator.generateBooster(setCodes, strategy)
+                boosterGenerator.generateBooster(setCodes, strategy, chaos = chaosBoosters)
             }
             playerState.currentPack = newPack
             playerState.packQueue.clear()
@@ -764,7 +773,7 @@ class TournamentLobby(
         // Generate boosters and shuffle into main deck
         val allCards = mutableListOf<CardDefinition>()
         repeat(boosterCount) {
-            allCards.addAll(boosterGenerator.generateBooster(setCodes))
+            allCards.addAll(boosterGenerator.generateBooster(setCodes, chaos = chaosBoosters))
         }
         allCards.shuffle()
 
@@ -810,7 +819,7 @@ class TournamentLobby(
             val boostersPerGroup = boosterCount / 2
             fun generateGroupPool(count: Int): MutableList<CardDefinition> {
                 val pool = mutableListOf<CardDefinition>()
-                repeat(count) { pool.addAll(boosterGenerator.generateBooster(setCodes)) }
+                repeat(count) { pool.addAll(boosterGenerator.generateBooster(setCodes, chaos = chaosBoosters)) }
                 pool.shuffle()
                 return pool
             }
@@ -821,7 +830,7 @@ class TournamentLobby(
         } else {
             // 2-3 players: 1 group with all players
             val pool = mutableListOf<CardDefinition>()
-            repeat(boosterCount) { pool.addAll(boosterGenerator.generateBooster(setCodes)) }
+            repeat(boosterCount) { pool.addAll(boosterGenerator.generateBooster(setCodes, chaos = chaosBoosters)) }
             pool.shuffle()
             gridGroups = listOf(
                 GridGroup(mainDeck = pool, playerOrder = allPlayers)
@@ -1406,6 +1415,7 @@ class TournamentLobby(
                 deckSizeMin = deckSizeMin,
                 allowDuplicates = allowDuplicates,
                 commanderPreset = commanderPreset.name,
+                chaosBoosters = chaosBoosters,
             ),
             isHost = isHost(forPlayerId)
         )

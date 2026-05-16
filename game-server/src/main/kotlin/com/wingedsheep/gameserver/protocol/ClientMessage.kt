@@ -247,6 +247,8 @@ sealed interface ClientMessage {
         val allowDuplicates: Boolean? = null,
         /** Commander Draft/Sealed only — "BRAWL" or "COMMANDER". */
         val commanderPreset: String? = null,
+        /** Toggle Chaos boosters: each pack pulls from the union of selected sets. */
+        val chaosBoosters: Boolean? = null,
     ) : ClientMessage
 
     /**

@@ -600,8 +600,12 @@ function formatTournamentFormat(format: PublicTournamentSummary['format']): stri
       return 'Grid Draft'
     case 'DRAFT':
       return 'Draft'
+    case 'COMMANDER_DRAFT':
+      return 'Commander Draft'
     case 'SEALED':
       return 'Sealed'
+    case 'COMMANDER_SEALED':
+      return 'Commander Sealed'
     case 'PREMADE_DECKS':
       return 'Premade Decks'
   }
@@ -712,10 +716,7 @@ function LobbyOverlay({
   // "Draft-shape" — anything that hands packs around at pick time. Commander Draft fits the
   // shape (same per-pick UI / timer / pack-passing) so it inherits Draft-only settings.
   const isAnyDraft = isDraft || isWinston || isGridDraft || isCommanderDraft
-  // Paper-Draft variants only (Normal / Winston / Grid). Drives the "Draft" top-level button's
-  // active state and the Normal/Winston/Grid sub-selector visibility — neither of which should
-  // light up when Commander Draft is the active format.
-  const isPaperDraft = isDraft || isWinston || isGridDraft
+  const isAnySealed = isSealed || isCommanderSealed
   const hasSelectedSets = lobbyState.settings.setCodes.length > 0
   const playerCount = lobbyState.players.length
   const canSwitchToNormalDraft = playerCount <= 8
@@ -807,81 +808,104 @@ function LobbyOverlay({
         {/* Settings (host only) */}
         {isWaiting && lobbyState.isHost && (
           <div className={styles.settingsPanel}>
-            {/* Format selection */}
+            {/* Format selection — top row picks the pool type; variant sub-row picks the shape. */}
             <div className={styles.settingsRow}>
               <span className={styles.settingsLabel}>Format</span>
               <div className={styles.settingsButtons}>
                 <button
-                  onClick={() => updateLobbySettings({ format: 'SEALED' })}
-                  className={`${styles.settingsButton} ${isSealed ? styles.settingsButtonActive : ''}`}
+                  onClick={() => { if (!isAnySealed) updateLobbySettings({ format: 'SEALED' }) }}
+                  className={`${styles.settingsButton} ${isAnySealed ? styles.settingsButtonActive : ''}`}
                 >
                   Sealed
                 </button>
                 <button
-                  onClick={() => {
-                    if (!isPaperDraft) updateLobbySettings({ format: 'DRAFT' })
-                  }}
-                  className={`${styles.settingsButton} ${isPaperDraft ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
+                  onClick={() => { if (!isAnyDraft) updateLobbySettings({ format: 'DRAFT' }) }}
+                  className={`${styles.settingsButton} ${isAnyDraft ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
                 >
                   Draft
-                </button>
-                <button
-                  onClick={() => canSwitchToCommander && updateLobbySettings({ format: 'COMMANDER_DRAFT' })}
-                  disabled={!canSwitchToCommander}
-                  className={`${styles.settingsButton} ${isCommanderDraft ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
-                  title="Commander Legends -shaped 20-card packs; pick a commander from your pool. 1v1 only."
-                >
-                  Commander Draft
-                </button>
-                <button
-                  onClick={() => canSwitchToCommander && updateLobbySettings({ format: 'COMMANDER_SEALED' })}
-                  disabled={!canSwitchToCommander}
-                  className={`${styles.settingsButton} ${isCommanderSealed ? styles.settingsButtonActive : ''}`}
-                  title="Open 4 Commander-Legends-shaped packs; build a 60-card deck around a commander you pick from the pool. 1v1 only."
-                >
-                  Commander Sealed
                 </button>
                 <button
                   onClick={() => updateLobbySettings({ format: 'PREMADE_DECKS' })}
                   className={`${styles.settingsButton} ${isPremade ? styles.settingsButtonActive : ''}`}
                   title="Players bring their own pre-built decks (saved or pasted)"
                 >
-                  Premade Decks
+                  Premade
                 </button>
               </div>
             </div>
-            {/* Draft type sub-selection - only when paper Draft is selected (not Commander Draft) */}
-            {isPaperDraft && (
-              <div className={styles.settingsRow} style={{ alignItems: 'flex-start' }}>
-                <span className={styles.settingsLabel} style={{ paddingTop: 6 }}>Draft Type</span>
-                <div className={styles.draftTypeOptions}>
-                  <button
-                    onClick={() => canSwitchToNormalDraft && updateLobbySettings({ format: 'DRAFT' })}
-                    disabled={!canSwitchToNormalDraft}
-                    className={`${styles.draftTypeButton} ${isDraft ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
-                  >
-                    <span className={styles.draftTypeName}>Normal</span>
-                    <span className={styles.draftTypeDesc}>Pass packs around the table. 3-8 players.</span>
-                  </button>
-                  <button
-                    onClick={() => canSwitchToWinston && updateLobbySettings({ format: 'WINSTON_DRAFT' })}
-                    disabled={!canSwitchToWinston}
-                    className={`${styles.draftTypeButton} ${isWinston ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
-                  >
-                    <span className={styles.draftTypeName}>Winston</span>
-                    <span className={styles.draftTypeDesc}>Pick from 3 face-down piles. 2 players.</span>
-                  </button>
-                  <button
-                    onClick={() => canSwitchToGrid && updateLobbySettings({ format: 'GRID_DRAFT' })}
-                    disabled={!canSwitchToGrid}
-                    className={`${styles.draftTypeButton} ${isGridDraft ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
-                  >
-                    <span className={styles.draftTypeName}>Grid</span>
-                    <span className={styles.draftTypeDesc}>Pick a row or column from a 3x3 grid. 2-4 players.</span>
-                  </button>
+            {isAnySealed && (() => {
+              const caption = isCommanderSealed
+                ? 'Open Commander-shaped packs and build a 60-card deck around a commander from your pool. 1v1.'
+                : 'Open 6 boosters and build a 40-card deck.'
+              return (
+                <div className={styles.settingsRow}>
+                  <span className={styles.settingsLabel}>Variant</span>
+                  <div className={styles.variantGroup}>
+                    <div className={styles.settingsButtons}>
+                      <button
+                        onClick={() => updateLobbySettings({ format: 'SEALED' })}
+                        className={`${styles.settingsButton} ${isSealed ? styles.settingsButtonActive : ''}`}
+                      >
+                        Standard
+                      </button>
+                      <button
+                        onClick={() => canSwitchToCommander && updateLobbySettings({ format: 'COMMANDER_SEALED' })}
+                        disabled={!canSwitchToCommander}
+                        className={`${styles.settingsButton} ${isCommanderSealed ? styles.settingsButtonActive : ''}`}
+                      >
+                        Commander
+                      </button>
+                    </div>
+                    <div className={styles.variantCaption}>{caption}</div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            })()}
+            {isAnyDraft && (() => {
+              const caption = isCommanderDraft
+                ? 'Commander-shaped 20-card packs; pick a commander from your pool. 1v1.'
+                : isWinston ? 'Pick from 3 face-down piles. 2 players.'
+                : isGridDraft ? 'Pick a row or column from a 3×3 grid. 2-4 players.'
+                : 'Pass packs around the table. 3-8 players.'
+              return (
+                <div className={styles.settingsRow}>
+                  <span className={styles.settingsLabel}>Variant</span>
+                  <div className={styles.variantGroup}>
+                    <div className={styles.settingsButtons}>
+                      <button
+                        onClick={() => canSwitchToNormalDraft && updateLobbySettings({ format: 'DRAFT' })}
+                        disabled={!canSwitchToNormalDraft}
+                        className={`${styles.settingsButton} ${isDraft ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
+                      >
+                        Normal
+                      </button>
+                      <button
+                        onClick={() => canSwitchToWinston && updateLobbySettings({ format: 'WINSTON_DRAFT' })}
+                        disabled={!canSwitchToWinston}
+                        className={`${styles.settingsButton} ${isWinston ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
+                      >
+                        Winston
+                      </button>
+                      <button
+                        onClick={() => canSwitchToGrid && updateLobbySettings({ format: 'GRID_DRAFT' })}
+                        disabled={!canSwitchToGrid}
+                        className={`${styles.settingsButton} ${isGridDraft ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
+                      >
+                        Grid
+                      </button>
+                      <button
+                        onClick={() => canSwitchToCommander && updateLobbySettings({ format: 'COMMANDER_DRAFT' })}
+                        disabled={!canSwitchToCommander}
+                        className={`${styles.settingsButton} ${isCommanderDraft ? `${styles.settingsButtonActive} ${styles.settingsButtonDraft}` : ''}`}
+                      >
+                        Commander
+                      </button>
+                    </div>
+                    <div className={styles.variantCaption}>{caption}</div>
+                  </div>
+                </div>
+              )
+            })()}
             {/* Set selection — grouped by block. Skipped for Premade Decks since no boosters are generated. */}
             {!isPremade && (
             <div className={styles.settingsRow} style={{ alignItems: 'flex-start' }}>
@@ -941,8 +965,35 @@ function LobbyOverlay({
               </div>
             </div>
             )}
+            {/* Chaos boosters toggle — only meaningful with >1 set selected and a booster-based format. */}
+            {!isPremade && !isGridDraft && lobbyState.settings.setCodes.length > 1 && (
+              <div className={styles.settingsRow}>
+                <span className={styles.settingsLabel}>Booster mix</span>
+                <div className={styles.variantGroup}>
+                  <div className={styles.settingsButtons}>
+                    <button
+                      onClick={() => updateLobbySettings({ chaosBoosters: false })}
+                      className={`${styles.settingsButton} ${!lobbyState.settings.chaosBoosters ? styles.settingsButtonActive : ''}`}
+                    >
+                      Per set
+                    </button>
+                    <button
+                      onClick={() => updateLobbySettings({ chaosBoosters: true })}
+                      className={`${styles.settingsButton} ${lobbyState.settings.chaosBoosters ? styles.settingsButtonActive : ''}`}
+                    >
+                      Chaos
+                    </button>
+                  </div>
+                  <div className={styles.variantCaption}>
+                    {lobbyState.settings.chaosBoosters
+                      ? 'Each booster mixes cards from all selected sets.'
+                      : 'Each booster contains cards from a single set.'}
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Boosters setting - for Sealed and Winston (Grid uses fixed counts) */}
-            {(isSealed || isWinston || isCommanderSealed) && lobbyState.settings.setCodes.length > 1 && (
+            {(isSealed || isWinston || isCommanderSealed) && lobbyState.settings.setCodes.length > 1 && !lobbyState.settings.chaosBoosters && (
               <div className={styles.settingsRow} style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
                 <span className={styles.settingsLabel}>{isWinston ? 'Boosters (total)' : 'Boosters per player'}</span>
                 <div className={styles.boosterDistribution}>
@@ -985,7 +1036,7 @@ function LobbyOverlay({
                 </div>
               </div>
             )}
-            {(isSealed || isWinston || isCommanderSealed) && lobbyState.settings.setCodes.length <= 1 && (
+            {(isSealed || isWinston || isCommanderSealed) && (lobbyState.settings.setCodes.length <= 1 || lobbyState.settings.chaosBoosters) && (
               <div className={styles.settingsRow}>
                 <span className={styles.settingsLabel}>{isWinston ? 'Total boosters' : 'Boosters per player'}</span>
                 <select
@@ -1000,7 +1051,7 @@ function LobbyOverlay({
               </div>
             )}
             {/* Packs per player - for Draft and Commander Draft */}
-            {(isDraft || isCommanderDraft) && lobbyState.settings.setCodes.length > 1 && (
+            {(isDraft || isCommanderDraft) && lobbyState.settings.setCodes.length > 1 && !lobbyState.settings.chaosBoosters && (
               <div className={styles.settingsRow} style={{ flexDirection: 'column', alignItems: 'stretch', gap: 8 }}>
                 <span className={styles.settingsLabel}>Packs per player</span>
                 <div className={styles.boosterDistribution}>
@@ -1043,7 +1094,7 @@ function LobbyOverlay({
                 </div>
               </div>
             )}
-            {(isDraft || isCommanderDraft) && lobbyState.settings.setCodes.length <= 1 && (
+            {(isDraft || isCommanderDraft) && (lobbyState.settings.setCodes.length <= 1 || lobbyState.settings.chaosBoosters) && (
               <div className={styles.settingsRow}>
                 <span className={styles.settingsLabel}>Packs per player</span>
                 <select

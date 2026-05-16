@@ -916,6 +916,8 @@ export interface LobbySettings {
   readonly allowDuplicates: boolean
   /** Commander Draft/Sealed only — preset shape ('BRAWL' = 25 life / 16 cmdr damage; 'COMMANDER' = 30/21). */
   readonly commanderPreset: CommanderPreset
+  /** When true, each booster mixes cards from the union of all selected sets. */
+  readonly chaosBoosters: boolean
 }
 
 export type TournamentFormat =
@@ -1784,6 +1786,8 @@ export interface UpdateLobbySettingsMessage {
   readonly allowDuplicates?: boolean
   /** Commander Draft/Sealed only — 'BRAWL' or 'COMMANDER'. */
   readonly commanderPreset?: CommanderPreset
+  /** Toggle Chaos boosters: each pack pulls from the union of selected sets. */
+  readonly chaosBoosters?: boolean
 }
 
 // Tournament Client Messages
@@ -1966,6 +1970,7 @@ export function createUpdateLobbySettingsMessage(
     picksPerRound?: number
     isPublic?: boolean
     deckFormat?: DeckFormat | '' | null
+    chaosBoosters?: boolean
   }
 ): UpdateLobbySettingsMessage {
   return { type: 'updateLobbySettings', ...settings }

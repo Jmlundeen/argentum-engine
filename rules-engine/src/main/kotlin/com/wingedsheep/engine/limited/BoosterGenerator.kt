@@ -137,10 +137,13 @@ class BoosterGenerator(
      *
      * @param setCodes The set codes to choose from
      * @param strategy Optional strategy override applied to whichever set is picked.
-     * @return List of card definitions from a single randomly-selected set
+     * @param chaos When true, the booster pulls from the union of all selected sets' card pools
+     *              instead of a single set (Chaos Boosters lobby option). Incomplete sets are
+     *              always merged regardless of this flag.
+     * @return List of card definitions
      * @throws IllegalArgumentException if any set code is not found
      */
-    fun generateBooster(setCodes: List<String>, strategy: BoosterStrategy? = null): List<CardDefinition> {
+    fun generateBooster(setCodes: List<String>, strategy: BoosterStrategy? = null, chaos: Boolean = false): List<CardDefinition> {
         if (setCodes.isEmpty()) {
             throw IllegalArgumentException("At least one set code is required")
         }
@@ -151,9 +154,8 @@ class BoosterGenerator(
                 ?: throw IllegalArgumentException("Unknown set code: $setCode")
         }
 
-        // If any set is incomplete, merge all cards into a combined pool
-        val hasIncomplete = setConfigs.any { it.incomplete }
-        if (hasIncomplete) {
+        // Combined-pool path: forced by Chaos mode, or by any incomplete set in the selection.
+        if (chaos || setConfigs.any { it.incomplete }) {
             val combinedCards = setConfigs.flatMap { it.cards }
             val effectiveStrategy = strategy ?: StandardBooster()
             return effectiveStrategy.generate(boosterPool(combinedCards), Random.Default)
@@ -204,6 +206,7 @@ class BoosterGenerator(
         boosterCount: Int = 6,
         distributionSeed: Long? = null,
         strategy: BoosterStrategy? = null,
+        chaos: Boolean = false,
     ): List<CardDefinition> {
         if (setCodes.isEmpty()) {
             throw IllegalArgumentException("At least one set code is required")
@@ -218,9 +221,8 @@ class BoosterGenerator(
                 ?: throw IllegalArgumentException("Unknown set code: $setCode")
         }
 
-        // If any set is incomplete, merge all cards into a combined pool
-        val hasIncomplete = setConfigs.any { it.incomplete }
-        if (hasIncomplete) {
+        // Combined-pool path: forced by Chaos mode, or by any incomplete set.
+        if (chaos || setConfigs.any { it.incomplete }) {
             val combinedCards = setConfigs.flatMap { it.cards }
             val combinedStrategy = strategy ?: StandardBooster()
             val combinedPool = boosterPool(combinedCards)
@@ -265,6 +267,7 @@ class BoosterGenerator(
     fun generateSealedPool(
         boosterDistribution: Map<String, Int>,
         strategy: BoosterStrategy? = null,
+        chaos: Boolean = false,
     ): List<CardDefinition> {
         if (boosterDistribution.isEmpty()) {
             throw IllegalArgumentException("At least one set code is required")
@@ -276,9 +279,8 @@ class BoosterGenerator(
                 ?: throw IllegalArgumentException("Unknown set code: $setCode")
         }
 
-        // If any set is incomplete, merge all cards and generate total boosters
-        val hasIncomplete = setConfigs.any { it.incomplete }
-        if (hasIncomplete) {
+        // Combined-pool path: forced by Chaos mode, or by any incomplete set. Pack count = sum.
+        if (chaos || setConfigs.any { it.incomplete }) {
             val combinedCards = setConfigs.flatMap { it.cards }
             val totalBoosters = boosterDistribution.values.sum()
             val combinedStrategy = strategy ?: StandardBooster()

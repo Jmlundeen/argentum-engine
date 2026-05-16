@@ -1122,6 +1122,21 @@
   background-color: var(--color-accent-dark);
 }
 
+.variantGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.variantCaption {
+  font-size: var(--font-xs);
+  color: var(--text-disabled);
+  text-align: right;
+  max-width: 360px;
+  line-height: 1.35;
+}
+
 /* Draft type picker with descriptions */
 .draftTypeOptions {
   display: flex;

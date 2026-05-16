@@ -552,24 +552,28 @@ class LobbyHandler(
         }
 
         // Set appropriate default booster count based on format
-        // Draft: default 3 packs, max 6
+        // Draft: default 4 packs, max 6
+        // Commander Draft: default 3 packs, max 6
         // Sealed: default 6 boosters, max 16
         // Winston: default 6 boosters, max 16
+        // Commander Sealed: default 8 packs × 20 cards = 160-card pool, max 8
         // Grid Draft: player-count-aware default (2p=9, 3p=13), max 18
         // Premade Decks: unused — players bring their own deck
+        //
+        // The client transport always carries a boosterCount; the canonical "client default"
+        // sentinel is 6. When that sentinel arrives, the server picks the format-appropriate
+        // default; otherwise we honor the explicit client value within the format's range.
         val boosterCount = when (format) {
             TournamentFormat.DRAFT -> {
-                if (message.boosterCount == 6) 3 else message.boosterCount.coerceIn(1, 6)  // 6 is the client default, use 3 for draft
+                if (message.boosterCount == 6) 4 else message.boosterCount.coerceIn(1, 6)
             }
             TournamentFormat.COMMANDER_DRAFT -> {
-                // 3 packs × 20 cards = 60-card draft pool (CMR-2020 paper default).
                 if (message.boosterCount == 6) 3 else message.boosterCount.coerceIn(1, 6)
             }
             TournamentFormat.COMMANDER_SEALED -> {
-                // 6 packs × 20 cards = 120-card sealed pool. Roomier than the CMR-2020 paper
-                // default (4 packs) — 60-card decks need real depth across five colours plus
-                // the legendary slot to feel like a build.
-                message.boosterCount.coerceIn(1, 8)
+                // 8 packs × 20 cards = 160-card sealed pool. 60-card decks need real depth
+                // across five colours plus the legendary slot to feel like a build.
+                if (message.boosterCount == 6) 8 else message.boosterCount.coerceIn(1, 8)
             }
             TournamentFormat.SEALED, TournamentFormat.WINSTON_DRAFT -> {
                 message.boosterCount.coerceIn(1, 16)
@@ -598,6 +602,9 @@ class LobbyHandler(
             pickTimeSeconds = message.pickTimeSeconds.coerceIn(15, 120),
             picksPerRound = initialPicksPerRound,
             isPublic = message.isPublic,
+            // Commander formats enable Chaos boosters by default — 20-card commander packs
+            // need to mix sets to give a workable pool when multiple sets are selected.
+            chaosBoosters = format.isCommanderFormat,
         )
         lobby.addPlayer(identity)
         lobbyRepository.saveLobby(lobby)
@@ -1830,9 +1837,9 @@ class LobbyHandler(
                     lobby.maxPlayers = minOf(lobby.maxPlayers, 4)
                 }
                 lobby.boosterCount = when (newFormat) {
-                    TournamentFormat.DRAFT -> 3
+                    TournamentFormat.DRAFT -> 4
                     TournamentFormat.COMMANDER_DRAFT -> 3
-                    TournamentFormat.COMMANDER_SEALED -> 6
+                    TournamentFormat.COMMANDER_SEALED -> 8
                     TournamentFormat.SEALED -> 6
                     TournamentFormat.WINSTON_DRAFT -> 6
                     TournamentFormat.GRID_DRAFT -> gridDraftHandler.gridDraftDefaultBoosters(lobby.players.size)
@@ -1844,6 +1851,9 @@ class LobbyHandler(
                     TournamentFormat.DRAFT, TournamentFormat.COMMANDER_DRAFT -> 2
                     else -> 1
                 }
+                // Commander formats enable Chaos boosters by default — 20-card commander packs
+                // need to mix sets to give a workable card pool when multiple sets are selected.
+                lobby.chaosBoosters = newFormat.isCommanderFormat
                 lobby.recalculateDistribution()
             }
         }
@@ -1916,6 +1926,8 @@ class LobbyHandler(
                     .getOrNull()?.let { lobby.commanderPreset = it }
             }
         }
+
+        message.chaosBoosters?.let { lobby.chaosBoosters = it }
 
         ctx.broadcastLobbyUpdate(lobby)
         lobbyRepository.saveLobby(lobby)
