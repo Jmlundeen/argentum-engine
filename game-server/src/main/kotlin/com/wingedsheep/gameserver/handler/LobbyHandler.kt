@@ -1830,11 +1830,23 @@ class LobbyHandler(
             }
             // When switching formats, adjust boosterCount and maxPlayers to appropriate defaults
             if (newFormat != lobby.format) {
+                val wasCommander = lobby.format.isCommanderFormat
                 lobby.format = newFormat
                 if (newFormat == TournamentFormat.WINSTON_DRAFT) {
                     lobby.maxPlayers = 2
                 } else if (newFormat == TournamentFormat.GRID_DRAFT) {
                     lobby.maxPlayers = minOf(lobby.maxPlayers, 4)
+                }
+                // Commander draft / sealed plays best with a broad mix of sets, so when the
+                // host first switches into a commander format we replace the single-set
+                // default with a curated mix (DOM / BLB / ECL / KTK) for variety. Honor any
+                // explicit setCodes the same message also carries (handled above).
+                if (newFormat.isCommanderFormat && !wasCommander && message.setCodes == null) {
+                    val commanderDefaults = listOf("DOM", "BLB", "ECL", "KTK")
+                        .filter { boosterGenerator.getSetConfig(it) != null }
+                    if (commanderDefaults.isNotEmpty()) {
+                        lobby.updateSets(commanderDefaults)
+                    }
                 }
                 lobby.boosterCount = when (newFormat) {
                     TournamentFormat.DRAFT -> 4
