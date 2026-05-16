@@ -47,6 +47,12 @@ class EffectExecutorRegistry(
     private val playerExecutors = PlayerExecutors(decisionHandler, cardRegistry)
     private val chainExecutors = ChainExecutors()
 
+    /**
+     * Exposed so [com.wingedsheep.engine.core.EngineServices] can call
+     * [LibraryExecutors.initialize] once the rest of the service graph is wired.
+     */
+    val libraryExecutors: LibraryExecutors = LibraryExecutors(cardRegistry = cardRegistry, targetFinder = TargetFinder())
+
     init {
         // Register all effect executors by module
         registerModule(LifeExecutors(amountEvaluator))
@@ -54,7 +60,7 @@ class EffectExecutorRegistry(
         registerModule(PermanentExecutors(decisionHandler, amountEvaluator, cardRegistry))
         registerModule(ManaExecutors(amountEvaluator, cardRegistry))
         registerModule(TokenExecutors(amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry))
-        registerModule(LibraryExecutors(cardRegistry = cardRegistry, targetFinder = TargetFinder()))
+        registerModule(libraryExecutors)
         registerModule(StackExecutors(amountEvaluator, cardRegistry))
         registerModule(InformationExecutors())
         registerModule(CombatExecutors(amountEvaluator))

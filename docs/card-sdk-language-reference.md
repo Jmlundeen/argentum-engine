@@ -179,6 +179,17 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `ReturnSelfToBattlefieldAttached(target)` — return source attached to target (Aura recursion).
 - `ReturnCreaturesPutInGraveyardThisTurn(player)` — Patriarch's Bidding shape.
 
+### Library reveal & free cast
+
+- `Effects.Cascade` — CR 702.85a (`CascadeEffect`). Exile from the top of the controller's library
+  until a nonland card with mana value **strictly less than** the triggering spell's is exiled,
+  offer to cast it for free, bottom-randomize every exiled card that isn't cast.
+- `RevealAndMayCastFromLibraryEffect(count, maxManaValue, player?)` — Sunbird's Invocation
+  shape. Reveal top `count` cards of `player`'s library, present a `SELECT_CARDS` prompt over
+  the revealed nonland cards with mana value ≤ `maxManaValue` (player picks 0 or 1), free-cast
+  the chosen card if any, bottom-randomize the rest. Pair with `DynamicAmounts.triggeringManaValue()`
+  (= `EntityProperty(Triggering, ManaValue)`) when both bounds come from the triggering spell.
+
 ### Linked exile & play-from-exile permissions
 
 - `ReturnLinkedExile()` — return all from source's linked exile, under controller.
@@ -230,15 +241,16 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 - `AddMana(color, amount, restriction?)` — add N of one color.
 - `AddColorlessMana(amount, restriction?)` — add colorless.
-- `AddAnyColorMana(amount?, restriction?)` — add any-color mana; color chosen when spent.
-- `AddAnyColorManaSpendOnChosenType(typeName)` — mana that can only pay for a specific card type.
-- `AddDynamicMana(amount, allowedColors, restriction?)` — N mana within a color set.
-- `AddManaInAnyCombination(colors, amount)` — split N across colors.
-- `AddManaOfChosenColor(amount?)` — adds mana matching a chosen color.
-- `AddManaOfColorAmong(filter)` — one mana of each color among matching permanents.
-- `AddOneManaOfEachColorAmong(filter)` — same shape, explicit naming.
-- `AddManaOfColorLandsCouldProduce(filter?)` — Chromatic Lantern shape.
-- `AddManaOfColorInCommanderColorIdentity()` — mana of any colors in your commander's identity.
+- `AddManaOfChoice(colorSet, amount?, restriction?)` — **unified primitive.** Add N mana of one color the controller picks from a resolved [ManaColorSet](#manacolorset). All "any-color from a constrained pool" cards (any color, commander identity, among permanents, lands could produce, source-chosen color) are expressed as this effect plus a different `ManaColorSet`.
+- `AddAnyColorMana(amount?, restriction?)` — sugar for `AddManaOfChoice(ManaColorSet.AnyColor, amount)`.
+- `AddManaOfChosenColor(amount?)` — sugar for `AddManaOfChoice(ManaColorSet.SourceChosenColor, amount)`.
+- `AddManaOfColorAmong(filter)` — sugar for `AddManaOfChoice(ManaColorSet.AmongPermanents(filter))`.
+- `AddManaOfColorLandsCouldProduce(scope)` — sugar for `AddManaOfChoice(ManaColorSet.LandsCouldProduce(scope))`. Fellwar Stone / Exotic Orchard / Reflecting Pool shape.
+- `AddManaOfColorInCommanderColorIdentity()` — sugar for `AddManaOfChoice(ManaColorSet.CommanderIdentity)`. Arcane Signet / Command Tower shape.
+- `AddAnyColorManaSpendOnChosenType(typeName)` — mana that can only pay for a specific card type (kept separate because it derives a runtime [ManaRestriction] from the source's chosen subtype).
+- `AddDynamicMana(amount, allowedColors, restriction?)` — split X across a fixed color set, distinct from `AddManaOfChoice` because it distributes the full X total across multiple colors rather than producing X copies of one chosen color.
+- `AddManaInAnyCombination(colors, amount)` — split N across colors (alias for `AddDynamicMana`).
+- `AddOneManaOfEachColorAmong(filter)` — one mana of *each* color found among matching permanents (Bloom Tender shape).
 
 ### Tokens & emblems
 
@@ -624,6 +636,7 @@ For modal spells, prefer the explicit `targetPlayerControls(target)` DSL form; p
 ### Spell casting
 
 - `YouCastSpell` — any spell you cast.
+- `YouCastSpellFromHand` — any spell you cast from your hand (Sunbird's Invocation).
 - `YouCastCreature` — any creature spell you cast.
 - `YouCastNoncreature` — non-creature spells you cast.
 - `YouCastNoncreatureOrSubtype(subtype)` — noncreature OR subtype creature.
@@ -927,6 +940,20 @@ Numbers computed at resolution time.
 - `ChosenNumber` — number a player chose via a Choose action.
 - `VariableReference(name)` — named variable stored earlier by `StoreResult`/`StoreCount`.
 - `ColorsAmongPermanents(player)` — count of distinct colors among player's permanents.
+
+### `ManaColorSet`<a id="manacolorset"></a>
+
+Color analogue of `DynamicAmount` — pure data resolved at the moment a mana effect fires.
+Used by `AddManaOfChoice(colorSet, amount)`; the engine's `ManaColorSetResolver` materializes
+a `Set<Color>` from the source/controller/projected state, the player picks one (or the
+solver picks if there's only one), and that color is added to the pool.
+
+- `ManaColorSet.AnyColor` — all five colors. The "any-color" default.
+- `ManaColorSet.Specific(colors)` — hand-authored fixed set (e.g., `{R, G}` for a Gruul producer).
+- `ManaColorSet.CommanderIdentity` — union of color identities of every commander the controller has registered. Empty (no mana produced) in non-Commander formats.
+- `ManaColorSet.AmongPermanents(filter)` — colors of permanents matching `filter`, read via projected state so type/color-changing effects are honored. Mox Amber shape.
+- `ManaColorSet.LandsCouldProduce(scope)` — colors any land in `scope` could produce; tapped state and activation costs are ignored (CR 106.7). `scope` is `LandControllerScope.{YOU, OPPONENTS, ANY}`. Fellwar Stone / Exotic Orchard / Reflecting Pool shape.
+- `ManaColorSet.SourceChosenColor` — the single color stored on the source's `ChosenColorComponent` (set via `EntersWithChoice(ChoiceType.COLOR)`). Uncharted Haven / Ashling Rekindled shape.
 
 ### `TurnTracker` keys (used with `TurnTracking`)
 

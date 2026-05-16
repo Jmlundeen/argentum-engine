@@ -1183,10 +1183,20 @@ class CastSpellHandler(
         // a behold-and-exile cost on this same cast will attach a fresh one afterwards.
         currentState = currentState.updateEntity(action.cardId) { c -> c.without<LinkedExileComponent>() }
 
-        // Cast-time mode selection for choose-N modal spells (rules 601.2b, 700.2).
-        // Must run before cost payment so cancellation leaves no side effects.
+        // Cast-time mode selection for modal spells (CR 601.2b — the controller announces
+        // the mode choice while casting the spell, before it goes on the stack). Must run
+        // before cost payment so cancellation leaves no side effects.
+        //
+        // Applies uniformly to choose-1 and choose-N modal spells. The web client supplies
+        // `chosenModes` up front for choose-1 spells (the local mode picker), so it
+        // bypasses this pause; synthesized free casts (Sunbird's Invocation, Cascade) and
+        // any other server-initiated cast that doesn't pre-supply a mode hits the pause
+        // here. The legacy resolution-time mode picker in
+        // [com.wingedsheep.engine.handlers.effects.composite.ModalEffectExecutor] remains
+        // for modal *triggered* / *activated* abilities (CR 603.3c), which don't go
+        // through the cast pipeline at all.
         val modalEffect = cardDef?.script?.spellEffect as? ModalEffect
-        if (modalEffect != null && action.chosenModes.isEmpty() && modalEffect.chooseCount > 1) {
+        if (modalEffect != null && action.chosenModes.isEmpty() && modalEffect.chooseCount >= 1) {
             return pauseForCastTimeModeSelection(currentState, action, cardComponent, modalEffect)
         }
 

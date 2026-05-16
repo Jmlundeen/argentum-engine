@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 98 / 312
+**Implemented:** 101 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -74,7 +74,7 @@
 - [ ] Cloudblazer
 - [ ] Coiling Oracle
 - [ ] Combat Celebrant
-- [ ] Command Tower
+- [x] Command Tower
 - [ ] Communal Brewing
 - [x] Copperline Gorge
 - [ ] Coveted Jewel
@@ -268,7 +268,7 @@
 - [ ] Storm of Souls
 - [x] Sulfur Falls
 - [ ] Sun Titan
-- [ ] Sunbird's Invocation
+- [x] Sunbird's Invocation
 - [ ] Sungrass Prairie
 - [ ] Sunpetal Grove
 - [ ] Sunscorch Regent
@@ -299,7 +299,7 @@
 - [x] Tetsuko Umezawa, Fugitive
 - [ ] The Gitrog Monster
 - [ ] The Odd Acorn Gang
-- [ ] Thickest in the Thicket
+- [x] Thickest in the Thicket
 - [ ] Thopter Engineer
 - [x] Thought Vessel
 - [x] Thran Dynamo

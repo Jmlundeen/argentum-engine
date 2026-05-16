@@ -19,6 +19,7 @@ import com.wingedsheep.mtg.sets.definitions.fin.FinalFantasySet
 import com.wingedsheep.mtg.sets.definitions.frf.FateReforgedSet
 import com.wingedsheep.mtg.sets.definitions.inr.InnistradRemasteredSet
 import com.wingedsheep.mtg.sets.definitions.inv.InvasionSet
+import com.wingedsheep.mtg.sets.definitions.xln.IxalanSet
 import com.wingedsheep.mtg.sets.definitions.khm.KaldheimSet
 import com.wingedsheep.mtg.sets.definitions.ktk.KhansOfTarkirSet
 import com.wingedsheep.mtg.sets.definitions.lci.LostCavernsOfIxalanSet
@@ -109,6 +110,7 @@ abstract class ScenarioTestBase : FunSpec() {
         register(InnistradMidnightHuntSet.cards)
         register(InnistradRemasteredSet.cards)
         register(InvasionSet.cards)
+        register(IxalanSet.cards)
         register(KaldheimSet.cards); register(KaldheimSet.basicLands)
         register(KhansOfTarkirSet.cards); register(KhansOfTarkirSet.basicLands)
         register(LegionsSet.cards); register(LegionsSet.basicLands)

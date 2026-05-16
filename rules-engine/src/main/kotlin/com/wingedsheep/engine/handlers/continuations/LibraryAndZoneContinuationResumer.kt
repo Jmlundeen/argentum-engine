@@ -33,7 +33,8 @@ class LibraryAndZoneContinuationResumer(
         resumer(SelectTargetPipelineContinuation::class, ::resumeSelectTargetPipeline),
         resumer(MoveCollectionAuraTargetContinuation::class, ::resumeMoveCollectionAuraTarget),
         resumer(PutOnTopOrBottomContinuation::class, ::resumePutOnTopOrBottom),
-        resumer(CascadeMayCastContinuation::class, ::resumeCascadeMayCast)
+        resumer(CascadeMayCastContinuation::class, ::resumeCascadeMayCast),
+        resumer(CastFromCollectionTargetsContinuation::class, ::resumeCastFromCollectionTargets)
     )
 
     fun resumeReturnFromGraveyard(
@@ -763,5 +764,55 @@ class LibraryAndZoneContinuationResumer(
         }
 
         return checkForMore(castResult.state, bottomEvents + castResult.events)
+    }
+
+    /**
+     * Resume after the controller picks targets for a free synthesized cast triggered by
+     * [com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect].
+     *
+     * Flattens the per-requirement target picks into a `List<ChosenTarget>` (via
+     * [entityIdToChosenTarget]), invokes the normal cast pipeline, and bubbles any further
+     * pause (X selection, modal-target prompts on a card that turned out to be modal, etc.)
+     * through unchanged.
+     */
+    fun resumeCastFromCollectionTargets(
+        state: GameState,
+        continuation: CastFromCollectionTargetsContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is TargetsResponse) {
+            return ExecutionResult.error(
+                state,
+                "Expected targets response for free-cast target selection"
+            )
+        }
+
+        val chosenTargets = response.selectedTargets.entries
+            .sortedBy { it.key }
+            .flatMap { (_, ids) -> ids.map { entityIdToChosenTarget(state, it) } }
+
+        val stateForCast = state.copy(priorityPlayerId = continuation.casterId)
+        val castResult = castSpellHandler.execute(
+            stateForCast,
+            CastSpell(continuation.casterId, continuation.cardId, chosenTargets),
+        )
+
+        if (castResult.error != null) {
+            // Cast still couldn't initiate (e.g., targets became illegal between selection
+            // and resolution). Treat as a no-op so the rest of the trigger's resolution
+            // doesn't lose its outer pipeline.
+            return checkForMore(state, emptyList())
+        }
+
+        if (castResult.pendingDecision != null) {
+            return ExecutionResult.paused(
+                castResult.state,
+                castResult.pendingDecision,
+                castResult.events,
+            )
+        }
+
+        return checkForMore(castResult.state, castResult.events)
     }
 }

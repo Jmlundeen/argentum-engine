@@ -14,7 +14,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
- * Scenario tests for Trickery Charm.
+ * Scenario tests for Trickery Charm. Mode selection happens at CAST time (CR 601.2b).
+ * Mode 1's "creature type of your choice" is a resolution-time effect choice, so it
+ * pauses after the spell starts resolving (i.e., after the final `resolveStack()`).
  *
  * Card reference:
  * - Trickery Charm ({U}): Instant
@@ -27,19 +29,17 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
 
     private val stateProjector = StateProjector()
 
-    /**
-     * Helper to choose a mode from a modal spell by index.
-     */
-    private fun TestGame.chooseMode(modeIndex: Int) {
+    private fun TestGame.chooseMode(descriptionContains: String) {
         val decision = getPendingDecision()
         decision.shouldNotBeNull()
         decision.shouldBeInstanceOf<ChooseOptionDecision>()
-        submitDecision(OptionChosenResponse(decision.id, modeIndex))
+        val idx = decision.options.indexOfFirst { it.contains(descriptionContains, ignoreCase = true) }
+        check(idx >= 0) {
+            "No mode matched '$descriptionContains' in ${decision.options}"
+        }
+        submitDecision(OptionChosenResponse(decision.id, idx))
     }
 
-    /**
-     * Helper to choose a creature type from a ChooseOptionDecision.
-     */
     private fun TestGame.chooseCreatureType(type: String) {
         val decision = getPendingDecision()
         decision.shouldNotBeNull()
@@ -56,23 +56,19 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Trickery Charm")
-                    .withCardOnBattlefield(1, "Grizzly Bears") // 2/2 Bear
+                    .withCardOnBattlefield(1, "Grizzly Bears")
                     .withLandsOnBattlefield(1, "Island", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
                 game.castSpell(1, "Trickery Charm")
-                game.resolveStack()
+                game.chooseMode("gains flying")
 
-                // Choose mode 0: "Target creature gains flying until end of turn"
-                game.chooseMode(0)
-
-                // Select the single valid creature target
                 val bearsId = game.findPermanent("Grizzly Bears")!!
                 game.selectTargets(listOf(bearsId))
+                game.resolveStack()
 
-                // Verify Grizzly Bears has flying
                 val projected = stateProjector.project(game.state)
                 withClue("Grizzly Bears should have flying") {
                     projected.hasKeyword(bearsId, Keyword.FLYING) shouldBe true
@@ -83,7 +79,7 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Trickery Charm")
-                    .withCardOnBattlefield(1, "Grizzly Bears") // 2/2 Bear
+                    .withCardOnBattlefield(1, "Grizzly Bears")
                     .withLandsOnBattlefield(1, "Island", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -92,18 +88,14 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                 val bearsId = game.findPermanent("Grizzly Bears")!!
 
                 game.castSpell(1, "Trickery Charm")
-                game.resolveStack()
-
-                // Choose mode 1: "Target creature becomes the creature type of your choice"
-                game.chooseMode(1)
-
-                // Select the single valid creature target
+                game.chooseMode("creature type of your choice")
                 game.selectTargets(listOf(bearsId))
 
-                // Now choose creature type: Goblin
+                // Resolve the spell; the "creature type of your choice" pick is part of
+                // the effect and pauses during resolution.
+                game.resolveStack()
                 game.chooseCreatureType("Goblin")
 
-                // Verify Grizzly Bears is now a Goblin, not a Bear
                 val projected = stateProjector.project(game.state)
                 withClue("Grizzly Bears should be a Goblin") {
                     projected.hasSubtype(bearsId, "Goblin") shouldBe true
@@ -120,7 +112,7 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Trickery Charm")
-                    .withCardOnBattlefield(2, "Sage Aven") // 1/3 Bird Wizard
+                    .withCardOnBattlefield(2, "Sage Aven")
                     .withLandsOnBattlefield(1, "Island", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -129,18 +121,11 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                 val avenId = game.findPermanent("Sage Aven")!!
 
                 game.castSpell(1, "Trickery Charm")
-                game.resolveStack()
-
-                // Choose mode 1: creature type change
-                game.chooseMode(1)
-
-                // Select the single valid creature target
+                game.chooseMode("creature type of your choice")
                 game.selectTargets(listOf(avenId))
-
-                // Choose Elf as the new type
+                game.resolveStack()
                 game.chooseCreatureType("Elf")
 
-                // Sage Aven should now be an Elf, losing both Bird and Wizard
                 val projected = stateProjector.project(game.state)
                 withClue("Sage Aven should be an Elf") {
                     projected.hasSubtype(avenId, "Elf") shouldBe true
@@ -163,13 +148,9 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                     .build()
 
                 game.castSpell(1, "Trickery Charm")
+                game.chooseMode("Look at the top four")
                 game.resolveStack()
 
-                // Choose mode 2: look at top four and reorder
-                game.chooseMode(2)
-
-                // The reorder decision should be presented (or auto-completed if
-                // library has fewer than 4 cards). Just verify the spell resolved.
                 withClue("Trickery Charm should be in graveyard after resolving") {
                     game.isInGraveyard(1, "Trickery Charm") shouldBe true
                 }
@@ -179,8 +160,8 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Trickery Charm")
-                    .withCardOnBattlefield(1, "Grizzly Bears") // 2/2
-                    .withCardOnBattlefield(1, "Hill Giant")    // 3/3
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardOnBattlefield(1, "Hill Giant")
                     .withLandsOnBattlefield(1, "Island", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -189,15 +170,10 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                 val giantId = game.findPermanent("Hill Giant")!!
 
                 game.castSpell(1, "Trickery Charm")
+                game.chooseMode("gains flying")
+                game.selectTargets(listOf(giantId))
                 game.resolveStack()
 
-                // Choose mode 0: flying
-                game.chooseMode(0)
-
-                // Multiple valid creatures -> target selection decision
-                game.selectTargets(listOf(giantId))
-
-                // Hill Giant should have flying
                 val projected = stateProjector.project(game.state)
                 withClue("Hill Giant should have flying") {
                     projected.hasKeyword(giantId, Keyword.FLYING) shouldBe true
@@ -215,12 +191,11 @@ class TrickeryCharmScenarioTest : ScenarioTestBase() {
                     .build()
 
                 game.castSpell(1, "Trickery Charm")
-                game.resolveStack()
-                game.chooseMode(0) // flying mode
+                game.chooseMode("gains flying") // flying mode
 
-                // Select the single valid creature target
                 val bearsId = game.findPermanent("Grizzly Bears")!!
                 game.selectTargets(listOf(bearsId))
+                game.resolveStack()
 
                 withClue("Trickery Charm should be in graveyard after resolving") {
                     game.isInGraveyard(1, "Trickery Charm") shouldBe true

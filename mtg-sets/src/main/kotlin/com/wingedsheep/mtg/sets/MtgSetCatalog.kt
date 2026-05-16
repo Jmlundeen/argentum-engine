@@ -7,6 +7,7 @@ import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
 import com.wingedsheep.mtg.sets.definitions.blc.BloomburrowCommanderSet
 import com.wingedsheep.mtg.sets.definitions.bro.BrothersWarSet
 import com.wingedsheep.mtg.sets.definitions.c15.Commander2015Set
+import com.wingedsheep.mtg.sets.definitions.cmd.Commander2011Set
 import com.wingedsheep.mtg.sets.definitions.con.ConfluxSet
 import com.wingedsheep.mtg.sets.definitions.dft.AetherdriftSet
 import com.wingedsheep.mtg.sets.definitions.dtk.DragonsOfTarkirSet
@@ -43,6 +44,7 @@ import com.wingedsheep.mtg.sets.definitions.one.PhyrexiaAllWillBeOneSet
 import com.wingedsheep.mtg.sets.definitions.ons.OnslaughtSet
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.mtg.sets.definitions.rix.RivalsOfIxalanSet
+import com.wingedsheep.mtg.sets.definitions.xln.IxalanSet
 import com.wingedsheep.mtg.sets.definitions.roe.RiseOfTheEldraziSet
 import com.wingedsheep.mtg.sets.definitions.scg.ScourgeSet
 import com.wingedsheep.mtg.sets.definitions.tmp.TempestSet
@@ -86,6 +88,7 @@ object MtgSetCatalog {
         DominariaUnitedSet,
         PhyrexiaAllWillBeOneSet,
         BrothersWarSet,
+        Commander2011Set,
         Commander2015Set,
         InnistradRemasteredSet,
         InnistradMidnightHuntSet,
@@ -94,6 +97,7 @@ object MtgSetCatalog {
         NewCapennaCommanderSet,
         MurdersAtKarlovManorSet,
         WildsOfEldrainSet,
+        IxalanSet,
         RivalsOfIxalanSet,
         LostCavernsOfIxalanSet,
         BloomburrowSet,

@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
- * Scenario tests for Vitality Charm.
+ * Scenario tests for Vitality Charm. Mode selection happens at CAST time (CR 601.2b).
  *
  * Card reference:
  * - Vitality Charm ({G}): Instant
@@ -26,11 +26,15 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
 
     private val stateProjector = StateProjector()
 
-    private fun TestGame.chooseMode(modeIndex: Int) {
+    private fun TestGame.chooseMode(descriptionContains: String) {
         val decision = getPendingDecision()
         decision.shouldNotBeNull()
         decision.shouldBeInstanceOf<ChooseOptionDecision>()
-        submitDecision(OptionChosenResponse(decision.id, modeIndex))
+        val idx = decision.options.indexOfFirst { it.contains(descriptionContains, ignoreCase = true) }
+        check(idx >= 0) {
+            "No mode matched '$descriptionContains' in ${decision.options}"
+        }
+        submitDecision(OptionChosenResponse(decision.id, idx))
     }
 
     init {
@@ -46,10 +50,8 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
                     .build()
 
                 game.castSpell(1, "Vitality Charm")
+                game.chooseMode("Insect creature token") // create Insect token (no target)
                 game.resolveStack()
-
-                // Choose mode 0: "Create a 1/1 green Insect creature token"
-                game.chooseMode(0)
 
                 withClue("Insect token should be on the battlefield") {
                     game.isOnBattlefield("Insect Token") shouldBe true
@@ -67,7 +69,7 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Vitality Charm")
-                    .withCardOnBattlefield(1, "Grizzly Bears") // 2/2
+                    .withCardOnBattlefield(1, "Grizzly Bears")
                     .withLandsOnBattlefield(1, "Forest", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -76,13 +78,9 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
                 val bearsId = game.findPermanent("Grizzly Bears")!!
 
                 game.castSpell(1, "Vitality Charm")
-                game.resolveStack()
-
-                // Choose mode 1: "+1/+1 and trample"
-                game.chooseMode(1)
-
-                // Select the single valid creature target
+                game.chooseMode("trample")
                 game.selectTargets(listOf(bearsId))
+                game.resolveStack()
 
                 val projected = stateProjector.project(game.state)
                 withClue("Grizzly Bears should be 3/3 after +1/+1") {
@@ -98,25 +96,21 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Vitality Charm")
-                    .withCardInHand(1, "Shock") // {R}: deal 2 damage
-                    .withCardOnBattlefield(1, "Grizzly Bears") // 2/2 Bear, NOT a Beast
-                    .withCardOnBattlefield(2, "Ravenous Baloth") // 4/4 Beast
+                    .withCardInHand(1, "Shock")
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardOnBattlefield(2, "Ravenous Baloth")
                     .withLandsOnBattlefield(1, "Forest", 1)
                     .withLandsOnBattlefield(1, "Mountain", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                // Cast Vitality Charm and choose regenerate mode
                 game.castSpell(1, "Vitality Charm")
-                game.resolveStack()
+                game.chooseMode("Regenerate")
 
-                // Choose mode 2: "Regenerate target Beast"
-                game.chooseMode(2)
-
-                // Select the single valid Beast target
                 val balothId = game.findPermanent("Ravenous Baloth")!!
                 game.selectTargets(listOf(balothId))
+                game.resolveStack()
 
                 withClue("Ravenous Baloth should still be on the battlefield with regen shield") {
                     game.isOnBattlefield("Ravenous Baloth") shouldBe true
@@ -127,22 +121,19 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Vitality Charm")
-                    .withCardOnBattlefield(1, "Grizzly Bears") // 2/2 Bear, NOT a Beast
-                    .withCardOnBattlefield(2, "Ravenous Baloth") // 4/4 Beast
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardOnBattlefield(2, "Ravenous Baloth")
                     .withLandsOnBattlefield(1, "Forest", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
                 game.castSpell(1, "Vitality Charm")
-                game.resolveStack()
+                game.chooseMode("Regenerate")
 
-                // Choose mode 2: "Regenerate target Beast"
-                game.chooseMode(2)
-
-                // Only Ravenous Baloth is a Beast - select it
                 val balothId = game.findPermanent("Ravenous Baloth")!!
                 game.selectTargets(listOf(balothId))
+                game.resolveStack()
 
                 withClue("Ravenous Baloth should be on the battlefield") {
                     game.isOnBattlefield("Ravenous Baloth") shouldBe true
@@ -153,8 +144,8 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Vitality Charm")
-                    .withCardOnBattlefield(1, "Grizzly Bears")  // 2/2
-                    .withCardOnBattlefield(1, "Hill Giant")     // 3/3
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardOnBattlefield(1, "Hill Giant")
                     .withLandsOnBattlefield(1, "Forest", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -163,13 +154,9 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
                 val giantId = game.findPermanent("Hill Giant")!!
 
                 game.castSpell(1, "Vitality Charm")
-                game.resolveStack()
-
-                // Choose mode 1: +1/+1 and trample
-                game.chooseMode(1)
-
-                // Multiple valid creatures -> target selection decision
+                game.chooseMode("trample")
                 game.selectTargets(listOf(giantId))
+                game.resolveStack()
 
                 val projected = stateProjector.project(game.state)
                 withClue("Hill Giant should be 4/4 after +1/+1") {
@@ -191,8 +178,8 @@ class VitalityCharmScenarioTest : ScenarioTestBase() {
                     .build()
 
                 game.castSpell(1, "Vitality Charm")
+                game.chooseMode("Insect creature token") // token mode
                 game.resolveStack()
-                game.chooseMode(0) // token mode
 
                 withClue("Vitality Charm should be in graveyard after resolving") {
                     game.isInGraveyard(1, "Vitality Charm") shouldBe true

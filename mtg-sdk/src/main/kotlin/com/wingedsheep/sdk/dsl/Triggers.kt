@@ -656,6 +656,17 @@ object Triggers {
     )
 
     /**
+     * Whenever you cast a spell from your hand.
+     */
+    val YouCastSpellFromHand: TriggerSpec = TriggerSpec(
+        event = SpellCastEvent(
+            player = Player.You,
+            castFromZone = com.wingedsheep.sdk.core.Zone.HAND
+        ),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * Whenever you cast a creature spell.
      */
     val YouCastCreature: TriggerSpec = TriggerSpec(

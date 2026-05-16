@@ -29,11 +29,15 @@ class FeverCharmScenarioTest : ScenarioTestBase() {
     /**
      * Helper to choose a mode from a modal spell by index.
      */
-    private fun TestGame.chooseMode(modeIndex: Int) {
+    private fun TestGame.chooseMode(descriptionContains: String) {
         val decision = getPendingDecision()
         decision.shouldNotBeNull()
         decision.shouldBeInstanceOf<ChooseOptionDecision>()
-        submitDecision(OptionChosenResponse(decision.id, modeIndex))
+        val idx = decision.options.indexOfFirst { it.contains(descriptionContains, ignoreCase = true) }
+        check(idx >= 0) {
+            "No mode matched '$descriptionContains' in ${decision.options}"
+        }
+        submitDecision(OptionChosenResponse(decision.id, idx))
     }
 
     init {
@@ -51,14 +55,15 @@ class FeverCharmScenarioTest : ScenarioTestBase() {
 
                 // Cast Fever Charm (no targets at cast time for modal spells)
                 game.castSpell(1, "Fever Charm")
-                game.resolveStack()
 
+                // Mode is picked at cast time (CR 601.2b), before the spell hits the stack.
                 // Choose mode 0: "Target creature gains haste until end of turn"
-                game.chooseMode(0)
+                game.chooseMode("gains haste")
 
                 // Select the single valid creature target
                 val bearsId = game.findPermanent("Grizzly Bears")!!
                 game.selectTargets(listOf(bearsId))
+                game.resolveStack()
 
                 // Verify Grizzly Bears has haste
                 val projected = stateProjector.project(game.state)
@@ -80,13 +85,14 @@ class FeverCharmScenarioTest : ScenarioTestBase() {
                 val bearsId = game.findPermanent("Grizzly Bears")!!
 
                 game.castSpell(1, "Fever Charm")
-                game.resolveStack()
 
+                // Mode is picked at cast time (CR 601.2b), before the spell hits the stack.
                 // Choose mode 1: "Target creature gets +2/+0 until end of turn"
-                game.chooseMode(1)
+                game.chooseMode("+2/+0")
 
                 // Select the single valid creature target
                 game.selectTargets(listOf(bearsId))
+                game.resolveStack()
 
                 // Verify stats: 2/2 + 2/0 = 4/2
                 val projected = stateProjector.project(game.state)
@@ -107,14 +113,15 @@ class FeverCharmScenarioTest : ScenarioTestBase() {
                     .build()
 
                 game.castSpell(1, "Fever Charm")
-                game.resolveStack()
 
+                // Mode is picked at cast time (CR 601.2b), before the spell hits the stack.
                 // Choose mode 2: "Fever Charm deals 3 damage to target Wizard creature"
-                game.chooseMode(2)
+                game.chooseMode("3 damage to target Wizard")
 
                 // Select the single valid Wizard target
                 val avenId = game.findPermanent("Sage Aven")!!
                 game.selectTargets(listOf(avenId))
+                game.resolveStack()
                 // 3 damage to a 1/3 creature = lethal
 
                 withClue("Sage Aven should be destroyed by 3 damage") {
@@ -139,13 +146,14 @@ class FeverCharmScenarioTest : ScenarioTestBase() {
                 val giantId = game.findPermanent("Hill Giant")!!
 
                 game.castSpell(1, "Fever Charm")
-                game.resolveStack()
 
+                // Mode is picked at cast time (CR 601.2b), before the spell hits the stack.
                 // Choose mode 1: +2/+0
-                game.chooseMode(1)
+                game.chooseMode("+2/+0")
 
                 // Multiple valid creatures -> target selection decision
                 game.selectTargets(listOf(giantId))
+                game.resolveStack()
 
                 // Hill Giant should be 5/3 (3/3 + 2/0)
                 val projected = stateProjector.project(game.state)
@@ -167,14 +175,15 @@ class FeverCharmScenarioTest : ScenarioTestBase() {
                     .build()
 
                 game.castSpell(1, "Fever Charm")
-                game.resolveStack()
 
+                // Mode is picked at cast time (CR 601.2b), before the spell hits the stack.
                 // Choose mode 2: deal 3 to Wizard creature
-                game.chooseMode(2)
+                game.chooseMode("3 damage to target Wizard")
 
                 // Only Sage Aven is a valid Wizard target
                 val avenId = game.findPermanent("Sage Aven")!!
                 game.selectTargets(listOf(avenId))
+                game.resolveStack()
                 // Sage Aven should die (3 damage to 1/3)
                 withClue("Sage Aven should be destroyed") {
                     game.isOnBattlefield("Sage Aven") shouldBe false
@@ -195,12 +204,12 @@ class FeverCharmScenarioTest : ScenarioTestBase() {
                     .build()
 
                 game.castSpell(1, "Fever Charm")
-                game.resolveStack()
-                game.chooseMode(0) // haste mode
+                game.chooseMode("gains haste") // haste mode
 
                 // Select the single valid creature target
                 val bearsId = game.findPermanent("Grizzly Bears")!!
                 game.selectTargets(listOf(bearsId))
+                game.resolveStack()
 
                 withClue("Fever Charm should be in graveyard after resolving") {
                     game.isInGraveyard(1, "Fever Charm") shouldBe true

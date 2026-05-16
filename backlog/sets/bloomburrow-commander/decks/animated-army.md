@@ -82,15 +82,15 @@
 - [x] 1 Path of Discovery
 - [x] 1 Primeval Bounty
 - [x] 1 Rain of Riches
-- [ ] 1 Sunbird's Invocation
-- [ ] 1 Thickest in the Thicket
+- [x] 1 Sunbird's Invocation
+- [x] 1 Thickest in the Thicket
 - [ ] 1 Unnatural Growth
 - [ ] 1 Warstorm Surge
 
 ## Lands (38)
 
 - [x] 1 Cinder Glade
-- [ ] 1 Command Tower
+- [x] 1 Command Tower
 - [x] 1 Copperline Gorge
 - [x] 1 Evolving Wilds
 - [ ] 1 Exotic Orchard

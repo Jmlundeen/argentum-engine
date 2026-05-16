@@ -24,6 +24,10 @@ import io.kotest.matchers.shouldBe
  * • Destroy target Cleric.
  * • Return target Cleric card from your graveyard to your hand.
  * • Target player loses 2 life.
+ *
+ * Mode selection happens at CAST time (CR 601.2b / 700.2a). Modes whose targets can't be
+ * satisfied are filtered out of the mode picker, so a Cleric-destroy mode is not offered
+ * when no Cleric is on the battlefield.
  */
 class MiseryCharmTest : FunSpec({
 
@@ -53,31 +57,32 @@ class MiseryCharmTest : FunSpec({
         val opponent = driver.getOpponent(activePlayer)
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
 
-        // Opponent has a Cleric on the battlefield
         driver.putCreatureOnBattlefield(opponent, "Test Cleric")
 
-        // Cast Misery Charm (no targets at cast time for modal spells)
         driver.giveMana(activePlayer, Color.BLACK, 1)
         val charm = driver.putCardInHand(activePlayer, "Misery Charm")
         driver.castSpell(activePlayer, charm)
 
-        // Both pass → spell resolves → ModalEffectExecutor pauses with mode selection
-        driver.bothPass()
-
-        // Choose mode 0 (destroy target Cleric)
+        // Mode selection happens at cast time, before the spell is on the stack.
         val modeDecision = driver.pendingDecision as ChooseOptionDecision
         driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, 0))
 
-        // Select the single valid Cleric target
+        // Per-mode targets (also cast-time).
         val targetDecision = driver.pendingDecision as ChooseTargetsDecision
         val clericId = targetDecision.legalTargets.values.first().first()
         driver.submitTargetSelection(activePlayer, listOf(clericId))
 
-        // Cleric should be in graveyard
+        // Drain priority to resolve the spell from the stack.
+        driver.bothPass()
+
         driver.assertInGraveyard(opponent, "Test Cleric")
     }
 
-    test("mode 1 - fizzles with no valid Cleric target") {
+    test("mode 1 (destroy Cleric) is not offered when no Cleric is on the battlefield") {
+        // CR 700.2a — a mode whose targets can't be legally chosen isn't an option.
+        // The cast-time mode picker therefore filters out the Cleric-destroy mode when
+        // no Cleric exists. (Pre-refactor this test verified the spell-fizzles-on-resolve
+        // shape; that path is no longer reachable because the bad mode pick is prevented.)
         val driver = createDriver()
         driver.initMirrorMatch(
             deck = Deck.of("Plains" to 20, "Swamp" to 20),
@@ -88,23 +93,20 @@ class MiseryCharmTest : FunSpec({
         val opponent = driver.getOpponent(activePlayer)
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
 
-        // Opponent has a non-Cleric creature only
         driver.putCreatureOnBattlefield(opponent, "Grizzly Bears")
 
-        // Cast Misery Charm
         driver.giveMana(activePlayer, Color.BLACK, 1)
         val charm = driver.putCardInHand(activePlayer, "Misery Charm")
         driver.castSpell(activePlayer, charm)
 
-        // Both pass → spell resolves → mode selection
-        driver.bothPass()
-
-        // Choose mode 0 (destroy target Cleric) - but no Clerics exist
         val modeDecision = driver.pendingDecision as ChooseOptionDecision
-        driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, 0))
+        val offeredModes = modeDecision.options
+        // Mode 0 ("Destroy target Cleric") and mode 1 ("Return target Cleric ... from
+        // your graveyard") both need a Cleric somewhere; neither should be offered.
+        offeredModes.none { it.contains("Cleric", ignoreCase = true) } shouldBe true
+        // Mode 2 ("Target player loses 2 life") is always satisfiable.
+        offeredModes.any { it.contains("loses 2 life", ignoreCase = true) } shouldBe true
 
-        // Spell fizzles (no valid targets for chosen mode)
-        // Grizzly Bears should still be on the battlefield
         driver.assertPermanentExists(opponent, "Grizzly Bears")
     }
 
@@ -118,27 +120,25 @@ class MiseryCharmTest : FunSpec({
         val activePlayer = driver.activePlayer!!
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
 
-        // Put a Cleric in our graveyard
         driver.putCardInGraveyard(activePlayer, "Test Cleric")
 
-        // Cast Misery Charm
         driver.giveMana(activePlayer, Color.BLACK, 1)
         val charm = driver.putCardInHand(activePlayer, "Misery Charm")
         driver.castSpell(activePlayer, charm)
 
-        // Both pass → spell resolves → mode selection
-        driver.bothPass()
-
-        // Choose mode 1 (return Cleric from graveyard)
+        // Cast-time mode pause
         val modeDecision = driver.pendingDecision as ChooseOptionDecision
-        driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, 1))
+        val returnModeIndex = modeDecision.options.indexOfFirst { it.startsWith("Return target Cleric") }
+        check(returnModeIndex >= 0) { "Couldn't find return-Cleric mode in ${modeDecision.options}" }
+        driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, returnModeIndex))
 
-        // Select the single valid Cleric target in graveyard
+        // Cast-time per-mode target pause
         val targetDecision = driver.pendingDecision as ChooseTargetsDecision
         val clericId = targetDecision.legalTargets.values.first().first()
         driver.submitTargetSelection(activePlayer, listOf(clericId))
 
-        // Cleric should be in hand now
+        driver.bothPass()
+
         val hand = driver.state.getHand(activePlayer)
         val clericInHand = hand.any { entityId ->
             driver.state.getEntity(entityId)
@@ -159,23 +159,20 @@ class MiseryCharmTest : FunSpec({
         val opponent = driver.getOpponent(activePlayer)
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
 
-        // Cast Misery Charm
         driver.giveMana(activePlayer, Color.BLACK, 1)
         val charm = driver.putCardInHand(activePlayer, "Misery Charm")
         driver.castSpell(activePlayer, charm)
 
-        // Both pass → spell resolves → mode selection
-        driver.bothPass()
-
-        // Choose mode 2 (target player loses 2 life)
         val modeDecision = driver.pendingDecision as ChooseOptionDecision
-        driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, 2))
+        val loseLifeIndex = modeDecision.options.indexOfFirst { it.contains("loses 2 life") }
+        check(loseLifeIndex >= 0) { "Couldn't find lose-life mode in ${modeDecision.options}" }
+        driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, loseLifeIndex))
 
-        // Two players are valid targets → target selection decision
         val targetDecision = driver.pendingDecision as ChooseTargetsDecision
         driver.submitTargetSelection(activePlayer, listOf(opponent))
 
-        // Opponent should have lost 2 life
+        driver.bothPass()
+
         driver.assertLifeTotal(opponent, 18)
     }
 
@@ -189,23 +186,20 @@ class MiseryCharmTest : FunSpec({
         val activePlayer = driver.activePlayer!!
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
 
-        // Cast Misery Charm
         driver.giveMana(activePlayer, Color.BLACK, 1)
         val charm = driver.putCardInHand(activePlayer, "Misery Charm")
         driver.castSpell(activePlayer, charm)
 
-        // Both pass → spell resolves → mode selection
-        driver.bothPass()
-
-        // Choose mode 2 (target player loses 2 life)
         val modeDecision = driver.pendingDecision as ChooseOptionDecision
-        driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, 2))
+        val loseLifeIndex = modeDecision.options.indexOfFirst { it.contains("loses 2 life") }
+        check(loseLifeIndex >= 0) { "Couldn't find lose-life mode in ${modeDecision.options}" }
+        driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, loseLifeIndex))
 
-        // Two players are valid targets → target selection decision
         val targetDecision = driver.pendingDecision as ChooseTargetsDecision
         driver.submitTargetSelection(activePlayer, listOf(activePlayer))
 
-        // Active player should have lost 2 life
+        driver.bothPass()
+
         driver.assertLifeTotal(activePlayer, 18)
     }
 })

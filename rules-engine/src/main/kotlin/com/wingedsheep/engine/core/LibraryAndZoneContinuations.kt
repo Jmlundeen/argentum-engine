@@ -260,3 +260,27 @@ data class CascadeMayCastContinuation(
     val exiledCards: List<EntityId>,
     val cascadeCardId: EntityId
 ) : ContinuationFrame
+
+/**
+ * Resume after the controller picks targets for a spell being cast for free by
+ * [com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect].
+ *
+ * Synthesised free casts (Sunbird's Invocation, Cascade, etc.) can't carry their
+ * targets through the original `CastSpell` action — there's nothing on the client to
+ * pick them up front. The executor therefore detects spells with non-empty
+ * `script.targetRequirements`, pauses with a `ChooseTargetsDecision`, and pushes this
+ * continuation. The resumer reads the player's [TargetsResponse], turns the picks
+ * into [com.wingedsheep.engine.state.components.stack.ChosenTarget] values via
+ * [com.wingedsheep.engine.handlers.continuations.entityIdToChosenTarget], builds a
+ * `CastSpell(targets = chosen)`, and invokes the normal cast machinery.
+ *
+ * @property cardId The card being cast for free
+ * @property casterId The controller of the effect (also the decision-maker)
+ */
+@Serializable
+data class CastFromCollectionTargetsContinuation(
+    override val decisionId: String,
+    val cardId: EntityId,
+    val casterId: EntityId,
+) : ContinuationFrame
+

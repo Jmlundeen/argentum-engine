@@ -15,23 +15,28 @@ import kotlin.reflect.KClass
 
 /**
  * Executor for ModalEffect.
- * Handles "Choose one —" / "Choose two —" modal spells.
+ * Handles "Choose one —" / "Choose two —" modal spells and modal triggered / activated
+ * abilities.
  *
- * Two paths:
+ * Two paths, dispatched on whether the mode was picked before resolution:
  *
- * - **Cast-time modes already chosen** (rules 700.2, 601.2b–c): when the spell's
- *   [SpellOnStackComponent.chosenModes] is non-empty, iterate each chosen mode in
- *   order, executing its effect with the per-mode targets stored on
- *   [SpellOnStackComponent.modeTargetsOrdered]. If a mode's effect pauses for a
- *   nested decision, remaining modes ride along on a
- *   [ModalPreChosenContinuation] that auto-resumes after the inner decision
- *   resolves. Per-mode Rule 608.2b re-validation is applied against
+ * - **Pre-chosen modes** (modal spells, rules 700.2 / 601.2b–c): every modal *spell*
+ *   reaches this executor with [SpellOnStackComponent.chosenModes] populated —
+ *   [com.wingedsheep.engine.handlers.actions.spell.CastSpellHandler] runs the
+ *   cast-time mode + per-mode target picker (`pauseForCastTimeModeSelection` →
+ *   `presentCastModalTargetDecision`) before the spell ever lands on the stack.
+ *   This branch then drains each chosen mode in order with its captured targets,
+ *   pausing if a sub-effect needs another decision; remaining modes ride along on a
+ *   [ModalPreChosenContinuation] that auto-resumes once the inner decision resolves.
+ *   Per-mode Rule 608.2b re-validation is applied against
  *   [SpellOnStackComponent.modeTargetRequirements].
  *
- * - **Resolution-time mode picking** (legacy): used for modal triggered
- *   abilities (rule 603.3c) and any other modal whose `chosenModes` is empty.
- *   Presents a ChooseOptionDecision, pushes [ModalContinuation], and the
- *   modal-and-clone resumer drives target selection via `processChosenModeQueue`.
+ * - **Resolution-time mode picking** (modal triggered / activated abilities, rule 603.3c):
+ *   triggered abilities like Manifold Mouse's BeginCombat trigger and Warren Warleader's
+ *   attack trigger don't go through the cast pipeline, so they arrive here with
+ *   `chosenModes` empty. The executor presents a [ChooseOptionDecision] inline, pushes
+ *   [ModalContinuation], and the modal-and-clone resumer drives target selection via
+ *   `processChosenModeQueue`.
  *
  * @param effectExecutor Function to execute a sub-effect (provided by registry)
  */
@@ -56,8 +61,9 @@ class ModalEffectExecutor(
             return executePreChosenModes(state, effect, context)
         }
 
-        // Mode not pre-chosen — present mode selection decision (legacy flow for
-        // triggered/activated modal abilities).
+        // Mode not pre-chosen — present mode selection decision (triggered/activated
+        // modal abilities, rule 603.3c; modal spells always arrive pre-chosen via the
+        // cast-time picker in CastSpellHandler).
         val playerId = context.controllerId
 
         val sourceName = context.sourceId?.let { sourceId ->

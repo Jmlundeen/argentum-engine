@@ -253,6 +253,7 @@ val engineSerializersModule = SerializersModule {
         subclass(ReturnFromGraveyardContinuation::class)
         subclass(ReturnFromLinkedExileContinuation::class)
         subclass(CascadeMayCastContinuation::class)
+        subclass(CastFromCollectionTargetsContinuation::class)
         subclass(StaticDrawReplacementContinuation::class)
         subclass(TokenCreationReplacementContinuation::class)
     }

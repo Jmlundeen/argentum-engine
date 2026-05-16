@@ -131,6 +131,38 @@ data class ExileLibraryUntilManaValueEffect(
  * card is found (library exhausted), no may-cast decision is offered and every
  * exiled card is put on the bottom.
  */
+/**
+ * Atomic "cast a card from a pipeline collection without paying its mana cost". Takes a
+ * stored collection (which should be bounded to 0..1 cards by an upstream
+ * [SelectFromCollectionEffect] using [SelectionMode] `ChooseUpTo(1)` or `ChooseExactly(1)`)
+ * and, if non-empty, casts the first card for free.
+ *
+ * The executor:
+ * 1. Stamps the card with `PlayWithoutPayingCostComponent` and registers a fresh
+ *    `MayPlayPermission` scoped to the source's controller — the card must already be in a
+ *    zone where casting is technically legal (e.g. exile after a prior `MoveCollection`).
+ * 2. Synthesizes a `CastSpell` action through the normal cast machinery, so target / X /
+ *    mode prompts surface to the controller during the same resolution window.
+ *
+ * Empty collection: no-op. Cast couldn't initiate (no legal targets, etc.): no-op — the
+ * card stays in its current zone for any downstream cleanup step to handle.
+ *
+ * Composed with `GatherCardsEffect` → `MoveCollectionEffect`(→exile) →
+ * `SelectFromCollectionEffect`(`ChooseUpTo(1)`, eligibility filter, `showAllCards = true`)
+ * → `MoveCollectionEffect`(remainder → library bottom, `CardOrder.Random`) → this effect,
+ * this primitive expresses Sunbird's-Invocation-shaped flows without a bespoke executor.
+ */
+@SerialName("CastFromCollectionWithoutPayingCost")
+@Serializable
+data class CastFromCollectionWithoutPayingCostEffect(
+    val from: String,
+) : Effect {
+    override val description: String =
+        "Cast the $from card without paying its mana cost"
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect = this
+}
+
 @SerialName("Cascade")
 @Serializable
 data object CascadeEffect : Effect {

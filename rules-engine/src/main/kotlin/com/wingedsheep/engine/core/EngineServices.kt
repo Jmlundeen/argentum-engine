@@ -72,4 +72,12 @@ class EngineServices(
         effectExecutor = effectExecutorRegistry::execute
     )
     val continuationHandler = ContinuationHandler(this)
+
+    init {
+        // Late wiring: every service in the graph is now constructed, so it's safe to
+        // hand `this` to executors that need to synthesize a `CastSpell` action through
+        // the full cast pipeline (currently only
+        // [com.wingedsheep.engine.handlers.effects.library.CastFromCollectionWithoutPayingCostExecutor]).
+        effectExecutorRegistry.libraryExecutors.initialize(this)
+    }
 }

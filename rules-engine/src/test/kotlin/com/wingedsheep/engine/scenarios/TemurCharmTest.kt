@@ -72,31 +72,29 @@ class TemurCharmTest : FunSpec({
         val charm = driver.putCardInHand(activePlayer, "Temur Charm")
         driver.castSpell(activePlayer, charm)
 
-        // Both pass → spell resolves → modal choice
-        driver.bothPass()
-
+        // Mode selection happens at cast time (CR 601.2b), before the spell hits the stack.
         val modeDecision = driver.pendingDecision
         modeDecision.shouldBeInstanceOf<ChooseOptionDecision>()
         driver.submitDecision(activePlayer, OptionChosenResponse(modeDecision.id, 0))
 
-        // Now we should get a ChooseTargetsDecision with TWO target requirements
+        // Per-mode targets (also cast-time). Mode 0 has TWO target requirements.
         val targetDecision = driver.pendingDecision
         targetDecision.shouldBeInstanceOf<ChooseTargetsDecision>()
         targetDecision.targetRequirements.size shouldBe 2
 
-        // Requirement 0: creature you control
         val yourCreatureTargets = targetDecision.legalTargets[0]!!
         yourCreatureTargets.contains(myCreature) shouldBe true
 
-        // Requirement 1: creature you don't control
         val theirCreatureTargets = targetDecision.legalTargets[1]!!
         theirCreatureTargets.contains(theirCreature) shouldBe true
 
-        // Submit both targets
         driver.submitDecision(
             activePlayer,
             TargetsResponse(targetDecision.id, mapOf(0 to listOf(myCreature), 1 to listOf(theirCreature)))
         )
+
+        // Drain priority to resolve the spell from the stack.
+        driver.bothPass()
 
         // Small Creature (2/2 + 1/1 = 3/3) deals 3 damage to Big Creature (5/5) - survives
         val bigDamage = driver.state.getEntity(theirCreature)?.get<DamageComponent>()?.amount ?: 0

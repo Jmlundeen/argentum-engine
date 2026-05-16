@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
- * Scenario tests for Piety Charm.
+ * Scenario tests for Piety Charm. Mode selection happens at CAST time (CR 601.2b).
  *
  * Card reference:
  * - Piety Charm ({W}): Instant
@@ -26,11 +26,15 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
 
     private val stateProjector = StateProjector()
 
-    private fun TestGame.chooseMode(modeIndex: Int) {
+    private fun TestGame.chooseMode(descriptionContains: String) {
         val decision = getPendingDecision()
         decision.shouldNotBeNull()
         decision.shouldBeInstanceOf<ChooseOptionDecision>()
-        submitDecision(OptionChosenResponse(decision.id, modeIndex))
+        val idx = decision.options.indexOfFirst { it.contains(descriptionContains, ignoreCase = true) }
+        check(idx >= 0) {
+            "No mode matched '$descriptionContains' in ${decision.options}"
+        }
+        submitDecision(OptionChosenResponse(decision.id, idx))
     }
 
     init {
@@ -41,7 +45,7 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Pacifism")
                     .withCardInHand(1, "Piety Charm")
-                    .withCardOnBattlefield(2, "Hill Giant") // 3/3 creature to enchant
+                    .withCardOnBattlefield(2, "Hill Giant")
                     .withLandsOnBattlefield(1, "Plains", 3)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -49,24 +53,18 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
 
                 val giantId = game.findPermanent("Hill Giant")!!
 
-                // Cast Pacifism on Hill Giant first
                 game.castSpell(1, "Pacifism", giantId)
                 game.resolveStack()
-
                 withClue("Pacifism should be on the battlefield") {
                     game.isOnBattlefield("Pacifism") shouldBe true
                 }
 
-                // Now cast Piety Charm to destroy the Aura
                 game.castSpell(1, "Piety Charm")
-                game.resolveStack()
+                game.chooseMode("Destroy target Aura")
 
-                // Choose mode 0: "Destroy target Aura attached to a creature"
-                game.chooseMode(0)
-
-                // Select the single valid Aura target
                 val pacifismId = game.findPermanent("Pacifism")!!
                 game.selectTargets(listOf(pacifismId))
+                game.resolveStack()
 
                 withClue("Pacifism should be destroyed") {
                     game.isOnBattlefield("Pacifism") shouldBe false
@@ -80,7 +78,7 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Piety Charm")
-                    .withCardOnBattlefield(1, "Glory Seeker") // 2/2 Human Soldier
+                    .withCardOnBattlefield(1, "Glory Seeker")
                     .withLandsOnBattlefield(1, "Plains", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -89,13 +87,9 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
                 val seekerId = game.findPermanent("Glory Seeker")!!
 
                 game.castSpell(1, "Piety Charm")
-                game.resolveStack()
-
-                // Choose mode 1: "Target Soldier creature gets +2/+2 until end of turn"
-                game.chooseMode(1)
-
-                // Select the single valid Soldier target
+                game.chooseMode("Soldier creature gets")
                 game.selectTargets(listOf(seekerId))
+                game.resolveStack()
 
                 val projected = stateProjector.project(game.state)
                 withClue("Glory Seeker should be 4/4 after +2/+2") {
@@ -108,8 +102,8 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Piety Charm")
-                    .withCardOnBattlefield(1, "Grizzly Bears")  // 2/2 Bear, NOT a Soldier
-                    .withCardOnBattlefield(1, "Glory Seeker")   // 2/2 Human Soldier
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardOnBattlefield(1, "Glory Seeker")
                     .withLandsOnBattlefield(1, "Plains", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -118,13 +112,9 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
                 val seekerId = game.findPermanent("Glory Seeker")!!
 
                 game.castSpell(1, "Piety Charm")
-                game.resolveStack()
-
-                // Choose mode 1: +2/+2 to Soldier
-                game.chooseMode(1)
-
-                // Only Glory Seeker is a Soldier - select it
+                game.chooseMode("Soldier creature gets")
                 game.selectTargets(listOf(seekerId))
+                game.resolveStack()
 
                 val projected = stateProjector.project(game.state)
                 withClue("Glory Seeker should be 4/4 after +2/+2") {
@@ -142,9 +132,9 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")
                     .withCardInHand(1, "Piety Charm")
-                    .withCardOnBattlefield(1, "Grizzly Bears")  // 2/2
-                    .withCardOnBattlefield(1, "Glory Seeker")   // 2/1
-                    .withCardOnBattlefield(2, "Hill Giant")     // 3/3 opponent's creature
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardOnBattlefield(1, "Glory Seeker")
+                    .withCardOnBattlefield(2, "Hill Giant")
                     .withLandsOnBattlefield(1, "Plains", 1)
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
@@ -155,10 +145,8 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
                 val giantId = game.findPermanent("Hill Giant")!!
 
                 game.castSpell(1, "Piety Charm")
+                game.chooseMode("vigilance") // vigilance mode (no target needed)
                 game.resolveStack()
-
-                // Choose mode 2: "Creatures you control gain vigilance until end of turn"
-                game.chooseMode(2)
 
                 val projected = stateProjector.project(game.state)
                 withClue("Grizzly Bears should have vigilance") {
@@ -183,8 +171,8 @@ class PietyCharmScenarioTest : ScenarioTestBase() {
                     .build()
 
                 game.castSpell(1, "Piety Charm")
+                game.chooseMode("vigilance") // vigilance mode (no target needed)
                 game.resolveStack()
-                game.chooseMode(2) // vigilance mode (no target needed)
 
                 withClue("Piety Charm should be in graveyard after resolving") {
                     game.isInGraveyard(1, "Piety Charm") shouldBe true

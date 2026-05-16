@@ -61,26 +61,35 @@ class CastZoneResolver(
     }
 
     /**
-     * Check if a card is in exile or a graveyard and has an active `MayPlayPermission`
-     * granting the player permission to play it. Checks all players' exile zones
-     * because cards like Villainous Wealth exile from an opponent's library (cards
-     * remain in their owner's exile zone but are castable by the spell's controller).
-     * Graveyard coverage handles free-cast grants that leave the card in the
-     * graveyard (e.g. Malcolm, Alluring Scoundrel).
+     * Check if a card is in a non-hand "other" zone and has an active `MayPlayPermission`
+     * granting the player permission to play it.
      *
-     * Also checks for permanents with GrantMayCastFromLinkedExile static ability
-     * (e.g., Rona, Disciple of Gix) that link exiled cards via LinkedExileComponent.
+     * Covers exile / graveyard / library:
+     * - Exile + graveyard: free-cast grants like Etali, Mind's Desire, Malcolm.
+     * - Library: cards revealed by an effect like Sunbird's Invocation, where the oracle
+     *   text leaves the cards in the library while permitting a free cast directly from
+     *   among the revealed pile. CR semantics treat reveal-then-cast as casting from the
+     *   library; the MayPlayPermission gates which specific cards qualify.
+     *
+     * Checks all players' exile/graveyard zones because cards like Villainous Wealth
+     * exile from an opponent's library (cards remain in their owner's zone but are
+     * castable by the spell's controller). Library coverage is restricted to the
+     * controller's own library — there's no current effect that grants free cast from
+     * an opponent's library while it stays there.
+     *
+     * Also checks for permanents with `GrantMayCastFromLinkedExile` static ability
+     * (e.g., Rona, Disciple of Gix) that link exiled cards via `LinkedExileComponent`.
      */
     fun isInExileWithPlayPermission(
         state: GameState,
         playerId: EntityId,
         cardId: EntityId
     ): Boolean {
-        val inExileOrGraveyard = state.turnOrder.any { pid ->
+        val inOtherZone = state.turnOrder.any { pid ->
             cardId in state.getZone(ZoneKey(pid, Zone.EXILE)) ||
                 cardId in state.getZone(ZoneKey(pid, Zone.GRAVEYARD))
-        }
-        if (!inExileOrGraveyard) return false
+        } || cardId in state.getZone(ZoneKey(playerId, Zone.LIBRARY))
+        if (!inOtherZone) return false
 
         // Check direct MayPlayPermission. When the grant carries a runtime condition
         // (Possibility Technician's "if you control a Kavu"), fall through to linked-exile

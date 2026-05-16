@@ -128,7 +128,7 @@ class LongstalkBrawlTest : FunSpec({
         (theirs in driver.state.getZone(opponent, Zone.GRAVEYARD)) shouldBe true
     }
 
-    test("mode 1 (gift) creates Fish token, places +1/+1 counter, then resolves fight (resolution-time mode)") {
+    test("mode 1 (gift) — cast without pre-chosen mode pauses at cast time, then resolves fight") {
         val driver = createDriver()
         driver.initMirrorMatch(
             deck = Deck.of("Forest" to 20),
@@ -145,23 +145,22 @@ class LongstalkBrawlTest : FunSpec({
         driver.giveMana(activePlayer, Color.GREEN, 1)
         val spell = driver.putCardInHand(activePlayer, "Longstalk Brawl")
 
-        // Cast WITHOUT pre-choosing the mode — legacy resolution-time path.
-        driver.submit(CastSpell(playerId = activePlayer, cardId = spell)).isSuccess shouldBe true
+        // Cast WITHOUT pre-choosing the mode. Per CR 601.2b mode selection happens during
+        // the cast procedure, so the engine pauses immediately for `ChooseOptionDecision`
+        // before the spell hits the stack.
+        driver.submit(CastSpell(playerId = activePlayer, cardId = spell)).isPaused shouldBe true
 
-        // Pass priority to resolve the spell — this triggers the mode selection prompt.
-        driver.bothPass()
-
-        // Mode selection
+        // Mode selection (cast-time)
         val modeDecision = driver.pendingDecision
         modeDecision.shouldBeInstanceOf<ChooseOptionDecision>()
         driver.submit(SubmitDecision(activePlayer, OptionChosenResponse(modeDecision.id, 1)))
 
-        // Target selection
+        // Per-mode target selection (also cast-time)
         val targetDecision = driver.pendingDecision
         targetDecision.shouldBeInstanceOf<ChooseTargetsDecision>()
         driver.submitMultiTargetSelection(activePlayer, mapOf(0 to listOf(yours), 1 to listOf(theirs)))
 
-        // Drain any remaining priority to finish resolution.
+        // Drain priority to resolve the spell from the stack.
         if (driver.isPaused.not()) driver.bothPass()
 
         driver.findPermanent(opponent, "Fish Token").shouldNotBeNull()
