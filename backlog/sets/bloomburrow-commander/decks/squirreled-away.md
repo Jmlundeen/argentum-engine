@@ -91,7 +91,7 @@
 
 - [x] 1 Barren Moor
 - [ ] 1 Bojuka Bog
-- [ ] 1 Command Tower
+- [x] 1 Command Tower
 - [x] 1 Evolving Wilds
 - [ ] 1 Exotic Orchard
 - [ ] 5 Forest

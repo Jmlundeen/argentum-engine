@@ -92,7 +92,7 @@
 - [x] 1 Adarkar Wastes
 - [x] 1 Brushland
 - [ ] 1 Canopy Vista
-- [ ] 1 Command Tower
+- [x] 1 Command Tower
 - [x] 1 Evolving Wilds
 - [ ] 1 Exotic Orchard
 - [ ] 1 Flooded Grove

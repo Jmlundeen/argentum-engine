@@ -94,7 +94,7 @@
 - [ ] 1 Cascade Bluffs
 - [ ] 1 Castle Ardenvale
 - [x] 1 Clifftop Retreat
-- [ ] 1 Command Tower
+- [x] 1 Command Tower
 - [x] 1 Evolving Wilds
 - [ ] 1 Exotic Orchard
 - [ ] 1 Ferrous Lake
