@@ -1482,8 +1482,43 @@ class ClientStateTransformer(
             landsPlayedThisTurn = landsPlayed,
             hasLost = hasLost,
             manaPool = manaPool,
-            activeEffects = activeEffects
+            activeEffects = activeEffects,
+            commanderDamage = buildCommanderDamage(state, playerId)
         )
+    }
+
+    /**
+     * Build per-commander damage tallies against [playerId]. Empty outside `Format.Commander`
+     * and for defenders no commander has connected with yet.
+     */
+    private fun buildCommanderDamage(
+        state: GameState,
+        playerId: EntityId
+    ): List<ClientCommanderDamage> {
+        val format = state.format as? com.wingedsheep.sdk.core.Format.Commander
+            ?: return emptyList()
+        if (state.commanderDamage.isEmpty()) return emptyList()
+
+        return state.commanderDamage
+            .asSequence()
+            .filter { it.defendingPlayerId == playerId && it.amount > 0 }
+            .mapNotNull { entry ->
+                val container = state.getEntity(entry.commanderId) ?: return@mapNotNull null
+                val card = container.get<CardComponent>() ?: return@mapNotNull null
+                val controllerId = container.get<ControllerComponent>()?.playerId
+                    ?: card.ownerId
+                    ?: return@mapNotNull null
+                ClientCommanderDamage(
+                    commanderId = entry.commanderId,
+                    commanderName = card.name,
+                    controllerId = controllerId,
+                    amount = entry.amount,
+                    threshold = format.commanderDamageThreshold,
+                    imageUri = card.imageUri,
+                )
+            }
+            .sortedByDescending { it.amount }
+            .toList()
     }
 
     /**

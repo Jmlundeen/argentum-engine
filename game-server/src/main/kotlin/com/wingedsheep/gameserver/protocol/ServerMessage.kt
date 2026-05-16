@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.protocol
 
+import com.wingedsheep.engine.view.ClientCommanderDamage
 import com.wingedsheep.engine.view.ClientEvent
 import com.wingedsheep.engine.view.ClientGameState
 import com.wingedsheep.engine.view.StateDelta
@@ -834,7 +835,13 @@ sealed interface ServerMessage {
         val librarySize: Int,
         val battlefield: List<SpectatorCardInfo>,
         val graveyard: List<SpectatorCardInfo>,
-        val stack: List<SpectatorCardInfo> = emptyList()
+        val stack: List<SpectatorCardInfo> = emptyList(),
+        /**
+         * Per-commander combat damage dealt to this player (CR 903.10a). Empty outside
+         * `Format.Commander`. Reuses the engine DTO so the spectator badge renders identically
+         * to the player-facing badge.
+         */
+        val commanderDamage: List<ClientCommanderDamage> = emptyList()
     )
 
     /**

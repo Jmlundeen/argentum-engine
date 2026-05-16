@@ -432,7 +432,33 @@ data class ClientPlayer(
     val manaPool: ClientManaPool?,
 
     /** Active effects on this player (e.g., "Skip Combat" from False Peace) */
-    val activeEffects: List<ClientPlayerEffect> = emptyList()
+    val activeEffects: List<ClientPlayerEffect> = emptyList(),
+
+    /**
+     * Per-commander cumulative combat damage dealt to this player (CR 903.10a). One entry per
+     * commander that has dealt at least 1 damage. Empty outside `Format.Commander`. The client
+     * renders these as progress badges (e.g., `⚔ Atraxa 14/21`) under the life orb.
+     */
+    val commanderDamage: List<ClientCommanderDamage> = emptyList()
+)
+
+/**
+ * Per-commander commander-damage tally against a single defending player. Carried inside
+ * [ClientPlayer.commanderDamage].
+ *
+ * @property threshold Single-source loss threshold from `Format.Commander.commanderDamageThreshold`
+ *   (21 in classic Commander, 16 in the BRAWL preset). Included per-entry so the client doesn't
+ *   need to know format internals to render `amount/threshold`.
+ */
+@Serializable
+data class ClientCommanderDamage(
+    val commanderId: EntityId,
+    val commanderName: String,
+    /** Current controller (may differ from owner under control-changing effects). */
+    val controllerId: EntityId,
+    val amount: Int,
+    val threshold: Int,
+    val imageUri: String? = null,
 )
 
 /**

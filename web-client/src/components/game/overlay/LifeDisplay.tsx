@@ -1,6 +1,6 @@
 import React from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
-import type { EntityId, ClientPlayerEffect } from '@/types'
+import type { EntityId, ClientPlayerEffect, ClientCommanderDamage } from '@/types'
 import { useResponsiveContext, getEffectIcon } from '../board/shared'
 import { styles } from '../board/styles'
 import { HoverCardPreview } from '../../ui/HoverCardPreview'
@@ -15,6 +15,7 @@ export function LifeDisplay({
   playerName,
   spectatorMode = false,
   poisonCounters = 0,
+  commanderDamage,
 }: {
   life: number
   isPlayer?: boolean
@@ -22,6 +23,7 @@ export function LifeDisplay({
   playerName?: string
   spectatorMode?: boolean
   poisonCounters?: number
+  commanderDamage?: readonly ClientCommanderDamage[]
 }) {
   const responsive = useResponsiveContext()
   const targetingState = useGameStore((state) => state.targetingState)
@@ -333,6 +335,63 @@ export function LifeDisplay({
           POISON {poisonCounters}/10
         </div>
       )}
+      <CommanderDamageBadges entries={commanderDamage ?? []} />
+    </div>
+  )
+}
+
+/**
+ * Per-commander damage progress badges shown under the life orb in Commander games.
+ * Visually mirrors the poison badge but tinted red (combat damage) and turns danger-red within
+ * 5 of the loss threshold — same threshold treatment as the life orb at ≤ 5.
+ */
+export function CommanderDamageBadges({ entries }: { entries: readonly ClientCommanderDamage[] }) {
+  if (entries.length === 0) return null
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, marginTop: 4 }}>
+      {entries.map((entry) => {
+        const remaining = entry.threshold - entry.amount
+        const danger = remaining <= 5
+        const borderColor = danger ? 'rgba(255, 68, 68, 0.7)' : 'rgba(230, 110, 60, 0.55)'
+        const bgColor = danger ? 'rgba(58, 14, 14, 0.92)' : 'rgba(40, 18, 10, 0.92)'
+        const textColor = danger ? '#ff6b6b' : '#ffae7a'
+        const glow = danger
+          ? '0 0 10px rgba(255, 68, 68, 0.35)'
+          : '0 0 8px rgba(230, 110, 60, 0.2)'
+        const displayName = entry.commanderName.length > 18
+          ? entry.commanderName.slice(0, 17) + '…'
+          : entry.commanderName
+        return (
+          <div
+            key={entry.commanderId}
+            data-commander-damage-badge={entry.commanderId}
+            title={`${entry.commanderName}: ${entry.amount} of ${entry.threshold} commander damage`}
+            style={{
+              minHeight: 18,
+              padding: '2px 7px',
+              borderRadius: 4,
+              border: `1px solid ${borderColor}`,
+              backgroundColor: bgColor,
+              color: textColor,
+              fontSize: 11,
+              fontWeight: 800,
+              lineHeight: '14px',
+              fontVariantNumeric: 'tabular-nums',
+              boxShadow: glow,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <span aria-hidden style={{ fontSize: 10, opacity: 0.95 }}>⚔</span>
+            <span style={{ letterSpacing: '0.3px' }}>{displayName.toUpperCase()}</span>
+            <span style={{ opacity: 0.95 }}>
+              {entry.amount}/{entry.threshold}
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }

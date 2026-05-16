@@ -50,6 +50,7 @@ export type {
   ClientZone,
   ClientPlayer,
   ClientPlayerEffect,
+  ClientCommanderDamage,
   ClientCardEffect,
   ClientRuling,
   ClientManaPool,

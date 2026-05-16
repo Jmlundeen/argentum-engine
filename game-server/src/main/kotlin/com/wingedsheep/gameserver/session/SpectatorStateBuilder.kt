@@ -14,13 +14,15 @@ import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.TargetsComponent
+import com.wingedsheep.engine.view.ClientCommanderDamage
 import com.wingedsheep.engine.view.ClientGameState
 import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.gameserver.protocol.ServerMessage
+import com.wingedsheep.sdk.core.Format
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.core.Zone
 
 class SpectatorStateBuilder(
     private val cardRegistry: CardRegistry,
@@ -185,8 +187,38 @@ class SpectatorStateBuilder(
             librarySize = library.size,
             battlefield = battlefield.mapNotNull { cardId -> buildCardInfo(state, cardId) },
             graveyard = graveyard.mapNotNull { cardId -> buildCardInfo(state, cardId) },
-            stack = stack.mapNotNull { cardId -> buildCardInfo(state, cardId) }
+            stack = stack.mapNotNull { cardId -> buildCardInfo(state, cardId) },
+            commanderDamage = buildCommanderDamage(state, playerId)
         )
+    }
+
+    /**
+     * Per-commander damage tallies against [defenderId]. Empty outside `Format.Commander`. Mirrors
+     * the player-facing transformer so the spectator badge renders identically.
+     */
+    private fun buildCommanderDamage(state: GameState, defenderId: EntityId): List<ClientCommanderDamage> {
+        val format = state.format as? Format.Commander ?: return emptyList()
+        if (state.commanderDamage.isEmpty()) return emptyList()
+        return state.commanderDamage
+            .asSequence()
+            .filter { it.defendingPlayerId == defenderId && it.amount > 0 }
+            .mapNotNull { entry ->
+                val container = state.getEntity(entry.commanderId) ?: return@mapNotNull null
+                val card = container.get<CardComponent>() ?: return@mapNotNull null
+                val controllerId = container.get<ControllerComponent>()?.playerId
+                    ?: card.ownerId
+                    ?: return@mapNotNull null
+                ClientCommanderDamage(
+                    commanderId = entry.commanderId,
+                    commanderName = card.name,
+                    controllerId = controllerId,
+                    amount = entry.amount,
+                    threshold = format.commanderDamageThreshold,
+                    imageUri = card.imageUri,
+                )
+            }
+            .sortedByDescending { it.amount }
+            .toList()
     }
 
     private fun buildCardInfo(state: GameState, cardId: EntityId): ServerMessage.SpectatorCardInfo? {

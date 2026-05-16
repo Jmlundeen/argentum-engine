@@ -2,7 +2,7 @@ import { ErrorCode, GameOverReason } from './enums'
 import { EntityId } from './entities'
 import { GameAction } from './actions'
 import { ClientEvent } from './events'
-import { ClientGameState, ClientCard, ClientZone, ClientPlayer, ClientCombatState } from './gameState'
+import { ClientGameState, ClientCard, ClientZone, ClientPlayer, ClientCombatState, ClientCommanderDamage } from './gameState'
 
 // ============================================================================
 // Server Messages (received from server)
@@ -1227,6 +1227,8 @@ export interface SpectatorPlayerState {
   readonly battlefield: readonly SpectatorCardInfo[]
   readonly graveyard: readonly SpectatorCardInfo[]
   readonly stack: readonly SpectatorCardInfo[]
+  /** Per-commander commander-damage tallies; empty outside Commander format. */
+  readonly commanderDamage?: readonly ClientCommanderDamage[]
 }
 
 /**

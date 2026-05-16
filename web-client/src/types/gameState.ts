@@ -374,6 +374,24 @@ export interface ClientPlayer {
   readonly hasLost: boolean
   readonly manaPool?: ClientManaPool
   readonly activeEffects?: readonly ClientPlayerEffect[]
+  /**
+   * Per-commander combat damage dealt to this player (CR 903.10a). Empty outside Commander format.
+   * Rendered as a progress badge under the life orb.
+   */
+  readonly commanderDamage?: readonly ClientCommanderDamage[]
+}
+
+/**
+ * Per-commander commander-damage tally against this player. Matches backend
+ * ClientCommanderDamage.kt.
+ */
+export interface ClientCommanderDamage {
+  readonly commanderId: EntityId
+  readonly commanderName: string
+  readonly controllerId: EntityId
+  readonly amount: number
+  readonly threshold: number
+  readonly imageUri?: string
 }
 
 /**

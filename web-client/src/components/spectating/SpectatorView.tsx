@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
 import type { SpectatorPlayerState, SpectatorCardInfo, SpectatorCombatState } from '../../types/messages'
+import type { ClientCommanderDamage } from '../../types/gameState'
 import { useResponsive } from '@/hooks/useResponsive.ts'
 import { getCardImageUrl, getScryfallFallbackUrl } from '@/utils/cardImages.ts'
+import { CommanderDamageBadges } from '../game/overlay'
 
 interface Point {
   x: number
@@ -209,6 +211,7 @@ export function SpectatorView() {
             life={player1.life}
             poisonCounters={player1.poisonCounters}
             playerName={player1.playerName}
+            commanderDamage={player1.commanderDamage ?? []}
             isLeft
           />
 
@@ -219,6 +222,7 @@ export function SpectatorView() {
             life={player2.life}
             poisonCounters={player2.poisonCounters}
             playerName={player2.playerName}
+            commanderDamage={player2.commanderDamage ?? []}
           />
         </div>
 
@@ -344,12 +348,14 @@ function LifeDisplay({
   life,
   playerName,
   poisonCounters = 0,
+  commanderDamage,
   isLeft = false,
 }: {
   playerId: string
   life: number
   poisonCounters?: number
   playerName: string
+  commanderDamage: readonly ClientCommanderDamage[]
   isLeft?: boolean
 }) {
   return (
@@ -387,6 +393,9 @@ function LifeDisplay({
             POISON {poisonCounters}/10
           </div>
         )}
+        <div style={{ marginTop: 4, display: 'flex', justifyContent: isLeft ? 'flex-start' : 'flex-end' }}>
+          <CommanderDamageBadges entries={commanderDamage} />
+        </div>
       </div>
     </div>
   )
