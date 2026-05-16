@@ -194,6 +194,29 @@ data class CounterUnlessPaysLifeContinuation(
 ) : ContinuationFrame
 
 /**
+ * Resume after the controller decides whether to discard cards
+ * to prevent their spell from being countered (e.g. Ward—Discard a card).
+ *
+ * Yes → discard [count] cards (chosen by the player, or at random if [random]) and let the spell resolve.
+ * No  → counter the spell.
+ *
+ * @property payingPlayerId The spell's controller who must decide whether to pay
+ * @property spellEntityId The spell that will be countered if they don't pay
+ * @property count Number of cards to discard
+ * @property random Whether the discard is at random (no player selection)
+ */
+@Serializable
+data class CounterUnlessDiscardContinuation(
+    override val decisionId: String,
+    val payingPlayerId: EntityId,
+    val spellEntityId: EntityId,
+    val count: Int,
+    val random: Boolean = false,
+    val exileOnCounter: Boolean = false,
+    val controllerId: EntityId? = null
+) : ContinuationFrame
+
+/**
  * Information about a mana source available for manual selection.
  *
  * @property requiresSacrifice Selecting this source also sacrifices the permanent

@@ -23,6 +23,7 @@ class ManaPaymentContinuationResumer(
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(CounterUnlessPaysContinuation::class, ::resumeCounterUnlessPays),
         resumer(CounterUnlessPaysLifeContinuation::class, ::resumeCounterUnlessPaysLife),
+        resumer(CounterUnlessDiscardContinuation::class, ::resumeCounterUnlessDiscard),
         resumer(CounterUnlessPaysManaSelectionContinuation::class, ::resumeCounterUnlessPaysManaSelection),
         resumer(WardTapPermanentsSubCostContinuation::class, ::resumeWardTapPermanentsSubCost),
         resumer(ChangeSpellTargetContinuation::class, ::resumeChangeSpellTarget),
@@ -209,6 +210,76 @@ class ManaPaymentContinuationResumer(
             }
             return checkForMore(counterResult.newState, counterResult.events)
         }
+    }
+
+    /**
+     * Resume after the controller decides whether to discard cards for a
+     * ward—discard trigger.
+     *
+     * Yes → run the standard discard pipeline (random or player's choice) against
+     *       the caster's hand and let the spell resolve.
+     * No  → counter the spell (or counter-to-exile if exileOnCounter).
+     *
+     * If the hand has fewer than `count` cards by the time we resume, treat that as
+     * an inability to pay and counter the spell.
+     */
+    fun resumeCounterUnlessDiscard(
+        state: GameState,
+        continuation: CounterUnlessDiscardContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is YesNoResponse) {
+            return ExecutionResult.error(state, "Expected yes/no response for counter unless discard")
+        }
+
+        if (!response.choice) {
+            val counterResult = if (continuation.exileOnCounter) {
+                services.stackResolver.counterSpellToExile(
+                    state, continuation.spellEntityId,
+                    grantFreeCast = false,
+                    controllerId = continuation.controllerId ?: continuation.payingPlayerId
+                )
+            } else {
+                services.stackResolver.counterSpell(state, continuation.spellEntityId)
+            }
+            return checkForMore(counterResult.newState, counterResult.events)
+        }
+
+        // Yes — re-verify the player can actually discard the required number of cards.
+        if (state.getHand(continuation.payingPlayerId).size < continuation.count) {
+            val counterResult = if (continuation.exileOnCounter) {
+                services.stackResolver.counterSpellToExile(
+                    state, continuation.spellEntityId,
+                    grantFreeCast = false,
+                    controllerId = continuation.controllerId ?: continuation.payingPlayerId
+                )
+            } else {
+                services.stackResolver.counterSpell(state, continuation.spellEntityId)
+            }
+            return checkForMore(counterResult.newState, counterResult.events)
+        }
+
+        val discardEffect = if (continuation.random) {
+            com.wingedsheep.sdk.dsl.EffectPatterns.discardRandom(continuation.count)
+        } else {
+            com.wingedsheep.sdk.dsl.EffectPatterns.discardCards(continuation.count)
+        }
+
+        val opponentId = state.turnOrder.firstOrNull { it != continuation.payingPlayerId }
+        val discardContext = com.wingedsheep.engine.handlers.EffectContext(
+            sourceId = continuation.controllerId,
+            controllerId = continuation.payingPlayerId,
+            opponentId = opponentId
+        )
+
+        val discardResult = services.effectExecutorRegistry
+            .execute(state, discardEffect, discardContext)
+            .toExecutionResult()
+        if (discardResult.error != null) return discardResult
+        if (discardResult.isPaused) return discardResult
+
+        return checkForMore(discardResult.newState, discardResult.events.toList())
     }
 
     /**

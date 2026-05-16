@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.stack
 
+import com.wingedsheep.engine.core.CounterUnlessDiscardContinuation
 import com.wingedsheep.engine.core.CounterUnlessPaysLifeContinuation
 import com.wingedsheep.engine.core.CounterUnlessPaysManaSelectionContinuation
 import com.wingedsheep.engine.core.DecisionContext
@@ -35,7 +36,9 @@ import kotlin.reflect.KClass
  * 3. Branch on the ward cost:
  *    - WardCost.Mana → SelectManaSourcesDecision (canDecline=true)
  *    - WardCost.Life → YesNoDecision ("Pay N life?")
- *    - WardCost.Discard / WardCost.Sacrifice → not yet implemented; trigger no-ops.
+ *    - WardCost.Discard → YesNoDecision ("Discard N card(s)?"); on Yes, runs the
+ *      standard discard pipeline (random or player's choice).
+ *    - WardCost.Sacrifice → not yet implemented; trigger no-ops.
  *    If the controller can't possibly pay, counter immediately.
  */
 class WardCounterEffectExecutor(
@@ -66,8 +69,66 @@ class WardCounterEffectExecutor(
         return when (val cost = effect.cost) {
             is WardCost.Mana -> handleManaCost(state, context, spellEntityId, container, payingPlayerId, cost.manaCost)
             is WardCost.Life -> handleLifeCost(state, context, spellEntityId, container, payingPlayerId, cost.amount)
-            is WardCost.Discard, is WardCost.Sacrifice -> EffectResult.success(state)
+            is WardCost.Discard -> handleDiscardCost(state, context, spellEntityId, container, payingPlayerId, cost.count, cost.random)
+            is WardCost.Sacrifice -> EffectResult.success(state)
         }
+    }
+
+    private fun handleDiscardCost(
+        state: GameState,
+        context: EffectContext,
+        spellEntityId: EntityId,
+        container: ComponentContainer,
+        payingPlayerId: EntityId,
+        count: Int,
+        random: Boolean
+    ): EffectResult {
+        // Not enough cards in hand → counter immediately.
+        // (The caster spends the spell as part of casting, so the spell itself is not in hand here.)
+        if (state.getHand(payingPlayerId).size < count) {
+            return counterSpellOrAbility(state, spellEntityId, container)
+        }
+
+        val cardsLabel = if (count == 1) "a card" else "$count cards"
+        val randomSuffix = if (random) " at random" else ""
+        val decisionId = java.util.UUID.randomUUID().toString()
+        val decision = YesNoDecision(
+            id = decisionId,
+            playerId = payingPlayerId,
+            prompt = "Discard $cardsLabel$randomSuffix or your spell will be countered",
+            context = DecisionContext(
+                sourceId = context.sourceId,
+                sourceName = "Ward",
+                phase = DecisionPhase.RESOLUTION
+            ),
+            yesText = "Discard $cardsLabel$randomSuffix",
+            noText = "Counter spell"
+        )
+
+        val continuation = CounterUnlessDiscardContinuation(
+            decisionId = decisionId,
+            payingPlayerId = payingPlayerId,
+            spellEntityId = spellEntityId,
+            count = count,
+            random = random,
+            controllerId = context.controllerId
+        )
+
+        val stateWithDecision = state.withPendingDecision(decision)
+        val stateWithContinuation = stateWithDecision.pushContinuation(continuation)
+
+        return EffectResult.paused(
+            stateWithContinuation,
+            decision,
+            listOf(
+                DecisionRequestedEvent(
+                    decisionId = decisionId,
+                    playerId = payingPlayerId,
+                    decisionType = "YES_NO",
+                    prompt = decision.prompt
+                )
+            )
+        )
     }
 
     private fun handleManaCost(
