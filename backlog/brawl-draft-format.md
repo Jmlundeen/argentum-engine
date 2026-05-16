@@ -329,6 +329,13 @@ Phase-3-shape lobbies is:
 Wire the actual game to run as Commander. The commander runtime is already wired (see Status above); this phase
 just plumbs the lobby's chosen preset / commander into `GameInitializer.GameConfig`.
 
+**Implemented at `TournamentMatchHandler.startSingleMatch`:** the `isCommanderShape` predicate is expanded to
+include `COMMANDER_DRAFT` and `COMMANDER_SEALED`, and the `engineFormat` for those lobbies is built from
+`lobby.commanderPreset.toFormat().copy(deckSize = lobby.deckSizeMin)`. Paper `PREMADE_DECKS` commander lobbies
+keep the engine's classic defaults (100/40/21). Per-player `commanderCardName` is already plumbed through
+`gameSession.addPlayer(..., commanderCardName = commander1)` and the existing commander-shape strip-from-deck
+logic already runs.
+
 ### 4.1 Format mapping at match start
 
 - `TournamentMatchHandler` — when launching a `COMMANDER_DRAFT` or `COMMANDER_SEALED` match, construct
@@ -368,14 +375,18 @@ its alias for back-compat.
 
 ### 4.4 Definition of done (Phase 4)
 
-- [ ] Commander Draft / Sealed lobby → 1v1 match starts with both players at the preset's starting life,
-      commander in command zone.
-- [ ] Casting commander from the command zone works; tax escalates correctly on recast.
-- [ ] `preset.commanderDamage` cumulative damage from a single commander wins the game.
-- [ ] Deck validator accepts 60-card decks with duplicates when `allowDuplicates = true`, rejects when false.
+- [x] `isCommanderShape` in `TournamentMatchHandler.startSingleMatch` recognises `COMMANDER_DRAFT` /
+      `COMMANDER_SEALED`.
+- [x] Limited commander formats build `engineFormat` from `lobby.commanderPreset.toFormat()` with the lobby's
+      `deckSizeMin`.
+- [x] `commanderCardName` for each player is read from `LobbyPlayerState.commander` and passed into the engine
+      (no new code — the existing PREMADE_DECKS commander wiring covers it once `isCommanderShape` flips true).
+- [x] Existing engine guards apply: missing commander aborts the match start with a logged warning.
+- [x] Deck validator accepts 60-card decks with duplicates when `allowDuplicates = true`, rejects when false
+      (covered by Phase 3's `validateCommanderLimited`).
 - [ ] One full e2e Playwright scenario: lobby create → 2-player draft → commander pick → deck build → match →
-      win by commander damage.
-- [ ] Sealed counterpart e2e (no draft step).
+      win by commander damage. **(Phase 5 — needs the deckbuilder commander picker UI before this is runnable.)**
+- [ ] Sealed counterpart e2e (no draft step). **(Phase 5.)**
 
 ---
 

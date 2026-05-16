@@ -429,12 +429,14 @@ class TournamentMatchHandler(
             player2State.identity.playerName, baseDeck2
         )
 
-        // Commander-shape PREMADE_DECKS lobbies route through the engine's 1v1 Commander rules.
+        // Commander-shape lobbies route through the engine's 1v1 Commander rules. Two sources:
+        //   - PREMADE_DECKS with a commander-shape deckFormat (paper Commander / Brawl).
+        //   - COMMANDER_DRAFT / COMMANDER_SEALED — the limited drafted/sealed Commander formats.
         // The deck list on the wire / in the lobby includes one copy of the commander; the
         // engine expects `Deck.cards` (= library) without it, so strip one copy here. Mirrors
         // QuickGameLobbyHandler.startGame.
-        val isCommanderShape = lobby.format == com.wingedsheep.gameserver.lobby.TournamentFormat.PREMADE_DECKS &&
-            lobby.deckFormat?.isCommanderShape == true
+        val isCommanderShape = (lobby.format == com.wingedsheep.gameserver.lobby.TournamentFormat.PREMADE_DECKS &&
+            lobby.deckFormat?.isCommanderShape == true) || lobby.format.isCommanderFormat
         val commander1 = if (isCommanderShape) player1State.commander else null
         val commander2 = if (isCommanderShape) player2State.commander else null
         // The deck-submit path rejects commander-shape submissions that don't designate a
@@ -458,7 +460,14 @@ class TournamentMatchHandler(
             printingRegistry = printingRegistry,
         )
         if (isCommanderShape) {
-            gameSession.engineFormat = com.wingedsheep.sdk.core.Format.Commander()
+            // Limited commander formats read life total / commander damage / deck size from the
+            // lobby's host-configured preset (BRAWL = 60/25/16, COMMANDER = 60/30/21). Paper
+            // PREMADE_DECKS commander lobbies keep the engine's classic defaults (100/40/21).
+            gameSession.engineFormat = if (lobby.format.isCommanderFormat) {
+                lobby.commanderPreset.toFormat().copy(deckSize = lobby.deckSizeMin)
+            } else {
+                com.wingedsheep.sdk.core.Format.Commander()
+            }
         }
         val ps1 = player1State.identity.toPlayerSession()
         val ps2 = player2State.identity.toPlayerSession()
