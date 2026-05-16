@@ -80,7 +80,7 @@
 - [x] 1 Greater Good
 - [x] 1 Outpost Siege
 - [x] 1 Path of Discovery
-- [ ] 1 Primeval Bounty
+- [x] 1 Primeval Bounty
 - [ ] 1 Rain of Riches
 - [ ] 1 Sunbird's Invocation
 - [ ] 1 Thickest in the Thicket

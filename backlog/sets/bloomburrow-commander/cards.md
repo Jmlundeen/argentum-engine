@@ -2,7 +2,7 @@
 
 **Set Size:** 312 cards
 **Release Date:** August 2, 2024
-**Implemented:** 96 / 312
+**Implemented:** 97 / 312
 | Color      | Total | Done |
 |------------|-------|------|
 | White      | 37    | 0    |
@@ -206,7 +206,7 @@
 - [ ] Poison-Tip Archer
 - [ ] Pollywog Prodigy
 - [ ] Prairie Stream
-- [ ] Primeval Bounty
+- [x] Primeval Bounty
 - [ ] Promise of Loyalty
 - [x] Prosperous Bandit
 - [ ] Prosperous Innkeeper
