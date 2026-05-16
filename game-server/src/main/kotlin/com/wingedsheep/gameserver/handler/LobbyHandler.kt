@@ -1039,14 +1039,14 @@ class LobbyHandler(
         }
 
         when (lobby.format) {
-            TournamentFormat.SEALED -> {
+            TournamentFormat.SEALED, TournamentFormat.COMMANDER_SEALED -> {
                 val started = lobby.startDeckBuilding(identity.playerId)
                 if (!started) {
                     sender.sendError(session, ErrorCode.INVALID_ACTION, "Failed to start lobby")
                     return
                 }
 
-                logger.info("Lobby ${lobby.lobbyId} started deck building - sealed (${lobby.playerCount} players)")
+                logger.info("Lobby ${lobby.lobbyId} started deck building - ${lobby.format.name} (${lobby.playerCount} players)")
 
                 val basicLandInfos = lobby.basicLands.values.map { cardToSealedCardInfo(it) }
                 lobby.players.forEach { (_, playerState) ->
@@ -1067,14 +1067,14 @@ class LobbyHandler(
                 launchAiDeckBuilding(lobby)
             }
 
-            TournamentFormat.DRAFT -> {
+            TournamentFormat.DRAFT, TournamentFormat.COMMANDER_DRAFT -> {
                 val started = lobby.startDraft(identity.playerId)
                 if (!started) {
                     sender.sendError(session, ErrorCode.INVALID_ACTION, "Failed to start draft")
                     return
                 }
 
-                logger.info("Lobby ${lobby.lobbyId} started drafting (${lobby.playerCount} players)")
+                logger.info("Lobby ${lobby.lobbyId} started drafting - ${lobby.format.name} (${lobby.playerCount} players)")
 
                 // Wire AI draft callbacks before broadcasting packs
                 wireAiDraftCallbacks(lobby)
@@ -1926,13 +1926,52 @@ class LobbyHandler(
             return
         }
 
-        // Commander only applies to commander-shape deckFormats in a PREMADE_DECKS lobby.
-        // Drop it otherwise so a stale commander on a saved deck doesn't leak into a Standard
-        // game (mirrors the QuickGame submit path).
-        val commanderShape = lobby.format == TournamentFormat.PREMADE_DECKS &&
-            lobby.deckFormat?.isCommanderShape == true
+        // Commander applies in two cases: (a) a PREMADE_DECKS lobby with a commander-shape
+        // deckFormat (paper Commander / Brawl), or (b) a drafted/sealed Commander format that
+        // picks its commander out of the generated pool. Outside those, drop a stale commander
+        // so a saved deck doesn't leak its commander into a Standard game.
+        val commanderShape = (lobby.format == TournamentFormat.PREMADE_DECKS &&
+            lobby.deckFormat?.isCommanderShape == true) || lobby.format.isCommanderFormat
         val effectiveCommander = if (commanderShape) commander?.takeIf { it.isNotBlank() } else null
         val effectiveCommanderPrinting = if (commanderShape) commanderPrinting else null
+
+        // Drafted/Sealed Commander formats validate against the player's pool (legality universe)
+        // rather than Scryfall's deckFormat legality. Singleton + min-size knobs come from the
+        // lobby's host configuration.
+        if (lobby.format.isCommanderFormat) {
+            val pool = lobby.players[identity.playerId]?.cardPool ?: emptyList()
+            val withoutCommander = effectiveCommander
+                ?.let { stripCommanderFromCards(deckList, it) }
+                ?: deckList
+            val deckCards = withoutCommander.flatMap { (name, count) -> List(count) { name } }
+            val richEntries = cardEntries
+                ?.filterNot { it.name == effectiveCommander && it.printing == effectiveCommanderPrinting }
+                ?.takeIf { it.isNotEmpty() }
+            val deck = if (richEntries != null) {
+                com.wingedsheep.sdk.model.Deck.fromEntries(
+                    entries = richEntries.map { com.wingedsheep.sdk.model.CardEntry(it.name, it.printing) },
+                    commander = effectiveCommander,
+                    commanderPrinting = effectiveCommanderPrinting,
+                )
+            } else {
+                com.wingedsheep.sdk.model.Deck(
+                    cards = deckCards,
+                    commander = effectiveCommander,
+                    commanderPrinting = effectiveCommanderPrinting,
+                )
+            }
+            val validation = deckValidator.validateCommanderLimited(
+                deck = deck,
+                pool = pool,
+                minDeckSize = lobby.deckSizeMin,
+                allowDuplicates = lobby.allowDuplicates,
+            )
+            if (!validation.valid) {
+                val msg = validation.errors.firstOrNull()?.message ?: "Invalid deck"
+                sender.sendError(session, ErrorCode.INVALID_DECK, msg)
+                return
+            }
+        }
 
         // For PREMADE_DECKS, the deck didn't come from a generated card pool — validate
         // against the registry (≥40 cards, 4-of, all cards must resolve) before storing it.

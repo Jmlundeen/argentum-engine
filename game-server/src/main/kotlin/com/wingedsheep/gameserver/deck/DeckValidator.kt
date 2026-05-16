@@ -209,7 +209,7 @@ class DeckValidator @Autowired constructor(
         }
 
         if (format != null && format.isCommanderShape && commanderAware) {
-            validateCommanderRules(commander, countsByBaseName, format, errors)
+            validateCommanderRules(commander, countsByBaseName, format.displayName, errors)
         }
 
         return DeckValidationResult(
@@ -233,13 +233,13 @@ class DeckValidator @Autowired constructor(
     private fun validateCommanderRules(
         commander: String?,
         countsByBaseName: Map<String, Int>,
-        format: DeckFormat,
+        formatLabel: String,
         errors: MutableList<DeckValidationIssue>,
     ) {
         if (commander == null) {
             errors += DeckValidationIssue(
                 code = "MISSING_COMMANDER",
-                message = "${format.displayName} decks require a designated commander",
+                message = "$formatLabel decks require a designated commander",
                 cardName = null,
             )
             return
@@ -253,7 +253,7 @@ class DeckValidator @Autowired constructor(
         if (!CommanderEligibility.isLegalCommander(commanderCard)) {
             errors += DeckValidationIssue(
                 code = "INVALID_COMMANDER",
-                message = "${commanderCard.name} cannot be a ${format.displayName} commander",
+                message = "${commanderCard.name} cannot be a $formatLabel commander",
                 cardName = commanderCard.name,
             )
             // Identity check against an illegal commander would be misleading — bail.
@@ -340,6 +340,109 @@ class DeckValidator @Autowired constructor(
             formatLabel = format?.displayName,
         )
     }
+
+    /**
+     * Validate a commander-shaped *drafted/sealed* deck against the player's [pool], not against
+     * Scryfall's format legality. Used by [com.wingedsheep.gameserver.handler.LobbyHandler] for
+     * the COMMANDER_DRAFT and COMMANDER_SEALED tournament formats, where:
+     *
+     *  - The pool is the legality universe — every non-basic deck card must appear in [pool] with
+     *    at least the multiplicity the player included it. Basic lands are always allowed (the
+     *    lobby supplies them separately).
+     *  - The deck size has a minimum ([minDeckSize], typically 60) but no exact size — players
+     *    can play any deck size ≥ the minimum.
+     *  - Singleton is opt-in via [allowDuplicates]: when true (the lobby's default), no copy cap
+     *    on non-basics. When false, paper-Commander singleton rules apply (max 1, with the usual
+     *    "any number named X" oracle override).
+     *  - The commander must be in [pool] and [CommanderEligibility.isLegalCommander]-legal, and
+     *    every other card's colour identity must fit within the commander's identity.
+     */
+    fun validateCommanderLimited(
+        deck: Deck,
+        pool: List<CardDefinition>,
+        minDeckSize: Int = 60,
+        allowDuplicates: Boolean = true,
+    ): DeckValidationResult {
+        val errors = mutableListOf<DeckValidationIssue>()
+        val warnings = mutableListOf<DeckValidationIssue>()
+
+        val poolCounts: Map<String, Int> = pool.groupingBy { it.name }.eachCount()
+        val commander = deck.commander
+
+        val mainboardCounts: Map<String, Int> = deck.cards.groupingBy { it }.eachCount()
+        val allCounts: Map<String, Int> = if (commander != null) {
+            mainboardCounts.toMutableMap().apply { merge(commander, 1, Int::plus) }
+        } else {
+            mainboardCounts
+        }
+
+        // Resolve every submitted card; basic lands bypass the pool-membership check (the lobby
+        // ships basics out-of-band via lobby.basicLands).
+        for ((cardName, submitted) in allCounts) {
+            val card = cardRegistry.getCard(cardName)
+            if (card == null) {
+                errors += DeckValidationIssue(
+                    code = "UNKNOWN_CARD",
+                    message = "Unknown card: \"$cardName\"",
+                    cardName = cardName,
+                )
+                continue
+            }
+            if (card.typeLine.isBasicLand) continue
+
+            val available = poolCounts[cardName] ?: 0
+            if (submitted > available) {
+                errors += DeckValidationIssue(
+                    code = "NOT_IN_POOL",
+                    message = "$cardName: $submitted submitted but only $available in your pool",
+                    cardName = cardName,
+                )
+            }
+
+            if (!allowDuplicates) {
+                val limit = copyLimitFor(card, singletonProfile)
+                if (limit != null && submitted > limit) {
+                    errors += DeckValidationIssue(
+                        code = "TOO_MANY_COPIES",
+                        message = copyLimitMessage(cardName, submitted, limit, singletonProfile),
+                        cardName = cardName,
+                    )
+                }
+            }
+        }
+
+        val totalCards = allCounts.values.sum()
+        if (totalCards < minDeckSize) {
+            errors += DeckValidationIssue(
+                code = "TOO_FEW_CARDS",
+                message = "Deck has $totalCards cards — minimum is $minDeckSize",
+                cardName = null,
+            )
+        }
+
+        // Commander rules: required, legal commander, colour identity bounds the rest of the
+        // deck. Reuse the shared helper so the error codes match the constructed path.
+        validateCommanderRules(
+            commander = commander,
+            countsByBaseName = allCounts,
+            formatLabel = "Commander Draft",
+            errors = errors,
+        )
+
+        return DeckValidationResult(
+            valid = errors.isEmpty(),
+            totalCards = totalCards,
+            errors = errors,
+            warnings = warnings,
+        )
+    }
+
+    /** Singleton-profile constant used by [validateCommanderLimited] when duplicates are disabled. */
+    private val singletonProfile = FormatProfile(
+        minSize = 0,
+        maxCopiesNonBasic = 1,
+        formatLabel = "Commander Draft (singleton)",
+    )
 
     companion object {
         // Default constructed minimum for every non-Commander format. Pre-format submissions (no

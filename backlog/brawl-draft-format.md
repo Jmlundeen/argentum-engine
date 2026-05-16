@@ -240,55 +240,87 @@ prompt).
 
 ---
 
-## Phase 3 — Commander selection step
+## Phase 3 — Commander pick inside the deckbuilder
 
-Between pool-finalisation and `DECK_BUILDING`, each player picks one legendary creature (or planeswalker with "can
-be your commander" override) from their drafted/sealed pool. The pick locks the deck's colour identity.
+**Design pivot (2026-05-16):** the commander pick is folded into the existing deckbuilder rather than getting its
+own lobby state + selection overlay. Rationale: the player needs to see their full pool to choose a commander
+anyway, and the deckbuilder is already where pools are rendered. No new lobby state, no per-player broadcast of
+the commander mid-build, no separate "selection started" envelope. The commander travels with the existing
+deck-submit message (`Deck.commander` field, already plumbed for paper-Commander PREMADE_DECKS lobbies).
 
-### 3.1 New lobby state
+State machine stays:
+```
+COMMANDER_DRAFT:   WAITING → DRAFTING → DECK_BUILDING → TOURNAMENT_ACTIVE → COMPLETE
+COMMANDER_SEALED:  WAITING → [pool generation] → DECK_BUILDING → TOURNAMENT_ACTIVE → COMPLETE
+```
 
-- `TournamentLobby` — add `COMMANDER_SELECTION` to `LobbyState`.
-- State machines become:
-  ```
-  COMMANDER_DRAFT:   WAITING → DRAFTING → COMMANDER_SELECTION → DECK_BUILDING → TOURNAMENT_ACTIVE → COMPLETE
-  COMMANDER_SEALED:  WAITING → SEALED   → COMMANDER_SELECTION → DECK_BUILDING → TOURNAMENT_ACTIVE → COMPLETE
-  ```
-- Other DRAFT formats continue straight to `DECK_BUILDING`.
+### 3.1 Deck-submit recognises drafted commander shape
 
-### 3.2 Eligible-commander enumeration
+`LobbyHandler.handleLobbyDeckSubmit` already accepts `commander: String?` for PREMADE_DECKS commander-shape
+submissions. The `commanderShape` check is expanded to include the new formats:
 
-Reuse `game-server/.../deck/CommanderEligibility`. Filters legendary creatures + planeswalkers with "can be your
-commander" override + cards with explicit override oracle text. Applied to `LobbyPlayerState.cardPool`.
+```kotlin
+val commanderShape = (lobby.format == TournamentFormat.PREMADE_DECKS &&
+    lobby.deckFormat?.isCommanderShape == true) || lobby.format.isCommanderFormat
+```
 
-### 3.3 Protocol
+Outside commander-shape lobbies, the commander field is silently dropped (same defensive idiom used elsewhere,
+so a stale commander on a saved deck can't leak into a Standard game).
 
-| Direction | Message | Payload |
-|---|---|---|
-| S → C | `CommanderSelectionStarted` | `eligibleCommanders: List<CardId>` (per-player; private) |
-| C → S | `SelectCommander` | `commanderName: String` |
-| S → C | `CommanderSelected` (broadcast) | `playerId`, `commanderName` (opponent only sees count progress until reveal) |
+### 3.2 Pool-aware deck validation
 
-Both players must select before the lobby advances. Reuse `PlayerReadyForRound` mechanics.
+Drafted/sealed pools can't use Scryfall's commander-legality table (the pool is the legality universe). Phase 3
+adds a new entry point on `DeckValidator`:
 
-### 3.4 Persist the commander
+```kotlin
+fun validateCommanderLimited(
+    deck: Deck,
+    pool: List<CardDefinition>,
+    minDeckSize: Int = 60,
+    allowDuplicates: Boolean = true,
+): DeckValidationResult
+```
 
-- `LobbyPlayerState` — add `var commander: String? = null`.
-- On `DECK_BUILDING` entry, populate `Deck.commander` with the selected commander name; the deckbuilder picks it
-  up automatically (commander-format Phase 1.8 work already plumbs `Deck.commander` end-to-end for validation).
+Enforced rules:
 
-### 3.5 Piper auto-assignment
+- Every non-basic card must appear in `pool` with sufficient multiplicity (`NOT_IN_POOL` error). Basic lands
+  bypass the check — they're supplied separately by `lobby.basicLands`.
+- Deck size ≥ `minDeckSize` (`TOO_FEW_CARDS`). No exact-size requirement — players may overbuild.
+- When `allowDuplicates = false`, the singleton cap kicks in (`TOO_MANY_COPIES`), with the usual "any number named
+  X" oracle override (Relentless Rats, Persistent Petitioners). When true, no copy cap.
+- Commander required (`MISSING_COMMANDER`), legal under `CommanderEligibility.isLegalCommander`
+  (`INVALID_COMMANDER`), and every other card's colour identity ⊆ commander's identity
+  (`COLOR_IDENTITY_VIOLATION`).
 
-If `LobbyPlayerState.forcedPiperCommander == true` (from Phase 2.5), skip the prompt: server pre-fills
-`commander = SystemCards.PRISMATIC_PIPER` and shows the player a one-line notice ("No eligible commanders in your
-pool — Prismatic Piper assigned").
+The pre-existing private helper `validateCommanderRules` is refactored to accept a `formatLabel: String` (was
+`format: DeckFormat`) so the limited path can reuse it without inventing a synthetic `DeckFormat` entry. Error
+codes are unchanged.
 
-### 3.6 Definition of done (Phase 3)
+### 3.3 Deckbuilder UI (deferred to Phase 5)
 
-- [ ] After pool finalisation, both players see a "Pick your commander" overlay with their eligible commanders.
-- [ ] Selecting routes to `DECK_BUILDING` with `Deck.commander` populated.
-- [ ] Deckbuilder shows the chosen commander in its own group with the gold border (existing commander UI).
-- [ ] Colour-identity validation kicks in live as cards are added (works once `commander` is set).
-- [ ] Piper auto-assignment fires when a pool has zero eligible commanders.
+The deckbuilder already renders a commander group with a gold border when `Deck.commander` is set, and
+colour-identity validation lights up live in the existing commander UI. The remaining UI surface for
+Phase-3-shape lobbies is:
+
+- A "Pick your commander" affordance in the deckbuilder header for `COMMANDER_DRAFT` / `COMMANDER_SEALED` lobbies,
+  listing the pool's eligible commanders (legendary creatures + override-text planeswalkers / artifacts). Default
+  state: no commander chosen; submit is gated until one is.
+- An explanatory chip on the lobby summary panel: "Brawl Draft — 60-card minimum, duplicates allowed".
+- Sparse-pool empty-state copy: "No eligible commanders in your pool" with the same submit-disabled state. Piper
+  fallback is deferred until a Piper `CardDefinition` is registered (a separate `mtg-sets` workstream is
+  currently adding Commander Legends content).
+
+### 3.4 Definition of done (Phase 3)
+
+- [x] `commanderShape` recognises `COMMANDER_DRAFT` and `COMMANDER_SEALED` in `handleLobbyDeckSubmit`.
+- [x] `DeckValidator.validateCommanderLimited` exists and enforces pool-membership, min-size, singleton toggle,
+      eligibility, and colour-identity.
+- [x] `validateCommanderRules` accepts a label string so the limited path can reuse it.
+- [x] Limited commander submissions fail loudly when the commander is missing, ineligible, off-identity, or the
+      mainboard is too small.
+- [ ] Deckbuilder UI surfaces the commander picker for these lobbies. **(Deferred to Phase 5 UI polish.)**
+- [ ] Sparse-pool empty state shows "No eligible commanders" without crashing. **(Phase 5; backend already
+      returns `MISSING_COMMANDER` so the existing error path is the temporary surface.)**
 
 ---
 
