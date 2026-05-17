@@ -32,7 +32,7 @@ val FinchFormation = card("Finch Formation") {
     keywords(Keyword.FLYING)
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {

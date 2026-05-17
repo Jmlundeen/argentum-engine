@@ -31,7 +31,7 @@ val CoruscationMage = card("Coruscation Mage") {
     toughness = 2
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {

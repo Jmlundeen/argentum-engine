@@ -23,7 +23,7 @@ val BlinkOfAnEye = card("Blink of an Eye") {
     typeLine = "Instant"
     oracleText = "Kicker {1}{U}\nReturn target nonland permanent to its owner's hand. If this spell was kicked, draw a card."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{1}{U}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}{U}")))
 
     spell {
         val t = target("target", Targets.NonlandPermanent)

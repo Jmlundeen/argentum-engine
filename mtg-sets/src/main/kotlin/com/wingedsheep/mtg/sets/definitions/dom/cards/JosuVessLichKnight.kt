@@ -29,7 +29,7 @@ val JosuVessLichKnight = card("Josu Vess, Lich Knight") {
     toughness = 5
     oracleText = "Kicker {5}{B}\nMenace\nWhen Josu Vess, Lich Knight enters, if it was kicked, create eight 2/2 black Zombie Knight creature tokens with menace."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{5}{B}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{5}{B}")))
 
     keywords(Keyword.MENACE)
 

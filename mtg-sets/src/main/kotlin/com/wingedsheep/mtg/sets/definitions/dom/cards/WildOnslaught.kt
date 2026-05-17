@@ -18,7 +18,7 @@ val WildOnslaught = card("Wild Onslaught") {
     typeLine = "Instant"
     oracleText = "Kicker {4} (You may pay an additional {4} as you cast this spell.)\nPut a +1/+1 counter on each creature you control. If this spell was kicked, put two +1/+1 counters on each creature you control instead."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
 
     spell {
         effect = ConditionalEffect(

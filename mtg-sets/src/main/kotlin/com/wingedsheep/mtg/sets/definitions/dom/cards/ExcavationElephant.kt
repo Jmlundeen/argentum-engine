@@ -29,7 +29,7 @@ val ExcavationElephant = card("Excavation Elephant") {
     toughness = 5
     oracleText = "Kicker {1}{W}\nWhen this creature enters, if it was kicked, return target artifact card from your graveyard to your hand."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{1}{W}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}{W}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

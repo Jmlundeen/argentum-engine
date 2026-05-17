@@ -28,7 +28,7 @@ val AcademyDrake = card("Academy Drake") {
     toughness = 2
     oracleText = "Kicker {4}\nFlying\nIf this creature was kicked, it enters with two +1/+1 counters on it."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
     keywords(Keyword.FLYING)
 
     triggeredAbility {

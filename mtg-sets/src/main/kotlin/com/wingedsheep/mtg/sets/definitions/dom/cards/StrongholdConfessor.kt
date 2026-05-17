@@ -28,7 +28,7 @@ val StrongholdConfessor = card("Stronghold Confessor") {
     toughness = 1
     oracleText = "Kicker {3}\nMenace\nIf this creature was kicked, it enters with two +1/+1 counters on it."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
     keywords(Keyword.MENACE)
 
     triggeredAbility {

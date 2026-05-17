@@ -28,7 +28,7 @@ val UntamedKavu = card("Untamed Kavu") {
     toughness = 2
     oracleText = "Kicker {3}\nVigilance, trample\nIf this creature was kicked, it enters with three +1/+1 counters on it."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
     keywords(Keyword.VIGILANCE, Keyword.TRAMPLE)
 
     triggeredAbility {

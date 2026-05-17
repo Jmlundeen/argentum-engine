@@ -31,7 +31,7 @@ val BushyBodyguard = card("Bushy Bodyguard") {
     oracleText = "Offspring {2} (You may pay an additional {2} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nWhen this creature enters, you may forage. If you do, put two +1/+1 counters on it. (To forage, exile three cards from your graveyard or sacrifice a Food.)"
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {

@@ -31,7 +31,7 @@ class KickerConditionTest : FunSpec({
         power = 5
         toughness = 3
 
-        keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{R}")))
+        keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{R}")))
         keywords(Keyword.HASTE)
 
         triggeredAbility {

@@ -189,7 +189,10 @@ class CastSpellHandler(
         if (!effectiveTypeLine.isInstant) {
             val hasFlash = cardDef?.keywords?.contains(Keyword.FLASH) == true
             val grantedFlash = hasFlash || zoneResolver.hasGrantedFlash(state, action.cardId)
-            if (!grantedFlash && !turnManager.canPlaySorcerySpeed(state, action.playerId)) {
+            val flashTimingKicker = action.wasKicked && cardDef?.keywordAbilities
+                ?.filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
+                ?.any { it.grantsFlashTiming && it.manaCost != null } == true
+            if (!grantedFlash && !flashTimingKicker && !turnManager.canPlaySorcerySpeed(state, action.playerId)) {
                 return "You can only cast sorcery-speed spells during your main phase with an empty stack"
             }
         }
@@ -241,7 +244,7 @@ class CastSpellHandler(
 
         // Validate kicker/offspring: card must have a Kicker keyword ability
         if (action.wasKicked && cardDef != null) {
-            val kickers = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Kicker>()
+            val kickers = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
             if (kickers.isEmpty()) return "This card does not have kicker"
 
             // Validate non-mana kicker additional cost (sacrifice, etc.)
@@ -355,7 +358,7 @@ class CastSpellHandler(
         // Add kicker/offspring mana cost if kicked (only for mana-based kicker/offspring)
         if (action.wasKicked && !playForFree && !action.useAlternativeCost && cardDef != null) {
             val kickerManaCost = cardDef.keywordAbilities
-                .filterIsInstance<KeywordAbility.Kicker>()
+                .filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
                 .firstOrNull { it.manaCost != null }
                 ?.manaCost
             if (kickerManaCost != null) {
@@ -1270,7 +1273,7 @@ class CastSpellHandler(
         // Add kicker/offspring cost if kicked (not applicable with alternative costs)
         if (action.wasKicked && !playForFreeInExecute && !action.useAlternativeCost && cardDef != null) {
             val kickerManaCost = cardDef.keywordAbilities
-                .filterIsInstance<KeywordAbility.Kicker>()
+                .filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
                 .firstOrNull { it.manaCost != null }
                 ?.manaCost
             if (kickerManaCost != null) {
@@ -1348,7 +1351,7 @@ class CastSpellHandler(
             if (cardDef != null) addAll(resolveAdditionalCostsForMode(cardDef, action))
             if (action.wasKicked && cardDef != null) {
                 val kickerAdditionalCost = cardDef.keywordAbilities
-                    .filterIsInstance<KeywordAbility.Kicker>()
+                    .filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
                     .firstOrNull { it.additionalCost != null }
                     ?.additionalCost
                 if (kickerAdditionalCost != null) add(kickerAdditionalCost)

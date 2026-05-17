@@ -1565,7 +1565,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
             if (cardComponent.typeLine.isLand) continue
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
-            val kickers = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Kicker>()
+            val kickers = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
             val manaKicker = kickers.firstOrNull { it.manaCost != null && it.keyword != Keyword.OFFSPRING }
             val additionalCostKicker = kickers.firstOrNull { it.additionalCost != null }
             val offspringAbility = kickers.firstOrNull { it.keyword == Keyword.OFFSPRING }

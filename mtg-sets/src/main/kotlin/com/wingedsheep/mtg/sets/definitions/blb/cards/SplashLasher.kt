@@ -31,7 +31,7 @@ val SplashLasher = card("Splash Lasher") {
     oracleText = "Offspring {1}{U} (You may pay an additional {1}{U} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nWhen this creature enters, tap up to one target creature and put a stun counter on it."
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{1}{U}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}{U}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {

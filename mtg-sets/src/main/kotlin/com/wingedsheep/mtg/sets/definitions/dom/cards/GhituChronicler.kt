@@ -27,7 +27,7 @@ val GhituChronicler = card("Ghitu Chronicler") {
     toughness = 3
     oracleText = "Kicker {3}{R}\nWhen this creature enters, if it was kicked, return target instant or sorcery card from your graveyard to your hand."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{3}{R}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}{R}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

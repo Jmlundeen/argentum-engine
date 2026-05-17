@@ -23,7 +23,7 @@ val SaprolingMigration = card("Saproling Migration") {
     typeLine = "Sorcery"
     oracleText = "Kicker {4}\nCreate two 1/1 green Saproling creature tokens. If this spell was kicked, create four of those tokens instead."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
 
     spell {
         effect = ConditionalEffect(

@@ -32,7 +32,7 @@ val StarscapeCleric = card("Starscape Cleric") {
     toughness = 1
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}{B}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}{B}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {

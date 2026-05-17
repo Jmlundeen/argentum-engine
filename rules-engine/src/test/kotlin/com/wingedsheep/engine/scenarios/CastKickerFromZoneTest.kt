@@ -30,7 +30,7 @@ class CastKickerFromZoneTest : FunSpec({
         power = 3
         toughness = 2
 
-        keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{1}{R}")))
+        keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}{R}")))
 
         staticAbility {
             ability = MayCastSelfFromZones(zones = listOf(Zone.GRAVEYARD))
@@ -57,7 +57,7 @@ class CastKickerFromZoneTest : FunSpec({
         typeLine = "Instant"
         oracleText = "Kicker {2}. Test Kicker Bolt deals 2 damage to target player."
 
-        keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}")))
+        keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
     }
 
     test("casting kicked from graveyard applies WasKickedComponent") {

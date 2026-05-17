@@ -24,7 +24,7 @@ val KrosanDruid = card("Krosan Druid") {
     toughness = 3
     oracleText = "Kicker {4}{G}\nWhen this creature enters, if it was kicked, you gain 10 life."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{4}{G}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}{G}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

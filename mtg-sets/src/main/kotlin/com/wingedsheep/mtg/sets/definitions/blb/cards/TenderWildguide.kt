@@ -30,7 +30,7 @@ val TenderWildguide = card("Tender Wildguide") {
     oracleText = "Offspring {2} (You may pay an additional {2} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\n{T}: Add one mana of any color.\n{T}: Put a +1/+1 counter on this creature."
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {

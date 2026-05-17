@@ -30,7 +30,7 @@ val GrunnTheLonelyKing = card("Grunn, the Lonely King") {
     toughness = 5
     oracleText = "Kicker {3}\nIf Grunn, the Lonely King was kicked, it enters with five +1/+1 counters on it.\nWhenever Grunn attacks alone, double its power and toughness until end of turn."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

@@ -1157,17 +1157,19 @@ class CastSpellEnumerator : ActionEnumerator {
             if (context.cantCastSpells) continue
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
-            val kickers = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Kicker>()
+            val kickers = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
             val manaKicker = kickers.firstOrNull { it.manaCost != null && it.keyword != Keyword.OFFSPRING }
             val additionalCostKicker = kickers.firstOrNull { it.additionalCost != null }
             val offspringAbility = kickers.firstOrNull { it.keyword == Keyword.OFFSPRING }
             if (manaKicker == null && additionalCostKicker == null && offspringAbility == null) continue
 
-            // Check timing (same rules as normal cast)
+            // Check timing (same rules as normal cast — but a flash-timing kicker unlocks
+            // instant-speed casting when kicked, e.g. Ghitu Fire's pay-{2}-more clause).
             val isInstant = cardComponent.typeLine.isInstant
             val hasFlash = cardDef.keywords.contains(Keyword.FLASH)
             val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId)
-            if (!isInstant && !grantedFlash && !context.canPlaySorcerySpeed) continue
+            val flashKicker = manaKicker?.grantsFlashTiming == true
+            if (!isInstant && !grantedFlash && !flashKicker && !context.canPlaySorcerySpeed) continue
 
             // Check cast restrictions
             val castRestrictions = cardDef.script.castRestrictions
@@ -1228,7 +1230,11 @@ class CastSpellEnumerator : ActionEnumerator {
                 cardDef.script.auraTarget?.let { add(it) }
             }
 
-            val kickLabel = if (offspringAbility != null) "Offspring" else "Kicked"
+            val kickLabel = when {
+                offspringAbility != null -> "Offspring"
+                flashKicker -> "with Flash"
+                else -> "Kicked"
+            }
 
             // Check for DividedDamageEffect in the kicked spell effect
             val kickerSpellEffect = cardDef.script.kickerSpellEffect ?: cardDef.script.spellEffect

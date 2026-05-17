@@ -27,7 +27,7 @@ val Skizzik = card("Skizzik") {
     toughness = 3
     oracleText = "Kicker {R}\nTrample, haste\nAt the beginning of the end step, if this creature wasn't kicked, sacrifice it."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{R}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{R}")))
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {

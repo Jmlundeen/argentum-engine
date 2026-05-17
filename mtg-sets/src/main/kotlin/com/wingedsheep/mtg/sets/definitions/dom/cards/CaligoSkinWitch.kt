@@ -24,7 +24,7 @@ val CaligoSkinWitch = card("Caligo Skin-Witch") {
     toughness = 3
     oracleText = "Kicker {3}{B}\nWhen this creature enters, if it was kicked, each opponent discards two cards."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{3}{B}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}{B}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

@@ -212,38 +212,83 @@ sealed interface KeywordAbility {
     }
 
     // =========================================================================
-    // Kicker Variants
+    // Optional Additional Cost (Kicker, Multikicker, Offspring, FlashKicker)
     // =========================================================================
 
     /**
-     * Kicker and its variants. Pay [manaCost] (mana kicker), pay [additionalCost] (non-mana
-     * kicker), or both. [multi] is Multikicker — the cost can be paid any number of times.
-     * [displayPrefix] customises the printed-text label ("Kicker", "Multikicker", "Offspring");
-     * mechanically these all share the kicker payment + `wasKicked` flag.
+     * **Optional additional cost paid at cast time.** Generalises Kicker, Multikicker,
+     * Offspring, and the pre-kicker "pay {N} more to cast as though it had flash" pattern
+     * (Ghitu Fire et al.). The card script gates effect variations on the [WasKicked]
+     * condition (or on `wasKicked` in trigger filters) when [branchesEffect] is `true`.
+     *
+     * Mechanically all variants share the same plumbing: the player optionally pays
+     * [manaCost] and/or [additionalCost] as an extra cost while casting, the spell is
+     * marked with the `wasKicked` flag on the stack, and the cost calculator folds the
+     * extra mana into the effective cost. The variants differ only in *what the payment
+     * unlocks*:
+     *
+     * - **Kicker / Multikicker / Offspring** ([branchesEffect] = `true`) — the spell's
+     *   effect branches on `WasKicked`. [multi] = `true` lets the cost be paid any
+     *   number of times (Multikicker).
+     * - **FlashKicker** ([grantsFlashTiming] = `true`) — paying the cost lets the spell
+     *   be cast as though it had flash. Effect is unchanged unless the card also opts
+     *   into [branchesEffect] (rare — Ghitu Fire does not).
+     *
+     * [displayPrefix] customises the printed label ("Kicker", "Multikicker", "Offspring");
+     * for FlashKicker it's ignored and the description is rephrased to match the printed
+     * oracle text.
+     *
+     * The serial name remains `Kicker` for wire compatibility with previously serialised
+     * card scripts.
      *
      * Examples:
-     * - `Kicker(manaCost = "{2}{B}")`                                      — "Kicker {2}{B}"
-     * - `Kicker(additionalCost = SacrificePermanent(Creature))`            — "Kicker—Sacrifice a creature"
-     * - `Kicker(manaCost = "{1}{W}", multi = true, displayPrefix = "Multikicker")` — "Multikicker {1}{W}"
-     * - `Kicker(manaCost = "{2}", displayPrefix = "Offspring", keyword = Keyword.OFFSPRING)` — "Offspring {2}"
+     * - `OptionalAdditionalCost(manaCost = "{2}{B}")`                                                — "Kicker {2}{B}"
+     * - `OptionalAdditionalCost(additionalCost = SacrificePermanent(Creature))`                     — "Kicker—Sacrifice a creature"
+     * - `OptionalAdditionalCost(manaCost = "{1}{W}", multi = true, displayPrefix = "Multikicker")`  — "Multikicker {1}{W}"
+     * - `OptionalAdditionalCost(manaCost = "{2}", displayPrefix = "Offspring", keyword = Keyword.OFFSPRING)` — "Offspring {2}"
+     * - `OptionalAdditionalCost(manaCost = "{2}", grantsFlashTiming = true, branchesEffect = false)` — Ghitu Fire's flash unlock
      *
-     * Prefer the [kicker] / [kickerSacrifice] / [multikicker] / [offspring] companion factories.
+     * Prefer the [kicker] / [kickerSacrifice] / [multikicker] / [offspring] / [flashKicker]
+     * companion factories.
      */
     @SerialName("Kicker")
     @Serializable
-    data class Kicker(
+    data class OptionalAdditionalCost(
         val manaCost: ManaCost? = null,
         val additionalCost: AdditionalCost? = null,
         val multi: Boolean = false,
         val displayPrefix: String = "Kicker",
-        override val keyword: Keyword? = null
+        override val keyword: Keyword? = null,
+        /**
+         * If `true`, paying the optional cost is observable to the card's own effect
+         * via the [com.wingedsheep.sdk.scripting.conditions.WasKicked] condition or the
+         * `wasKicked` flag on trigger filters. Standard kicker/multikicker/offspring
+         * keep this on; FlashKicker turns it off so unrelated cards (Cackling Witch &
+         * other "if a kicked spell was cast" payoffs) don't see a flash-timing payment
+         * as kicker.
+         */
+        val branchesEffect: Boolean = true,
+        /**
+         * If `true`, paying the optional cost grants flash timing — the spell may be
+         * cast as though it had flash. Used by pre-kicker cards like Ghitu Fire whose
+         * printed text reads "You may cast this spell as though it had flash if you
+         * pay {N} more to cast it."
+         */
+        val grantsFlashTiming: Boolean = false
     ) : KeywordAbility {
         init {
             require(manaCost != null || additionalCost != null) {
-                "Kicker requires either a manaCost or an additionalCost"
+                "OptionalAdditionalCost requires either a manaCost or an additionalCost"
+            }
+            if (grantsFlashTiming) {
+                require(manaCost != null) {
+                    "grantsFlashTiming requires a manaCost"
+                }
             }
         }
         override val description: String = when {
+            grantsFlashTiming ->
+                "You may cast this spell as though it had flash if you pay $manaCost more to cast it."
             manaCost != null && additionalCost != null -> "$displayPrefix—$manaCost, ${additionalCost.description}"
             additionalCost != null -> "$displayPrefix—${additionalCost.description}"
             else -> "$displayPrefix $manaCost"
@@ -483,23 +528,35 @@ sealed interface KeywordAbility {
         /**
          * Create Kicker with a mana cost.
          */
-        fun kicker(cost: String): KeywordAbility = Kicker(manaCost = ManaCost.parse(cost))
+        fun kicker(cost: String): KeywordAbility = OptionalAdditionalCost(manaCost = ManaCost.parse(cost))
 
-        fun kicker(cost: ManaCost): KeywordAbility = Kicker(manaCost = cost)
+        fun kicker(cost: ManaCost): KeywordAbility = OptionalAdditionalCost(manaCost = cost)
 
         /**
          * Create Kicker with a non-mana additional cost (e.g., sacrifice a creature).
          */
         fun kicker(additionalCost: AdditionalCost): KeywordAbility =
-            Kicker(additionalCost = additionalCost)
+            OptionalAdditionalCost(additionalCost = additionalCost)
 
         /**
          * Create Multikicker — a kicker whose cost can be paid any number of times.
          */
-        fun multikicker(cost: String): KeywordAbility = Kicker(
+        fun multikicker(cost: String): KeywordAbility = OptionalAdditionalCost(
             manaCost = ManaCost.parse(cost),
             multi = true,
             displayPrefix = "Multikicker"
+        )
+
+        /**
+         * Create a flash-timing kicker (Ghitu Fire pattern) — paying [cost] more lets you
+         * cast the spell as though it had flash. The spell's effect is unchanged (the
+         * optional payment is invisible to [com.wingedsheep.sdk.scripting.conditions.WasKicked]
+         * because [OptionalAdditionalCost.branchesEffect] is `false`).
+         */
+        fun flashKicker(cost: String): KeywordAbility = OptionalAdditionalCost(
+            manaCost = ManaCost.parse(cost),
+            grantsFlashTiming = true,
+            branchesEffect = false
         )
 
         /**
@@ -507,7 +564,7 @@ sealed interface KeywordAbility {
          */
         fun offspring(cost: String): KeywordAbility = offspring(ManaCost.parse(cost))
 
-        fun offspring(cost: ManaCost): KeywordAbility = Kicker(
+        fun offspring(cost: ManaCost): KeywordAbility = OptionalAdditionalCost(
             manaCost = cost,
             displayPrefix = "Offspring",
             keyword = Keyword.OFFSPRING

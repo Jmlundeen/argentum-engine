@@ -34,7 +34,7 @@ val CanopySurge = card("Canopy Surge") {
         "Canopy Surge deals 1 damage to each creature with flying and each player. " +
         "If this spell was kicked, it deals 4 damage to each creature with flying and each player instead."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
 
     fun damageToFliersAndPlayers(amount: Int): Effect = CompositeEffect(
         listOf(

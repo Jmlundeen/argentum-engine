@@ -30,7 +30,7 @@ val IntrepidRabbit = card("Intrepid Rabbit") {
     oracleText = "Offspring {1} (You may pay an additional {1} as you cast this spell. If you do, when this creature enters, create a 1/1 token copy of it.)\nWhen this creature enters, target creature you control gets +1/+1 until end of turn."
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{1}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {

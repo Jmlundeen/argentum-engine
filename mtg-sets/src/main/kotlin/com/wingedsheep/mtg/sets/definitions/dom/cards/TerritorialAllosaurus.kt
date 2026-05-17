@@ -27,7 +27,7 @@ val TerritorialAllosaurus = card("Territorial Allosaurus") {
     toughness = 5
     oracleText = "Kicker {2}{G} (You may pay an additional {2}{G} as you cast this spell.)\nWhen this creature enters, if it was kicked, it fights another target creature."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}{G}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}{G}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

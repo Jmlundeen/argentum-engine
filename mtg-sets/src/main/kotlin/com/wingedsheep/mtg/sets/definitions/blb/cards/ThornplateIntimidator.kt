@@ -40,7 +40,7 @@ val ThornplateIntimidator = card("Thornplate Intimidator") {
         "When this creature enters, target opponent loses 3 life unless they sacrifice a nonland permanent of their choice or discard a card."
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {

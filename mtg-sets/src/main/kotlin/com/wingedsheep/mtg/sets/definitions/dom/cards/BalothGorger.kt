@@ -26,7 +26,7 @@ val BalothGorger = card("Baloth Gorger") {
     toughness = 4
     oracleText = "Kicker {4}\nIf this creature was kicked, it enters with three +1/+1 counters on it."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

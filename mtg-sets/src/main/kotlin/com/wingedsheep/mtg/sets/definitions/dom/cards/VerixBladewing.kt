@@ -29,7 +29,7 @@ val VerixBladewing = card("Verix Bladewing") {
     toughness = 4
     oracleText = "Kicker {3}\nFlying\nWhen Verix Bladewing enters, if it was kicked, create Karox Bladewing, a legendary 4/4 red Dragon creature token with flying."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
 
     keywords(Keyword.FLYING)
 

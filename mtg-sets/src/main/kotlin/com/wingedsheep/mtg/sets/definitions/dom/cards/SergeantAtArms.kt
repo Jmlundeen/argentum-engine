@@ -26,7 +26,7 @@ val SergeantAtArms = card("Sergeant-at-Arms") {
     toughness = 3
     oracleText = "Kicker {2}{W}\nWhen this creature enters, if it was kicked, create two 1/1 white Soldier creature tokens."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}{W}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}{W}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

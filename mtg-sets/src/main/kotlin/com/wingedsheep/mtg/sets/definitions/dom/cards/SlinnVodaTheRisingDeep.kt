@@ -29,7 +29,7 @@ val SlinnVodaTheRisingDeep = card("Slinn Voda, the Rising Deep") {
     toughness = 8
     oracleText = "Kicker {1}{U}\nWhen Slinn Voda, the Rising Deep enters, if it was kicked, return all creatures to their owners' hands except for Merfolk, Krakens, Leviathans, Octopuses, and Serpents."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{1}{U}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}{U}")))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

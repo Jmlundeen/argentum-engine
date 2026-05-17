@@ -23,7 +23,7 @@ val ShivanFire = card("Shivan Fire") {
     typeLine = "Instant"
     oracleText = "Kicker {4}\nShivan Fire deals 2 damage to target creature or planeswalker. If this spell was kicked, it deals 4 damage instead."
 
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
 
     spell {
         val t = target("target", Targets.CreatureOrPlaneswalker)

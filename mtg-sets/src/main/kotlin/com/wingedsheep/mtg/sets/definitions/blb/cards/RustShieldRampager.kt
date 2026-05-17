@@ -30,7 +30,7 @@ val RustShieldRampager = card("Rust-Shield Rampager") {
         "This creature can't be blocked by creatures with power 2 or less."
 
     // Offspring modeled as Kicker
-    keywordAbility(KeywordAbility.Kicker(ManaCost.parse("{2}")))
+    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
