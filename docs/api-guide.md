@@ -1,121 +1,180 @@
 # Developer Guide: How to Extend Argentum
 
-This guide provides step-by-step instructions for the most common development tasks: adding content (cards) and adding capabilities (mechanics).
+Step-by-step instructions for the most common extension tasks: adding cards, adding sets, adding
+mechanics, and running the stack locally.
 
-## 1. Adding a New Card Set
+For the *full* card-DSL catalog (every effect, trigger, condition, filter, cost, keyword, dynamic
+amount, etc.), see [`card-sdk-language-reference.md`](card-sdk-language-reference.md). For the
+architectural reasoning behind the engine, see [`architecture-principles.md`](architecture-principles.md).
 
-To add new cards, you work exclusively in the **`mtg-sets`** module. We use a folder-based structure to keep cards organized.
-
-### Step 1: Create the Folder Structure
-
-Create a package for your set inside `mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/`.
-
-```text
-definitions/
-  └───custom/
-      ├───cards/          <-- Individual card files go here
-      │   ├───ThunderStrike.kt
-      │   └───MysticBarrier.kt
-      └───MyNewSet.kt     <-- The set definition file
-
-```
-
-### Step 2: Define Individual Cards
-
-Create a separate Kotlin file for each card in the `cards/` directory. Use the `cardDef` builder.
-
-**File:** `definitions/custom/cards/ThunderStrike.kt`
-
-```kotlin
-package com.wingedsheep.mtg.sets.definitions.custom.cards
-
-import com.wingedsheep.mtg.sdk.dsl.cardDef
-import com.wingedsheep.mtg.sdk.scripting.effect.Effects
-import com.wingedsheep.mtg.sdk.scripting.target.TargetFilter
-import com.wingedsheep.mtg.sdk.core.enums.Rarity
-
-// Define the card as a public val
-val ThunderStrike = cardDef("Thunder Strike") {
-    manaCost = "{1}{R}"
-    typeLine = "Instant"
-    
-    metadata {
-        rarity = Rarity.COMMON
-        flavorText = "Zap!"
-    }
-
-    spell {
-        effect = Effects.DealDamage(3)
-        target = TargetFilter.Any
-    }
-}
-
-```
-
-**File:** `definitions/custom/cards/MysticBarrier.kt`
-
-```kotlin
-package com.wingedsheep.mtg.sets.definitions.custom.cards
-
-import com.wingedsheep.mtg.sdk.dsl.cardDef
-// ... imports
-
-val MysticBarrier = cardDef("Mystic Barrier") {
-    manaCost = "{W}"
-    typeLine = "Enchantment"
-    // ... logic
-}
-
-```
-
-### Step 3: Define the Set
-
-Create the set definition file that aggregates the cards.
-
-**File:** `definitions/custom/MyNewSet.kt`
-
-```kotlin
-package com.wingedsheep.mtg.sets.definitions.custom
-
-import com.wingedsheep.mtg.sdk.dsl.cardSet
-import com.wingedsheep.mtg.sets.definitions.custom.cards.* // Import your cards
-
-val MyNewSet = cardSet("MNS", "My New Set") {
-    // Register the cards defined in the other files
-    add(ThunderStrike)
-    add(MysticBarrier)
-}
-
-```
-
-### Step 4: Register the Set
-
-Open `mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/provider/SetRegistry.kt`.
-Add your new set to the list of available providers.
-
-```kotlin
-object SetRegistry {
-    val allSets = listOf(
-        PortalSet,
-        AlphaSet,
-        MyNewSet // <--- Add this line
-    )
-}
-
-```
-
-### Step 5: Verify
-
-Run the server. The `SetLoader` will automatically discover and load your new cards.
+> When adding a card from a backlog file (e.g. `backlog/sets/scourge/cards.md`), use the `add-card`
+> skill — it handles Scryfall lookup, oracle errata, reprint detection, set registration, and a
+> scenario test in one pass.
 
 ---
 
-## 2. Adding a New Mechanic
+## 1. Adding a New Card
 
-### Preferred: Compose from Atomic Effects
+Cards live in **`mtg-sets`**, one file per card, under the set's `cards/` package:
 
-Most library and zone-manipulation mechanics can be built entirely from existing atomic primitives — no new executor
-code needed. The engine provides composable building blocks that chain into pipelines:
+```text
+mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/
+  └── lgn/
+      ├── LegionsSet.kt
+      └── cards/
+          ├── AkromaAngelOfWrath.kt
+          └── SkirkMarauder.kt
+```
+
+Each card is a top-level `val` produced by the `card("Name") { … }` DSL builder. The set's `cards`
+list is populated automatically by `CardDiscovery.findIn(...)` — you do **not** need to register
+the card manually anywhere.
+
+### Example: a simple instant
+
+```kotlin
+package com.wingedsheep.mtg.sets.definitions.scg.cards
+
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+
+val SparkSpray = card("Spark Spray") {
+    manaCost = "{R}"
+    colorIdentity = "R"
+    typeLine = "Instant"
+    oracleText = "Spark Spray deals 1 damage to any target."
+
+    spell {
+        val t = target("target", AnyTarget())
+        effect = Effects.DealDamage(1, t)
+    }
+
+    metadata {
+        rarity = Rarity.COMMON
+        collectorNumber = "105"
+        flavorText = "It's the only kind of shower goblins will tolerate."
+    }
+}
+```
+
+### Example: a creature with a triggered ability
+
+```kotlin
+val BellowingCrier = card("Bellowing Crier") {
+    manaCost = "{2}{U}"
+    colorIdentity = "U"
+    typeLine = "Creature — Bird"
+    power = 2
+    toughness = 2
+    oracleText = "When Bellowing Crier enters the battlefield, draw a card, then discard a card."
+
+    triggeredAbility {
+        trigger = Triggers.EntersBattlefield
+        effect = EffectPatterns.loot()
+    }
+
+    metadata { rarity = Rarity.COMMON }
+}
+```
+
+### Key conventions
+
+- **Use the facades**, not raw constructors: `Effects.*`, `EffectPatterns.*`, `Triggers.*`,
+  `Costs.*`, `Conditions.*`, `Filters.*`. Raw data-class construction bypasses the curated API and
+  ages badly when shapes change.
+- **Targets**: declare each target inside `spell { … }` / `triggeredAbility { … }` with
+  `val t = target("label", AnyTarget())`, then pass `t` to the effect (or reference it as
+  `EffectTarget.ContextTarget(0)` in nested/modal shapes).
+- **Reprints**: if the card already exists as a `CardDefinition` in an earlier set, do **not**
+  duplicate the file. Add a `Printing` row in the new set's `Reprints.kt` and wire it through
+  `MtgSet.printings`. The `add-card` skill handles this automatically.
+- **All scripting types must be `@Serializable`** — `Effect`, `Trigger`, `StaticAbility`,
+  `TargetRequirement`, `Condition`, etc. `CardDefinition` is serialized for transport, and a missing
+  annotation fails at runtime.
+
+---
+
+## 2. Adding a New Card Set
+
+### Step 1: Create the package
+
+```text
+mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/definitions/
+  └── mns/
+      ├── MyNewSet.kt
+      └── cards/
+          └── (card files go here)
+```
+
+### Step 2: Write the set object
+
+The set is an `object` implementing the `MtgSet` interface from
+`com.wingedsheep.sdk.model.MtgSet`. Cards are auto-discovered from the `cards/` sub-package via
+reflection.
+
+```kotlin
+package com.wingedsheep.mtg.sets.definitions.mns
+
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
+import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.MtgSet
+
+object MyNewSet : MtgSet {
+    override val code = "MNS"
+    override val displayName = "My New Set"
+    override val releaseDate = "2026-05-17"
+    override val block: String? = null
+    override val sealedSupported = true
+
+    override val cards: List<CardDefinition> by lazy {
+        CardDiscovery.findIn(CARDS_PACKAGE)
+    }
+
+    private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.mns.cards"
+}
+```
+
+Optional overrides commonly used by real sets:
+
+- `basicLandsFallback = OnslaughtSet` — point at another set's basics when yours has none.
+- `boosterStrategy = …` — override the default 11C / 3U / 1R(or mythic) pack for custom slots.
+- `printings: List<Printing>` — register reprints whose canonical `CardDefinition` lives in an
+  earlier set.
+
+### Step 3: Register in `MtgSetCatalog`
+
+Open `mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/MtgSetCatalog.kt` and add your set object to
+the `all` list:
+
+```kotlin
+object MtgSetCatalog {
+    val all: List<MtgSet> = listOf(
+        // … existing sets …
+        MyNewSet,
+    )
+}
+```
+
+That's the only registration step. The engine loads every set in `MtgSetCatalog.all` at startup.
+
+### Step 4: Verify
+
+```bash
+just server                # boots game-server on :8080
+scripts/card-status --set MNS   # confirms which cards are recognised
+```
+
+---
+
+## 3. Adding a New Mechanic
+
+### Preferred: compose from atomic effects
+
+Most library- and zone-manipulation mechanics can be built from existing primitives without writing
+new executor code. The engine provides composable building blocks that chain into pipelines:
 
 | Primitive | Purpose |
 |-----------|---------|
@@ -125,114 +184,77 @@ code needed. The engine provides composable building blocks that chain into pipe
 | `RevealUntilEffect` | Reveal from library until a filter matches |
 | `ForEachPlayerEffect` / `ForEachTargetEffect` | Iterate a sub-pipeline per player or target |
 
-Many mechanics are already available as pre-built pipelines via `EffectPatterns` / `Effects`:
+Many mechanics are already available as pre-built compositions in `EffectPatterns`:
 
 ```kotlin
-Effects.Scry(2)          // Gather → Select → Move(bottom) → Move(top)
-Effects.Surveil(2)       // Gather → Select → Move(graveyard) → Move(top)
-Effects.Mill(3)          // Gather → Move(graveyard)
-Effects.SearchLibrary(filter = GameObjectFilter.BasicLand)
+EffectPatterns.scry(2)          // Gather → Select → Move(bottom) → Move(top)
+EffectPatterns.surveil(2)       // Gather → Select → Move(graveyard) → Move(top)
+EffectPatterns.mill(3)          // Gather → Move(graveyard)
+EffectPatterns.searchLibrary(filter = GameObjectFilter.BasicLand)
 
-EffectPatterns.lookAtTopAndKeep(count = 7, keepCount = 2)        // Ancestral Memories
-EffectPatterns.wheelEffect(Player.Each)                           // Winds of Change
-EffectPatterns.revealUntilNonlandDealDamage(target)               // Erratic Explosion
-EffectPatterns.revealUntilCreatureTypeToBattlefield()             // Riptide Shapeshifter
+EffectPatterns.lookAtTopAndKeep(count = 7, keepCount = 2)   // Ancestral Memories
+EffectPatterns.wheelEffect(Player.Each)                     // Winds of Change
+EffectPatterns.revealUntilNonlandDealDamage(target)         // Erratic Explosion
+EffectPatterns.revealUntilCreatureTypeToBattlefield()       // Riptide Shapeshifter
 ```
 
-If your mechanic fits the gather/select/move pattern, add a new factory method to `EffectPatterns.kt` and wire it
-through `Effects.kt`. See `card-sdk-language-reference.md` §5 (Effect patterns) for the full pipeline reference.
+If your mechanic fits the gather/select/move shape, add a new factory method to `EffectPatterns.kt`
+and (if it deserves a top-level facade) expose it through `Effects.kt`. See the language
+reference §5 for the full pipeline catalog.
 
-### Fallback: New Effect Executor
-
-Only create a new `EffectExecutor` when the mechanic needs truly new logic (e.g., dealing damage, creating tokens,
-countering spells). For these, you'll touch all three backend modules:
-
-### Step 1: Define the Vocabulary (`mtg-sdk`)
-
-Add a data class implementing `Effect` in the appropriate file under `mtg-sdk/.../scripting/effects/`.
-
-### Step 2: Implement the Logic (`rules-engine`)
-
-Create an `EffectExecutor` in `rules-engine/.../handlers/effects/` and register it in the appropriate `ExecutorModule`.
-
-### Step 3: Use it in Content (`mtg-sets`)
-
-Now you can use the new effect in card scripts.
-
-**File:** `definitions/theros/cards/Omenspeaker.kt`
+Chain effects with `.then(...)`:
 
 ```kotlin
-val Omenspeaker = cardDef("Omenspeaker") {
-    // ... types/stats
-    triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        effect = Effects.Scry(2)
-    }
+spell {
+    effect = EffectPatterns.scry(1).then(Effects.DrawCards(1))   // Opt
 }
-
 ```
+
+### Fallback: a new `EffectExecutor`
+
+Only write a new executor when the mechanic needs genuinely new logic (dealing damage, creating
+tokens, countering spells, etc.). For these, you touch all three backend modules:
+
+1. **`mtg-sdk`** — add a `@Serializable` data class implementing `Effect` under
+   `com.wingedsheep.sdk.scripting.effects/`.
+2. **`rules-engine`** — implement an `EffectExecutor` under `handlers/effects/` and register it
+   in the appropriate `ExecutorModule`.
+3. **`mtg-sets`** — expose it through `Effects.kt` (the facade) and use it in card scripts.
+
+When you add anything to the SDK, update
+[`card-sdk-language-reference.md`](card-sdk-language-reference.md) in the same change — it's the
+canonical catalog and rots fast otherwise.
 
 ---
 
-## 3. Running the Project
+## 4. Running the Project
 
-### Local Development Environment
+### Local development
 
-1. **Start the Backend API:**
+The `justfile` is the primary entry point. Direct gradle / npm commands work too if you prefer.
+
 ```bash
-./gradlew :mtg-api:bootRun
+just build                          # build everything
+just server                         # start game-server on :8080 (Spring Boot)
+just client                         # start web-client dev server on :5173 (Vite)
 
+just test                           # all tests
+just test-rules                     # rules-engine only
+just test-server                    # game-server only
+just test-class CreatureStatsTest   # a single class (matches across modules)
 ```
 
+The game-server reloads card sets on restart. The web-client connects to the local backend
+WebSocket automatically.
 
-* Starts the Spring Boot server on port `8080`.
-* Reloads card sets automatically on restart.
+### Production build
 
-
-2. **Start the Web Client:**
 ```bash
-cd web-client
-npm install
-npm run dev
+./gradlew :game-server:build -x test   # produces game-server/build/libs/game-server.jar
+cd web-client && npm run build         # produces web-client/dist/
 
+docker-compose up --build              # postgres + app (game-server.jar) + nginx
 ```
 
-
-* Starts the Vite dev server on port `5173`.
-* Connects to the local backend WebSocket.
-
-
-
-### Building for Production (Docker)
-
-1. **Build the Backend JAR:**
-```bash
-./gradlew build -x test
-
-```
-
-
-* Produces `mtg-api/build/libs/mtg-api.jar`.
-
-
-2. **Build the Frontend Assets:**
-```bash
-cd web-client
-npm run build
-
-```
-
-
-* Produces static files in `web-client/dist/`.
-
-
-3. **Run with Docker Compose:**
-```bash
-docker-compose up --build
-
-```
-
-
-* **Postgres:** Stores user data and deck lists.
-* **App:** Runs the `mtg-api.jar`.
-* **Nginx:** Serves the frontend static files and reverse-proxies API calls to the App container.
+`docker-compose.yml` wires Nginx in front of the app container — it serves the frontend bundle
+statically and reverse-proxies API and WebSocket traffic to the Spring Boot service.
