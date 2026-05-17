@@ -74,6 +74,11 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             // Face-down creatures have no abilities (Rule 708.2)
             if (container.has<FaceDownComponent>()) continue
 
+            // Activated abilities of permanents matching a PreventActivatedAbilities filter
+            // (Cursed Totem etc.) can't be activated — applies to both mana and non-mana
+            // abilities, including those granted by static effects.
+            if (context.castPermissionUtils.isActivationPrevented(state, entityId)) continue
+
             val cardDef = context.cardRegistry.getCard(cardComponent.name)
             // Include granted activated abilities alongside the card's own abilities (both temporary and static)
             val grantedAbilities = state.grantedActivatedAbilities
@@ -662,6 +667,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             val cardComponent = container.get<CardComponent>() ?: continue
             if (container.has<FaceDownComponent>()) continue
             if (projected.hasLostAllAbilities(entityId)) continue
+            if (context.castPermissionUtils.isActivationPrevented(state, entityId)) continue
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
             val anyPlayerAbilities = cardDef.script.activatedAbilities.filter { ability ->

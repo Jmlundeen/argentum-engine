@@ -296,6 +296,34 @@ data object PreventCycling : StaticAbility {
 }
 
 /**
+ * Activated abilities of permanents matching [filter] can't be activated.
+ *
+ * Used for Cursed Totem ("Activated abilities of creatures can't be activated") and
+ * similar global denial effects (Damping Matrix, Pithing Needle's spiritual ancestor).
+ * Both mana and non-mana activated abilities are blocked, including abilities granted
+ * by static effects (e.g., basic-land mana abilities granted to creature-lands while
+ * they are creatures).
+ *
+ * Loyalty abilities of planeswalkers and ability costs that only animate a noncreature
+ * permanent (e.g., a Vehicle's Crew ability while it is still a Vehicle, not yet a
+ * creature) are unaffected — once the source becomes a creature its activated abilities
+ * are blocked too. This is enforced by filter-matching against projected state, so
+ * type-changing effects flow through correctly.
+ */
+@SerialName("PreventActivatedAbilities")
+@Serializable
+data class PreventActivatedAbilities(
+    val filter: GameObjectFilter
+) : StaticAbility {
+    override val description: String =
+        "Activated abilities of ${filter.description} can't be activated"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
  * Prevents mana pools from emptying as steps and phases end.
  * Used for Upwelling: "Players don't lose unspent mana as steps and phases end."
  *

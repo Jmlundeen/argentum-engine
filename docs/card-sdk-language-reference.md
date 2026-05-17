@@ -853,6 +853,16 @@ staticAbility {
 - `ConditionalStaticAbility` — static gated by a runtime `Condition`.
 - `Effects.CreatePermanentEmblem(...)` — emblem with static abilities (planeswalker ultimates).
 
+**Global denial statics** (no `filter`/`duration` block — they're singleton-style)
+
+- `PreventCycling` — "Players can't cycle cards." (Stabilizer)
+- `PreventActivatedAbilities(filter)` — activated abilities (mana + non-mana) of matching
+  permanents can't be activated; loyalty abilities and animation costs that haven't yet
+  produced a creature are unaffected. (Cursed Totem → `GameObjectFilter.Creature`)
+- `PreventManaPoolEmptying` — mana pools don't empty between steps/phases. (Upwelling)
+- `NoMaximumHandSize` — controller has no hand-size limit. (Thought Vessel)
+- `DampLandManaProduction` — a land tapped for 2+ mana produces `{C}` instead. (Damping Sphere)
+
 > Multiple lord effects on one card → multiple `staticAbility { }` blocks.
 
 ---

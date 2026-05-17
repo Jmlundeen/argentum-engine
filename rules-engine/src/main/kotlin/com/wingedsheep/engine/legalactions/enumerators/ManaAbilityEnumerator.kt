@@ -56,6 +56,11 @@ class ManaAbilityEnumerator : ActionEnumerator {
             // Face-down creatures have no abilities (Rule 708.2)
             if (container.has<FaceDownComponent>()) continue
 
+            // PreventActivatedAbilities (Cursed Totem etc.) blocks mana abilities too —
+            // per ruling, "Cursed Totem stops players from activating mana abilities of
+            // creatures."
+            if (context.castPermissionUtils.isActivationPrevented(state, entityId)) continue
+
             val entityLostAllAbilities = projected.hasLostAllAbilities(entityId)
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name)

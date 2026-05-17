@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
 import com.wingedsheep.sdk.scripting.MayPlayPermanentsFromGraveyard
 import com.wingedsheep.sdk.scripting.PlayFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
+import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
 import com.wingedsheep.sdk.scripting.PreventCycling
 
 /**
@@ -202,6 +203,35 @@ class CastPermissionUtils(
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
             if (cardDef.script.staticAbilities.any { it is PreventCycling }) {
                 return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * True when any [PreventActivatedAbilities] static ability on the battlefield matches
+     * [sourceId] under projected state (Cursed Totem, Damping Matrix, ...).
+     *
+     * Callers should skip both mana and non-mana activated abilities of [sourceId] when this
+     * returns true. Loyalty abilities of planeswalkers are not blocked (Cursed Totem's filter
+     * is `Creature`); abilities of noncreature permanents that animate them into creatures
+     * (e.g. Vehicle Crew) are also unaffected by a `Creature` filter because the source isn't
+     * yet a creature in projected state when the ability is activated.
+     */
+    fun isActivationPrevented(state: GameState, sourceId: EntityId): Boolean {
+        val projected = state.projectedState
+        val controllerId = projected.getController(sourceId)
+            ?: state.getEntity(sourceId)?.get<ControllerComponent>()?.playerId
+            ?: return false
+        val context = PredicateContext(controllerId = controllerId)
+        for (entityId in state.getBattlefield()) {
+            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
+            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            for (ability in cardDef.script.staticAbilities) {
+                val prevent = ability as? PreventActivatedAbilities ?: continue
+                if (predicateEvaluator.matches(state, projected, sourceId, prevent.filter, context)) {
+                    return true
+                }
             }
         }
         return false

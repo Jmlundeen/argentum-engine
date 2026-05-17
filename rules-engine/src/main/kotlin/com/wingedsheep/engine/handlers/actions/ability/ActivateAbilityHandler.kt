@@ -51,6 +51,7 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.DampLandManaProduction
 import com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
+import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
 import com.wingedsheep.sdk.scripting.filters.unified.Scope
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.LevelUpClassEffect
@@ -145,6 +146,14 @@ class ActivateAbilityHandler(
             // Face-down creatures have no abilities (Rule 708.2)
             if (container.has<FaceDownComponent>()) {
                 return "Face-down creatures have no abilities"
+            }
+
+            // PreventActivatedAbilities (Cursed Totem etc.) blocks activated abilities of
+            // matching permanents — mana and non-mana alike. Loyalty abilities of
+            // planeswalkers and Crew-style animation abilities are not blocked because the
+            // filter (typically `Creature`) is matched in projected state.
+            if (isActivationPreventedByStatic(state, action.sourceId)) {
+                return "Activated abilities of this permanent can't be activated"
             }
 
             // Creatures that have lost all abilities cannot activate them (e.g., Deep Freeze)
@@ -1183,6 +1192,30 @@ class ActivateAbilityHandler(
 
     private val dynamicAmountEvaluator = DynamicAmountEvaluator()
     private val predicateEvaluator = PredicateEvaluator()
+
+    /**
+     * Validation-time mirror of [com.wingedsheep.engine.legalactions.utils.CastPermissionUtils.isActivationPrevented].
+     * The handler doesn't carry `CastPermissionUtils`, so it inlines the same scan over
+     * battlefield [PreventActivatedAbilities] statics against projected state.
+     */
+    private fun isActivationPreventedByStatic(state: GameState, sourceId: EntityId): Boolean {
+        val projected = state.projectedState
+        val controllerId = projected.getController(sourceId)
+            ?: state.getEntity(sourceId)?.get<ControllerComponent>()?.playerId
+            ?: return false
+        val context = PredicateContext(controllerId = controllerId)
+        for (entityId in state.getBattlefield()) {
+            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
+            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            for (ability in cardDef.script.staticAbilities) {
+                val prevent = ability as? PreventActivatedAbilities ?: continue
+                if (predicateEvaluator.matches(state, projected, sourceId, prevent.filter, context)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 
     /**
      * Count how many [AdditionalSourceTriggers] doublers on the battlefield apply to a
