@@ -28,6 +28,7 @@ enum class Keyword(val displayName: String) {
     VIGILANCE("Vigilance"),
     REACH("Reach"),
     PROVOKE("Provoke"),
+    FLANKING("Flanking"),
 
     // ── Defense ──────────────────────────────────────────────
     DEFENDER("Defender"),

@@ -28,6 +28,7 @@ import com.wingedsheep.mtg.sets.definitions.lgn.LegionsSet
 import com.wingedsheep.mtg.sets.definitions.lrw.LorwynSet
 import com.wingedsheep.mtg.sets.definitions.mbs.MirrodinBesiegedSet
 import com.wingedsheep.mtg.sets.definitions.mid.InnistradMidnightHuntSet
+import com.wingedsheep.mtg.sets.definitions.mir.MirageSet
 import com.wingedsheep.mtg.sets.definitions.mkm.MurdersAtKarlovManorSet
 import com.wingedsheep.mtg.sets.definitions.mom.MarchOfTheMachineSet
 import com.wingedsheep.mtg.sets.definitions.mrd.MirrodinSet
@@ -122,6 +123,7 @@ abstract class ScenarioTestBase : FunSpec() {
         register(LostCavernsOfIxalanSet.cards)
         register(Magic2012Set.cards)
         register(MarchOfTheMachineSet.cards)
+        register(MirageSet.cards)
         register(MirrodinBesiegedSet.cards); register(MirrodinBesiegedSet.basicLands)
         register(MirrodinSet.cards); register(MirrodinSet.basicLands)
         register(MurdersAtKarlovManorSet.cards)
