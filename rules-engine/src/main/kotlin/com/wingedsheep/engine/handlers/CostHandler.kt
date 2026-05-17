@@ -661,6 +661,11 @@ class CostHandler(
                 val life = state.getEntity(controllerId)?.get<LifeTotalComponent>()?.life ?: 0
                 life > cost.amount
             }
+            is AdditionalCost.PayLifePerTarget -> {
+                // Always payable: choosing zero targets pays zero life. Per-target life
+                // is validated against the chosen target count at CastSpellHandler time.
+                true
+            }
             is AdditionalCost.ExileCards -> {
                 val zone = ZoneKey(controllerId, cost.fromZone.toZone())
                 findMatchingCardsUnified(state, state.getZone(zone), cost.filter, controllerId).size >= cost.count

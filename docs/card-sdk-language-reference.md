@@ -115,6 +115,9 @@ the `CardDefinition`.
 
 - `AdditionalCost.BlightVariable` — "as you cast, you may pay X life" (Blight X); X exposed via
   `DynamicAmount.AdditionalCostBlightAmount`.
+- `AdditionalCost.PayLifePerTarget(amountPerTarget)` — "this spell costs N life more to cast for
+  each target." Pair with a variable-count `TargetCreature(count = 20, optional = true)` etc.; the
+  engine auto-pays `amountPerTarget × action.targets.size` at cast resolution (Phyrexian Purge).
 
 ---
 

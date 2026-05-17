@@ -1149,6 +1149,15 @@ class CastSpellHandler(
                         return "Not enough life to pay ${additionalCost.amount} life"
                     }
                 }
+                is AdditionalCost.PayLifePerTarget -> {
+                    val required = additionalCost.amountPerTarget * action.targets.size
+                    val currentLife = state.getEntity(action.playerId)
+                        ?.get<LifeTotalComponent>()?.life ?: 0
+                    // CR 119.4 — you can't pay life unless you have at least that much
+                    if (currentLife < required) {
+                        return "Not enough life to pay $required life for ${action.targets.size} targets"
+                    }
+                }
                 is AdditionalCost.ChooseEntity -> {
                     val chosen = action.additionalCostPayment?.beheldCards ?: emptyList()
                     if (chosen.isEmpty()) {
@@ -1396,10 +1405,15 @@ class CastSpellHandler(
         // payment is applied regardless of whether the client included an
         // AdditionalCostPayment object.
         for (additionalCost in flattenedAllCosts) {
-            if (additionalCost !is AdditionalCost.PayLife) continue
+            val lifeToPay = when (additionalCost) {
+                is AdditionalCost.PayLife -> additionalCost.amount
+                is AdditionalCost.PayLifePerTarget -> additionalCost.amountPerTarget * action.targets.size
+                else -> continue
+            }
+            if (lifeToPay == 0) continue
             val playerEntity = currentState.getEntity(action.playerId)
             val currentLife = playerEntity?.get<LifeTotalComponent>()?.life ?: 0
-            val newLife = currentLife - additionalCost.amount
+            val newLife = currentLife - lifeToPay
             currentState = currentState.updateEntity(action.playerId) { c ->
                 c.with(LifeTotalComponent(newLife))
             }
@@ -1703,6 +1717,9 @@ class CastSpellHandler(
                     }
                     is AdditionalCost.PayLife -> {
                         // Handled in the auto-pay pre-pass above (PayLife requires no player choice).
+                    }
+                    is AdditionalCost.PayLifePerTarget -> {
+                        // Handled in the auto-pay pre-pass above (life total scales with target count).
                     }
                     is AdditionalCost.ChooseEntity -> {
                         // Choosing does not change zones. Record the chosen entity id under

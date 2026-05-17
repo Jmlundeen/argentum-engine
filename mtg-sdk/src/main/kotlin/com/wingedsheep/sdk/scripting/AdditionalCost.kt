@@ -107,6 +107,24 @@ sealed interface AdditionalCost : TextReplaceable<AdditionalCost> {
     }
 
     /**
+     * Pay [amountPerTarget] life for each target chosen by this spell.
+     * Example: "This spell costs 3 life more to cast for each target." (Phyrexian Purge)
+     *
+     * Always payable at enumeration time — if the player has too little life, they can
+     * still cast the spell by choosing zero targets (when the spell's target requirement
+     * is `optional = true`). The actual amount is computed from `action.targets.size` at
+     * cast resolution.
+     */
+    @SerialName("PayLifePerTarget")
+    @Serializable
+    data class PayLifePerTarget(
+        val amountPerTarget: Int
+    ) : AdditionalCost {
+        override val description: String = "This spell costs $amountPerTarget life more to cast for each target"
+        override fun applyTextReplacement(replacer: TextReplacer): AdditionalCost = this
+    }
+
+    /**
      * Exile cards from a zone (usually graveyard or hand).
      * Example: "Exile a creature card from your graveyard"
      *
