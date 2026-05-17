@@ -32,9 +32,11 @@ val MeandersGuide = card("Meanders Guide") {
             action = CompositeEffect(listOf(
                 SelectTargetEffect(
                     requirement = TargetObject(
-                        filter = TargetFilter.OtherCreatureYouControl
+                        // Permanent (not Creature) so Kindred Artifacts with the Merfolk subtype qualify.
+                        filter = TargetFilter.PermanentYouControl
                             .withSubtype("Merfolk")
                             .untapped()
+                            .other()
                     ),
                     storeAs = "merfolkToTap"
                 ),

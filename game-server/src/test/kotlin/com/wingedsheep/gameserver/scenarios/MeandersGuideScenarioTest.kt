@@ -109,6 +109,55 @@ class MeandersGuideScenarioTest : ScenarioTestBase() {
                     game.isInGraveyard(1, "Merfolk of the Pearl Trident") shouldBe false
                 }
             }
+
+            test("a Kindred Artifact Shapeshifter with Changeling counts as a Merfolk to tap") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardOnBattlefield(1, "Meanders Guide")
+                    .withCardOnBattlefield(1, "Firdoch Core")
+                    .withCardInGraveyard(1, "Merfolk of the Pearl Trident")
+                    .withCardInLibrary(2, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                    .build()
+
+                game.declareAttackers(mapOf("Meanders Guide" to 2))
+
+                while (game.state.stack.isNotEmpty() && !game.hasPendingDecision()) {
+                    game.passPriority()
+                }
+
+                game.getPendingDecision().shouldBeInstanceOf<YesNoDecision>()
+                game.answerYesNo(true)
+
+                while (game.state.stack.isNotEmpty() && !game.hasPendingDecision()) {
+                    game.passPriority()
+                }
+                val tapDecision = game.getPendingDecision()
+                withClue("Firdoch Core (Kindred Artifact — Shapeshifter w/ Changeling) should be a legal tap target") {
+                    tapDecision.shouldBeInstanceOf<ChooseTargetsDecision>()
+                }
+                val firdochCore = game.findAllPermanents("Firdoch Core").single()
+                game.selectTargets(listOf(firdochCore))
+
+                while (game.state.stack.isNotEmpty() && !game.hasPendingDecision()) {
+                    game.passPriority()
+                }
+                game.getPendingDecision().shouldBeInstanceOf<ChooseTargetsDecision>()
+                val merfolkInGy = game.findCardsInGraveyard(1, "Merfolk of the Pearl Trident").single()
+                game.selectTargets(listOf(merfolkInGy))
+
+                while (game.state.stack.isNotEmpty() && !game.hasPendingDecision()) {
+                    game.passPriority()
+                }
+
+                withClue("Firdoch Core should be tapped") {
+                    game.state.getEntity(firdochCore)?.has<TappedComponent>() shouldBe true
+                }
+                withClue("The graveyard Merfolk should be returned to the battlefield") {
+                    game.findAllPermanents("Merfolk of the Pearl Trident").size shouldBe 1
+                }
+            }
         }
     }
 }
