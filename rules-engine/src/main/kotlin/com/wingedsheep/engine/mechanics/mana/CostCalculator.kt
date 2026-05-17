@@ -498,10 +498,8 @@ class CostCalculator(
      * Count creatures controlled by a player.
      */
     private fun countCreatures(state: GameState, playerId: EntityId): Int {
-        return state.getBattlefield(playerId).count { entityId ->
-            val card = state.getEntity(entityId)?.get<CardComponent>()
-            card?.typeLine?.isCreature == true
-        }
+        val projected = state.projectedState
+        return state.getBattlefield(playerId).count { entityId -> projected.isCreature(entityId) }
     }
 
     /**
@@ -516,7 +514,7 @@ class CostCalculator(
             val container = state.getEntity(entityId) ?: continue
             val card = container.get<CardComponent>() ?: continue
 
-            if (!card.typeLine.isCreature) continue
+            if (!projectedState.isCreature(entityId)) continue
 
             val basePower: Int = when (val p = card.baseStats?.power) {
                 is CharacteristicValue.Fixed -> p.value

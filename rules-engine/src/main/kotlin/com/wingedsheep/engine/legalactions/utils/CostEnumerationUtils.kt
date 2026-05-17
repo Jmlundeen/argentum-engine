@@ -206,7 +206,7 @@ class CostEnumerationUtils(
         return projected.getBattlefieldControlledBy(playerId).mapNotNull { entityId ->
             val container = state.getEntity(entityId) ?: return@mapNotNull null
             val cardComponent = container.get<CardComponent>() ?: return@mapNotNull null
-            if (!cardComponent.typeLine.isCreature) return@mapNotNull null
+            if (!projected.isCreature(entityId)) return@mapNotNull null
             if (container.has<TappedComponent>()) return@mapNotNull null
             ConvokeCreatureData(entityId, cardComponent.name, cardComponent.colors)
         }

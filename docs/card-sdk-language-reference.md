@@ -599,18 +599,18 @@ For modal spells, prefer the explicit `targetPlayerControls(target)` DSL form; p
 
 ### Damage
 
-- `DealsDamage` — source deals any damage.
-- `DealsCombatDamage` — source deals combat damage.
-- `DealsCombatDamageToPlayer` — combat damage to a player.
-- `DealsCombatDamageToPlayerOrPlaneswalker` — either.
-- `DealsCombatDamageToCreature` — combat damage to a creature.
-- `CreatureYouControlDealsCombatDamageToPlayer` — your creature CD's a player.
-- `NontokenCreatureYouControlDealsCombatDamageToPlayer` — same, nontoken.
-- `CreatureDealtDamageByThisDies` — Etali / Sengir shape.
-- `TakesDamage` — source takes any damage.
-- `DamagedByCreature` — source takes damage from a creature.
-- `DamagedBySpell` — source takes damage from a spell.
-- `EnchantedCreatureTakesDamage` — Aurification shape.
+Named sugar for the common cases; reach for the factories for any other combination of axes.
+
+- `DealsDamage` — source deals any damage (SELF binding).
+- `DealsCombatDamageToPlayer` — source deals combat damage to a player (SELF binding).
+- `DealsCombatDamageToCreature` — source deals combat damage to a creature (SELF binding).
+- `TakesDamage` — source is dealt damage by any source (SELF binding).
+- `CreatureDealtDamageByThisDies` — Etali / Sengir / Soul Collector shape; only consumer of `CreatureDealtDamageBySourceDiesEvent`.
+
+**Factories** (axes: `damageType` × `recipient` × `sourceFilter` × `binding` for outgoing; `source` × `binding` for incoming):
+
+- `dealsDamage(damageType?, recipient?, sourceFilter?, binding?)` — outgoing-damage trigger. Pick `DamageType.{Any,Combat,NonCombat}`, `RecipientFilter.{Any,AnyPlayer,AnyPlayerOrPlaneswalker,AnyCreature,…}`, an optional source `GameObjectFilter`, and `TriggerBinding.{SELF,ANY,ATTACHED}`. Covers "deals combat damage to a player or planeswalker", "creature you control deals combat damage to a player" (`binding = ANY` + `sourceFilter = Creature.youControl()`), "nontoken creature you control deals…" (`.nontoken()`), and "enchanted creature deals damage" (`binding = ATTACHED`).
+- `takesDamage(source?, binding?)` — incoming-damage trigger. Pick `SourceFilter.{Any,Creature,Spell,Combat,NonCombat,HasColor(c),…}` and `TriggerBinding.{SELF,ATTACHED}`. Covers "damaged by a creature/spell" and "enchanted creature is dealt damage" (`binding = ATTACHED`, Aurification / Frozen Solid shape).
 
 ### Phase & turn
 
@@ -631,10 +631,9 @@ For modal spells, prefer the explicit `targetPlayerControls(target)` DSL form; p
 - `EnchantedCreatureControllerEndStep` — at end step of same.
 - `EnchantedCreatureDies` — when enchanted creature dies.
 - `EnchantedCreatureAttacks` — when enchanted creature attacks.
-- `EnchantedCreatureDealsCombatDamageToPlayer` — Aura damage trigger.
 - `EnchantedCreatureTurnedFaceUp` — Aura sees a morph flip.
-- `EnchantedCreatureDealsDamage` — any damage by enchanted creature.
 - `EnchantedPermanentLeavesBattlefield` — enchanted permanent LTB.
+- *Enchanted-creature damage triggers* — express via the damage factories with `binding = TriggerBinding.ATTACHED`: `dealsDamage(binding = ATTACHED)` (any damage), `dealsDamage(damageType = Combat, recipient = AnyPlayer, binding = ATTACHED)` (combat damage to a player), `takesDamage(binding = ATTACHED)` (is dealt damage).
 - `EnchantedPermanentBecomesTapped` — Curse-on-tap shape.
 - `EquippedCreatureAttacks` — equipped creature attacks.
 - `EquippedCreatureDies` — equipped creature dies.

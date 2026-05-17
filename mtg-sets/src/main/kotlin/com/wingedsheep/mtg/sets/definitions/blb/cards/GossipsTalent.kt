@@ -9,7 +9,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.events.DamageType
+import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -61,7 +64,12 @@ val GossipsTalent = card("Gossip's Talent") {
     // you may exile it, then return it to the battlefield under its owner's control
     classLevel(3, "{3}{U}") {
         triggeredAbility {
-            trigger = Triggers.CreatureYouControlDealsCombatDamageToPlayer
+            trigger = Triggers.dealsDamage(
+                damageType = DamageType.Combat,
+                recipient = RecipientFilter.AnyPlayer,
+                sourceFilter = GameObjectFilter.Creature.youControl(),
+                binding = TriggerBinding.ANY,
+            )
             effect = MayEffect(
                 CompositeEffect(listOf(
                     MoveToZoneEffect(EffectTarget.TriggeringEntity, Zone.EXILE),

@@ -172,7 +172,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                 when (effectiveCost) {
                     is AbilityCost.Tap -> {
                         if (container.has<TappedComponent>()) continue
-                        if (!cardComponent.typeLine.isLand && cardComponent.typeLine.isCreature) {
+                        if (!cardComponent.typeLine.isLand && projected.isCreature(entityId)) {
                             val hasSummoningSickness = container.has<SummoningSicknessComponent>()
                             val hasHaste = projected.hasKeyword(entityId, Keyword.HASTE)
                             if (hasSummoningSickness && !hasHaste) continue
@@ -183,8 +183,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         if (attachedId == null) continue
                         val attachedEntity = state.getEntity(attachedId) ?: continue
                         if (attachedEntity.has<TappedComponent>()) continue
-                        val attachedCard = attachedEntity.get<CardComponent>()
-                        if (attachedCard != null && attachedCard.typeLine.isCreature) {
+                        if (projected.isCreature(attachedId)) {
                             val hasSummoningSickness = attachedEntity.has<SummoningSicknessComponent>()
                             val hasHaste = projected.hasKeyword(attachedId, Keyword.HASTE)
                             if (hasSummoningSickness && !hasHaste) continue
@@ -262,7 +261,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                         costCanBePaid = false
                                         break
                                     }
-                                    if (!cardComponent.typeLine.isLand && cardComponent.typeLine.isCreature) {
+                                    if (!cardComponent.typeLine.isLand && projected.isCreature(entityId)) {
                                         val hasSummoningSickness = container.has<SummoningSicknessComponent>()
                                         val hasHaste = projected.hasKeyword(entityId, Keyword.HASTE)
                                         if (hasSummoningSickness && !hasHaste) {
@@ -325,8 +324,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                         costCanBePaid = false
                                         break
                                     }
-                                    val attachedCard = attachedEntity.get<CardComponent>()
-                                    if (attachedCard != null && attachedCard.typeLine.isCreature) {
+                                    if (projected.isCreature(attachedId)) {
                                         val hasSummoningSickness = attachedEntity.has<SummoningSicknessComponent>()
                                         val hasHaste = projected.hasKeyword(attachedId, Keyword.HASTE)
                                         if (hasSummoningSickness && !hasHaste) {

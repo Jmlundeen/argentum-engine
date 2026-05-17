@@ -653,7 +653,7 @@ class ManaSolver(
             val hasNonManaAbilities = allAbilities.any { !it.isManaAbility }
 
             // Creature and attack capability detection
-            val isCreature = card.typeLine.isCreature
+            val isCreature = projected.isCreature(entityId)
             val hasSummoningSickness = container.has<SummoningSicknessComponent>()
             val hasHaste = projected.hasKeyword(entityId, Keyword.HASTE)
             val canAttack = isCreature && (!hasSummoningSickness || hasHaste)
@@ -1620,7 +1620,7 @@ class ManaSolver(
             if (projected.hasLostAllAbilities(entityId)) continue
 
             // Summoning sickness applies to non-land creatures (Rule 302.1) — they can't tap unless they have haste.
-            val isCreature = card.typeLine.isCreature
+            val isCreature = projected.isCreature(entityId)
             if (!card.typeLine.isLand && isCreature) {
                 val hasSummoningSickness = container.has<SummoningSicknessComponent>()
                 val hasHaste = projected.hasKeyword(entityId, Keyword.HASTE)
@@ -1722,7 +1722,7 @@ class ManaSolver(
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
             if (projected.hasLostAllAbilities(entityId)) continue
 
-            val isCreature = card.typeLine.isCreature
+            val isCreature = projected.isCreature(entityId)
             if (!card.typeLine.isLand && isCreature) {
                 val hasSummoningSickness = container.has<SummoningSicknessComponent>()
                 val hasHaste = projected.hasKeyword(entityId, Keyword.HASTE)

@@ -363,7 +363,7 @@ class TargetValidator {
                 val cardComponent = container.get<CardComponent>()
                     ?: return "Target is not a card"
                 // Face-down permanents are always creatures (Rule 708.2)
-                if (!cardComponent.typeLine.isCreature && !container.has<FaceDownComponent>()) {
+                if (!state.projectedState.isCreature(target.entityId) && !container.has<FaceDownComponent>()) {
                     return "Target must be a creature or player"
                 }
                 if (target.entityId !in state.getBattlefield()) {
@@ -434,10 +434,12 @@ class TargetValidator {
             ?: return "Target not found"
         val cardComponent = container.get<CardComponent>()
             ?: return "Target is not a card"
-        val isPlaneswalker = CardType.PLANESWALKER in cardComponent.typeLine.cardTypes
+        val projected = state.projectedState
+        val isPlaneswalker = projected.isPlaneswalker(target.entityId) ||
+            CardType.PLANESWALKER in cardComponent.typeLine.cardTypes
         // Face-down permanents are always creatures (Rule 708.2)
         val isFaceDown = container.has<FaceDownComponent>()
-        if (!cardComponent.typeLine.isCreature && !isPlaneswalker && !isFaceDown) {
+        if (!projected.isCreature(target.entityId) && !isPlaneswalker && !isFaceDown) {
             return "Target must be a creature or planeswalker"
         }
         if (target.entityId !in state.getBattlefield()) {

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
+import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
@@ -68,7 +69,7 @@ val LongRiverLurker = card("Long River Lurker") {
                     )),
                     descriptionOverride = "You may exile that creature. If you do, return it to the battlefield under its owner's control."
                 ),
-                trigger = Triggers.DealsCombatDamage,
+                trigger = Triggers.dealsDamage(damageType = DamageType.Combat),
                 watchedTarget = EffectTarget.ContextTarget(0),
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )

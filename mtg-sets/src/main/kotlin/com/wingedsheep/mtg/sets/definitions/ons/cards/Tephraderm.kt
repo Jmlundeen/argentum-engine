@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
+import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -25,7 +26,7 @@ val Tephraderm = card("Tephraderm") {
     oracleText = "Whenever a creature deals damage to Tephraderm, Tephraderm deals that much damage to that creature.\nWhenever a spell deals damage to Tephraderm, Tephraderm deals that much damage to that spell's controller."
 
     triggeredAbility {
-        trigger = Triggers.DamagedByCreature
+        trigger = Triggers.takesDamage(source = SourceFilter.Creature)
         effect = DealDamageEffect(
             amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.TriggeringEntity
@@ -33,7 +34,7 @@ val Tephraderm = card("Tephraderm") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DamagedBySpell
+        trigger = Triggers.takesDamage(source = SourceFilter.Spell)
         effect = DealDamageEffect(
             amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.ControllerOfTriggeringEntity

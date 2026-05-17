@@ -379,8 +379,13 @@ object Triggers {
         binding = TriggerBinding.SELF
     )
 
+    // -------------------------------------------------------------------------
+    // Damage dealt (outgoing) — see also `dealsDamage(...)` factory below for
+    // axis combinations not covered by these named constants.
+    // -------------------------------------------------------------------------
+
     /**
-     * When this creature deals damage.
+     * When this creature deals damage (any type, any recipient). Binding: SELF.
      */
     val DealsDamage: TriggerSpec = TriggerSpec(
         event = DealsDamageEvent(),
@@ -388,15 +393,7 @@ object Triggers {
     )
 
     /**
-     * When this creature deals combat damage.
-     */
-    val DealsCombatDamage: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(damageType = DamageType.Combat),
-        binding = TriggerBinding.SELF
-    )
-
-    /**
-     * When this creature deals combat damage to a player.
+     * When this creature deals combat damage to a player. Binding: SELF.
      */
     val DealsCombatDamageToPlayer: TriggerSpec = TriggerSpec(
         event = DealsDamageEvent(damageType = DamageType.Combat, recipient = RecipientFilter.AnyPlayer),
@@ -404,46 +401,7 @@ object Triggers {
     )
 
     /**
-     * When this creature deals combat damage to a player or planeswalker.
-     * Modern oracle wording (post-2018) for cards that should fire when their attacker
-     * connects with either a player or one of that player's planeswalkers.
-     */
-    val DealsCombatDamageToPlayerOrPlaneswalker: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(
-            damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayerOrPlaneswalker
-        ),
-        binding = TriggerBinding.SELF
-    )
-
-    /**
-     * Whenever a creature you control deals combat damage to a player.
-     * Uses ANY binding — fires for each creature you control that connects.
-     */
-    val CreatureYouControlDealsCombatDamageToPlayer: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(
-            damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
-            sourceFilter = GameObjectFilter.Creature.youControl()
-        ),
-        binding = TriggerBinding.ANY
-    )
-
-    /**
-     * Whenever a nontoken creature you control deals combat damage to a player.
-     * Uses ANY binding — fires for each nontoken creature you control that connects.
-     */
-    val NontokenCreatureYouControlDealsCombatDamageToPlayer: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(
-            damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
-            sourceFilter = GameObjectFilter.Creature.youControl().nontoken()
-        ),
-        binding = TriggerBinding.ANY
-    )
-
-    /**
-     * When this creature deals combat damage to a creature.
+     * When this creature deals combat damage to a creature. Binding: SELF.
      */
     val DealsCombatDamageToCreature: TriggerSpec = TriggerSpec(
         event = DealsDamageEvent(damageType = DamageType.Combat, recipient = RecipientFilter.AnyCreature),
@@ -451,12 +409,41 @@ object Triggers {
     )
 
     /**
-     * Whenever a creature dealt damage by this creature this turn dies.
-     * Used for Soul Collector and similar cards.
+     * Whenever a creature dealt damage by this permanent this turn dies (Soul Collector shape).
+     * Only consumer of [CreatureDealtDamageBySourceDiesEvent].
      */
     val CreatureDealtDamageByThisDies: TriggerSpec = TriggerSpec(
         event = CreatureDealtDamageBySourceDiesEvent,
         binding = TriggerBinding.SELF
+    )
+
+    /**
+     * Generic "deals damage" trigger factory. Use the named constants above
+     * (`DealsDamage`, `DealsCombatDamageToPlayer`, `DealsCombatDamageToCreature`)
+     * when their defaults match; reach for this factory for any other combination
+     * of (damageType, recipient, sourceFilter, binding).
+     *
+     * Examples:
+     * - "Whenever a creature you control deals combat damage to a player":
+     *   `dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer,
+     *                GameObjectFilter.Creature.youControl(), TriggerBinding.ANY)`
+     * - "Whenever enchanted creature deals damage":
+     *   `dealsDamage(binding = TriggerBinding.ATTACHED)`
+     * - "Whenever this deals combat damage to a player or planeswalker":
+     *   `dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayerOrPlaneswalker)`
+     */
+    fun dealsDamage(
+        damageType: DamageType = DamageType.Any,
+        recipient: RecipientFilter = RecipientFilter.Any,
+        sourceFilter: GameObjectFilter? = null,
+        binding: TriggerBinding = TriggerBinding.SELF,
+    ): TriggerSpec = TriggerSpec(
+        event = DealsDamageEvent(
+            damageType = damageType,
+            recipient = recipient,
+            sourceFilter = sourceFilter,
+        ),
+        binding = binding,
     )
 
     // =========================================================================
@@ -820,15 +807,31 @@ object Triggers {
     )
 
     // =========================================================================
-    // Damage Triggers
+    // Damage Received (incoming)
     // =========================================================================
 
     /**
-     * Whenever this creature is dealt damage.
+     * Whenever this creature is dealt damage (any source). Binding: SELF.
+     * For source-restricted variants (damaged by a creature/spell/color/etc.)
+     * or enchanted-creature wiring, use [takesDamage].
      */
     val TakesDamage: TriggerSpec = TriggerSpec(
         event = DamageReceivedEvent(),
         binding = TriggerBinding.SELF
+    )
+
+    /**
+     * Generic "is dealt damage" trigger factory. Use [TakesDamage] for the
+     * default SELF/any-source case; reach for this factory for source restrictions
+     * (creature, spell, color) or for attached bindings (e.g. "enchanted creature
+     * is dealt damage": `takesDamage(binding = TriggerBinding.ATTACHED)`).
+     */
+    fun takesDamage(
+        source: SourceFilter = SourceFilter.Any,
+        binding: TriggerBinding = TriggerBinding.SELF,
+    ): TriggerSpec = TriggerSpec(
+        event = DamageReceivedEvent(source = source),
+        binding = binding,
     )
 
     /**
@@ -846,24 +849,6 @@ object Triggers {
      */
     val EnchantedPermanentLeavesBattlefield: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(from = Zone.BATTLEFIELD),
-        binding = TriggerBinding.ATTACHED
-    )
-
-    /**
-     * Whenever the enchanted creature is dealt damage.
-     * Used for auras like Frozen Solid.
-     */
-    val EnchantedCreatureTakesDamage: TriggerSpec = TriggerSpec(
-        event = DamageReceivedEvent(),
-        binding = TriggerBinding.ATTACHED
-    )
-
-    /**
-     * Whenever the enchanted creature deals combat damage to a player.
-     * Used for auras like One with Nature.
-     */
-    val EnchantedCreatureDealsCombatDamageToPlayer: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(damageType = DamageType.Combat, recipient = RecipientFilter.AnyPlayer),
         binding = TriggerBinding.ATTACHED
     )
 
@@ -897,37 +882,12 @@ object Triggers {
     )
 
     /**
-     * Whenever the enchanted creature deals damage (any type).
-     * Used for auras like Guilty Conscience.
-     */
-    val EnchantedCreatureDealsDamage: TriggerSpec = TriggerSpec(
-        event = DealsDamageEvent(),
-        binding = TriggerBinding.ATTACHED
-    )
-
-    /**
      * When the enchanted creature is turned face up.
      * Used for auras like Fatal Mutation.
      */
     val EnchantedCreatureTurnedFaceUp: TriggerSpec = TriggerSpec(
         event = TurnFaceUpEvent,
         binding = TriggerBinding.ATTACHED
-    )
-
-    /**
-     * Whenever a creature deals damage to this creature.
-     */
-    val DamagedByCreature: TriggerSpec = TriggerSpec(
-        event = DamageReceivedEvent(source = SourceFilter.Creature),
-        binding = TriggerBinding.SELF
-    )
-
-    /**
-     * Whenever a spell deals damage to this creature.
-     */
-    val DamagedBySpell: TriggerSpec = TriggerSpec(
-        event = DamageReceivedEvent(source = SourceFilter.Spell),
-        binding = TriggerBinding.SELF
     )
 
     // =========================================================================

@@ -16,6 +16,8 @@ import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
+import com.wingedsheep.sdk.scripting.events.DamageType
+import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -38,9 +40,14 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   At the beginning of your first main phase, you may pay {U}. If you do, transform Sygg.
  */
 
+private val drawOnCombatDamageSpec = Triggers.dealsDamage(
+    damageType = DamageType.Combat,
+    recipient = RecipientFilter.AnyPlayerOrPlaneswalker,
+)
+
 private val drawOnCombatDamage = TriggeredAbility.create(
-    trigger = Triggers.DealsCombatDamageToPlayerOrPlaneswalker.event,
-    binding = Triggers.DealsCombatDamageToPlayerOrPlaneswalker.binding,
+    trigger = drawOnCombatDamageSpec.event,
+    binding = drawOnCombatDamageSpec.binding,
     effect = Effects.DrawCards(1)
 )
 

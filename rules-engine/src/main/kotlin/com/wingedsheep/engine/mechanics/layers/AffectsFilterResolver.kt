@@ -444,7 +444,26 @@ internal class AffectsFilterResolver {
         is CardPredicate.And -> predicate.predicates.all { matchesCardPredicateForProjection(it, card, container, projected, types, subtypes, colors, keywords, isFaceDown) }
         is CardPredicate.Or -> predicate.predicates.any { matchesCardPredicateForProjection(it, card, container, projected, types, subtypes, colors, keywords, isFaceDown) }
         is CardPredicate.Not -> !matchesCardPredicateForProjection(predicate.predicate, card, container, projected, types, subtypes, colors, keywords, isFaceDown)
-        else -> true
+        CardPredicate.ToughnessGreaterThanPower -> {
+            val power = projected?.power ?: card.baseStats?.basePower ?: 0
+            val toughness = projected?.toughness ?: card.baseStats?.baseToughness ?: 0
+            toughness > power
+        }
+        // Source-, trigger-, and pipeline-context-relative predicates have no meaning during
+        // layer projection (no source/trigger/pipeline context in scope). Fail closed so a new
+        // predicate variant forces an exhaustive-when compile failure here instead of silently
+        // matching every entity.
+        CardPredicate.NotOfSourceChosenType,
+        CardPredicate.SharesCreatureTypeWithSource,
+        CardPredicate.SharesCreatureTypeWithTriggeringEntity,
+        CardPredicate.HasChosenSubtype,
+        is CardPredicate.SharesCreatureTypeWith,
+        is CardPredicate.HasSubtypeFromVariable,
+        is CardPredicate.HasSubtypeInStoredList,
+        is CardPredicate.HasSubtypeInEachStoredGroup -> false
+        // Stack-only predicates — never match a battlefield entity being projected.
+        CardPredicate.IsActivatedOrTriggeredAbility,
+        CardPredicate.IsTriggeredAbility -> false
     }
 
     /**

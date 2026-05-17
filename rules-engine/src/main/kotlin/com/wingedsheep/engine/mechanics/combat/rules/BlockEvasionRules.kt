@@ -273,8 +273,7 @@ class CantBeBlockedUnlessDefenderSharesCreatureTypeRule : BlockEvasionRule {
 
     private fun defenderHasEnoughSharedCreatureTypes(ctx: BlockCheckContext, minCount: Int): Boolean {
         val creatures = ctx.projected.getBattlefieldControlledBy(ctx.blockingPlayer).filter { entityId ->
-            val card = ctx.state.getEntity(entityId)?.get<CardComponent>() ?: return@filter false
-            card.typeLine.isCreature
+            ctx.projected.isCreature(entityId)
         }
 
         val subtypeCounts = mutableMapOf<String, Int>()

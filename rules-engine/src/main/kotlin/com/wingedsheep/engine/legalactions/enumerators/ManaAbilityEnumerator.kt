@@ -152,9 +152,9 @@ class ManaAbilityEnumerator : ActionEnumerator {
                                     if (container.has<TappedComponent>()) {
                                         affordable = false; break
                                     }
-                                    if (!cardComponent.typeLine.isLand && cardComponent.typeLine.isCreature) {
+                                    if (!cardComponent.typeLine.isLand && projected.isCreature(entityId)) {
                                         val hasSummoningSickness = container.has<SummoningSicknessComponent>()
-                                        val hasHaste = cardComponent.baseKeywords.contains(Keyword.HASTE)
+                                        val hasHaste = projected.hasKeyword(entityId, Keyword.HASTE)
                                         if (hasSummoningSickness && !hasHaste) {
                                             affordable = false; break
                                         }

@@ -5,6 +5,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.TriggerBinding
+import com.wingedsheep.sdk.scripting.events.DamageType
+import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -21,7 +25,12 @@ val ImpostorSyndrome = card("Impostor Syndrome") {
     oracleText = "Whenever a nontoken creature you control deals combat damage to a player, create a token that's a copy of it, except it isn't legendary."
 
     triggeredAbility {
-        trigger = Triggers.NontokenCreatureYouControlDealsCombatDamageToPlayer
+        trigger = Triggers.dealsDamage(
+            damageType = DamageType.Combat,
+            recipient = RecipientFilter.AnyPlayer,
+            sourceFilter = GameObjectFilter.Creature.youControl().nontoken(),
+            binding = TriggerBinding.ANY,
+        )
         effect = Effects.CreateTokenCopyOfTarget(
             target = EffectTarget.TriggeringEntity,
             removedSupertypes = setOf(Supertype.LEGENDARY)
