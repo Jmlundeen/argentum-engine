@@ -7,5 +7,18 @@
       "Bash(curl *)",
       "Bash(jot *)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command // empty'); if printf '%s' \"$cmd\" | grep -qE 'git[[:space:]]+stash'; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"git stash is banned in this repo. WHY: multiple Claude agents often work in this repo in parallel, and unexpected uncommitted changes in the working tree are likely another agent\\u0027s in-flight work. Stashing (or reverting/discarding) silently hides that work and has caused lost changes in the past. WHAT TO DO INSTEAD: stop, describe the conflicting files to the user, and wait for them to confirm it is safe to continue. See CLAUDE.md \\u2192 Collaboration rules and the feedback_no_stash memory.\"}}'; fi"
+          }
+        ]
+      }
+    ]
   }
 }
