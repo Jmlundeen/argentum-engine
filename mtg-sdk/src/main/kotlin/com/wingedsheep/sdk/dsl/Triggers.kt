@@ -35,8 +35,16 @@ object Triggers {
     // Zone Change Triggers
     // =========================================================================
 
+    // -------------------------------------------------------------------------
+    // Enters the battlefield
+    //
+    // High-frequency primitives below. Reach for `entersBattlefield(...)` for
+    // any other (filter, binding) combination — face-down filter, type filter,
+    // ANY-binding scopes, etc.
+    // -------------------------------------------------------------------------
+
     /**
-     * When this permanent enters the battlefield.
+     * When this permanent enters the battlefield. (SELF, no filter.)
      */
     val EntersBattlefield: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(to = Zone.BATTLEFIELD),
@@ -44,27 +52,8 @@ object Triggers {
     )
 
     /**
-     * When any permanent enters the battlefield.
-     */
-    val AnyEntersBattlefield: TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(to = Zone.BATTLEFIELD),
-        binding = TriggerBinding.ANY
-    )
-
-    /**
-     * When a face-down creature enters the battlefield (any controller).
-     * Compose with `.youControl()` filter for "you control" variant.
-     */
-    val FaceDownCreatureEnters: TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(
-            filter = GameObjectFilter.Creature.faceDown(),
-            to = Zone.BATTLEFIELD
-        ),
-        binding = TriggerBinding.ANY
-    )
-
-    /**
-     * When another creature you control enters the battlefield.
+     * When another creature you control enters the battlefield. (OTHER binding,
+     * filter = Creature.youControl().)
      */
     val OtherCreatureEnters: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(
@@ -75,29 +64,8 @@ object Triggers {
     )
 
     /**
-     * When another creature enters the battlefield (any controller).
-     */
-    val AnyOtherCreatureEnters: TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(
-            filter = GameObjectFilter.Creature,
-            to = Zone.BATTLEFIELD
-        ),
-        binding = TriggerBinding.OTHER
-    )
-
-    /**
-     * When another permanent you control enters the battlefield.
-     */
-    val OtherPermanentYouControlEnters: TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(
-            filter = GameObjectFilter.Any.youControl(),
-            to = Zone.BATTLEFIELD
-        ),
-        binding = TriggerBinding.OTHER
-    )
-
-    /**
-     * Landfall — Whenever a land you control enters the battlefield.
+     * Landfall — whenever a land you control enters the battlefield.
+     * (OTHER binding, filter = Land.youControl().)
      */
     val LandYouControlEnters: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(
@@ -108,15 +76,28 @@ object Triggers {
     )
 
     /**
-     * Eerie (part 1) — Whenever an enchantment you control enters the battlefield.
-     * Fires for any enchantment you control, including the source if it's an enchantment.
+     * Generic "enters the battlefield" trigger factory. Use the named
+     * constants above (`EntersBattlefield`, `OtherCreatureEnters`,
+     * `LandYouControlEnters`) when their defaults match; reach for this
+     * factory for any other combination of (filter, binding).
+     *
+     * Examples:
+     * - "Whenever a face-down creature enters the battlefield":
+     *   `entersBattlefield(filter = GameObjectFilter.Creature.faceDown(),
+     *                      binding = TriggerBinding.ANY)`
+     * - "Whenever another permanent you control enters the battlefield":
+     *   `entersBattlefield(filter = GameObjectFilter.Any.youControl(),
+     *                      binding = TriggerBinding.OTHER)`
+     * - "Whenever an enchantment you control enters the battlefield" (Eerie):
+     *   `entersBattlefield(filter = GameObjectFilter.Enchantment.youControl(),
+     *                      binding = TriggerBinding.ANY)`
      */
-    val AnyEnchantmentYouControlEnters: TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            to = Zone.BATTLEFIELD
-        ),
-        binding = TriggerBinding.ANY
+    fun entersBattlefield(
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        binding: TriggerBinding = TriggerBinding.SELF,
+    ): TriggerSpec = TriggerSpec(
+        event = ZoneChangeEvent(filter = filter, to = Zone.BATTLEFIELD),
+        binding = binding,
     )
 
     /**
@@ -141,8 +122,16 @@ object Triggers {
         binding = TriggerBinding.SELF
     )
 
+    // -------------------------------------------------------------------------
+    // Leaves the battlefield / dies
+    //
+    // High-frequency primitives below. Reach for `leavesBattlefield(...)` for
+    // any other (filter, to, excludeTo, binding) combination — leaves-but-not-
+    // dies, leaves-to-any-destination, ANY-binding tribal death scopes, etc.
+    // -------------------------------------------------------------------------
+
     /**
-     * When this permanent leaves the battlefield.
+     * When this permanent leaves the battlefield (any destination). (SELF.)
      */
     val LeavesBattlefield: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(from = Zone.BATTLEFIELD),
@@ -150,7 +139,7 @@ object Triggers {
     )
 
     /**
-     * When this creature dies.
+     * When this creature dies (CR 700.4 — battlefield to graveyard). (SELF.)
      */
     val Dies: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD),
@@ -158,7 +147,7 @@ object Triggers {
     )
 
     /**
-     * When any creature dies.
+     * When any creature dies. (ANY binding, filter = Creature.)
      */
     val AnyCreatureDies: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(
@@ -170,19 +159,7 @@ object Triggers {
     )
 
     /**
-     * When another creature dies (any controller).
-     */
-    val AnyOtherCreatureDies: TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(
-            filter = GameObjectFilter.Creature,
-            from = Zone.BATTLEFIELD,
-            to = Zone.GRAVEYARD
-        ),
-        binding = TriggerBinding.OTHER
-    )
-
-    /**
-     * When a creature you control dies.
+     * When a creature you control dies. (ANY binding, filter = Creature.youControl().)
      */
     val YourCreatureDies: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(
@@ -194,34 +171,10 @@ object Triggers {
     )
 
     /**
-     * When this creature or another creature you control leaves the battlefield without dying.
-     * "Leaves without dying" = zone change from battlefield to any zone except graveyard.
-     */
-    val YourCreatureLeavesBattlefieldWithoutDying: TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(
-            filter = GameObjectFilter.Creature.youControl(),
-            from = Zone.BATTLEFIELD,
-            excludeTo = Zone.GRAVEYARD
-        ),
-        binding = TriggerBinding.ANY
-    )
-
-    /**
-     * When a creature you control leaves the battlefield (any destination — graveyard,
-     * exile, hand, library). Includes the source if the source itself is a creature you
-     * control. Used by cards like Outpost Siege (Dragons mode): "Whenever a creature
-     * you control leaves the battlefield, ~ deals 1 damage to any target."
-     */
-    val YourCreatureLeavesBattlefield: TriggerSpec = TriggerSpec(
-        event = ZoneChangeEvent(
-            filter = GameObjectFilter.Creature.youControl(),
-            from = Zone.BATTLEFIELD
-        ),
-        binding = TriggerBinding.ANY
-    )
-
-    /**
-     * When this is put into the graveyard from the battlefield.
+     * When this permanent (typically non-creature, e.g. an enchantment or
+     * artifact) is put into the graveyard from the battlefield. (SELF.)
+     * Same event shape as [Dies]; the rename clarifies non-creature intent
+     * in card definitions.
      */
     val PutIntoGraveyardFromBattlefield: TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD),
@@ -229,15 +182,39 @@ object Triggers {
     )
 
     /**
-     * When another creature with a specific subtype dies.
+     * Generic "leaves the battlefield" trigger factory. Use the named
+     * constants above ([LeavesBattlefield], [Dies], [AnyCreatureDies],
+     * [YourCreatureDies], [PutIntoGraveyardFromBattlefield]) when their
+     * defaults match; reach for this factory for any other combination of
+     * (filter, to, excludeTo, binding).
+     *
+     * Examples:
+     * - "Whenever another creature dies (any controller)":
+     *   `leavesBattlefield(filter = GameObjectFilter.Creature, to = Zone.GRAVEYARD,
+     *                      binding = TriggerBinding.OTHER)`
+     * - "Whenever a Goblin you don't control dies":
+     *   `leavesBattlefield(filter = GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN),
+     *                      to = Zone.GRAVEYARD, binding = TriggerBinding.OTHER)`
+     * - "Whenever a creature you control leaves the battlefield without dying":
+     *   `leavesBattlefield(filter = GameObjectFilter.Creature.youControl(),
+     *                      excludeTo = Zone.GRAVEYARD, binding = TriggerBinding.ANY)`
+     * - "Whenever a creature you control leaves the battlefield (any zone)":
+     *   `leavesBattlefield(filter = GameObjectFilter.Creature.youControl(),
+     *                      binding = TriggerBinding.ANY)`
      */
-    fun OtherCreatureWithSubtypeDies(subtype: Subtype): TriggerSpec = TriggerSpec(
+    fun leavesBattlefield(
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        to: Zone? = null,
+        excludeTo: Zone? = null,
+        binding: TriggerBinding = TriggerBinding.SELF,
+    ): TriggerSpec = TriggerSpec(
         event = ZoneChangeEvent(
-            filter = GameObjectFilter.Creature.withSubtype(subtype),
+            filter = filter,
             from = Zone.BATTLEFIELD,
-            to = Zone.GRAVEYARD
+            to = to,
+            excludeTo = excludeTo,
         ),
-        binding = TriggerBinding.OTHER
+        binding = binding,
     )
 
     // =========================================================================

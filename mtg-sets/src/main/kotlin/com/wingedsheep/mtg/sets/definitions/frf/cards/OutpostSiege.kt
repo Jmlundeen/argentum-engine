@@ -7,7 +7,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModeOption
+import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -84,7 +86,10 @@ val OutpostSiege = card("Outpost Siege") {
 
     // Dragons — Whenever a creature you control leaves the battlefield, deal 1 damage.
     triggeredAbility {
-        trigger = Triggers.YourCreatureLeavesBattlefield
+        trigger = Triggers.leavesBattlefield(
+            filter = GameObjectFilter.Creature.youControl(),
+            binding = TriggerBinding.ANY,
+        )
         triggerCondition = SourceChosenModeIs("dragons")
         val any = target("target", Targets.Any)
         effect = DealDamageEffect(1, any)

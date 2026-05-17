@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
@@ -72,7 +73,11 @@ val SkirkDrillSergeant = card("Skirk Drill Sergeant") {
 
     // "... or another Goblin dies" (other Goblin death trigger)
     triggeredAbility {
-        trigger = Triggers.OtherCreatureWithSubtypeDies(Subtype.GOBLIN)
+        trigger = Triggers.leavesBattlefield(
+            filter = GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN),
+            to = Zone.GRAVEYARD,
+            binding = TriggerBinding.OTHER,
+        )
         effect = mayPayEffect
     }
 

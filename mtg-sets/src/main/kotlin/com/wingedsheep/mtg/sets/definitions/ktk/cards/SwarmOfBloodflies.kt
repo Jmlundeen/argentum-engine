@@ -6,7 +6,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.EntersWithCounters
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -31,7 +34,11 @@ val SwarmOfBloodflies = card("Swarm of Bloodflies") {
     replacementEffect(EntersWithCounters(count = 2, selfOnly = true))
 
     triggeredAbility {
-        trigger = Triggers.AnyOtherCreatureDies
+        trigger = Triggers.leavesBattlefield(
+            filter = GameObjectFilter.Creature,
+            to = Zone.GRAVEYARD,
+            binding = TriggerBinding.OTHER,
+        )
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

@@ -4,6 +4,8 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -20,7 +22,10 @@ val AltarOfTheBrood = card("Altar of the Brood") {
     oracleText = "Whenever another permanent you control enters, each opponent mills a card."
 
     triggeredAbility {
-        trigger = Triggers.OtherPermanentYouControlEnters
+        trigger = Triggers.entersBattlefield(
+            filter = GameObjectFilter.Any.youControl(),
+            binding = TriggerBinding.OTHER,
+        )
         effect = ForEachPlayerEffect(
             players = Player.EachOpponent,
             effects = EffectPatterns.mill(1).effects

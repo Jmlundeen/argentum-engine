@@ -1,11 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,7 +30,11 @@ val ThreeTreeScribe = card("Three Tree Scribe") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureLeavesBattlefieldWithoutDying
+        trigger = Triggers.leavesBattlefield(
+            filter = GameObjectFilter.Creature.youControl(),
+            excludeTo = Zone.GRAVEYARD,
+            binding = TriggerBinding.ANY,
+        )
         val t = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t)
     }

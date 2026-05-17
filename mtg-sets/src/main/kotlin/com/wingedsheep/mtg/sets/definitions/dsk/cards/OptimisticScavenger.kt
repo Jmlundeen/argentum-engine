@@ -6,6 +6,8 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Optimistic Scavenger
@@ -28,7 +30,10 @@ val OptimisticScavenger = card("Optimistic Scavenger") {
 
     // Eerie trigger — part 1: whenever an enchantment you control enters
     triggeredAbility {
-        trigger = Triggers.AnyEnchantmentYouControlEnters
+        trigger = Triggers.entersBattlefield(
+            filter = GameObjectFilter.Enchantment.youControl(),
+            binding = TriggerBinding.ANY,
+        )
         val targetCreature = target("target creature", Targets.Creature)
         effect = Effects.AddCounters("+1/+1", 1, targetCreature)
         description = "Eerie — Whenever an enchantment you control enters, put a +1/+1 counter on target creature."

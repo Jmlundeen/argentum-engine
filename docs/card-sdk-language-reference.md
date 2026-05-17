@@ -562,20 +562,29 @@ For modal spells, prefer the explicit `targetPlayerControls(target)` DSL form; p
 
 ### Zone change
 
-- `EntersBattlefield` — when source ETB.
-- `AnyEntersBattlefield` — when any permanent ETB.
-- `LeavesBattlefield` — when source LTB.
-- `Dies` — when source dies (battlefield → graveyard, creature only).
-- `AnyCreatureDies` — when any creature dies.
-- `YourCreatureDies` — when a creature you control dies.
-- `YourCreatureLeavesBattlefield` — broader than dies (any zone).
-- `PutIntoGraveyardFromBattlefield` — non-creature death equivalent.
-- `LandYouControlEnters` — landfall.
-- `OtherCreatureEnters` — when another creature you control ETB.
-- `OtherPermanentYouControlEnters` — same but any permanent.
-- `FaceDownCreatureEnters` — when a face-down creature ETB (any controller).
-- `AnyEnchantmentYouControlEnters` — when an enchantment you control ETB.
-- `OtherCreatureWithSubtypeDies(subtype)` — tribe-specific death trigger.
+Named sugar for the common cases; reach for `entersBattlefield(...)` / `leavesBattlefield(...)`
+for any other (filter, binding, to/excludeTo) combination.
+
+**Enters the battlefield**
+
+- `EntersBattlefield` — SELF, no filter. ("When this permanent enters.")
+- `OtherCreatureEnters` — OTHER binding, filter = `Creature.youControl()`.
+- `LandYouControlEnters` — landfall: OTHER binding, filter = `Land.youControl()`.
+- `entersBattlefield(filter, binding)` — factory. Covers face-down filters,
+  ANY-binding tribal scopes, permanent-you-control scopes, enchantment-enters scopes (Eerie), etc.
+
+**Leaves / dies**
+
+- `LeavesBattlefield` — SELF, any destination.
+- `Dies` — SELF, battlefield → graveyard.
+- `AnyCreatureDies` — ANY binding, filter = `Creature`.
+- `YourCreatureDies` — ANY binding, filter = `Creature.youControl()`.
+- `PutIntoGraveyardFromBattlefield` — SELF, same event shape as `Dies`; rename
+  clarifies non-creature intent (artifact / enchantment going to yard).
+- `leavesBattlefield(filter, to?, excludeTo?, binding)` — factory. `to = GRAVEYARD`
+  gives a "dies" variant scoped beyond the named constants (other tribal deaths,
+  any-controller deaths); `excludeTo = GRAVEYARD` gives "leaves without dying"
+  (Three Tree Scribe shape); leaving both null gives "leaves to any zone."
 
 ### Combat
 
