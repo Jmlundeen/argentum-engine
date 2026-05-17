@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -30,7 +29,7 @@ val GrunnTheLonelyKing = card("Grunn, the Lonely King") {
     toughness = 5
     oracleText = "Kicker {3}\nIf Grunn, the Lonely King was kicked, it enters with five +1/+1 counters on it.\nWhenever Grunn attacks alone, double its power and toughness until end of turn."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.kicker("{3}"))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

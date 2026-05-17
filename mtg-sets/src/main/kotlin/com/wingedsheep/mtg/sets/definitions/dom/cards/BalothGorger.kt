@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Counters
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -26,7 +25,7 @@ val BalothGorger = card("Baloth Gorger") {
     toughness = 4
     oracleText = "Kicker {4}\nIf this creature was kicked, it enters with three +1/+1 counters on it."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.kicker("{4}"))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

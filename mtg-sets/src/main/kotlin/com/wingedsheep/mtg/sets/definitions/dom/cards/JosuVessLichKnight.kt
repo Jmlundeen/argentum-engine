@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -29,7 +28,7 @@ val JosuVessLichKnight = card("Josu Vess, Lich Knight") {
     toughness = 5
     oracleText = "Kicker {5}{B}\nMenace\nWhen Josu Vess, Lich Knight enters, if it was kicked, create eight 2/2 black Zombie Knight creature tokens with menace."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{5}{B}")))
+    keywordAbility(KeywordAbility.kicker("{5}{B}"))
 
     keywords(Keyword.MENACE)
 

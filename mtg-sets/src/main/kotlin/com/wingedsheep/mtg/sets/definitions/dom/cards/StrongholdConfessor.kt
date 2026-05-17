@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -28,7 +27,7 @@ val StrongholdConfessor = card("Stronghold Confessor") {
     toughness = 1
     oracleText = "Kicker {3}\nMenace\nIf this creature was kicked, it enters with two +1/+1 counters on it."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.kicker("{3}"))
     keywords(Keyword.MENACE)
 
     triggeredAbility {

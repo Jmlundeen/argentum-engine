@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -29,7 +28,7 @@ val ExcavationElephant = card("Excavation Elephant") {
     toughness = 5
     oracleText = "Kicker {1}{W}\nWhen this creature enters, if it was kicked, return target artifact card from your graveyard to your hand."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}{W}")))
+    keywordAbility(KeywordAbility.kicker("{1}{W}"))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

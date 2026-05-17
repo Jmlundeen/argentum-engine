@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
@@ -23,7 +22,7 @@ val ShivanFire = card("Shivan Fire") {
     typeLine = "Instant"
     oracleText = "Kicker {4}\nShivan Fire deals 2 damage to target creature or planeswalker. If this spell was kicked, it deals 4 damage instead."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.kicker("{4}"))
 
     spell {
         val t = target("target", Targets.CreatureOrPlaneswalker)

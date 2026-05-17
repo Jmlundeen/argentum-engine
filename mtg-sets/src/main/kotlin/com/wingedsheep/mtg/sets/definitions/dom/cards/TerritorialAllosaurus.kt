@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -27,7 +26,7 @@ val TerritorialAllosaurus = card("Territorial Allosaurus") {
     toughness = 5
     oracleText = "Kicker {2}{G} (You may pay an additional {2}{G} as you cast this spell.)\nWhen this creature enters, if it was kicked, it fights another target creature."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}{G}")))
+    keywordAbility(KeywordAbility.kicker("{2}{G}"))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

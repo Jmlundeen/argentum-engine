@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -29,7 +28,7 @@ val VerixBladewing = card("Verix Bladewing") {
     toughness = 4
     oracleText = "Kicker {3}\nFlying\nWhen Verix Bladewing enters, if it was kicked, create Karox Bladewing, a legendary 4/4 red Dragon creature token with flying."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.kicker("{3}"))
 
     keywords(Keyword.FLYING)
 

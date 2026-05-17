@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -34,7 +33,7 @@ val CanopySurge = card("Canopy Surge") {
         "Canopy Surge deals 1 damage to each creature with flying and each player. " +
         "If this spell was kicked, it deals 4 damage to each creature with flying and each player instead."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
+    keywordAbility(KeywordAbility.kicker("{2}"))
 
     fun damageToFliersAndPlayers(amount: Int): Effect = CompositeEffect(
         listOf(

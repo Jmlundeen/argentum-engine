@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -27,7 +26,7 @@ val Skizzik = card("Skizzik") {
     toughness = 3
     oracleText = "Kicker {R}\nTrample, haste\nAt the beginning of the end step, if this creature wasn't kicked, sacrifice it."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{R}")))
+    keywordAbility(KeywordAbility.kicker("{R}"))
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {

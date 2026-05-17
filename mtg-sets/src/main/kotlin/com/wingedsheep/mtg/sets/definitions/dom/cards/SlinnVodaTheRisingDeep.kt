@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -29,7 +28,7 @@ val SlinnVodaTheRisingDeep = card("Slinn Voda, the Rising Deep") {
     toughness = 8
     oracleText = "Kicker {1}{U}\nWhen Slinn Voda, the Rising Deep enters, if it was kicked, return all creatures to their owners' hands except for Merfolk, Krakens, Leviathans, Octopuses, and Serpents."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}{U}")))
+    keywordAbility(KeywordAbility.kicker("{1}{U}"))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -26,7 +25,7 @@ val SergeantAtArms = card("Sergeant-at-Arms") {
     toughness = 3
     oracleText = "Kicker {2}{W}\nWhen this creature enters, if it was kicked, create two 1/1 white Soldier creature tokens."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}{W}")))
+    keywordAbility(KeywordAbility.kicker("{2}{W}"))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Counters
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -18,7 +17,7 @@ val WildOnslaught = card("Wild Onslaught") {
     typeLine = "Instant"
     oracleText = "Kicker {4} (You may pay an additional {4} as you cast this spell.)\nPut a +1/+1 counter on each creature you control. If this spell was kicked, put two +1/+1 counters on each creature you control instead."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.kicker("{4}"))
 
     spell {
         effect = ConditionalEffect(

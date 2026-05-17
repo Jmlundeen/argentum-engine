@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
+import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.KeywordAbility.Companion.kicker
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -28,7 +28,7 @@ val UrborgSkeleton = card("Urborg Skeleton") {
     toughness = 1
     oracleText = "Kicker {3}\n{B}: Regenerate this creature.\nIf this creature was kicked, it enters with a +1/+1 counter on it."
 
-    keywordAbility(kicker("{3}"))
+    keywordAbility(KeywordAbility.kicker("{3}"))
 
     activatedAbility {
         cost = Costs.Mana("{B}")

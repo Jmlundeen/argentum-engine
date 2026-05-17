@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -23,7 +22,7 @@ val BlinkOfAnEye = card("Blink of an Eye") {
     typeLine = "Instant"
     oracleText = "Kicker {1}{U}\nReturn target nonland permanent to its owner's hand. If this spell was kicked, draw a card."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}{U}")))
+    keywordAbility(KeywordAbility.kicker("{1}{U}"))
 
     spell {
         val t = target("target", Targets.NonlandPermanent)

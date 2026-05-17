@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -29,7 +28,7 @@ val KeldonOverseer = card("Keldon Overseer") {
     toughness = 1
     oracleText = "Kicker {3}{R} (You may pay an additional {3}{R} as you cast this spell.)\nHaste\nWhen this creature enters, if it was kicked, gain control of target creature until end of turn. Untap that creature. It gains haste until end of turn."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}{R}")))
+    keywordAbility(KeywordAbility.kicker("{3}{R}"))
     keywords(Keyword.HASTE)
 
     triggeredAbility {

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -23,7 +22,7 @@ val SaprolingMigration = card("Saproling Migration") {
     typeLine = "Sorcery"
     oracleText = "Kicker {4}\nCreate two 1/1 green Saproling creature tokens. If this spell was kicked, create four of those tokens instead."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{4}")))
+    keywordAbility(KeywordAbility.kicker("{4}"))
 
     spell {
         effect = ConditionalEffect(

@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -28,7 +27,7 @@ val UntamedKavu = card("Untamed Kavu") {
     toughness = 2
     oracleText = "Kicker {3}\nVigilance, trample\nIf this creature was kicked, it enters with three +1/+1 counters on it."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}")))
+    keywordAbility(KeywordAbility.kicker("{3}"))
     keywords(Keyword.VIGILANCE, Keyword.TRAMPLE)
 
     triggeredAbility {

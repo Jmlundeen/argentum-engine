@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -23,7 +22,7 @@ val GiftOfGrowth = card("Gift of Growth") {
     typeLine = "Instant"
     oracleText = "Kicker {2}\nUntap target creature. It gets +2/+2 until end of turn. If this spell was kicked, that creature gets +4/+4 until end of turn instead."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
+    keywordAbility(KeywordAbility.kicker("{2}"))
 
     spell {
         val t = target("target", Targets.Creature)

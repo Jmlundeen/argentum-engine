@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -28,7 +27,7 @@ val FightWithFire = card("Fight with Fire") {
     typeLine = "Sorcery"
     oracleText = "Kicker {5}{R} (You may pay an additional {5}{R} as you cast this spell.)\nFight with Fire deals 5 damage to target creature. If this spell was kicked, it deals 10 damage divided as you choose among any number of targets instead."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{5}{R}")))
+    keywordAbility(KeywordAbility.kicker("{5}{R}"))
 
     spell {
         // Unkicked: 5 damage to target creature

@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -27,7 +26,7 @@ val GhituChronicler = card("Ghitu Chronicler") {
     toughness = 3
     oracleText = "Kicker {3}{R}\nWhen this creature enters, if it was kicked, return target instant or sorcery card from your graveyard to your hand."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}{R}")))
+    keywordAbility(KeywordAbility.kicker("{3}{R}"))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield

@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -25,7 +24,7 @@ val GrowFromTheAshes = card("Grow from the Ashes") {
     typeLine = "Sorcery"
     oracleText = "Kicker {2} (You may pay an additional {2} as you cast this spell.)\nSearch your library for a basic land card, put it onto the battlefield, then shuffle. If this spell was kicked, instead search your library for two basic land cards, put them onto the battlefield, then shuffle."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
+    keywordAbility(KeywordAbility.kicker("{2}"))
 
     spell {
         effect = ConditionalEffect(

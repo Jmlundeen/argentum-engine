@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -28,7 +27,7 @@ val GatekeeperOfMalakir = card("Gatekeeper of Malakir") {
     toughness = 2
     oracleText = "Kicker {B} (You may pay an additional {B} as you cast this spell.)\nWhen this creature enters, if it was kicked, target player sacrifices a creature of their choice."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{B}")))
+    keywordAbility(KeywordAbility.kicker("{B}"))
 
     // When this creature enters, if it was kicked, target player sacrifices a creature of their choice.
     triggeredAbility {

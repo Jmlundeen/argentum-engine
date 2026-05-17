@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -24,7 +23,7 @@ val CaligoSkinWitch = card("Caligo Skin-Witch") {
     toughness = 3
     oracleText = "Kicker {3}{B}\nWhen this creature enters, if it was kicked, each opponent discards two cards."
 
-    keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{3}{B}")))
+    keywordAbility(KeywordAbility.kicker("{3}{B}"))
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
