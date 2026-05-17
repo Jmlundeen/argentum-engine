@@ -40,9 +40,10 @@ class TargetEnumerationUtils(
                 !playerHasHexproof(state, it) }
             is AnyTarget -> {
                 val creatures = findValidPermanentTargets(state, playerId, TargetFilter.Creature, sourceId)
+                val planeswalkers = findValidPermanentTargets(state, playerId, TargetFilter.Planeswalker, sourceId)
                 val players = state.turnOrder.filter { state.hasEntity(it) && !playerHasShroud(state, it) &&
                     !playerHasHexproofAgainst(state, it, playerId) }
-                creatures + players
+                (creatures + planeswalkers).distinct() + players
             }
             is TargetCreatureOrPlayer -> {
                 val creatures = findValidPermanentTargets(state, playerId, TargetFilter.Creature, sourceId)

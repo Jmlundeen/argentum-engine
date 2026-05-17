@@ -1,10 +1,18 @@
 package com.wingedsheep.gameserver.scenarios
 
+import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.legalactions.EnumerationMode
+import com.wingedsheep.engine.legalactions.LegalActionEnumerator
+import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.gameserver.ScenarioTestBase
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 
 /**
  * Tweeze ({2}{R}, Instant):
@@ -74,6 +82,58 @@ class TweezeScenarioTest : ScenarioTestBase() {
                 }
                 withClue("Forest should be in graveyard after discard") {
                     game.isInGraveyard(1, "Forest") shouldBe true
+                }
+            }
+
+            test("can target a planeswalker — damage removes loyalty counters") {
+                val game = scenario()
+                    .withPlayers("Alice", "Bob")
+                    .withCardInHand(1, "Tweeze")
+                    .withLandsOnBattlefield(1, "Mountain", 3)
+                    .withCardOnBattlefield(2, "Sarkhan, the Dragonspeaker")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(2, "Plains")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val sarkhanId = game.findPermanent("Sarkhan, the Dragonspeaker")!!
+                game.state = game.state.updateEntity(sarkhanId) { c ->
+                    val counters = c.get<CountersComponent>() ?: CountersComponent()
+                    c.with(counters.withAdded(CounterType.LOYALTY, 4))
+                }
+
+                // Legal-action enumeration must offer the planeswalker as a Tweeze target
+                // (regression for AnyTarget enumeration omitting planeswalkers).
+                val enumerator = LegalActionEnumerator.create(cardRegistry)
+                val actions = enumerator.enumerate(game.state, game.player1Id, EnumerationMode.FULL)
+                val tweezeAction = actions.firstOrNull {
+                    val a = it.action
+                    a is CastSpell && game.state.getEntity(a.cardId)?.get<CardComponent>()?.name == "Tweeze"
+                }
+                withClue("Tweeze should be enumerable as a cast action") {
+                    tweezeAction shouldNotBe null
+                }
+                withClue("Tweeze's 'any target' must include the planeswalker") {
+                    tweezeAction!!.validTargets!! shouldContain sarkhanId
+                }
+
+                val castResult = game.castSpell(1, "Tweeze", sarkhanId)
+                withClue("Casting Tweeze targeting the planeswalker should succeed: ${castResult.error}") {
+                    castResult.error shouldBe null
+                }
+
+                game.resolveStack()
+                // Decline the may-discard rider so the test focuses on the damage redirect.
+                game.answerYesNo(false)
+                game.resolveStack()
+
+                val counters = game.state.getEntity(sarkhanId)?.get<CountersComponent>()
+                withClue("Sarkhan should have 1 loyalty after 3 damage from Tweeze (4 - 3)") {
+                    counters?.getCount(CounterType.LOYALTY) shouldBe 1
+                }
+                withClue("Sarkhan should still be on the battlefield with 1 loyalty") {
+                    game.isOnBattlefield("Sarkhan, the Dragonspeaker") shouldBe true
                 }
             }
 
