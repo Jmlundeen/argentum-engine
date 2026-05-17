@@ -4,6 +4,7 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
+import com.wingedsheep.engine.handlers.effects.EntersWithCountersHelper
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
 import com.wingedsheep.engine.registry.CardRegistry
@@ -630,6 +631,18 @@ class MoveCollectionExecutor(
             )
             newState = transitionResult.state
             events.addAll(transitionResult.events)
+
+            // Apply "enters with counters" replacement effects when a permanent enters the
+            // battlefield from a non-stack zone (e.g., Celestial Reunion tutoring directly to
+            // play, Hideaway's free-cast pile). Face-down entries skip this — morphed creatures
+            // enter as 2/2 nameless with no replacement effects from their face-up identity.
+            if (destZone == Zone.BATTLEFIELD && !faceDown) {
+                val (counterState, counterEvents) = EntersWithCountersHelper.applyEntersWithCounters(
+                    newState, cardId, actualDestPlayerId, cardRegistry
+                )
+                newState = counterState
+                events.addAll(counterEvents)
+            }
 
             movedIds.add(cardId)
             if (destZone == Zone.LIBRARY) {
