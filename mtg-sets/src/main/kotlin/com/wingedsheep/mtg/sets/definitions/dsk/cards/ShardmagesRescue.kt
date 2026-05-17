@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.conditions.SourceEnteredThisTurn
 
 /**
  * Shardmage's Rescue
@@ -30,7 +30,7 @@ val ShardmagesRescue = card("Shardmage's Rescue") {
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.HEXPROOF),
-            condition = SourceEnteredThisTurn
+            condition = Conditions.SourceEnteredThisTurn
         )
     }
 

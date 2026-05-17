@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.model.CreatureStats
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.conditions.SourceIsUntapped
+import com.wingedsheep.sdk.dsl.Conditions
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -36,7 +36,7 @@ class SourceIsUntappedTest : FunSpec({
             staticAbilities = listOf(
                 ConditionalStaticAbility(
                     ability = GrantKeyword(Keyword.HEXPROOF, GroupFilter.source()),
-                    condition = SourceIsUntapped
+                    condition = Conditions.SourceIsUntapped
                 )
             )
         )

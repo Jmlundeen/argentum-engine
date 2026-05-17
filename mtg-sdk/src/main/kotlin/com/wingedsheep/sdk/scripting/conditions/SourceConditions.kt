@@ -3,10 +3,40 @@ package com.wingedsheep.sdk.scripting.conditions
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+// =============================================================================
+// Source Matching Primitive
+// =============================================================================
+
+/**
+ * Condition: the source permanent matches [filter].
+ *
+ * Generic source-state primitive that subsumes the older singleton conditions
+ * (`SourceIsAttacking`, `SourceIsTapped`, `SourceHasSubtype`, `SourceHasKeyword`,
+ * `SourceHasCounter`, etc.). The engine evaluates by running [filter] against
+ * the source entity via the standard predicate evaluator — works in both
+ * resolution and static-ability (projection) contexts.
+ *
+ * Card authors should prefer the `Conditions.*` DSL helpers, which build the
+ * appropriate filter for common cases (`Conditions.SourceIsAttacking`,
+ * `Conditions.SourceHasSubtype(Subtype.WALL)`, etc.).
+ */
+@SerialName("SourceMatches")
+@Serializable
+data class SourceMatches(val filter: GameObjectFilter) : Condition {
+    override val description: String =
+        if (filter == GameObjectFilter.Any) "if this permanent matches"
+        else "if this ${filter.description}"
+    override fun applyTextReplacement(replacer: TextReplacer): Condition {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
 
 // =============================================================================
 // Source Conditions
@@ -26,90 +56,17 @@ data object YouControlSource : Condition {
 }
 
 /**
- * Condition: "If this creature is attacking"
- */
-@SerialName("SourceIsAttacking")
-@Serializable
-data object SourceIsAttacking : Condition {
-    override val description: String = "if this creature is attacking"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "If this creature is blocking"
- */
-@SerialName("SourceIsBlocking")
-@Serializable
-data object SourceIsBlocking : Condition {
-    override val description: String = "if this creature is blocking"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "If this creature is tapped"
- */
-@SerialName("SourceIsTapped")
-@Serializable
-data object SourceIsTapped : Condition {
-    override val description: String = "if this creature is tapped"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "If this creature is untapped"
- */
-@SerialName("SourceIsUntapped")
-@Serializable
-data object SourceIsUntapped : Condition {
-    override val description: String = "if this creature is untapped"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "If this creature has dealt damage"
- * Used for cards like Karakyk Guardian: "has hexproof if it hasn't dealt damage yet"
- *
- * The engine tracks damage dealt history per-object since entering the battlefield.
- */
-@SerialName("SourceHasDealtDamage")
-@Serializable
-data object SourceHasDealtDamage : Condition {
-    override val description: String = "this creature has dealt damage"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
  * Condition: "As long as this permanent is modified"
- * A permanent is modified if it has one or more counters on it, has one or more
- * Equipment attached to it, or is enchanted by one or more Auras its controller controls.
- * Used for Neon Dynasty-style cards like Skyward Spider.
+ *
+ * Per CR 700.4, a permanent is modified if it has one or more counters on it, one or more
+ * Equipment attached, or is enchanted by one or more Auras its controller controls. Kept
+ * as a dedicated condition because the controller-of-source / controller-of-Aura match
+ * isn't expressible via the generic `SourceMatches` filter machinery.
  */
 @SerialName("SourceIsModified")
 @Serializable
 data object SourceIsModified : Condition {
     override val description: String = "this permanent is modified"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "If this creature has dealt combat damage to a player"
- * Used for Saboteur abilities and similar effects.
- */
-@SerialName("SourceHasDealtCombatDamageToPlayer")
-@Serializable
-data object SourceHasDealtCombatDamageToPlayer : Condition {
-    override val description: String = "this creature has dealt combat damage to a player"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "If this creature entered the battlefield this turn"
- * Used for summoning sickness checks and ETB-sensitive abilities.
- */
-@SerialName("SourceEnteredThisTurn")
-@Serializable
-data object SourceEnteredThisTurn : Condition {
-    override val description: String = "this creature entered the battlefield this turn"
     override fun applyTextReplacement(replacer: TextReplacer): Condition = this
 }
 
@@ -214,38 +171,6 @@ data class ManaSpentToCastIncludes(
 }
 
 /**
- * Condition: "As long as this creature is a [subtype]"
- * Used for cards like Mistform Wall: "This creature has defender as long as it's a Wall."
- *
- * Evaluated during state projection against projected subtypes, so type-changing
- * effects in Layer 4 are properly accounted for when checking conditions in Layer 6.
- */
-@SerialName("SourceHasSubtype")
-@Serializable
-data class SourceHasSubtype(val subtype: Subtype) : Condition {
-    override val description: String = "as long as this creature is a ${subtype.value}"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition {
-        val new = replacer.replaceSubtype(subtype)
-        return if (new == subtype) this else SourceHasSubtype(new)
-    }
-}
-
-/**
- * Condition: "As long as this creature has [keyword]"
- * Used for cards with conditional effects based on keywords, e.g.,
- * "If this creature has flying, it gets +1/+1."
- *
- * Evaluated during state projection against projected keywords, so ability-granting
- * effects in Layer 6 are properly accounted for.
- */
-@SerialName("SourceHasKeyword")
-@Serializable
-data class SourceHasKeyword(val keyword: Keyword) : Condition {
-    override val description: String = "as long as this creature has ${keyword.name.lowercase()}"
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
  * Condition: "If the chosen mode is [modeId]".
  *
  * Reads the `ChosenModeComponent` stored on the source permanent (set by an
@@ -259,18 +184,6 @@ data class SourceHasKeyword(val keyword: Keyword) : Condition {
 @Serializable
 data class SourceChosenModeIs(val modeId: String) : Condition {
     override val description: String = "if the chosen mode is \"$modeId\""
-    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
-}
-
-/**
- * Condition: "While this creature has a [counter type] counter on it"
- * Used for intervening-if triggers like Moonshadow that only fire while a specific
- * counter is present on the source permanent.
- */
-@SerialName("SourceHasCounter")
-@Serializable
-data class SourceHasCounter(val counterType: CounterTypeFilter) : Condition {
-    override val description: String = "while this creature has a ${counterType.description} counter on it"
     override fun applyTextReplacement(replacer: TextReplacer): Condition = this
 }
 

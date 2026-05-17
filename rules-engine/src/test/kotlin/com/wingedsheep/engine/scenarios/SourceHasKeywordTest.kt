@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.conditions.SourceHasKeyword
+import com.wingedsheep.sdk.dsl.Conditions
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -35,7 +35,7 @@ class SourceHasKeywordTest : FunSpec({
             staticAbilities = listOf(
                 ConditionalStaticAbility(
                     ability = ModifyStats(2, 2, GroupFilter.source()),
-                    condition = SourceHasKeyword(Keyword.FLYING)
+                    condition = Conditions.SourceHasKeyword(Keyword.FLYING)
                 )
             )
         )
@@ -52,7 +52,7 @@ class SourceHasKeywordTest : FunSpec({
             staticAbilities = listOf(
                 ConditionalStaticAbility(
                     ability = ModifyStats(2, 2, GroupFilter.source()),
-                    condition = SourceHasKeyword(Keyword.FLYING)
+                    condition = Conditions.SourceHasKeyword(Keyword.FLYING)
                 )
             )
         )

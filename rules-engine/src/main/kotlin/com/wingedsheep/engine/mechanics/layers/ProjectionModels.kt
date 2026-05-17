@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
+import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -29,7 +30,7 @@ data class ContinuousEffectSourceComponent(
 data class ContinuousEffectData(
     val modification: Modification,
     val affectsFilter: AffectsFilter? = null,
-    val sourceCondition: SourceProjectionCondition? = null
+    val sourceCondition: Condition? = null
 ) {
     val layer: Layer get() = modification.layer
     val sublayer: Sublayer? get() = modification.sublayer
@@ -180,173 +181,11 @@ data class ContinuousEffect(
     val timestamp: Long,
     val modification: Modification,
     val affectedEntities: Set<EntityId> = emptySet(),
-    val sourceCondition: SourceProjectionCondition? = null,
+    val sourceCondition: Condition? = null,
     val affectsFilter: AffectsFilter? = null
 ) {
     val layer: Layer get() = modification.layer
     val sublayer: Sublayer? get() = modification.sublayer
-}
-
-/**
- * Conditions evaluated during state projection against projected values.
- *
- * Unlike SDK Conditions (evaluated by ConditionEvaluator against base GameState),
- * these conditions are checked during layer application so they see the effects
- * of earlier layers. For example, a Layer 6 ability condition can see Layer 4
- * type changes.
- */
-@Serializable
-sealed interface SourceProjectionCondition {
-    /**
-     * The source permanent must have a specific creature subtype.
-     * Used for "has [keyword] as long as it's a [subtype]."
-     */
-    @Serializable
-    data class HasSubtype(val subtype: String) : SourceProjectionCondition
-
-    /**
-     * The source permanent must have a specific keyword.
-     * Used for "gets +X/+X as long as it has [keyword]."
-     */
-    @Serializable
-    data class HasKeyword(val keyword: String) : SourceProjectionCondition
-
-    /**
-     * The source permanent's controller must control a creature with a specific subtype.
-     * Used for "has [keyword] as long as you control a [subtype]."
-     */
-    @Serializable
-    data class ControllerControlsCreatureOfType(val subtype: String) : SourceProjectionCondition
-
-    /**
-     * The creature enchanted by the source aura must have a specific subtype.
-     * Used for "Enchanted creature gets X as long as it's a [subtype]."
-     */
-    @Serializable
-    data class EnchantedCreatureHasSubtype(val subtype: String) : SourceProjectionCondition
-
-    /**
-     * The creature enchanted by the source aura must be legendary.
-     * Used for "Enchanted creature gets X as long as it's legendary."
-     */
-    @Serializable
-    data object EnchantedCreatureIsLegendary : SourceProjectionCondition
-
-    /**
-     * An opponent of the source permanent's controller controls a creature.
-     * Used for "as long as no opponent controls a creature" (via Not wrapper).
-     */
-    @Serializable
-    data object OpponentControlsCreature : SourceProjectionCondition
-
-    /**
-     * It must be the source permanent's controller's turn.
-     * Used for "has [keyword] as long as it's your turn."
-     */
-    @Serializable
-    data object IsYourTurn : SourceProjectionCondition
-
-    /**
-     * The source permanent is tapped.
-     * Used for "has [keyword] as long as it's tapped."
-     */
-    @Serializable
-    data object SourceIsTapped : SourceProjectionCondition
-
-    /**
-     * The source permanent is untapped.
-     * Used for "has [keyword] as long as it's untapped" (e.g., Illusion Spinners).
-     */
-    @Serializable
-    data object SourceIsUntapped : SourceProjectionCondition
-
-    /**
-     * Any player controls a permanent matching the given filter.
-     * Used for "gets +X/+Y as long as any player controls a [color] permanent."
-     */
-    @Serializable
-    data class AnyPlayerControlsPermanentMatchingFilter(
-        val filter: GameObjectFilter
-    ) : SourceProjectionCondition
-
-    /**
-     * The source permanent's controller controls a permanent matching the given filter.
-     * Used for "as long as you control a [filter]" conditions.
-     *
-     * When [excludeSelf] is true, the source permanent itself is not counted, supporting
-     * "another" wording (e.g., "as long as another creature entered the battlefield under your
-     * control this turn").
-     */
-    @Serializable
-    data class ControllerControlsPermanentMatchingFilter(
-        val filter: GameObjectFilter,
-        val excludeSelf: Boolean = false
-    ) : SourceProjectionCondition
-
-    /**
-     * Negation wrapper for source projection conditions.
-     * Used for "otherwise" clauses (e.g., "Otherwise, it gets -3/-3").
-     */
-    @Serializable
-    data class Not(val condition: SourceProjectionCondition) : SourceProjectionCondition
-
-    /**
-     * The source permanent entered the battlefield this turn.
-     * Used for "as long as this Aura entered this turn" conditions.
-     */
-    @Serializable
-    data object SourceEnteredThisTurn : SourceProjectionCondition
-
-    /**
-     * The source permanent is modified (has counters, Equipment, or Auras its controller controls).
-     * Used for "has [keyword] as long as it's modified" conditions.
-     */
-    @Serializable
-    data object SourceIsModified : SourceProjectionCondition
-
-    /**
-     * Compare two DynamicAmount values using a comparison operator.
-     * Used for "as long as there are two or more instant and/or sorcery cards in your graveyard."
-     */
-    @Serializable
-    data class Compare(
-        val left: DynamicAmount,
-        val operator: ComparisonOperator,
-        val right: DynamicAmount
-    ) : SourceProjectionCondition
-
-    /**
-     * The source permanent's controller has attacked with at least [atLeast] creatures
-     * matching [filter] this turn (counted via the projected state of every attacker
-     * declared this turn). Used for cards like Deepway Navigator: "as long as you
-     * attacked with three or more Merfolk this turn".
-     */
-    @Serializable
-    data class ControllerAttackedWithCreaturesThisTurn(
-        val filter: GameObjectFilter,
-        val atLeast: Int
-    ) : SourceProjectionCondition
-
-    /**
-     * The source permanent's controller has cast at least [atLeast] spells matching
-     * [filter] this turn. Counts every spell cast (countered, fizzled, or still on
-     * the stack all count) via the per-player `CastSpellRecord` history.
-     * Used for cards like Brightspear Zealot: "as long as you've cast two or more
-     * spells this turn".
-     */
-    @Serializable
-    data class ControllerCastSpellsThisTurn(
-        val filter: GameObjectFilter,
-        val atLeast: Int
-    ) : SourceProjectionCondition
-
-    /**
-     * The source permanent's controller has the city's blessing (CR 702.131 / 700.5).
-     * Used for static abilities gated on the blessing, e.g. Tendershoot Dryad:
-     * "Saprolings you control get +2/+2 as long as you have the city's blessing."
-     */
-    @Serializable
-    data object ControllerHasCitysBlessing : SourceProjectionCondition
 }
 
 /**

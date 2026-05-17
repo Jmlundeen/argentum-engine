@@ -957,10 +957,26 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
 
 ### Source state
 
+All "source matches X" conditions desugar to `SourceMatches(filter)` — a generic predicate
+check against the source entity that works in both resolution and static-ability (projection)
+contexts.
+
+- `SourceMatches(filter)` — primitive: source entity matches a `GameObjectFilter`.
 - `SourceIsAttacking` — source is attacking.
 - `SourceIsBlocking` — source is blocking.
 - `SourceIsTapped` — source is tapped.
 - `SourceIsUntapped` — source is untapped.
+- `SourceEnteredThisTurn` — source entered the battlefield this turn.
+- `SourceHasDealtDamage` — source has dealt damage since entering the battlefield.
+- `SourceHasDealtCombatDamageToPlayer` — saboteur-style payoff gate.
+- `SourceIsModified` — has counters, attached Equipment, or controller-owned Aura
+  attached (CR 700.4). Kept as a dedicated condition because the controller-of-Aura
+  match isn't expressible via the generic `SourceMatches` machinery.
+- `SourceHasSubtype(subtype)` — `SourceMatches(GameObjectFilter.Any.withSubtype(...))`;
+  Changeling is honored.
+- `SourceHasKeyword(keyword)` — `SourceMatches(GameObjectFilter.Any.withKeyword(...))`.
+- `SourceHasCounter(counterType)` — `SourceMatches(GameObjectFilter.Any` with the
+  corresponding `StatePredicate.HasCounter` / `HasAnyCounter`).
 
 ### Turn / phase
 
@@ -970,8 +986,15 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
 
 ### Per-turn counts
 
-- `YouAttackedWithCreaturesThisTurn(filter, atLeast)` — Raid/Battalion shape.
-- `YouCastSpellsThisTurn(atLeast, filter)` — Prowess/Magecraft shape.
+All three are parameterised by a `Player` reference (default `Player.You`), so they
+work in both resolution and static-ability (projection) contexts. The DSL helpers
+default to "you" so card authors don't need to pass it explicitly.
+
+- `YouAttackedWithCreaturesThisTurn(filter, atLeast)` — Raid/Battalion shape. Backed by
+  `PlayerAttackedWithCreaturesThisTurn(Player.You, filter, atLeast)`.
+- `YouCastSpellsThisTurn(atLeast, filter)` — Prowess/Magecraft shape. Backed by
+  `PlayerCastSpellsThisTurn(Player.You, filter, atLeast)`.
+- `YouHaveCitysBlessing` — Ascend gate. Backed by `PlayerHasCitysBlessing(Player.You)`.
 - `IsFirstSpellPaidWithTreasureManaCastThisTurn` — gates a triggered ability to fire only
   on the first spell each turn that mana from a Treasure was spent to cast (Rain of
   Riches). Reads `CastSpellRecord.paidWithTreasureMana` on the per-player spell history.
@@ -985,14 +1008,22 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
 - `Exists(player, zone, filter)` — at least one matching object exists.
 - `FixedIfCondition(...)` — bake a condition into a static-ability gate.
 
-### Static-ability projection arm (`SourceProjectionCondition.*`)
+### Static-ability vs resolution-time evaluation
 
-Used inside `ConditionalStaticAbility` (projection-time evaluation):
+Every `Condition` works in both contexts: at spell/trigger resolution (full
+`EffectContext` — targets, kicker, triggering entity, etc.) and during state projection
+inside a `ConditionalStaticAbility` (only the source entity and projected values are
+known). The engine dispatches via a `ConditionEvaluationContext.Resolution` /
+`Projection` sealed type — there is **no** separate `SourceProjectionCondition` arm.
 
-- `ControllerAttackedWithCreaturesThisTurn` — Raid/Battalion as static.
-- `ControllerCastSpellsThisTurn` — Magecraft as static.
-- `ControllerHasCitysBlessing` — Ascend as static.
-- `SourceChosenModeIs("id")` — gate on the chosen mode (Sieges / EntersWithChoice).
+Conditions that need resolution-only facts (e.g. `TargetMatchesFilter`, `TriggeringEntity*`,
+`WasKicked`, `ManaSpentToCastIncludes`, `CollectionContainsMatch`) silently evaluate to
+`false` under projection — a static-ability gate is never "in the middle of casting a spell".
+
+Other gates available in both contexts:
+
+- `SourceChosenModeIs("id")` — gate on the chosen mode (Sieges / `EntersWithChoice`).
+  Currently resolution-only; can be extended to projection if needed.
 
 ---
 

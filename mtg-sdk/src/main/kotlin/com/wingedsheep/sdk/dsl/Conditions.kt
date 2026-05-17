@@ -17,14 +17,14 @@ import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand as WasCastFromHa
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone as WasCastFromZoneCondition
 import com.wingedsheep.sdk.scripting.conditions.WasKicked as WasKickedCondition
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid as BlightWasPaidCondition
-import com.wingedsheep.sdk.scripting.conditions.SourceIsAttacking as SourceIsAttackingCondition
-import com.wingedsheep.sdk.scripting.conditions.SourceIsBlocking as SourceIsBlockingCondition
-import com.wingedsheep.sdk.scripting.conditions.SourceIsTapped as SourceIsTappedCondition
-import com.wingedsheep.sdk.scripting.conditions.SourceIsUntapped as SourceIsUntappedCondition
+import com.wingedsheep.sdk.scripting.conditions.SourceMatches
+import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn as IsYourTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn as IsNotYourTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.IsInPhase as IsInPhaseCondition
-import com.wingedsheep.sdk.scripting.conditions.YouHaveCitysBlessing as YouHaveCitysBlessingCondition
+import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PlayerHasCitysBlessing
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -359,50 +359,73 @@ object Conditions {
         requiredGreen = requiredGreen
     )
 
-    /**
-     * If this creature is attacking.
-     */
+    /** If this creature is attacking. */
     val SourceIsAttacking: ConditionInterface =
-        SourceIsAttackingCondition
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.attacking())
 
-    /**
-     * If this creature is blocking.
-     */
+    /** If this creature is blocking. */
     val SourceIsBlocking: ConditionInterface =
-        SourceIsBlockingCondition
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.blocking())
 
-    /**
-     * If this permanent is tapped.
-     */
+    /** If this permanent is tapped. */
     val SourceIsTapped: ConditionInterface =
-        SourceIsTappedCondition
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.tapped())
 
-    /**
-     * If this permanent is untapped.
-     */
+    /** If this permanent is untapped. */
     val SourceIsUntapped: ConditionInterface =
-        SourceIsUntappedCondition
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.untapped())
+
+    /** If this creature has dealt damage at least once since entering the battlefield. */
+    val SourceHasDealtDamage: ConditionInterface =
+        SourceMatches(
+            com.wingedsheep.sdk.scripting.GameObjectFilter.Any
+                .copy(statePredicates = listOf(StatePredicate.HasDealtDamage))
+        )
+
+    /** If this creature has dealt combat damage to a player (Saboteur-style payoffs). */
+    val SourceHasDealtCombatDamageToPlayer: ConditionInterface =
+        SourceMatches(
+            com.wingedsheep.sdk.scripting.GameObjectFilter.Any
+                .copy(statePredicates = listOf(StatePredicate.HasDealtCombatDamageToPlayer))
+        )
+
+    /** If this permanent entered the battlefield this turn. */
+    val SourceEnteredThisTurn: ConditionInterface =
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.enteredThisTurn())
 
     /**
      * As long as this creature is a specific subtype.
      * Used for conditional static abilities like "has defender as long as it's a Wall."
      */
     fun SourceHasSubtype(subtype: Subtype): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.SourceHasSubtype(subtype)
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.withSubtype(subtype))
 
     /**
      * As long as this creature has a specific keyword.
      * Used for conditional effects like "If this creature has flying, it gets +1/+1."
      */
     fun SourceHasKeyword(keyword: Keyword): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.SourceHasKeyword(keyword)
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.withKeyword(keyword))
 
     /**
      * While this creature has a counter of the given type on it.
      * Used for intervening-if triggers like Moonshadow.
      */
-    fun SourceHasCounter(counterType: CounterTypeFilter): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.SourceHasCounter(counterType)
+    fun SourceHasCounter(counterType: CounterTypeFilter): ConditionInterface {
+        val predicate: StatePredicate = when (counterType) {
+            is CounterTypeFilter.Any -> StatePredicate.HasAnyCounter
+            is CounterTypeFilter.PlusOnePlusOne -> StatePredicate.HasCounter("PLUS_ONE_PLUS_ONE")
+            is CounterTypeFilter.MinusOneMinusOne -> StatePredicate.HasCounter("MINUS_ONE_MINUS_ONE")
+            is CounterTypeFilter.Loyalty -> StatePredicate.HasCounter("LOYALTY")
+            is CounterTypeFilter.Named -> StatePredicate.HasCounter(
+                counterType.name.uppercase().replace(' ', '_')
+            )
+        }
+        return SourceMatches(
+            com.wingedsheep.sdk.scripting.GameObjectFilter.Any
+                .copy(statePredicates = listOf(predicate))
+        )
+    }
 
     /**
      * If a permanent with the given subtype was sacrificed as part of the cost.
@@ -447,7 +470,7 @@ object Conditions {
         filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
         atLeast: Int
     ): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.YouAttackedWithCreaturesThisTurn(filter, atLeast)
+        PlayerAttackedWithCreaturesThisTurn(Player.You, filter, atLeast)
 
     /**
      * As long as you've cast [atLeast] or more spells matching [filter] this turn.
@@ -459,7 +482,7 @@ object Conditions {
         atLeast: Int,
         filter: com.wingedsheep.sdk.scripting.GameObjectFilter = com.wingedsheep.sdk.scripting.GameObjectFilter.Any
     ): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.YouCastSpellsThisTurn(filter, atLeast)
+        PlayerCastSpellsThisTurn(Player.You, filter, atLeast)
 
     /**
      * If this is the first spell you've cast this turn that mana from a Treasure was
@@ -595,7 +618,7 @@ object Conditions {
      * ETB; once granted, never lost for the rest of the game.
      */
     val YouHaveCitysBlessing: ConditionInterface =
-        YouHaveCitysBlessingCondition
+        PlayerHasCitysBlessing(Player.You)
 
     // =========================================================================
     // Trigger Entity Conditions

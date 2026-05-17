@@ -1,8 +1,12 @@
 package com.wingedsheep.engine.handlers
 
+import com.wingedsheep.engine.handlers.ConditionEvaluationContext.Projection
+import com.wingedsheep.engine.handlers.ConditionEvaluationContext.Resolution
 import com.wingedsheep.engine.state.CastSpellRecord
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.CastFromHandComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -43,19 +47,10 @@ import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
 import com.wingedsheep.sdk.scripting.conditions.OpponentSpellOnStack
-import com.wingedsheep.sdk.scripting.conditions.SourceEnteredThisTurn
 import com.wingedsheep.sdk.scripting.conditions.SourceIsModified
-import com.wingedsheep.sdk.scripting.conditions.SourceHasDealtCombatDamageToPlayer
-import com.wingedsheep.sdk.scripting.conditions.SourceHasDealtDamage
-import com.wingedsheep.sdk.scripting.conditions.SourceHasCounter
-import com.wingedsheep.sdk.scripting.conditions.SourceHasKeyword
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
+import com.wingedsheep.sdk.scripting.conditions.SourceMatches
 import com.wingedsheep.engine.state.components.identity.ChosenModeComponent
-import com.wingedsheep.sdk.scripting.conditions.SourceHasSubtype
-import com.wingedsheep.sdk.scripting.conditions.SourceIsAttacking
-import com.wingedsheep.sdk.scripting.conditions.SourceIsBlocking
-import com.wingedsheep.sdk.scripting.conditions.SourceIsTapped
-import com.wingedsheep.sdk.scripting.conditions.SourceIsUntapped
 import com.wingedsheep.sdk.scripting.conditions.WasCast
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone
@@ -75,12 +70,12 @@ import com.wingedsheep.sdk.scripting.conditions.ManaSpentToCastIncludes
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
-import com.wingedsheep.sdk.scripting.conditions.YouAttackedWithCreaturesThisTurn
-import com.wingedsheep.sdk.scripting.conditions.YouCastSpellsThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PlayerHasCitysBlessing
 import com.wingedsheep.sdk.scripting.conditions.CreatureDiedThisTurnCondition
 import com.wingedsheep.engine.handlers.triggers.CreatureDiedThisTurnConditionEvaluator
 import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
-import com.wingedsheep.sdk.scripting.conditions.YouHaveCitysBlessing
 import com.wingedsheep.sdk.scripting.conditions.VoidCondition
 import com.wingedsheep.engine.state.components.player.PlayerCitysBlessingComponent
 
@@ -92,97 +87,129 @@ class ConditionEvaluator {
     private val dynamicAmountEvaluator = DynamicAmountEvaluator(this)
 
     /**
-     * Evaluate a condition and return true if met.
+     * Evaluate a condition at resolution time, when a full [EffectContext] is available.
+     * Thin wrapper over the dual-mode [evaluate] below.
      */
     fun evaluate(
         state: GameState,
         condition: Condition,
         context: EffectContext
+    ): Boolean = evaluate(state, condition, Resolution(context))
+
+    /**
+     * Evaluate a condition in either resolution or projection mode.
+     *
+     * Conditions that need resolution-time facts (targets, triggering entity, cast-from
+     * zone, kicker state, etc.) return `false` in projection mode — a static-ability gate
+     * never sees those facts.
+     */
+    internal fun evaluate(
+        state: GameState,
+        condition: Condition,
+        ctx: ConditionEvaluationContext
     ): Boolean {
+        // Helper: dispatch a resolution-only branch, returning false when running under projection.
+        fun ifResolution(fn: (EffectContext) -> Boolean): Boolean =
+            (ctx as? Resolution)?.let { fn(it.effectContext) } ?: false
+
         return when (condition) {
-            // Generic primitives
-            is Compare -> evaluateCompare(state, condition, context)
-            is Exists -> evaluateExists(state, condition, context)
+            // ============================================================
+            // Dual-mode primitives (work in both resolution and projection)
+            // ============================================================
+            is Compare -> evaluateCompareCtx(state, condition, ctx)
+            is Exists -> evaluateExistsCtx(state, condition, ctx)
 
-            // Battlefield conditions (non-generic)
-            is APlayerControlsMostOfSubtype -> evaluateAPlayerControlsMostOfSubtype(state, condition)
-            is YouControlMostOfChosenType -> evaluateYouControlMostOfChosenType(state, condition, context)
-            is EnchantedCreatureHasSubtype -> evaluateEnchantedCreatureHasSubtype(state, condition, context)
-            is EnchantedCreatureIsLegendary -> evaluateEnchantedCreatureIsLegendary(state, context)
+            is IsYourTurn -> ctx.controllerId?.let { state.activePlayerId == it } ?: false
+            is IsNotYourTurn -> ctx.controllerId?.let { state.activePlayerId != it } ?: false
 
-            // Source conditions
-            is YouControlSource -> evaluateYouControlSource(state, context)
-            is WasCast -> evaluateWasCast(state, context)
-            is WasCastFromHand -> evaluateWasCastFromHand(state, context)
-            is WasCastFromZone -> evaluateWasCastFromZone(state, condition, context)
-            is WasKicked -> evaluateWasKicked(state, context)
-            is BlightWasPaid -> context.wasBlightPaid
-            is ManaSpentToCastIncludes -> evaluateManaSpentToCastIncludes(state, condition, context)
-            is SourceIsAttacking -> evaluateSourceAttacking(state, context)
-            is SourceIsBlocking -> evaluateSourceBlocking(state, context)
-            is SourceIsTapped -> evaluateSourceTapped(state, context)
-            is SourceIsUntapped -> evaluateSourceUntapped(state, context)
-            is SourceEnteredThisTurn -> evaluateSourceEnteredThisTurn(state, context)
-            is SourceIsModified -> evaluateSourceIsModified(state, context)
-            is SourceHasDealtDamage -> evaluateSourceHasDealtDamage(state, context)
-            is SourceHasDealtCombatDamageToPlayer -> evaluateSourceHasDealtCombatDamageToPlayer(state, context)
-            is SourceHasSubtype -> evaluateSourceHasSubtype(state, condition, context)
-            is SourceHasKeyword -> evaluateSourceHasKeyword(state, condition, context)
-            is SourceChosenModeIs -> {
-                val sourceId = context.sourceId
-                sourceId != null &&
-                    state.getEntity(sourceId)?.get<ChosenModeComponent>()?.modeId == condition.modeId
-            }
-            is SourceHasCounter -> evaluateSourceHasCounter(state, condition, context)
-            is SacrificedPermanentHadSubtype -> evaluateSacrificedPermanentHadSubtype(condition, context)
-            is TriggeringEntityWasHistoric -> evaluateTriggeringEntityWasHistoric(state, context)
-            is TriggeringEntityEnteredOrWasCastFromGraveyard ->
-                evaluateTriggeringEntityEnteredOrWasCastFromGraveyard(state, context)
-            is TriggeringEntityHadMinusOneMinusOneCounter ->
-                (context.triggerMinusOneMinusOneCounterCount ?: 0) > 0
-            is TriggeringEntityWasNotPutByThisSource ->
-                evaluateTriggeringEntityWasNotPutByThisSource(state, context)
-            is TriggeringSpellHasSingleTarget -> evaluateTriggeringSpellHasSingleTarget(state, context)
-            is TargetMatchesFilter -> evaluateTargetMatchesFilter(state, condition, context)
+            // Generic source-state primitive — predicate-evaluator against the source entity.
+            is SourceMatches -> evaluateSourceMatchesCtx(state, condition, ctx)
 
-            // Turn conditions
-            is IsYourTurn -> evaluateIsYourTurn(state, context)
-            is IsNotYourTurn -> !evaluateIsYourTurn(state, context)
-            is IsInPhase -> evaluateIsInPhase(state, condition, context)
-            is YouAttackedWithCreaturesThisTurn -> evaluateYouAttackedWithCreaturesThisTurn(state, condition, context)
-            is YouWereAttackedThisStep -> evaluateYouWereAttackedThisStep(state, context)
-            is IsFirstSpellOfTypeCastThisTurn -> evaluateFirstSpellOfType(state, condition, context)
-            is IsFirstSpellPaidWithTreasureManaCastThisTurn ->
-                evaluateFirstSpellPaidWithTreasureMana(state, context)
-            is YouCastSpellsThisTurn -> evaluateYouCastSpellsThisTurn(state, condition, context)
-            is SourceAbilityResolvedNTimesThisTurn -> evaluateSourceAbilityResolvedNTimes(state, condition, context)
+            // Aura-controller-aware modified check (CR 700.4) — distinct enough from the
+            // generic StatePredicate.IsModified to warrant its own branch.
+            is SourceIsModified -> evaluateSourceIsModifiedCtx(state, ctx)
 
-            // Void (Edge of Eternities ability word)
+            is EnchantedCreatureHasSubtype -> evaluateEnchantedCreatureHasSubtypeCtx(state, condition, ctx)
+            is EnchantedCreatureIsLegendary -> evaluateEnchantedCreatureIsLegendaryCtx(state, ctx)
+
+            // Player-relative trackers (resolve [Player] against the current context).
+            is PlayerAttackedWithCreaturesThisTurn -> evaluateAttackedWithCreaturesCtx(state, condition, ctx)
+            is PlayerCastSpellsThisTurn -> evaluateCastSpellsThisTurnCtx(state, condition, ctx)
+            is PlayerHasCitysBlessing -> evaluateHasCitysBlessingCtx(state, condition, ctx)
+
+            // Global facts (no controller/source needed).
             is VoidCondition ->
                 state.nonlandPermanentLeftBattlefieldThisTurn || state.spellWarpedThisTurn
 
-            // City's blessing (Ixalan, CR 702.131 / 700.5)
-            is YouHaveCitysBlessing -> evaluateYouHaveCitysBlessing(state, context)
+            // Composites recurse with the same ctx.
+            is AllConditions -> condition.conditions.all { evaluate(state, it, ctx) }
+            is AnyCondition -> condition.conditions.any { evaluate(state, it, ctx) }
+            is NotCondition -> !evaluate(state, condition.condition, ctx)
 
-            // Stack conditions
-            is OpponentSpellOnStack -> evaluateOpponentSpellOnStack(state, context)
-
-            // Collection conditions
-            is CollectionContainsMatch -> evaluateCollectionContainsMatch(state, condition, context)
-
-            // Death conditions
-            is CreatureDiedThisTurnCondition -> CreatureDiedThisTurnConditionEvaluator().evaluate(state, condition, context)
-
-            // Composite conditions
-            is AllConditions -> condition.conditions.all { evaluate(state, it, context) }
-            is AnyCondition -> condition.conditions.any { evaluate(state, it, context) }
-            is NotCondition -> !evaluate(state, condition.condition, context)
+            // ============================================================
+            // Resolution-only conditions — false under projection.
+            // ============================================================
+            is APlayerControlsMostOfSubtype -> ifResolution { evaluateAPlayerControlsMostOfSubtype(state, condition) }
+            is YouControlMostOfChosenType -> ifResolution { evaluateYouControlMostOfChosenType(state, condition, it) }
+            is YouControlSource -> ifResolution { evaluateYouControlSource(state, it) }
+            is WasCast -> ifResolution { evaluateWasCast(state, it) }
+            is WasCastFromHand -> ifResolution { evaluateWasCastFromHand(state, it) }
+            is WasCastFromZone -> ifResolution { evaluateWasCastFromZone(state, condition, it) }
+            is WasKicked -> ifResolution { evaluateWasKicked(state, it) }
+            is BlightWasPaid -> ifResolution { it.wasBlightPaid }
+            is ManaSpentToCastIncludes -> ifResolution { evaluateManaSpentToCastIncludes(state, condition, it) }
+            is SourceChosenModeIs -> ifResolution {
+                val sourceId = it.sourceId
+                sourceId != null &&
+                    state.getEntity(sourceId)?.get<ChosenModeComponent>()?.modeId == condition.modeId
+            }
+            is SacrificedPermanentHadSubtype -> ifResolution { evaluateSacrificedPermanentHadSubtype(condition, it) }
+            is TriggeringEntityWasHistoric -> ifResolution { evaluateTriggeringEntityWasHistoric(state, it) }
+            is TriggeringEntityEnteredOrWasCastFromGraveyard ->
+                ifResolution { evaluateTriggeringEntityEnteredOrWasCastFromGraveyard(state, it) }
+            is TriggeringEntityHadMinusOneMinusOneCounter ->
+                ifResolution { (it.triggerMinusOneMinusOneCounterCount ?: 0) > 0 }
+            is TriggeringEntityWasNotPutByThisSource ->
+                ifResolution { evaluateTriggeringEntityWasNotPutByThisSource(state, it) }
+            is TriggeringSpellHasSingleTarget -> ifResolution { evaluateTriggeringSpellHasSingleTarget(state, it) }
+            is TargetMatchesFilter -> ifResolution { evaluateTargetMatchesFilter(state, condition, it) }
+            is IsInPhase -> ifResolution { evaluateIsInPhase(state, condition, it) }
+            is YouWereAttackedThisStep -> ifResolution { evaluateYouWereAttackedThisStep(state, it) }
+            is IsFirstSpellOfTypeCastThisTurn -> ifResolution { evaluateFirstSpellOfType(state, condition, it) }
+            is IsFirstSpellPaidWithTreasureManaCastThisTurn ->
+                ifResolution { evaluateFirstSpellPaidWithTreasureMana(state, it) }
+            is SourceAbilityResolvedNTimesThisTurn -> ifResolution { evaluateSourceAbilityResolvedNTimes(state, condition, it) }
+            is OpponentSpellOnStack -> ifResolution { evaluateOpponentSpellOnStack(state, it) }
+            is CollectionContainsMatch -> ifResolution { evaluateCollectionContainsMatch(state, condition, it) }
+            is CreatureDiedThisTurnCondition ->
+                ifResolution { CreatureDiedThisTurnConditionEvaluator().evaluate(state, condition, it) }
         }
     }
 
-    private fun evaluateCompare(state: GameState, condition: Compare, context: EffectContext): Boolean {
-        val left = dynamicAmountEvaluator.evaluate(state, condition.left, context)
-        val right = dynamicAmountEvaluator.evaluate(state, condition.right, context)
+    // ================================================================================
+    // Dual-mode evaluators (resolve via [ConditionEvaluationContext]).
+    // ================================================================================
+
+    private fun syntheticEffectContext(state: GameState, ctx: ConditionEvaluationContext): EffectContext? {
+        val controllerId = ctx.controllerId ?: return null
+        return EffectContext(
+            sourceId = ctx.sourceId,
+            controllerId = controllerId,
+            opponentId = state.getOpponent(controllerId)
+        )
+    }
+
+    private fun evaluateCompareCtx(
+        state: GameState,
+        condition: Compare,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val effectCtx = when (ctx) {
+            is Resolution -> ctx.effectContext
+            is Projection -> syntheticEffectContext(state, ctx) ?: return false
+        }
+        val left = dynamicAmountEvaluator.evaluate(state, condition.left, effectCtx)
+        val right = dynamicAmountEvaluator.evaluate(state, condition.right, effectCtx)
         return when (condition.operator) {
             ComparisonOperator.LT -> left < right
             ComparisonOperator.LTE -> left <= right
@@ -193,33 +220,52 @@ class ConditionEvaluator {
         }
     }
 
-    private fun evaluateExists(state: GameState, condition: Exists, context: EffectContext): Boolean {
-        val predicateEvaluator = PredicateEvaluator()
-        val predicateContext = PredicateContext.fromEffectContext(context)
-        val projected = state.projectedState
+    private fun evaluateSourceMatchesCtx(
+        state: GameState,
+        condition: SourceMatches,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val sourceId = ctx.sourceId ?: return false
+        val projected = ctx.projectedStateFor(state)
+        val predicateContext = when (ctx) {
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Projection -> ctx.controllerId?.let { PredicateContext(controllerId = it) }
+                ?: PredicateContext(controllerId = sourceId)
+        }
+        return PredicateEvaluator().matches(state, projected, sourceId, condition.filter, predicateContext)
+    }
 
-        val playerIds = when (condition.player) {
-            is com.wingedsheep.sdk.scripting.references.Player.You -> listOf(context.controllerId)
-            is com.wingedsheep.sdk.scripting.references.Player.Opponent -> state.turnOrder.filter { it != context.controllerId }
-            is com.wingedsheep.sdk.scripting.references.Player.EachOpponent -> state.turnOrder.filter { it != context.controllerId }
-            is com.wingedsheep.sdk.scripting.references.Player.Each -> state.turnOrder
-            else -> listOf(context.controllerId)
+    private fun evaluateExistsCtx(
+        state: GameState,
+        condition: Exists,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val predicateEvaluator = PredicateEvaluator()
+        val controllerId = ctx.controllerId
+        val projected = ctx.projectedStateFor(state)
+        val predicateContext = when (ctx) {
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Projection -> controllerId?.let { PredicateContext(controllerId = it) } ?: return condition.negate
+        }
+
+        val playerIds: List<EntityId> = when (condition.player) {
+            is Player.You -> controllerId?.let { listOf(it) } ?: emptyList()
+            is Player.Opponent -> controllerId?.let { c -> state.turnOrder.filter { it != c } } ?: emptyList()
+            is Player.EachOpponent -> controllerId?.let { c -> state.turnOrder.filter { it != c } } ?: emptyList()
+            is Player.Each -> state.turnOrder
+            is Player.Any -> state.turnOrder
+            else -> controllerId?.let { listOf(it) } ?: emptyList()
         }
 
         val found = playerIds.any { playerId ->
             var entities = if (condition.zone == Zone.BATTLEFIELD) {
-                state.getBattlefield().filter { entityId ->
-                    projected.getController(entityId) == playerId
-                }
+                state.getBattlefield().filter { entityId -> projected.getController(entityId) == playerId }
             } else {
                 state.getZone(ZoneKey(playerId, condition.zone))
             }
-
-            // Exclude the source entity for "another" wording
             if (condition.excludeSelf) {
-                entities = entities.filter { it != context.sourceId }
+                entities = entities.filter { it != ctx.sourceId }
             }
-
             if (condition.filter == GameObjectFilter.Any) {
                 entities.isNotEmpty()
             } else {
@@ -228,8 +274,146 @@ class ConditionEvaluator {
                 }
             }
         }
-
         return if (condition.negate) !found else found
+    }
+
+    private fun evaluateSourceIsModifiedCtx(state: GameState, ctx: ConditionEvaluationContext): Boolean {
+        val sourceId = ctx.sourceId ?: return false
+        val entity = state.getEntity(sourceId) ?: return false
+        val controllerId = ctx.controllerId
+
+        val counters = entity.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
+        if (counters != null && counters.counters.values.any { it > 0 }) return true
+
+        for (permanentId in state.getBattlefield()) {
+            if (permanentId == sourceId) continue
+            val container = state.getEntity(permanentId) ?: continue
+            val attachedTo = container.get<AttachedToComponent>()?.targetId ?: continue
+            if (attachedTo != sourceId) continue
+            val card = container.get<CardComponent>() ?: continue
+
+            if (card.typeLine.hasSubtype(Subtype.EQUIPMENT)) return true
+
+            if (card.typeLine.hasSubtype(Subtype.AURA)) {
+                val auraController = when (ctx) {
+                    is Resolution -> container.get<ControllerComponent>()?.playerId
+                    is Projection -> ctx.projectedValues[permanentId]?.controllerId
+                        ?: container.get<ControllerComponent>()?.playerId
+                }
+                if (auraController == controllerId) return true
+            }
+        }
+        return false
+    }
+
+    private fun evaluateEnchantedCreatureHasSubtypeCtx(
+        state: GameState,
+        condition: EnchantedCreatureHasSubtype,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val sourceId = ctx.sourceId ?: return false
+        val attached = state.getEntity(sourceId)?.get<AttachedToComponent>()?.targetId
+        val creatureId = attached ?: when (ctx) {
+            is Resolution -> sourceId  // resolution-mode fallback (granted-ability scope)
+            is Projection -> return false
+        }
+        return ctx.projectedStateFor(state).hasSubtype(creatureId, condition.subtype.value)
+    }
+
+    private fun evaluateEnchantedCreatureIsLegendaryCtx(
+        state: GameState,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val sourceId = ctx.sourceId ?: return false
+        val attached = state.getEntity(sourceId)?.get<AttachedToComponent>()?.targetId
+        val creatureId = attached ?: when (ctx) {
+            is Resolution -> sourceId
+            is Projection -> return false
+        }
+        return "LEGENDARY" in ctx.projectedStateFor(state).getTypes(creatureId)
+    }
+
+    /**
+     * Resolve a [Player] reference against the current evaluation context.
+     *
+     * - [Player.You]: controller-of-source (resolution: effectContext.controllerId;
+     *   projection: source's projected controller).
+     * - [Player.Opponent]: any opponent of the controller. Returns the first opponent
+     *   in turn order — sufficient for per-player tracker reads where each player has
+     *   its own bucket.
+     * - [Player.TriggeringPlayer]: only resolvable in resolution mode.
+     * - Other relational forms are not currently supported by the player-relative
+     *   conditions and return `null`.
+     */
+    private fun resolvePlayer(state: GameState, player: Player, ctx: ConditionEvaluationContext): EntityId? {
+        return when (player) {
+            is Player.You -> ctx.controllerId
+                ?: ctx.sourceId?.let { state.getEntity(it)?.get<ControllerComponent>()?.playerId }
+            is Player.Opponent -> {
+                val c = ctx.controllerId ?: return null
+                state.turnOrder.firstOrNull { it != c }
+            }
+            is Player.TriggeringPlayer -> (ctx as? Resolution)?.effectContext?.triggeringPlayerId
+            else -> null
+        }
+    }
+
+    private fun evaluateAttackedWithCreaturesCtx(
+        state: GameState,
+        condition: PlayerAttackedWithCreaturesThisTurn,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        if (condition.atLeast <= 0) return true
+        val playerId = resolvePlayer(state, condition.player, ctx) ?: return false
+        val attackerIds = state.getEntity(playerId)
+            ?.get<PlayerAttackersThisTurnComponent>()
+            ?.attackerIds
+            ?: emptySet()
+        if (attackerIds.size < condition.atLeast) return false
+        val predicateEvaluator = PredicateEvaluator()
+        val predicateContext = when (ctx) {
+            is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
+            is Projection -> PredicateContext(controllerId = playerId)
+        }
+        val projected = ctx.projectedStateFor(state)
+        var matches = 0
+        for (id in attackerIds) {
+            if (predicateEvaluator.matches(state, projected, id, condition.filter, predicateContext)) {
+                matches++
+                if (matches >= condition.atLeast) return true
+            }
+        }
+        return false
+    }
+
+    private fun evaluateCastSpellsThisTurnCtx(
+        state: GameState,
+        condition: PlayerCastSpellsThisTurn,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        if (condition.atLeast <= 0) return true
+        val playerId = resolvePlayer(state, condition.player, ctx) ?: return false
+        val records = state.spellsCastThisTurnByPlayer[playerId] ?: return false
+        if (records.size < condition.atLeast) return false
+        if (condition.filter == GameObjectFilter.Any) return true
+        val evaluator = PredicateEvaluator()
+        var matches = 0
+        for (record in records) {
+            if (evaluator.matchesFilter(record, condition.filter)) {
+                matches++
+                if (matches >= condition.atLeast) return true
+            }
+        }
+        return false
+    }
+
+    private fun evaluateHasCitysBlessingCtx(
+        state: GameState,
+        condition: PlayerHasCitysBlessing,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val playerId = resolvePlayer(state, condition.player, ctx) ?: return false
+        return state.getEntity(playerId)?.has<PlayerCitysBlessingComponent>() == true
     }
 
     private fun evaluateYouControlSource(state: GameState, context: EffectContext): Boolean {
@@ -290,111 +474,9 @@ class ConditionEvaluator {
             record.greenSpent >= condition.requiredGreen
     }
 
-    private fun evaluateSourceAttacking(state: GameState, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        return state.getEntity(sourceId)?.has<AttackingComponent>() == true
-    }
-
-    private fun evaluateSourceBlocking(state: GameState, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        return state.getEntity(sourceId)?.has<BlockingComponent>() == true
-    }
-
-    private fun evaluateSourceTapped(state: GameState, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        return state.getEntity(sourceId)?.has<TappedComponent>() == true
-    }
-
-    private fun evaluateSourceUntapped(state: GameState, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        return state.getEntity(sourceId)?.has<TappedComponent>() != true
-    }
-
-    private fun evaluateIsYourTurn(state: GameState, context: EffectContext): Boolean {
-        return state.activePlayerId == context.controllerId
-    }
-
     private fun evaluateIsInPhase(state: GameState, condition: IsInPhase, context: EffectContext): Boolean {
         if (condition.yoursOnly && state.activePlayerId != context.controllerId) return false
         return state.phase in condition.phases
-    }
-
-    private fun evaluateSourceEnteredThisTurn(state: GameState, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        return state.getEntity(sourceId)?.has<EnteredThisTurnComponent>() == true
-    }
-
-    private fun evaluateSourceIsModified(state: GameState, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        val entity = state.getEntity(sourceId) ?: return false
-        val controllerId = context.controllerId
-
-        // Has any counter
-        val counters = entity.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
-        if (counters != null && counters.counters.values.any { it > 0 }) return true
-
-        // Has attached Equipment or Auras controlled by this permanent's controller
-        for (permanentId in state.getBattlefield()) {
-            if (permanentId == sourceId) continue
-            val container = state.getEntity(permanentId) ?: continue
-            val attachedTo = container.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
-                ?.targetId ?: continue
-            if (attachedTo != sourceId) continue
-            val card = container.get<com.wingedsheep.engine.state.components.identity.CardComponent>() ?: continue
-
-            if (card.typeLine.hasSubtype(com.wingedsheep.sdk.core.Subtype.EQUIPMENT)) return true
-
-            if (card.typeLine.hasSubtype(com.wingedsheep.sdk.core.Subtype.AURA)) {
-                val auraController = container.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
-                if (auraController == controllerId) return true
-            }
-        }
-        return false
-    }
-
-    private fun evaluateSourceHasDealtDamage(state: GameState, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        return state.getEntity(sourceId)?.has<HasDealtDamageComponent>() == true
-    }
-
-    private fun evaluateSourceHasSubtype(state: GameState, condition: SourceHasSubtype, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        val card = state.getEntity(sourceId)?.get<CardComponent>() ?: return false
-
-        // For battlefield permanents, check projected subtypes so continuous effects
-        // (e.g., Figure of Fable becoming a Scout) are honored.
-        if (sourceId in state.getBattlefield()) {
-            val projectedSubtypes = state.projectedState.getSubtypes(sourceId)
-            if (condition.subtype.value in projectedSubtypes) return true
-        } else if (card.typeLine.hasSubtype(condition.subtype)) {
-            return true
-        }
-
-        // Changeling: has all creature types in all zones
-        return Keyword.CHANGELING in card.baseKeywords && condition.subtype.value in Subtype.ALL_CREATURE_TYPES
-    }
-
-    private fun evaluateSourceHasKeyword(state: GameState, condition: SourceHasKeyword, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        val projected = state.projectedState
-        return projected.hasKeyword(sourceId, condition.keyword)
-    }
-
-    private fun evaluateSourceHasCounter(state: GameState, condition: SourceHasCounter, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        val counters = state.getEntity(sourceId)?.get<CountersComponent>() ?: return false
-        val counterType = resolveCounterType(condition.counterType) ?: return counters.counters.isNotEmpty()
-        return counters.getCount(counterType) > 0
-    }
-
-    private fun resolveCounterType(filter: CounterTypeFilter): CounterType? = when (filter) {
-        is CounterTypeFilter.Any -> null
-        is CounterTypeFilter.PlusOnePlusOne -> CounterType.PLUS_ONE_PLUS_ONE
-        is CounterTypeFilter.MinusOneMinusOne -> CounterType.MINUS_ONE_MINUS_ONE
-        is CounterTypeFilter.Loyalty -> CounterType.LOYALTY
-        is CounterTypeFilter.Named -> runCatching {
-            CounterType.valueOf(filter.name.uppercase().replace(' ', '_'))
-        }.getOrNull()
     }
 
     private fun evaluateSacrificedPermanentHadSubtype(
@@ -404,32 +486,6 @@ class ConditionEvaluator {
         return context.sacrificedPermanents.any { snapshot ->
             snapshot.subtypes.contains(condition.subtype)
         }
-    }
-
-    private fun evaluateSourceHasDealtCombatDamageToPlayer(state: GameState, context: EffectContext): Boolean {
-        val sourceId = context.sourceId ?: return false
-        return state.getEntity(sourceId)?.has<HasDealtCombatDamageToPlayerComponent>() == true
-    }
-
-    private fun evaluateYouAttackedWithCreaturesThisTurn(
-        state: GameState,
-        condition: YouAttackedWithCreaturesThisTurn,
-        context: EffectContext
-    ): Boolean {
-        val attackerIds = state.getEntity(context.controllerId)
-            ?.get<PlayerAttackersThisTurnComponent>()?.attackerIds ?: return condition.atLeast <= 0
-        if (attackerIds.size < condition.atLeast) return false
-        val predicateEvaluator = PredicateEvaluator()
-        val predicateContext = PredicateContext.fromEffectContext(context)
-        val projected = state.projectedState
-        var matches = 0
-        for (id in attackerIds) {
-            if (predicateEvaluator.matches(state, projected, id, condition.filter, predicateContext)) {
-                matches++
-                if (matches >= condition.atLeast) return true
-            }
-        }
-        return false
     }
 
     private fun evaluateYouWereAttackedThisStep(state: GameState, context: EffectContext): Boolean {
@@ -484,28 +540,6 @@ class ConditionEvaluator {
         if (controllerCount == 0) return false
 
         return counts.filter { it.key != controllerId }.all { controllerCount > it.value }
-    }
-
-    private fun evaluateEnchantedCreatureHasSubtype(
-        state: GameState,
-        condition: EnchantedCreatureHasSubtype,
-        context: EffectContext
-    ): Boolean {
-        val sourceId = context.sourceId ?: return false
-        // If sourceId has AttachedToComponent, it's the aura — check the attached creature.
-        // Otherwise, the source IS the enchanted creature (ability was granted via GrantActivatedAbility with attachedCreature scope).
-        val creatureId = state.getEntity(sourceId)?.get<AttachedToComponent>()?.targetId ?: sourceId
-        val projected = state.projectedState
-        return projected.hasSubtype(creatureId, condition.subtype.value)
-    }
-
-    private fun evaluateEnchantedCreatureIsLegendary(
-        state: GameState,
-        context: EffectContext
-    ): Boolean {
-        val sourceId = context.sourceId ?: return false
-        val creatureId = state.getEntity(sourceId)?.get<AttachedToComponent>()?.targetId ?: sourceId
-        return "LEGENDARY" in state.projectedState.getTypes(creatureId)
     }
 
     private fun evaluateTriggeringEntityWasHistoric(state: GameState, context: EffectContext): Boolean {
@@ -597,28 +631,6 @@ class ConditionEvaluator {
             records.lastOrNull()?.paidWithTreasureMana == true
     }
 
-    private fun evaluateYouCastSpellsThisTurn(
-        state: GameState,
-        condition: YouCastSpellsThisTurn,
-        context: EffectContext
-    ): Boolean {
-        if (condition.atLeast <= 0) return true
-        val records = state.spellsCastThisTurnByPlayer[context.controllerId] ?: return false
-        if (records.size < condition.atLeast) return false
-        if (condition.filter == com.wingedsheep.sdk.scripting.GameObjectFilter.Any) {
-            return records.size >= condition.atLeast
-        }
-        val evaluator = PredicateEvaluator()
-        var matches = 0
-        for (record in records) {
-            if (evaluator.matchesFilter(record, condition.filter)) {
-                matches++
-                if (matches >= condition.atLeast) return true
-            }
-        }
-        return false
-    }
-
     private fun evaluateSourceAbilityResolvedNTimes(
         state: GameState,
         condition: SourceAbilityResolvedNTimesThisTurn,
@@ -629,10 +641,6 @@ class ConditionEvaluator {
             ?.get<com.wingedsheep.engine.state.components.battlefield.AbilityResolutionCountThisTurnComponent>()
             ?: return false
         return component.count == condition.count
-    }
-
-    private fun evaluateYouHaveCitysBlessing(state: GameState, context: EffectContext): Boolean {
-        return state.getEntity(context.controllerId)?.has<PlayerCitysBlessingComponent>() == true
     }
 
     private fun evaluateCollectionContainsMatch(

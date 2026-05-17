@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.mechanics.layers
 
+import com.wingedsheep.engine.handlers.ConditionEvaluationContext
+import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
@@ -20,6 +22,8 @@ internal class EffectApplicator(
     private val dynamicAmountEvaluator: DynamicAmountEvaluator
 ) {
 
+    private val conditionEvaluator = ConditionEvaluator()
+
     fun applyEffect(
         effect: ContinuousEffect,
         state: GameState,
@@ -28,8 +32,12 @@ internal class EffectApplicator(
         val sourceCondition = effect.sourceCondition
         if (sourceCondition != null) {
             val sourceValues = projectedValues[effect.sourceId]
-            val conditionMet = evaluateSourceCondition(sourceCondition, effect, state, projectedValues, sourceValues)
-            if (!conditionMet) return
+            val ctx = ConditionEvaluationContext.Projection(
+                sourceId = effect.sourceId,
+                sourceValues = sourceValues,
+                projectedValues = projectedValues
+            )
+            if (!conditionEvaluator.evaluate(state, sourceCondition, ctx)) return
         }
 
         for (entityId in effect.affectedEntities) {
@@ -195,202 +203,6 @@ internal class EffectApplicator(
                 is Modification.NoOp -> {
                     // No-op: effect doesn't modify projected state
                 }
-            }
-        }
-    }
-
-    fun evaluateSourceCondition(
-        condition: SourceProjectionCondition,
-        effect: ContinuousEffect,
-        state: GameState,
-        projectedValues: MutableMap<EntityId, MutableProjectedValues>,
-        sourceValues: MutableProjectedValues?
-    ): Boolean = when (condition) {
-        is SourceProjectionCondition.HasSubtype ->
-            sourceValues?.subtypes?.any { it.equals(condition.subtype, ignoreCase = true) } == true
-        is SourceProjectionCondition.HasKeyword ->
-            sourceValues?.keywords?.any { it.equals(condition.keyword, ignoreCase = true) } == true
-        is SourceProjectionCondition.ControllerControlsCreatureOfType -> {
-            val controllerId = sourceValues?.controllerId
-            if (controllerId != null) {
-                state.getBattlefield(controllerId).any { entityId ->
-                    entityId != effect.sourceId &&
-                    projectedValues[entityId]?.subtypes?.any {
-                        it.equals(condition.subtype, ignoreCase = true)
-                    } == true
-                }
-            } else false
-        }
-        is SourceProjectionCondition.EnchantedCreatureHasSubtype -> {
-            val attachedTo = state.getEntity(effect.sourceId)
-                ?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
-            if (attachedTo != null) {
-                projectedValues[attachedTo.targetId]?.subtypes?.any {
-                    it.equals(condition.subtype, ignoreCase = true)
-                } == true
-            } else false
-        }
-        is SourceProjectionCondition.EnchantedCreatureIsLegendary -> {
-            val attachedTo = state.getEntity(effect.sourceId)
-                ?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
-            if (attachedTo != null) {
-                projectedValues[attachedTo.targetId]?.types?.contains("LEGENDARY") == true
-            } else false
-        }
-        is SourceProjectionCondition.OpponentControlsCreature -> {
-            val controllerId = sourceValues?.controllerId
-            if (controllerId != null) {
-                state.getBattlefield().any { entityId ->
-                    val values = projectedValues[entityId]
-                    values?.types?.contains("CREATURE") == true &&
-                    values.controllerId != null &&
-                    values.controllerId != controllerId
-                }
-            } else false
-        }
-        is SourceProjectionCondition.IsYourTurn -> {
-            val controllerId = sourceValues?.controllerId
-            controllerId != null && state.activePlayerId == controllerId
-        }
-        is SourceProjectionCondition.SourceIsTapped -> {
-            state.getEntity(effect.sourceId)
-                ?.has<com.wingedsheep.engine.state.components.battlefield.TappedComponent>() == true
-        }
-        is SourceProjectionCondition.SourceIsUntapped -> {
-            state.getEntity(effect.sourceId)
-                ?.has<com.wingedsheep.engine.state.components.battlefield.TappedComponent>() == false
-        }
-        is SourceProjectionCondition.ControllerControlsPermanentMatchingFilter -> {
-            val controllerId = sourceValues?.controllerId
-            if (controllerId != null) {
-                val predicateEvaluator = PredicateEvaluator()
-                val intermediateProjected = buildIntermediateProjectedState(state, projectedValues)
-                state.getBattlefield(controllerId).any { entityId ->
-                    if (condition.excludeSelf && entityId == effect.sourceId) return@any false
-                    predicateEvaluator.matches(state, intermediateProjected, entityId, condition.filter, PredicateContext(controllerId = controllerId))
-                }
-            } else false
-        }
-        is SourceProjectionCondition.AnyPlayerControlsPermanentMatchingFilter -> {
-            val predicateEvaluator = PredicateEvaluator()
-            val intermediateProjected = buildIntermediateProjectedState(state, projectedValues)
-            val controllerId = sourceValues?.controllerId ?: effect.sourceId
-            state.getBattlefield().any { entityId ->
-                predicateEvaluator.matches(state, intermediateProjected, entityId, condition.filter, PredicateContext(controllerId = controllerId))
-            }
-        }
-        is SourceProjectionCondition.SourceEnteredThisTurn ->
-            state.getEntity(effect.sourceId)
-                ?.has<com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent>() == true
-
-        is SourceProjectionCondition.SourceIsModified -> {
-            val sourceId = effect.sourceId
-            val entity = state.getEntity(sourceId) ?: return false
-            val sourceControllerId = sourceValues?.controllerId
-
-            // Check counters
-            val counters = entity.get<CountersComponent>()
-            if (counters != null && counters.counters.values.any { it > 0 }) return true
-
-            // Check attached Equipment or Auras controlled by sourceController
-            for (permanentId in state.getBattlefield()) {
-                if (permanentId == sourceId) continue
-                val container = state.getEntity(permanentId) ?: continue
-                val attachedTo = container.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
-                    ?.targetId ?: continue
-                if (attachedTo != sourceId) continue
-                val card = container.get<com.wingedsheep.engine.state.components.identity.CardComponent>()
-                    ?: continue
-
-                // Equipment attached counts regardless of controller
-                if (card.typeLine.hasSubtype(com.wingedsheep.sdk.core.Subtype.EQUIPMENT)) return true
-
-                // Aura you control
-                if (card.typeLine.hasSubtype(com.wingedsheep.sdk.core.Subtype.AURA)) {
-                    val auraController = projectedValues[permanentId]?.controllerId
-                        ?: container.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
-                    if (auraController == sourceControllerId) return true
-                }
-            }
-            false
-        }
-        is SourceProjectionCondition.ControllerAttackedWithCreaturesThisTurn -> {
-            val controllerId = sourceValues?.controllerId
-            if (controllerId == null) {
-                false
-            } else {
-                val attackerIds = state.getEntity(controllerId)
-                    ?.get<com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent>()
-                    ?.attackerIds
-                    ?: emptySet()
-                if (attackerIds.size < condition.atLeast) {
-                    false
-                } else {
-                    val predicateEvaluator = PredicateEvaluator()
-                    val intermediateProjected = buildIntermediateProjectedState(state, projectedValues)
-                    val predicateContext = PredicateContext(controllerId = controllerId)
-                    var matches = 0
-                    for (id in attackerIds) {
-                        if (predicateEvaluator.matches(state, intermediateProjected, id, condition.filter, predicateContext)) {
-                            matches++
-                            if (matches >= condition.atLeast) break
-                        }
-                    }
-                    matches >= condition.atLeast
-                }
-            }
-        }
-        is SourceProjectionCondition.ControllerCastSpellsThisTurn -> {
-            if (condition.atLeast <= 0) {
-                true
-            } else {
-                val controllerId = sourceValues?.controllerId ?: effect.sourceId.let {
-                    state.getEntity(it)?.get<ControllerComponent>()?.playerId
-                }
-                if (controllerId == null) {
-                    false
-                } else {
-                    val records = state.spellsCastThisTurnByPlayer[controllerId] ?: emptyList()
-                    if (records.size < condition.atLeast) {
-                        false
-                    } else if (condition.filter == com.wingedsheep.sdk.scripting.GameObjectFilter.Any) {
-                        true
-                    } else {
-                        val predicateEvaluator = PredicateEvaluator()
-                        var matches = 0
-                        for (record in records) {
-                            if (predicateEvaluator.matchesFilter(record, condition.filter)) {
-                                matches++
-                                if (matches >= condition.atLeast) break
-                            }
-                        }
-                        matches >= condition.atLeast
-                    }
-                }
-            }
-        }
-        is SourceProjectionCondition.ControllerHasCitysBlessing -> {
-            val controllerId = sourceValues?.controllerId ?: state.getEntity(effect.sourceId)
-                ?.get<ControllerComponent>()
-                ?.playerId
-            controllerId != null &&
-                state.getEntity(controllerId)
-                    ?.has<com.wingedsheep.engine.state.components.player.PlayerCitysBlessingComponent>() == true
-        }
-        is SourceProjectionCondition.Not -> !evaluateSourceCondition(condition.condition, effect, state, projectedValues, sourceValues)
-        is SourceProjectionCondition.Compare -> {
-            val controllerId = sourceValues?.controllerId ?: effect.sourceId
-            val opponentId = state.getOpponent(controllerId)
-            val context = EffectContext(sourceId = effect.sourceId, controllerId = controllerId, opponentId = opponentId)
-            val left = dynamicAmountEvaluator.evaluate(state, condition.left, context)
-            val right = dynamicAmountEvaluator.evaluate(state, condition.right, context)
-            when (condition.operator) {
-                ComparisonOperator.LT -> left < right
-                ComparisonOperator.LTE -> left <= right
-                ComparisonOperator.EQ -> left == right
-                ComparisonOperator.NEQ -> left != right
-                ComparisonOperator.GT -> left > right
-                ComparisonOperator.GTE -> left >= right
             }
         }
     }

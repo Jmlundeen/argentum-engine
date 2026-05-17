@@ -2,6 +2,7 @@ package com.wingedsheep.sdk.scripting.conditions
 
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
@@ -69,20 +70,26 @@ data object YouWereAttackedThisStep : Condition {
 }
 
 /**
- * Condition: "If you attacked with [atLeast] or more creatures matching [filter] this turn".
- * Counts every creature you declared as an attacker this turn whose current state
+ * Condition: "If [player] attacked with [atLeast] or more creatures matching [filter] this turn".
+ * Counts every creature [player] declared as an attacker this turn whose current state
  * (per the projected state) matches the filter.
+ *
+ * The `Conditions.YouAttackedWithCreaturesThisTurn(...)` DSL helper passes [Player.You],
+ * which the engine resolves to the source's controller in both resolution and static-ability
+ * (projection) contexts.
  *
  * Used for cards like Deepway Navigator: "as long as you attacked with three or more
  * Merfolk this turn".
  */
-@SerialName("YouAttackedWithCreaturesThisTurn")
+@SerialName("PlayerAttackedWithCreaturesThisTurn")
 @Serializable
-data class YouAttackedWithCreaturesThisTurn(
+data class PlayerAttackedWithCreaturesThisTurn(
+    val player: Player = Player.You,
     val filter: GameObjectFilter,
     val atLeast: Int
 ) : Condition {
-    override val description: String = "if you attacked with $atLeast or more ${DynamicAmount.pluralize(filter.description)} this turn"
+    override val description: String =
+        "if ${player.description} attacked with $atLeast or more ${DynamicAmount.pluralize(filter.description)} this turn"
     override fun applyTextReplacement(replacer: TextReplacer): Condition {
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
@@ -90,25 +97,30 @@ data class YouAttackedWithCreaturesThisTurn(
 }
 
 /**
- * Condition: "If you've cast [atLeast] or more spells matching [filter] this turn".
- * Counts the controller's `CastSpellRecord`s captured at cast time, so every spell
+ * Condition: "If [player] has cast [atLeast] or more spells matching [filter] this turn".
+ * Counts [player]'s `CastSpellRecord`s captured at cast time, so every spell
  * cast counts even if it was countered, fizzled, or is still on the stack.
+ *
+ * The `Conditions.YouCastSpellsThisTurn(...)` DSL helper passes [Player.You], which the
+ * engine resolves to the source's controller in both resolution and static-ability
+ * (projection) contexts.
  *
  * Used for cards like Brightspear Zealot ("as long as you've cast two or more
  * spells this turn") and Illvoi Infiltrator ("if you've cast two or more spells
  * this turn"). Pass `GameObjectFilter.Any` for the unfiltered "any spell" form.
  */
-@SerialName("YouCastSpellsThisTurn")
+@SerialName("PlayerCastSpellsThisTurn")
 @Serializable
-data class YouCastSpellsThisTurn(
+data class PlayerCastSpellsThisTurn(
+    val player: Player = Player.You,
     val filter: GameObjectFilter = GameObjectFilter.Any,
     val atLeast: Int
 ) : Condition {
     override val description: String =
         if (filter == GameObjectFilter.Any)
-            "if you've cast $atLeast or more spells this turn"
+            "if ${player.description} cast $atLeast or more spells this turn"
         else
-            "if you've cast $atLeast or more ${DynamicAmount.pluralize(filter.description)} spells this turn"
+            "if ${player.description} cast $atLeast or more ${DynamicAmount.pluralize(filter.description)} spells this turn"
     override fun applyTextReplacement(replacer: TextReplacer): Condition {
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
@@ -225,21 +237,22 @@ data object CreatureDiedThisTurnCondition : Condition {
 // =============================================================================
 
 /**
- * Intervening-if / static condition: "if you have the city's blessing".
+ * Intervening-if / static condition: "if [player] has the city's blessing".
  *
  * The city's blessing is a permanent player designation (once gained, never lost
  * for the rest of the game per CR 702.131c). Granted by Ascend abilities when the
  * controller controls ten or more permanents on resolution.
  *
- * Used by spell triggers/effects and by [ConditionalStaticAbility]
+ * The `Conditions.YouHaveCitysBlessing` DSL constant passes [Player.You], which the
+ * engine resolves to the source's controller in both resolution and static-ability
+ * (projection) contexts. Used by spell triggers/effects and by [ConditionalStaticAbility]
  * (e.g. Tendershoot Dryad's "Saprolings you control get +2/+2 as long as you have
- * the city's blessing"). The static-ability path goes through
- * `SourceProjectionCondition.ControllerHasCitysBlessing`.
+ * the city's blessing").
  */
-@SerialName("YouHaveCitysBlessing")
+@SerialName("PlayerHasCitysBlessing")
 @Serializable
-data object YouHaveCitysBlessing : Condition {
-    override val description: String = "if you have the city's blessing"
+data class PlayerHasCitysBlessing(val player: Player = Player.You) : Condition {
+    override val description: String = "if ${player.description} has the city's blessing"
     override fun applyTextReplacement(replacer: TextReplacer): Condition = this
 }
 

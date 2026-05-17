@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.BecomeCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.conditions.SourceHasSubtype
+import com.wingedsheep.sdk.dsl.Conditions
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.util.UUID
@@ -55,7 +55,7 @@ class MistformWallTest : FunSpec({
             staticAbilities = listOf(
                 ConditionalStaticAbility(
                     ability = GrantKeyword(Keyword.DEFENDER, GroupFilter.source()),
-                    condition = SourceHasSubtype(Subtype("Wall"))
+                    condition = Conditions.SourceHasSubtype(Subtype("Wall"))
                 )
             )
         )

@@ -58,10 +58,6 @@ import com.wingedsheep.sdk.scripting.conditions.EnchantedCreatureIsLegendary
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
-import com.wingedsheep.sdk.scripting.conditions.SourceHasKeyword
-import com.wingedsheep.sdk.scripting.conditions.SourceHasSubtype
-import com.wingedsheep.sdk.scripting.conditions.SourceIsTapped
-import com.wingedsheep.sdk.scripting.conditions.SourceIsUntapped
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.RemoveKeywordStatic
 import com.wingedsheep.sdk.scripting.GrantCantBeBlockedToSmallCreatures
@@ -518,82 +514,13 @@ class StaticAbilityHandler(
     }
 
     /**
-     * Convert a ConditionalStaticAbility to ContinuousEffectData.
-     * Maps the SDK Condition to a SourceProjectionCondition so it can be
-     * evaluated during layer application against projected values.
+     * Convert a ConditionalStaticAbility to ContinuousEffectData. The SDK [Condition] is
+     * passed through unchanged; [ConditionEvaluator] evaluates it under
+     * [ConditionEvaluationContext.Projection] during layer application.
      */
     private fun convertConditionalStaticAbility(conditional: ConditionalStaticAbility): ContinuousEffectData? {
         val baseEffect = convertStaticAbility(conditional.ability) ?: return null
-        val sourceCondition = mapToSourceProjectionCondition(conditional.condition) ?: return null
-        return baseEffect.copy(sourceCondition = sourceCondition)
-    }
-
-    /**
-     * Map an SDK Condition to a SourceProjectionCondition for use during state projection.
-     */
-    private fun mapToSourceProjectionCondition(condition: Condition): SourceProjectionCondition? {
-        return when (condition) {
-            is SourceHasSubtype -> SourceProjectionCondition.HasSubtype(condition.subtype.value)
-            is SourceHasKeyword -> SourceProjectionCondition.HasKeyword(condition.keyword.name)
-            is EnchantedCreatureHasSubtype -> SourceProjectionCondition.EnchantedCreatureHasSubtype(condition.subtype.value)
-            is EnchantedCreatureIsLegendary -> SourceProjectionCondition.EnchantedCreatureIsLegendary
-            is NotCondition -> {
-                val inner = mapToSourceProjectionCondition(condition.condition) ?: return null
-                SourceProjectionCondition.Not(inner)
-            }
-            is Exists -> mapExistsToSourceProjectionCondition(condition)
-            is IsYourTurn -> SourceProjectionCondition.IsYourTurn
-            is SourceIsTapped -> SourceProjectionCondition.SourceIsTapped
-            is SourceIsUntapped -> SourceProjectionCondition.SourceIsUntapped
-            is com.wingedsheep.sdk.scripting.conditions.YouAttackedWithCreaturesThisTurn ->
-                SourceProjectionCondition.ControllerAttackedWithCreaturesThisTurn(condition.filter, condition.atLeast)
-            is com.wingedsheep.sdk.scripting.conditions.YouCastSpellsThisTurn ->
-                SourceProjectionCondition.ControllerCastSpellsThisTurn(condition.filter, condition.atLeast)
-            is com.wingedsheep.sdk.scripting.conditions.YouHaveCitysBlessing ->
-                SourceProjectionCondition.ControllerHasCitysBlessing
-            is com.wingedsheep.sdk.scripting.conditions.SourceEnteredThisTurn -> SourceProjectionCondition.SourceEnteredThisTurn
-            is com.wingedsheep.sdk.scripting.conditions.SourceIsModified -> SourceProjectionCondition.SourceIsModified
-            is Compare -> SourceProjectionCondition.Compare(condition.left, condition.operator, condition.right)
-            else -> null
-        }
-    }
-
-    /**
-     * Map an Exists condition to a SourceProjectionCondition when possible.
-     * Handles patterns like Exists(You, BATTLEFIELD, Creature.withSubtype(X))
-     * → ControllerControlsCreatureOfType(X).
-     */
-    private fun mapExistsToSourceProjectionCondition(condition: Exists): SourceProjectionCondition? {
-        if (condition.negate || condition.zone != com.wingedsheep.sdk.core.Zone.BATTLEFIELD) return null
-
-        // Handle "any player controls a permanent matching filter"
-        if (condition.player is com.wingedsheep.sdk.scripting.references.Player.Each ||
-            condition.player is com.wingedsheep.sdk.scripting.references.Player.Any) {
-            return SourceProjectionCondition.AnyPlayerControlsPermanentMatchingFilter(condition.filter)
-        }
-
-        // Handle "opponent controls a creature" (any creature, no subtype filter)
-        if (condition.player is com.wingedsheep.sdk.scripting.references.Player.Opponent) {
-            val isCreatureFilter = condition.filter.cardPredicates
-                .filterIsInstance<CardPredicate.IsCreature>()
-                .singleOrNull()
-            if (isCreatureFilter != null && condition.filter.cardPredicates.size == 1) {
-                return SourceProjectionCondition.OpponentControlsCreature
-            }
-            return null
-        }
-
-        if (condition.player !is com.wingedsheep.sdk.scripting.references.Player.You) return null
-        // Extract subtype from filter: Creature.withSubtype(X) has IsCreature + HasSubtype predicates
-        // (excludeSelf is not supported by the subtype-specialized projection condition; fall through.)
-        val subtypePredicate = condition.filter.cardPredicates
-            .filterIsInstance<CardPredicate.HasSubtype>()
-            .singleOrNull()
-        if (subtypePredicate != null && !condition.excludeSelf) {
-            return SourceProjectionCondition.ControllerControlsCreatureOfType(subtypePredicate.subtype.value)
-        }
-        // General case: "as long as you control a [filter]" (e.g., token, enchantment)
-        return SourceProjectionCondition.ControllerControlsPermanentMatchingFilter(condition.filter, condition.excludeSelf)
+        return baseEffect.copy(sourceCondition = conditional.condition)
     }
 
     /**

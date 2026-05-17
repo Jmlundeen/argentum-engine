@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.conditions.SourceHasSubtype
 
 /**
  * Mistform Wall
@@ -29,7 +29,7 @@ val MistformWall = card("Mistform Wall") {
 
     staticAbility {
         ability = GrantKeyword(Keyword.DEFENDER, GroupFilter.source())
-        condition = SourceHasSubtype(Subtype("Wall"))
+        condition = Conditions.SourceHasSubtype(Subtype("Wall"))
     }
 
     activatedAbility {

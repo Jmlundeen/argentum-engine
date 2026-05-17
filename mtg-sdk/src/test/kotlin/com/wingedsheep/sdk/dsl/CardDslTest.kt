@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.*
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.scripting.conditions.SourceHasDealtDamage
-import com.wingedsheep.sdk.scripting.conditions.SourceIsAttacking
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.CounterEffect
@@ -953,7 +951,7 @@ class CardDslTest : DescribeSpec({
 
                 staticAbility {
                     ability = GrantKeyword(Keyword.HEXPROOF, GroupFilter.source())
-                    condition = NotCondition(SourceHasDealtDamage)
+                    condition = NotCondition(Conditions.SourceHasDealtDamage)
                 }
             }
 
@@ -972,7 +970,7 @@ class CardDslTest : DescribeSpec({
             grantKeyword.filter shouldBe GroupFilter.source()
 
             val notCondition = conditional.condition.shouldBeInstanceOf<NotCondition>()
-            notCondition.condition shouldBe SourceHasDealtDamage
+            notCondition.condition shouldBe Conditions.SourceHasDealtDamage
         }
 
         it("should support conditional stat bonuses") {
@@ -985,14 +983,14 @@ class CardDslTest : DescribeSpec({
                 // Gets +2/+2 while attacking
                 staticAbility {
                     ability = ModifyStats(2, 2, GroupFilter.source())
-                    condition = SourceIsAttacking
+                    condition = Conditions.SourceIsAttacking
                 }
             }
 
             feralKrushok.staticAbilities shouldHaveSize 1
             val staticAbility = feralKrushok.staticAbilities[0]
             val conditional = staticAbility.shouldBeInstanceOf<ConditionalStaticAbility>()
-            conditional.condition shouldBe SourceIsAttacking
+            conditional.condition shouldBe Conditions.SourceIsAttacking
 
             val modifyStats = conditional.ability.shouldBeInstanceOf<ModifyStats>()
             modifyStats.powerBonus shouldBe 2
@@ -1023,10 +1021,10 @@ class CardDslTest : DescribeSpec({
         it("should describe conditional abilities correctly") {
             val conditional = ConditionalStaticAbility(
                 ability = GrantKeyword(Keyword.HEXPROOF, GroupFilter.source()),
-                condition = NotCondition(SourceHasDealtDamage)
+                condition = NotCondition(Conditions.SourceHasDealtDamage)
             )
 
-            conditional.description shouldBe "this creature have hexproof if not (this creature has dealt damage)"
+            conditional.description shouldBe "this creature have hexproof if not (if this has dealt damage)"
         }
     }
 

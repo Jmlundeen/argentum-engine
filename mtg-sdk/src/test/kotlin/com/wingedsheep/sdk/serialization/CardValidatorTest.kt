@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
-import com.wingedsheep.sdk.scripting.conditions.SourceIsAttacking
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -149,7 +149,7 @@ class CardValidatorTest : DescribeSpec({
                 typeLine = TypeLine.sorcery(),
                 script = CardScript(
                     spellEffect = ConditionalEffect(
-                        condition = SourceIsAttacking,
+                        condition = Conditions.SourceIsAttacking,
                         effect = MayEffect(
                             DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(3))
                         ),
