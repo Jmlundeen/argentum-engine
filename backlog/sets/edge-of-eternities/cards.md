@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 193 / 261
+**Implemented:** 194 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -234,7 +234,7 @@
 - [ ] Terrasymbiosis
 - [ ] Territorial Bruntar
 - [ ] Tezzeret, Cruel Captain
-- [ ] Thaumaton Torpedo
+- [x] Thaumaton Torpedo
 - [x] Thawbringer
 - [x] The Dominion Bracelet
 - [ ] The Endstone
