@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 179 / 261
+**Implemented:** 195 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -36,7 +36,7 @@
 - [x] Chrome Companion
 - [x] Close Encounter
 - [x] Cloudsculpt Technician
-- [ ] Codecracker Hound
+- [x] Codecracker Hound
 - [x] Comet Crawler
 - [ ] Command Bridge
 - [ ] Consult the Star Charts
@@ -63,7 +63,7 @@
 - [x] Dual-Sun Technique
 - [x] Dubious Delicacy
 - [ ] Dyadrine, Synthesis Amalgam
-- [ ] Edge Rover
+- [x] Edge Rover
 - [x] Elegy Acolyte
 - [x] Embrace Oblivion
 - [x] Emergency Eject
@@ -140,7 +140,7 @@
 - [x] Meltstrider's Gear
 - [x] Meltstrider's Resolve
 - [x] Memorial Team Leader
-- [ ] Memorial Vault
+- [x] Memorial Vault
 - [x] Mental Modulation
 - [x] Mightform Harmonizer
 - [ ] Mm'menon, the Right Hand
@@ -169,8 +169,8 @@
 - [x] Pulsar Squadron Ace
 - [ ] Quantum Riddler
 - [x] Radiant Strike
-- [ ] Ragost, Deft Gastronaut
-- [ ] Rayblade Trooper
+- [x] Ragost, Deft Gastronaut
+- [x] Rayblade Trooper
 - [x] Red Tiger Mechan
 - [x] Remnant Elemental
 - [x] Requiem Monolith
@@ -199,8 +199,8 @@
 - [ ] Skystinger
 - [x] Slagdrill Scrapper
 - [x] Sledge-Class Seedship
-- [ ] Sothera, the Supervoid
-- [ ] Space-Time Anomaly
+- [x] Sothera, the Supervoid
+- [x] Space-Time Anomaly
 - [x] Specimen Freighter
 - [x] Squire's Lightblade
 - [x] Starbreach Whale
@@ -216,12 +216,12 @@
 - [ ] Sunstar Chaplain
 - [x] Sunstar Expansionist
 - [x] Sunstar Lightsmith
-- [ ] Survey Mechan
+- [x] Survey Mechan
 - [x] Susurian Dirgecraft
 - [ ] Susurian Voidborn
 - [ ] Susur Secundi, Void Altar
 - [x] Swarm Culler
-- [ ] Synthesizer Labship
+- [x] Synthesizer Labship
 - [x] Syr Vondam, Sunstar Exemplar
 - [x] Syr Vondam, the Lucent
 - [x] Systems Override
@@ -230,16 +230,16 @@
 - [x] Tapestry Warden
 - [x] Temporal Intervention
 - [ ] Terminal Velocity
-- [ ] Terrapact Intimidator
+- [x] Terrapact Intimidator
 - [ ] Terrasymbiosis
 - [ ] Territorial Bruntar
 - [ ] Tezzeret, Cruel Captain
-- [ ] Thaumaton Torpedo
+- [x] Thaumaton Torpedo
 - [x] Thawbringer
 - [x] The Dominion Bracelet
-- [ ] The Endstone
+- [x] The Endstone
 - [ ] The Eternity Elevator
-- [ ] The Seriema
+- [x] The Seriema
 - [ ] Thrumming Hivepool
 - [x] Timeline Culler
 - [ ] Tractor Beam
@@ -248,8 +248,8 @@
 - [x] Unravel
 - [ ] Uthros Psionicist
 - [x] Uthros Scanship
-- [ ] Uthros, Titanic Godcore
-- [ ] Vaultguard Trooper
+- [x] Uthros, Titanic Godcore
+- [x] Vaultguard Trooper
 - [ ] Virulent Silencer
 - [x] Virus Beetle
 - [x] Voidforged Titan
