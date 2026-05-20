@@ -502,10 +502,11 @@ data object SacrificedFoodThisTurnComponent : Component
 
 /**
  * Tracks which card types have entered the battlefield under this player's control this turn.
- * Holds the base [com.wingedsheep.sdk.core.CardType] names captured at the moment of entry, so
- * the record is insensitive to later state changes — the entry of an artifact remains recorded
- * even if the permanent is destroyed, loses its artifact type, or changes controllers later in
- * the turn.
+ * Populated by `BattlefieldEntry.place` (via `PermanentEntryTracker.record`) from the projected
+ * types at the moment of entry, so a permanent that's an artifact-by-effect at ETB is recorded
+ * just like a printed artifact. Once recorded, the entry is insensitive to later state changes
+ * — the entry of an artifact remains recorded even if the permanent is destroyed, loses its
+ * artifact type, or changes controllers later in the turn.
  *
  * Cleared at end of turn by CleanupPhaseManager.
  *

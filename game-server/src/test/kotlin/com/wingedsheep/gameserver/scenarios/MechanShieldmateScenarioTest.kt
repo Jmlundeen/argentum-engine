@@ -6,28 +6,29 @@ import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 
 /**
  * Scenario tests for Mechan Shieldmate (EOE #65).
  *
- * Card reference:
- * - Mechan Shieldmate {1}{U} — Artifact Creature — Robot Soldier 3/2
+ *   Mechan Shieldmate {1}{U} — Artifact Creature — Robot Soldier 3/2
  *   Defender
  *   As long as an artifact entered the battlefield under your control this turn, this creature
  *   can attack as though it didn't have defender.
  *
- * The "an artifact entered ... this turn" condition is backed by a per-player ETB tracker
- * (`PermanentTypesEnteredBattlefieldThisTurnComponent`) so the artifact need not still be on
- * the battlefield, still be an artifact, or still be under the same controller when combat
- * happens — only the entry event matters (Scryfall ruling, 2025-07-25).
+ * These tests exercise the per-player ETB-by-type tracker end-to-end through the real
+ * spell-resolution / land-play pipeline, *not* by injecting the tracker component by hand.
+ * That's the whole point — the wiring (StackResolver → BattlefieldEntry.place →
+ * PermanentEntryTracker.record) is what makes the static ability work in actual play.
  */
 class MechanShieldmateScenarioTest : ScenarioTestBase() {
 
     init {
         context("Mechan Shieldmate - CanAttackDespiteDefender") {
 
-            test("cannot attack when no artifact entered this turn (defender restriction applies)") {
+            test("no artifact entered this turn ⇒ defender restriction applies") {
                 val game = scenario()
                     .withPlayers("Player1", "Player2")
                     .withCardOnBattlefield(1, "Mechan Shieldmate")
@@ -40,92 +41,120 @@ class MechanShieldmateScenarioTest : ScenarioTestBase() {
                 game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
 
                 val result = game.declareAttackers(mapOf("Mechan Shieldmate" to 2))
-                withClue("Mechan Shieldmate should not be able to attack with no artifact entering this turn") {
+                withClue("With no artifact entry recorded, defender should block the attack") {
                     (result.error != null) shouldBe true
                 }
+                withClue("Tracker should not have been populated for the active player") {
+                    game.state.getEntity(game.player1Id)
+                        ?.get<PermanentTypesEnteredBattlefieldThisTurnComponent>() shouldBe null
+                }
             }
 
-            test("can attack when an artifact has entered the battlefield this turn") {
+            test("casting an artifact spell records ARTIFACT in the tracker and unlocks the attack") {
+                // Sparring Construct ({1}, Artifact Creature) resolves via StackResolver, which
+                // routes through BattlefieldEntry.place. That's how PermanentEntryTracker stays
+                // in sync — calling state.addToZone(battlefield, …) directly would bypass it.
                 val game = scenario()
                     .withPlayers("Player1", "Player2")
                     .withCardOnBattlefield(1, "Mechan Shieldmate")
+                    .withLandsOnBattlefield(1, "Island", 1)
+                    .withCardInHand(1, "Sparring Construct")
                     .withCardInLibrary(1, "Plains")
                     .withCardInLibrary(2, "Plains")
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                // Simulate an artifact having entered the battlefield under P1 earlier this turn
-                // by populating the per-player tracker directly. (`withCardOnBattlefield` puts
-                // entities into the battlefield zone without going through the ZoneTransitionService
-                // path that records the ETB, so we set the tracker by hand.)
-                game.state = game.state.updateEntity(game.player1Id) { container ->
-                    container.with(
-                        PermanentTypesEnteredBattlefieldThisTurnComponent(setOf(CardType.ARTIFACT))
+                val castResult = game.castSpell(1, "Sparring Construct")
+                withClue("Cast should succeed (1 Island covers the {1} cost)") {
+                    castResult.error shouldBe null
+                }
+                game.resolveStack()
+
+                val tracker = game.state.getEntity(game.player1Id)
+                    ?.get<PermanentTypesEnteredBattlefieldThisTurnComponent>()
+                withClue("Tracker should have been populated by the spell-resolution path") {
+                    tracker shouldBe PermanentTypesEnteredBattlefieldThisTurnComponent(
+                        setOf(CardType.ARTIFACT, CardType.CREATURE)
                     )
                 }
 
                 game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
 
-                val result = game.declareAttackers(mapOf("Mechan Shieldmate" to 2))
-                withClue("Mechan Shieldmate should be able to attack after an artifact entered this turn") {
-                    result.error shouldBe null
+                val attackResult = game.declareAttackers(mapOf("Mechan Shieldmate" to 2))
+                withClue("Mechan Shieldmate should be a legal attacker after an artifact entered") {
+                    attackResult.error shouldBe null
                 }
             }
 
-            test("ruling edge case: still able to attack even if the artifact has since left") {
-                // The tracker stays true for the rest of the turn after the entry event, even if
-                // the artifact later leaves the battlefield, changes type, or changes controllers.
-                // We model this by setting the tracker without leaving any artifact on the
-                // battlefield — the only signal is the per-turn record.
+            test("playing a land records LAND only — Mechan Shieldmate stays locked") {
+                // Lands enter via PlayLandHandler (not StackResolver). That path is wired
+                // through BattlefieldEntry too, so the tracker fills in CardType.LAND — and
+                // crucially *not* CardType.ARTIFACT, which is what Mechan Shieldmate checks.
                 val game = scenario()
                     .withPlayers("Player1", "Player2")
                     .withCardOnBattlefield(1, "Mechan Shieldmate")
+                    .withCardInHand(1, "Plains")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(2, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val plainsId = game.findCardsInHand(1, "Plains").single()
+                val playResult = game.execute(
+                    com.wingedsheep.engine.core.PlayLand(game.player1Id, plainsId)
+                )
+                withClue("Playing the land should succeed") { playResult.error shouldBe null }
+
+                val tracker = game.state.getEntity(game.player1Id)
+                    ?.get<PermanentTypesEnteredBattlefieldThisTurnComponent>()
+                checkNotNull(tracker) { "Tracker should be populated after playing the land" }
+                withClue("Tracker should record LAND but not ARTIFACT") {
+                    tracker.cardTypes shouldContain CardType.LAND
+                    tracker.cardTypes shouldNotContain CardType.ARTIFACT
+                }
+
+                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+
+                val attackResult = game.declareAttackers(mapOf("Mechan Shieldmate" to 2))
+                withClue("Land entries don't satisfy the artifact-entry condition") {
+                    (attackResult.error != null) shouldBe true
+                }
+            }
+
+            test("cleanup clears the tracker — next turn locks the defender back up") {
+                // CleanupPhaseManager removes PermanentTypesEnteredBattlefieldThisTurnComponent
+                // for every player as the turn ends. The next time Mechan Shieldmate's
+                // controller wants to attack, the condition has to be re-satisfied from scratch.
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Mechan Shieldmate")
+                    .withLandsOnBattlefield(1, "Island", 1)
+                    .withCardInHand(1, "Sparring Construct")
                     .withCardInLibrary(1, "Plains")
                     .withCardInLibrary(2, "Plains")
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                game.state = game.state.updateEntity(game.player1Id) { container ->
-                    container.with(
-                        PermanentTypesEnteredBattlefieldThisTurnComponent(setOf(CardType.ARTIFACT))
-                    )
+                game.castSpell(1, "Sparring Construct")
+                game.resolveStack()
+
+                val preCleanupTracker = game.state.getEntity(game.player1Id)
+                    ?.get<PermanentTypesEnteredBattlefieldThisTurnComponent>()
+                checkNotNull(preCleanupTracker) { "Tracker should be populated before cleanup" }
+                withClue("Sanity check: tracker is populated before cleanup") {
+                    preCleanupTracker.cardTypes shouldContain CardType.ARTIFACT
                 }
 
-                // Mechan Shieldmate itself is the only artifact on the battlefield, and it was
-                // already on the battlefield at the start of the turn (no ETB recorded for it).
-                // The tracker alone should still satisfy the static ability's condition.
-                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                // Advance past END/CLEANUP into player 2's upkeep. (CLEANUP and UNTAP don't
+                // grant priority, so the loop walks past them automatically.)
+                game.passUntilPhase(Phase.BEGINNING, Step.UPKEEP)
 
-                val result = game.declareAttackers(mapOf("Mechan Shieldmate" to 2))
-                withClue("Tracker alone (no live artifact on battlefield) should still enable the attack") {
-                    result.error shouldBe null
-                }
-            }
-
-            test("a non-artifact entering does not enable Mechan Shieldmate") {
-                val game = scenario()
-                    .withPlayers("Player1", "Player2")
-                    .withCardOnBattlefield(1, "Mechan Shieldmate")
-                    .withCardInLibrary(1, "Plains")
-                    .withCardInLibrary(2, "Plains")
-                    .withActivePlayer(1)
-                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
-                    .build()
-
-                // Tracker records only a non-artifact entry (e.g., a creature with no artifact type).
-                game.state = game.state.updateEntity(game.player1Id) { container ->
-                    container.with(
-                        PermanentTypesEnteredBattlefieldThisTurnComponent(setOf(CardType.CREATURE))
-                    )
-                }
-
-                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
-
-                val result = game.declareAttackers(mapOf("Mechan Shieldmate" to 2))
-                withClue("Only artifact ETBs should satisfy the condition") {
-                    (result.error != null) shouldBe true
+                withClue("Active-player tracker should have been cleared on cleanup") {
+                    game.state.getEntity(game.player1Id)
+                        ?.get<PermanentTypesEnteredBattlefieldThisTurnComponent>() shouldBe null
                 }
             }
         }

@@ -1092,9 +1092,12 @@ default to "you" so card authors don't need to pass it explicitly.
   this turn. Pure ETB tracker: the permanent need not still be on the battlefield, still
   be of that type, or still be under the same controller — only the entry event matters
   (so Mechan Shieldmate's "as long as an artifact entered ... this turn" stays satisfied
-  even if the artifact is destroyed before combat). Backed by the per-player
+  even if the artifact is destroyed before combat). Captured types are read from the
+  *projected* state at the moment of entry, so a permanent that's an artifact via a
+  continuous effect at ETB (Mycosynth Lattice, etc.) also counts. Backed by the per-player
   `PermanentTypesEnteredBattlefieldThisTurnComponent`, cleared by `CleanupPhaseManager` at
-  end of turn. Shortcut: `Conditions.ArtifactEnteredBattlefieldThisTurn`.
+  end of turn. Every battlefield entry must go through `BattlefieldEntry.place` for this
+  tracker to stay in sync. Shortcut: `Conditions.ArtifactEnteredBattlefieldThisTurn`.
 
 ### Composition
 

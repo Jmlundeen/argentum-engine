@@ -1,38 +1,36 @@
 package com.wingedsheep.engine.handlers.effects
 
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.PermanentTypesEnteredBattlefieldThisTurnComponent
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.model.EntityId
 
 /**
  * Records the entry of a permanent for per-player, per-turn "an X entered the battlefield
- * under your control this turn" tracking.
- *
- * Every code path that puts a permanent onto the battlefield should call [record] with the
- * controller and the permanent's base card types:
- *  - [ZoneTransitionService.moveToZone] handles cards moving in via spell resolution,
- *    reanimation, blink, exile-return, etc.
- *  - Each token-creation executor (CreateTokenExecutor, CreatePredefinedTokenExecutor, the
- *    copy-token executors, CreateRoleTokenExecutor, etc.) places its token directly into the
- *    battlefield zone and must call this helper for its tokens to count.
- *
- * The record uses the entering card's **base** [CardType]s. That matches the gameplay rule:
- * what was true at the moment of entry stays true for the rest of the turn (the ruling for
- * Mechan Shieldmate explicitly calls out "It doesn't matter if that artifact stays an artifact
- * or stays under your control"). Continuous effects that subsequently change the permanent's
- * type don't retroactively rewrite this record.
+ * under your control this turn" tracking (e.g. Mechan Shieldmate).
  *
  * Cleared at end of turn by [com.wingedsheep.engine.core.CleanupPhaseManager].
+ *
+ * **All battlefield entries go through [BattlefieldEntry.place].** Callers that put an
+ * entity into the battlefield zone must use that helper rather than calling
+ * `state.addToZone(...)` directly — that's how this tracker stays in sync.
+ *
+ * Types are read from the **projected** state (post-layer), not the printed type line, so
+ * a permanent that is an artifact by continuous effect at the moment of entry is recorded
+ * as having entered as an artifact. The record itself is permanent for the rest of the
+ * turn — once recorded, it stays true even if the permanent later leaves the battlefield
+ * or changes type.
  */
 object PermanentEntryTracker {
 
     /**
-     * Record that a permanent with the given [cardTypes] entered the battlefield under
-     * [controllerId]. Idempotent — recording the same type twice has no effect.
+     * Record that [entityId] just entered the battlefield under [controllerId]. The
+     * recorded card types are read from the projected state, which the caller is
+     * responsible for having brought up to date (i.e. [entityId] must already be on the
+     * battlefield with its identity components in place).
      */
-    fun record(state: GameState, controllerId: EntityId, cardTypes: Set<CardType>): GameState {
+    fun record(state: GameState, controllerId: EntityId, entityId: EntityId): GameState {
+        val cardTypes = projectedCardTypes(state, entityId)
         if (cardTypes.isEmpty()) return state
         return state.updateEntity(controllerId) { container ->
             val existing = container.get<PermanentTypesEnteredBattlefieldThisTurnComponent>()
@@ -43,9 +41,10 @@ object PermanentEntryTracker {
         }
     }
 
-    /**
-     * Convenience: record using the base [CardComponent.typeLine.cardTypes] of the entity.
-     */
-    fun recordFromCard(state: GameState, controllerId: EntityId, cardComponent: CardComponent): GameState =
-        record(state, controllerId, cardComponent.typeLine.cardTypes)
+    private fun projectedCardTypes(state: GameState, entityId: EntityId): Set<CardType> {
+        val typeNames = state.projectedState.getTypes(entityId)
+        if (typeNames.isEmpty()) return emptySet()
+        val byName = CardType.entries.associateBy { it.name }
+        return typeNames.mapNotNull { byName[it] }.toSet()
+    }
 }

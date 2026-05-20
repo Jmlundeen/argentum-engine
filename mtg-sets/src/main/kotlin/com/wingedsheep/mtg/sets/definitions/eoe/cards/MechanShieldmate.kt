@@ -8,20 +8,12 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CanAttackDespiteDefender
 
 /**
- * Mechan Shieldmate
- * {1}{U}
- * Artifact Creature — Robot Soldier
- *
- * Defender
- * As long as an artifact entered the battlefield under your control this turn, this creature
- * can attack as though it didn't have defender.
+ * Mechan Shieldmate — see `oracleText` for the full rules text.
  *
  * Ruling (Scryfall, WotC 2025-07-25): once an artifact enters the battlefield under your
- * control, Mechan Shieldmate can attack that turn as though it didn't have defender — it
- * doesn't matter if that artifact stays an artifact or stays under your control. The
- * `PermanentTypeEnteredBattlefieldThisTurn` condition is a per-player ETB tracker (rather
- * than a "permanents you currently control" check), so the artifact may leave or change type
- * after entering and Mechan Shieldmate retains the ability to attack for the rest of the turn.
+ * control, Mechan Shieldmate can attack that turn — it does not matter whether that artifact
+ * stays an artifact or stays under your control afterwards. That's why the condition reads
+ * an ETB-by-type *event* tracker rather than the current battlefield population.
  */
 val MechanShieldmate = card("Mechan Shieldmate") {
     manaCost = "{1}{U}"
