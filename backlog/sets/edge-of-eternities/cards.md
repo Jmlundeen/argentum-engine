@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 196 / 261
+**Implemented:** 199 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -53,7 +53,7 @@
 - [x] Decode Transmissions
 - [x] Depressurize
 - [x] Desculpting Blast
-- [ ] Devastating Onslaught
+- [x] Devastating Onslaught
 - [x] Diplomatic Relations
 - [ ] Divert Disaster
 - [x] Dockworker Drone
@@ -218,7 +218,7 @@
 - [x] Sunstar Lightsmith
 - [x] Survey Mechan
 - [x] Susurian Dirgecraft
-- [ ] Susurian Voidborn
+- [x] Susurian Voidborn
 - [ ] Susur Secundi, Void Altar
 - [x] Swarm Culler
 - [x] Synthesizer Labship
@@ -238,7 +238,7 @@
 - [x] Thawbringer
 - [x] The Dominion Bracelet
 - [x] The Endstone
-- [ ] The Eternity Elevator
+- [x] The Eternity Elevator
 - [x] The Seriema
 - [ ] Thrumming Hivepool
 - [x] Timeline Culler
