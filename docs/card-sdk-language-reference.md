@@ -735,6 +735,22 @@ in the repo today):
 - `PermanentCardsPutIntoYourGraveyard` — only permanent cards.
 - `CreaturesPutIntoGraveyardFromLibrary` — mill-trigger shape.
 
+### Discard
+
+Fires once per card discarded — a single resolution that discards N cards fires the
+trigger N times (mirrors how `YouDraw` handles multi-card draws). The engine emits
+one aggregate `CardsDiscardedEvent` per resolution and fans it out in the detector.
+`Player.TriggeringPlayer` resolves to the discarding player inside the effect.
+
+- `AnyOpponentDiscards` — whenever an opponent discards a card. (Entropic Battlecruiser.)
+- `YouDiscard` — whenever you discard a card.
+
+**Factory** — `discards(player?, cardFilter?)` — generic shape. `player = Player.Each`
+matches any player; `cardFilter` matches if *any* card in the batch satisfies it.
+The cardFilter is evaluated against the **post-discard zone** (the cards are already
+in the graveyard when the trigger matches) — safe for type/subtype/color predicates,
+but a filter that depends on hand-specific state would read the wrong zone.
+
 ### Spell casting
 
 Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` plus a

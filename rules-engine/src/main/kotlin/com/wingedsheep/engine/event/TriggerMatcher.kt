@@ -6,6 +6,7 @@ import com.wingedsheep.engine.core.AbilityTriggeredEvent
 import com.wingedsheep.engine.core.AttackersDeclaredEvent
 import com.wingedsheep.engine.core.BlockersDeclaredEvent
 import com.wingedsheep.engine.core.CardCycledEvent
+import com.wingedsheep.engine.core.CardsDiscardedEvent
 import com.wingedsheep.engine.core.GiftGivenEvent
 import com.wingedsheep.engine.core.RoomFullyUnlockedEvent
 import com.wingedsheep.engine.core.CardRevealedFromDrawEvent
@@ -268,7 +269,25 @@ class TriggerMatcher(
                     event.oldLife != event.newLife &&
                     matchesPlayer(trigger.player, event.playerId, controllerId)
             }
-            is GameEvent.DiscardEvent -> false
+            is GameEvent.DiscardEvent -> {
+                if (event !is CardsDiscardedEvent) return false
+                if (!matchesPlayer(trigger.player, event.playerId, controllerId)) return false
+                val filter = trigger.cardFilter
+                if (filter != null) {
+                    // Filter is evaluated against the post-discard state — the cards are
+                    // already in the graveyard when the trigger matches. Safe for type/
+                    // subtype/color predicates (zone-independent on the card definition);
+                    // a filter that depends on hand-specific state would read the wrong zone.
+                    val projected = state.projectedState
+                    val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
+                        controllerId = controllerId,
+                        sourceId = sourceId
+                    )
+                    event.cardIds.any { cardId ->
+                        predicateEvaluator.matches(state, projected, cardId, filter, predicateContext)
+                    }
+                } else true
+            }
             is GameEvent.SearchLibraryEvent -> false
             // ExtraTurnEvent is only used as a replacement effect filter, not a trigger
             is GameEvent.ExtraTurnEvent -> false

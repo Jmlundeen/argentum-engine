@@ -4,6 +4,7 @@ import com.wingedsheep.engine.core.ClassLevelChangedEvent
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.AttackersDeclaredEvent
 import com.wingedsheep.engine.core.CardCycledEvent
+import com.wingedsheep.engine.core.CardsDiscardedEvent
 import com.wingedsheep.engine.core.CardsDrawnEvent
 import com.wingedsheep.engine.core.ControlChangedEvent
 import com.wingedsheep.engine.core.DoorUnlockedEvent
@@ -755,6 +756,22 @@ class TriggerDetector(
                     // to `event.count` triggers here.
                     else if (ability.trigger is GameEvent.DrawEvent && event is CardsDrawnEvent) {
                         repeat(event.count) {
+                            triggers.add(
+                                PendingTrigger(
+                                    ability = ability,
+                                    sourceId = entityId,
+                                    sourceName = cardComponent.name,
+                                    controllerId = controllerId,
+                                    triggerContext = TriggerContext.fromEvent(event)
+                                )
+                            )
+                        }
+                    }
+                    // Same shape for "whenever an opponent discards a card" — discarding N cards
+                    // through one effect creates N separate trigger firings.
+                    else if (ability.trigger is GameEvent.DiscardEvent &&
+                        event is CardsDiscardedEvent) {
+                        repeat(event.cardIds.size) {
                             triggers.add(
                                 PendingTrigger(
                                     ability = ability,
