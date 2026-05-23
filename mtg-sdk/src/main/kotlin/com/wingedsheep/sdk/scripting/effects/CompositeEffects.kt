@@ -185,7 +185,18 @@ data class ModalEffect(
      * modal spell chose). [minChooseCount] is treated as `0` when this is set
      * (i.e. always "choose up to"); [chooseCount] is ignored.
      */
-    val dynamicChooseCount: com.wingedsheep.sdk.scripting.values.DynamicAmount? = null
+    val dynamicChooseCount: com.wingedsheep.sdk.scripting.values.DynamicAmount? = null,
+    /**
+     * Whether choosing among [modes] makes this a *modal spell* in MTG terms (rules
+     * 700.2). `true` for printed "Choose one — • X • Y" wording; `false` when this
+     * data class is used as an implementation shortcut for a non-modal mechanic —
+     * notably Gift ("you may promise an opponent a gift as you cast this spell"),
+     * which models a yes/no cost decision as two modes but is *not* a modal spell.
+     * `SpellCastEvent.chosenModesCount` is reported as 0 when this is `false`, so
+     * `SpellCastPredicate.IsModal` and `ContextPropertyKey.MODES_CHOSEN_ON_TRIGGERING_SPELL`
+     * see only true modal spells.
+     */
+    val countsAsModalSpell: Boolean = true
 ) : Effect {
     override val description: String = buildString {
         append("Choose ")
@@ -241,9 +252,12 @@ data class ModalEffect(
 
         /**
          * Create a choose-one modal effect.
+         *
+         * @param countsAsModalSpell Pass `false` for non-modal mechanics (Gift) that
+         *   reuse this data class to model a binary choice — see [ModalEffect.countsAsModalSpell].
          */
-        fun chooseOne(vararg modes: Mode): ModalEffect =
-            ModalEffect(modes.toList(), 1)
+        fun chooseOne(vararg modes: Mode, countsAsModalSpell: Boolean = true): ModalEffect =
+            ModalEffect(modes.toList(), 1, countsAsModalSpell = countsAsModalSpell)
 
         /**
          * Create a choose-two modal effect (Cryptic Command style).

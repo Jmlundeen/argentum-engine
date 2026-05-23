@@ -114,6 +114,40 @@ object EffectPatterns {
         MiscPatterns.drain(amount, target)
 
     // =========================================================================
+    // Gift Pattern (Bloomburrow)
+    // =========================================================================
+
+    /**
+     * Bloomburrow Gift: "You may promise an opponent a gift as you cast this spell."
+     *
+     * Modelled as a two-mode [com.wingedsheep.sdk.scripting.effects.ModalEffect]
+     * where mode 0 is "don't promise a gift" and mode 1 is the gift-promised
+     * branch (whose effect chain should end in
+     * [com.wingedsheep.sdk.scripting.effects.GiftGivenEffect] via
+     * [com.wingedsheep.sdk.dsl.Effects.GiftGiven]). The flag
+     * `countsAsModalSpell = false` keeps Riku of Many Paths and other
+     * "Whenever you cast a modal spell" triggers from misreading Gift as modal.
+     *
+     * Standard usage:
+     * ```kotlin
+     * spell {
+     *     effect = EffectPatterns.giftSpell(
+     *         noGiftMode = Mode.noTarget(baseEffect, "Don't promise a gift — …"),
+     *         giftMode = Mode.noTarget(baseEffect.then(opponentDraws).then(Effects.GiftGiven()),
+     *                                  "Promise a gift — …")
+     *     )
+     * }
+     * ```
+     */
+    fun giftSpell(
+        noGiftMode: com.wingedsheep.sdk.scripting.effects.Mode,
+        giftMode: com.wingedsheep.sdk.scripting.effects.Mode
+    ): com.wingedsheep.sdk.scripting.effects.ModalEffect =
+        com.wingedsheep.sdk.scripting.effects.ModalEffect.chooseOne(
+            noGiftMode, giftMode, countsAsModalSpell = false
+        )
+
+    // =========================================================================
     // Discard Patterns (HandPatterns)
     // =========================================================================
 

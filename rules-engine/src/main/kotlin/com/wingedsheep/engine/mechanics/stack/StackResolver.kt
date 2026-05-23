@@ -270,6 +270,20 @@ class StackResolver(
             }
         }
 
+        // Only count modes for triggers (Riku of Many Paths' "Whenever you cast a
+        // modal spell" → IsModal predicate + MODES_CHOSEN_ON_TRIGGERING_SPELL) when
+        // the spell's effect is a *true* modal — printed "Choose one — • X • Y"
+        // wording. Mechanics like Gift use [ModalEffect] as an implementation
+        // shortcut for a yes/no cost choice but are not modal in MTG terms; those
+        // construct via `EffectPatterns.giftSpell` (or set `countsAsModalSpell =
+        // false` directly), which zeroes the count here.
+        val countsAsModalForTriggers = run {
+            val script = cardRegistry.getCard(cardComponent.cardDefinitionId)?.script
+            val modal = script?.spellEffect as? com.wingedsheep.sdk.scripting.effects.ModalEffect
+            modal?.countsAsModalSpell ?: false
+        }
+        val reportedChosenModesCount = if (countsAsModalForTriggers) chosenModes.size else 0
+
         val events = mutableListOf<GameEvent>(
             SpellCastEvent(
                 spellEntityId = cardId,
@@ -280,7 +294,7 @@ class StackResolver(
                 wasKicked = wasKicked,
                 totalManaSpent = totalManaSpent,
                 paidWithTreasureMana = paidWithTreasureMana,
-                chosenModesCount = chosenModes.size
+                chosenModesCount = reportedChosenModesCount
             )
         )
 
@@ -2147,6 +2161,7 @@ class StackResolver(
             container.with(existing.withController(controllerId))
         }
     }
+
 
     /**
      * Create the appropriate decision and continuation for an EntersWithChoice replacement effect.

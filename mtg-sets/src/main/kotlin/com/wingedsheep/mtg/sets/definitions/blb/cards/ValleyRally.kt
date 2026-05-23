@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -32,7 +31,7 @@ val ValleyRally = card("Valley Rally") {
     val pumpAll = EffectPatterns.modifyStatsForAll(2, 0, Filters.Group.creaturesYouControl)
 
     spell {
-        effect = ModalEffect.chooseOne(
+        effect = EffectPatterns.giftSpell(
             // Mode 1: No gift — creatures you control get +2/+0 until end of turn
             Mode.noTarget(
                 pumpAll,

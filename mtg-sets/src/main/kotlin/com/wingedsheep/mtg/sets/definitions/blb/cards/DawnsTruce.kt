@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -37,7 +36,7 @@ val DawnsTruce = card("Dawn's Truce") {
         .then(EffectPatterns.grantKeywordToAll(Keyword.HEXPROOF, Filters.Group.permanentsYouControl))
 
     spell {
-        effect = ModalEffect.chooseOne(
+        effect = EffectPatterns.giftSpell(
             // Mode 1: No gift — hexproof until end of turn
             Mode.noTarget(
                 hexproofEffects,

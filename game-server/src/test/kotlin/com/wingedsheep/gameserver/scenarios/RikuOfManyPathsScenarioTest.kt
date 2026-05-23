@@ -88,17 +88,20 @@ class RikuOfManyPathsScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Caster", "Opponent")
                     .withCardOnBattlefield(1, "Riku of Many Paths")
-                    .withCardInHand(1, "Dawn's Truce")
-                    .withLandsOnBattlefield(1, "Plains", 2)
+                    .withCardInHand(1, "Trickery Charm")
+                    .withLandsOnBattlefield(1, "Island", 1)
                     .withCardInLibrary(1, "Forest")
+                    .withCardOnBattlefield(2, "Grizzly Bears")
                     .withCardInLibrary(2, "Forest")
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                // Dawn's Truce is choose-one — picking mode 0 (no-target hexproof branch)
+                // Trickery Charm is a true choose-one modal ("Choose one — • … • … • …").
+                // Mode 0 grants flying to a target creature; targeting Bob's Grizzly Bears
                 // makes the cast carry exactly one chosen mode. X for Riku's trigger = 1.
-                game.castSpellWithMode(1, "Dawn's Truce", modeIndex = 0)
+                val bearsId = game.findPermanent("Grizzly Bears")!!
+                game.castSpellWithMode(1, "Trickery Charm", modeIndex = 0, targetId = bearsId)
                 game.resolveStack()
 
                 // Riku's trigger resolves first (LIFO). With X = 1 it presents the
@@ -131,17 +134,19 @@ class RikuOfManyPathsScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Caster", "Opponent")
                     .withCardOnBattlefield(1, "Riku of Many Paths")
-                    .withCardInHand(1, "Dawn's Truce")
-                    .withLandsOnBattlefield(1, "Plains", 2)
+                    .withCardInHand(1, "Trickery Charm")
+                    .withLandsOnBattlefield(1, "Island", 1)
                     .withCardInLibrary(1, "Forest")
+                    .withCardOnBattlefield(2, "Grizzly Bears")
                     .withCardInLibrary(2, "Forest")
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
                 val birdsBefore = countBirdTokensControlledBy(game, game.player1Id)
+                val bearsId = game.findPermanent("Grizzly Bears")!!
 
-                game.castSpellWithMode(1, "Dawn's Truce", modeIndex = 0)
+                game.castSpellWithMode(1, "Trickery Charm", modeIndex = 0, targetId = bearsId)
                 game.resolveStack()
 
                 // Pick mode index 2 — "Create a 1/1 blue Bird creature token with flying".
@@ -151,6 +156,44 @@ class RikuOfManyPathsScenarioTest : ScenarioTestBase() {
                 val birdsAfter = countBirdTokensControlledBy(game, game.player1Id)
                 withClue("Mode 3 must put one Bird token onto the battlefield") {
                     birdsAfter shouldBe birdsBefore + 1
+                }
+            }
+
+            test("Gift spell does NOT count as modal — Riku does not trigger") {
+                // Dawn's Truce ({1}{W}) is the Bloomburrow Gift mechanic: "You may
+                // promise an opponent a gift as you cast this spell." It's modelled
+                // internally with `ModalEffect` but is NOT modal in MTG-rules terms
+                // (no "Choose one — • X • Y" wording). `EffectPatterns.giftSpell`
+                // sets `countsAsModalSpell = false`, so `SpellCastEvent.chosenModesCount`
+                // is reported as 0 → IsModal predicate fails → Riku does not trigger.
+                val game = scenario()
+                    .withPlayers("Caster", "Opponent")
+                    .withCardOnBattlefield(1, "Riku of Many Paths")
+                    .withCardInHand(1, "Dawn's Truce")
+                    .withLandsOnBattlefield(1, "Plains", 2)
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(2, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                // Cast the "no gift" branch — chosenModes is [0] internally but the spell
+                // isn't modal in MTG terms, so Riku must not see it.
+                game.castSpellWithMode(1, "Dawn's Truce", modeIndex = 0)
+                game.resolveStack()
+
+                withClue("Riku must not present a mode choice for Gift casts") {
+                    game.getPendingDecision().shouldBeNull()
+                }
+
+                val rikuId = game.findPermanent("Riku of Many Paths")!!
+                val rikuTriggersOnStack = game.state.stack.count { stackId ->
+                    val container = game.state.getEntity(stackId) ?: return@count false
+                    val triggered = container.get<com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent>()
+                    triggered?.sourceId == rikuId
+                }
+                withClue("No Riku trigger should be on the stack for a Gift cast") {
+                    rikuTriggersOnStack shouldBe 0
                 }
             }
 
@@ -399,15 +442,17 @@ class RikuOfManyPathsScenarioTest : ScenarioTestBase() {
                 val game = scenario()
                     .withPlayers("Caster", "Opponent")
                     .withCardOnBattlefield(1, "Riku of Many Paths")
-                    .withCardInHand(1, "Dawn's Truce")
-                    .withLandsOnBattlefield(1, "Plains", 2)
+                    .withCardInHand(1, "Trickery Charm")
+                    .withLandsOnBattlefield(1, "Island", 1)
                     .withCardInLibrary(1, "Forest")
+                    .withCardOnBattlefield(2, "Grizzly Bears")
                     .withCardInLibrary(2, "Forest")
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                game.castSpellWithMode(1, "Dawn's Truce", modeIndex = 0)
+                val bearsId = game.findPermanent("Grizzly Bears")!!
+                game.castSpellWithMode(1, "Trickery Charm", modeIndex = 0, targetId = bearsId)
                 game.resolveStack()
 
                 val decision = game.getPendingDecision()

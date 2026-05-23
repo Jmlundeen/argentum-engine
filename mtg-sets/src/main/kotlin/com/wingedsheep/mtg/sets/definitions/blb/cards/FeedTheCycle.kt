@@ -18,7 +18,10 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
  * (To forage, exile three cards from your graveyard or sacrifice a Food.)
  * Destroy target creature or planeswalker.
  *
- * Modeled as a modal spell:
+ * Modeled with [ModalEffect] for the binary cost fork (forage or pay {B}), but
+ * the spell is NOT modal in MTG terms — there is no "Choose one — • X • Y"
+ * wording. `countsAsModalSpell = false` keeps Riku of Many Paths and other
+ * "Whenever you cast a modal spell" triggers from misreading it.
  * Mode 1 = pay extra {B} (total {1}{B}{B}) + destroy
  * Mode 2 = forage (total {1}{B} + forage) + destroy
  */
@@ -44,7 +47,8 @@ val FeedTheCycle = card("Feed the Cycle") {
                 targetRequirements = listOf(TargetCreatureOrPlaneswalker()),
                 description = "Forage — destroy target creature or planeswalker",
                 additionalCosts = listOf(AdditionalCost.Forage)
-            )
+            ),
+            countsAsModalSpell = false
         )
     }
 
