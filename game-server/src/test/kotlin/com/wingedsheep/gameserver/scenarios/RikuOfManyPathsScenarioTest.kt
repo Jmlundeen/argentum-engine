@@ -154,6 +154,52 @@ class RikuOfManyPathsScenarioTest : ScenarioTestBase() {
                 }
             }
 
+            test("choose-two modal cast → Riku triggers exactly once (not once per mode)") {
+                // Regression: the trigger fires per SpellCastEvent, not per chosen mode.
+                // A 2-mode Brigid's Command cast must produce exactly one AbilityTriggeredEvent
+                // attributable to Riku — never one per mode.
+                val game = scenario()
+                    .withPlayers("Caster", "Opponent")
+                    .withCardOnBattlefield(1, "Riku of Many Paths")
+                    .withCardInHand(1, "Brigid's Command")
+                    .withLandsOnBattlefield(1, "Plains", 1)
+                    .withLandsOnBattlefield(1, "Forest", 1)
+                    .withLandsOnBattlefield(1, "Island", 1)
+                    .withCardInLibrary(1, "Forest")
+                    .withCardOnBattlefield(2, "Grizzly Bears")
+                    .withCardInLibrary(2, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val rikuId = game.findPermanent("Riku of Many Paths")!!
+                val brigidsCommandId = game.state.getHand(game.player1Id).single { id ->
+                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Brigid's Command"
+                }
+
+                val perModeTargets = listOf(
+                    listOf(ChosenTarget.Player(game.player2Id)),
+                    listOf(ChosenTarget.Permanent(rikuId))
+                )
+                val castResult = game.execute(
+                    CastSpell(
+                        playerId = game.player1Id,
+                        cardId = brigidsCommandId,
+                        targets = perModeTargets.flatten(),
+                        chosenModes = listOf(1, 2),
+                        modeTargetsOrdered = perModeTargets
+                    )
+                )
+                castResult.error shouldBe null
+
+                val rikuTriggers = castResult.events.count { ev ->
+                    ev is com.wingedsheep.engine.core.AbilityTriggeredEvent && ev.sourceId == rikuId
+                }
+                withClue("Riku's ability must fire exactly once per SpellCastEvent, not per mode") {
+                    rikuTriggers shouldBe 1
+                }
+            }
+
             test("choose-two modal cast → Riku's X is exactly 2 (not more)") {
                 // Brigid's Command is choose-two ({1}{G}{W}). Picking modes 1 and 2:
                 //   mode 1 — "Target player creates a 1/1 G/W Kithkin token." → target Bob.
