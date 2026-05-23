@@ -619,9 +619,11 @@ object LibraryPatterns {
     fun lookAtTopXAndPutOntoBattlefield(
         countSource: DynamicAmount,
         filter: GameObjectFilter,
-        shuffleAfter: Boolean = true
+        shuffleAfter: Boolean = true,
+        entersTapped: Boolean = false
     ): CompositeEffect {
         val restPlacement = if (shuffleAfter) ZonePlacement.Shuffled else ZonePlacement.Default
+        val battlefieldPlacement = if (entersTapped) ZonePlacement.Tapped else ZonePlacement.Default
         return CompositeEffect(
             listOf(
                 GatherCardsEffect(
@@ -637,7 +639,7 @@ object LibraryPatterns {
                 ),
                 MoveCollectionEffect(
                     from = "toBattlefield",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD)
+                    destination = CardDestination.ToZone(Zone.BATTLEFIELD, placement = battlefieldPlacement)
                 ),
                 MoveCollectionEffect(
                     from = "rest",

@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 207 / 261
+**Implemented:** 208 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -76,7 +76,7 @@
 - [x] Exosuit Savior
 - [x] Extinguisher Battleship
 - [ ] Faller's Faithful
-- [ ] Famished Worldsire
+- [x] Famished Worldsire
 - [x] Fell Gravship
 - [x] Flight-Deck Coordinator
 - [ ] Focus Fire

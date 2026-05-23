@@ -387,7 +387,7 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
 - `mill(count)` — top N cards into graveyard.
 - `lookAtTopAndKeep(count, keepCount)` — Ancestral Memories — keep exactly K to hand.
 - `lookAtTopAndReorder(count)` — reorder top N.
-- `lookAtTopXAndPutOntoBattlefield(...)` — look at top N, put any onto battlefield.
+- `lookAtTopXAndPutOntoBattlefield(countSource, filter, shuffleAfter, entersTapped)` — look at top N (DynamicAmount), put any matching `filter` onto the battlefield (optionally `entersTapped = true`), rest back on library (`shuffleAfter` toggles shuffled vs. preserve-order). Used e.g. by Famished Worldsire's ETB land tutor.
 
 **Reveal patterns**
 
@@ -982,6 +982,7 @@ composite abilities).
 - `ProtectionFrom(set)` — protection from a set of colors/types.
 - `Affinity(filter)` — cost reduction per matching permanent.
 - `Amplify(n)` — ETB reveal-creatures-for-counters.
+- `Devour(multiplier, sacrificeFilter, variant)` — "As this enters, you may sacrifice any number of [sacrificeFilter]. It enters with [multiplier] × that many +1/+1 counters." Plain Devour uses `sacrificeFilter = Creature` and `variant = ""`; the Edge of Eternities variant "Devour land N" uses `KeywordAbility.devourLand(n)` (`sacrificeFilter = Land`, `variant = "land"`). The keyword surfaces the rules text; pair with [`EntersWithDevour`](#15-replacement-effects) for the mechanical behavior.
 - `Annihilator(n)` — attacker forces sacrifices.
 - `Absorb(n)` — prevent N damage each time it would be dealt to this.
 - `Bushido(n)` — +N/+N when blocking or blocked.
@@ -1343,6 +1344,15 @@ replacementEffect {
   `Effects.MayRevealCardFromHand` to build SOI shadow lands or other "as ~ enters" choices.
   **Scope today:** only wired into the land-play path (`PlayLandHandler`). When the first non-land
   permanent needs this, also wire it into `StackResolver.enterPermanentOnBattlefield`.
+- `EntersWithDevour(multiplier, sacrificeFilter, counterType, variant)` — Devour (CR 702.82) and its
+  printed variants. As the permanent resolves from the stack, the controller is prompted to pick any
+  number of their own permanents matching `sacrificeFilter`. Those permanents are sacrificed and the
+  entering permanent gains `multiplier × count` counters of `counterType` (default `+1/+1`). Pair
+  with `KeywordAbility.Devour(multiplier, sacrificeFilter, variant)` so the rules text renders. The
+  `variant` parameter is a textual tag only — `""` for plain Devour, `"land"` for the EOE
+  "Devour land N" wording. **Scope today:** only the stack-spell entry path is wired; reanimation and
+  token entries skip Devour (which is fine for printed cards — Devour creatures all cost real mana to
+  cast).
 - Custom — implement the `ReplacementEffect` interface directly.
 
 Amount-modifying replacements expose **both** `multiplier` (×) and `modifier` (±) on the same type — do not split into

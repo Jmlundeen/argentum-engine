@@ -802,6 +802,58 @@ class StackResolver(
                 }
                 // No valid cards — enter normally without counters
             }
+
+            // Check for EntersWithDevour replacement effect (CR 702.82, Devour variants).
+            // Pauses for the controller to pick which permanents to sacrifice; the resumer
+            // sacrifices them, places multiplier × count counters on the entering spell
+            // entity, then completes the entry.
+            val devourEffect = cardDef.script.replacementEffects
+                .filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithDevour>().firstOrNull()
+            if (devourEffect != null) {
+                val predicateContext = PredicateContext(controllerId = controllerId, sourceId = spellId)
+                val candidates = state.getBattlefield().filter { entityId ->
+                    if (entityId == spellId) return@filter false
+                    // Use projected controller — control-changing effects (e.g. an opponent's
+                    // Act of Treason on one of your lands) must be respected; you can only
+                    // sacrifice permanents you currently control (CR 701.21a).
+                    if (state.projectedState.getController(entityId) != controllerId) return@filter false
+                    predicateEvaluator.matches(state, state.projectedState, entityId, devourEffect.sacrificeFilter, predicateContext)
+                }
+
+                if (candidates.isNotEmpty()) {
+                    val devourLabel = devourEffect.description.substringBefore(" (")
+                    val decisionId = "devour-enters-${spellId.value}"
+                    val decision = SelectCardsDecision(
+                        id = decisionId,
+                        playerId = controllerId,
+                        prompt = "$devourLabel: sacrifice any number of ${devourEffect.sacrificeFilter.description}s for ${cardComponent.name}",
+                        context = DecisionContext(
+                            sourceId = spellId,
+                            sourceName = cardComponent.name,
+                            phase = DecisionPhase.RESOLUTION
+                        ),
+                        options = candidates,
+                        minSelections = 0,
+                        maxSelections = candidates.size,
+                        useTargetingUI = true
+                    )
+
+                    val continuation = DevourEntersContinuation(
+                        decisionId = decisionId,
+                        spellId = spellId,
+                        controllerId = controllerId,
+                        ownerId = ownerId,
+                        multiplier = devourEffect.multiplier,
+                        counterType = devourEffect.counterType.description
+                    )
+
+                    val pausedState = state
+                        .pushContinuation(continuation)
+                        .withPendingDecision(decision)
+                    return ExecutionResult.paused(pausedState, decision)
+                }
+                // No valid permanents to sacrifice — enter with zero devour counters
+            }
         }
 
         // Check for "pay life or enter tapped" (shock lands) before entering the battlefield

@@ -26,6 +26,7 @@ class ModalAndCloneContinuationResumer(
         resumer(PayLifeOrEnterTappedLandContinuation::class, ::resumePayLifeOrEnterTappedLand),
         resumer(PayLifeOrEnterTappedSpellContinuation::class, ::resumePayLifeOrEnterTappedSpell),
         resumer(RevealCountersContinuation::class, ::resumeRevealCounters),
+        resumer(DevourEntersContinuation::class, ::resumeDevourEnters),
         resumer(CastWithCreatureTypeContinuation::class, ::resumeCastWithCreatureType),
         resumer(BudgetModalContinuation::class, ::resumeBudgetModal),
         resumer(CreateTokenCopyOfChosenContinuation::class, ::resumeCreateTokenCopyOfChosen),
@@ -981,6 +982,98 @@ class ModalAndCloneContinuationResumer(
         val events = mutableListOf<GameEvent>()
         events.addAll(enterEvents4)
         events.addAll(revealEvents)
+        events.add(ResolvedEvent(spellId, cardComponent.name))
+        events.add(
+            ZoneChangeEvent(
+                spellId,
+                cardComponent.name,
+                null,
+                Zone.BATTLEFIELD,
+                ownerId
+            )
+        )
+
+        return checkForMore(newState, events)
+    }
+
+    /**
+     * Resume after the player selects permanents to sacrifice for Devour.
+     *
+     * Sacrifices the chosen permanents (Rule 701.21 — owner of each goes to graveyard),
+     * places `multiplier × count` counters of the saved counter type on the entering
+     * spell entity, then completes the permanent entry to the battlefield.
+     */
+    fun resumeDevourEnters(
+        state: GameState,
+        continuation: DevourEntersContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is CardsSelectedResponse) {
+            return ExecutionResult.error(state, "Expected card selection response for devour")
+        }
+
+        val spellId = continuation.spellId
+        val controllerId = continuation.controllerId
+        val ownerId = continuation.ownerId
+        val sacrificed = response.selectedCards
+
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+
+        // Sacrifice the chosen permanents.
+        if (sacrificed.isNotEmpty()) {
+            val names = sacrificed.map { id ->
+                newState.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
+            }
+            events.add(
+                com.wingedsheep.engine.core.PermanentsSacrificedEvent(
+                    controllerId, sacrificed, names
+                )
+            )
+            newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                .trackFoodSacrifice(newState, sacrificed, controllerId)
+            for (permanentId in sacrificed) {
+                val result = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                    .moveToZone(newState, permanentId, com.wingedsheep.sdk.core.Zone.GRAVEYARD)
+                newState = result.state
+                events.addAll(result.events)
+            }
+        }
+
+        // Place counters on the still-resolving spell entity.
+        val counterCount = sacrificed.size * continuation.multiplier
+        if (counterCount > 0) {
+            val resolvedCounterType = resolveCounterTypeFromString(continuation.counterType)
+                ?: com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
+            val current = newState.getEntity(spellId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
+                ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
+            newState = newState.updateEntity(spellId) { c ->
+                c.with(current.withAdded(resolvedCounterType, counterCount))
+            }
+            val spellName = newState.getEntity(spellId)?.get<CardComponent>()?.name ?: ""
+            events.add(
+                com.wingedsheep.engine.core.CountersAddedEvent(
+                    spellId, continuation.counterType, counterCount, spellName
+                )
+            )
+        }
+
+        // Complete the permanent entry.
+        val spellContainer = newState.getEntity(spellId)
+            ?: return ExecutionResult.error(state, "Spell entity not found: $spellId")
+        val cardComponent = spellContainer.get<CardComponent>()
+            ?: return ExecutionResult.error(state, "Spell has no CardComponent")
+        val spellComponent = spellContainer.get<SpellOnStackComponent>()
+            ?: return ExecutionResult.error(state, "Spell has no SpellOnStackComponent")
+        val cardDef = services.cardRegistry.getCard(cardComponent.cardDefinitionId)
+
+        val (afterEnter, enterEvents) = services.stackResolver.enterPermanentOnBattlefield(
+            newState, spellId, spellComponent, cardComponent, cardDef
+        )
+        newState = afterEnter
+        events.addAll(enterEvents)
         events.add(ResolvedEvent(spellId, cardComponent.name))
         events.add(
             ZoneChangeEvent(

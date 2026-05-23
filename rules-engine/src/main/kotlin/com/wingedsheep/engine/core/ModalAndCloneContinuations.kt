@@ -285,6 +285,31 @@ data class RevealCountersContinuation(
 ) : ContinuationFrame
 
 /**
+ * Resume after player selects permanents to sacrifice for Devour (CR 702.82).
+ *
+ * When a permanent with [com.wingedsheep.sdk.scripting.EntersWithDevour] is resolving
+ * from the stack, the controller is prompted to pick any number of own permanents
+ * matching the devour sacrifice filter. After they choose, this resumer sacrifices
+ * those permanents, places `multiplier × count` counters on the entering spell entity,
+ * then completes the permanent entry to the battlefield.
+ *
+ * @property spellId The spell entity being resolved
+ * @property controllerId The player who cast the spell
+ * @property ownerId The card's owner
+ * @property multiplier Counters placed per sacrificed permanent
+ * @property counterType Serialized counter type (string form of [com.wingedsheep.sdk.scripting.events.CounterTypeFilter])
+ */
+@Serializable
+data class DevourEntersContinuation(
+    override val decisionId: String,
+    val spellId: EntityId,
+    val controllerId: EntityId,
+    val ownerId: EntityId,
+    val multiplier: Int,
+    val counterType: String
+) : ContinuationFrame
+
+/**
  * Resume after player chooses a budget modal combination (e.g., Season cycle pawprint modes).
  *
  * The executor pre-computes all valid combinations of modes that fit within the budget

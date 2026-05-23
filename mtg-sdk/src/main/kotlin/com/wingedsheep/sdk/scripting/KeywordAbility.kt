@@ -444,6 +444,40 @@ sealed interface KeywordAbility {
     }
 
     // =========================================================================
+    // Devour
+    // =========================================================================
+
+    /**
+     * Devour (CR 702.82) and variants. "As this creature enters, you may sacrifice
+     * any number of [sacrificeFilter]. This creature enters with [multiplier] times
+     * that many +1/+1 counters on it."
+     *
+     * The plain "Devour N" prints with [variant] = `""` and a creature sacrifice
+     * filter. Variants such as Edge of Eternities' "Devour land 3" print with
+     * [variant] = `"land"` and a land sacrifice filter; the display becomes
+     * "Devour land N".
+     *
+     * The mechanical wiring lives on the matching replacement effect
+     * [com.wingedsheep.sdk.scripting.EntersWithDevour], which the card script must
+     * also declare. This [KeywordAbility] entry exists so that the parameterized
+     * text renders (and so the card surfaces [Keyword.DEVOUR] in its base keyword set).
+     */
+    @SerialName("Devour")
+    @Serializable
+    data class Devour(
+        val multiplier: Int,
+        val sacrificeFilter: GameObjectFilter = GameObjectFilter.Creature,
+        val variant: String = ""
+    ) : KeywordAbility {
+        override val keyword: Keyword = Keyword.DEVOUR
+        override val description: String = if (variant.isBlank()) {
+            "Devour $multiplier"
+        } else {
+            "Devour $variant $multiplier"
+        }
+    }
+
+    // =========================================================================
     // Companion Methods
     // =========================================================================
 
@@ -497,6 +531,18 @@ sealed interface KeywordAbility {
          */
         fun protectionFromSubtype(subtype: String): KeywordAbility =
             Protection(ProtectionScope.Subtype(subtype))
+
+        /**
+         * Plain Devour: sacrifice any number of creatures as this enters, N counters each.
+         */
+        fun devour(multiplier: Int): KeywordAbility = Devour(multiplier)
+
+        /**
+         * Devour-land variant (Edge of Eternities): sacrifice any number of lands as this
+         * enters, [multiplier] +1/+1 counters per land sacrificed.
+         */
+        fun devourLand(multiplier: Int): KeywordAbility =
+            Devour(multiplier, sacrificeFilter = GameObjectFilter.Land, variant = "land")
 
         /**
          * Create plain Cycling with mana cost from string.

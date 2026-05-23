@@ -50,6 +50,16 @@ enum class Keyword(val displayName: String) {
     // ── ETB modification ──────────────────────────────────────
     AMPLIFY("Amplify"),
 
+    /**
+     * Devour (CR 702.82). "Devour N" — "As this creature enters, you may sacrifice
+     * any number of creatures. This creature enters with N times that many +1/+1
+     * counters on it." Variants substitute the sacrificed permanent type: e.g.
+     * "Devour land 3" sacrifices lands instead of creatures (Edge of Eternities).
+     * The sacrifice filter and multiplier live on
+     * [com.wingedsheep.sdk.scripting.KeywordAbility.Devour].
+     */
+    DEVOUR("Devour"),
+
     // ── Cost reduction ───────────────────────────────────────
     CONVOKE("Convoke"),
     DELVE("Delve"),
