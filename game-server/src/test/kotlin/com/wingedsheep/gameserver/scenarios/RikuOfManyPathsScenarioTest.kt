@@ -1,10 +1,12 @@
 package com.wingedsheep.gameserver.scenarios
 
+import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
+import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
@@ -15,6 +17,7 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 /**
@@ -151,6 +154,108 @@ class RikuOfManyPathsScenarioTest : ScenarioTestBase() {
                 }
             }
 
+            test("choose-two modal cast → Riku's X is exactly 2 (not more)") {
+                // Brigid's Command is choose-two ({1}{G}{W}). Picking modes 1 and 2:
+                //   mode 1 — "Target player creates a 1/1 G/W Kithkin token." → target Bob.
+                //   mode 2 — "Target creature you control gets +3/+3 until end of turn." → target Riku.
+                // chosenModes.size = 2, so X for Riku's trigger must be exactly 2 — two mode
+                // prompts then resolution, never a third pick.
+                val game = scenario()
+                    .withPlayers("Caster", "Opponent")
+                    .withCardOnBattlefield(1, "Riku of Many Paths")
+                    .withCardInHand(1, "Brigid's Command")
+                    .withLandsOnBattlefield(1, "Plains", 1)
+                    .withLandsOnBattlefield(1, "Forest", 1)
+                    .withLandsOnBattlefield(1, "Island", 1)
+                    .withCardInLibrary(1, "Forest")
+                    .withCardOnBattlefield(2, "Grizzly Bears")
+                    .withCardInLibrary(2, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val rikuId = game.findPermanent("Riku of Many Paths")!!
+                val brigidsCommandId = game.state.getHand(game.player1Id).single { id ->
+                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Brigid's Command"
+                }
+
+                // Cast Brigid's Command with TWO modes pre-chosen + per-mode targets.
+                // `targets` must carry the flat union (see ModalCounteredTest).
+                val perModeTargets = listOf(
+                    listOf(ChosenTarget.Player(game.player2Id)),
+                    listOf(ChosenTarget.Permanent(rikuId))
+                )
+                val castResult = game.execute(
+                    CastSpell(
+                        playerId = game.player1Id,
+                        cardId = brigidsCommandId,
+                        targets = perModeTargets.flatten(),
+                        chosenModes = listOf(1, 2),
+                        modeTargetsOrdered = perModeTargets
+                    )
+                )
+                withClue("Brigid's Command cast should succeed: ${castResult.error}") {
+                    castResult.error shouldBe null
+                }
+
+                game.resolveStack()
+
+                // Riku's trigger goes on the stack after Brigid's Command, so it resolves
+                // first (LIFO). It must present a "(1 of 2)" decision.
+                val firstPrompt = game.getPendingDecision()
+                firstPrompt.shouldNotBeNull()
+                firstPrompt.shouldBeInstanceOf<ChooseOptionDecision>()
+                withClue("X must be 2 — first prompt should label the pick as 1 of 2") {
+                    firstPrompt.prompt shouldContain "1 of 2"
+                }
+
+                // Pick mode 1 — +1/+1 counter on Riku + trample.
+                game.pickOption(1)
+
+                // Second pick — labelled (2 of 2). Mode 1 has been consumed (allowRepeat =
+                // false per Scryfall ruling), so the remaining options are mode 0 (exile)
+                // and mode 2 (Bird) plus a decline tail. Mode 2 sits at offered index 1.
+                val secondPrompt = game.getPendingDecision()
+                secondPrompt.shouldNotBeNull()
+                secondPrompt.shouldBeInstanceOf<ChooseOptionDecision>()
+                withClue("X = 2 must offer exactly two prompts; this one labelled 2 of 2") {
+                    secondPrompt.prompt shouldContain "2 of 2"
+                }
+                withClue("Mode 1 must not be re-offered (Riku ruling: can't pick same mode twice per trigger)") {
+                    secondPrompt.options.size shouldBe 3
+                }
+
+                // Bird-token mode is offered at index 1 (modes 0 and 2 of the original list).
+                game.pickOption(1)
+                game.resolveStack()
+
+                // *** The critical assertion: no third mode prompt. X is exactly 2. ***
+                val afterTwoPicks = game.getPendingDecision()
+                withClue("After 2 picks, no further mode decision should be presented (X was 2, not 3)") {
+                    afterTwoPicks.shouldBeNull()
+                }
+
+                // Both picked Riku modes resolved exactly once each: 1 counter, 1 Bird.
+                val counters = game.state.getEntity(rikuId)?.get<CountersComponent>()
+                withClue("Riku gained exactly one +1/+1 counter from its mode 1 pick") {
+                    counters?.getCount(CounterType.PLUS_ONE_PLUS_ONE) shouldBe 1
+                }
+                withClue("Mode 2 created exactly one Bird token under Alice's control") {
+                    countBirdTokensControlledBy(game, game.player1Id) shouldBe 1
+                }
+
+                // Brigid's Command's two modes still resolved underneath Riku's trigger
+                // — Bob has the Kithkin token; Riku still has trample (Riku's mode 1
+                // granted trample until end of turn).
+                val projected = game.state.projectedState
+                withClue("Brigid's Command mode 1 must create a 1/1 G/W Kithkin token for Bob") {
+                    countKithkinTokensControlledBy(game, game.player2Id) shouldBe 1
+                }
+                withClue("Riku's mode 1 still grants trample until end of turn") {
+                    projected.getKeywords(rikuId) shouldBeContains Keyword.TRAMPLE.name
+                }
+            }
+
             test("modal cast → decline a mode → nothing happens but the trigger still fired") {
                 val game = scenario()
                     .withPlayers("Caster", "Opponent")
@@ -194,7 +299,17 @@ class RikuOfManyPathsScenarioTest : ScenarioTestBase() {
         }
     }
 
-    private fun countBirdTokensControlledBy(game: TestGame, playerId: com.wingedsheep.sdk.model.EntityId): Int {
+    private fun countBirdTokensControlledBy(game: TestGame, playerId: com.wingedsheep.sdk.model.EntityId): Int =
+        countTokensWithSubtypeControlledBy(game, playerId, "Bird")
+
+    private fun countKithkinTokensControlledBy(game: TestGame, playerId: com.wingedsheep.sdk.model.EntityId): Int =
+        countTokensWithSubtypeControlledBy(game, playerId, "Kithkin")
+
+    private fun countTokensWithSubtypeControlledBy(
+        game: TestGame,
+        playerId: com.wingedsheep.sdk.model.EntityId,
+        subtype: String
+    ): Int {
         val battlefield = game.state.getZone(
             com.wingedsheep.engine.state.ZoneKey(playerId, Zone.BATTLEFIELD)
         )
@@ -202,7 +317,7 @@ class RikuOfManyPathsScenarioTest : ScenarioTestBase() {
             val container = game.state.getEntity(entityId) ?: return@count false
             val card = container.get<CardComponent>() ?: return@count false
             container.get<TokenComponent>() != null &&
-                "Bird" in card.typeLine.subtypes.map { it.value }
+                subtype in card.typeLine.subtypes.map { it.value }
         }
     }
 }
