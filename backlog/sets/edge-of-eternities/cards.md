@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 203 / 261
+**Implemented:** 204 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -250,7 +250,7 @@
 - [x] Uthros Scanship
 - [x] Uthros, Titanic Godcore
 - [x] Vaultguard Trooper
-- [ ] Virulent Silencer
+- [x] Virulent Silencer
 - [x] Virus Beetle
 - [x] Voidforged Titan
 - [x] Vote Out
