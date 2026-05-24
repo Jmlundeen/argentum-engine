@@ -13,6 +13,7 @@ import com.wingedsheep.engine.mechanics.mana.ManaSource
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.player.CantActivateLoyaltyAbilitiesComponent
 import com.wingedsheep.engine.state.components.player.CantCastSpellsComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.sdk.model.EntityId
@@ -84,6 +85,11 @@ class EnumerationContext(
     val cantCastSpells: Boolean by lazy {
         state.getEntity(playerId)?.has<CantCastSpellsComponent>() == true ||
             castPermissionUtils.hasReachedSpellCastLimit(state, playerId)
+    }
+
+    // Loyalty-activation restriction (Revel in Silence etc.)
+    val cantActivateLoyaltyAbilities: Boolean by lazy {
+        state.getEntity(playerId)?.has<CantActivateLoyaltyAbilitiesComponent>() == true
     }
 
     // Alternative casting costs from battlefield permanents (e.g., Jodah)

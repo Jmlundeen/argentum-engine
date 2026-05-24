@@ -68,15 +68,21 @@ section; do not let SDK additions land without a corresponding doc update.
   half (Room) carries triggered/activated/static abilities instead.
 - `ADVENTURE` — primary face is a creature, `cardFaces[0]` is an instant/sorcery Adventure (CR 715). Resolving the
   Adventure exiles the card and grants permission to cast the creature from exile.
+- `MODAL_DFC` — primary characteristics are the front face, `cardFaces[0]` is the back face (CR 712). Cast **one**
+  face from hand (front via primary characteristics, back via `CastSpell.faceIndex = 0`), never both. Unlike
+  ADVENTURE there is no exile-then-recast linkage — a spell back resolves as an ordinary spell (graveyard, or exile
+  when its script sets `selfExileOnResolve` via `spell { selfExile() }`). DSL: `card { modalBack("Name") { spell { … } } }`.
 
-**`CardFace` (SPLIT / ADVENTURE)**
+**`CardFace` (SPLIT / ADVENTURE / MODAL_DFC)**
 
 - `name` — face name.
 - `manaCost` — face mana cost.
 - `typeLine` — face type line.
-- `script { ... }` — that face's abilities; for instant/sorcery SPLIT halves and Adventures this includes a
-  `spell { effect = …; target(...) }` block holding the face's effect and target requirements.
+- `script { ... }` — that face's abilities; for instant/sorcery SPLIT halves, Adventures, and modal DFC spell
+  faces this includes a `spell { effect = …; target(...) }` block holding the face's effect and target
+  requirements (plus `selfExile()` for faces that exile themselves on resolution).
 - `keywords` — face-local keywords.
+- `imageUri` — face art when it differs from the front (MODAL_DFC backs have their own Scryfall image).
 
 **`metadata { ... }`**
 
@@ -384,10 +390,13 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `Effects.SkipNextDrawStep(target = Controller)` (`SkipNextDrawStepEffect`) — target skips their next draw step. Adds a one-shot `SkipDrawStepComponent` marker consumed by `DrawPhaseManager.performDrawStep` (Elfhame Sanctuary's "you skip your draw step this turn").
 - `HijackNextTurnEffect(target)` — you control target's next turn.
 - `GrantCantBeBlockedByChosenColorEffect(target, duration)` — unblockable except by chosen color.
-- `CantCastSpellsEffect(target, until?)` — target can't cast spells.
+- `CantCastSpellsEffect(target, until?)` — target can't cast spells. Facade: `Effects.CantCastSpells(target, duration)`.
 - `Effects.CantPlayLandsThisTurn(target = Controller)` (`PreventLandPlaysThisTurnEffect`) — the target player can't
   play lands for the rest of this turn (sets remaining land drops to 0). Defaults to the controller (Rock Jockey);
   pass `EffectTarget.ContextTarget(n)` for "target player can't play lands this turn" cards like Turf Wound.
+- `CantActivateLoyaltyAbilitiesEffect(target, duration)` — target can't activate planeswalkers' loyalty abilities.
+  Facade: `Effects.CantActivateLoyaltyAbilities(target, duration)`. Sibling of `CantCastSpells`; compose the two for
+  cards that forbid both (e.g. Revel in Silence).
 
 ### Forced sacrifice / discard
 
@@ -979,6 +988,10 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
 - `YouCastHistoric` — artifact / legendary / Saga.
 - `YouCastSubtype(subtype)` — tribal helper: spell with matching subtype.
 - `AnySpellOrAbilityOnStack` — any object hits the stack.
+- `OpponentActivatesAbility` — an opponent activates an ability that **isn't a mana ability** (CR 605/606). Mana
+  abilities don't use the stack, so they never fire this; loyalty abilities (which are activated abilities) do. Pair
+  with `Effects.DealDamage(n, EffectTarget.PlayerRef(Player.TriggeringPlayer))` to punish the activator (Flamescroll
+  Celebrant). Backed by `GameEvent.AbilityActivatedEvent(player)`.
 
 **Other casters.** The same shape, scoped to a different caster via the runtime
 `Player.Each` / `Player.Opponent` matching on `SpellCastEvent`. Bind the payoff to the
@@ -2038,6 +2051,11 @@ Card authors rarely reference these directly; they are created/updated by the ma
   keeps the grant alive across end-of-turn cleanup. Emits `CardPlottedEvent` / `ClientEvent.CardPlotted`.
 - **Adventure (CR 715)** — `layout = ADVENTURE` + `cardFaces[0]` Adventure spell; DSL:
   `card { adventure("Name") { spell { … } } }`.
+- **Modal DFC (CR 712)** — `layout = MODAL_DFC` + `cardFaces[0]` back face; DSL:
+  `card { modalBack("Name") { imageUri = …; spell { selfExile(); … } } }`. Cast either face from hand (back via
+  `CastSpell.faceIndex = 0`); reuses the Adventure cast/enumeration path (`enumerateSecondaryFace`) but with no
+  exile-then-recast linkage at resolution. `StackResolver` reads the cast face's `selfExileOnResolve`, and the back
+  art rides on `CardFace.imageUri` → `CardComponent.backFaceImageUri`. First user: Flamescroll Celebrant.
 - **Hideaway N** — `KeywordAbility.hideaway(n)` (display, "Hideaway N") + `MoveCollectionEffect(faceDown = true,
   linkToSource = true)` + `CardSource.FromLinkedExile()`; no special engine plumbing needed.
 - **Ascend / City's Blessing** — `Keyword.ASCEND` + `Effects.GainCitysBlessing()` + `Conditions.YouHaveCitysBlessing` /

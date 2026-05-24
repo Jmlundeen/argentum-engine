@@ -807,6 +807,19 @@ class CardBuilder(private val name: String) {
         face(name, init)
     }
 
+    /**
+     * Declare the back face of a modal double-faced card (CR 712). Sets [layout] to
+     * [CardLayout.MODAL_DFC] and registers the named back face. The front face is described by
+     * the surrounding [CardBuilder]'s top-level fields; the owner casts one face or the other,
+     * never both. Inside the block, declare the back face's `manaCost`, `typeLine`, `oracleText`,
+     * its own art via `imageUri`, and — for a spell back — a `spell { … }` block (use
+     * `spell { selfExile() }` for backs that say "Exile <name>.").
+     */
+    fun modalBack(name: String, init: CardFaceBuilder.() -> Unit) {
+        layout = CardLayout.MODAL_DFC
+        face(name, init)
+    }
+
     // =========================================================================
     // Metadata
     // =========================================================================
@@ -853,6 +866,14 @@ class CardBuilder(private val name: String) {
             val adventureFace = cardFaceList.first()
             require(adventureFace.script.spellEffect != null) {
                 "Adventure face '${adventureFace.name}' must declare a spell { } effect"
+            }
+        }
+
+        // MODAL_DFC layout (CR 712): the surrounding CardBuilder fields describe the front face;
+        // cardFaces[0] is the back face. Both faces are independently castable from hand.
+        if (layout == CardLayout.MODAL_DFC) {
+            require(cardFaceList.size == 1) {
+                "MODAL_DFC layout requires exactly one back face: $name"
             }
         }
 
@@ -1582,6 +1603,9 @@ class CardFaceBuilder(private val name: String) {
     var typeLine: String = ""
     var oracleText: String = ""
 
+    /** Art for this face when it differs from the front (e.g. a MODAL_DFC back). */
+    var imageUri: String? = null
+
     private val keywordSet: MutableSet<Keyword> = mutableSetOf()
     private val triggeredAbilities: MutableList<TriggeredAbility> = mutableListOf()
     private val activatedAbilities: MutableList<ActivatedAbility> = mutableListOf()
@@ -1641,6 +1665,7 @@ class CardFaceBuilder(private val name: String) {
             activatedAbilities = activatedAbilities.toList(),
             staticAbilities = staticAbilities.toList(),
             additionalCosts = additionalCostsList.toList(),
+            selfExileOnResolve = spellBuilder?.exilesOnResolve ?: false,
         )
         return CardFace(
             name = name,
@@ -1649,6 +1674,7 @@ class CardFaceBuilder(private val name: String) {
             oracleText = oracleText,
             keywords = keywordSet.toSet(),
             script = script,
+            imageUri = imageUri,
         )
     }
 }

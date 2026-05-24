@@ -387,6 +387,22 @@ data class CantCastSpellsComponent(
 ) : Component
 
 /**
+ * Component indicating that a player cannot activate planeswalkers' loyalty abilities for the
+ * rest of this turn. Applied by effects like Revel in Silence. Sibling of [CantCastSpellsComponent].
+ *
+ * When present on a player entity, that player's loyalty-ability activations are suppressed in
+ * ActivatedAbilityEnumerator and rejected by ActivateAbilityHandler.validate.
+ *
+ * @param removeOn When this component should be removed:
+ *   - [PlayerEffectRemoval.EndOfTurn] — removed during end-of-turn cleanup (default)
+ *   - [PlayerEffectRemoval.Permanent] — stays until explicitly removed
+ */
+@Serializable
+data class CantActivateLoyaltyAbilitiesComponent(
+    val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
+) : Component
+
+/**
  * Grants permission to cast creature spells from graveyard by paying the forage
  * additional cost (exile 3 cards from graveyard or sacrifice a Food).
  * Creatures cast this way enter with a finality counter.

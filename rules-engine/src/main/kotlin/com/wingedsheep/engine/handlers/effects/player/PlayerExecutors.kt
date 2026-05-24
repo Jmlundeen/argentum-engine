@@ -41,6 +41,7 @@ class PlayerExecutors(
         AmassExecutor(effectExecutor),
         AddCombatPhaseExecutor(),
         AnyPlayerMayPayExecutor(executeEffect = effectExecutor),
+        CantActivateLoyaltyAbilitiesExecutor(),
         CantCastSpellsExecutor(),
         CreateGlobalTriggeredAbilityUntilEndOfTurnExecutor(),
         CreateGlobalTriggeredAbilityWithDurationExecutor(),

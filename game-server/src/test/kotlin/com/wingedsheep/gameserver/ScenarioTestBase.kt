@@ -46,6 +46,7 @@ import com.wingedsheep.mtg.sets.definitions.roe.RiseOfTheEldraziSet
 import com.wingedsheep.mtg.sets.definitions.scg.ScourgeSet
 import com.wingedsheep.mtg.sets.definitions.soi.ShadowsOverInnistradSet
 import com.wingedsheep.mtg.sets.definitions.spm.SpiderManSet
+import com.wingedsheep.mtg.sets.definitions.stx.StrixhavenSchoolOfMagesSet
 import com.wingedsheep.mtg.sets.definitions.tdm.TarkirDragonstormSet
 import com.wingedsheep.mtg.sets.definitions.tla.AvatarTheLastAirbenderSet
 import com.wingedsheep.mtg.sets.definitions.tmp.TempestSet
@@ -145,6 +146,7 @@ abstract class ScenarioTestBase : FunSpec() {
         register(ScourgeSet.cards)
         register(ShadowsOverInnistradSet.cards)
         register(SpiderManSet.cards)
+        register(StrixhavenSchoolOfMagesSet.cards)
         register(TarkirDragonstormSet.cards)
         register(TempestSet.cards); register(TempestSet.basicLands)
         register(UrzasSagaSet.cards); register(UrzasSagaSet.basicLands)

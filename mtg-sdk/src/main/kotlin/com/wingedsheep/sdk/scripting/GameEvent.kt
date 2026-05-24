@@ -1081,6 +1081,29 @@ sealed interface GameEvent : TextReplaceable<GameEvent> {
     }
 
     /**
+     * When a player activates an activated ability that isn't a mana ability.
+     *
+     * Mana abilities resolve without using the stack (CR 605.3), so the engine only emits its
+     * `AbilityActivatedEvent` for non-mana activated abilities — including planeswalker loyalty
+     * abilities (CR 606), which are activated abilities. This template therefore matches exactly
+     * "activates an ability that isn't a mana ability"; [player] scopes whose activations count
+     * ([Player.Opponent] for "an opponent activates …", [Player.You] for your own, etc.).
+     *
+     * Used by Flamescroll Celebrant: "Whenever an opponent activates an ability that isn't a mana
+     * ability, this creature deals 1 damage to that player."
+     */
+    @SerialName("AbilityActivatedEvent")
+    @Serializable
+    data class AbilityActivatedEvent(
+        val player: Player = Player.You
+    ) : GameEvent {
+        override val description: String =
+            "${player.description} activates an ability that isn't a mana ability"
+
+        override fun applyTextReplacement(replacer: TextReplacer): GameEvent = this
+    }
+
+    /**
      * When a card is revealed from the first draw of a turn.
      * Triggered by the RevealFirstDrawEachTurn static ability.
      *

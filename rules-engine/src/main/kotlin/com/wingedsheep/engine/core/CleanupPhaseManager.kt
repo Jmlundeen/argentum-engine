@@ -21,6 +21,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.state.components.identity.TextReplacementComponent
 import com.wingedsheep.engine.state.components.player.AdditionalCombatPhasesComponent
+import com.wingedsheep.engine.state.components.player.CantActivateLoyaltyAbilitiesComponent
 import com.wingedsheep.engine.state.components.player.CantCastSpellsComponent
 import com.wingedsheep.engine.state.components.player.DamageBonusComponent
 import com.wingedsheep.engine.state.components.player.DamageReceivedThisTurnComponent
@@ -327,6 +328,10 @@ class CleanupPhaseManager(
                 val cantCast = result.get<CantCastSpellsComponent>()
                 if (cantCast?.removeOn == PlayerEffectRemoval.EndOfTurn) {
                     result = result.without<CantCastSpellsComponent>()
+                }
+                val cantLoyalty = result.get<CantActivateLoyaltyAbilitiesComponent>()
+                if (cantLoyalty?.removeOn == PlayerEffectRemoval.EndOfTurn) {
+                    result = result.without<CantActivateLoyaltyAbilitiesComponent>()
                 }
                 val spellsUncounterable = result.get<SpellsCantBeCounteredComponent>()
                 if (spellsUncounterable?.removeOn == PlayerEffectRemoval.EndOfTurn) {

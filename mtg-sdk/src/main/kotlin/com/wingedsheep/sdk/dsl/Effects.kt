@@ -44,6 +44,7 @@ import com.wingedsheep.sdk.scripting.effects.CantAttackEffect
 import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
 import com.wingedsheep.sdk.scripting.effects.SetSuspectedEffect
 import com.wingedsheep.sdk.scripting.effects.CantBlockGroupEffect
+import com.wingedsheep.sdk.scripting.effects.CantActivateLoyaltyAbilitiesEffect
 import com.wingedsheep.sdk.scripting.effects.CantCastSpellsEffect
 import com.wingedsheep.sdk.scripting.effects.PreventLandPlaysThisTurnEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
@@ -1940,6 +1941,13 @@ object Effects {
      */
     fun CantPlayLandsThisTurn(target: EffectTarget = EffectTarget.Controller): Effect =
         PreventLandPlaysThisTurnEffect(target)
+
+    /**
+     * Target player can't activate planeswalkers' loyalty abilities for the duration.
+     * Compose with [CantCastSpells] for cards that forbid both (e.g. Revel in Silence).
+     */
+    fun CantActivateLoyaltyAbilities(target: EffectTarget = EffectTarget.PlayerRef(Player.Opponent), duration: Duration = Duration.EndOfTurn): Effect =
+        CantActivateLoyaltyAbilitiesEffect(target, duration)
 
     /**
      * Target player skips their next turn.

@@ -74,13 +74,19 @@ class CastSpellEnumerator : ActionEnumerator {
             // Pain // Suffering, Stand // Deliver, Wax // Wane — read their face's
             // `targetRequirements` in CastSpellHandler). Modal effects, alternative costs, blight,
             // behold, kicker, and convoke on a split half are not yet wired up.
-            // Adventure layout (CR 715) — emit one cast option for the Adventure face, then fall
-            // through so the surrounding code also enumerates the creature face. The Adventure
-            // face has its own mana cost, type line (instant/sorcery — Adventure), target
-            // requirements, and spell effect; the creature face uses the card's primary fields.
-            if (cardDef.layout == com.wingedsheep.sdk.model.CardLayout.ADVENTURE && cardDef.cardFaces.isNotEmpty()) {
-                enumerateAdventureFace(context, cardId, cardDef, result)
-                // Don't `continue` — let the surrounding loop also enumerate the creature face.
+            // Adventure (CR 715) and modal DFC (CR 712) both expose a secondary spell face that
+            // is castable from hand alongside the primary characteristics. Emit one cast option
+            // for that face, then fall through so the surrounding code also enumerates the
+            // primary (creature) face. The secondary face carries its own mana cost, type line,
+            // target requirements, and spell effect; the primary face uses the card's top-level
+            // fields. (MODAL_DFC differs from ADVENTURE only at resolution — no exile-then-recast
+            // linkage — which is handled in StackResolver, not here.)
+            if ((cardDef.layout == com.wingedsheep.sdk.model.CardLayout.ADVENTURE ||
+                    cardDef.layout == com.wingedsheep.sdk.model.CardLayout.MODAL_DFC) &&
+                cardDef.cardFaces.isNotEmpty()
+            ) {
+                enumerateSecondaryFace(context, cardId, cardDef, result)
+                // Don't `continue` — let the surrounding loop also enumerate the primary face.
             }
 
             if (cardDef.layout == com.wingedsheep.sdk.model.CardLayout.SPLIT && cardDef.cardFaces.isNotEmpty()) {
@@ -1729,20 +1735,21 @@ class CastSpellEnumerator : ActionEnumerator {
     }
 
     // =========================================================================
-    // Adventure face (CR 715)
+    // Secondary spell face (Adventure CR 715 / modal DFC CR 712)
     // =========================================================================
 
     /**
-     * Emit a [LegalAction] for casting the Adventure face of an adventurer card from hand.
-     * The card's creature face is enumerated by the surrounding loop's normal cast path; this
-     * method only adds the alternative-characteristics cast that uses [CastSpell.faceIndex] = 0.
+     * Emit a [LegalAction] for casting the secondary spell face of an Adventure or modal DFC card
+     * from hand. The card's primary (creature) face is enumerated by the surrounding loop's normal
+     * cast path; this method only adds the alternative-characteristics cast that uses
+     * [CastSpell.faceIndex] = 0.
      *
      * Supports mana cost, instant/sorcery timing, and per-face target requirements. Additional
-     * costs declared on the Adventure face's script are honoured for affordability but the full
-     * additional-cost UX (sacrifice picker, blight, etc.) is not yet wired for Adventure faces —
+     * costs declared on the face's script are honoured for affordability but the full
+     * additional-cost UX (sacrifice picker, blight, etc.) is not yet wired for these faces —
      * cards that need that can extend this method later.
      */
-    private fun enumerateAdventureFace(
+    private fun enumerateSecondaryFace(
         context: EnumerationContext,
         cardId: EntityId,
         cardDef: CardDefinition,

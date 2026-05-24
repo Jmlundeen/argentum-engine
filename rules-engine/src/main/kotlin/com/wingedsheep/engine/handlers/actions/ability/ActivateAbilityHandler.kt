@@ -37,6 +37,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.TextReplacementComponent
+import com.wingedsheep.engine.state.components.player.CantActivateLoyaltyAbilitiesComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.capturePermanentSnapshots
@@ -189,6 +190,10 @@ class ActivateAbilityHandler(
 
         // Check timing for planeswalker abilities
         if (ability.isPlaneswalkerAbility) {
+            // Revel in Silence etc.: "can't activate planeswalkers' loyalty abilities this turn"
+            if (state.getEntity(action.playerId)?.has<CantActivateLoyaltyAbilitiesComponent>() == true) {
+                return "You can't activate loyalty abilities this turn"
+            }
             if (!turnManager.canPlaySorcerySpeed(state, action.playerId)) {
                 return "Loyalty abilities can only be activated at sorcery speed"
             }

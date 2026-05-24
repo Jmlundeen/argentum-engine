@@ -78,6 +78,19 @@ enum class CardLayout {
      * caster gains permission to cast the creature face from exile (CR 715.4-5).
      */
     ADVENTURE,
+
+    /**
+     * Modal double-faced card (CR 712). The front face is described by the primary
+     * [CardDefinition] characteristics; [CardDefinition.cardFaces] holds the single back face
+     * (its own name, mana cost, type line, oracle text, and — for a spell back — a `spell { }`
+     * script). Unlike a transforming DFC, the two faces are unrelated: from hand the owner casts
+     * **one** face (front via primary characteristics, back signalled by [CastSpell.faceIndex] = 0)
+     * and never both. There is no exile-then-recast linkage like [ADVENTURE]; a spell back resolves
+     * as an ordinary spell (going to the graveyard, or to exile when its script sets
+     * `selfExileOnResolve`). Faces share one physical card, so each face carries its own art
+     * ([CardFace.imageUri]).
+     */
+    MODAL_DFC,
 }
 
 /**
@@ -101,6 +114,13 @@ data class CardFace(
     val oracleText: String = "",
     val keywords: Set<Keyword> = emptySet(),
     val script: CardScript = CardScript.EMPTY,
+    /**
+     * Art for this face, when it differs from the primary characteristics' art. Only meaningful
+     * for layouts whose faces are printed on separate sides — i.e. [CardLayout.MODAL_DFC], where
+     * the back face has its own Scryfall image. SPLIT/ADVENTURE faces share the front art and
+     * leave this null.
+     */
+    val imageUri: String? = null,
 )
 
 /**

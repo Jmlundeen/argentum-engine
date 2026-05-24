@@ -269,6 +269,26 @@ data class CantCastSpellsEffect(
 }
 
 /**
+ * Target player can't activate planeswalkers' loyalty abilities for the specified duration.
+ * Sibling restriction to [CantCastSpellsEffect]; compose the two for cards that forbid both
+ * (e.g. Revel in Silence: "Your opponents can't cast spells or activate planeswalkers' loyalty
+ * abilities this turn.").
+ *
+ * @param target The player who can't activate loyalty abilities
+ * @param duration How long the restriction lasts (default: EndOfTurn)
+ */
+@SerialName("CantActivateLoyaltyAbilities")
+@Serializable
+data class CantActivateLoyaltyAbilitiesEffect(
+    val target: EffectTarget = EffectTarget.PlayerRef(Player.Opponent),
+    val duration: Duration = Duration.EndOfTurn
+) : Effect {
+    override val description: String = "${target.description.replaceFirstChar { it.uppercase() }} can't activate planeswalkers' loyalty abilities ${duration.description}"
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect = this
+}
+
+/**
  * Target player loses the game.
  * Used for cards like Phage the Untouchable: "that player loses the game."
  *

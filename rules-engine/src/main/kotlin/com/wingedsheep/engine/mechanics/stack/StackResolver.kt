@@ -1300,7 +1300,10 @@ class StackResolver(
 
                 val ownerId = cardComponent?.ownerId ?: spellComponent.casterId
                 val pausedCardDef = cardComponent?.let { cardRegistry.getCard(it.name) }
-                val pausedSelfExile = pausedCardDef?.script?.selfExileOnResolve == true
+                // For a cast face (Adventure / modal DFC), "Exile <name>." lives on the face's script.
+                val pausedResolvedScript = spellComponent.faceIndex?.let { pausedCardDef?.cardFaces?.getOrNull(it)?.script }
+                    ?: pausedCardDef?.script
+                val pausedSelfExile = pausedResolvedScript?.selfExileOnResolve == true
                 // Flashback and Harmonize both cast from the graveyard and exile on resolution.
                 val pausedFlashbackExile = spellComponent.castFromZone == Zone.GRAVEYARD &&
                     pausedCardDef?.keywordAbilities?.any {
@@ -1385,7 +1388,10 @@ class StackResolver(
         // Move to graveyard (or exile if selfExileOnResolve, flashback, or ExileAfterResolveComponent)
         val ownerId = cardComponent?.ownerId ?: spellComponent.casterId
         val cardDef = cardComponent?.let { cardRegistry.getCard(it.name) }
-        val selfExile = cardDef?.script?.selfExileOnResolve == true
+        // For a cast face (Adventure / modal DFC), "Exile <name>." lives on the face's script.
+        val resolvedScript = spellComponent.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.script }
+            ?: cardDef?.script
+        val selfExile = resolvedScript?.selfExileOnResolve == true
         // Flashback and Harmonize both cast from the graveyard and exile on resolution.
         val flashbackExile = spellComponent.castFromZone == Zone.GRAVEYARD &&
             cardDef?.keywordAbilities?.any {

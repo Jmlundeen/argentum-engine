@@ -115,6 +115,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
 
                 // Planeswalker loyalty abilities: sorcery speed + once per turn + loyalty cost check
                 if (ability.isPlaneswalkerAbility) {
+                    if (context.cantActivateLoyaltyAbilities) continue
                     if (!context.canPlaySorcerySpeed) continue
                     val tracker = container.get<AbilityActivatedThisTurnComponent>()
                     if (tracker != null && tracker.loyaltyActivationCount > 0) {

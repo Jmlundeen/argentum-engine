@@ -195,6 +195,13 @@ class TriggerMatcher(
                     ?.get<TargetsComponent>()?.targets
                 targets != null && targets.size == 1
             }
+            is GameEvent.AbilityActivatedEvent -> {
+                // The engine only emits AbilityActivatedEvent for non-mana activated abilities
+                // (mana abilities resolve without the stack), so this naturally matches
+                // "activates an ability that isn't a mana ability". Loyalty abilities qualify.
+                event is AbilityActivatedEvent &&
+                    matchesPlayer(trigger.player, event.controllerId, controllerId)
+            }
             is GameEvent.CycleEvent -> {
                 event is CardCycledEvent &&
                     matchesPlayer(trigger.player, event.playerId, controllerId) &&

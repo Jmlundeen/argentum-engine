@@ -350,7 +350,10 @@ class GameInitializer(
                 ownerId = ownerId,
                 spellEffect = cardDef.spellEffect,
                 imageUri = printing?.imageUri ?: cardDef.metadata.imageUri,
-                backFaceImageUri = printing?.backFaceImageUri ?: cardDef.backFace?.metadata?.imageUri,
+                backFaceImageUri = printing?.backFaceImageUri
+                    ?: cardDef.backFace?.metadata?.imageUri
+                    // Modal DFC backs aren't a separate CardDefinition; their art rides on the face.
+                    ?: cardDef.cardFaces.firstOrNull { it.imageUri != null }?.imageUri,
                 hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
             ),
             OwnerComponent(ownerId),

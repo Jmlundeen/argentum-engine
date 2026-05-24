@@ -889,6 +889,16 @@ object Triggers {
         binding = TriggerBinding.ANY
     )
 
+    /**
+     * Whenever an opponent activates an ability that isn't a mana ability (CR 605 / 606).
+     * Mana abilities don't use the stack, so they never fire this; loyalty abilities (which are
+     * activated abilities) do. Used for Flamescroll Celebrant.
+     */
+    val OpponentActivatesAbility: TriggerSpec = TriggerSpec(
+        event = AbilityActivatedEvent(player = Player.Opponent),
+        binding = TriggerBinding.ANY
+    )
+
     // =========================================================================
     // Counter Triggers
     // =========================================================================

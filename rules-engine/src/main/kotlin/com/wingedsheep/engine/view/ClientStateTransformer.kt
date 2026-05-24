@@ -997,6 +997,11 @@ class ClientStateTransformer(
             }
         }
 
+        // Modal DFC (CR 712) back face for display/flip preview (it lives in `cardFaces`, not `backFace`).
+        val modalBackFace = if (cardDef?.layout == com.wingedsheep.sdk.model.CardLayout.MODAL_DFC) {
+            cardDef.cardFaces.firstOrNull()
+        } else null
+
         return ClientCard(
             id = entityId,
             name = cardComponent.name,
@@ -1078,13 +1083,16 @@ class ClientStateTransformer(
             } else null,
             chosenModeDescriptions = chosenModeDescriptions,
             perModeTargets = perModeTargets,
-            isDoubleFaced = container.has<com.wingedsheep.engine.state.components.identity.DoubleFacedComponent>() || cardDef?.isDoubleFaced == true,
+            // Modal DFCs (CR 712) keep their back face in `cardFaces`, not `backFace`, so the
+            // SDK `isDoubleFaced` (transform machinery) stays false; surface them to the client
+            // as double-faced for display/flip-preview only.
+            isDoubleFaced = container.has<com.wingedsheep.engine.state.components.identity.DoubleFacedComponent>() || cardDef?.isDoubleFaced == true || modalBackFace != null,
             currentFace = container.get<com.wingedsheep.engine.state.components.identity.DoubleFacedComponent>()?.currentFace?.name
-                ?: if (cardDef?.isDoubleFaced == true) "FRONT" else null,
-            backFaceName = dfcBackFace(container, cardDef)?.name,
-            backFaceTypeLine = dfcBackFace(container, cardDef)?.typeLine?.toString(),
-            backFaceOracleText = dfcBackFace(container, cardDef)?.oracleText,
-            backFaceImageUri = cardComponent.backFaceImageUri ?: dfcBackFace(container, cardDef)?.metadata?.imageUri,
+                ?: if (cardDef?.isDoubleFaced == true || modalBackFace != null) "FRONT" else null,
+            backFaceName = dfcBackFace(container, cardDef)?.name ?: modalBackFace?.name,
+            backFaceTypeLine = dfcBackFace(container, cardDef)?.typeLine?.toString() ?: modalBackFace?.typeLine?.toString(),
+            backFaceOracleText = dfcBackFace(container, cardDef)?.oracleText ?: modalBackFace?.oracleText,
+            backFaceImageUri = cardComponent.backFaceImageUri ?: dfcBackFace(container, cardDef)?.metadata?.imageUri ?: modalBackFace?.imageUri,
             planeswalkerAbilities = buildPlaneswalkerAbilities(cardDef, zoneKey),
             isRoom = cardDef?.isRoom == true,
             cardFaces = buildClientCardFaces(container, cardDef),
