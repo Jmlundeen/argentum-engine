@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 204 / 261
+**Implemented:** 205 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -68,7 +68,7 @@
 - [x] Embrace Oblivion
 - [x] Emergency Eject
 - [x] Emissary Escort
-- [ ] Entropic Battlecruiser
+- [x] Entropic Battlecruiser
 - [x] Eumidian Terrabotanist
 - [x] Eusocial Engineering
 - [x] Evendo, Waking Haven
