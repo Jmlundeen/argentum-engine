@@ -34,7 +34,7 @@ export function CombatResolutionBoard({ decision }: { decision: CombatResolution
   }
 
   const edgesBySource = (sourceId: EntityId) =>
-    decision.edges.filter((e) => e.sourceId === sourceId).slice().sort((a, b) => a.unlockOrder - b.unlockOrder)
+    decision.edges.filter((e) => e.sourceId === sourceId)
 
   const sourcePower = (sourceId: EntityId) =>
     decision.edges.filter((e) => e.sourceId === sourceId).reduce((m, e) => Math.max(m, e.maximum), 0)

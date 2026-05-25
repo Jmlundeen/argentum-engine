@@ -11,9 +11,11 @@ import kotlinx.serialization.Serializable
  * drain nodes, and each [DamageEdge] carries an engine-computed default amount the player can
  * adjust before confirming.
  *
- * Ordering is folded into the board: an edge participates in CR 510.1c damage-assignment order
- * iff [DamageEdge.orderConstrained] is true, and the validator gates later edges on earlier
- * ones reaching [DamageEdge.lethal]. Banding (CR 702.22j/k) lifts that constraint and flips
+ * There is no separate damage-assignment *order* step: the chooser assigns damage to each edge
+ * directly, and the validator accepts any split that is legal under *some* order the attacker
+ * could pick (CR 510.1c) — i.e. for an [DamageEdge.orderConstrained] source, at most one blocker
+ * it damages may be left below [DamageEdge.lethal] (counting cross-source damage this step).
+ * Banding (CR 702.22j/k) lifts even that, letting the chooser divide freely, and flips
  * [DamageEdge.editableBy]; it does NOT lift the separate CR 702.19b trample lethal-first gate,
  * which keys off [DamageEdge.lethal] directly regardless of [DamageEdge.orderConstrained].
  */
@@ -60,7 +62,6 @@ enum class ResolutionTargetKind { PLAYER, PLANESWALKER, BATTLE }
  *   gated by CR 702.19b (every blocker at lethal first), independent of [orderConstrained].
  * @property editableBy The player allowed to modify this edge. Banding flips this to the
  *   opposing player for the affected edges (CR 702.22j/k).
- * @property unlockOrder Position of this edge within its source's CR 510.1c assignment order.
  */
 @Serializable
 data class DamageEdge(
@@ -74,7 +75,6 @@ data class DamageEdge(
     val orderConstrained: Boolean,
     val isTrampleDrain: Boolean,
     val editableBy: EntityId,
-    val unlockOrder: Int,
 )
 
 /** An attacker node on the board. */

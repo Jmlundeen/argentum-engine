@@ -523,7 +523,6 @@ export interface DamageEdge {
   readonly isTrampleDrain: boolean
   /** Which player may modify this edge (banding flips it to the opponent). */
   readonly editableBy: EntityId
-  readonly unlockOrder: number
 }
 
 export interface ResolutionAttacker {

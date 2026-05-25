@@ -448,7 +448,6 @@ internal class CombatDamageManager(
         // lethal-first auto distribution (CR 510.1c order); the player may re-divide within budget.
         for (c in candidates) {
             val auto = damageCalculator.calculateAutoDamageDistribution(state, c.attackerId).assignments
-            var unlockOrder = 0
             for (blockerId in c.liveBlockers) {
                 edges.add(
                     DamageEdge(
@@ -463,7 +462,6 @@ internal class CombatDamageManager(
                         orderConstrained = c.orderConstrained,
                         isTrampleDrain = false,
                         editableBy = c.chooser,
-                        unlockOrder = unlockOrder++,
                     )
                 )
             }
@@ -488,7 +486,6 @@ internal class CombatDamageManager(
                         orderConstrained = false,
                         isTrampleDrain = true,
                         editableBy = c.chooser,
-                        unlockOrder = unlockOrder++,
                     )
                 )
             }
@@ -515,7 +512,6 @@ internal class CombatDamageManager(
             val blockerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, blocker.id, cardRegistry)
             if (blockerPower <= 0) continue
             val defaults = damageCalculator.calculateBlockerDamageDistribution(state, blocker.id, pendingDamage).assignments
-            var unlockOrder = 0
             for (attackerId in orderedTargets) {
                 val default = defaults[attackerId] ?: 0
                 edges.add(
@@ -531,7 +527,6 @@ internal class CombatDamageManager(
                         orderConstrained = chooser.orderConstrained,
                         isTrampleDrain = false,
                         editableBy = chooser.playerId,
-                        unlockOrder = unlockOrder++,
                     )
                 )
                 pendingDamage.merge(attackerId, default, Int::plus)

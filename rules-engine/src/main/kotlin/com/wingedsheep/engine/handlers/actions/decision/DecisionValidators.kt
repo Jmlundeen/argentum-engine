@@ -80,11 +80,10 @@ object DecisionValidators {
      * chooser's [DamageEdge.editableBy], so this stays submitter-agnostic):
      * - Each submitted amount lies in `[0, maximum]` for its edge.
      * - Per source, the total assigned across its edges doesn't exceed its power.
-     * - CR 510.1c damage-assignment order: an [DamageEdge.orderConstrained] edge may carry damage
-     *   only once every earlier order-constrained edge from the same source has its target at
-     *   lethal — counting damage from *all* sources this step (cross-source lethal counting), which
-     *   is what lets a band cooperate without lifting any one attacker's order. Banding edges
-     *   (orderConstrained = false) don't gate.
+     * - CR 510.1c damage-assignment order: the attacking player picks the order, so an assignment is
+     *   legal iff it's legal under *some* order — i.e. for an [DamageEdge.orderConstrained] source,
+     *   at most one blocker it damages may be left below lethal (counting cross-source damage this
+     *   step, which is what lets a band cooperate). Banding edges (orderConstrained = false) don't gate.
      * - CR 702.19b trample lethal-first: a trample drain may carry damage only once every blocker
      *   the trampling attacker assigns to is at lethal (aggregated across the step). Independent of
      *   CR 510.1c order, so banding never relaxes it.
@@ -123,18 +122,20 @@ object DecisionValidators {
             aggregate.merge(edge.targetId, amountOf(edge), Int::plus)
         }
 
-        // CR 510.1c assignment order, per source.
-        for ((_, sourceEdges) in edgesBySource) {
-            val ordered = sourceEdges.filterNot { it.isTrampleDrain }.sortedBy { it.unlockOrder }
-            var allPrecedingLethal = true
-            for (edge in ordered) {
-                if (!edge.orderConstrained) continue
-                if (amountOf(edge) > 0 && !allPrecedingLethal) {
-                    return "Edge ${edge.id}: cannot assign damage to a later target until earlier targets have lethal damage"
-                }
-                if ((aggregate[edge.targetId] ?: 0) < edge.lethal) {
-                    allPrecedingLethal = false
-                }
+        // CR 510.1c: the attacking player chooses the damage-assignment order, so there is no fixed
+        // order to gate against — an assignment is legal iff it's legal under *some* order. Walking
+        // the chosen order, every blocker a source damages except the last (where it runs out) must
+        // be at lethal; blockers it skips are unconstrained. Equivalently: at most one blocker a
+        // source assigns damage to may be left below its lethal need (counting cross-source damage
+        // this step). Banding (orderConstrained = false) lifts even this — the chooser divides freely.
+        for ((sourceId, sourceEdges) in edgesBySource) {
+            val belowLethal = sourceEdges.count { edge ->
+                edge.orderConstrained && !edge.isTrampleDrain &&
+                    amountOf(edge) > 0 && (aggregate[edge.targetId] ?: 0) < edge.lethal
+            }
+            if (belowLethal > 1) {
+                return "Source $sourceId: must assign lethal damage to all but one blocker before " +
+                    "spreading damage further"
             }
         }
 
