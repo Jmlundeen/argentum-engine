@@ -29,7 +29,7 @@
 - [x] Bombard
 - [x] Breeding Pool
 - [x] Brightspear Zealot
-- [ ] Broodguard Elite
+- [x] Broodguard Elite
 - [x] Bygone Colossus
 - [x] Cerebral Download
 - [x] Chorale of the Void
