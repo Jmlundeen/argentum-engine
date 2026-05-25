@@ -132,6 +132,7 @@ val engineSerializersModule = SerializersModule {
         subclass(ChooseOptionDecision::class)
         subclass(BudgetModalDecision::class)
         subclass(AssignDamageDecision::class)
+        subclass(CombatResolutionDecision::class)
         subclass(SearchLibraryDecision::class)
         subclass(ReorderLibraryDecision::class)
         subclass(SelectManaSourcesDecision::class)
@@ -151,6 +152,7 @@ val engineSerializersModule = SerializersModule {
         subclass(OptionChosenResponse::class)
         subclass(BudgetModalResponse::class)
         subclass(DamageAssignmentResponse::class)
+        subclass(CombatResolutionResponse::class)
         subclass(CancelDecisionResponse::class)
         subclass(ManaSourcesSelectedResponse::class)
     }
@@ -161,6 +163,7 @@ val engineSerializersModule = SerializersModule {
         subclass(TriggeredAbilityContinuation::class)
         subclass(TriggerDamageDistributionContinuation::class)
         subclass(DamageAssignmentContinuation::class)
+        subclass(CombatResolutionContinuation::class)
         subclass(ResolveSpellContinuation::class)
         subclass(SacrificeContinuation::class)
         subclass(ReturnToHandContinuation::class)

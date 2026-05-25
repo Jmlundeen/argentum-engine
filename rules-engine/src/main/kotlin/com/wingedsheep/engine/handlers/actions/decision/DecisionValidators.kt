@@ -11,6 +11,8 @@ import com.wingedsheep.engine.core.ChooseNumberDecision
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.ColorChosenResponse
+import com.wingedsheep.engine.core.CombatResolutionDecision
+import com.wingedsheep.engine.core.CombatResolutionResponse
 import com.wingedsheep.engine.core.DamageAssignmentResponse
 import com.wingedsheep.engine.core.DecisionResponse
 import com.wingedsheep.engine.core.DistributeDecision
@@ -61,10 +63,30 @@ object DecisionValidators {
             is ChooseOptionDecision -> validateOption(decision, response)
             is BudgetModalDecision -> validateBudgetModal(decision, response)
             is AssignDamageDecision -> validateDamageAssignment(decision, response)
+            is CombatResolutionDecision -> validateCombatResolution(decision, response)
             is SearchLibraryDecision -> validateLibrarySearch(decision, response)
             is ReorderLibraryDecision -> validateLibraryReorder(decision, response)
             is SelectManaSourcesDecision -> validateManaSourcesSelection(response)
         }
+    }
+
+    /**
+     * Validate a [CombatResolutionResponse] against its [CombatResolutionDecision].
+     *
+     * TODO(Phase 5): real geometric validation — per-edge bounds, per-source power budget,
+     * CR 510.1c cross-source damage-assignment order (gated by [DamageEdge.orderConstrained]),
+     * and CR 702.19b trample lethal-first. The producer that emits this decision lands in
+     * Phase 3 and no board test runs until the validator is real, so this temporary pass-through
+     * is unreachable in the meantime.
+     */
+    private fun validateCombatResolution(
+        decision: CombatResolutionDecision,
+        response: DecisionResponse,
+    ): String? {
+        if (response !is CombatResolutionResponse) {
+            return "Expected combat resolution response"
+        }
+        return null
     }
 
     private fun validateTargets(decision: ChooseTargetsDecision, response: DecisionResponse): String? {

@@ -19,6 +19,26 @@ data class DamageAssignmentContinuation(
 ) : ContinuationFrame
 
 /**
+ * Resume a [CombatResolutionDecision] (the bipartite combat-damage board).
+ *
+ * @property firstStrike Whether this is the first-strike combat damage step.
+ * @property pendingChoosers The choosers still to confirm, in CR 510.1c order (attacker-side
+ *   editors first, then blocker-side). The head is the current chooser; the resumer filters
+ *   the response to edges they own and re-pauses for the next chooser until the queue empties.
+ *   For the two-actor banding case this carries both players (CR 702.22j + 702.22k).
+ * @property decisionShape The cached decision (attackers/blockers/defenders/edges). The resumer
+ *   reads [DamageEdge.editableBy] and [DamageEdge.sourceId]/[DamageEdge.targetId] from here
+ *   rather than re-deriving them, so edge ids never need to be parsed.
+ */
+@Serializable
+data class CombatResolutionContinuation(
+    override val decisionId: String,
+    val firstStrike: Boolean,
+    val pendingChoosers: List<EntityId>,
+    val decisionShape: CombatResolutionDecision,
+) : ContinuationFrame
+
+/**
  * Resume combat damage after player decides whether to assign damage as though unblocked.
  * Used for creatures with AssignCombatDamageAsUnblocked (e.g. Thorn Elemental).
  *
