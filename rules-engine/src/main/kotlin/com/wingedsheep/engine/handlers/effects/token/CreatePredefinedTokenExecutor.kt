@@ -8,7 +8,6 @@ import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
@@ -115,8 +114,8 @@ class CreatePredefinedTokenExecutor(
 
             newState = newState.withEntity(tokenId, container)
 
-            val battlefieldZone = ZoneKey(tokenControllerId, Zone.BATTLEFIELD)
-            newState = newState.addToZone(battlefieldZone, tokenId)
+            newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+                .place(newState, tokenControllerId, tokenId)
         }
 
         val events = createdTokenIds.map { tokenId ->

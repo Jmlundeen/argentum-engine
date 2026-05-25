@@ -509,8 +509,8 @@ class MoveCollectionExecutor(
         }
 
         // Add to battlefield
-        val battlefieldZone = ZoneKey(destPlayerId, Zone.BATTLEFIELD)
-        newState = newState.addToZone(battlefieldZone, auraId)
+        newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+            .place(newState, destPlayerId, auraId)
 
         // Apply battlefield components + AttachedToComponent on aura
         val container = newState.getEntity(auraId)

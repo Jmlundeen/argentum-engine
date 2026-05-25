@@ -11,7 +11,6 @@ import com.wingedsheep.engine.event.GrantedTriggeredAbility
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
@@ -130,8 +129,8 @@ class CreateTokenCopyOfTargetExecutor(
             }
 
             newState = newState.withEntity(tokenId, container)
-            val battlefieldZone = ZoneKey(controllerId, Zone.BATTLEFIELD)
-            newState = newState.addToZone(battlefieldZone, tokenId)
+            newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+                .place(newState, controllerId, tokenId)
 
             for (ability in effect.triggeredAbilities) {
                 val grant = GrantedTriggeredAbility(

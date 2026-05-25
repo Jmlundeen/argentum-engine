@@ -10,7 +10,6 @@ import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
@@ -101,8 +100,8 @@ class CreateRoleTokenExecutor(
             c.with(AttachmentsComponent(updatedIds))
         }
 
-        val battlefieldZone = ZoneKey(tokenControllerId, Zone.BATTLEFIELD)
-        newState = newState.addToZone(battlefieldZone, tokenId)
+        newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+            .place(newState, tokenControllerId, tokenId)
 
         events.add(
             ZoneChangeEvent(

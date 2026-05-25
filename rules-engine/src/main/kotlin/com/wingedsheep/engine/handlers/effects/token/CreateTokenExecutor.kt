@@ -9,7 +9,6 @@ import com.wingedsheep.engine.handlers.effects.EntersWithCountersHelper
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
@@ -158,8 +157,8 @@ class CreateTokenExecutor(
             newState = newState.withEntity(tokenId, container)
 
             // Add to battlefield
-            val battlefieldZone = ZoneKey(tokenControllerId, Zone.BATTLEFIELD)
-            newState = newState.addToZone(battlefieldZone, tokenId)
+            newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+                .place(newState, tokenControllerId, tokenId)
         }
 
         // Apply "enters with counters" replacement effects from other battlefield permanents

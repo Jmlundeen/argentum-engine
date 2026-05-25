@@ -1119,8 +1119,8 @@ class StackResolver(
         // Add to battlefield — clean up any may-play permission first (mirrors the same
         // cleanup done in resolveNonPermanentSpell before the card goes to the graveyard).
         newState = newState.removeMayPlayPermissionsForCard(spellId)
-        val battlefieldZone = ZoneKey(controllerId, Zone.BATTLEFIELD)
-        newState = newState.addToZone(battlefieldZone, spellId)
+        newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+            .place(newState, controllerId, spellId)
 
         // For Rooms cast a half (CR 709.5d/h): the cast face's door becomes unlocked
         // on ETB. Emit a DoorUnlockedEvent so face-scoped "When you unlock this door"

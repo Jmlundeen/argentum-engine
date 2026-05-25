@@ -14,7 +14,6 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
@@ -240,9 +239,8 @@ object TokenCreationReplacementHelper {
                 container = staticAbilityHandler.addReplacementEffectComponent(container)
             }
             newState = newState.withEntity(tokenId, container)
-
-            val battlefieldZone = ZoneKey(controllerId, Zone.BATTLEFIELD)
-            newState = newState.addToZone(battlefieldZone, tokenId)
+            newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+                .place(newState, controllerId, tokenId)
 
             // Apply the equipped creature's printed enters-with-counters replacement effects
             // (and any global ones from other permanents).

@@ -131,14 +131,13 @@ class PlayLandHandler(
             newState = recordGraveyardPlayPermissionUsage(newState, action.playerId, CardType.LAND.name)
         }
 
-        // Add to battlefield
-        val battlefieldZone = ZoneKey(action.playerId, Zone.BATTLEFIELD)
-        newState = newState.addToZone(battlefieldZone, action.cardId)
-
-        // Add controller component
+        // Add controller component first so projection sees the right controller when
+        // BattlefieldEntry.place records the ETB-by-type for this player.
         newState = newState.updateEntity(action.cardId) { c ->
             c.with(ControllerComponent(action.playerId))
         }
+        newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+            .place(newState, action.playerId, action.cardId)
 
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
 

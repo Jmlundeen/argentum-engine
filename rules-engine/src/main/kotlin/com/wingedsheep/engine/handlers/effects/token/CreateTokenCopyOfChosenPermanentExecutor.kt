@@ -11,7 +11,6 @@ import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
@@ -127,8 +126,8 @@ class CreateTokenCopyOfChosenPermanentExecutor(
             }
 
             var newState = state.withEntity(tokenId, container)
-            val battlefieldZone = ZoneKey(controllerId, Zone.BATTLEFIELD)
-            newState = newState.addToZone(battlefieldZone, tokenId)
+            newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+                .place(newState, controllerId, tokenId)
 
             val event = ZoneChangeEvent(
                 entityId = tokenId,

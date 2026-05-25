@@ -4,7 +4,6 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
@@ -147,10 +146,9 @@ class ReturnOneFromLinkedExileExecutor : EffectExecutor<ReturnOneFromLinkedExile
             val currentZone = state.zones.entries.find { (_, cards) -> cardId in cards }?.key
                 ?: return EffectResult.success(state)
 
-            val battlefieldZone = ZoneKey(ownerId, Zone.BATTLEFIELD)
-
             var newState = state.removeFromZone(currentZone, cardId)
-            newState = newState.addToZone(battlefieldZone, cardId)
+            newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+                .place(newState, ownerId, cardId)
 
             val events = listOf(
                 ZoneChangeEvent(

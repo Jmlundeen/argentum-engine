@@ -79,8 +79,8 @@ class ReturnSelfToBattlefieldAttachedExecutor(
 
         // Move from current zone to battlefield
         var newState = state.removeFromZone(currentZone, sourceId)
-        val battlefieldZone = ZoneKey(targetController, Zone.BATTLEFIELD)
-        newState = newState.addToZone(battlefieldZone, sourceId)
+        newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
+            .place(newState, targetController, sourceId)
 
         // Add controller and attachment components
         newState = newState.updateEntity(sourceId) { container ->
