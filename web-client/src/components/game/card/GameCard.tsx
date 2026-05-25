@@ -120,6 +120,11 @@ export function GameCard({
   const draggingAttackerId = useGameStore((state) => state.draggingAttackerId)
   const draggingAttackerHasBanding = useGameStore((state) => state.draggingAttackerHasBanding)
   const linkBand = useGameStore((state) => state.linkBand)
+  // Server-side combat attackers (carry bandId) so band grouping stays visible after
+  // attacks are declared — during the defender's blocks and combat, not just declare-attackers.
+  const serverCombatAttackers = useGameStore(
+    (state) => (state.spectatingState?.gameState ?? state.gameState)?.combat?.attackers ?? null
+  )
   const setAttackTarget = useGameStore((state) => state.setAttackTarget)
   const startDraggingCard = useGameStore((state) => state.startDraggingCard)
   const stopDraggingCard = useGameStore((state) => state.stopDraggingCard)
@@ -303,13 +308,27 @@ export function GameCard({
   const isValidAttacker = isInAttackerMode && isOwnCreature && !card.isTapped && combatState.validCreatures.includes(card.id)
   const isSelectedAsAttacker = isInAttackerMode && combatState.selectedAttackers.includes(card.id)
 
-  // Banding (CR 702.22): which declared band (if any) this creature belongs to during
-  // declare-attackers. Drives the colored ring + corner badge so the player can see
-  // which creatures will attack — and be blocked — as a group.
+  // Banding (CR 702.22): which declared band (if any) this creature belongs to. Drives the
+  // colored ring + corner badge so the player can see which creatures attack — and are blocked —
+  // as a group. During the viewing player's own declare-attackers this comes from the client-side
+  // bands being assembled; afterwards (the defender's blocks, combat) it comes from the server's
+  // per-attacker bandId so the grouping persists.
   const cardHasBanding = card.keywords.includes(Keyword.BANDING)
-  const bandIndex = isInAttackerMode
-    ? combatState.bands.findIndex((band) => band.includes(card.id))
-    : -1
+  const bandIndex = (() => {
+    if (isInAttackerMode && combatState) {
+      const localIdx = combatState.bands.findIndex((band) => band.includes(card.id))
+      if (localIdx !== -1) return localIdx
+    }
+    const serverBandId = serverCombatAttackers?.find((a) => a.creatureId === card.id)?.bandId
+    if (!serverBandId) return -1
+    // Order bands by first appearance of each unique bandId in attacker order, so the color
+    // assignment is stable and matches what the attacker submitted.
+    const seen: string[] = []
+    for (const att of serverCombatAttackers ?? []) {
+      if (att.bandId && !seen.includes(att.bandId)) seen.push(att.bandId)
+    }
+    return seen.indexOf(serverBandId)
+  })()
   const isBanded = bandIndex >= 0
   const bandColor = isBanded ? bandColorFor(bandIndex) : null
 

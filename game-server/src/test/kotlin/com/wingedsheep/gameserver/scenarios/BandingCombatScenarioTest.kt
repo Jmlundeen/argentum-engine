@@ -169,5 +169,68 @@ class BandingCombatScenarioTest : ScenarioTestBase() {
                 }
             }
         }
+
+        context("Blocking a band (CR 702.22h)") {
+
+            test("blocking one member of an attacking band blocks the whole band") {
+                // Player 1 attacks with a band: Noble Elephant (2/2 banding) + Grizzly Bears (2/2
+                // vanilla — CR 702.22c allows one non-banding member). Player 2 blocks ONLY the
+                // Elephant with a single Hill Giant. Per CR 702.22h ("bands are blocked as a group"),
+                // blocking any band member blocks the entire band, so the engine treats the Giant as
+                // blocking the un-declared Grizzly Bears too — neither connects with the player.
+                val game = scenario()
+                    .withPlayers("Attacker", "Defender")
+                    .withCardOnBattlefield(1, "Noble Elephant") // 2/2 trample + banding
+                    .withCardOnBattlefield(1, "Grizzly Bears")  // 2/2 vanilla band partner
+                    .withCardOnBattlefield(2, "Hill Giant")     // 3/3 lone blocker
+                    .withActivePlayer(1)
+                    .inPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                    .build()
+
+                val elephantId = game.findPermanent("Noble Elephant")!!
+                val bearsId = game.findPermanent("Grizzly Bears")!!
+                val giantId = game.findPermanent("Hill Giant")!!
+                val startingLife = game.getLifeTotal(2)
+
+                // Declare both attackers as a single band (CR 702.22c).
+                game.execute(
+                    DeclareAttackers(
+                        game.player1Id,
+                        mapOf(elephantId to game.player2Id, bearsId to game.player2Id),
+                        bands = listOf(setOf(elephantId, bearsId)),
+                    )
+                )
+                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_BLOCKERS)
+
+                // Block ONLY the Elephant — the engine should expand this to block the whole band.
+                game.execute(DeclareBlockers(game.player2Id, mapOf(giantId to listOf(elephantId))))
+
+                game.passUntilPhase(Phase.COMBAT, Step.COMBAT_DAMAGE)
+
+                // A banding attacker whose blocker faces two band members surfaces the damage board.
+                // Assign both band members' full power to the Giant and explicitly trample nothing,
+                // so the "defender takes 0" assertion isolates the block-as-a-group rule rather than
+                // any trample leak (Noble Elephant has trample).
+                if (game.hasPendingDecision()) {
+                    game.submitCombatDamage(
+                        mapOf(
+                            (elephantId to giantId) to 2,
+                            (bearsId to giantId) to 2,
+                            (elephantId to game.player2Id) to 0,
+                        )
+                    )
+                }
+
+                game.passUntilPhase(Phase.POSTCOMBAT_MAIN, Step.POSTCOMBAT_MAIN)
+
+                withClue("The un-declared band member (Grizzly Bears) was blocked too, so the defender takes 0") {
+                    game.getLifeTotal(2) shouldBe startingLife
+                }
+                withClue("The lone blocker faced the whole band's 4 combined power and died") {
+                    game.findPermanent("Hill Giant") shouldBe null
+                    game.isInGraveyard(2, "Hill Giant") shouldBe true
+                }
+            }
+        }
     }
 }
