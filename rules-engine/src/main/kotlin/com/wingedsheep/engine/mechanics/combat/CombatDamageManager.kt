@@ -160,21 +160,27 @@ internal class CombatDamageManager(
             val blockedBy = attackerContainer.get<BlockedComponent>()
             val defenderId = attackingComponent.defenderId
 
-            val targets = mutableListOf<EntityId>()
-            if (blockedBy != null && blockedBy.blockerIds.isNotEmpty()) {
-                val blockersOnBattlefield = blockedBy.blockerIds.filter { it in state.getBattlefield() }
-                if (blockersOnBattlefield.isEmpty()) {
+            // CR 509.1h / 510.1c: a creature that was blocked but has no creatures still blocking
+            // it as the combat damage step begins assigns no combat damage (Butcher Orgg has no
+            // trample). The BlockedComponent persists with its blocker list cleared once the
+            // blockers leave, so "blocked with no live blocker" is distinct from "never blocked"
+            // (blockedBy == null). In that case the divide-freely ability never applies, so skip
+            // the decision entirely and let the normal pipeline assign nothing.
+            if (blockedBy != null) {
+                val liveBlockers = blockedBy.blockerIds.filter { it in state.getBattlefield() }
+                if (liveBlockers.isEmpty()) {
                     continue
                 }
-                targets.addAll(blockersOnBattlefield)
-            } else if (blockedBy == null) {
-                val defendingCreatures = state.getBattlefield().filter { entityId ->
-                    val container = state.getEntity(entityId) ?: return@filter false
-                    projected.getController(entityId) == defenderId &&
-                        container.get<CardComponent>()?.typeLine?.isCreature == true
-                }
-                targets.addAll(defendingCreatures)
             }
+
+            // Otherwise (unblocked, or blocked by at least one live creature) the damage may be
+            // divided freely among the defending player and ANY number of creatures they control —
+            // not just the creatures blocking Butcher Orgg.
+            val targets = mutableListOf<EntityId>()
+            val defendingCreatures = state.getBattlefield().filter { entityId ->
+                projected.getController(entityId) == defenderId && projected.isCreature(entityId)
+            }
+            targets.addAll(defendingCreatures)
             targets.add(defenderId)
 
             if (targets.size <= 1) continue
