@@ -29,7 +29,7 @@
 - [ ] War Elephant
 - [ ] Dandân
 - [ ] Fishliver Oil
-- [ ] Flying Men
+- [x] Flying Men
 - [ ] Giant Tortoise
 - [ ] Island Fish Jasconius
 - [ ] Merchant Ship
