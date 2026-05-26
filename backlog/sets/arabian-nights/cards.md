@@ -21,7 +21,7 @@
 - [ ] Camel
 - [ ] Eye for an Eye
 - [ ] Jihad
-- [ ] King Suleiman
+- [x] King Suleiman
 - [x] Moorish Cavalry
 - [ ] Piety
 - [x] Repentant Blacksmith
