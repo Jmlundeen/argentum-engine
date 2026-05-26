@@ -56,7 +56,7 @@
 - [x] Hurr Jackal
 - [ ] Kird Ape
 - [ ] Magnetic Mountain
-- [ ] Mijae Djinn
+- [x] Mijae Djinn
 - [x] Rukh Egg
 - [ ] Ydwen Efreet
 - [ ] Cyclone
