@@ -63,7 +63,7 @@
 - [ ] Cyclone
 - [x] Desert Twister
 - [ ] Drop of Honey
-- [ ] Erhnam Djinn
+- [x] Erhnam Djinn
 - [ ] Ghazbán Ogre
 - [ ] Ifh-Bíff Efreet
 - [ ] Metamorphosis
