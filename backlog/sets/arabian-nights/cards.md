@@ -85,7 +85,7 @@
 - [ ] Pyramids
 - [ ] Ring of Ma'rûf
 - [ ] Sandals of Abdallah
-- [ ] Bazaar of Baghdad
+- [x] Bazaar of Baghdad
 - [ ] City of Brass
 - [ ] Desert
 - [ ] Diamond Valley
