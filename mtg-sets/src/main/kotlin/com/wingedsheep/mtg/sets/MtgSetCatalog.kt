@@ -23,6 +23,7 @@ import com.wingedsheep.mtg.sets.definitions.m21.CoreSet2021Set
 import com.wingedsheep.mtg.sets.definitions.ody.OdysseySet
 import com.wingedsheep.mtg.sets.definitions.tsp.TimeSpiralSet
 import com.wingedsheep.mtg.sets.definitions.eoe.EdgeOfEternitiesSet
+import com.wingedsheep.mtg.sets.definitions.exo.ExodusSet
 import com.wingedsheep.mtg.sets.definitions.fdn.FoundationsSet
 import com.wingedsheep.mtg.sets.definitions.frf.FateReforgedSet
 import com.wingedsheep.mtg.sets.definitions.fin.FinalFantasySet
@@ -77,6 +78,7 @@ object MtgSetCatalog {
         PortalSet,
         MirageSet,
         TempestSet,
+        ExodusSet,
         UrzasSagaSet,
         InvasionSet,
         LorwynSet,
