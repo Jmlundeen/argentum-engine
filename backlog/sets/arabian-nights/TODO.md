@@ -128,9 +128,12 @@ Group by the shared feature so one PR can clear several cards:
 
 Remaining:
 
-- **Banding** (keyword): Camel, War Elephant → **`arn-cards`** (banding is engine-supported;
-  see note above). War Elephant is plain Trample + Banding; Camel adds a continuous
-  "prevent Desert damage to itself and banded creatures while attacking" clause.
+- **Banding** (keyword): War Elephant (plain Trample + Banding) → done on `arn-cards`
+  (banding is engine-supported; see note above). Camel also has banding **but** adds a
+  continuous "while attacking, prevent all damage Deserts would deal to this creature and to
+  creatures banded with it" clause — the band-mate recipient needs a new `BandedWith(source)`
+  SDK filter wired into `PreventDamage`, so Camel is an **engine-change card** on its own
+  branch (`arn-camel`), not `arn-cards`.
 - **Coin flips**: Ydwen Efreet. (Mijae Djinn, Bottle of Suleiman done.)
 - **Continuous control change**: Old Man of the Sea.
   (Aladdin done on `arn-cards`; Ghazbán Ogre done on `arn-control-by-life`, pending its own PR.)
