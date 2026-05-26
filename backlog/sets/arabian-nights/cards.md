@@ -73,7 +73,7 @@
 - [ ] Aladdin's Lamp
 - [x] Aladdin's Ring
 - [x] Bottle of Suleiman
-- [ ] Brass Man
+- [x] Brass Man
 - [ ] City in a Bottle
 - [x] Dancing Scimitar
 - [x] Ebony Horse
