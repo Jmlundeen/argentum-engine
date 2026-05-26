@@ -90,7 +90,7 @@
 - [ ] Desert
 - [ ] Diamond Valley
 - [ ] Elephant Graveyard
-- [ ] Island of Wak-Wak
+- [x] Island of Wak-Wak
 - [ ] Library of Alexandria
 - [ ] Mountain
 - [x] Oasis
