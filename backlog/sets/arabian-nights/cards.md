@@ -86,7 +86,7 @@
 - [ ] Sandals of Abdallah
 - [x] Bazaar of Baghdad
 - [x] City of Brass
-- [ ] Desert
+- [x] Desert
 - [ ] Diamond Valley
 - [ ] Elephant Graveyard
 - [x] Island of Wak-Wak
