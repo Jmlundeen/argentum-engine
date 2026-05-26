@@ -64,7 +64,7 @@
 - [ ] Drop of Honey
 - [x] Erhnam Djinn
 - [ ] Ghazbán Ogre
-- [ ] Ifh-Bíff Efreet
+- [x] Ifh-Bíff Efreet
 - [ ] Metamorphosis
 - [ ] Nafs Asp
 - [x] Sandstorm
