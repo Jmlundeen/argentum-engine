@@ -15,6 +15,31 @@ Set scaffolding is done:
 
 Verify status anytime with: `scripts/card-status --set ARN` (and `--list --set ARN`).
 
+## Progress (as of 2026-05-26)
+
+**Implemented: 46 / 78** (`scripts/card-status --set ARN`). Full per-card status lives in
+`cards.md` — that file's `Implemented:` count is the source of truth; keep it in sync as boxes
+are checked. The triage buckets below are pruned to **remaining work only**; a card is removed
+from its bucket once it lands on a branch.
+
+Note: **Banding is fully modelled in the engine** (CR 702.22 — `Keyword.BANDING`, handled in
+`CombatManager` / `CombatDamageManager` / `AttackPhaseManager`; `BandDeclarationTest`,
+`BandingTrampleDrainScenarioTest`, and `BandingCombatScenarioTest` all pass, and Mirage's Noble
+Elephant uses it with no per-card wiring). Banding cards therefore compose onto `arn-cards`.
+
+The original banding triage was inaccurate (verified against `arn_set.json`): Moorish Cavalry is
+Trample only and Hurr Jackal is regeneration-denial — neither has banding (both already done).
+Aladdin's control-change also composed onto `arn-cards`. The only true banding cards are **Camel**
+and **War Elephant**; Abu Ja'far is a death trigger, not banding (moved to Bucket B).
+
+**In-flight engine-change branches (not on `arn-cards`, each pending its own PR off `main`):**
+
+- `arn-sindbad` — Sindbad, via a new `DrawRevealDiscardUnless` SDK effect + executor.
+- `arn-control-by-life` — Ghazbán Ogre, via a new `GainControlByMostLife` SDK effect + executor.
+
+Do **not** fold these into the `arn-cards` PR — they touch `mtg-sdk` / `rules-engine`, which
+`arn-cards` is meant to keep clean. Each will bump the `cards.md` count by one when merged.
+
 ## Data sources — do NOT hit the network
 
 - **Card data** (name, mana cost, type line, oracle text, P/T, rarity, collector number,
@@ -70,13 +95,13 @@ Vanilla bodies, plain keywords (flying, first strike, protection, landwalk), sta
 simple targeted/activated abilities, set-base-P/T, regeneration, token-on-death,
 "deal N to any target", conditional static buffs, simple upkeep self-damage.
 
-- Army of Allah, King Suleiman, Piety, Repentant Blacksmith, Flying Men,
-  Serendib Efreet, Sindbad, Juzám Djinn, Stone-Throwing Devils, Sorceress Queen,
-  Bird Maiden, Kird Ape, Rukh Egg, Desert Twister, Sandstorm, Singing Tree,
-  Wyluli Wolf, Aladdin's Ring, Dancing Scimitar, Jandor's Saddlebags, Diamond Valley,
-  City of Brass, Bazaar of Baghdad, Fishliver Oil (islandwalk-grant aura).
+Remaining:
+
 - Mountain — basic land; already covered by `basicLandsFallback`. Add an ARN-art
   `basicLand("Mountain")` variant only if you want the distinct printing.
+
+(Sindbad started here but needed a new SDK effect — now on `arn-sindbad`; see the in-flight
+branches note above.)
 
 ### Bucket B — verify; composable but non-trivial (most land in the big PR)
 
@@ -84,26 +109,31 @@ Conditional attack restrictions, upkeep "pay-or-sacrifice", delayed payments, O-
 exile/return, grant-ability auras, timing-restricted abilities, set-power-of-flyer,
 conditional draw, damage prevention, death-count counters, untap restrictions.
 
+Remaining:
+
 - Dandân, Island Fish Jasconius, Merchant Ship (can't attack unless defender has an Island)
-- Serendib Djinn (sac a land or take 3), Junún Efreet (pay {B}{B} or sac), Hasran Ogress
-- Unstable Mutation (aura + upkeep −1/−1 counter), Oubliette (exile + auras, return)
-- Khabál Ghoul (count creatures that died this turn), El-Hajjâj (your creatures' damage → life)
+- Serendib Djinn (sac a land or take 3)
+- Oubliette (exile + auras, return)
 - Erg Raiders, Nafs Asp (delayed life loss unless pay {1})
-- Giant Tortoise, Brass Man (doesn't untap; pay to untap), Erhnam Djinn (grant forestwalk)
-- Ifh-Bíff Efreet (any player may activate), Metamorphosis, Ali Baba, Desert Nomads
-- Aladdin's Lamp, Ebony Horse, Flying Carpet, Pyramids, Sandals of Abdallah
-- Desert, Elephant Graveyard, Island of Wak-Wak, Library of Alexandria, Oasis, Drop of Honey
+- Metamorphosis, Desert Nomads
+- Aladdin's Lamp, Pyramids, Drop of Honey
+- Abu Ja'far (dies → destroy all creatures blocking or blocked by it; they can't be regenerated)
+- Guardian Beast (untriaged in the original plan — untapped, makes noncreature artifacts
+  unenchantable / untargetable / indestructible; verify whether this composes or needs engine
+  work, it may belong in Bucket C).
 
 ### Bucket C — likely needs engine work → own PR(s)
 
 Group by the shared feature so one PR can clear several cards:
 
-- **Banding** (keyword): Camel, Moorish Cavalry, War Elephant; plus Abu Ja'far
-  (dies → destroy creatures it blocked / were blocked by) and Hurr Jackal (removes banding).
-  Check whether the engine already models banding before building.
-- **Coin flips**: Mijae Djinn, Ydwen Efreet, Bottle of Suleiman.
-- **Continuous control change**: Old Man of the Sea, Aladdin (gain control of an artifact),
-  Ghazbán Ogre (control to the player with the most life).
+Remaining:
+
+- **Banding** (keyword): Camel, War Elephant → **`arn-cards`** (banding is engine-supported;
+  see note above). War Elephant is plain Trample + Banding; Camel adds a continuous
+  "prevent Desert damage to itself and banded creatures while attacking" clause.
+- **Coin flips**: Ydwen Efreet. (Mijae Djinn, Bottle of Suleiman done.)
+- **Continuous control change**: Old Man of the Sea.
+  (Aladdin done on `arn-cards`; Ghazbán Ogre done on `arn-control-by-life`, pending its own PR.)
 - **Replacement / redirection**: Ali from Cairo (life can't drop below 1),
   Eye for an Eye (redirect damage to its source's controller).
 - **Opponent-chosen target**: Cuombajj Witches (1 dmg you choose + 1 dmg an opponent chooses).
