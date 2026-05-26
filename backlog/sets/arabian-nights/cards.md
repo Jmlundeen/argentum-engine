@@ -50,7 +50,7 @@
 - [x] Sorceress Queen
 - [x] Stone-Throwing Devils
 - [ ] Aladdin
-- [ ] Ali Baba
+- [x] Ali Baba
 - [ ] Ali from Cairo
 - [x] Bird Maiden
 - [ ] Desert Nomads
