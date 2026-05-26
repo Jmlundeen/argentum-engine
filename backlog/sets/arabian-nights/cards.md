@@ -44,7 +44,7 @@
 - [ ] Guardian Beast
 - [ ] Hasran Ogress
 - [ ] Junún Efreet
-- [ ] Juzám Djinn
+- [x] Juzám Djinn
 - [ ] Khabál Ghoul
 - [ ] Oubliette
 - [ ] Sorceress Queen
