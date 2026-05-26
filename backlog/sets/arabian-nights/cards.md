@@ -38,7 +38,7 @@
 - [ ] Sindbad
 - [x] Unstable Mutation
 - [ ] Cuombajj Witches
-- [ ] El-Hajjâj
+- [x] El-Hajjâj
 - [ ] Erg Raiders
 - [ ] Guardian Beast
 - [x] Hasran Ogress
