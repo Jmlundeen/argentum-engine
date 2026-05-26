@@ -80,7 +80,7 @@
 - [ ] Ebony Horse
 - [ ] Flying Carpet
 - [ ] Jandor's Ring
-- [ ] Jandor's Saddlebags
+- [x] Jandor's Saddlebags
 - [ ] Jeweled Bird
 - [ ] Pyramids
 - [ ] Ring of Ma'rûf
