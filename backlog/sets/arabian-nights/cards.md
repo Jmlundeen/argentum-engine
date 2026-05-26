@@ -54,7 +54,7 @@
 - [x] Bird Maiden
 - [ ] Desert Nomads
 - [x] Hurr Jackal
-- [ ] Kird Ape
+- [x] Kird Ape
 - [ ] Magnetic Mountain
 - [x] Mijae Djinn
 - [x] Rukh Egg
