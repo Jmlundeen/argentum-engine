@@ -48,7 +48,7 @@
 - [ ] Khabál Ghoul
 - [ ] Oubliette
 - [ ] Sorceress Queen
-- [ ] Stone-Throwing Devils
+- [x] Stone-Throwing Devils
 - [ ] Aladdin
 - [ ] Ali Baba
 - [ ] Ali from Cairo
