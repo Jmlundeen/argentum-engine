@@ -83,7 +83,7 @@
 - [ ] Jeweled Bird
 - [ ] Pyramids
 - [ ] Ring of Ma'rûf
-- [ ] Sandals of Abdallah
+- [x] Sandals of Abdallah
 - [x] Bazaar of Baghdad
 - [x] City of Brass
 - [x] Desert
