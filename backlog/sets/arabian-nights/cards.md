@@ -61,7 +61,7 @@
 - [ ] Rukh Egg
 - [ ] Ydwen Efreet
 - [ ] Cyclone
-- [ ] Desert Twister
+- [x] Desert Twister
 - [ ] Drop of Honey
 - [ ] Erhnam Djinn
 - [ ] Ghazbán Ogre
