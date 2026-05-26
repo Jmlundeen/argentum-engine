@@ -32,10 +32,15 @@ Trample only and Hurr Jackal is regeneration-denial — neither has banding (bot
 Aladdin's control-change also composed onto `arn-cards`. The only true banding cards are **Camel**
 and **War Elephant**; Abu Ja'far is a death trigger, not banding (moved to Bucket B).
 
-**In-flight engine-change branches (not on `arn-cards`, each pending its own PR off `main`):**
+**In-flight engine-change branches** (each branched off the `arn` scaffolding branch — which is
+`main` + ARN scaffolding — with one commit, pending its own PR; not on `arn-cards`):
 
 - `arn-sindbad` — Sindbad, via a new `DrawRevealDiscardUnless` SDK effect + executor.
 - `arn-control-by-life` — Ghazbán Ogre, via a new `GainControlByMostLife` SDK effect + executor.
+- `arn-camel` — Camel (banding), via a new source-relative `StatePredicate.InSameBandAsSource`
+  filter (CR 702.22) wired into the `PreventDamage` recipient evaluation, for its "while
+  attacking, prevent Desert damage to this creature and creatures banded with it" clause. Tests
+  pass; the existing banding suites are unaffected.
 
 Do **not** fold these into the `arn-cards` PR — they touch `mtg-sdk` / `rules-engine`, which
 `arn-cards` is meant to keep clean. Each will bump the `cards.md` count by one when merged.
@@ -128,12 +133,10 @@ Group by the shared feature so one PR can clear several cards:
 
 Remaining:
 
-- **Banding** (keyword): War Elephant (plain Trample + Banding) → done on `arn-cards`
-  (banding is engine-supported; see note above). Camel also has banding **but** adds a
-  continuous "while attacking, prevent all damage Deserts would deal to this creature and to
-  creatures banded with it" clause — the band-mate recipient needs a new `BandedWith(source)`
-  SDK filter wired into `PreventDamage`, so Camel is an **engine-change card** on its own
-  branch (`arn-camel`), not `arn-cards`.
+- **Banding** (keyword): **done.** War Elephant (plain Trample + Banding) on `arn-cards`;
+  Camel (banding + the Desert-damage-prevention clause) on `arn-camel` via the new
+  `InSameBandAsSource` filter (see the in-flight branches note above). Banding itself was
+  already engine-supported.
 - **Coin flips**: Ydwen Efreet. (Mijae Djinn, Bottle of Suleiman done.)
 - **Continuous control change**: Old Man of the Sea.
   (Aladdin done on `arn-cards`; Ghazbán Ogre done on `arn-control-by-life`, pending its own PR.)
