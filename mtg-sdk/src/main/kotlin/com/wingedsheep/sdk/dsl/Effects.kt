@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicCountersEffect
 import com.wingedsheep.sdk.scripting.effects.MoveAllLastKnownCountersEffect
 import com.wingedsheep.sdk.scripting.effects.AddSubtypeEffect
+import com.wingedsheep.sdk.scripting.effects.SetLandTypeEffect
 import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.AnimateLandEffect
@@ -871,6 +872,18 @@ object Effects {
      */
     fun AddSubtype(subtype: String, target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         AddSubtypeEffect(subtype, target, duration)
+
+    /**
+     * Set a target land's basic land subtype, replacing all existing land subtypes (Rule 305.7).
+     * "Target land becomes an Island until end of turn." Pass [fromChosenValueKey] to read the
+     * type from a preceding `ChooseOption(OptionType.BASIC_LAND_TYPE)` instead of [landType].
+     */
+    fun SetLandType(
+        landType: String = "",
+        target: EffectTarget = EffectTarget.ContextTarget(0),
+        duration: Duration = Duration.EndOfTurn,
+        fromChosenValueKey: String? = null
+    ): Effect = SetLandTypeEffect(landType, target, duration, fromChosenValueKey)
 
     /** Choose a color and store it on a target permanent. */
     fun ChooseColorForTarget(

@@ -186,6 +186,43 @@ data class AddSubtypeEffect(
 }
 
 /**
+ * Set a target land's basic land subtype, replacing all of its existing land
+ * subtypes (Rule 305.7). The one-shot counterpart to the `SetEnchantedLandType`
+ * static ability used by auras like Sea's Claim.
+ *
+ * "Target land becomes the basic land type of your choice until end of turn."
+ *
+ * Unlike [AddSubtypeEffect], this does NOT keep the land's other land types — the
+ * land loses the mana abilities granted by its old types and gains those of the new one.
+ *
+ * @property landType The basic land type to set (static value, e.g. "Island")
+ * @property target Which land to modify
+ * @property duration How long the type change lasts
+ * @property fromChosenValueKey If set, reads the land type from EffectContext.chosenValues
+ *   instead of [landType] (pair with a `ChooseOptionEffect(OptionType.BASIC_LAND_TYPE)`)
+ */
+@SerialName("SetLandType")
+@Serializable
+data class SetLandTypeEffect(
+    val landType: String = "",
+    val target: EffectTarget = EffectTarget.ContextTarget(0),
+    val duration: Duration = Duration.EndOfTurn,
+    val fromChosenValueKey: String? = null
+) : Effect {
+    override val description: String = buildString {
+        append(target.description)
+        if (fromChosenValueKey != null) {
+            append(" becomes the basic land type of your choice")
+        } else {
+            append(" becomes a $landType")
+        }
+        if (duration.description.isNotEmpty()) append(" ${duration.description}")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect = this
+}
+
+/**
  * Add a card type to a target permanent.
  * "That creature becomes an artifact in addition to its other types."
  *

@@ -248,6 +248,15 @@ sealed interface SerializableModification {
     data class AddSubtype(val subtype: String) : SerializableModification
 
     /**
+     * Set a permanent's basic land subtypes, replacing all existing land subtypes
+     * (Rule 305.7). The one-shot counterpart to the [SetEnchantedLandType] static
+     * ability. Used by "target land becomes the basic land type of your choice"
+     * effects (e.g., Dream Thrush).
+     */
+    @Serializable
+    data class SetBasicLandTypes(val subtypes: Set<String>) : SerializableModification
+
+    /**
      * Add every creature type in addition to existing types, without granting the
      * Changeling keyword. Used by cards like Stalactite Dagger that say "is all
      * creature types" but don't print the Changeling keyword.
@@ -437,6 +446,7 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.PreventAllCombatDamage -> Modification.NoOp
     is SerializableModification.SetCreatureSubtypes -> Modification.SetCreatureSubtypes(subtypes)
     is SerializableModification.AddSubtype -> Modification.AddSubtype(subtype)
+    is SerializableModification.SetBasicLandTypes -> Modification.SetBasicLandTypes(subtypes)
     is SerializableModification.AddAllCreatureTypes -> Modification.AddAllCreatureTypes
     // SetCantAttack maps to the layer modification for "can't attack" projection
     is SerializableModification.SetCantAttack -> Modification.SetCantAttack

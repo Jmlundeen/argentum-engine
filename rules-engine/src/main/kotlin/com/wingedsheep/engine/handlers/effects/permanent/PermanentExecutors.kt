@@ -60,6 +60,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeGroupColorE
 import com.wingedsheep.engine.handlers.effects.permanent.types.EachPermanentBecomesCopyOfTargetExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.SetCreatureSubtypesExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.SetGroupCreatureSubtypesExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.types.SetLandTypeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.TransformEffectExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.TurnFaceDownExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.TurnFaceUpExecutor
@@ -108,6 +109,7 @@ class PermanentExecutors(
         AddCardTypeExecutor(),
         AddCreatureTypeExecutor(),
         AddSubtypeExecutor(),
+        SetLandTypeExecutor(),
         AnimateLandExecutor(),
         BecomeChosenManaColorExecutor(),
         BecomeCreatureExecutor(),

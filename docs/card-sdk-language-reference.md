@@ -246,6 +246,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 - `AddCardType(type, target, duration)` — add a card type (e.g. become an artifact).
 - `AddSubtype(subtype, target, duration)` — add a subtype temporarily.
+- `SetLandType(landType, target, duration, fromChosenValueKey)` — target land *becomes* the basic land type, **replacing** its existing land subtypes (Rule 305.7); pass `fromChosenValueKey` to read the type from a preceding `ChooseOption(OptionType.BASIC_LAND_TYPE)`. One-shot counterpart to the `SetEnchantedLandType` aura static ability. (Dream Thrush)
 - `ChooseColorForTarget(target)` — target picks a color; stored in context.
 - `BecomeChosenManaColor(target)` — adopt the previously chosen color.
 - `ChangeColor(colors, target, duration)` — replace colors with the given set.
