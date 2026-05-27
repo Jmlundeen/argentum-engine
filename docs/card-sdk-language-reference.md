@@ -1456,7 +1456,11 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
 - `GatherCardsEffect(source, filter, into)` — pipeline gather from a zone into a named collection. `CardSource`
   variants include zones (`FromZone`, `FromMultipleZones`), battlefield queries (`BattlefieldMatching`,
   `ControlledPermanents`), linked exile (`FromLinkedExile`), tapped-as-cost (`TappedAsCost`), and the resolved
-  spell/ability targets (`ChosenTargets`).
+  spell/ability targets (`ChosenTargets`). The zone/library sources (`FromZone`, `FromMultipleZones`,
+  `TopOfLibrary`) accept a multi-player `player` reference (`Player.Each`, `Player.ActivePlayerFirst`,
+  `Player.EachOpponent`) and fan out across every relevant player's copy of the zone in a single gather —
+  e.g. "all creature cards in each player's graveyard" (Bringer of the Last Gift). Pair with
+  `MoveCollectionEffect(underOwnersControl = true)` to return each card to its owner.
 - `CaptureControllersEffect(from, storeAs)` — snapshot each entity's current controller into a parallel
   `List<EntityId>` under `storedCollections[storeAs]`. Required when a later step needs "who controlled
   this card before it left the battlefield" — `ControllerComponent` is stripped on move-out.

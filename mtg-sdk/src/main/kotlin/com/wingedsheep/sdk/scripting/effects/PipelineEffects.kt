@@ -40,6 +40,11 @@ sealed interface CardSource {
 
     /**
      * Cards from a specific zone matching an optional filter.
+     *
+     * [player] may be a multi-player reference ([Player.Each], [Player.ActivePlayerFirst],
+     * [Player.EachOpponent]) to gather from every relevant player's copy of the zone at once
+     * (e.g. "all creature cards in each player's graveyard"). Single-player references gather
+     * from just that player's zone.
      */
     @SerialName("FromZone")
     @Serializable
@@ -54,6 +59,10 @@ sealed interface CardSource {
     /**
      * Cards from multiple zones matching an optional filter.
      * Used for "search your graveyard, hand, and/or library" effects.
+     *
+     * Like [FromZone], [player] may be a multi-player reference ([Player.Each],
+     * [Player.ActivePlayerFirst], [Player.EachOpponent]) to gather the listed zones across
+     * every relevant player at once.
      */
     @SerialName("FromMultipleZones")
     @Serializable

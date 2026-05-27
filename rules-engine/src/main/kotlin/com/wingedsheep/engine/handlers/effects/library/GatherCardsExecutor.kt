@@ -46,7 +46,7 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
         val cards = when (val source = effect.source) {
             is CardSource.TopOfLibrary -> {
                 val count = amountEvaluator.evaluate(state, source.count, context)
-                val playerIds = resolvePlayersForLibrary(source.player, context, state)
+                val playerIds = resolvePlayers(source.player, context, state)
                     ?: return EffectResult.error(state, "Could not resolve player for GatherCards")
                 playerIds.flatMap { playerId ->
                     state.getZone(ZoneKey(playerId, Zone.LIBRARY)).take(count)
@@ -54,10 +54,11 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
             }
 
             is CardSource.FromZone -> {
-                val playerId = resolvePlayer(source.player, context, state)
+                val playerIds = resolvePlayers(source.player, context, state)
                     ?: return EffectResult.error(state, "Could not resolve player for GatherCards")
-                val zone = ZoneKey(playerId, source.zone)
-                val allCards = state.getZone(zone)
+                val allCards = playerIds.flatMap { playerId ->
+                    state.getZone(ZoneKey(playerId, source.zone))
+                }
                 if (source.filter != GameObjectFilter.Any) {
                     val predicateContext = PredicateContext.fromEffectContext(context)
                     allCards.filter { cardId ->
@@ -69,10 +70,12 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
             }
 
             is CardSource.FromMultipleZones -> {
-                val playerId = resolvePlayer(source.player, context, state)
+                val playerIds = resolvePlayers(source.player, context, state)
                     ?: return EffectResult.error(state, "Could not resolve player for GatherCards")
-                val allCards = source.zones.flatMap { zone ->
-                    state.getZone(ZoneKey(playerId, zone))
+                val allCards = playerIds.flatMap { playerId ->
+                    source.zones.flatMap { zone ->
+                        state.getZone(ZoneKey(playerId, zone))
+                    }
                 }
                 if (source.filter != GameObjectFilter.Any) {
                     val predicateContext = PredicateContext.fromEffectContext(context)
@@ -251,12 +254,14 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
     }
 
     /**
-     * Resolve a [Player] reference to the list of player ids whose libraries should be
-     * gathered from. Multi-player references like [Player.Each] / [Player.EachOpponent]
-     * fan out (turn-order; opponents in turn-order minus controller); single-player
-     * references collapse to a one-element list.
+     * Resolve a [Player] reference to the list of player ids whose zone should be gathered
+     * from. Multi-player references like [Player.Each] / [Player.ActivePlayerFirst] /
+     * [Player.EachOpponent] fan out (turn-order; opponents in turn-order minus controller),
+     * so a single [CardSource.FromZone] / [CardSource.FromMultipleZones] / [CardSource.TopOfLibrary]
+     * can gather "each player's graveyard/hand/library" at once. Single-player references
+     * collapse to a one-element list.
      */
-    private fun resolvePlayersForLibrary(
+    private fun resolvePlayers(
         player: Player,
         context: EffectContext,
         state: GameState
