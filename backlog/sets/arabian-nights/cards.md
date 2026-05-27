@@ -2,8 +2,7 @@
 
 **Set Size:** 78 cards
 **Release Date:** December 17, 1993
-**Implemented:** 0 / 78
-
+**Implemented:** 47 / 78
 | Color | Count |
 |-------|-------|
 | White | 11 |
@@ -17,80 +16,80 @@
 ---
 
 - [ ] Abu Ja'far
-- [ ] Army of Allah
+- [x] Army of Allah
 - [ ] Camel
 - [ ] Eye for an Eye
 - [ ] Jihad
-- [ ] King Suleiman
-- [ ] Moorish Cavalry
-- [ ] Piety
-- [ ] Repentant Blacksmith
+- [x] King Suleiman
+- [x] Moorish Cavalry
+- [x] Piety
+- [x] Repentant Blacksmith
 - [ ] Shahrazad
-- [ ] War Elephant
+- [x] War Elephant
 - [ ] Dandân
-- [ ] Fishliver Oil
-- [ ] Flying Men
-- [ ] Giant Tortoise
+- [x] Fishliver Oil
+- [x] Flying Men
+- [x] Giant Tortoise
 - [ ] Island Fish Jasconius
 - [ ] Merchant Ship
 - [ ] Old Man of the Sea
 - [ ] Serendib Djinn
-- [ ] Serendib Efreet
+- [x] Serendib Efreet
 - [ ] Sindbad
-- [ ] Unstable Mutation
+- [x] Unstable Mutation
 - [ ] Cuombajj Witches
-- [ ] El-Hajjâj
+- [x] El-Hajjâj
 - [ ] Erg Raiders
 - [ ] Guardian Beast
-- [ ] Hasran Ogress
-- [ ] Junún Efreet
-- [ ] Juzám Djinn
-- [ ] Khabál Ghoul
+- [x] Hasran Ogress
+- [x] Junún Efreet
+- [x] Juzám Djinn
+- [x] Khabál Ghoul
 - [ ] Oubliette
-- [ ] Sorceress Queen
-- [ ] Stone-Throwing Devils
-- [ ] Aladdin
-- [ ] Ali Baba
+- [x] Sorceress Queen
+- [x] Stone-Throwing Devils
+- [x] Aladdin
+- [x] Ali Baba
 - [ ] Ali from Cairo
-- [ ] Bird Maiden
+- [x] Bird Maiden
 - [ ] Desert Nomads
-- [ ] Hurr Jackal
-- [ ] Kird Ape
+- [x] Hurr Jackal
+- [x] Kird Ape
 - [ ] Magnetic Mountain
-- [ ] Mijae Djinn
-- [ ] Rukh Egg
+- [x] Mijae Djinn
+- [x] Rukh Egg
 - [ ] Ydwen Efreet
 - [ ] Cyclone
-- [ ] Desert Twister
+- [x] Desert Twister
 - [ ] Drop of Honey
-- [ ] Erhnam Djinn
+- [x] Erhnam Djinn
 - [ ] Ghazbán Ogre
-- [ ] Ifh-Bíff Efreet
+- [x] Ifh-Bíff Efreet
 - [ ] Metamorphosis
 - [ ] Nafs Asp
-- [ ] Sandstorm
-- [ ] Singing Tree
-- [ ] Wyluli Wolf
+- [x] Sandstorm
+- [x] Singing Tree
+- [x] Wyluli Wolf
 - [ ] Aladdin's Lamp
-- [ ] Aladdin's Ring
-- [ ] Bottle of Suleiman
-- [ ] Brass Man
+- [x] Aladdin's Ring
+- [x] Bottle of Suleiman
+- [x] Brass Man
 - [ ] City in a Bottle
-- [ ] Dancing Scimitar
-- [ ] Ebony Horse
-- [ ] Flying Carpet
+- [x] Dancing Scimitar
+- [x] Ebony Horse
+- [x] Flying Carpet
 - [ ] Jandor's Ring
-- [ ] Jandor's Saddlebags
+- [x] Jandor's Saddlebags
 - [ ] Jeweled Bird
 - [ ] Pyramids
 - [ ] Ring of Ma'rûf
-- [ ] Sandals of Abdallah
-- [ ] Bazaar of Baghdad
-- [ ] City of Brass
-- [ ] Desert
-- [ ] Diamond Valley
-- [ ] Elephant Graveyard
-- [ ] Island of Wak-Wak
-- [ ] Library of Alexandria
+- [x] Sandals of Abdallah
+- [x] Bazaar of Baghdad
+- [x] City of Brass
+- [x] Desert
+- [x] Diamond Valley
+- [x] Elephant Graveyard
+- [x] Island of Wak-Wak
+- [x] Library of Alexandria
 - [ ] Mountain
-- [ ] Oasis
+- [x] Oasis
