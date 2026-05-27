@@ -458,7 +458,8 @@ If `backlog/sets/{set-name}/cards.md` exists:
 
 1. Stage all relevant files (card definition, set registration, new effects, tests, backlog)
 2. Commit message: `Add {Card Name} to {Set Name}` (or `Add {Card Name} with {new mechanic} support`)
-3. Do NOT push
+3. **Commit directly to the current branch — do NOT create a new branch**, even if the current branch is the default (`main`). This overrides the default "branch before committing on the default branch" behavior.
+4. Do NOT push
 
 ## Important Rules
 
