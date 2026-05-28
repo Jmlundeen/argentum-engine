@@ -363,15 +363,19 @@ data class CreateTokenCopyOfTargetEffect(
 ) : Effect {
     override val description: String = buildString {
         append("Create ${count.description} token copies of target permanent")
-        if (overridePower != null && overrideToughness != null) {
-            append(", except they're $overridePower/$overrideToughness")
-        }
-        if (overrideColors != null || overrideSubtypes != null) {
-            val color = overrideColors?.joinToString(" ") { it.displayName.lowercase() }
-            val type = overrideSubtypes?.joinToString(" ") { it.value }
-            append(", except ${if (count == DynamicAmount.Fixed(1)) "it's" else "they're"} ${
-                listOfNotNull(color, type).joinToString(" ")
-            }")
+        // Merge any copiable-value overrides into one clause, e.g. "except it's a 5/5 black Demon".
+        val pt = if (overridePower != null && overrideToughness != null) "$overridePower/$overrideToughness" else null
+        val color = overrideColors?.joinToString(" ") { it.displayName.lowercase() }
+        val type = overrideSubtypes?.joinToString(" ") { it.value }
+        val descriptor = listOfNotNull(pt, color, type).joinToString(" ")
+        if (descriptor.isNotEmpty()) {
+            val pronoun = if (count == DynamicAmount.Fixed(1)) "it's" else "they're"
+            // Article only when the descriptor ends in a type noun ("a Demon"); a bare P/T or
+            // color reads fine without one ("it's 5/5", "it's black").
+            val article = if (type != null) {
+                if (descriptor.first().lowercaseChar() in "aeiou") "an " else "a "
+            } else ""
+            append(", except $pronoun $article$descriptor")
         }
         if (tapped) append(" tapped")
         if (attacking) append(" and attacking")
