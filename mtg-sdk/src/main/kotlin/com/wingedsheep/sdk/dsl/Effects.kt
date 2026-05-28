@@ -372,12 +372,15 @@ object Effects {
      * @param noRegenerate If true, destroyed permanents can't be regenerated
      * @param storeDestroyedAs If set, stores actually-destroyed IDs for follow-up effects
      *   (count available as DynamicAmount.VariableReference("{key}_count"))
+     * @param excludeTriggering If true, the triggering entity is excluded from the destroyed
+     *   set — for "destroy all *other* … with it" triggers (Spreading Plague).
      */
     fun DestroyAll(
         filter: GameObjectFilter,
         noRegenerate: Boolean = false,
-        storeDestroyedAs: String? = null
-    ): Effect = EffectPatterns.destroyAllPipeline(filter, noRegenerate, storeDestroyedAs)
+        storeDestroyedAs: String? = null,
+        excludeTriggering: Boolean = false
+    ): Effect = EffectPatterns.destroyAllPipeline(filter, noRegenerate, storeDestroyedAs, excludeTriggering)
 
     /**
      * Destroy all permanents matching [filter] and all permanents attached to them.
@@ -1152,13 +1155,15 @@ object Effects {
         creatureTypes: Set<String>,
         keywords: Set<Keyword> = emptySet(),
         count: Int = 1,
-        controller: EffectTarget? = null
+        controller: EffectTarget? = null,
+        imageUri: String? = null
     ): Effect = CreateTokenEffect(
         count = DynamicAmount.Fixed(count),
         power = 0, toughness = 0,
         colors = colors, creatureTypes = creatureTypes, keywords = keywords,
         controller = controller,
-        dynamicPower = dynamicPower, dynamicToughness = dynamicToughness
+        dynamicPower = dynamicPower, dynamicToughness = dynamicToughness,
+        imageUri = imageUri
     )
 
     /**
