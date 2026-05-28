@@ -198,7 +198,20 @@ shape will recur (Crystalline Crawler, Cromat, Dega/Ana-type cards). Pure sugar,
 
 ---
 
-### #3 — Tapped-for-mana event · Fertile Ground, Overabundance, Pulse of Llanowar
+### #3 — Tapped-for-mana event · Fertile Ground, Overabundance, Pulse of Llanowar ✅ DONE
+
+> **Implemented.** All three cards authored + scenario-tested (`InvasionTappedForManaTest`).
+> SDK: `GameEvent.LandTappedForMana` + `Triggers.AnyPlayerTapsLandForMana`/`landTappedForMana(...)`;
+> `AdditionalManaOnTap.anyColor` (Fertile Ground's choose-any-color bonus); `AdditionalManaOnSourceTap.rider`
+> (Overabundance's "deals 1 damage" inline rider); new `ReplaceLandManaColor(filter)` static (Pulse of
+> Llanowar). Engine: emits `LandTappedForManaEvent` on the manual mana-ability path + `TriggerMatcher`
+> case; `TappedForManaBonusResolver` + `ChooseAnyColorTapBonusContinuation` drive Fertile Ground's per-tap
+> color choice (resolution-time pause); `ReplaceLandManaColor` swaps a matched land's base mana effect for
+> "add one mana of any color" in the handler and treats it as a five-color source in `ManaSolver`; the
+> any-color tap bonus is modeled as a flexible `BonusManaEntry` in the solver. **Known limitation
+> (intentional, matches existing engine behavior for City of Brass etc.):** automatic cost payment adds the
+> mirror/replacement/bonus *mana* via the solver but does **not** fire the `LandTappedForMana` event or
+> non-mana riders (Overabundance's damage) — those only resolve on a manual tap.
 
 **What exists.** `MiscStaticAbilities.TappedForManaGrant` / `TappedForManaGrantFromFilter` already
 intercept mana-ability resolution and **add** extra mana inline (no stack), which is exactly the

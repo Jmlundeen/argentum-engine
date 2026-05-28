@@ -922,6 +922,11 @@ Triggers.youCastSpell(
 - `TransformsToBack` — to back face.
 - `YouCycleThis` — you cycle source.
 - `AnyPlayerCycles` — anyone cycles.
+- `AnyPlayerTapsLandForMana` — whenever any player taps a land for mana. Use
+  `landTappedForMana(player, landFilter, binding)` for "an opponent"/"you" variants or a land-type
+  restriction. Fires on the manual mana-ability path only (auto-pay adds mana via the solver without
+  emitting the event). Backs the "whenever a player taps a land for mana" family (Mana Flare, Heartbeat
+  of Spring); the inline-static cards (Overabundance, Pulse) use the mana statics in §9 instead.
 - `YouCommitCrime` — MKM crime mechanic.
 - `YouGiveAGift` — Gift mechanic.
 - `Valiant` — Bloomburrow Valiant trigger.
@@ -1026,6 +1031,29 @@ staticAbility {
 - `RestrictSpellsCastPerTurn(maxPerTurn)` — the controller can't cast more than `maxPerTurn`
   spell(s) each turn. Per-controller; the most restrictive applies when several are in play.
   Already-cast spells count, even those cast before this permanent entered. (Yawgmoth's Agenda)
+
+**Tapped-for-mana mana statics** (extra mana / replaced mana when a land is tapped for mana — resolve
+inline as triggered mana abilities, off the stack per CR 605). These fire on the *manual* mana-ability
+path; automatic cost payment adds the extra/replacement *mana* via the solver but skips non-mana
+riders, matching how the engine already treats e.g. City of Brass's damage during auto-pay.
+
+- `AdditionalManaOnTap(color, amount, anyColor = false)` — aura: "Whenever enchanted land is tapped
+  for mana, its controller adds additional mana." `color = null` reads the aura's `ChosenColorComponent`;
+  `anyColor = true` makes it one mana of **any color the controller chooses** each tap (prompts on a
+  manual tap; flexible for the solver). (Elvish Guidance = fixed `{G}`; **Fertile Ground** = `anyColor`)
+- `AdditionalManaOnSourceTap(sourceFilter, color = null, amount = 1, rider = null)` — global: "Whenever
+  a `<sourceFilter>` is tapped for mana, that player adds …". `color = null` mirrors the produced color.
+  `rider` is an optional non-mana `Effect` resolved inline, controlled by the tapping player
+  (`EffectTarget.Controller` = tapper, `EffectTarget.Self` = the static's source). (Lavaleaper = basic-land
+  mirror; Badgermole Cub = `+{G}`; **Overabundance** = `GameObjectFilter.Land` mirror + `DealDamage(1,
+  Controller)` rider)
+- `ReplaceLandManaColor(filter)` — global: lands matching `filter` produce one mana of a color of their
+  controller's choice instead of their normal mana. Implemented by swapping the land's base mana effect
+  for "add one mana of any color", so the choice flows through the normal any-color machinery (manual tap
+  prompts; solver treats a matched basic as a five-color source). (**Pulse of Llanowar** =
+  `GameObjectFilter.BasicLand.youControl()`)
+- `OverrideEnchantedLandManaColor(color)` — aura: replaces the enchanted land's *own* produced color with
+  a fixed/aura-chosen `color` (vs. `ReplaceLandManaColor`'s filter-based, free-choice form). (Shimmerwilds Growth)
 
 **Alternative play / cast permissions** (let a player play or cast cards from non-hand zones)
 

@@ -951,6 +951,30 @@ object Triggers {
     fun becomesTapped(binding: TriggerBinding = TriggerBinding.SELF): TriggerSpec =
         TriggerSpec(event = TapEvent, binding = binding)
 
+    /**
+     * Whenever any player taps a land for mana. (ANY binding.)
+     *
+     * Backs the "Whenever a player taps a land for mana" family (Overabundance, Mana Flare,
+     * Heartbeat of Spring). For "an opponent" / "you" variants or a land-type restriction, use
+     * [landTappedForMana].
+     */
+    val AnyPlayerTapsLandForMana: TriggerSpec = TriggerSpec(
+        event = LandTappedForMana(player = Player.Each),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
+     * "Whenever <player> taps a <landFilter> for mana" factory.
+     */
+    fun landTappedForMana(
+        player: Player = Player.Each,
+        landFilter: GameObjectFilter? = null,
+        binding: TriggerBinding = TriggerBinding.ANY
+    ): TriggerSpec = TriggerSpec(
+        event = LandTappedForMana(player = player, landFilter = landFilter),
+        binding = binding
+    )
+
     // =========================================================================
     // Cycling Triggers
     // =========================================================================
