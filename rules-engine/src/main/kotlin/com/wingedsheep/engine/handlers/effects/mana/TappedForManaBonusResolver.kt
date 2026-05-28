@@ -108,7 +108,7 @@ class TappedForManaBonusResolver(
         )
         return ExecutionResult.paused(
             decision.state.pushContinuation(continuation),
-            decision.pendingDecision!!,
+            decision.pendingDecision,
             accumulatedEvents + decision.events,
         )
     }
