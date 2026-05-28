@@ -1087,8 +1087,6 @@ export function DeckbuilderPage() {
               resultLabel={
                 catalog.length === 0
                   ? 'Loading…'
-                  : displayed.length === filtered.length
-                  ? `${filtered.length} / ${catalog.length}`
                   : `Showing ${displayed.length} of ${filtered.length}`
               }
             />
