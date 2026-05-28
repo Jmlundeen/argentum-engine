@@ -1155,4 +1155,17 @@ object Triggers {
         event = ExpendEvent(threshold),
         binding = TriggerBinding.ANY
     )
+
+    // =========================================================================
+    // The Ring Triggers (CR 701.54)
+    // =========================================================================
+
+    /**
+     * Whenever the Ring tempts you (CR 701.54d). Fires when this ability's controller is tempted,
+     * even if some or all of the tempt actions were impossible.
+     */
+    val RingTemptsYou: TriggerSpec = TriggerSpec(
+        event = RingTemptedEvent(Player.You),
+        binding = TriggerBinding.ANY
+    )
 }

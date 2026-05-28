@@ -900,6 +900,10 @@ Triggers.youCastSpell(
 - `AnyPlayerLosesLife` — anyone loses life.
 - `YouGainOrLoseLife` — combined life-change.
 
+### The Ring
+
+- `RingTemptsYou` — whenever the Ring tempts you (CR 701.54d). Paired with `Effects.TheRingTemptsYou()`.
+
 ### Sacrifice & counters
 
 - `YouSacrificeOneOrMore(filter?)` — you sac ≥1 matching.
@@ -1086,6 +1090,7 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
 - `TargetControlsCreature(target)` — target player has a creature.
 - `TargetControlsLand(target)` — target player has a land.
 - `YouHaveCitysBlessing` — you have City's Blessing (10+ permanents).
+- `SourceIsRingBearer` — the source permanent is your Ring-bearer (CR 701.54e).
 
 ### Life & damage
 
@@ -1542,6 +1547,8 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
 ### Player
 
 - `PlayerCitysBlessingComponent` — you have City's Blessing.
+- `TheRingComponent` — you have the Ring emblem; `temptCount` gates its four abilities (CR 701.54).
+- `RingBearerComponent` — designates a creature as a player's Ring-bearer (on the creature, not the player).
 - `SpellsCantBeCounteredComponent` — your matching spells can't be countered.
 - `LifeGainedAmountThisTurnComponent` — accumulator for life gained.
 - `LifeLostThisTurnComponent` — marker that you've lost life this turn.
@@ -1586,6 +1593,13 @@ Card authors rarely reference these directly; they are created/updated by the ma
 - **Player-scoped uncounterable grant** — `Effects.GrantSpellsCantBeCountered(target, filter, duration)` +
   `SpellsCantBeCounteredComponent`.
 - **Static emblems** — `Effects.CreatePermanentEmblem(...)` for planeswalker emblems with static abilities.
+- **The Ring / the Ring tempts you (CR 701.54)** — `Effects.TheRingTemptsYou(target = Controller)`: the player gets
+  the Ring emblem (`TheRingComponent`, tempt-count tracked) and chooses a creature they control to become their
+  Ring-bearer (`RingBearerComponent` designation). The emblem's four cumulative abilities are resolved by the engine,
+  not card data: the bearer is made legendary in `StateProjector` and can't be blocked by greater power via
+  `RingBearerCantBeBlockedByGreaterPowerRule`; the ≥2/≥3/≥4 triggered abilities are appended to the bearer by
+  `TriggerAbilityResolver` (see `TheRingAbilities`). For card triggers/checks use `Triggers.RingTemptsYou`
+  ("Whenever the Ring tempts you") and `Conditions.SourceIsRingBearer` ("if this is your Ring-bearer").
 
 ---
 

@@ -24,6 +24,7 @@ import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnCom
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
+import com.wingedsheep.engine.state.components.identity.RingBearerComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.WasDealtCombatDamageThisTurnComponent
 import com.wingedsheep.sdk.core.CounterType
@@ -69,6 +70,7 @@ import com.wingedsheep.sdk.scripting.conditions.SourceAbilityResolvedNTimesThisT
 import com.wingedsheep.sdk.scripting.conditions.ManaSpentToCastIncludes
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid
+import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PermanentTypeEnteredBattlefieldThisTurn
@@ -133,6 +135,17 @@ class ConditionEvaluator {
 
             // Generic source-state primitive — predicate-evaluator against the source entity.
             is SourceMatches -> evaluateSourceMatchesCtx(state, condition, ctx)
+
+            // CR 701.54e: the source is your Ring-bearer (designation for, and controlled by, you).
+            is SourceIsRingBearer -> {
+                val sourceId = ctx.sourceId
+                val controllerId = ctx.controllerId
+                val container = if (sourceId != null) state.getEntity(sourceId) else null
+                val bearer = container?.get<RingBearerComponent>()
+                bearer != null && controllerId != null &&
+                    bearer.ownerId == controllerId &&
+                    container.get<ControllerComponent>()?.playerId == controllerId
+            }
 
             // Aura-controller-aware modified check (CR 700.4) — distinct enough from the
             // generic StatePredicate.IsModified to warrant its own branch.

@@ -11,6 +11,7 @@ import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.HexproofFromColorComponent
 import com.wingedsheep.engine.state.components.identity.ProtectionComponent
+import com.wingedsheep.engine.state.components.identity.RingBearerComponent
 import com.wingedsheep.engine.state.components.identity.ToxicComponent
 import com.wingedsheep.engine.state.components.identity.TextReplacementComponent
 import com.wingedsheep.sdk.core.AbilityFlag
@@ -124,6 +125,18 @@ class StateProjector(
                 if (baseStats?.isDynamic == true) {
                     dynamicStatEntities.add(entityId to cardComponent)
                 }
+            }
+        }
+
+        // CR 701.54c: a player's Ring-bearer is legendary (the Ring emblem's first ability).
+        // Baked in here so it follows whichever creature currently holds the designation and is
+        // dropped automatically once that creature is no longer under its designator's control
+        // (CR 701.54e). isLegendary() reads the projected type set, so adding "LEGENDARY" suffices.
+        for (entityId in state.getBattlefield()) {
+            val container = state.getEntity(entityId) ?: continue
+            val bearer = container.get<RingBearerComponent>() ?: continue
+            if (container.get<ControllerComponent>()?.playerId == bearer.ownerId) {
+                projectedValues[entityId]?.types?.add("LEGENDARY")
             }
         }
 
