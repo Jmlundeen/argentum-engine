@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards (261 Draft / 30 Extra)
 **Release Date:** June 23, 2023
-**Implemented:** 159 / 291
+**Implemented:** 160 / 291
 Run `scripts/card-status --set LTR` (and `--list --set LTR`) to verify status at any time.
 The split below mirrors that script: **Draft** = Scryfall `booster: true`; **Extra** =
 starter-deck/special cards and basic lands.
@@ -149,7 +149,7 @@ starter-deck/special cards and basic lands.
 ### Red
 
 - [ ] Battle-Scarred Goblin
-- [ ] Book of Mazarbul
+- [x] Book of Mazarbul
 - [ ] Breaking of the Fellowship
 - [x] Cast into the Fire
 - [ ] Display of Power
