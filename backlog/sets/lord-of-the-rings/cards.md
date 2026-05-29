@@ -130,7 +130,7 @@ starter-deck/special cards and basic lands.
 - [x] Mordor Trebuchet
 - [x] Morgul-Knife Wound
 - [ ] Nasty End
-- [ ] Nazgûl
+- [x] Nazgûl
 - [x] Oath of the Grey Host
 - [ ] One Ring to Rule Them All
 - [ ] Orcish Bowmasters
