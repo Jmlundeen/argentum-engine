@@ -108,7 +108,7 @@ starter-deck/special cards and basic lands.
 ### Black
 
 - [x] Bitter Downfall
-- [ ] The Black Breath
+- [x] The Black Breath
 - [ ] Call of the Ring
 - [x] Cirith Ungol Patrol
 - [x] Claim the Precious
