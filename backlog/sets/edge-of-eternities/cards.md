@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 234 / 261
+**Implemented:** 235 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -111,7 +111,7 @@
 - [x] Illvoi Infiltrator
 - [x] Illvoi Light Jammer
 - [x] Illvoi Operative
-- [ ] Infinite Guideline Station
+- [x] Infinite Guideline Station
 - [x] Insatiable Skittermaw
 - [x] Interceptor Mechan
 - [x] Intrepid Tenderfoot
