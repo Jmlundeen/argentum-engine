@@ -159,7 +159,7 @@ starter-deck/special cards and basic lands.
 - [x] Erkenbrand, Lord of Westfold
 - [ ] Fall of Cair Andros
 - [ ] Fear, Fire, Foes!
-- [ ] Fiery Inscription
+- [x] Fiery Inscription
 - [x] Fire of Orthanc
 - [ ] Foray of Orcs
 - [x] Gimli, Counter of Kills
