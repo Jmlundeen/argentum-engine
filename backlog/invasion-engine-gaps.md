@@ -4,9 +4,9 @@ Cross-reference of the **248 remaining (unimplemented) Invasion cards** against 
 actual capabilities (SDK reference + source verification, May 2026). Generated to scope what
 must be built before the set can be completed.
 
-**Status:** 89 / 335 implemented (27%) — up from 59 / 335 (18%) at time of writing, after gaps
-#1–#15 (incl. Blind Seer, Backlash, Agonizing Demise, Tsabo Tavoc, Traveler's Cloak, Pledge of
-Loyalty) and the cards they unlocked.
+**Status:** 90 / 335 implemented (27%) — up from 59 / 335 (18%) at time of writing, after gaps
+#1–#16 (incl. Blind Seer, Backlash, Agonizing Demise, Tsabo Tavoc, Traveler's Cloak, Pledge of
+Loyalty, Mages' Contest) and the cards they unlocked.
 Card list comes from `scripts/card-status --list --set INV`.
 
 ## Bottom line
@@ -602,16 +602,27 @@ was the precedent for a projection-time, board-derived keyword grant.
 
 ---
 
-### #16 — Life-bidding / auction · Mages' Contest
+### #16 — Life-bidding / auction · Mages' Contest ✅ DONE
 
-Genuinely bespoke; lowest priority.
-
-**Plan.** Add a `LifeAuctionContinuation` + `BidLifeDecision`. The effect iterates players in APNAP
-order presenting "bid higher or pass," tracks `{currentBid, highBidder, playersStillIn}`, loops until
-all but one pass, then the winner loses `currentBid` life and a stored `payoffEffect` (controlled by
-the winner) runs. Mages' Contest's payoff = the existing counter-spell effect bound to the winner. The
-continuation/decision are reusable for other bidding cards, but there's only one in this set — build it
-when nothing higher-leverage remains.
+> **Implemented (primitive + card).** New SDK `LifeAuctionEffect(onCasterWins)` + `Effects.LifeAuction(onWin)`
+> facade — an open life-bidding auction between the caster and the controller of a `TargetSpell`. Engine:
+> `LifeAuctionExecutor` sets up the auction (caster opens at a bid of 1; the spell's controller is asked
+> first), and shared `LifeAuctionLogic` (used by both the executor and the new `resumeLifeAuction` resumer)
+> drives the alternating bid using **existing** decisions — a `YesNoDecision` ("top the high bid?") then a
+> `ChooseNumberDecision` for the amount (min = highBid+1, capped at the bidder's life) — so no new decision
+> type and no web-client work. When a player passes, the high bidder loses that much life (routed through
+> `LoseLifeEffect` so life-loss replacements apply), and `onCasterWins` runs **only if the caster won**,
+> against the original targets (so `Effects.CounterSpell()` counters the bid-over spell). State carried on
+> `LifeAuctionContinuation` (+ `LifeAuctionStage`). **Mages' Contest** authored in
+> `definitions/inv/cards/MagesContest.kt` (`{1}{R}{R}`, `TargetSpell()` + `Effects.LifeAuction(Effects.CounterSpell())`).
+> Covered by `MagesContestTest` (pass → counter; outbid → spell resolves).
+>
+> **Scoping corrections vs. the original plan.** (1) The payoff is **not** "controlled by the winner" — the
+> spell is countered only when *you* (the caster) win; if the spell's controller outbids, it resolves. So the
+> effect carries `onCasterWins`, not a winner-bound payoff. (2) No `BidLifeDecision` was added — composing the
+> existing `YesNo` + `ChooseNumber` decisions covers the two-participant auction with clearer UX and zero
+> cross-module plumbing. The general N-player APNAP loop was unnecessary: Mages' Contest has exactly two
+> bidders who strictly alternate.
 
 ---
 
@@ -717,5 +728,5 @@ filter.
 8. **Pile-separation trio** (#21) — 5 cards from three composable additions.
 9. Scope additions: protection supertype (#13 ✅), dynamic-color protection (#15 ✅), chosen-type
    landwalk (#14 ✅), discard-at-random cost (#9 ✅) — small, independent.
-10. Bespoke / heavier: stack color-change (#11), Mana Maze restriction (#18), reveal-and-compare
-    (#19), text-changing (#17), life auction (#16).
+10. Bespoke / heavier: stack color-change (#11 ✅), life auction (#16 ✅), Mana Maze restriction (#18),
+    reveal-and-compare (#19), text-changing (#17).

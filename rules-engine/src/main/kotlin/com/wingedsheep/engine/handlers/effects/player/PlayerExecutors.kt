@@ -25,6 +25,10 @@ class PlayerExecutors(
         PayOrSufferExecutor(cardRegistry = cardRegistry, executeEffect = effectExecutor)
     }
 
+    private val lifeAuctionExecutor by lazy {
+        LifeAuctionExecutor(executeEffect = effectExecutor)
+    }
+
     /**
      * Initialize the module with the parent registry's execute function.
      * Must be called before executors() is accessed.
@@ -52,6 +56,7 @@ class PlayerExecutors(
         GrantHexproofExecutor(),
         GrantShroudExecutor(),
         HijackNextTurnExecutor(),
+        lifeAuctionExecutor,
         LoseGameExecutor(),
         WinGameExecutor(),
         payOrSufferExecutor,
