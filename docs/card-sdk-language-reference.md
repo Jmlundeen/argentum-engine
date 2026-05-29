@@ -100,6 +100,14 @@ the `CardDefinition`.
 - `Costs.PayLife(amount)` — pay N life.
 - `Costs.Sacrifice(filter)` — sacrifice a permanent matching the filter (may include self).
 - `Costs.SacrificeAnother(filter)` — sacrifice a *different* permanent matching the filter.
+- `Costs.DiscardCard` — discard a card you choose (any card).
+- `Costs.Discard(filter, count = 1, atRandom = false)` — discard `count` cards matching the filter.
+  When `atRandom` is true the engine picks the cards (no player selection); otherwise the player
+  chooses which cards to discard.
+- `Costs.DiscardAtRandom(count, filter)` — discard `count` cards chosen at random (Meteor Storm:
+  "Discard two cards at random").
+- `Costs.DiscardHand` — discard your entire hand.
+- `Costs.DiscardSelf` — discard this card (cycling-style).
 - `Costs.Composite(c1, c2, ...)` — multiple costs paid together.
 
 **Spell-level alternatives**
@@ -577,6 +585,11 @@ Every `TargetRequirement` carries count semantics (defaults shown):
   Colorless entities share no color (never match). Used by Spreading Plague ("destroy all other creatures
   that share a color with it") — pair with `Effects.DestroyAll(filter, excludeTriggering = true)` so the
   triggering creature itself is spared.
+- `.named(name)` — `CardPredicate.NameEquals`: matches a fixed card name.
+- `.namedFromVariable(variableName)` — `CardPredicate.NameEqualsChosen`: matches the card name stored in
+  `chosenValues[variableName]` (case-insensitive). Set the name with `Effects.ChooseCardName` (player names it)
+  or `Effects.StoreCardName` (captured from a chosen card). Fails closed in static/projection contexts. Used by
+  the "name a card … cards with that name" family (Desperate Research, Lobotomy).
 - `.power(n)` / `.minPower(n)` / `.maxPower(n)` — P/T comparator.
 - `.manaValue(n)` / `.manaValueAtMost(n)` / `.manaValueAtLeast(n)` — mana-value comparator.
 - `.manaValueAtMostX()` — mana value ≤ the X chosen for the source spell/ability.
@@ -1569,6 +1582,8 @@ staticAbility { ability = SetEnchantedLandTypeFromChosen }
 - `ChooseColorAndGrantProtectionTo{Target,Group}Effect` — color → protection from that color.
 - `GrantHexproofFromChosenColorEffect(target)` — same shape, hexproof.
 - `ChooseCreatureTypeEffect(...)` — pause for creature-type selection.
+- `Effects.ChooseCardName(storeAs, prompt?, excludeBasicLandNames?)` — name a card (`ChooseOptionEffect(OptionType.CARD_NAME)`); the chosen name is stored in `chosenValues[storeAs]`. Options are every registry card name (searchable list, not free text); `excludeBasicLandNames` drops the five basics. Match cards by it with `GameObjectFilter.namedFromVariable(storeAs)`. (Desperate Research)
+- `Effects.StoreCardName(from, storeAs)` — capture the name of the first card in collection `from` into `chosenValues[storeAs]`. The "choose a card, then act on cards of that name" counterpart to `ChooseCardName`. (Lobotomy)
 - `SelectTargetEffect(...)` — pick from a valid target set.
 - `SeparatePermanentsIntoPilesEffect(filter, piles)` — divvy permanents into piles (Fact-or-Fiction shape).
 
