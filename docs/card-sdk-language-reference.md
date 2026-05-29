@@ -1039,6 +1039,38 @@ staticAbility {
 - `CantBeAttackedWithout(keyword)` — Form of the Dragon-style "Creatures without flying can't
   attack you." defender-side restriction.
 
+**Spell cost statics — `ModifySpellCost`**
+
+Replaces the per-shape cost classes. Use directly as the `ability` of a `staticAbility { }` block.
+
+```kotlin
+staticAbility {
+    ability = ModifySpellCost(
+        target = SpellCostTarget.YouCast(GameObjectFilter.Any),
+        modification = CostModification.ReduceGeneric(2),
+        gating = CostGating.NthOfTypePerTurn(2),
+    )
+}
+```
+
+- `target: SpellCostTarget` — `SelfCast`, `YouCast(filter)`, `AnyCaster(filter)`,
+  `OpponentsCastTargeting(GroupFilter)`, `FaceDownYouCast`, `MorphActivation`.
+- `modification: CostModification` — `ReduceGeneric(amount)`, `ReduceGenericBy(source)`,
+  `ReduceColored(symbols)`, `ReduceColoredPerUnit(symbols, source)`, `IncreaseGeneric(amount)`,
+  `IncreaseGenericPerOtherSpellThisTurn(amountPerSpell)`, `IncreaseLife(amount)`.
+  Reduction `source: CostReductionSource` covers fixed amounts, counts of permanents/cards in
+  zones, target/condition gates, and a few mechanic-specific shapes — see
+  `CostStaticAbilities.kt` for the full list.
+- `gating: CostGating` — restricts how often the modifier fires:
+  - `None` (default) — applies to every matching cast.
+  - `NthOfTypePerTurn(n)` — only when this is the Nth matching spell each turn (1-indexed; counts the
+    spell currently being cast). Use `n = 1` for "the first ... each turn" (Eluge); use
+    `NthOfTypePerTurn(2)` with `target = YouCast(GameObjectFilter.Any)` for Uthros Psionicist's "the
+    second spell you cast each turn costs {2} less".
+
+`NthOfTypePerTurn` requires a filter-bearing target (`YouCast` / `AnyCaster`) — it needs a notion
+of "type" to count.
+
 **Global denial statics** (no `filter`/`duration` block — they're singleton-style)
 
 - `PreventCycling` — "Players can't cycle cards." (Stabilizer)

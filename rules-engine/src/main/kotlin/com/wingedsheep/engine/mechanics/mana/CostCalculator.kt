@@ -111,15 +111,18 @@ class CostCalculator(
         // Commander tax (CR 903.8).
         totalIncrease += calculateCommanderTax(state, cardDef, casterId, fromZone)
 
-        // Apply: generic reduction → colored reduction (no overflow) → colored reduction (with overflow) → generic increase.
-        var effectiveCost = reduceGenericCost(cardDef.manaCost, totalReduction)
+        // CR 601.2f: the total cost is the base cost plus all cost increases, then minus all cost
+        // reductions; the mana component is floored at {0} (it can't be reduced below {0}). Apply
+        // increases first so a reduction that overshoots {0} doesn't leave a stale increase behind
+        // (e.g. {U} +{1} −{2} → {U}, not {1}{U}).
+        var effectiveCost = increaseGenericCost(cardDef.manaCost, totalIncrease)
+        effectiveCost = reduceGenericCost(effectiveCost, totalReduction)
         if (coloredReductionSymbols.isNotEmpty()) {
             effectiveCost = reduceColoredCost(effectiveCost, coloredReductionSymbols)
         }
         if (coloredReductionWithOverflow.isNotEmpty()) {
             effectiveCost = reduceColoredCostWithOverflow(effectiveCost, coloredReductionWithOverflow)
         }
-        effectiveCost = increaseGenericCost(effectiveCost, totalIncrease)
         return effectiveCost
     }
 
@@ -248,19 +251,21 @@ class CostCalculator(
         cardDef: CardDefinition,
         ability: ModifySpellCost,
     ): Boolean {
-        return when (ability.gating) {
+        return when (val gating = ability.gating) {
             CostGating.None -> true
-            CostGating.FirstOfTypePerTurn -> {
-                val target = ability.target
-                val filter = when (target) {
-                    is SpellCostTarget.YouCast -> target.filter
-                    is SpellCostTarget.AnyCaster -> target.filter
-                    else -> return false  // Gating requires a filter to know what "of type" means.
-                }
+            is CostGating.NthOfTypePerTurn -> {
+                val filter = filterForGating(ability.target) ?: return false
                 val records = state.spellsCastThisTurnByPlayer[casterId] ?: emptyList()
-                records.none { predicateEvaluator.matchesFilter(it, filter) }
+                val priorMatching = records.count { predicateEvaluator.matchesFilter(it, filter) }
+                priorMatching == gating.n - 1
             }
         }
+    }
+
+    private fun filterForGating(target: SpellCostTarget) = when (target) {
+        is SpellCostTarget.YouCast -> target.filter
+        is SpellCostTarget.AnyCaster -> target.filter
+        else -> null  // Gating requires a filter to know what "of type" means.
     }
 
     /**

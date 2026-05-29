@@ -74,7 +74,7 @@ val ElugeTheShoreslessSea = card("Eluge, the Shoreless Sea") {
                     counterType = Counters.FLOOD,
                 ),
             ),
-            gating = CostGating.FirstOfTypePerTurn,
+            gating = CostGating.NthOfTypePerTurn(1),
         )
     }
 

@@ -79,12 +79,12 @@ one `ModifySpellCost(target, modification, gating)`:
   `ReduceGenericBy(CostReductionSource)` / `ReduceColored(symbols)` /
   `ReduceColoredPerUnit(symbols, countSource)` / `IncreaseGeneric(amount)` /
   `IncreaseGenericPerOtherSpellThisTurn(amountPerSpell)`.
-- `gating: CostGating` — `None` / `FirstOfTypePerTurn` (Eluge).
+- `gating: CostGating` — `None` / `NthOfTypePerTurn(n)` (Eluge uses `n = 1`; Uthros Psionicist `n = 2`).
 
 `CostCalculator` rewritten around the new shape: a single
 `scanBattlefieldModifySpellCost` walks every battlefield permanent once,
 `targetMatchesSpell` filters by target/scope (using *projected* controller, not
-base), `gatingApplies` checks first-of-type-per-turn, and `applyToSpellCast`
+base), `gatingApplies` checks nth-of-type-per-turn, and `applyToSpellCast`
 dispatches by modification kind. Face-down (`calculateFaceDownCost`) and morph
 (`calculateMorphCostIncrease`) walk the same scan with target-typed filters.
 `ReduceFaceDownCastingCost` was unused dead code and dropped entirely.

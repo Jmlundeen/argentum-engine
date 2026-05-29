@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 213 / 261
+**Implemented:** 215 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -246,7 +246,7 @@
 - [x] Tragic Trajectory
 - [x] Umbral Collar Zealot
 - [x] Unravel
-- [ ] Uthros Psionicist
+- [x] Uthros Psionicist
 - [x] Uthros Scanship
 - [x] Uthros, Titanic Godcore
 - [x] Vaultguard Trooper

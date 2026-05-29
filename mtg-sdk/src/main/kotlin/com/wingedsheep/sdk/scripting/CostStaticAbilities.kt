@@ -29,11 +29,17 @@ data class ModifySpellCost(
     override val description: String = buildDescription()
 
     private fun buildDescription(): String {
-        val gate = if (gating == CostGating.FirstOfTypePerTurn) "The first " else ""
+        val gated = gating != CostGating.None
+        val gate = when (gating) {
+            is CostGating.NthOfTypePerTurn -> "The ${ordinal(gating.n)} "
+            CostGating.None -> ""
+        }
+        // A gated description ("The Nth ...") refers to a single spell, so phrase it in the singular.
+        val noun = if (gated) "spell" else "spells"
         val subject = when (target) {
             SpellCostTarget.SelfCast -> "This spell"
-            is SpellCostTarget.YouCast -> "${target.filter.description} spells you cast"
-            is SpellCostTarget.AnyCaster -> "${target.filter.description} spells"
+            is SpellCostTarget.YouCast -> "${filterAdjective(target.filter)}$noun you cast"
+            is SpellCostTarget.AnyCaster -> "${filterAdjective(target.filter)}$noun"
             is SpellCostTarget.OpponentsCastTargeting ->
                 "Spells your opponents cast that target ${target.targetFilter.description}"
             SpellCostTarget.FaceDownYouCast -> "Face-down creature spells you cast"
@@ -50,9 +56,40 @@ data class ModifySpellCost(
                 "cost {${modification.amountPerSpell}} more to cast for each other spell that player has cast this turn"
             is CostModification.IncreaseLife -> "cost an additional ${modification.amount} life to cast"
         }
-        val firstOfType = if (gating == CostGating.FirstOfTypePerTurn) " each turn" else ""
+        val perTurn = when (gating) {
+            is CostGating.NthOfTypePerTurn -> " each turn"
+            CostGating.None -> ""
+        }
+        // The gated subject is singular, so make the verb agree ("cost" -> "costs").
+        val agreedVerb = if (gated) verb.replaceFirst("cost ", "costs ") else verb
         val prefix = if (gate.isNotEmpty()) gate + subject.replaceFirstChar { it.lowercase() } else subject
-        return "$prefix $verb$firstOfType"
+        return "$prefix $agreedVerb$perTurn"
+    }
+
+    // A filter that narrows nothing (e.g. GameObjectFilter.Any) describes itself as "card", which
+    // reads wrong as an adjective ("the second card spell you cast"). Emit no adjective in that case
+    // so the unconstrained form is just "spell(s)".
+    private fun filterAdjective(filter: GameObjectFilter): String {
+        val desc = filter.description
+        return if (desc.isBlank() || desc == "card") "" else "$desc "
+    }
+
+    private fun ordinal(n: Int): String = when (n) {
+        1 -> "first"
+        2 -> "second"
+        3 -> "third"
+        4 -> "fourth"
+        5 -> "fifth"
+        else -> {
+            val suffix = when {
+                n % 100 in 11..13 -> "th"
+                n % 10 == 1 -> "st"
+                n % 10 == 2 -> "nd"
+                n % 10 == 3 -> "rd"
+                else -> "th"
+            }
+            "$n$suffix"
+        }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
@@ -209,12 +246,14 @@ sealed interface CostGating {
     data object None : CostGating
 
     /**
-     * Modifier applies only to the first matching spell the casting player casts each turn
-     * (e.g. Eluge's "the first instant or sorcery spell you cast each turn").
+     * Modifier applies only when the matching spell being cast is the Nth such spell the casting
+     * player has cast this turn (1-indexed; counts itself). Use `n = 1` for "the first ... each
+     * turn" (e.g. Eluge) and `n = 2` for Uthros Psionicist's "the second spell you cast each turn
+     * costs {2} less to cast".
      */
-    @SerialName("FirstOfTypePerTurn")
+    @SerialName("NthOfTypePerTurn")
     @Serializable
-    data object FirstOfTypePerTurn : CostGating
+    data class NthOfTypePerTurn(val n: Int) : CostGating
 }
 
 /**
