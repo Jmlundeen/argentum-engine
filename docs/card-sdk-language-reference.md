@@ -1347,6 +1347,11 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
   only — no targets/triggering/kicker — so it evaluates identically in resolution and in
   projection, which lets it gate a `ConditionalStaticAbility`. Used by the Invasion djinn cycle
   ("as long as [color] is the most common color among all permanents…" — Goham/Halam/Ruham/Sulam/Zanam).
+- `AnotherPermanentWithSameNameAsTarget(targetIndex = 0)` — true when at least one *other*
+  battlefield permanent shares the exact card name of the context target at `targetIndex`. The
+  target itself is excluded, so a lone copy never satisfies its own check; tokens compare by name
+  like any other permanent. Resolution-only (reads a chosen target). Used by Winnow ("Destroy
+  target nonland permanent if another permanent with the same name is on the battlefield").
 - `YouHaveCitysBlessing` — you have City's Blessing (10+ permanents).
 - `SourceIsRingBearer` — the source permanent is your Ring-bearer (CR 701.52e).
 

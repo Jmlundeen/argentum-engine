@@ -23,6 +23,7 @@ import com.wingedsheep.engine.state.components.combat.PlayerAttackedThisTurnComp
 import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.identity.RingBearerComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
@@ -59,6 +60,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone
 import com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent
 import com.wingedsheep.sdk.scripting.conditions.SacrificedPermanentHadSubtype
+import com.wingedsheep.sdk.scripting.conditions.AnotherPermanentWithSameNameAsTarget
 import com.wingedsheep.sdk.scripting.conditions.TargetMatchesFilter
 import com.wingedsheep.sdk.scripting.conditions.TargetSharesMostCommonColor
 import com.wingedsheep.sdk.scripting.conditions.ColorIsMostCommon
@@ -214,6 +216,8 @@ class ConditionEvaluator {
             is TriggeringSpellHasSingleTarget -> ifResolution { evaluateTriggeringSpellHasSingleTarget(state, it) }
             is TargetMatchesFilter -> ifResolution { evaluateTargetMatchesFilter(state, condition, it) }
             is TargetSharesMostCommonColor -> ifResolution { evaluateTargetSharesMostCommonColor(state, condition, it) }
+            is AnotherPermanentWithSameNameAsTarget ->
+                ifResolution { evaluateAnotherPermanentWithSameNameAsTarget(state, condition, it) }
             is IsInPhase -> ifResolution { evaluateIsInPhase(state, condition, it) }
             is YouWereAttackedThisStep -> ifResolution { evaluateYouWereAttackedThisStep(state, it) }
             is IsFirstSpellOfTypeCastThisTurn -> ifResolution { evaluateFirstSpellOfType(state, condition, it) }
@@ -667,6 +671,34 @@ class ConditionEvaluator {
             ?.entityId ?: return false
         val projected = state.projectedState
         return projected.getColors(entityId).any { it in mostCommonColors(state, projected) }
+    }
+
+    /**
+     * "If another permanent with the same name as the target is on the battlefield": resolve the
+     * target permanent, read its card name, and return true when at least one *other* battlefield
+     * permanent shares that exact name. The target itself is excluded so a single copy never
+     * satisfies its own check.
+     *
+     * A face-down permanent has no name (CR 708.2), so it neither matches anything (as the target)
+     * nor counts as a same-named permanent (as a candidate) — face-down entities are skipped on
+     * both sides even though they retain a hidden [CardComponent.name].
+     */
+    private fun evaluateAnotherPermanentWithSameNameAsTarget(
+        state: GameState,
+        condition: AnotherPermanentWithSameNameAsTarget,
+        context: EffectContext
+    ): Boolean {
+        val target = context.targets.getOrNull(condition.targetIndex) ?: return false
+        val entityId = (target as? com.wingedsheep.engine.state.components.stack.ChosenTarget.Permanent)
+            ?.entityId ?: return false
+        val targetEntity = state.getEntity(entityId) ?: return false
+        if (targetEntity.has<FaceDownComponent>()) return false
+        val targetName = targetEntity.get<CardComponent>()?.name ?: return false
+        return state.getBattlefield().any { otherId ->
+            if (otherId == entityId) return@any false
+            val other = state.getEntity(otherId) ?: return@any false
+            !other.has<FaceDownComponent>() && other.get<CardComponent>()?.name == targetName
+        }
     }
 
     /**
