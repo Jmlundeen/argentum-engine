@@ -64,6 +64,7 @@ class PlayerExecutors(
         PreventLandPlaysThisTurnExecutor(),
         SecretBidExecutor(decisionHandler),
         SkipCombatPhasesExecutor(),
+        SkipNextDrawStepExecutor(),
         SkipNextTurnExecutor(),
         SkipUntapExecutor(),
         TakeExtraTurnExecutor(),

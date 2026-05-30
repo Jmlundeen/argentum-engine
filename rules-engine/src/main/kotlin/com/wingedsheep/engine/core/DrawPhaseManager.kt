@@ -6,6 +6,7 @@ import com.wingedsheep.engine.handlers.effects.drawing.DrawCardPrimitive
 import com.wingedsheep.engine.handlers.effects.drawing.DrawLoop
 import com.wingedsheep.engine.handlers.effects.drawing.DrawReplacementDispatcher
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.player.SkipDrawStepComponent
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.Effect
@@ -47,6 +48,16 @@ class DrawPhaseManager(
         if (isFirstTurnFirstPlayer) {
             return ExecutionResult.success(
                 state.withPriority(activePlayer),
+                listOf(StepChangedEvent(Step.DRAW))
+            )
+        }
+
+        // Skip the draw if a "skip your next draw step" marker is present (e.g., Elfhame
+        // Sanctuary). Consume the marker so it only skips one draw step.
+        if (state.getEntity(activePlayer)?.has<SkipDrawStepComponent>() == true) {
+            val consumed = state.updateEntity(activePlayer) { it.without<SkipDrawStepComponent>() }
+            return ExecutionResult.success(
+                consumed.withPriority(activePlayer),
                 listOf(StepChangedEvent(Step.DRAW))
             )
         }
