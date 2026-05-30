@@ -224,6 +224,13 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.TargetSharesMostCommonColor(targetIndex)
 
     /**
+     * If another permanent with the same name as the target is on the battlefield.
+     * The target permanent itself is excluded from the comparison. Used by Winnow.
+     */
+    fun AnotherPermanentWithSameNameAsTarget(targetIndex: Int = 0): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.AnotherPermanentWithSameNameAsTarget(targetIndex)
+
+    /**
      * If [color] is the most common color among all permanents on the battlefield, or is tied
      * for most common. Board-derived, so it works as a `ConditionalStaticAbility` gate. Used by
      * the Invasion djinn cycle (Goham/Halam/Ruham/Sulam/Zanam).

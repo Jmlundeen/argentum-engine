@@ -148,6 +148,26 @@ data class TargetMatchesFilter(
 }
 
 /**
+ * Condition: "if another permanent with the same name as [target] is on the battlefield".
+ *
+ * Resolves the context target at [targetIndex], reads its card name, and returns true when at
+ * least one *other* battlefield permanent shares that exact name. The target permanent itself is
+ * excluded from the comparison (so a single copy never satisfies its own check). Tokens compare by
+ * name like any other permanent.
+ *
+ * Used by Winnow: "Destroy target nonland permanent if another permanent with the same name is on
+ * the battlefield."
+ */
+@SerialName("AnotherPermanentWithSameNameAsTarget")
+@Serializable
+data class AnotherPermanentWithSameNameAsTarget(
+    val targetIndex: Int = 0
+) : Condition {
+    override val description: String = "if another permanent with the same name is on the battlefield"
+    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
+}
+
+/**
  * Condition: "if [target] shares a color with the most common color among all permanents
  * or a color tied for most common".
  *
