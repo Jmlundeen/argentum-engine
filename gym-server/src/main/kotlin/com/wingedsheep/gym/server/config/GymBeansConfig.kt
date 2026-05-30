@@ -4,52 +4,52 @@ import com.wingedsheep.engine.limited.BoosterGenerator
 import com.wingedsheep.gym.service.MultiEnvService
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.registry.PrintingRegistry
-import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
-import com.wingedsheep.mtg.sets.definitions.por.PortalSet
+import com.wingedsheep.mtg.sets.MtgSetCatalog
+import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.MtgSet
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 /**
  * Wires a default [CardRegistry] and [MultiEnvService] as Spring singletons.
  *
- * The chosen set catalogue here is deliberately small (Portal + Bloomburrow)
- * — enough to exercise the full service surface (constructed decks + sealed
- * pools). Extend via the `gym.sets` property once a richer set catalogue is
- * agreed on; sets are merged into both the card registry (for casting) and
- * the booster generator (for sealed).
+ * The catalogue is [MtgSetCatalog.all] — every set the engine knows about — so a
+ * constructed deck can name any implemented card and a [DeckSpec.RandomSealed] can
+ * draw from any sealed-supported set. This mirrors `game-server`'s `GameBeansConfig`;
+ * `MtgSetCatalog` is the single registration point, so newly-added sets show up here
+ * automatically with no edit to this file.
  */
 @Configuration
 class GymBeansConfig {
 
     @Bean
     fun cardRegistry(): CardRegistry = CardRegistry().apply {
-        register(PortalSet.cards)
-        register(BloomburrowSet.cards)
-        // Basic-land variants are needed for the RandomSealed path so that
-        // variant names like "Swamp#BLB-270" resolve during GameInitializer.
-        register(BloomburrowSet.basicLands)
+        for (set in MtgSetCatalog.all) {
+            register(set.cards.stampSetCode(set.code))
+            // Basic-land variants are needed for the RandomSealed path so that
+            // variant names like "Swamp#BLB-270" resolve during GameInitializer.
+            register(set.basicLands)
+            set.basicLandsFallback?.let { register(it.basicLands) }
+        }
     }
 
     @Bean
     fun printingRegistry(cardRegistry: CardRegistry): PrintingRegistry = PrintingRegistry().apply {
+        // One synthesised printing per registered card (its canonical printing)...
         for (name in cardRegistry.allCardNames()) {
             cardRegistry.getCardsByName(name).forEach(::registerSynthesizedDefault)
         }
-        // Each set may contribute reprint rows for cards canonically defined elsewhere.
-        register(PortalSet.printings)
-        register(BloomburrowSet.printings)
+        // ...then explicit reprint rows, which overwrite synthesised entries sharing a key.
+        for (set in MtgSetCatalog.all) {
+            register(set.printings)
+        }
     }
 
     @Bean
     fun boosterGenerator(): BoosterGenerator = BoosterGenerator(
-        mapOf(
-            BloomburrowSet.code to BoosterGenerator.SetConfig(
-                setCode = BloomburrowSet.code,
-                setName = BloomburrowSet.displayName,
-                cards = BloomburrowSet.cards,
-                basicLands = BloomburrowSet.basicLands
-            )
-        )
+        MtgSetCatalog.all
+            .filter { it.sealedSupported }
+            .associate { it.code to it.toBoosterSetConfig() }
     )
 
     @Bean
@@ -58,3 +58,18 @@ class GymBeansConfig {
         boosterGenerator: BoosterGenerator
     ): MultiEnvService = MultiEnvService(cardRegistry, boosterGenerator)
 }
+
+/** Stamp a set code onto any card that doesn't already carry one, so printing synthesis keys correctly. */
+private fun List<CardDefinition>.stampSetCode(setCode: String): List<CardDefinition> =
+    map { if (it.setCode == null) it.copy(setCode = setCode) else it }
+
+private fun MtgSet.toBoosterSetConfig(): BoosterGenerator.SetConfig =
+    BoosterGenerator.SetConfig(
+        setCode = code,
+        setName = displayName,
+        cards = cards,
+        basicLands = (basicLandsFallback ?: this).basicLands,
+        incomplete = incomplete,
+        block = block,
+        boosterStrategy = boosterStrategy,
+    )
