@@ -1,4 +1,4 @@
-package com.wingedsheep.mtg.sets.definitions.inv.cards
+package com.wingedsheep.mtg.sets.definitions.p02.cards
 
 import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -13,9 +13,9 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
  * 1/1
  * When this creature enters, target opponent discards a card.
  *
- * Canonical printing note: Ravenous Rats first appeared in Portal Second Age (P02),
- * which is not scaffolded in this repo. Invasion (INV) is the earliest scaffolded set
- * that printed it, so the canonical CardDefinition lives here.
+ * Portal Second Age is the card's earliest real-expansion printing, so the canonical
+ * [com.wingedsheep.sdk.model.CardDefinition] lives here. Later sets (Invasion, etc.)
+ * contribute reprint [com.wingedsheep.sdk.model.Printing] rows.
  */
 val RavenousRats = card("Ravenous Rats") {
     manaCost = "{1}{B}"
@@ -33,8 +33,8 @@ val RavenousRats = card("Ravenous Rats") {
 
     metadata {
         rarity = Rarity.COMMON
-        collectorNumber = "120"
-        artist = "Tom Wänerstrand"
-        imageUri = "https://cards.scryfall.io/normal/front/8/9/89e29069-add5-4099-b800-9f1e4402cc1a.jpg?1562922876"
+        collectorNumber = "87"
+        artist = "Edward P. Beard, Jr."
+        imageUri = "https://cards.scryfall.io/normal/front/8/8/8899244b-737a-43a9-9241-15a650b47bed.jpg?1562927249"
     }
 }

@@ -36,6 +36,7 @@ import com.wingedsheep.mtg.sets.definitions.vow.InnistradCrimsonVowSet
 import com.wingedsheep.mtg.sets.definitions.khm.KaldheimSet
 import com.wingedsheep.mtg.sets.definitions.ktk.KhansOfTarkirSet
 import com.wingedsheep.mtg.sets.definitions.lea.AlphaSet
+import com.wingedsheep.mtg.sets.definitions.leg.LegendsSet
 import com.wingedsheep.mtg.sets.definitions.lgn.LegionsSet
 import com.wingedsheep.mtg.sets.definitions.lrw.LorwynSet
 import com.wingedsheep.mtg.sets.definitions.ecl.LorwynEclipsedSet
@@ -49,6 +50,7 @@ import com.wingedsheep.mtg.sets.definitions.mom.MarchOfTheMachineSet
 import com.wingedsheep.mtg.sets.definitions.ncc.NewCapennaCommanderSet
 import com.wingedsheep.mtg.sets.definitions.one.PhyrexiaAllWillBeOneSet
 import com.wingedsheep.mtg.sets.definitions.ons.OnslaughtSet
+import com.wingedsheep.mtg.sets.definitions.p02.PortalSecondAgeSet
 import com.wingedsheep.mtg.sets.definitions.por.PortalSet
 import com.wingedsheep.mtg.sets.definitions.pz2.TreasureChestSet
 import com.wingedsheep.mtg.sets.definitions.rix.RivalsOfIxalanSet
@@ -79,7 +81,9 @@ object MtgSetCatalog {
     val all: List<MtgSet> = listOf(
         AlphaSet,
         ArabianNightsSet,
+        LegendsSet,
         PortalSet,
+        PortalSecondAgeSet,
         MirageSet,
         TempestSet,
         ExodusSet,

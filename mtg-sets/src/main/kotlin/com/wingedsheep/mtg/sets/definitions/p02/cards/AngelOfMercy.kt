@@ -1,4 +1,4 @@
-package com.wingedsheep.mtg.sets.definitions.inv.cards
+package com.wingedsheep.mtg.sets.definitions.p02.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
@@ -14,10 +14,9 @@ import com.wingedsheep.sdk.model.Rarity
  * Flying
  * When this creature enters, you gain 3 life.
  *
- * Canonical [com.wingedsheep.sdk.model.CardDefinition] placed in Invasion: the earlier
- * Portal Second Age (p02) and Starter 1999 (s99) starter-set printings are not scaffolded
- * in the repo, and scaffolding them is out of scope for this change. Invasion is the
- * earliest scaffolded printing.
+ * Portal Second Age is the card's earliest real-expansion printing, so the canonical
+ * [com.wingedsheep.sdk.model.CardDefinition] lives here. Later sets (Invasion, etc.)
+ * contribute reprint [com.wingedsheep.sdk.model.Printing] rows.
  */
 val AngelOfMercy = card("Angel of Mercy") {
     manaCost = "{4}{W}"
@@ -36,8 +35,8 @@ val AngelOfMercy = card("Angel of Mercy") {
 
     metadata {
         rarity = Rarity.UNCOMMON
-        collectorNumber = "2"
-        artist = "Mark Tedin"
-        imageUri = "https://cards.scryfall.io/normal/front/5/b/5b6de688-685f-4389-be35-a472ada988e1.jpg?1562913560"
+        collectorNumber = "8"
+        artist = "Melissa A. Benson"
+        imageUri = "https://cards.scryfall.io/normal/front/d/a/dac5c913-4eb5-4cfb-9c24-223f14f07064.jpg?1562947099"
     }
 }
