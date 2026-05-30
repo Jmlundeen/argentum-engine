@@ -2,6 +2,8 @@ package com.wingedsheep.engine.mechanics.combat.rules
 
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
@@ -188,6 +190,20 @@ class CantBeAttackedWithoutDefenderRule : AttackDefenderRule {
             val cardDef = ctx.cardRegistry.getCard(cardComponent.cardDefinitionId) ?: continue
             for (ability in cardDef.staticAbilities) {
                 if (ability is CantBeAttackedWithout) {
+                    // If the ability restricts only a subset of attackers, the attacker must
+                    // match the filter (resolved with this permanent as the predicate source,
+                    // so chosen-color/subtype predicates read off it).
+                    val filter = ability.attackerFilter
+                    if (filter != null) {
+                        val matches = predicateEvaluator.matches(
+                            ctx.state,
+                            ctx.projected,
+                            ctx.attackerId,
+                            filter,
+                            PredicateContext(controllerId = defendingPlayer, sourceId = permId)
+                        )
+                        if (!matches) continue
+                    }
                     if (!ctx.projected.hasKeyword(ctx.attackerId, ability.requiredKeyword)) {
                         val attackerName = ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature"
                         return "$attackerName can't attack: ${ability.description}"
@@ -196,6 +212,10 @@ class CantBeAttackedWithoutDefenderRule : AttackDefenderRule {
             }
         }
         return null
+    }
+
+    companion object {
+        private val predicateEvaluator = PredicateEvaluator()
     }
 }
 

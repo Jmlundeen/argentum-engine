@@ -288,15 +288,27 @@ data class CanAttackDespiteDefender(
  * This is a defender-side restriction — the engine checks the defending player's battlefield
  * for permanents with this ability, and blocks any attacker that lacks the required keyword.
  *
+ * An optional [attackerFilter] narrows which attackers the restriction applies to. When set,
+ * only attackers matching the filter (evaluated with this permanent as the predicate source,
+ * so chosen-color/subtype predicates resolve against it) are restricted; all others may attack
+ * freely. Used for Teferi's Moat: "Creatures of the chosen color without flying can't attack
+ * you." When null (the default) the restriction applies to every attacker (Form of the Dragon).
+ *
  * @property requiredKeyword The keyword attackers must have (e.g., FLYING)
+ * @property attackerFilter Optional filter limiting which attackers are restricted
  */
 @SerialName("CantBeAttackedWithout")
 @Serializable
 data class CantBeAttackedWithout(
-    val requiredKeyword: Keyword
+    val requiredKeyword: Keyword,
+    val attackerFilter: com.wingedsheep.sdk.scripting.GameObjectFilter? = null
 ) : StaticAbility {
     override val description: String =
-        "Creatures without ${requiredKeyword.displayName.lowercase()} can't attack you"
+        if (attackerFilter == null) {
+            "Creatures without ${requiredKeyword.displayName.lowercase()} can't attack you"
+        } else {
+            "${attackerFilter.description} without ${requiredKeyword.displayName.lowercase()} can't attack you"
+        }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility = this
 }
 

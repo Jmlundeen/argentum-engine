@@ -650,6 +650,9 @@ Every `TargetRequirement` carries count semantics (defaults shown):
 **Chained predicates**
 
 - `.youControl()` / `.controlledByOpponent()` — control predicate.
+- `.targetPlayerControls(target)` — controlled by a referenced player. Resolves `EffectTarget`
+  bindings/context targets, plus `EffectTarget.ControllerOfTriggeringEntity` (controller of the
+  entity that fired the trigger — e.g. Tectonic Instability "tap all lands its controller controls").
 - `.withSubtype(s)` / `.withKeyword(k)` — type/ability predicate.
 - `.ofColor(c)` / `.ofColors(set)` — color predicate.
 - `.withColor(c)` / `.withAnyColor(c…)` / `.notColor(c)` — fixed-color predicates (`CardPredicate.HasColor`/`NotColor`).
@@ -1154,8 +1157,11 @@ staticAbility {
   any mana — declining is a clean no-op that leaves the player in `DECLARE_ATTACKERS` to re-declare.
   The same prompt/cancel pattern applies to block-tax floating effects (e.g. Whipgrass Entangler)
   via `AttackBlockTaxPerCreatureType`.
-- `CantBeAttackedWithout(keyword)` — Form of the Dragon-style "Creatures without flying can't
-  attack you." defender-side restriction.
+- `CantBeAttackedWithout(keyword, attackerFilter = null)` — Form of the Dragon-style "Creatures
+  without flying can't attack you." defender-side restriction. Optional `attackerFilter` narrows
+  which attackers are restricted (evaluated with the source permanent as predicate source, so
+  chosen-color/subtype predicates resolve against it) — e.g. Teferi's Moat:
+  `CantBeAttackedWithout(Keyword.FLYING, GameObjectFilter.Creature.sharingChosenColorWithSource())`.
 - `CantAttackUnlessCoAttacker(coAttackerFilter, filter = source)` — "This creature can't attack
   unless [a creature matching coAttackerFilter] also attacks" (Scarred Puma). Unlike
   `CantAttackUnless` (which is defender-relative), this depends on the whole proposed attacker

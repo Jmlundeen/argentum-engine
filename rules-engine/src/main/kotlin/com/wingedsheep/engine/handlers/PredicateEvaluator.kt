@@ -526,13 +526,35 @@ class PredicateEvaluator {
                         context.targetPlayerId?.let { controllerId == it } ?: false
                     }
                     is ControllerPredicate.ControlledByReferencedPlayer -> {
-                        context.resolvePlayerTarget(predicate.target)?.let { controllerId == it } ?: false
+                        val referenced = context.resolvePlayerTarget(predicate.target)
+                            ?: resolveReferencedPlayerFromState(state, projected, predicate.target, context)
+                        referenced?.let { controllerId == it } ?: false
                     }
                     // Already handled above
                     ControllerPredicate.OwnedByYou, ControllerPredicate.OwnedByOpponent -> true
                 }
             }
         }
+    }
+
+    /**
+     * Resolve an [EffectTarget] player reference that needs [GameState] (so it can't be
+     * answered by [PredicateContext.resolvePlayerTarget] alone). Currently covers
+     * [EffectTarget.ControllerOfTriggeringEntity] — the controller of the entity that
+     * caused the trigger (e.g. Tectonic Instability: "tap all lands its controller controls").
+     */
+    private fun resolveReferencedPlayerFromState(
+        state: GameState,
+        projected: ProjectedState,
+        target: EffectTarget,
+        context: PredicateContext,
+    ): EntityId? = when (target) {
+        EffectTarget.ControllerOfTriggeringEntity -> {
+            val triggeringId = context.triggeringEntityId ?: return null
+            projected.getController(triggeringId)
+                ?: state.getEntity(triggeringId)?.get<ControllerComponent>()?.playerId
+        }
+        else -> null
     }
 
     /**
