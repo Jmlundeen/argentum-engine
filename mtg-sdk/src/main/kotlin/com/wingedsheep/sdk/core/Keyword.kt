@@ -128,6 +128,17 @@ enum class Keyword(val displayName: String) {
     PERSIST("Persist"),
 
     /**
+     * Renew (Tarkir: Dragonstorm, Sultai clan keyword).
+     * "Renew — [cost], Exile this card from your graveyard: [effect]. Activate only as a sorcery."
+     *
+     * A graveyard-activated ability composed of existing primitives: the mana cost plus
+     * [com.wingedsheep.sdk.scripting.AbilityCost.ExileSelf], `activateFromZone = GRAVEYARD`,
+     * and `timing = SorcerySpeed`. Wired in one call via the `renew(cost) { … }` helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder]; the keyword itself is display-only.
+     */
+    RENEW("Renew"),
+
+    /**
      * Ascend (Ixalan, CR 702.131). On a permanent spell, means "When this permanent
      * enters, if you control ten or more permanents, you get the city's blessing
      * for the rest of the game." Engine wires the trigger explicitly per card; the

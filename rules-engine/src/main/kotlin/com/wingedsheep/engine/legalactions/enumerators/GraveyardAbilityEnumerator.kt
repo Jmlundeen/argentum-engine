@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivationRestriction
+import com.wingedsheep.sdk.scripting.TimingRule
 
 /**
  * Enumerates activated abilities on cards in the player's graveyard.
@@ -38,6 +39,12 @@ class GraveyardAbilityEnumerator : ActionEnumerator {
             }
 
             for (ability in graveyardAbilities) {
+                // "Activate only as a sorcery" — Renew and similar graveyard-activated abilities
+                // are gated to sorcery timing. Mirrors ActivatedAbilityEnumerator's battlefield
+                // check so the action is never offered at instant speed (where the handler would
+                // reject it anyway).
+                if (ability.timing == TimingRule.SorcerySpeed && !context.canPlaySorcerySpeed) continue
+
                 // Check activation restrictions
                 var restrictionsMet = true
                 for (restriction in ability.restrictions) {
