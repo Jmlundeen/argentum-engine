@@ -53,6 +53,28 @@ data class SkipUntapEffect(
 }
 
 /**
+ * Target player skips their next draw step.
+ * Used for cards like Elfhame Sanctuary ("you skip your draw step this turn") and
+ * Howling Mine / Abundance-style draw-replacement riders.
+ *
+ * Adds a one-shot marker to the target player that the draw step consumes the next time
+ * it would occur (the same turn when applied during that turn's upkeep, or the player's
+ * next turn otherwise).
+ */
+@SerialName("SkipNextDrawStep")
+@Serializable
+data class SkipNextDrawStepEffect(
+    val target: EffectTarget = EffectTarget.Controller
+) : Effect {
+    override val description: String = when (target) {
+        EffectTarget.Controller -> "You skip your next draw step"
+        else -> "${target.description.replaceFirstChar { it.uppercase() }} skips their next draw step"
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect = this
+}
+
+/**
  * You may play additional lands this turn.
  * Used for Summer Bloom: "You may play up to three additional lands this turn."
  *

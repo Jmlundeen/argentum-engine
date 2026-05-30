@@ -141,6 +141,7 @@ import com.wingedsheep.sdk.scripting.effects.PreventionDirection
 import com.wingedsheep.sdk.scripting.effects.PreventionScope
 import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 import com.wingedsheep.sdk.scripting.effects.HijackNextTurnEffect
+import com.wingedsheep.sdk.scripting.effects.SkipNextDrawStepEffect
 import com.wingedsheep.sdk.scripting.effects.SkipNextTurnEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
@@ -1851,6 +1852,13 @@ object Effects {
      */
     fun SkipNextTurn(target: EffectTarget = EffectTarget.Controller): Effect =
         SkipNextTurnEffect(target)
+
+    /**
+     * Target player skips their next draw step.
+     * Used for cards like Elfhame Sanctuary ("you skip your draw step this turn").
+     */
+    fun SkipNextDrawStep(target: EffectTarget = EffectTarget.Controller): Effect =
+        SkipNextDrawStepEffect(target)
 
     /**
      * Controller controls the target player during that player's next turn (Mindslaver-style).

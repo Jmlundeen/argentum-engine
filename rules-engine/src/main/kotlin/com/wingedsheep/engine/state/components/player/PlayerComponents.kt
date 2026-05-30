@@ -236,6 +236,17 @@ data class SkipUntapComponent(
 ) : Component
 
 /**
+ * Marker component indicating that a player should skip their next draw step.
+ * Applied by effects like Elfhame Sanctuary ("you skip your draw step this turn").
+ *
+ * This component is consumed (removed) the next time that player's draw step would
+ * occur — the same turn when applied during that turn's upkeep, or the player's next
+ * turn otherwise. When consumed, the draw step performs no draw.
+ */
+@Serializable
+data object SkipDrawStepComponent : Component
+
+/**
  * Component marking that a player has lost the game.
  *
  * This is added when a player loses due to various game rules:

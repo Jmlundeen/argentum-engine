@@ -368,6 +368,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `Effects.Suspect(target)` — target becomes Suspected (MKM keyword). Composite: `SetSuspectedEffect` (named status, CR 701.60d dedup) + `GrantKeywordEffect(MENACE)` + `CantBlockEffect`.
 - `RemoveFromCombatEffect(target)` — yank target out of combat.
 - `SkipNextTurnEffect(target)` — target skips their next turn.
+- `Effects.SkipNextDrawStep(target = Controller)` (`SkipNextDrawStepEffect`) — target skips their next draw step. Adds a one-shot `SkipDrawStepComponent` marker consumed by `DrawPhaseManager.performDrawStep` (Elfhame Sanctuary's "you skip your draw step this turn").
 - `HijackNextTurnEffect(target)` — you control target's next turn.
 - `GrantCantBeBlockedByChosenColorEffect(target, duration)` — unblockable except by chosen color.
 - `CantCastSpellsEffect(target, until?)` — target can't cast spells.
