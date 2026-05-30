@@ -1,12 +1,11 @@
-package com.wingedsheep.mtg.sets.definitions.dom.cards
+package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.conditions.NotCondition
-import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
 /**
@@ -24,22 +23,23 @@ val Skizzik = card("Skizzik") {
     typeLine = "Creature — Elemental"
     power = 5
     toughness = 3
-    oracleText = "Kicker {R}\nTrample, haste\nAt the beginning of the end step, if this creature wasn't kicked, sacrifice it."
+    oracleText = "Kicker {R} (You may pay an additional {R} as you cast this spell.)\n" +
+        "Trample, haste\n" +
+        "At the beginning of the end step, if this creature wasn't kicked, sacrifice it."
 
-    keywordAbility(KeywordAbility.kicker("{R}"))
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
+    keywordAbility(KeywordAbility.kicker("{R}"))
 
     triggeredAbility {
         trigger = Triggers.EachEndStep
-        triggerCondition = NotCondition(WasKicked)
+        triggerCondition = Conditions.Not(Conditions.WasKicked)
         effect = SacrificeSelfEffect
     }
 
     metadata {
-        rarity = Rarity.UNCOMMON
-        collectorNumber = "145"
-        artist = "Tomasz Jedruszek"
-        flavorText = "\"It skitters across Shiv, each tendril hitting the ground with a sharp snap.\""
-        imageUri = "https://cards.scryfall.io/normal/front/7/7/77af9d28-1639-47bd-b925-7f3d2eefd352.jpg?1615334491"
+        rarity = Rarity.RARE
+        collectorNumber = "169"
+        artist = "Ron Spencer"
+        imageUri = "https://cards.scryfall.io/normal/front/d/c/dc7732bc-e168-44d9-923a-db7e985bd6db.jpg?1562939314"
     }
 }
