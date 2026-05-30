@@ -1049,15 +1049,19 @@ Triggers.youCastSpell(
 - `DelayedTriggeredAbility` — registered now, fires at a specific future step (Astral Slide).
 - `Effects.GrantTriggeredAbilityEffect` — grant a triggered ability for a duration; `GrantTriggeredAbilityExecutor` uses
   projected state and supports leaves-battlefield-to-zone triggers.
-- `CreateDelayedTriggerEffect(step, effect, fireOnlyOnControllersTurn, onControllerNextTurn, skipCurrentTurn, …)` —
-  the data-side facade. The boolean flags control *when* the trigger may first fire:
-  - `fireOnlyOnControllersTurn` — only matches when the active player equals the controller.
-  - `onControllerNextTurn` — "at the beginning of your next end step": defers to next turn only if
-    the controller's current-turn end step has already begun (END/CLEANUP); otherwise the current
-    turn's end step qualifies. (Systems Override.)
-  - `skipCurrentTurn` — stricter "on your next turn"-style timing: the current turn never qualifies
-    regardless of step. Pair with `fireOnlyOnControllersTurn = true` to land on the controller's
-    upcoming own turn rather than an intervening opponent turn. (Kav Landseeker.)
+- `CreateDelayedTriggerEffect(step, effect, fireOnlyOnControllersTurn, timing, …)` —
+  the data-side facade. Two orthogonal axes control *when* the trigger may first fire:
+  - `fireOnlyOnControllersTurn` — gates *whose* turn: only matches when the active player equals
+    the controller.
+  - `timing: DelayedTriggerTiming` — gates *which* turn is the earliest eligible one:
+    - `CURRENT_TURN_OR_LATER` (default) — no turn floor; the next upcoming occurrence of `step`,
+      which may be the current turn. (Astral Slide exile-until-end-step.)
+    - `NEXT_END_STEP` — "at the beginning of your next end step": defers to next turn only if the
+      controller's current-turn end step has already begun (END/CLEANUP); otherwise the current
+      turn's end step qualifies. (Dragonhawk, Fate's Tempest.)
+    - `NEXT_TURN` — stricter "on your next turn"-style timing: the current turn never qualifies
+      regardless of step. Pair with `fireOnlyOnControllersTurn = true` to land on the controller's
+      upcoming own turn rather than an intervening opponent turn. (Kav Landseeker.)
 
 ---
 

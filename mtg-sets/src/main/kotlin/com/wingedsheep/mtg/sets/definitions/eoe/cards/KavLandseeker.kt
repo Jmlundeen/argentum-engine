@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
+import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -37,7 +38,7 @@ val KavLandseeker = card("Kav Landseeker") {
     // ETB: create a Lander, then schedule a sacrifice on the controller's next end step.
     // PipelineTarget(CREATED_TOKENS, 0) addresses the just-created Lander; the delayed-trigger
     // executor bakes it into a concrete entity id so the trigger still resolves after the
-    // pipeline context is gone. skipCurrentTurn = true defers past this turn no matter the
+    // pipeline context is gone. timing = NEXT_TURN defers past this turn no matter the
     // current step; fireOnlyOnControllersTurn = true lands the trigger on the controller's
     // upcoming turn rather than an intervening opponent turn.
     triggeredAbility {
@@ -51,7 +52,7 @@ val KavLandseeker = card("Kav Landseeker") {
                         target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
                     ),
                     fireOnlyOnControllersTurn = true,
-                    skipCurrentTurn = true
+                    timing = DelayedTriggerTiming.NEXT_TURN
                 )
             )
         )

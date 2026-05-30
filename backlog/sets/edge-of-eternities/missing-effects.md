@@ -332,5 +332,5 @@ counter"), the 0 untap, and the −3 tutor are expressible.
 
 Poison counters (Virulent Silencer), token doubling (Exalted Sunborn), devour-land (Famished
 Worldsire), "mana spent" for X-counters (Astelli Reclaimer), and "your next turn" delayed-trigger
-timing (Kav Landseeker — `CreateDelayedTriggerEffect.skipCurrentTurn` flag) were previously listed
+timing (Kav Landseeker — `CreateDelayedTriggerEffect.timing = DelayedTriggerTiming.NEXT_TURN`) were previously listed
 here and are now implemented; their entries have been removed.

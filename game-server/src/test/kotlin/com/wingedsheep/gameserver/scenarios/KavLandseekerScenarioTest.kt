@@ -7,7 +7,8 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 
 /**
- * Scenario tests for Kav Landseeker, which exercises the [skipCurrentTurn] flag on
+ * Scenario tests for Kav Landseeker, which exercises the
+ * [com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming.NEXT_TURN] timing on
  * [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect].
  *
  * Oracle: "When this creature enters, create a Lander token. At the beginning of the end
