@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardEntry
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.model.GameRng
 import com.wingedsheep.sdk.model.PrintingRef
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -60,6 +61,15 @@ data class GameConfig(
      * 20-life / 7-card / no-commander behaviour without changes.
      */
     val format: Format = Format.Standard,
+
+    /**
+     * Seed for the game's deterministic RNG (turn order, library shuffles, coin flips, every
+     * "at random" choice). When null, the initializer draws a fresh seed from entropy so live
+     * play stays random — but the chosen seed is always recorded on [InitializationResult.seed],
+     * so any game can be reproduced after the fact by replaying with that seed. Supply an explicit
+     * value for reproducible runs (replays, MCTS, the cross-engine parity harness, tests).
+     */
+    val seed: Long? = null,
 )
 
 /**
@@ -68,7 +78,13 @@ data class GameConfig(
 data class InitializationResult(
     val state: GameState,
     val events: List<GameEvent>,
-    val playerIds: List<EntityId>
+    val playerIds: List<EntityId>,
+    /**
+     * The seed actually used to initialize [state]'s RNG — either [GameConfig.seed] or, when that
+     * was null, the freshly drawn entropy seed. Persist this alongside the game to make it
+     * reproducible.
+     */
+    val seed: Long,
 )
 
 /**
@@ -120,7 +136,11 @@ class GameInitializer(
         require(config.players.size >= 2) { "Need at least 2 players" }
 
         val events = mutableListOf<GameEvent>()
-        var state = GameState(format = config.format)
+        // Resolve the seed up front: explicit when supplied, otherwise fresh entropy. Either way it
+        // is recorded on the result so the game is reproducible later. This clock read is the one
+        // sanctioned non-determinism boundary — once seeded, the engine is a pure function again.
+        val resolvedSeed: Long = config.seed ?: System.nanoTime()
+        var state = GameState(format = config.format, rng = GameRng.seeded(resolvedSeed))
         val playerIds = mutableListOf<EntityId>()
 
         // Validate Commander-format prerequisites up front. Each player must designate a
@@ -148,7 +168,11 @@ class GameInitializer(
 
         // 1. Create player entities
         for (playerConfig in config.players) {
-            val playerId = playerConfig.playerId ?: EntityId.generate()
+            val playerId = playerConfig.playerId ?: run {
+                val (id, s) = state.newEntity()
+                state = s
+                id
+            }
             playerIds.add(playerId)
 
             val startingLife = formatStartingLife ?: playerConfig.startingLife
@@ -172,7 +196,9 @@ class GameInitializer(
             val idx = config.startingPlayerIndex
             playerIds.subList(idx, playerIds.size) + playerIds.subList(0, idx)
         } else {
-            playerIds.shuffled()
+            val (order, shuffledState) = state.nextRandom { shuffle(playerIds) }
+            state = shuffledState
+            order
         }
         state = state.copy(
             turnOrder = shuffledOrder,
@@ -197,7 +223,8 @@ class GameInitializer(
 
             if (commanderName != null) {
                 val cardDef = cardRegistry.requireCard(commanderName)
-                val cardId = EntityId.generate()
+                val (cardId, stateWithId) = state.newEntity()
+                state = stateWithId
                 val cardContainer = createCardEntity(cardDef, playerId, playerConfig.deck.commanderPrinting).with(
                     com.wingedsheep.engine.state.components.identity.CommanderComponent(ownerId = playerId)
                 )
@@ -214,7 +241,8 @@ class GameInitializer(
             }
             for (entry in libraryEntries) {
                 val cardDef = cardRegistry.requireCard(entry.name)
-                val cardId = EntityId.generate()
+                val (cardId, stateWithId) = state.newEntity()
+                state = stateWithId
                 val cardContainer = createCardEntity(cardDef, playerId, entry.printing)
                 state = state.withEntity(cardId, cardContainer)
                 state = state.addToZone(ZoneKey(playerId, Zone.LIBRARY), cardId)
@@ -258,7 +286,7 @@ class GameInitializer(
             )
         }
 
-        return InitializationResult(state, events, playerIds)
+        return InitializationResult(state, events, playerIds, resolvedSeed)
     }
 
     /**
@@ -366,8 +394,8 @@ class GameInitializer(
      */
     private fun shuffleLibrary(state: GameState, playerId: EntityId): GameState {
         val libraryKey = ZoneKey(playerId, Zone.LIBRARY)
-        val library = state.getZone(libraryKey).shuffled()
-        return state.copy(zones = state.zones + (libraryKey to library))
+        val (library, newState) = state.nextRandom { shuffle(state.getZone(libraryKey)) }
+        return newState.copy(zones = newState.zones + (libraryKey to library))
     }
 
     /**
@@ -460,14 +488,16 @@ class GameInitializer(
 
         println("[HandSmoother] deck=${library.size} cards, landRatio=${"%.3f".format(deckLandRatio)}, colorRatios=$deckColorRatios")
 
-        // Generate candidate hands
+        // Generate candidate hands. Thread the RNG through each candidate shuffle so hand smoothing
+        // is reproducible too; carry the advanced state into the rest of the routine below.
+        var workingState = state
         val candidates = mutableListOf<List<EntityId>>()
         val effectiveCandidateCount = candidateCount.coerceIn(2, 3)
 
         repeat(effectiveCandidateCount) {
-            val shuffledLibrary = library.shuffled()
-            val candidateHand = shuffledLibrary.takeLast(count)
-            candidates.add(candidateHand)
+            val (shuffledLibrary, advanced) = workingState.nextRandom { shuffle(library) }
+            workingState = advanced
+            candidates.add(shuffledLibrary.takeLast(count))
         }
 
         // Score each candidate and select the best one
@@ -485,8 +515,8 @@ class GameInitializer(
             println("[HandSmoother] candidate ${index + 1}: ${landCount} lands, score=${"%.4f".format(score)}$selected")
         }
 
-        // Apply the selected hand to the state
-        var currentState = state
+        // Apply the selected hand to the state (continuing from the RNG-advanced workingState).
+        var currentState = workingState
         val events = mutableListOf<GameEvent>()
         val drawnCardIds = mutableListOf<EntityId>()
 
@@ -497,8 +527,9 @@ class GameInitializer(
         }
 
         // Shuffle the remaining library
-        newLibrary = newLibrary.shuffled().toMutableList()
-        currentState = currentState.copy(zones = currentState.zones + (libraryKey to newLibrary))
+        val (shuffledRemaining, advancedState) = currentState.nextRandom { shuffle(newLibrary) }
+        newLibrary = shuffledRemaining.toMutableList()
+        currentState = advancedState.copy(zones = advancedState.zones + (libraryKey to newLibrary))
 
         // Add cards to hand
         for (cardId in bestCandidate) {

@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.model.GameRng
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.test.TestCase
@@ -110,7 +111,9 @@ abstract class ProtocolTestBase : FunSpec() {
      */
     inner class ScenarioBuilder {
         private val entityIdCounter = AtomicLong(1000)
-        private var state = GameState()
+        // Fresh-entropy RNG seed per build so "at random" effects vary across repeated builds —
+        // see the matching note in ScenarioTestBase.ScenarioBuilder.
+        private var state = GameState(rng = GameRng.seeded(System.nanoTime()))
 
         private var player1Id: EntityId = EntityId.of("player-1")
         private var player2Id: EntityId = EntityId.of("player-2")

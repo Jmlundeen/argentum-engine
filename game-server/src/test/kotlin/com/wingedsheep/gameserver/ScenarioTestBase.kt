@@ -82,6 +82,7 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.model.GameRng
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ProtectionScope
@@ -157,7 +158,11 @@ abstract class ScenarioTestBase : FunSpec() {
      */
     inner class ScenarioBuilder {
         private val entityIdCounter = AtomicLong(1000)
-        private var state = GameState()
+        // Seed the deterministic RNG with fresh entropy per scenario build so coin flips and other
+        // "at random" effects vary across repeated builds — scenario tests that run a setup N times
+        // to observe both branches of a flip (Goblin Psychopath, Grip of Chaos) depend on this. A
+        // bare GameState() would reuse seed 0 every build and freeze the outcome.
+        private var state = GameState(rng = GameRng.seeded(System.nanoTime()))
 
         private var player1Id: EntityId? = null
         private var player2Id: EntityId? = null

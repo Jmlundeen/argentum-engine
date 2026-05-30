@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.model.GameRng
 import kotlinx.serialization.Serializable
 
 /**
@@ -136,6 +137,23 @@ data class GameState(
      * field semantics.
      */
     val mayPlayPermissions: List<com.wingedsheep.engine.state.permissions.MayPlayPermission> = emptyList(),
+
+    /**
+     * Deterministic RNG state for every random game event (shuffles, coin flips, "at random"
+     * choices). Threaded purely: a draw returns a value plus the advanced generator, which the
+     * caller writes back via [nextRandom]. Two games seeded identically and fed the same actions
+     * therefore reproduce byte-identically — see [GameRng]. Defaults to a fixed seed so existing
+     * tests/persisted states are unaffected; [com.wingedsheep.engine.core.GameInitializer] reseeds
+     * it from [com.wingedsheep.engine.core.GameConfig.seed] (or fresh entropy) at game start.
+     */
+    val rng: GameRng = GameRng(0L),
+
+    /**
+     * Monotonic counter backing deterministic entity-id minting via [newEntity]. Kept in state (not
+     * a process-global) so id generation is a pure function of the game — a prerequisite for
+     * byte-identical replays/parity. Live IDs look like `e0`, `e1`, … See [EntityId].
+     */
+    val nextEntityId: Long = 0L,
 ) {
     /**
      * Cached projection of the game state with all continuous effects (Rule 613) applied.
@@ -425,6 +443,25 @@ data class GameState(
      * Advance to the next timestamp (returns new state).
      */
     fun tick(): GameState = copy(timestamp = timestamp + 1)
+
+    /**
+     * Draw a random value, advancing the stored generator. The [draw] lambda receives the current
+     * [rng] and returns `(value, nextRng)` — e.g. `state.nextRandom { nextBoolean() }` for a coin
+     * flip or `state.nextRandom { shuffle(library) }` for a shuffle. Returns the drawn value paired
+     * with the new [GameState] carrying the advanced generator; the caller must thread that state
+     * onward, exactly like [tick].
+     */
+    fun <T> nextRandom(draw: GameRng.() -> Pair<T, GameRng>): Pair<T, GameState> {
+        val (value, advanced) = rng.draw()
+        return value to copy(rng = advanced)
+    }
+
+    /**
+     * Mint a fresh, deterministic [EntityId] and return it with the state whose counter has been
+     * advanced. Replaces [EntityId.generate] anywhere the id must be reproducible across runs.
+     */
+    fun newEntity(): Pair<EntityId, GameState> =
+        EntityId("e$nextEntityId") to copy(nextEntityId = nextEntityId + 1)
 
     /**
      * Set the priority player (returns new state).
