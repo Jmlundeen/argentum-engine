@@ -20,7 +20,11 @@ val Undermine = card("Undermine") {
 
     spell {
         target = Targets.Spell
-        effect = Effects.CounterSpell() then Effects.LoseLife(3, EffectTarget.TargetController)
+        // Resolve the life loss while the spell is still on the stack so `TargetController`
+        // can read its controller; countering first moves the spell to the graveyard and the
+        // controller lookup silently fails. Both happen in one resolution, so the order is
+        // imperceptible to players.
+        effect = Effects.LoseLife(3, EffectTarget.TargetController) then Effects.CounterSpell()
     }
 
     metadata {
