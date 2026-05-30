@@ -58,6 +58,15 @@ enum class Keyword(val displayName: String) {
 
     // ── Triggered/Static keyword abilities ───────────────────
     PROWESS("Prowess"),
+
+    /**
+     * Flurry (Tarkir: Dragonstorm, Jeskai). "Flurry — Whenever you cast your second spell
+     * each turn, [effect]." A display-only keyword tag; the behavior lives in a triggered
+     * ability on the [com.wingedsheep.sdk.scripting.GameEvent.NthSpellCastEvent] (n=2, you)
+     * event, wired by the `flurry { }` DSL helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder].
+     */
+    FLURRY("Flurry"),
     CHANGELING("Changeling"),
 
     // ── ETB modification ──────────────────────────────────────
@@ -81,6 +90,18 @@ enum class Keyword(val displayName: String) {
     // ── Spell mechanics ─────────────────────────────────────
     STORM("Storm"),
     FLASHBACK("Flashback"),
+
+    /**
+     * Harmonize—[cost] (Tarkir: Dragonstorm). "You may cast this card from your
+     * graveyard for its harmonize cost. You may tap a creature you control to
+     * reduce that cost by an amount of generic mana equal to its power. Then exile
+     * this spell."
+     *
+     * Modelled like [FLASHBACK] (graveyard cast + exile-on-resolution) plus a
+     * Convoke-style single-creature reduction routed through the alternative-payment
+     * pipeline. See [com.wingedsheep.sdk.scripting.KeywordAbility.Harmonize].
+     */
+    HARMONIZE("Harmonize"),
     EVOKE("Evoke"),
 
     /**
@@ -128,12 +149,36 @@ enum class Keyword(val displayName: String) {
     PERSIST("Persist"),
 
     /**
+     * Renew (Tarkir: Dragonstorm, Sultai clan keyword).
+     * "Renew — [cost], Exile this card from your graveyard: [effect]. Activate only as a sorcery."
+     *
+     * A graveyard-activated ability composed of existing primitives: the mana cost plus
+     * [com.wingedsheep.sdk.scripting.AbilityCost.ExileSelf], `activateFromZone = GRAVEYARD`,
+     * and `timing = SorcerySpeed`. Wired in one call via the `renew(cost) { … }` helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder]; the keyword itself is display-only.
+     */
+    RENEW("Renew"),
+
+    /**
      * Ascend (Ixalan, CR 702.131). On a permanent spell, means "When this permanent
      * enters, if you control ten or more permanents, you get the city's blessing
      * for the rest of the game." Engine wires the trigger explicitly per card; the
      * keyword itself is only a textual marker for rules-text display.
      */
     ASCEND("Ascend"),
+
+    /**
+     * Decayed (CR 702.147, Innistrad: Midnight Hunt). A static ability plus a
+     * triggered ability: "This creature can't block" and "When this creature
+     * attacks, sacrifice it at end of combat."
+     *
+     * The keyword itself is display-only; the behavior is composed by the
+     * `decayed()` DSL helper on [com.wingedsheep.sdk.dsl.CardBuilder] — a
+     * [com.wingedsheep.sdk.scripting.CantBlock] static ability plus an
+     * attack-triggered [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect]
+     * that sacrifices the source at the end-of-combat step.
+     */
+    DECAYED("Decayed"),
 
     // ── Damage modification ──────────────────────────────
     WITHER("Wither"),
@@ -152,6 +197,19 @@ enum class Keyword(val displayName: String) {
     RENOWN("Renown"),
     FABRICATE("Fabricate"),
     TRIBUTE("Tribute"),
+
+    /**
+     * Mobilize N (Tarkir: Dragonstorm, Mardu). "Whenever this creature attacks,
+     * create N tapped and attacking 1/1 red Warrior creature tokens. Sacrifice
+     * those tokens at the beginning of the next end step."
+     *
+     * The keyword ability is display-only; the behavior lives in an attack-triggered
+     * ability wired by the `mobilize(n)` DSL helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder] — a [com.wingedsheep.sdk.scripting.effects.CreateTokenEffect]
+     * that creates the tapped-and-attacking tokens and schedules their sacrifice at
+     * the next end step via `sacrificeAtStep`.
+     */
+    MOBILIZE("Mobilize"),
 
     // ── Ability words (display prefix, no uniform mechanic) ──
     /**

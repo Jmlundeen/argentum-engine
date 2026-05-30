@@ -13,6 +13,8 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
+import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
+import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -21,6 +23,7 @@ import com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -331,6 +334,45 @@ class CardBuilder(private val name: String) {
     }
 
     /**
+     * Add Flurry (Tarkir: Dragonstorm, Jeskai) — keyword tag + a "second spell each turn"
+     * triggered ability.
+     *
+     * "Flurry — Whenever you cast your second spell each turn, [effect]." The [Keyword.FLURRY]
+     * tag is display-only (the engine has no dedicated Flurry handler); the behavior lives
+     * entirely in the triggered ability wired here on the [Triggers.NthSpellCast] (n=2, you)
+     * event, which the [com.wingedsheep.sdk.scripting.GameEvent.NthSpellCastEvent] matcher
+     * already fires when its controller casts their second spell of the turn.
+     *
+     * Author the effect/target/optional inside the block exactly like [triggeredAbility]
+     * (the [TriggeredAbilityBuilder.trigger] is ignored — it is always forced to the
+     * second-spell trigger). This helper composes the rendered reminder text as
+     * "Flurry — Whenever you cast your second spell each turn, <effect>." A custom
+     * [TriggeredAbilityBuilder.description] replaces only the `<effect>` portion, keeping
+     * the "Flurry — Whenever you cast your second spell each turn," prefix.
+     */
+    fun flurry(init: TriggeredAbilityBuilder.() -> Unit) {
+        keywordSet.add(Keyword.FLURRY)
+        val builder = TriggeredAbilityBuilder()
+        builder.init()
+        builder.trigger = Triggers.NthSpellCast(2, Player.You)
+        val ability = builder.build()
+        val effectText = (builder.description ?: buildString {
+            if (ability.optional) append("you may ")
+            ability.targetRequirement?.let { append(it.description); append(" ") }
+            append(ability.effect.description.replaceFirstChar { it.lowercase() })
+            ability.elseEffect?.let {
+                append(". If you don't, ")
+                append(it.description.replaceFirstChar { c -> c.lowercase() })
+            }
+        }).trimEnd().trimEnd('.')
+        triggeredAbilities.add(
+            ability.copy(
+                descriptionOverride = "Flurry — Whenever you cast your second spell each turn, $effectText."
+            )
+        )
+    }
+
+    /**
      * Add Rampage N (CR 702.23) — keyword ability + triggered ability.
      *
      * "Whenever this creature becomes blocked, it gets +N/+N until end of turn for each
@@ -355,6 +397,74 @@ class CardBuilder(private val name: String) {
                     toughnessModifier = perBlockerBeyondFirst,
                     target = EffectTarget.TriggeringEntity
                 )
+            )
+        )
+    }
+
+    /**
+     * Add Mobilize N (Tarkir: Dragonstorm) — keyword ability + triggered ability.
+     *
+     * "Whenever this creature attacks, create N tapped and attacking 1/1 red Warrior
+     * creature tokens. Sacrifice those tokens at the beginning of the next end step."
+     *
+     * The keyword ability is display-only (no separate Mobilize handler exists); the
+     * behavior lives entirely in the attack-triggered ability wired here. The tokens
+     * enter tapped and attacking via [CreateTokenEffect.tapped]/[CreateTokenEffect.attacking],
+     * and their end-of-turn sacrifice is scheduled via [CreateTokenEffect.sacrificeAtStep]
+     * (the sacrifice sibling of `exileAtStep`), which the executor turns into one delayed
+     * [com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect] per created token.
+     */
+    fun mobilize(n: Int) {
+        keywordAbilityList.add(KeywordAbility.mobilize(n))
+        val tokenWord = if (n == 1) "token" else "tokens"
+        val pronoun = if (n == 1) "it" else "those tokens"
+        val article = if (n == 1) "a" else "$n"
+        triggeredAbilities.add(
+            TriggeredAbility.create(
+                trigger = Triggers.Attacks.event,
+                binding = Triggers.Attacks.binding,
+                effect = CreateTokenEffect(
+                    count = DynamicAmount.Fixed(n),
+                    power = 1,
+                    toughness = 1,
+                    colors = setOf(Color.RED),
+                    creatureTypes = setOf("Warrior"),
+                    tapped = true,
+                    attacking = true,
+                    sacrificeAtStep = Step.END
+                ),
+                descriptionOverride = "Whenever this creature attacks, create $article tapped " +
+                    "and attacking 1/1 red Warrior creature $tokenWord. Sacrifice $pronoun at the " +
+                    "beginning of the next end step."
+            )
+        )
+    }
+
+    /**
+     * Add Decayed (CR 702.147, Innistrad: Midnight Hunt) — keyword + static ability
+     * + triggered ability.
+     *
+     * "This creature can't block, and when it attacks, sacrifice it at end of combat."
+     *
+     * The keyword is display-only (no separate Decayed handler exists); the behavior is
+     * composed here from existing primitives: a [CantBlock] static ability on the source
+     * for "can't block", plus an attack-triggered [CreateDelayedTriggerEffect] scheduled
+     * for [Step.END_COMBAT] that sacrifices the source (mirroring Mardu Blazebringer's
+     * "sacrifice it at end of combat" wiring).
+     */
+    fun decayed() {
+        keywordSet.add(Keyword.DECAYED)
+        staticAbilities.add(CantBlock(GroupFilter.source()))
+        triggeredAbilities.add(
+            TriggeredAbility.create(
+                trigger = Triggers.Attacks.event,
+                binding = Triggers.Attacks.binding,
+                effect = CreateDelayedTriggerEffect(
+                    step = Step.END_COMBAT,
+                    effect = Effects.SacrificeTarget(EffectTarget.Self)
+                ),
+                descriptionOverride = "Decayed (This creature can't block, and when it " +
+                    "attacks, sacrifice it at end of combat.)"
             )
         )
     }
@@ -460,6 +570,46 @@ class CardBuilder(private val name: String) {
                 descriptionOverride = "At the beginning of your end step, remove a time counter from this permanent."
             )
         )
+    }
+
+    /**
+     * Add Renew (Tarkir: Dragonstorm, Sultai clan keyword).
+     *
+     * "Renew — [cost], Exile this card from your graveyard: [effect]. Activate only as a sorcery."
+     *
+     * Renew is a graveyard-activated ability. This helper composes it from existing primitives —
+     * no new engine subsystem is involved:
+     *  - the cost is the given mana [cost] plus [AbilityCost.ExileSelf] (the card exiles itself
+     *    from the graveyard as part of the cost),
+     *  - `activateFromZone = Zone.GRAVEYARD` so the engine's GraveyardAbilityEnumerator surfaces it
+     *    while the card sits in the graveyard, and
+     *  - `timing = TimingRule.SorcerySpeed` to enforce "Activate only as a sorcery".
+     *
+     * The [init] lambda configures the effect (and any targets) exactly like [activatedAbility];
+     * its `cost`, `timing`, and `activateFromZone` fields are ignored — those are fixed by Renew.
+     *
+     * ```kotlin
+     * renew("{2}{G}") {
+     *     effect = Effects.PutCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target("creature", Targets.Creature))
+     * }
+     * ```
+     */
+    fun renew(cost: String, init: ActivatedAbilityBuilder.() -> Unit) {
+        val builder = ActivatedAbilityBuilder().apply(init)
+        val renewEffect = requireNotNull(builder.effect) { "renew requires an effect" }
+        activatedAbilities.add(
+            ActivatedAbility(
+                cost = AbilityCost.Composite(listOf(AbilityCost.Mana(ManaCost.parse(cost)), AbilityCost.ExileSelf)),
+                effect = renewEffect,
+                targetRequirements = builder.targetRequirements,
+                timing = TimingRule.SorcerySpeed,
+                restrictions = builder.restrictions,
+                activateFromZone = Zone.GRAVEYARD,
+                descriptionOverride = "Renew — $cost, Exile this card from your graveyard: " +
+                    "${renewEffect.description} Activate only as a sorcery."
+            )
+        )
+        keywordSet.add(Keyword.RENEW)
     }
 
     /**

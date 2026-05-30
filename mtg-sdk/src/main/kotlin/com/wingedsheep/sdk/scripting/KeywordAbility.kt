@@ -346,6 +346,31 @@ sealed interface KeywordAbility {
     }
 
     // =========================================================================
+    // Harmonize
+    // =========================================================================
+
+    /**
+     * Harmonize with a mana cost (Tarkir: Dragonstorm).
+     * "Harmonize {5}{R}{R}" — You may cast this card from your graveyard for its
+     * harmonize cost. As you do, you may tap a single untapped creature you control
+     * to reduce that cost by an amount of generic mana equal to its power. Then exile
+     * this card as it leaves the stack.
+     *
+     * Modelled like [Flashback] (graveyard cast + exile-on-resolution) plus a
+     * Convoke-style single-creature reduction routed through
+     * [AlternativePaymentChoice.harmonizeCreature]. The reduction lowers only the
+     * generic portion of the cost — power can pay only generic mana.
+     */
+    @SerialName("Harmonize")
+    @Serializable
+    data class Harmonize(
+        val cost: ManaCost
+    ) : KeywordAbility {
+        override val keyword: Keyword = Keyword.HARMONIZE
+        override val description: String = "Harmonize $cost"
+    }
+
+    // =========================================================================
     // Warp
     // =========================================================================
 
@@ -633,6 +658,11 @@ sealed interface KeywordAbility {
             Flashback(ManaCost.parse(cost), additionalCost)
 
         /**
+         * Create Harmonize with mana cost from string (e.g., "Harmonize {5}{R}{R}").
+         */
+        fun harmonize(cost: String): KeywordAbility = Harmonize(ManaCost.parse(cost))
+
+        /**
          * Create Kicker with a mana cost.
          */
         fun kicker(cost: String): KeywordAbility = OptionalAdditionalCost(manaCost = ManaCost.parse(cost))
@@ -718,6 +748,7 @@ sealed interface KeywordAbility {
         fun renown(n: Int): KeywordAbility = Numeric(Keyword.RENOWN, n)
         fun fabricate(n: Int): KeywordAbility = Numeric(Keyword.FABRICATE, n)
         fun tribute(n: Int): KeywordAbility = Numeric(Keyword.TRIBUTE, n)
+        fun mobilize(n: Int): KeywordAbility = Numeric(Keyword.MOBILIZE, n)
 
         /**
          * Hideaway N — display tag for the parameterized hideaway keyword. The

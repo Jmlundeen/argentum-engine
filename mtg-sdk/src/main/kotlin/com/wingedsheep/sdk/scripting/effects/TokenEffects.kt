@@ -68,6 +68,10 @@ data class CreateChosenTokenEffect(
  *   Use [EffectTarget.TargetController] to give the token to the controller of a targeted permanent.
  * @property exileAtStep If set, create delayed triggers to exile the created tokens at this step.
  *   Used for "Create tokens... Exile them at the beginning of the next end step" patterns (e.g., Valduk, Kiki-Jiki).
+ * @property sacrificeAtStep If set, create delayed triggers to sacrifice the created tokens at this step.
+ *   The sacrifice sibling of [exileAtStep] — tokens go to the graveyard (firing dies/leaves and
+ *   "whenever you sacrifice" triggers) rather than being exiled. Used by Mobilize N
+ *   ("Sacrifice those tokens at the beginning of the next end step").
  */
 @SerialName("CreateToken")
 @Serializable
@@ -90,6 +94,7 @@ data class CreateTokenEffect(
     val staticAbilities: List<StaticAbility> = emptyList(),
     val triggeredAbilities: List<TriggeredAbility> = emptyList(),
     val exileAtStep: Step? = null,
+    val sacrificeAtStep: Step? = null,
     /** Counters to place on the token when it enters the battlefield. */
     val initialCounters: Map<String, Int> = emptyMap()
 ) : Effect {

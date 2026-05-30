@@ -34,6 +34,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
+import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import java.util.UUID
 import kotlin.reflect.KClass
@@ -185,6 +186,28 @@ class CreateTokenExecutor(
                     id = UUID.randomUUID().toString(),
                     effect = MoveToZoneEffect(EffectTarget.SpecificEntity(tokenId), Zone.EXILE),
                     fireAtStep = exileStep,
+                    sourceId = sourceId,
+                    sourceName = sourceName,
+                    controllerId = tokenControllerId
+                )
+                newState = newState.addDelayedTrigger(delayedTrigger)
+            }
+        }
+
+        // If sacrificeAtStep is set, create delayed triggers to sacrifice each created token
+        // (the sacrifice sibling of exileAtStep — used by Mobilize N). Sacrifice sends the
+        // token to the graveyard, firing dies/leaves and "whenever you sacrifice" triggers.
+        val sacrificeStep = effect.sacrificeAtStep
+        if (sacrificeStep != null) {
+            val sourceId = context.sourceId ?: context.controllerId
+            val sourceName = sourceId.let { id ->
+                state.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
+            }
+            for (tokenId in createdTokens) {
+                val delayedTrigger = DelayedTriggeredAbility(
+                    id = UUID.randomUUID().toString(),
+                    effect = SacrificeTargetEffect(EffectTarget.SpecificEntity(tokenId)),
+                    fireAtStep = sacrificeStep,
                     sourceId = sourceId,
                     sourceName = sourceName,
                     controllerId = tokenControllerId

@@ -281,6 +281,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 - `AddCounters(type, count, target)` — add N counters of `type`.
 - `AddDynamicCounters(type, amount, target)` — count is computed at resolution.
+- `DoubleCounters(type?, target?)` — one-shot doubling of the `type` counters (default `+1/+1`) already on the
+  target: reads the current count and places that many more (so the total doubles). Distinct from the
+  `DoubleCounterPlacement` replacement (which doubles *future* placements); the added counters still trigger
+  placement replacements like Hardened Scales. No-op with zero counters. Sage of the Fang.
 - `RemoveCounters(type, count, target)` — remove N counters.
 - `RemoveAnyNumberOfCounters(target)` — player removes 0 or more.
 - `RemoveAllCounters(target)` — wipe every counter.
@@ -930,6 +934,12 @@ in the repo today):
 - `CardsPutIntoYourGraveyard(filter?)` — when matching cards enter your yard.
 - `PermanentCardsPutIntoYourGraveyard` — only permanent cards.
 - `CreaturesPutIntoGraveyardFromLibrary` — mill-trigger shape.
+- `CardsLeaveYourGraveyard(filter?)` — batching trigger; fires once per event batch when one
+  or more matching cards **leave** your graveyard (cast/exiled/reanimated/returned to hand,
+  etc.), regardless of how many or where they went. For the common "leave your graveyard
+  **during your turn**" wording, add `triggerCondition = Conditions.IsYourTurn`; for "this
+  ability triggers only once each turn", add `oncePerTurn = true`. (Attuned Hunter, Kishla
+  Skimmer, Kheru Goldkeeper.)
 
 ### Discard
 
@@ -1330,7 +1340,7 @@ activatedAbility {
 
 Flying, Menace, Intimidate, Fear, Shadow, Horsemanship, all landwalks (Plainswalk … Forestwalk), First Strike, Double
 Strike, Trample, Deathtouch, Lifelink, Vigilance, Reach, Provoke, Flanking, Defender, Indestructible, Hexproof, Shroud, Haste,
-Flash, Prowess, Changeling, Convoke, Delve, Affinity, Storm, Flashback, Evoke, Impending, Conspire, Hideaway, Cascade, Plot,
+Flash, Prowess, Flurry, Changeling, Convoke, Delve, Affinity, Storm, Flashback, Harmonize, Evoke, Impending, Conspire, Hideaway, Cascade, Plot,
 Offspring, Persist, Ascend, Wither, Toxic, Eerie, Vivid, Fateful Bite, … (display-only — engine effect lives in handlers or
 composite abilities).
 
@@ -1349,6 +1359,13 @@ composite abilities).
 - `Rampage(n)` — +N/+N for each blocker past the first. Display-only; wire the behavior with the
   `card { rampage(n) }` builder helper, which adds this keyword ability plus a "becomes blocked"
   triggered ability granting `+n/+n × (blockers − 1)` until end of turn (mirrors `prowess()`).
+- `Flurry` (Tarkir: Dragonstorm, Jeskai) — "Flurry — Whenever you cast your second spell each turn,
+  [effect]." Display-only `Keyword.FLURRY`; wire the behavior with the `card { flurry { … } }` builder
+  helper. Author the effect/target/optional inside the block exactly like `triggeredAbility { }` — the
+  helper forces the `Triggers.NthSpellCast(2, Player.You)` trigger, adds the FLURRY tag, and prefixes the
+  rendered text with "Flurry — Whenever you cast your second spell each turn," (mirrors `prowess()` /
+  `rampage()`). The second-spell-cast event is matched by `GameEvent.NthSpellCastEvent`; no new engine
+  subsystem is involved. Example: `flurry { effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self) }`.
 - `Afflict(n)` — defender loses N when this becomes blocked.
 - `Crew(n)` — tap N power worth to animate a Vehicle.
 - `Modular(n)` — ETB with +1/+1 counters, transfer on death.
@@ -1357,12 +1374,23 @@ composite abilities).
 - `Renown(n)` — first combat damage to a player grants renown counters.
 - `Fabricate(n)` — ETB choose +1/+1 counters or Servo tokens.
 - `Tribute(n)` — opponent chooses ETB bonus.
+- `Mobilize(n)` — +N tapped-and-attacking 1/1 red Warrior tokens on attack (Tarkir: Dragonstorm, Mardu).
+  Display-only; wire the behavior with the `card { mobilize(n) }` builder helper, which adds this keyword
+  ability plus a "whenever this attacks" triggered `CreateTokenEffect` (`tapped = true`, `attacking = true`)
+  whose `sacrificeAtStep = Step.END` schedules one delayed `SacrificeTargetEffect` per created token at the
+  next end step (mirrors `rampage()`). `n` may be any fixed value (Mobilize 1/2/3, …).
+- `Decayed` — "This creature can't block, and when it attacks, sacrifice it at end of combat" (CR 702.147,
+  Innistrad: Midnight Hunt). Display-only; wire the behavior with the `card { decayed() }` builder helper, which adds
+  the keyword plus a `CantBlock(GroupFilter.source())` static ability and a "whenever this attacks" triggered
+  `CreateDelayedTriggerEffect(step = Step.END_COMBAT, effect = Effects.SacrificeTarget(EffectTarget.Self))` (mirrors
+  Mardu Blazebringer's end-of-combat self-sacrifice). No parameter.
 - `Toxic(n)` — adds poison counters on combat damage.
 - `Cycling(cost)` — pay cost, discard, draw a card.
 - `BasicLandcycling(cost)` — cycling that fetches a basic land type.
 - `Typecycling(type, cost)` — cycling that fetches a card type.
 - `Plot(cost)` — `KeywordAbility.plot(cost)`. Special action available during your main phase while the stack is empty: pay [cost] and exile the card from your hand. It becomes plotted (stamped with a `PlottedComponent`). On a later turn you may cast it from exile without paying its mana cost, as a sorcery (CR 718). Cast permission is granted via the engine's standard `MayPlayPermission` + `PlayWithoutPayingCostComponent`, gated by `Conditions.SourcePlottedOnPriorTurn`. No card-side wiring needed — declare the keyword ability on the card and the engine handles the rest.
 - `Hideaway(n)` — `KeywordAbility.hideaway(n)`; display tag rendered "Hideaway N". Mechanic is composed manually via `MoveCollectionEffect(faceDown = true, linkToSource = true)` + `CardSource.FromLinkedExile()` — the keyword itself carries no engine behavior.
+- `Harmonize(cost)` — `KeywordAbility.harmonize(cost)` (Tarkir: Dragonstorm). An alternative cost to cast an instant/sorcery **from your graveyard**, like Flashback, then exile it as it resolves. As you cast it you may tap **a single** untapped creature you control to reduce the **generic** portion of the harmonize cost by that creature's (projected) power — a Convoke-style reduction, but one creature paying generic-equal-to-power instead of one mana per creature. No card-side wiring: declare the keyword ability and the engine handles graveyard-cast enumeration (`CastWithHarmonize`), the per-creature reduction (routed through `AlternativePaymentChoice.harmonizeCreature`), and the exile-on-resolution. The chosen creature and its power are surfaced to the client via `LegalAction.harmonizeCreatures` / `hasHarmonize`.
 - `OptionalAdditionalCost(manaCost?, additionalCost?, multi, displayPrefix, branchesEffect, grantsFlashTiming)` — generalised "pay an optional extra cost while casting" primitive. Backs printed Kicker / Multikicker / Offspring **and** the pre-kicker "pay {N} more to cast as though it had flash" pattern (Ghitu Fire). When `branchesEffect = true` (default) paying the cost marks the spell so `WasKicked` fires for the card's own effect/triggers; when `false` the payment is invisible to `WasKicked` (used by `flashKicker`). When `grantsFlashTiming = true` paying the cost unlocks instant-speed casting in addition to whatever else it does. Prefer the factories: `KeywordAbility.kicker(cost)`, `KeywordAbility.kicker(additionalCost)`, `KeywordAbility.multikicker(cost)`, `KeywordAbility.offspring(cost)`, `KeywordAbility.flashKicker(cost)`. Serial name is `Kicker` for wire compatibility. **Kicker {X}** (variable kicker, e.g. `KeywordAbility.kicker("{X}")` on Verdeloth the Ancient): the kicked cast surfaces `hasXCost`/`maxAffordableX` so the client prompts for X exactly like a base-cost X spell; the chosen X is paid as part of the kicker and stamped onto `SpellOnStackComponent.xValue`, so the card's ETB trigger reads it via `DynamicAmount.XValue` ("create X tokens").
 - `Impending(time, cost)` — `card { impending(n, cost) }` builder helper (CR 702.175, Duskmourn). A self-alternative
   cost: pay [cost] instead of the mana cost and the permanent enters with N **time counters**, isn't a creature until
@@ -1372,6 +1400,14 @@ composite abilities).
   triggered ability (gated by the same intervening-if) that removes a time counter. The engine places the N TIME counters
   when a spell cast for its impending cost resolves; casting for the normal mana cost adds no counters, so neither wiring
   fires (mirrors `prowess()` / `rampage()`).
+- `Renew(cost)` — `card { renew(cost) { effect = … } }` builder helper (Tarkir: Dragonstorm, Sultai clan keyword).
+  A graveyard-activated ability: "Renew — [cost], Exile this card from your graveyard: [effect]. Activate only as a
+  sorcery." The helper composes it entirely from existing primitives — `AbilityCost.Composite(Mana(cost), ExileSelf)`,
+  `activateFromZone = Zone.GRAVEYARD`, and `timing = TimingRule.SorcerySpeed` — so no new engine subsystem is involved.
+  The `renew { }` lambda configures the effect (and any targets via `target(name, requirement)`) exactly like
+  `activatedAbility { }`; its `cost`/`timing`/`activateFromZone` fields are ignored (fixed by Renew). The
+  `GraveyardAbilityEnumerator` surfaces the ability while the card is in the graveyard and only at sorcery speed; the
+  `ActivateAbilityHandler` pays the mana and exiles the card from the graveyard. Declares `Keyword.RENEW` for display.
 - `Morph(cost)` — cast face-down for `{3}`, flip for cost.
 - `Unmorph(cost, effect)` — turn-face-up cost + bonus effect.
 - `Equip(cost)` — Equipment attach cost.
@@ -1853,6 +1889,10 @@ substitution.
   `hourglass` — assorted printed counter kinds. (`hourglass`: Temporal Distortion — a permanent with one doesn't untap
   during its controller's untap step; model the restriction with `GrantKeyword(AbilityFlag.DOESNT_UNTAP.name,
   GroupFilter(... .withCounter(Counters.HOURGLASS)))` so it stays projection-scoped.)
+- **Keyword counters** (Rule 122.1b) — `flying`, `first strike`, `lifelink`, `indestructible`, `deathtouch`,
+  `trample`, `hexproof`. `StateProjector` grants the matching `Keyword` to any permanent carrying one (mapped in
+  `KEYWORD_COUNTER_MAP`, re-applied after Layer 6 so "loses all abilities" can't wipe a counter-granted keyword).
+  Add via `AddCounters(Counters.DEATHTOUCH, ...)` etc.; no static ability needed.
 
 Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `MoveAllLastKnownCounters`, etc.).
 
@@ -1985,6 +2025,12 @@ Card authors rarely reference these directly; they are created/updated by the ma
 - **Evoke** — `evoke = "{U}"`; pay alt cost, sacrifice on ETB.
 - **Earthbend** — `Effects.Earthbend` composes AnimateLand + GrantKeyword + AddCounters + granted self-triggers (no fake
   keyword).
+- **Endure N** — `Effects.Endure(amount, target = EffectTarget.Self)` composes a `ModalEffect.chooseOne` of
+  AddDynamicCounters (N +1/+1 counters on the enduring permanent) and a single N/N white Spirit `CreateTokenEffect`
+  (no fake keyword — endure is always the effect of a triggered/activated ability, resolved at resolution time). `amount`
+  is `DynamicAmount.Fixed` for "endure 2" or any dynamic value for "endure X" (e.g. Warden of the Grove reads
+  `EntityProperty(Source, CounterCount(...))`); `target` defaults to `Self` ("it endures") but takes
+  `EffectTarget.TriggeringEntity` when a card endures the creature that triggered it.
 - **Forage** — `EffectPatterns.forage`; cast-from-graveyard permissions need a branch in `CastSpellHandler.validate`.
 - **Blight X** — `AdditionalCost.BlightVariable` + `DynamicAmount.AdditionalCostBlightAmount` +
   `Conditions.BlightWasPaid(n)`.
