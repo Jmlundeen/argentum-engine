@@ -17,7 +17,6 @@ object EdgeOfEternitiesSet : MtgSet {
     override val code = "EOE"
     override val displayName = "Edge of Eternities"
     override val releaseDate = "2025-08-01"
-    override val incomplete = true
     override val sealedSupported = true
 
     override val cards: List<CardDefinition> by lazy {

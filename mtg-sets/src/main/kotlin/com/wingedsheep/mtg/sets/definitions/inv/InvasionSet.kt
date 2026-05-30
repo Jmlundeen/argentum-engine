@@ -20,7 +20,6 @@ object InvasionSet : MtgSet {
     override val displayName = "Invasion"
     override val releaseDate = "2000-10-02"
     override val block = "Invasion"
-    override val incomplete = true
     override val sealedSupported = true
 
     override val cards: List<CardDefinition> by lazy {
