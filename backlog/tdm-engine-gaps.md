@@ -41,14 +41,18 @@ work. Once the Tier-1 keywords land, the large majority of remaining cards are b
 
 What follows are the **genuine gaps** — elements no current SDK primitive expresses.
 
+> **Update (May 2026):** Tier 1 (all five clan keywords + Decayed) and Tier 2 (keyword counters,
+> leaves-graveyard trigger, one-shot counter doubling, group P/T doubling) are now **complete**.
+> Only the Tier-3 one-off complex cards (items 11–20) remain.
+
 ---
 
-## Tier 1 — Headline clan keywords (~50 cards, highest leverage)
+## Tier 1 — Headline clan keywords (~50 cards, highest leverage) — ✅ **ALL DONE**
 
-Four of the five wedge mechanics plus Harmonize are missing. These unlock the overwhelming
-majority of the set.
+Four of the five wedge mechanics plus Harmonize were missing. All are now implemented, unlocking
+the overwhelming majority of the set.
 
-1. **Mobilize N** (Mardu, 12 cards) — *Lowest risk; all building blocks exist.*
+1. **Mobilize N** (Mardu, 12 cards) — ✅ **DONE.** *Lowest risk; all building blocks exist.*
    "Whenever this creature attacks, create N tapped and attacking 1/1 red Warrior creature tokens.
    Sacrifice them at the beginning of the next end step." Compose attack trigger +
    `ZonePlacement.TappedAndAttacking` token + `DelayedTriggerTiming.NextEndStep` sacrifice. Needs a
@@ -56,7 +60,7 @@ majority of the set.
    → Zurgo's Vanguard, Voice of Victory, Marshal of the Lost, Shock Brigade, Stadium Headliner,
      War Effort, Sagu Pummeler, Zurgo Thunder's Decree, …
 
-2. **Endure N** (Abzan, 10 cards) — modal player choice: **put N +1/+1 counters on it OR create an
+2. **Endure N** (Abzan, 10 cards) — ✅ **DONE.** modal player choice: **put N +1/+1 counters on it OR create an
    N/N white Spirit creature token.** Both halves exist (`AddCounters`, `CreateToken`); needs the
    keyword + the binary choice prompt (and the dynamic N path for "endure X").
    → Anafenza Unyielding Lineage, Descendant of Storms, Inspirited Vanguard, Krumar Initiate, …
@@ -73,7 +77,7 @@ majority of the set.
    **Cori-Steel Cutter** + **A-Cori-Steel Cutter** (need "create a token, then attach this Equipment
    to it" from a trigger — deferred).
 
-4. **Renew** (Sultai, 12 cards) — graveyard-activated ability:
+4. **Renew** (Sultai, 12 cards) — ✅ **DONE.** graveyard-activated ability:
    `{cost}, Exile this card from your graveyard: <effect>. Activate only as a sorcery.`
    The SDK **already models** a per-ability `activateFromZone` field and `AbilityCost.ExileFromGraveyard`,
    but `ActivatedAbilityEnumerator.kt:99` only enumerates abilities on **battlefield** permanents.
@@ -82,33 +86,33 @@ majority of the set.
    → Qarsi Revenant, Sage of the Fang, Kheru Goldkeeper, Naga Fleshcrafter, Rot-Curse Rakshasa,
      Lasyd Prowler, Hundred-Battle Veteran, …
 
-5. **Harmonize** (10 cards) — alternative cast-from-graveyard cost, **may tap a creature to reduce
+5. **Harmonize** (10 cards) — ✅ **DONE.** alternative cast-from-graveyard cost, **may tap a creature to reduce
    that cost by its power (X)**, then exile the spell. Flashback + a Convoke-style power-based
    reduction. Needs a new alternative-cost path (graveyard cast + tap-for-power reduction + exile
    on resolution).
    → Channeled Dragonfire, Glacial Dragonhunt, Mammoth Bellow, Wail of War, …
 
-6. **Decayed** (1 card) — "can't block; when it attacks, sacrifice it at end of combat." Minor
+6. **Decayed** (1 card) — ✅ **DONE.** "can't block; when it attacks, sacrifice it at end of combat." Minor
    keyword; not currently in the Keyword enum.
    → Rot-Curse Rakshasa (also a Renew card).
 
 ---
 
-## Tier 2 — Small recurring primitives
+## Tier 2 — Small recurring primitives — ✅ **ALL DONE**
 
-7. **New keyword counter types.** The engine has flying / first-strike / lifelink / indestructible /
+7. **New keyword counter types.** ✅ **DONE.** The engine has flying / first-strike / lifelink / indestructible /
    stun / finality counters, but is **missing `deathtouch`, `trample`, `hexproof`, `decayed`**.
    Needs the `CounterType` constants + their keyword-counter mapping in `StateProjector`.
    → Champion of Dusan (trample), Qarsi Revenant (deathtouch), Kheru Goldkeeper (flying — exists),
      Perennation (hexproof), Rot-Curse Rakshasa (decayed)
 
-8. **Leaves-graveyard trigger.** "Whenever one or more cards leave your graveyard during your turn."
+8. **Leaves-graveyard trigger.** ✅ **DONE.** "Whenever one or more cards leave your graveyard during your turn."
    A graveyard-departure *condition/tracker* exists, but there is **no `CardsLeftGraveyard` trigger
    event** (only cards-entering and battlefield-only LTB). Needs a new trigger keyed to
    graveyard-exit batching + "once each turn / during your turn" gating.
    → Attuned Hunter, Kishla Skimmer, Kheru Goldkeeper
 
-9. **Double existing +1/+1 counters (one-shot).** `DoubleCounterPlacement` is a *replacement* on
+9. **Double existing +1/+1 counters (one-shot).** ✅ **DONE.** `DoubleCounterPlacement` is a *replacement* on
    future placement, not a one-shot doubling of counters already present.
    → Sage of the Fang
 
@@ -172,11 +176,11 @@ majority of the set.
 
 ## Recommended build order
 
-1. **Mobilize → Endure → Flurry** — every primitive for Mobilize already exists; Endure/Flurry are
+1. ✅ **Mobilize → Endure → Flurry** — every primitive for Mobilize already exists; Endure/Flurry are
    modest. Unlocks ~30 cards quickly.
-2. **Renew** (enumerator extension) + **Harmonize** (new alt-cost) — bigger lifts, ~22 cards.
-3. **Keyword counters + Decayed + leaves-graveyard trigger** (Tier 2) — small, scattered unlocks.
-4. **Tier-3 one-offs** as the relevant legendaries / rares come up.
+2. ✅ **Renew** (enumerator extension) + **Harmonize** (new alt-cost) — bigger lifts, ~22 cards.
+3. ✅ **Keyword counters + Decayed + leaves-graveyard trigger** (Tier 2) — small, scattered unlocks.
+4. **Tier-3 one-offs** as the relevant legendaries / rares come up. *(remaining work — items 11–20)*
 
 The clan keywords (Tier 1) cover the bulk of the remaining cards. Behold and Omen already being done
 means Temur spells and the 13 DFC dragons are essentially ready once the shared supporting effects
