@@ -1024,7 +1024,12 @@
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  right: 0;
+  /* The combobox lives in a narrow sidebar; let the panel grow past that column
+     to fit the widest set name rather than ellipsizing it. */
+  right: auto;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(440px, 92vw);
   z-index: 20;
   background: rgba(14, 18, 26, 0.98);
   border: 1px solid rgba(106, 163, 255, 0.35);
