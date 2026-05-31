@@ -8,11 +8,13 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
+import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
+import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -81,6 +83,44 @@ object MiscPatterns {
             )
         )
     }
+
+    /**
+     * Bolster N (CR 701.36) — "Choose a creature with the least toughness among creatures
+     * you control and put N +1/+1 counters on it."
+     *
+     * Non-targeting keyword action (the reminder text never says "target", so
+     * shroud/hexproof do not interact). The controller chooses among creatures they
+     * control, restricted to those tied for the least toughness; a single tie-break
+     * choice is made via [SelectionMode.ChooseExactly]. If the controller has no
+     * creatures, the gather yields nothing and the counter placement is a silent no-op.
+     *
+     * Toughness is read from projected state in the executor, so continuous effects and
+     * counters already in play are respected when determining "least toughness".
+     *
+     * @param amount Number of +1/+1 counters to place
+     */
+    fun bolster(amount: Int): CompositeEffect = CompositeEffect(
+        listOf(
+            GatherCardsEffect(
+                source = CardSource.ControlledPermanents(Player.You, GameObjectFilter.Creature),
+                storeAs = "bolsterCreatures"
+            ),
+            FilterCollectionEffect(
+                from = "bolsterCreatures",
+                filter = CollectionFilter.LeastToughness,
+                storeMatching = "bolsterLeastToughness"
+            ),
+            SelectFromCollectionEffect(
+                from = "bolsterLeastToughness",
+                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
+                chooser = Chooser.Controller,
+                storeSelected = "bolstered",
+                prompt = "Bolster $amount — choose a creature with the least toughness",
+                useTargetingUI = true
+            ),
+            AddCountersToCollectionEffect("bolstered", Counters.PLUS_ONE_PLUS_ONE, amount)
+        )
+    )
 
     fun sacrificeFor(
         filter: GameObjectFilter,

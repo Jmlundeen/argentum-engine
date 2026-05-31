@@ -65,6 +65,14 @@ object EffectPatterns {
     fun blight(amount: Int, player: Player = Player.You): CompositeEffect =
         MiscPatterns.blight(amount, player)
 
+    /**
+     * Bolster N (CR 701.36) — the controller chooses a creature with the least toughness
+     * among creatures they control and puts N +1/+1 counters on it. Non-targeting; does
+     * nothing if the controller has no creatures. See [MiscPatterns.bolster].
+     */
+    fun bolster(amount: Int): CompositeEffect =
+        MiscPatterns.bolster(amount)
+
     // =========================================================================
     // Forage Patterns (MiscPatterns)
     // =========================================================================

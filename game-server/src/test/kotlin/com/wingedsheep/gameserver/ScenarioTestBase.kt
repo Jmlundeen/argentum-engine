@@ -12,6 +12,7 @@ import com.wingedsheep.mtg.sets.definitions.dft.AetherdriftSet
 import com.wingedsheep.mtg.sets.definitions.dmu.DominariaUnitedSet
 import com.wingedsheep.mtg.sets.definitions.dom.DominariaSet
 import com.wingedsheep.mtg.sets.definitions.dsk.DuskmournSet
+import com.wingedsheep.mtg.sets.definitions.dtk.DragonsOfTarkirSet
 import com.wingedsheep.mtg.sets.definitions.ecl.LorwynEclipsedSet
 import com.wingedsheep.mtg.sets.definitions.eoe.EdgeOfEternitiesSet
 import com.wingedsheep.mtg.sets.definitions.exo.ExodusSet
@@ -113,6 +114,7 @@ abstract class ScenarioTestBase : FunSpec() {
         register(Commander2015Set.cards)
         register(DominariaSet.cards); register(DominariaSet.basicLands)
         register(DominariaUnitedSet.cards)
+        register(DragonsOfTarkirSet.cards)
         register(DuskmournSet.cards)
         register(EdgeOfEternitiesSet.cards); register(EdgeOfEternitiesSet.basicLands)
         register(ExodusSet.cards)

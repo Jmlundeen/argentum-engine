@@ -85,6 +85,15 @@ class FilterCollectionExecutor : EffectExecutor<FilterCollectionEffect> {
                 }
             }
 
+            is CollectionFilter.LeastToughness -> {
+                val minToughness = cards.minOfOrNull { projected.getToughness(it) ?: Int.MAX_VALUE }
+                if (minToughness == null || minToughness == Int.MAX_VALUE) {
+                    emptyList<EntityId>() to cards
+                } else {
+                    cards.partition { (projected.getToughness(it) ?: Int.MAX_VALUE) == minToughness }
+                }
+            }
+
             is CollectionFilter.GreatestManaValue -> {
                 fun manaValueOf(cardId: EntityId): Int =
                     state.getEntity(cardId)?.get<CardComponent>()?.manaValue ?: Int.MIN_VALUE

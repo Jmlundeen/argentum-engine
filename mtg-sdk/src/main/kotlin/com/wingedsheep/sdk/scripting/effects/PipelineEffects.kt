@@ -1155,6 +1155,19 @@ sealed interface CollectionFilter {
     data object GreatestPower : CollectionFilter
 
     /**
+     * Keep only creatures with the least toughness in the collection.
+     * Uses projected state to determine toughness (respects continuous effects).
+     * If multiple creatures are tied for the least toughness, all of them are kept
+     * (so a downstream "exactly one" consumer lets the controller break the tie).
+     *
+     * Used for the Bolster keyword action (CR 701.36): "Choose a creature with the least
+     * toughness among creatures you control and put N +1/+1 counters on it."
+     */
+    @SerialName("LeastToughness")
+    @Serializable
+    data object LeastToughness : CollectionFilter
+
+    /**
      * Keep only the cards with the greatest mana value in the collection. If multiple cards are
      * tied for the greatest mana value, all of them are kept (so a downstream "exactly one" consumer
      * can detect a tie).

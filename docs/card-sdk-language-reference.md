@@ -555,6 +555,10 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
 - `mayPay(cost, effect)` — optionally pay cost to trigger an effect.
 - `mayPayOrElse(cost, ifPaid, ifNotPaid)` — pay-or-else fork.
 - `blight(amount, player?)` — Blight X additional cost glue.
+- `bolster(amount)` — Bolster N (CR 701.36): controller chooses a creature with the least toughness among
+  creatures they control and puts N +1/+1 counters on it. Non-targeting; no-op with no creatures. Composes
+  Gather → `FilterCollection(CollectionFilter.LeastToughness)` → `SelectFromCollection(ChooseExactly 1)` →
+  `AddCountersToCollection(+1/+1)`. Toughness is read from projected state for the least-toughness comparison.
 - `forage(afterEffect?)` — Forage cost; choose card-from-hand to play.
 - `loot(draw?, discard?)` — "draw N, discard M" loop.
 - `rummage(count?)` — discard then draw.
