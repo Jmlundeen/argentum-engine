@@ -110,6 +110,15 @@ object Conditions {
         Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature)
 
     /**
+     * If you control at least one permanent matching [filter].
+     * General-purpose battlefield existence check — pass any [GameObjectFilter]
+     * (e.g. `GameObjectFilter.Creature.copy(statePredicates = listOf(StatePredicate.HasAnyCounter))`
+     * for "a creature with a counter on it").
+     */
+    fun YouControl(filter: GameObjectFilter): ConditionInterface =
+        Exists(Player.You, Zone.BATTLEFIELD, filter)
+
+    /**
      * If you control an enchantment.
      */
     val ControlEnchantment: ConditionInterface =
