@@ -47,6 +47,7 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.EntersAsCopy
 import com.wingedsheep.engine.handlers.effects.EntersWithCountersHelper
+import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.EntersWithChoice
@@ -1816,7 +1817,9 @@ class StackResolver(
                     newState = newState.updateEntity(entityId) { c ->
                         c.with(current.withAdded(counterType, modifiedCount))
                     }
-                    events.add(CountersAddedEvent(entityId, effect.counterType.description, modifiedCount, entityName))
+                    val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(newState, entityId)
+                    newState = afterMark
+                    events.add(CountersAddedEvent(entityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn))
                 }
                 is EntersWithDynamicCounters -> {
                     // Skip "other only" effects when applying to self (e.g., Gev)
@@ -1837,7 +1840,9 @@ class StackResolver(
                         newState = newState.updateEntity(entityId) { c ->
                             c.with(current.withAdded(counterType, modifiedCount))
                         }
-                        events.add(CountersAddedEvent(entityId, effect.counterType.description, modifiedCount, entityName))
+                        val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(newState, entityId)
+                        newState = afterMark
+                        events.add(CountersAddedEvent(entityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn))
                     }
                 }
                 else -> { /* Other replacement effects handled elsewhere */ }

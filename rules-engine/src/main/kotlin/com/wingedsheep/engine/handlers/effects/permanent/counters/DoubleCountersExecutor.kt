@@ -51,6 +51,8 @@ class DoubleCountersExecutor : EffectExecutor<DoubleCountersEffect> {
             state, targetId, counterType, existing, placerId = context.controllerId
         )
 
+        val firstThisTurn = DamageUtils.isFirstCounterThisTurn(state, targetId)
+
         val newState = state.updateEntity(targetId) { container ->
             container.with(current.withAdded(counterType, added))
         }.let { DamageUtils.markCounterPlacedOnCreature(it, context.controllerId, targetId) }
@@ -59,7 +61,7 @@ class DoubleCountersExecutor : EffectExecutor<DoubleCountersEffect> {
 
         return EffectResult.success(
             newState,
-            listOf(CountersAddedEvent(targetId, effect.counterType, added, entityName))
+            listOf(CountersAddedEvent(targetId, effect.counterType, added, entityName, firstThisTurn))
         )
     }
 }

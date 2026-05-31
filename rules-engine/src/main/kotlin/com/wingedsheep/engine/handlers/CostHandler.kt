@@ -629,16 +629,21 @@ class CostHandler(
                     return CostPaymentResult.failure("Blight target must be a creature you control")
                 }
                 val counters = targetContainer.get<CountersComponent>() ?: CountersComponent()
-                val newState = state.updateEntity(targetId) { c ->
+                val firstThisTurn = com.wingedsheep.engine.handlers.effects.DamageUtils
+                    .isFirstCounterThisTurn(state, targetId)
+                val withCounters = state.updateEntity(targetId) { c ->
                     c.with(counters.withAdded(CounterType.MINUS_ONE_MINUS_ONE, cost.amount))
                 }
+                val newState = com.wingedsheep.engine.handlers.effects.DamageUtils
+                    .markCounterPlacedOnCreature(withCounters, controllerId, targetId)
                 val targetName = targetContainer.get<CardComponent>()?.name ?: "Creature"
                 val events = listOf<GameEvent>(
                     CountersAddedEvent(
                         entityId = targetId,
                         counterType = Counters.MINUS_ONE_MINUS_ONE,
                         amount = cost.amount,
-                        entityName = targetName
+                        entityName = targetName,
+                        firstThisTurn = firstThisTurn
                     )
                 )
                 CostPaymentResult.success(newState, manaPool, events)

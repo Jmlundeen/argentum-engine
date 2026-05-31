@@ -59,13 +59,14 @@ class DistributeCountersAmongTargetsExecutor : EffectExecutor<DistributeCounters
             )
 
             val current = currentState.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()
+            val firstThisTurn = DamageUtils.isFirstCounterThisTurn(currentState, targetId)
             currentState = currentState.updateEntity(targetId) { container ->
                 container.with(current.withAdded(counterType, modifiedCount))
             }
             currentState = DamageUtils.markCounterPlacedOnCreature(currentState, context.controllerId, targetId)
 
             val entityName = state.getEntity(targetId)?.get<CardComponent>()?.name ?: ""
-            events.add(CountersAddedEvent(targetId, effect.counterType, modifiedCount, entityName))
+            events.add(CountersAddedEvent(targetId, effect.counterType, modifiedCount, entityName, firstThisTurn))
         }
 
         return EffectResult.success(currentState, events)

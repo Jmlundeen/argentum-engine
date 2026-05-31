@@ -308,6 +308,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `RemoveAllCountersOfType(type, target)` — wipe one kind.
 - `MoveAllLastKnownCounters(target)` — Hooded Hydra / Essence Channeler — move every counter kind from source's
   last-known state.
+- `Counters.ANY` — wildcard counter-type string for "counters of any type" triggers/events (e.g.
+  `Triggers.countersPlacedOn`); not a real placeable counter, only a matcher sentinel.
 - `DistributeCountersFromSelf(type?, count?)` — split source's counters among creatures you control.
 - `DistributeCountersAmongTargets(total, type?, minPerTarget?)` — divvy N counters among chosen targets.
 - `Proliferate()` — add one counter of each kind already present on chosen permanents/players (CR 701.27).
@@ -1130,7 +1132,12 @@ Triggers.youCastSpell(
 
 - `YouSacrificeOneOrMore(filter?)` — you sac ≥1 matching.
 - `Sacrificed` — source is sacrificed.
-- `PlusOneCountersPlacedOnYourCreature` — Hardened Scales shape.
+- `PlusOneCountersPlacedOnYourCreature` — Hardened Scales shape (+1/+1 only).
+- `countersPlacedOn(filter = Creature.youControl(), counterType = Counters.ANY, firstTimeEachTurn = true)`
+  — fires when counters of any type (`Counters.ANY` wildcard) land on a matching permanent;
+  `firstTimeEachTurn` gates it to the first counter placement on *that* permanent this turn
+  (engine-tracked via `ReceivedCountersThisTurnComponent`). Triggering permanent is
+  `EffectTarget.TriggeringEntity`. Stalwart Successor shape.
 - `OneOrMorePermanentsEnter(filter?)` — batched ETB trigger.
 - `OneOrMoreLeaveWithoutDying(...)` — batched LTB-without-dying.
 

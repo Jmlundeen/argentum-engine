@@ -343,7 +343,11 @@ class TriggerMatcher(
             is GameEvent.PermanentsEnteredEvent -> false
             is GameEvent.CountersPlacedEvent -> {
                 if (event !is CountersAddedEvent) return false
-                if (!counterTypesMatch(trigger.counterType, event.counterType)) return false
+                // Counters.ANY is the wildcard "counters of any type" sentinel.
+                if (trigger.counterType != com.wingedsheep.sdk.core.Counters.ANY &&
+                    !counterTypesMatch(trigger.counterType, event.counterType)) return false
+                // "First time counters this turn" intervening-if (Stalwart Successor).
+                if (trigger.firstTimeEachTurn && !event.firstThisTurn) return false
                 // Check filter: the permanent receiving counters must match
                 if (trigger.filter != GameObjectFilter.Any) {
                     val projected = state.projectedState

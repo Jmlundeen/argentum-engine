@@ -1097,10 +1097,13 @@ class ModalAndCloneContinuationResumer(
             newState = newState.updateEntity(spellId) { c ->
                 c.with(current.withAdded(resolvedCounterType, counterCount))
             }
+            val (afterMark, firstThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils
+                .recordCounterPlacement(newState, spellId)
+            newState = afterMark
             val spellName = newState.getEntity(spellId)?.get<CardComponent>()?.name ?: ""
             events.add(
                 com.wingedsheep.engine.core.CountersAddedEvent(
-                    spellId, continuation.counterType, counterCount, spellName
+                    spellId, continuation.counterType, counterCount, spellName, firstThisTurn
                 )
             )
         }

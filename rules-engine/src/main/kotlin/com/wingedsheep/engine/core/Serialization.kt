@@ -358,6 +358,7 @@ val engineSerializersModule = SerializersModule {
         subclass(ReplacementEffectSourceComponent::class)
         subclass(SagaComponent::class)
         subclass(TargetedByControllerThisTurnComponent::class)
+        subclass(ReceivedCountersThisTurnComponent::class)
         subclass(TriggeredAbilityFiredThisTurnComponent::class)
         subclass(WarpedComponent::class)
         subclass(WasKickedComponent::class)

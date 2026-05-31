@@ -48,6 +48,9 @@ class MoveAllLastKnownCountersExecutor : EffectExecutor<MoveAllLastKnownCounters
         var newState = state
         val events = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
         val targetName = state.getEntity(targetId)?.get<CardComponent>()?.name ?: ""
+        // One "put counters" event batch on a single creature ⇒ one "first this turn" flag,
+        // carried on the first emitted event so it fires the intervening-if trigger once.
+        var firstThisTurn = DamageUtils.isFirstCounterThisTurn(state, targetId)
 
         for ((counterTypeString, count) in lastKnown) {
             if (count <= 0) continue
@@ -62,7 +65,8 @@ class MoveAllLastKnownCountersExecutor : EffectExecutor<MoveAllLastKnownCounters
             newState = newState.updateEntity(targetId) { container ->
                 container.with(current.withAdded(counterType, modifiedCount))
             }
-            events.add(CountersAddedEvent(targetId, counterTypeString, modifiedCount, targetName))
+            events.add(CountersAddedEvent(targetId, counterTypeString, modifiedCount, targetName, firstThisTurn))
+            firstThisTurn = false
         }
 
         if (events.isNotEmpty()) {

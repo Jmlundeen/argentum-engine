@@ -328,16 +328,58 @@ object DamageUtils {
     }
 
     /**
+     * Whether [targetId] has not yet had counters put on it this turn — i.e. the placement about
+     * to happen is the first this turn. Read *before* [markCounterPlacedOnCreature] sets the
+     * marker, to stamp [com.wingedsheep.engine.core.CountersAddedEvent.firstThisTurn] for
+     * "the first time counters have been put on that creature this turn" triggers (Stalwart
+     * Successor). Only meaningful for creatures; non-creature targets return false.
+     */
+    fun isFirstCounterThisTurn(state: GameState, targetId: EntityId): Boolean {
+        if (!state.projectedState.isCreature(targetId)) return false
+        return state.getEntity(targetId)
+            ?.has<com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent>() != true
+    }
+
+    /**
      * Mark that [placerId] put one or more counters on the creature [targetId] this turn.
      * Only marks when [targetId] is a creature in the projected state.
-     * Sets the PutCounterOnCreatureThisTurnComponent on the placing player's entity.
-     * Used for conditions like "if you put a counter on a creature this turn" (Lasting Tarfire).
+     * Sets the PutCounterOnCreatureThisTurnComponent on the placing player's entity (for
+     * "if you put a counter on a creature this turn", Lasting Tarfire) and the per-creature
+     * [com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent]
+     * marker (for "first time counters this turn" triggers, Stalwart Successor).
      */
     fun markCounterPlacedOnCreature(state: GameState, placerId: EntityId, targetId: EntityId): GameState {
         if (!state.projectedState.isCreature(targetId)) return state
-        return state.updateEntity(placerId) { container ->
-            container.with(com.wingedsheep.engine.state.components.player.PutCounterOnCreatureThisTurnComponent)
+        return state
+            .updateEntity(placerId) { container ->
+                container.with(com.wingedsheep.engine.state.components.player.PutCounterOnCreatureThisTurnComponent)
+            }
+            .updateEntity(targetId) { container ->
+                container.with(com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent)
+            }
+    }
+
+    /**
+     * Stamp the per-permanent [com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent]
+     * marker on [targetId] and report whether this is the first counter placement on it this turn
+     * (read *before* the marker is set), so the caller can populate
+     * [com.wingedsheep.engine.core.CountersAddedEvent.firstThisTurn] for "first time counters this
+     * turn" intervening-if triggers (Stalwart Successor).
+     *
+     * Unlike [isFirstCounterThisTurn] + [markCounterPlacedOnCreature], this performs no
+     * projected creature/zone check, so it also covers the enters-with-counters path where the
+     * permanent is not yet on the battlefield (CR confirms a permanent entering with counters has
+     * those counters "put on" it). Stamping the marker on a non-creature is harmless: the trigger's
+     * own "creature you control" filter re-checks type. This intentionally does *not* set the
+     * placer's "you put a counter on a creature this turn" marker — that path stays as it was.
+     */
+    fun recordCounterPlacement(state: GameState, targetId: EntityId): Pair<GameState, Boolean> {
+        val first = state.getEntity(targetId)
+            ?.has<com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent>() != true
+        val newState = state.updateEntity(targetId) { container ->
+            container.with(com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent)
         }
+        return newState to first
     }
 
     /**

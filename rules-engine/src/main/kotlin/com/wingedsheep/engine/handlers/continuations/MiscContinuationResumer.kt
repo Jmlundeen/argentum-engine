@@ -379,10 +379,13 @@ class MiscContinuationResumer(
                 newState = newState.updateEntity(targetId) { container ->
                     container.with(targetCounters.withAdded(counterType, modifiedAmount))
                 }
+                val (afterMark, firstThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils
+                    .recordCounterPlacement(newState, targetId)
+                newState = afterMark
 
                 val targetName = newState.getEntity(targetId)
                     ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name ?: ""
-                events.add(CountersAddedEvent(targetId, continuation.counterType, modifiedAmount, targetName))
+                events.add(CountersAddedEvent(targetId, continuation.counterType, modifiedAmount, targetName, firstThisTurn))
             }
         }
 
@@ -547,12 +550,16 @@ class MiscContinuationResumer(
                 newState = newState.updateEntity(entityId) { container ->
                     container.with(before.withAdded(counterType, modifiedAmount))
                 }
+                val (afterMark, firstThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils
+                    .recordCounterPlacement(newState, entityId)
+                newState = afterMark
                 events.add(
                     CountersAddedEvent(
                         entityId,
                         com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(counterType),
                         modifiedAmount,
-                        entityName
+                        entityName,
+                        firstThisTurn
                     )
                 )
             }

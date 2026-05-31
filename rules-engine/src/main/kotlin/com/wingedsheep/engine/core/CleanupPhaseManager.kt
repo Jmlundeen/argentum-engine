@@ -10,6 +10,7 @@ import com.wingedsheep.engine.state.components.battlefield.DamageDealtByPlayersT
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtToCreaturesThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.TargetedByControllerThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.TriggeredAbilityFiredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.GraveyardPlayPermissionUsedComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
@@ -407,6 +408,9 @@ class CleanupPhaseManager(
             if (container.has<TargetedByControllerThisTurnComponent>()) {
                 needsUpdate = true
             }
+            if (container.has<ReceivedCountersThisTurnComponent>()) {
+                needsUpdate = true
+            }
             if (container.has<PlayerAttackedThisTurnComponent>()) {
                 needsUpdate = true
             }
@@ -436,6 +440,7 @@ class CleanupPhaseManager(
                     c.without<AbilityActivatedThisTurnComponent>()
                         .without<DamageDealtToCreaturesThisTurnComponent>()
                         .without<TargetedByControllerThisTurnComponent>()
+                        .without<ReceivedCountersThisTurnComponent>()
                         .without<PlayerAttackedThisTurnComponent>()
                         .without<PlayerAttackersThisTurnComponent>()
                         .without<GraveyardPlayPermissionUsedComponent>()

@@ -1663,6 +1663,7 @@ class CastSpellHandler(
                             val targetContainer = currentState.getEntity(targetId)
                             if (targetContainer != null) {
                                 val counters = targetContainer.get<CountersComponent>() ?: CountersComponent()
+                                val firstThisTurn = DamageUtils.isFirstCounterThisTurn(currentState, targetId)
                                 currentState = currentState.updateEntity(targetId) { c ->
                                     c.with(counters.withAdded(CounterType.MINUS_ONE_MINUS_ONE, additionalCost.blightAmount))
                                 }
@@ -1676,7 +1677,8 @@ class CastSpellHandler(
                                     entityId = targetId,
                                     counterType = Counters.MINUS_ONE_MINUS_ONE,
                                     amount = additionalCost.blightAmount,
-                                    entityName = targetName
+                                    entityName = targetName,
+                                    firstThisTurn = firstThisTurn
                                 ))
                             }
                         }
@@ -1689,6 +1691,7 @@ class CastSpellHandler(
                             val targetContainer = targetId?.let { currentState.getEntity(it) }
                             if (targetId != null && targetContainer != null) {
                                 val counters = targetContainer.get<CountersComponent>() ?: CountersComponent()
+                                val firstThisTurn = DamageUtils.isFirstCounterThisTurn(currentState, targetId)
                                 currentState = currentState.updateEntity(targetId) { c ->
                                     c.with(counters.withAdded(CounterType.MINUS_ONE_MINUS_ONE, amount))
                                 }
@@ -1702,7 +1705,8 @@ class CastSpellHandler(
                                     entityId = targetId,
                                     counterType = Counters.MINUS_ONE_MINUS_ONE,
                                     amount = amount,
-                                    entityName = targetName
+                                    entityName = targetName,
+                                    firstThisTurn = firstThisTurn
                                 ))
                             }
                         }

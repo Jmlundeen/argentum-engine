@@ -79,7 +79,9 @@ object EntersWithCountersHelper {
                     newState = newState.updateEntity(enteringEntityId) { c ->
                         c.with(current.withAdded(counterType, modifiedCount))
                     }
-                    events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName))
+                    val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(newState, enteringEntityId)
+                    newState = afterMark
+                    events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn))
                 }
                 is EntersWithDynamicCounters -> {
                     if (effect.otherOnly) continue
@@ -99,7 +101,9 @@ object EntersWithCountersHelper {
                         newState = newState.updateEntity(enteringEntityId) { c ->
                             c.with(current.withAdded(counterType, modifiedCount))
                         }
-                        events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName))
+                        val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(newState, enteringEntityId)
+                        newState = afterMark
+                        events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn))
                     }
                 }
                 else -> { /* Other replacement effects handled elsewhere */ }
@@ -159,7 +163,9 @@ object EntersWithCountersHelper {
                         newState = newState.updateEntity(enteringEntityId) { c ->
                             c.with(current.withAdded(counterType, modifiedCount))
                         }
-                        events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName))
+                        val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(newState, enteringEntityId)
+                        newState = afterMark
+                        events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn))
                     }
                     is EntersWithDynamicCounters -> {
                         if (!effect.otherOnly) continue
@@ -179,7 +185,9 @@ object EntersWithCountersHelper {
                             newState = newState.updateEntity(enteringEntityId) { c ->
                                 c.with(current.withAdded(counterType, modifiedCount))
                             }
-                            events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName))
+                            val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(newState, enteringEntityId)
+                            newState = afterMark
+                            events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn))
                         }
                     }
                     else -> { /* Other replacement effects handled elsewhere */ }

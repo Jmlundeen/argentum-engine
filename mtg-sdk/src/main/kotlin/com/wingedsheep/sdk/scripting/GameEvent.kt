@@ -1054,11 +1054,21 @@ sealed interface GameEvent : TextReplaceable<GameEvent> {
     @Serializable
     data class CountersPlacedEvent(
         val counterType: String,
-        val filter: GameObjectFilter = GameObjectFilter.Any
+        val filter: GameObjectFilter = GameObjectFilter.Any,
+        /**
+         * When true, the trigger fires only the first time counters are put on the affected
+         * permanent this turn (per CR intervening-if "if it's the first time counters have been
+         * put on that creature this turn", e.g. Stalwart Successor). Matched against the engine
+         * event's own "first counters this turn" flag, mirroring how Valiant uses
+         * `firstTimeEachTurn` on [BecomesTargetEvent].
+         */
+        val firstTimeEachTurn: Boolean = false
     ) : GameEvent {
         override val description: String = buildString {
-            append("one or more $counterType counters are placed on ")
+            val typeLabel = if (counterType == com.wingedsheep.sdk.core.Counters.ANY) "" else "$counterType "
+            append("one or more ${typeLabel}counters are placed on ")
             append(describeObjectForEvent(filter))
+            if (firstTimeEachTurn) append(" for the first time this turn")
         }
 
         override fun applyTextReplacement(replacer: TextReplacer): GameEvent = this

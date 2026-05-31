@@ -593,7 +593,14 @@ data class CountersAddedEvent(
     val entityId: EntityId,
     val counterType: String,
     val amount: Int,
-    val entityName: String = ""
+    val entityName: String = "",
+    /**
+     * True when this is the first counter placement on [entityId] this turn. Drives
+     * "first time counters have been put on that creature this turn" intervening-if triggers
+     * (Stalwart Successor). Computed against the target's [ReceivedCountersThisTurnComponent]
+     * before that marker is set; defaults to false for emitters that don't track it.
+     */
+    val firstThisTurn: Boolean = false
 ) : GameEvent
 
 /**

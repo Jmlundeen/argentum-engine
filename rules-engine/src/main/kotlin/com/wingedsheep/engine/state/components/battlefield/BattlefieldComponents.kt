@@ -360,6 +360,16 @@ data class TargetedByControllerThisTurnComponent(
 }
 
 /**
+ * Marks a permanent that has had one or more counters put on it already this turn.
+ * Used for "the first time counters have been put on that creature this turn" intervening-if
+ * triggers (e.g. Stalwart Successor). Set the first time any counter lands on the permanent
+ * (see DamageUtils.markCounterPlacedOnCreature), read to compute the per-event "first this turn"
+ * flag, and cleared at end of turn by CleanupPhaseManager.
+ */
+@Serializable
+data object ReceivedCountersThisTurnComponent : Component
+
+/**
  * Tracks which creatures this entity dealt damage to this turn.
  * Used for triggers like Soul Collector: "Whenever a creature dealt damage by Soul Collector this turn dies..."
  * Cleared at end of turn by TurnManager.

@@ -141,10 +141,12 @@ class ExploreEffectExecutor : EffectExecutor<ExploreEffect> {
         val count = ReplacementEffectUtils.applyCounterPlacementModifiers(
             state, creatureId, CounterType.PLUS_ONE_PLUS_ONE, 1, placerId = context.controllerId
         )
-        val newState = state.updateEntity(creatureId) {
+        val updated = state.updateEntity(creatureId) {
             it.with(current.withAdded(CounterType.PLUS_ONE_PLUS_ONE, count))
         }
+        val (newState, firstThisTurn) =
+            com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(updated, creatureId)
         val name = state.getEntity(creatureId)?.get<CardComponent>()?.name ?: ""
-        return newState to listOf(CountersAddedEvent(creatureId, "PLUS_ONE_PLUS_ONE", count, name))
+        return newState to listOf(CountersAddedEvent(creatureId, "PLUS_ONE_PLUS_ONE", count, name, firstThisTurn))
     }
 }

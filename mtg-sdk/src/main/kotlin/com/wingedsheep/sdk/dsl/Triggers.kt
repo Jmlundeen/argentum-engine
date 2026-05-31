@@ -914,6 +914,28 @@ object Triggers {
         binding = TriggerBinding.ANY
     )
 
+    /**
+     * Whenever one or more counters of any type are put on a permanent matching [filter],
+     * optionally only the first time counters land on that permanent this turn.
+     *
+     * Defaults to "a creature you control … for the first time this turn" — the Stalwart
+     * Successor shape. Pass a different [filter] or `firstTimeEachTurn = false` to reuse for
+     * other "counters placed" payoffs. The triggering permanent is available via
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity].
+     */
+    fun countersPlacedOn(
+        filter: GameObjectFilter = GameObjectFilter.Creature.youControl(),
+        counterType: String = Counters.ANY,
+        firstTimeEachTurn: Boolean = true,
+    ): TriggerSpec = TriggerSpec(
+        event = CountersPlacedEvent(
+            counterType = counterType,
+            filter = filter,
+            firstTimeEachTurn = firstTimeEachTurn,
+        ),
+        binding = TriggerBinding.ANY
+    )
+
     // =========================================================================
     // Damage Received (incoming)
     // =========================================================================
