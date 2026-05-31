@@ -47,6 +47,15 @@ Read this before touching code. It is the lens for every decision below.
 - **When the elegant version is more work, do the work.** A one-off type that "works for this
   case" is technical debt that every future card pays interest on. If you genuinely can't find a
   reusable shape, say so explicitly and explain why — don't silently ship the monolith.
+- **Don't be afraid to refactor or break backwards compatibility.** This is a young, single-owner
+  engine with no external API consumers — there is no compatibility contract to preserve. If
+  reshaping an existing type, renaming a primitive, collapsing redundant variants, or changing a
+  signature makes the engine or SDK cleaner and simpler, that is *usually the correct call*, not a
+  risk to avoid. Don't bolt a new variant alongside a now-obsolete one to "stay safe" — replace the
+  old shape and update every call site. (Still respect `CLAUDE.md` collaboration rules: refactor
+  *your own* surface freely, but don't revert or stash another agent's in-flight work; if a refactor
+  collides with theirs, pause and report.) The condition-hierarchy unification and the `EffectTarget`
+  refactor are the model here: sweeping, compat-breaking changes that left the SDK markedly simpler.
 
 If you're unsure whether a new type is justified, apply the `review-changes` §2 test to your own
 design: *Could a card compose existing primitives? Is it genuinely novel? Is it parameterized for
@@ -266,3 +275,7 @@ signature changed, run the broader module suite.
 10. **Verify CR rule numbers**; test every cited rule.
 11. **Be elegant — no monolithic one-off shortcuts.** If you can't find the reusable shape, say so
     and explain why rather than shipping the monolith.
+12. **Refactor freely; backwards compat is not sacred.** There are no external API consumers — if
+    reshaping/renaming/collapsing existing types makes the engine or SDK cleaner, do it and update
+    all call sites, rather than adding a parallel variant. (Don't touch another agent's in-flight
+    work — pause and report instead.)
