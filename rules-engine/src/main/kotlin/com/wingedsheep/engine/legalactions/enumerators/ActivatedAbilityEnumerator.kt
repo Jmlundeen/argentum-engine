@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.LevelUpClassEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.effects.SetBasePowerEffect
 import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
 import com.wingedsheep.sdk.scripting.effects.SetCreatureSubtypesEffect
@@ -558,12 +559,27 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         it is ActivationRestriction.MaxPerTurn ||
                         (it is ActivationRestriction.All && it.restrictions.any { r -> r is ActivationRestriction.OncePerTurn || r is ActivationRestriction.Once || r is ActivationRestriction.MaxPerTurn })
                 }
-                val maxRepeatableActivations: Int? = if (isRepeatEligible && abilityManaCost != null) {
+                val maxRepeatableActivations: Int? = if (isRepeatEligible && abilityManaCost != null && abilityManaCost.cmc > 0) {
+                    // Upper bound assuming every available mana could pay for a colored symbol;
+                    // color requirements only ever reduce this, so it's a safe search ceiling.
                     val availableSources = context.manaSolver.getAvailableManaCount(state, playerId, precomputedSources = context.availableManaSources)
-                    val costPerActivation = abilityManaCost.cmc
-                    if (costPerActivation > 0) {
-                        val maxRepeats = availableSources / costPerActivation
-                        if (maxRepeats > 1) maxRepeats else null
+                    val upperBound = availableSources / abilityManaCost.cmc
+                    if (upperBound > 1) {
+                        // Color-aware: dividing total mana by CMC over-counts (e.g. 3 red + 3 black
+                        // can pay {R} only 3 times, not 6). canPay() honors color requirements, and
+                        // affordability is monotonic (payable N times ⇒ payable N-1), so binary-search
+                        // the largest N whose N-times-repeated cost is actually payable.
+                        var lo = 1
+                        var hi = upperBound
+                        while (lo < hi) {
+                            val mid = (lo + hi + 1) / 2
+                            val affordable = context.manaSolver.canPay(
+                                state, playerId, abilityManaCost * mid,
+                                precomputedSources = context.availableManaSources
+                            )
+                            if (affordable) lo = mid else hi = mid - 1
+                        }
+                        if (lo > 1) lo else null
                     } else null
                 } else null
 
@@ -904,6 +920,9 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
      * AnimateLand, BecomeCreatureType — produce the same end state regardless of how many times you activate
      * them, so offering "Activate How Many Times?" for those is just clutter.
      *
+     * Regenerate is also excluded: a single shield is enough to survive a destruction, so stacking
+     * redundant shields has no practical payoff and the prompt would only be clutter.
+     *
      * Walks through CompositeEffect / ConditionalEffect / ModalEffect wrappers so an ability whose
      * "real" effect is hidden inside (e.g., Figure of Fable's `ConditionalEffect(... BecomeCreature)`) is
      * also excluded.
@@ -914,7 +933,8 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
         is SetBasePowerEffect,
         is SetBasePowerToughnessEffect,
         is SetCreatureSubtypesEffect,
-        is AnimateLandEffect -> false
+        is AnimateLandEffect,
+        is RegenerateEffect -> false
         is CompositeEffect -> effect.effects.all { effectStacksOnRepeat(it) }
         is ConditionalEffect -> effectStacksOnRepeat(effect.effect) &&
             (effect.elseEffect?.let { effectStacksOnRepeat(it) } ?: true)

@@ -48,6 +48,9 @@ import io.kotest.matchers.shouldBe
  * - ReturnToHand cost (Pearl Lake Ancient): `BouncePermanent` cost info
  * - X-variable RemoveXPlusOnePlusOneCounters (Retribution of the Ancients)
  * - AnyPlayerMay path — opponent's Lethal Vapors surfaces a Free-cost activation
+ * - Repeatable-activation count (Rakshasa Deathdealer): color-aware
+ *   maxRepeatableActivations for the stacking +2/+2 pump, and null for the
+ *   non-stacking regenerate ability
  *
  * Deferred to a follow-up phase: granted-ability grants from static effects,
  * planeswalker loyalty limits, class level-up, tap-attached-creature
@@ -485,6 +488,56 @@ class ActivatedAbilityEnumeratorTest : FunSpec({
             val vaporsId = entityOnBattlefield(driver, "Lethal Vapors")
 
             driver.enumerateFor(driver.player1) shouldContainActivatedAbilityOn vaporsId
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    context("Repeatable-activation count (maxRepeatableActivations)") {
+
+        test("color-aware: {B}{G} pump with 4 Swamp + 2 Forest repeats only twice, not three times") {
+            // 6 mana total but only 2 green. Naive total/CMC (6/2) would say 3;
+            // color-aware affordability caps it at 2 — each {B}{G} needs a green.
+            val driver = setupP1(
+                battlefield = listOf(
+                    "Rakshasa Deathdealer",
+                    "Swamp", "Swamp", "Swamp", "Swamp",
+                    "Forest", "Forest"
+                ),
+                extraSetCards = listOf(RakshasaDeathdealer)
+            )
+            val rakshasaId = entityOnBattlefield(driver, "Rakshasa Deathdealer")
+            val pumpAbilityId = RakshasaDeathdealer.script.activatedAbilities[0].id
+
+            val pump = driver.enumerateFor(driver.player1)
+                .activatedAbilityActionsFor(rakshasaId)
+                .single { (it.action as ActivateAbility).abilityId == pumpAbilityId }
+
+            pump.maxRepeatableActivations shouldBe 2
+        }
+
+        test("regenerate never offers a repeat count, while the pump on the same card does") {
+            // 3 Swamp + 3 Forest pays {B}{G} three times. The +2/+2 pump stacks, so it
+            // offers a 3× repeat; regenerate does not — one shield already survives
+            // destruction, so stacking shields would be meaningless clutter.
+            val driver = setupP1(
+                battlefield = listOf(
+                    "Rakshasa Deathdealer",
+                    "Swamp", "Swamp", "Swamp",
+                    "Forest", "Forest", "Forest"
+                ),
+                extraSetCards = listOf(RakshasaDeathdealer)
+            )
+            val rakshasaId = entityOnBattlefield(driver, "Rakshasa Deathdealer")
+            val pumpAbilityId = RakshasaDeathdealer.script.activatedAbilities[0].id
+            val regenAbilityId = RakshasaDeathdealer.script.activatedAbilities[1].id
+
+            val abilities = driver.enumerateFor(driver.player1)
+                .activatedAbilityActionsFor(rakshasaId)
+            val pump = abilities.single { (it.action as ActivateAbility).abilityId == pumpAbilityId }
+            val regen = abilities.single { (it.action as ActivateAbility).abilityId == regenAbilityId }
+
+            pump.maxRepeatableActivations shouldBe 3
+            regen.maxRepeatableActivations shouldBe null
         }
     }
 
