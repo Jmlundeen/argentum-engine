@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * New Way Forward — Tarkir: Dragonstorm #211
@@ -16,8 +15,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * controller and you draw that many cards.
  *
  * Composes the chosen-source prevention shield with an arbitrary follow-up effect: when the damage
- * is prevented, deal the prevented amount to the source's controller and draw that many cards. Both
- * the damage and the draw read the prevented amount via [ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT];
+ * is prevented, a triggered ability deals the prevented amount to the source's controller and draws
+ * that many cards. Both halves read the prevented amount via [DynamicAmounts.preventedDamage];
  * "that source's controller" is [EffectTarget.ControllerOfTriggeringEntity] (the same pair Tephraderm
  * uses for "that much damage to that spell's controller"). Deflecting Palm is the same shield with
  * only the reflect half.
@@ -32,7 +31,7 @@ val NewWayForward = card("New Way Forward") {
         "When damage is prevented this way, New Way Forward deals that much damage to that source's controller and you draw that many cards."
 
     spell {
-        val preventedAmount = DynamicAmount.ContextProperty(ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT)
+        val preventedAmount = DynamicAmounts.preventedDamage()
         effect = Effects.PreventNextDamageFromChosenSource(
             onPrevented = Effects.Composite(
                 Effects.DealDamage(amount = preventedAmount, target = EffectTarget.ControllerOfTriggeringEntity),

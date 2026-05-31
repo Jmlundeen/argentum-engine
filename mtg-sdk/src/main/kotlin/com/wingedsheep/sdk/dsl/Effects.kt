@@ -157,7 +157,6 @@ import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 
@@ -2032,14 +2031,13 @@ object Effects {
         )
 
     /**
-     * Choose a source on resolution, prevent the next damage it would deal to you this turn,
-     * then run [onPrevented] — an arbitrary follow-up effect — when that damage is prevented.
-     * The follow-up runs with the prevented amount bound as
-     * `DynamicAmount.ContextProperty(ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT)` and the prevented
-     * source's controller reachable as `EffectTarget.ControllerOfTriggeringEntity`, sourced from this
-     * card. Compose the payoff from ordinary atomic effects — no bespoke reaction type:
-     * Deflecting Palm reflects (`DealDamage(ControllerOfTriggeringEntity, preventedAmount)`);
-     * New Way Forward reflects and draws.
+     * Choose a source on resolution, prevent the next damage it would deal to you this turn, then run
+     * [onPrevented] — an arbitrary follow-up effect — as a triggered ability when that damage is
+     * prevented ("When damage is prevented this way, …"). Inside the follow-up the prevented amount is
+     * [DynamicAmounts.preventedDamage] ("that much"/"that many") and the prevented source's controller
+     * is `EffectTarget.ControllerOfTriggeringEntity` ("that source's controller"). Compose the payoff
+     * from ordinary atomic effects — no bespoke reaction type: Deflecting Palm reflects
+     * (`DealDamage(ControllerOfTriggeringEntity, preventedDamage())`); New Way Forward reflects and draws.
      */
     fun PreventNextDamageFromChosenSource(onPrevented: Effect): Effect =
         PreventDamageEffect(
@@ -2054,7 +2052,7 @@ object Effects {
     fun DeflectNextDamageFromChosenSource(): Effect =
         PreventNextDamageFromChosenSource(
             onPrevented = DealDamageEffect(
-                amount = DynamicAmount.ContextProperty(ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT),
+                amount = DynamicAmounts.preventedDamage(),
                 target = EffectTarget.ControllerOfTriggeringEntity
             )
         )
