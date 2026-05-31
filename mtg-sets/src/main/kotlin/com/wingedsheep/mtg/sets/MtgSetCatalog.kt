@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets
 
 import com.wingedsheep.mtg.sets.definitions.akh.AmonkhetSet
+import com.wingedsheep.mtg.sets.definitions.ala.ShardsOfAlaraSet
 import com.wingedsheep.mtg.sets.definitions.arn.ArabianNightsSet
 import com.wingedsheep.mtg.sets.definitions.avr.AvacynRestoredSet
 import com.wingedsheep.mtg.sets.definitions.bfz.BattleForZendikarSet
@@ -142,6 +143,7 @@ object MtgSetCatalog {
         GuildpactSet,
         TimeSpiralSet,
         ConfluxSet,
+        ShardsOfAlaraSet,
         Magic2010Set,
         Magic2012Set,
         Magic2014Set,
