@@ -17,13 +17,12 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  * cost. You may tap a creature you control to reduce that cost by an amount of generic
  * mana equal to its power. Then exile this spell.)
  *
- * The primary cast (`{X}{G}{G}` from hand) and the search-with-MV-X effect are fully
- * supported. The Harmonize alternative cost here is itself an {X} cost: the cast handler
- * pays whatever `xValue` the action carries and the search reads the same X, so resolution
- * is faithful. However, [enumerateHarmonize] in CastFromZoneEnumerator does not yet set
- * `hasXCost`/`maxAffordableX` on its `CastWithHarmonize` legal action, so the client UI
- * won't prompt for X when casting this from the graveyard (X would default to 0). That is a
- * pre-existing engine/enumerator UX gap for X-cost Harmonize — out of scope for this card.
+ * The Harmonize alternative cost is itself an {X} cost, and it is fully supported end to
+ * end: `enumerateHarmonize` advertises `hasXCost`/`maxAffordableX` (folding in the best
+ * single-creature tap reduction) so the client prompts for X, and tapping a creature
+ * reduces the *generic* mana paid — including the {X} (which is generic, per the TDM
+ * release notes) — while the chosen X that drives the "mana value X or less" search is
+ * unchanged. See `CastSpellHandler.harmonizePaymentXValue`.
  */
 val NaturesRhythm = card("Nature's Rhythm") {
     manaCost = "{X}{G}{G}"
