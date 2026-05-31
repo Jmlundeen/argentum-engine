@@ -35,10 +35,19 @@ test-gym:
 test-class CLASS:
     ./gradlew :rules-engine:test --tests "{{CLASS}}"
 
-# Run an engine benchmark (e.g., just benchmark, just benchmark AdvisorBenchmark 50)
+# CLASS options (all in :ai): AdvisorBenchmark   - AI advisor vs random, per-card timing
+#                             GameBenchmark      - full AI-vs-AI games, sealed decks
+#                             RandomActionBenchmark - raw engine throughput (see benchmark-random)
+#                             StateCloneBenchmark   - GameState clone speed (uses -DbenchmarkIterations, not GAMES)
+# Run an engine benchmark (e.g., just benchmark, just benchmark GameBenchmark 50)
 [group: 'build']
 benchmark CLASS="AdvisorBenchmark" GAMES="100":
-    ./gradlew :rules-engine:test --tests "*.{{CLASS}}" -Dbenchmark=true -DbenchmarkGames={{GAMES}}
+    ./gradlew :ai:test --tests "*.{{CLASS}}" -Dbenchmark=true -DbenchmarkGames={{GAMES}}
+
+# Run the random-action engine throughput benchmark on a set (e.g., just benchmark-random 200 BLB)
+[group: 'build']
+benchmark-random GAMES="100" SET="POR":
+    ./gradlew :ai:test --tests "*.RandomActionBenchmark" -Dbenchmark=true -DbenchmarkGames={{GAMES}} -DbenchmarkSet={{SET}}
 
 # Clean build artifacts
 [group: 'build']
