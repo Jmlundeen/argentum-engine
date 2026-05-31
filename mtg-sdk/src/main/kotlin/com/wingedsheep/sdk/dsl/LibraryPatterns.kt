@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.ChoosePileEffect
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
@@ -15,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.EmitScriedEventEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
@@ -302,112 +300,6 @@ object LibraryPatterns {
         return CompositeEffect(effects)
     }
 
-    fun searchLibraryNthFromTop(
-        filter: GameObjectFilter = GameObjectFilter.Any,
-        positionFromTop: Int = 2
-    ): CompositeEffect {
-        val effects = mutableListOf<Effect>(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.LIBRARY, Player.You, filter),
-                storeAs = "searchable"
-            ),
-            SelectFromCollectionEffect(
-                from = "searchable",
-                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                storeSelected = "found"
-            ),
-            ShuffleLibraryEffect(),
-        )
-
-        if (positionFromTop == 0) {
-            effects.add(
-                MoveCollectionEffect(
-                    from = "found",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top)
-                )
-            )
-        } else {
-            effects.add(
-                MoveCollectionEffect(
-                    from = "found",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom)
-                )
-            )
-            effects.add(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(positionFromTop)),
-                    storeAs = "aboveCards"
-                )
-            )
-            effects.add(
-                MoveCollectionEffect(
-                    from = "found",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top)
-                )
-            )
-            effects.add(
-                MoveCollectionEffect(
-                    from = "aboveCards",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top)
-                )
-            )
-        }
-
-        return CompositeEffect(effects)
-    }
-
-    fun lookAtTargetLibraryAndDiscard(
-        count: Int,
-        toGraveyard: Int = 1
-    ): CompositeEffect = CompositeEffect(
-        listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(count), Player.ContextPlayer(0)),
-                storeAs = "looked"
-            ),
-            SelectFromCollectionEffect(
-                from = "looked",
-                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(toGraveyard)),
-                storeSelected = "toGraveyard",
-                storeRemainder = "toTop",
-                selectedLabel = "Put in graveyard",
-                remainderLabel = "Put on top"
-            ),
-            MoveCollectionEffect(
-                from = "toGraveyard",
-                destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0))
-            ),
-            MoveCollectionEffect(
-                from = "toTop",
-                destination = CardDestination.ToZone(Zone.LIBRARY, Player.ContextPlayer(0), ZonePlacement.Top),
-                order = CardOrder.ControllerChooses
-            )
-        )
-    )
-
-    fun searchTargetLibraryExile(
-        count: Int = 1,
-        filter: GameObjectFilter = GameObjectFilter.Any
-    ): CompositeEffect = CompositeEffect(
-        listOf(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.LIBRARY, Player.ContextPlayer(0), filter),
-                storeAs = "searchable"
-            ),
-            SelectFromCollectionEffect(
-                from = "searchable",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(count)),
-                storeSelected = "exiled",
-                chooser = Chooser.Controller
-            ),
-            MoveCollectionEffect(
-                from = "exiled",
-                destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0))
-            ),
-            ShuffleLibraryEffect(EffectTarget.ContextTarget(0))
-        )
-    )
-
     fun revealUntilNonlandDealDamage(target: EffectTarget): CompositeEffect = CompositeEffect(
         listOf(
             GatherUntilMatchEffect(
@@ -451,47 +343,6 @@ object LibraryPatterns {
                 ),
                 order = CardOrder.ControllerChooses
             )
-        )
-    )
-
-    fun revealUntilNonlandModifyStats(): CompositeEffect = CompositeEffect(
-        listOf(
-            GatherUntilMatchEffect(
-                filter = GameObjectFilter.Nonland,
-                storeMatch = "nonland",
-                storeRevealed = "allRevealed"
-            ),
-            RevealCollectionEffect(from = "allRevealed"),
-            ModifyStatsEffect(
-                powerModifier = DynamicAmount.StoredCardManaValue("nonland"),
-                toughnessModifier = DynamicAmount.Fixed(0),
-                target = EffectTarget.Self
-            ),
-            MoveCollectionEffect(
-                from = "allRevealed",
-                destination = CardDestination.ToZone(
-                    Zone.LIBRARY,
-                    placement = ZonePlacement.Bottom
-                ),
-                order = CardOrder.ControllerChooses
-            )
-        )
-    )
-
-    fun revealUntilCreatureTypeToBattlefield(): CompositeEffect = CompositeEffect(
-        listOf(
-            ChooseCreatureTypeEffect,
-            GatherUntilMatchEffect(
-                filter = GameObjectFilter.Creature.withSubtypeFromVariable("chosenCreatureType"),
-                storeMatch = "found",
-                storeRevealed = "allRevealed"
-            ),
-            RevealCollectionEffect(from = "allRevealed"),
-            MoveCollectionEffect(
-                from = "found",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-            ),
-            ShuffleLibraryEffect()
         )
     )
 
@@ -554,35 +405,6 @@ object LibraryPatterns {
         )
     )
 
-    fun revealAndOpponentChooses(
-        count: Int,
-        filter: GameObjectFilter
-    ): CompositeEffect = CompositeEffect(
-        listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(count)),
-                storeAs = "revealed",
-                revealed = true
-            ),
-            SelectFromCollectionEffect(
-                from = "revealed",
-                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                chooser = Chooser.Opponent,
-                filter = filter,
-                storeSelected = "chosen",
-                storeRemainder = "rest"
-            ),
-            MoveCollectionEffect(
-                from = "chosen",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-            ),
-            MoveCollectionEffect(
-                from = "rest",
-                destination = CardDestination.ToZone(Zone.GRAVEYARD)
-            )
-        )
-    )
-
     fun mill(count: Int, target: EffectTarget = EffectTarget.Controller): CompositeEffect =
         mill(DynamicAmount.Fixed(count), target)
 
@@ -619,39 +441,6 @@ object LibraryPatterns {
                 MoveCollectionEffect(
                     from = "graveyardCards",
                     destination = CardDestination.ToZone(Zone.LIBRARY, player, ZonePlacement.Shuffled)
-                )
-            )
-        )
-    }
-
-    fun lookAtTopXAndPutOntoBattlefield(
-        countSource: DynamicAmount,
-        filter: GameObjectFilter,
-        shuffleAfter: Boolean = true,
-        entersTapped: Boolean = false
-    ): CompositeEffect {
-        val restPlacement = if (shuffleAfter) ZonePlacement.Shuffled else ZonePlacement.Default
-        val battlefieldPlacement = if (entersTapped) ZonePlacement.Tapped else ZonePlacement.Default
-        return CompositeEffect(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(countSource),
-                    storeAs = "looked"
-                ),
-                SelectFromCollectionEffect(
-                    from = "looked",
-                    selection = SelectionMode.ChooseUpTo(countSource),
-                    filter = filter,
-                    storeSelected = "toBattlefield",
-                    storeRemainder = "rest"
-                ),
-                MoveCollectionEffect(
-                    from = "toBattlefield",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD, placement = battlefieldPlacement)
-                ),
-                MoveCollectionEffect(
-                    from = "rest",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = restPlacement)
                 )
             )
         )

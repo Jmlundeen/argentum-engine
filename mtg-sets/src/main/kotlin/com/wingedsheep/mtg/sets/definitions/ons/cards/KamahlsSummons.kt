@@ -1,9 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
+import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kamahl's Summons
@@ -19,12 +28,28 @@ val KamahlsSummons = card("Kamahl's Summons") {
     oracleText = "Each player may reveal any number of creature cards from their hand. Then each player creates a 2/2 green Bear creature token for each card they revealed this way."
 
     spell {
-        effect = EffectPatterns.eachPlayerRevealCreaturesCreateTokens(
-            tokenPower = 2,
-            tokenToughness = 2,
-            tokenColors = setOf(Color.GREEN),
-            tokenCreatureTypes = setOf("Bear"),
-            tokenImageUri = "https://cards.scryfall.io/normal/front/7/7/772dac39-269b-4a35-aad3-320279af833f.jpg?1675455454"
+        effect = ForEachPlayerEffect(
+            players = Player.Each,
+            effects = listOf(
+                GatherCardsEffect(
+                    source = CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Creature),
+                    storeAs = "creatures"
+                ),
+                SelectFromCollectionEffect(
+                    from = "creatures",
+                    selection = SelectionMode.ChooseAnyNumber,
+                    storeSelected = "revealed",
+                    prompt = "You may reveal any number of creature cards from your hand"
+                ),
+                CreateTokenEffect(
+                    count = DynamicAmount.VariableReference("revealed_count"),
+                    power = 2,
+                    toughness = 2,
+                    colors = setOf(Color.GREEN),
+                    creatureTypes = setOf("Bear"),
+                    imageUri = "https://cards.scryfall.io/normal/front/7/7/772dac39-269b-4a35-aad3-320279af833f.jpg?1675455454"
+                )
+            )
         )
     }
 

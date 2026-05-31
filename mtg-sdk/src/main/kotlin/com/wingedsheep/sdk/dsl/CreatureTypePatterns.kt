@@ -11,14 +11,11 @@ import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseOptionEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.GainControlEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.MarkMustAttackThisTurnEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.OptionType
@@ -26,7 +23,6 @@ import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.SetCreatureSubtypesEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -82,26 +78,6 @@ object CreatureTypePatterns {
             MoveCollectionEffect(
                 from = "chosen",
                 destination = CardDestination.ToZone(Zone.HAND)
-            )
-        )
-    )
-
-    fun chooseCreatureTypeShuffleGraveyardIntoLibrary(): CompositeEffect = CompositeEffect(
-        listOf(
-            ChooseCreatureTypeEffect,
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature),
-                storeAs = "graveyardCreatures"
-            ),
-            SelectFromCollectionEffect(
-                from = "graveyardCreatures",
-                selection = SelectionMode.All,
-                matchChosenCreatureType = true,
-                storeSelected = "chosen"
-            ),
-            MoveCollectionEffect(
-                from = "chosen",
-                destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Shuffled)
             )
         )
     )
@@ -199,66 +175,6 @@ object CreatureTypePatterns {
             )
         ))
     }
-
-    fun chooseCreatureTypeMustAttack(): CompositeEffect {
-        val key = "chosenCreatureType"
-        return CompositeEffect(listOf(
-            ChooseOptionEffect(
-                optionType = OptionType.CREATURE_TYPE,
-                storeAs = key
-            ),
-            ForEachInGroupEffect(
-                filter = GroupFilter.ChosenSubtypeCreatures(key),
-                effect = MarkMustAttackThisTurnEffect(
-                    target = EffectTarget.Self
-                )
-            )
-        ))
-    }
-
-    fun patriarchsBidding(): CompositeEffect = CompositeEffect(
-        listOf(
-            EachPlayerChoosesCreatureTypeEffect(storeAs = "biddingTypes"),
-            ForEachPlayerEffect(
-                players = Player.ActivePlayerFirst,
-                effects = listOf(
-                    GatherCardsEffect(
-                        source = CardSource.FromZone(
-                            zone = Zone.GRAVEYARD,
-                            player = Player.You,
-                            filter = GameObjectFilter.Creature.withSubtypeInStoredList("biddingTypes")
-                        ),
-                        storeAs = "toReturn"
-                    ),
-                    MoveCollectionEffect(
-                        from = "toReturn",
-                        destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-                    )
-                )
-            )
-        )
-    )
-
-    fun destroyAllExceptStoredSubtypes(
-        noRegenerate: Boolean = false,
-        exceptSubtypesFromStored: String
-    ): CompositeEffect = CompositeEffect(listOf(
-        GatherCardsEffect(
-            source = CardSource.BattlefieldMatching(filter = GameObjectFilter.Creature),
-            storeAs = "destroyAll_gathered"
-        ),
-        com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect(
-            from = "destroyAll_gathered",
-            filter = com.wingedsheep.sdk.scripting.effects.CollectionFilter.ExcludeSubtypesFromStored(exceptSubtypesFromStored),
-            storeMatching = "destroyAll_filtered"
-        ),
-        MoveCollectionEffect(
-            from = "destroyAll_filtered",
-            destination = CardDestination.ToZone(Zone.GRAVEYARD),
-            moveType = com.wingedsheep.sdk.scripting.effects.MoveType.Destroy,
-            noRegenerate = noRegenerate
-        )
-    ))
 
     fun destroyAllSharingTypeWithSacrificed(
         noRegenerate: Boolean = false

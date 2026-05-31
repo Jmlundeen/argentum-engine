@@ -16,7 +16,18 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.Chooser
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -42,7 +53,25 @@ class SupremeInquisitorTest : FunSpec({
         activatedAbility {
             cost = Costs.TapPermanents(5, GameObjectFilter.Creature.withSubtype("Wizard"))
             target = Targets.Player
-            effect = EffectPatterns.searchTargetLibraryExile(5)
+            effect = CompositeEffect(
+                listOf(
+                    GatherCardsEffect(
+                        source = CardSource.FromZone(Zone.LIBRARY, Player.ContextPlayer(0), GameObjectFilter.Any),
+                        storeAs = "searchable"
+                    ),
+                    SelectFromCollectionEffect(
+                        from = "searchable",
+                        selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(5)),
+                        storeSelected = "exiled",
+                        chooser = Chooser.Controller
+                    ),
+                    MoveCollectionEffect(
+                        from = "exiled",
+                        destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0))
+                    ),
+                    ShuffleLibraryEffect(EffectTarget.ContextTarget(0))
+                )
+            )
         }
     }
 

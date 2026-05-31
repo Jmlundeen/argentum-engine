@@ -23,7 +23,6 @@ import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -433,31 +432,4 @@ object HandPatterns {
         )
     }
 
-    fun headGames(target: EffectTarget = EffectTarget.ContextTarget(0)): CompositeEffect = CompositeEffect(
-        listOf(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
-                storeAs = "opponentHand"
-            ),
-            MoveCollectionEffect(
-                from = "opponentHand",
-                destination = CardDestination.ToZone(Zone.LIBRARY, Player.ContextPlayer(0), ZonePlacement.Top)
-            ),
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.LIBRARY, Player.ContextPlayer(0)),
-                storeAs = "searchable"
-            ),
-            SelectFromCollectionEffect(
-                from = "searchable",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.VariableReference("opponentHand_count")),
-                chooser = Chooser.Controller,
-                storeSelected = "found"
-            ),
-            MoveCollectionEffect(
-                from = "found",
-                destination = CardDestination.ToZone(Zone.HAND, Player.ContextPlayer(0))
-            ),
-            ShuffleLibraryEffect(target)
-        )
-    )
 }

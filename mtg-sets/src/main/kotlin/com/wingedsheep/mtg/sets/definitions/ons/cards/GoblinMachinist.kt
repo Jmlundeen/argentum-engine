@@ -1,9 +1,20 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardOrder
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
+import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Goblin Machinist
@@ -24,7 +35,29 @@ val GoblinMachinist = card("Goblin Machinist") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{R}")
-        effect = EffectPatterns.revealUntilNonlandModifyStats()
+        effect = CompositeEffect(
+            listOf(
+                GatherUntilMatchEffect(
+                    filter = GameObjectFilter.Nonland,
+                    storeMatch = "nonland",
+                    storeRevealed = "allRevealed"
+                ),
+                RevealCollectionEffect(from = "allRevealed"),
+                ModifyStatsEffect(
+                    powerModifier = DynamicAmount.StoredCardManaValue("nonland"),
+                    toughnessModifier = DynamicAmount.Fixed(0),
+                    target = EffectTarget.Self
+                ),
+                MoveCollectionEffect(
+                    from = "allRevealed",
+                    destination = CardDestination.ToZone(
+                        Zone.LIBRARY,
+                        placement = ZonePlacement.Bottom
+                    ),
+                    order = CardOrder.ControllerChooses
+                )
+            )
+        )
     }
 
     metadata {

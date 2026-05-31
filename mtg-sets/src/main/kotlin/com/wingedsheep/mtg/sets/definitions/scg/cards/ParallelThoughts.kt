@@ -1,11 +1,23 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardOrder
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 // Oracle errata: Original text used "remove from the game" (now "exile").
 // Rulings:
@@ -22,7 +34,25 @@ val ParallelThoughts = card("Parallel Thoughts") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.searchAndExileLinked(count = 7)
+        effect = CompositeEffect(listOf(
+            GatherCardsEffect(
+                source = CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Any),
+                storeAs = "searchable"
+            ),
+            SelectFromCollectionEffect(
+                from = "searchable",
+                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(7)),
+                storeSelected = "found"
+            ),
+            MoveCollectionEffect(
+                from = "found",
+                destination = CardDestination.ToZone(Zone.EXILE),
+                order = CardOrder.Random,
+                linkToSource = true,
+                faceDown = true
+            ),
+            ShuffleLibraryEffect()
+        ))
     }
 
     replacementEffect(

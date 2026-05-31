@@ -1,11 +1,23 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.Chooser
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Supreme Inquisitor
@@ -26,7 +38,25 @@ val SupremeInquisitor = card("Supreme Inquisitor") {
     activatedAbility {
         cost = Costs.TapPermanents(5, GameObjectFilter.Creature.withSubtype("Wizard"))
         target = Targets.Player
-        effect = EffectPatterns.searchTargetLibraryExile(5)
+        effect = CompositeEffect(
+            listOf(
+                GatherCardsEffect(
+                    source = CardSource.FromZone(Zone.LIBRARY, Player.ContextPlayer(0), GameObjectFilter.Any),
+                    storeAs = "searchable"
+                ),
+                SelectFromCollectionEffect(
+                    from = "searchable",
+                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(5)),
+                    storeSelected = "exiled",
+                    chooser = Chooser.Controller
+                ),
+                MoveCollectionEffect(
+                    from = "exiled",
+                    destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0))
+                ),
+                ShuffleLibraryEffect(EffectTarget.ContextTarget(0))
+            )
+        )
     }
 
     metadata {

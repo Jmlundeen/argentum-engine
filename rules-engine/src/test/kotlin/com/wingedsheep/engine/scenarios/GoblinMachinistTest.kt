@@ -10,8 +10,18 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
 import com.wingedsheep.sdk.model.Deck
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.scripting.AbilityCost
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardOrder
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
+import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import io.kotest.core.spec.style.FunSpec
@@ -47,7 +57,29 @@ class GoblinMachinistTest : FunSpec({
             ActivatedAbility(
                 id = machinistAbilityId,
                 cost = AbilityCost.Mana(ManaCost.parse("{2}{R}")),
-                effect = EffectPatterns.revealUntilNonlandModifyStats()
+                effect = CompositeEffect(
+                    listOf(
+                        GatherUntilMatchEffect(
+                            filter = GameObjectFilter.Nonland,
+                            storeMatch = "nonland",
+                            storeRevealed = "allRevealed"
+                        ),
+                        RevealCollectionEffect(from = "allRevealed"),
+                        ModifyStatsEffect(
+                            powerModifier = DynamicAmount.StoredCardManaValue("nonland"),
+                            toughnessModifier = DynamicAmount.Fixed(0),
+                            target = EffectTarget.Self
+                        ),
+                        MoveCollectionEffect(
+                            from = "allRevealed",
+                            destination = CardDestination.ToZone(
+                                Zone.LIBRARY,
+                                placement = ZonePlacement.Bottom
+                            ),
+                            order = CardOrder.ControllerChooses
+                        )
+                    )
+                )
             )
         )
     )

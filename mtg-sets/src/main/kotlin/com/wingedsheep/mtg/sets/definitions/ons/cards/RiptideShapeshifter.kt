@@ -1,9 +1,17 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 
 /**
  * Riptide Shapeshifter
@@ -24,7 +32,22 @@ val RiptideShapeshifter = card("Riptide Shapeshifter") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U}{U}"), Costs.SacrificeSelf)
-        effect = EffectPatterns.revealUntilCreatureTypeToBattlefield()
+        effect = CompositeEffect(
+            listOf(
+                ChooseCreatureTypeEffect,
+                GatherUntilMatchEffect(
+                    filter = GameObjectFilter.Creature.withSubtypeFromVariable("chosenCreatureType"),
+                    storeMatch = "found",
+                    storeRevealed = "allRevealed"
+                ),
+                RevealCollectionEffect(from = "allRevealed"),
+                MoveCollectionEffect(
+                    from = "found",
+                    destination = CardDestination.ToZone(Zone.BATTLEFIELD)
+                ),
+                ShuffleLibraryEffect()
+            )
+        )
     }
 
     metadata {

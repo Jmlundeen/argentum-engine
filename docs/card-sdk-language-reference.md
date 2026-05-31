@@ -494,10 +494,7 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
 **Library search & reveal**
 
 - `searchLibrary(filter, destination?, tapped?, shuffle?)` — search library, pick matching, move, shuffle.
-- `searchLibraryNthFromTop(filter, n, destination)` — search only the top N cards.
 - `searchMultipleZones(filters, ...)` — search multiple zones in one effect.
-- `searchTargetLibraryExile(count?, filter?)` — exile from target's library.
-- `lookAtTargetLibraryAndDiscard(count, toGraveyard?)` — peek at top N and discard.
 
 **Top-deck manipulation**
 
@@ -506,14 +503,10 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
 - `mill(count)` — top N cards into graveyard.
 - `lookAtTopAndKeep(count, keepCount)` — Ancestral Memories — keep exactly K to hand.
 - `lookAtTopAndReorder(count)` — reorder top N.
-- `lookAtTopXAndPutOntoBattlefield(countSource, filter, shuffleAfter, entersTapped)` — look at top N (DynamicAmount), put any matching `filter` onto the battlefield (optionally `entersTapped = true`), rest back on library (`shuffleAfter` toggles shuffled vs. preserve-order). Used e.g. by Famished Worldsire's ETB land tutor.
 
 **Reveal patterns**
 
 - `revealUntilNonlandDealDamage(target)` — Bonecrusher Giant shape.
-- `revealUntilNonlandModifyStats()` — Erratic Explosion shape.
-- `revealUntilCreatureTypeToBattlefield()` — Riptide Shapeshifter shape.
-- `revealAndOpponentChooses(count, filter)` — Animal Magnetism shape.
 - `wheelEffect(players)` — each player shuffles hand into library, draws that many.
 - `factOrFiction(...)` — reveal 5, opponent splits into two piles, you choose one.
 
@@ -526,7 +519,6 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
 - `eachPlayerDiscardsDraws(controllerBonusDraw?)` — Windfall / Wheel of Fortune.
 - `eachPlayerDrawsX(includeController?, includeOpponents?)` — Howling Mine shape.
 - `eachPlayerMayDraw(maxCards, lifePerCardNotDrawn?)` — optional group draw with a tax.
-- `headGames(target)` — Cranial Extraction — view hand, set up top of library.
 - `exileFromHand(count?, target)` — exile N from hand.
 
 **Sacrifice / destroy**
@@ -541,14 +533,10 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
 
 - `chooseCreatureTypeRevealTop()` — pick a type, reveal until matching.
 - `chooseCreatureTypeReturnFromGraveyard(count)` — pick a type, return N from graveyard.
-- `chooseCreatureTypeShuffleGraveyardIntoLibrary()` — pick a type, shuffle matching into library.
 - `chooseCreatureTypeModifyStats(...)` — pick a type, buff matching.
 - `chooseCreatureTypeUntap()` — pick a type, untap your matching.
 - `chooseCreatureTypeGainControl(duration?)` — pick a type, control matching.
-- `chooseCreatureTypeMustAttack()` — pick a type, matching must attack.
 - `becomeChosenTypeAllCreatures(...)` — all creatures become the chosen type.
-- `patriarchsBidding()` — return creatures, types named in graveyards.
-- `destroyAllExceptStoredSubtypes(...)` — wrath sparing stored subtypes.
 
 **Misc mechanic shapes**
 

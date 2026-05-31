@@ -1,9 +1,20 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
+import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Elvish Soultiller
@@ -23,7 +34,25 @@ val ElvishSoultiller = card("Elvish Soultiller") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = EffectPatterns.chooseCreatureTypeShuffleGraveyardIntoLibrary()
+        effect = CompositeEffect(
+            listOf(
+                ChooseCreatureTypeEffect,
+                GatherCardsEffect(
+                    source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature),
+                    storeAs = "graveyardCreatures"
+                ),
+                SelectFromCollectionEffect(
+                    from = "graveyardCreatures",
+                    selection = SelectionMode.All,
+                    matchChosenCreatureType = true,
+                    storeSelected = "chosen"
+                ),
+                MoveCollectionEffect(
+                    from = "chosen",
+                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Shuffled)
+                )
+            )
+        )
     }
 
     metadata {

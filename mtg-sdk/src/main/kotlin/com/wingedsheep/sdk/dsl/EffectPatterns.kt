@@ -10,15 +10,9 @@ import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GatherSubtypesEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
@@ -204,9 +198,6 @@ object EffectPatterns {
     fun rummage(count: Int = 1): CompositeEffect =
         HandPatterns.rummage(count)
 
-    fun headGames(target: EffectTarget = EffectTarget.ContextTarget(0)): CompositeEffect =
-        HandPatterns.headGames(target)
-
     // =========================================================================
     // Library Patterns (LibraryPatterns)
     // =========================================================================
@@ -277,32 +268,11 @@ object EffectPatterns {
     ): CompositeEffect =
         LibraryPatterns.searchMultipleZones(zones, filter, count, destination, entersTapped)
 
-    fun searchLibraryNthFromTop(
-        filter: GameObjectFilter = GameObjectFilter.Any,
-        positionFromTop: Int = 2
-    ): CompositeEffect =
-        LibraryPatterns.searchLibraryNthFromTop(filter, positionFromTop)
-
-    fun lookAtTargetLibraryAndDiscard(count: Int, toGraveyard: Int = 1): CompositeEffect =
-        LibraryPatterns.lookAtTargetLibraryAndDiscard(count, toGraveyard)
-
-    fun searchTargetLibraryExile(count: Int = 1, filter: GameObjectFilter = GameObjectFilter.Any): CompositeEffect =
-        LibraryPatterns.searchTargetLibraryExile(count, filter)
-
     fun revealUntilNonlandDealDamage(target: EffectTarget): CompositeEffect =
         LibraryPatterns.revealUntilNonlandDealDamage(target)
 
     fun revealUntilNonlandDealDamageEachTarget(): ForEachTargetEffect =
         LibraryPatterns.revealUntilNonlandDealDamageEachTarget()
-
-    fun revealUntilNonlandModifyStats(): CompositeEffect =
-        LibraryPatterns.revealUntilNonlandModifyStats()
-
-    fun revealUntilCreatureTypeToBattlefield(): CompositeEffect =
-        LibraryPatterns.revealUntilCreatureTypeToBattlefield()
-
-    fun revealAndOpponentChooses(count: Int, filter: GameObjectFilter): CompositeEffect =
-        LibraryPatterns.revealAndOpponentChooses(count, filter)
 
     fun factOrFiction(
         count: Int = 5,
@@ -322,13 +292,6 @@ object EffectPatterns {
     fun shuffleGraveyardIntoLibrary(target: EffectTarget = EffectTarget.ContextTarget(0)): CompositeEffect =
         LibraryPatterns.shuffleGraveyardIntoLibrary(target)
 
-    fun lookAtTopXAndPutOntoBattlefield(
-        countSource: DynamicAmount,
-        filter: GameObjectFilter,
-        shuffleAfter: Boolean = true
-    ): CompositeEffect =
-        LibraryPatterns.lookAtTopXAndPutOntoBattlefield(countSource, filter, shuffleAfter)
-
     // =========================================================================
     // Creature Type Patterns (CreatureTypePatterns)
     // =========================================================================
@@ -338,9 +301,6 @@ object EffectPatterns {
 
     fun chooseCreatureTypeReturnFromGraveyard(count: Int): CompositeEffect =
         CreatureTypePatterns.chooseCreatureTypeReturnFromGraveyard(count)
-
-    fun chooseCreatureTypeShuffleGraveyardIntoLibrary(): CompositeEffect =
-        CreatureTypePatterns.chooseCreatureTypeShuffleGraveyardIntoLibrary()
 
     fun chooseCreatureTypeModifyStats(
         powerModifier: DynamicAmount,
@@ -363,56 +323,8 @@ object EffectPatterns {
     fun chooseCreatureTypeGainControl(duration: Duration = Duration.Permanent): CompositeEffect =
         CreatureTypePatterns.chooseCreatureTypeGainControl(duration)
 
-    fun chooseCreatureTypeMustAttack(): CompositeEffect =
-        CreatureTypePatterns.chooseCreatureTypeMustAttack()
-
-    fun patriarchsBidding(): CompositeEffect =
-        CreatureTypePatterns.patriarchsBidding()
-
-    fun destroyAllExceptStoredSubtypes(
-        noRegenerate: Boolean = false,
-        exceptSubtypesFromStored: String
-    ): CompositeEffect =
-        CreatureTypePatterns.destroyAllExceptStoredSubtypes(noRegenerate, exceptSubtypesFromStored)
-
     fun destroyAllSharingTypeWithSacrificed(noRegenerate: Boolean = false): CompositeEffect =
         CreatureTypePatterns.destroyAllSharingTypeWithSacrificed(noRegenerate)
-
-    /**
-     * Cryptic Gateway pipeline: gather subtypes of permanents tapped as cost, then let
-     * the controller pick a creature from hand that shares a type with each of them.
-     *
-     * Pipeline: TappedAsCost → GatherSubtypes → GatherCards(hand, sharing filter) →
-     * Select(up to 1) → Move(battlefield)
-     */
-    fun putCreatureFromHandSharingTypeWithTapped(): CompositeEffect = CompositeEffect(listOf(
-        GatherCardsEffect(
-            source = CardSource.TappedAsCost,
-            storeAs = "tappedPermanents"
-        ),
-        GatherSubtypesEffect(
-            from = "tappedPermanents",
-            storeAs = "tappedSubtypes"
-        ),
-        GatherCardsEffect(
-            source = CardSource.FromZone(
-                zone = Zone.HAND,
-                player = Player.You,
-                filter = GameObjectFilter.Creature.withSubtypeInEachStoredGroup("tappedSubtypes")
-            ),
-            storeAs = "candidates"
-        ),
-        SelectFromCollectionEffect(
-            from = "candidates",
-            selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-            storeSelected = "chosen",
-            prompt = "You may put a creature card from your hand onto the battlefield"
-        ),
-        MoveCollectionEffect(
-            from = "chosen",
-            destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-        )
-    ))
 
     // =========================================================================
     // Exile Patterns (ExilePatterns)
@@ -423,9 +335,6 @@ object EffectPatterns {
 
     fun exileUntilEndStep(target: EffectTarget): Effect =
         ExilePatterns.exileUntilEndStep(target)
-
-    fun searchAndExileLinked(count: Int = 7, filter: GameObjectFilter = GameObjectFilter.Any): CompositeEffect =
-        ExilePatterns.searchAndExileLinked(count, filter)
 
     fun exileGroupAndLink(filter: GroupFilter, storeAs: String = "linked_exile"): CompositeEffect =
         ExilePatterns.exileGroupAndLink(filter, storeAs)
@@ -458,15 +367,6 @@ object EffectPatterns {
         keywords: Set<Keyword> = emptySet()
     ): CompositeEffect =
         ExilePatterns.destroyAndReplaceWithToken(target, power, toughness, colors, creatureTypes, keywords)
-
-    fun eachPlayerRevealCreaturesCreateTokens(
-        tokenPower: Int,
-        tokenToughness: Int,
-        tokenColors: Set<Color>,
-        tokenCreatureTypes: Set<String>,
-        tokenImageUri: String? = null
-    ): ForEachPlayerEffect =
-        ExilePatterns.eachPlayerRevealCreaturesCreateTokens(tokenPower, tokenToughness, tokenColors, tokenCreatureTypes, tokenImageUri)
 
     /**
      * Incubate N (CR 701.53). Atomic composition: create the (DFC) Incubator token, then

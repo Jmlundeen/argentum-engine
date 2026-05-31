@@ -1,14 +1,22 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.LibraryPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDevour
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 
 /**
  * Famished Worldsire
@@ -50,12 +58,32 @@ val FamishedWorldsire = card("Famished Worldsire") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = LibraryPatterns.lookAtTopXAndPutOntoBattlefield(
-            countSource = DynamicAmounts.sourcePower(),
-            filter = GameObjectFilter.Land,
-            shuffleAfter = true,
-            entersTapped = true,
-        )
+        effect = run {
+            val countSource = DynamicAmounts.sourcePower()
+            CompositeEffect(
+                listOf(
+                    GatherCardsEffect(
+                        source = CardSource.TopOfLibrary(countSource),
+                        storeAs = "looked"
+                    ),
+                    SelectFromCollectionEffect(
+                        from = "looked",
+                        selection = SelectionMode.ChooseUpTo(countSource),
+                        filter = GameObjectFilter.Land,
+                        storeSelected = "toBattlefield",
+                        storeRemainder = "rest"
+                    ),
+                    MoveCollectionEffect(
+                        from = "toBattlefield",
+                        destination = CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped)
+                    ),
+                    MoveCollectionEffect(
+                        from = "rest",
+                        destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Shuffled)
+                    )
+                )
+            )
+        }
         description = "When this creature enters, look at the top X cards of your library, " +
             "where X is this creature's power. Put any number of land cards from among them " +
             "onto the battlefield tapped, then shuffle."

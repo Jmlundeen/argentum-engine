@@ -1,9 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.CollectionFilter
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
+import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.MoveType
 
 /**
  * Harsh Mercy
@@ -20,10 +29,23 @@ val HarshMercy = card("Harsh Mercy") {
 
     spell {
         effect = EachPlayerChoosesCreatureTypeEffect(storeAs = "chosenTypes")
-            .then(EffectPatterns.destroyAllExceptStoredSubtypes(
-                noRegenerate = true,
-                exceptSubtypesFromStored = "chosenTypes"
-            ))
+            .then(CompositeEffect(listOf(
+                GatherCardsEffect(
+                    source = CardSource.BattlefieldMatching(filter = GameObjectFilter.Creature),
+                    storeAs = "destroyAll_gathered"
+                ),
+                FilterCollectionEffect(
+                    from = "destroyAll_gathered",
+                    filter = CollectionFilter.ExcludeSubtypesFromStored("chosenTypes"),
+                    storeMatching = "destroyAll_filtered"
+                ),
+                MoveCollectionEffect(
+                    from = "destroyAll_filtered",
+                    destination = CardDestination.ToZone(Zone.GRAVEYARD),
+                    moveType = MoveType.Destroy,
+                    noRegenerate = true
+                )
+            )))
     }
 
     metadata {

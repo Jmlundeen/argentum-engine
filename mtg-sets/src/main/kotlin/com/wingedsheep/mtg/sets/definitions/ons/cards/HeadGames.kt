@@ -1,9 +1,22 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.Chooser
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Head Games
@@ -21,7 +34,33 @@ val HeadGames = card("Head Games") {
 
     spell {
         target = TargetOpponent()
-        effect = EffectPatterns.headGames()
+        effect = CompositeEffect(
+            listOf(
+                GatherCardsEffect(
+                    source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
+                    storeAs = "opponentHand"
+                ),
+                MoveCollectionEffect(
+                    from = "opponentHand",
+                    destination = CardDestination.ToZone(Zone.LIBRARY, Player.ContextPlayer(0), ZonePlacement.Top)
+                ),
+                GatherCardsEffect(
+                    source = CardSource.FromZone(Zone.LIBRARY, Player.ContextPlayer(0)),
+                    storeAs = "searchable"
+                ),
+                SelectFromCollectionEffect(
+                    from = "searchable",
+                    selection = SelectionMode.ChooseUpTo(DynamicAmount.VariableReference("opponentHand_count")),
+                    chooser = Chooser.Controller,
+                    storeSelected = "found"
+                ),
+                MoveCollectionEffect(
+                    from = "found",
+                    destination = CardDestination.ToZone(Zone.HAND, Player.ContextPlayer(0))
+                ),
+                ShuffleLibraryEffect(EffectTarget.ContextTarget(0))
+            )
+        )
     }
 
     metadata {

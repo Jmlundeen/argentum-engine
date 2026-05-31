@@ -1,9 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.Chooser
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Animal Magnetism
@@ -19,9 +28,30 @@ val AnimalMagnetism = card("Animal Magnetism") {
     oracleText = "Reveal the top five cards of your library. An opponent chooses a creature card from among them. Put that card onto the battlefield and the rest into your graveyard."
 
     spell {
-        effect = EffectPatterns.revealAndOpponentChooses(
-            count = 5,
-            filter = GameObjectFilter.Creature
+        effect = CompositeEffect(
+            listOf(
+                GatherCardsEffect(
+                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(5)),
+                    storeAs = "revealed",
+                    revealed = true
+                ),
+                SelectFromCollectionEffect(
+                    from = "revealed",
+                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
+                    chooser = Chooser.Opponent,
+                    filter = GameObjectFilter.Creature,
+                    storeSelected = "chosen",
+                    storeRemainder = "rest"
+                ),
+                MoveCollectionEffect(
+                    from = "chosen",
+                    destination = CardDestination.ToZone(Zone.BATTLEFIELD)
+                ),
+                MoveCollectionEffect(
+                    from = "rest",
+                    destination = CardDestination.ToZone(Zone.GRAVEYARD)
+                )
+            )
         )
     }
 
