@@ -349,10 +349,24 @@ data class GameState(
      * them from every game-logic query at once. They physically remain in the
      * battlefield zone (see [allBattlefieldEntities]) and the client still renders them.
      */
-    fun getBattlefield(): List<EntityId> {
-        return zones.filterKeys { it.zoneType == Zone.BATTLEFIELD }
-            .values.flatten()
-            .filter { entities[it]?.has<PhasedOutComponent>() != true }
+    fun getBattlefield(): List<EntityId> = cachedBattlefield
+
+    /**
+     * Memoized backing for [getBattlefield]. Safe because [GameState] is immutable —
+     * the (non-phased-out) battlefield set is constant for the lifetime of a state
+     * instance, exactly like [projectedState]. Built in a single pass with one list
+     * allocation instead of the `filterKeys` map copy + `flatten` + `filter` chain that
+     * ran on every call. A body `val` is not serialized (only constructor params are).
+     */
+    private val cachedBattlefield: List<EntityId> by lazy {
+        val result = ArrayList<EntityId>()
+        for ((key, ids) in zones) {
+            if (key.zoneType != Zone.BATTLEFIELD) continue
+            for (id in ids) {
+                if (entities[id]?.has<PhasedOutComponent>() != true) result.add(id)
+            }
+        }
+        result
     }
 
     /**
