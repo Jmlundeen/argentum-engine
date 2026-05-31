@@ -120,6 +120,17 @@ data class ManaCost(val symbols: List<ManaSymbol>) {
         return ManaCost(genericSymbol + nonGeneric)
     }
 
+    /**
+     * Repeat this cost [n] times — `{1}{R} * 3` = `{3}{R}{R}{R}`. Used to test whether an
+     * activated ability with a fixed mana cost can be paid N times in a row (color-aware),
+     * rather than naively dividing total mana by CMC.
+     */
+    operator fun times(n: Int): ManaCost {
+        require(n >= 0) { "Cannot multiply a mana cost by a negative number: $n" }
+        if (n == 0) return ZERO
+        return (1 until n).fold(this) { acc, _ -> acc + this }
+    }
+
     override fun toString(): String = symbols.joinToString("")
 
     companion object {

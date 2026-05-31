@@ -1,6 +1,7 @@
 package com.wingedsheep.gameserver.scenarios
 
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.gameserver.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -183,6 +184,35 @@ class SpitfireHandlerScenarioTest : ScenarioTestBase() {
 
                 withClue("Block should succeed - pumped handler power (3) >= attacker power (2): ${blockResult.error}") {
                     blockResult.error shouldBe null
+                }
+            }
+
+            test("repeat-activation count only counts mana that can pay {R}") {
+                // 3 Mountains (red) + 3 Swamps (black). {R}: +1/+0 can be paid 3 times, not 6 —
+                // black mana cannot pay a red symbol. (Regression for divide-CMC over-counting.)
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Spitfire Handler")
+                    .withLandsOnBattlefield(1, "Mountain", 3)
+                    .withLandsOnBattlefield(1, "Swamp", 3)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val handlerId = game.findPermanent("Spitfire Handler")!!
+
+                val enumerator = LegalActionEnumerator.create(cardRegistry)
+                val activation = enumerator.enumerate(game.state, game.player1Id)
+                    .firstOrNull {
+                        it.action is ActivateAbility &&
+                            (it.action as ActivateAbility).sourceId == handlerId
+                    }
+
+                withClue("Spitfire Handler activation should be available") {
+                    activation shouldNotBe null
+                }
+                withClue("{R} pump should be repeatable 3 times (3 red), not 6 (red+black)") {
+                    activation!!.maxRepeatableActivations shouldBe 3
                 }
             }
         }
