@@ -1141,6 +1141,19 @@ Triggers.youCastSpell(
     - `NEXT_TURN` — stricter "on your next turn"-style timing: the current turn never qualifies
       regardless of step. Pair with `fireOnlyOnControllersTurn = true` to land on the controller's
       upcoming own turn rather than an intervening opponent turn. (Kav Landseeker.)
+- **Event-based delayed triggers** — pass `trigger = <TriggerSpec>` (instead of `step`) and the
+  delayed ability fires whenever a matching *event* occurs, staying resident until `expiry`
+  (`DelayedTriggerExpiry.EndOfTurn`) removes it. `watchedTarget` scopes it to one entity (e.g.
+  "when **that** creature deals combat damage / dies this turn" — Long River Lurker, Deflecting
+  Palm). Matching delegates to the same `TriggerMatcher` the battlefield triggers use, so supported
+  events include `DealsDamageEvent`, `ZoneChangeEvent`, the internal `DamagePreventedEvent`, and the
+  attack-declaration events `YouAttackEvent` / `AttackEvent`.
+  - `fireOnce = true` makes it a **one-shot**: it's consumed the first time it fires, then gone —
+    "when you **next** [event] this turn". Combine with `trigger = Triggers.YouAttack` for the
+    common "when you next attack this turn, …" template (All-Out Assault: untap each creature you
+    control on your next attack). With `fireOnce = false` (default) it fires on every matching event
+    until expiry (double-strike combat damage). One-shot consumption happens when the trigger goes
+    on the stack (`TriggerProcessor`), so a second matching event the same turn won't re-fire it.
 
 ---
 

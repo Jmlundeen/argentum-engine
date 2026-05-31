@@ -86,6 +86,7 @@ class CreateDelayedTriggerExecutor : EffectExecutor<CreateDelayedTriggerEffect> 
             trigger = effect.trigger,
             watchedEntityId = watchedEntityId,
             expiry = if (effect.trigger != null) effect.expiry else null,
+            fireOnce = effect.trigger != null && effect.fireOnce,
             notBeforeTurn = notBeforeTurn
         )
 

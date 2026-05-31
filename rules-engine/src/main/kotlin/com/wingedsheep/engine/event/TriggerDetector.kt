@@ -506,10 +506,16 @@ class TriggerDetector(
         val eventBased = state.delayedTriggers.filter { it.trigger != null }
         if (eventBased.isEmpty()) return
 
+        // A one-shot delayed trigger ([DelayedTriggeredAbility.fireOnce]) must fire at most
+        // once even if several events in this batch match it — track which ids have already
+        // produced a pending trigger this pass.
+        val firedOnceIds = mutableSetOf<String>()
         for (event in events) {
             for (delayed in eventBased) {
+                if (delayed.fireOnce && delayed.id in firedOnceIds) continue
                 val spec = delayed.trigger ?: continue
-                if (!matchesEventForWatchedEntity(spec, event, delayed.watchedEntityId, delayed.id, delayed.controllerId, state)) continue
+                if (!matchesEventForWatchedEntity(spec, event, delayed.watchedEntityId, delayed.id, delayed.sourceId, delayed.controllerId, state)) continue
+                if (delayed.fireOnce) firedOnceIds.add(delayed.id)
                 triggers.add(
                     PendingTrigger(
                         ability = TriggeredAbility.create(
@@ -523,7 +529,8 @@ class TriggerDetector(
                         triggerContext = TriggerContext.fromEvent(event).copy(
                             triggeringEntityId = delayed.watchedEntityId
                                 ?: TriggerContext.fromEvent(event).triggeringEntityId
-                        )
+                        ),
+                        consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null
                     )
                 )
             }
@@ -532,19 +539,29 @@ class TriggerDetector(
 
     /**
      * Match an event against a delayed-trigger TriggerSpec, scoped to a watched entity.
-     * Supports DealsDamageEvent (scoped on damage source) and ZoneChangeEvent
-     * (scoped on the moving entity — used for "when that creature dies this turn").
+     * Supports DealsDamageEvent (scoped on damage source), ZoneChangeEvent (scoped on the
+     * moving entity — "when that creature dies this turn"), and the attack-declaration events
+     * (player-scoped — "when you next attack this turn"), which delegate to the shared
+     * [TriggerMatcher.matchesTrigger] logic so they behave identically to battlefield triggers.
      */
     private fun matchesEventForWatchedEntity(
         spec: com.wingedsheep.sdk.scripting.TriggerSpec,
         event: EngineGameEvent,
         watchedEntityId: EntityId?,
         delayedId: String,
+        sourceId: EntityId,
         controllerId: EntityId,
         state: GameState
     ): Boolean {
         val specEvent = spec.event
         return when (specEvent) {
+            // Attack-declaration triggers are player-/filter-scoped, not entity-scoped, so they
+            // reuse the canonical matcher rather than the watched-entity narrowing above.
+            // Powers "when you next attack this turn, …" (YouAttackEvent) and the general
+            // "when a [filtered] creature next attacks" (AttackEvent).
+            is com.wingedsheep.sdk.scripting.GameEvent.YouAttackEvent,
+            is com.wingedsheep.sdk.scripting.GameEvent.AttackEvent ->
+                matcher.matchesTrigger(specEvent, spec.binding, event, sourceId, controllerId, state)
             is com.wingedsheep.sdk.scripting.GameEvent.DealsDamageEvent -> {
                 if (event !is com.wingedsheep.engine.core.DamageDealtEvent) return false
                 if (watchedEntityId != null && event.sourceId != watchedEntityId) return false

@@ -5,7 +5,7 @@ capabilities (SDK reference + source verification, May 2026). Generated to scope
 built before the set can be completed.
 
 **Status:** 49 / 271 implemented (18%). All five wedge clan keywords (Tier 1), every Tier-2
-primitive, and all but two Tier-3 one-offs are now built — only items 15 and 18 remain.
+primitive, and all but one Tier-3 one-off are now built — only item 18 remains.
 Card list comes from `scripts/card-status --list --set TDM`. Oracle text pulled from Scryfall
 (`set:tdm`, 277 printings → 271 unique cards).
 
@@ -43,7 +43,7 @@ What follows are the **genuine gaps** — elements no current SDK primitive expr
 
 > **Update (May 2026):** Tier 1 (all five clan keywords + Decayed) and Tier 2 (keyword counters,
 > leaves-graveyard trigger, one-shot counter doubling, group P/T doubling) are **complete**, as are
-> Tier-3 items 11–14, 16, 17, 19, and 20. Only **items 15 and 18** remain.
+> Tier-3 items 11–17, 19, and 20. Only **item 18** remains.
 
 ---
 
@@ -166,9 +166,14 @@ the overwhelming majority of the set.
     prevents a stale marker from re-casting. Composed from atomics, no bespoke executor.
     → **Taigam, Master Opportunist** (Flurry copies a spell, exiles it with 4 time counters + Suspend)
 
-15. **Event-based "when you next attack this turn" delayed trigger.** Current delayed triggers are
-    step/turn-based only (`DelayedTriggerTiming`); there is no one-shot trigger keyed to the next
-    attack-declaration event.
+15. **Event-based "when you next attack this turn" delayed trigger.** ✅ **DONE.** No new trigger
+    type was needed — the event-based delayed-trigger machinery (`CreateDelayedTriggerEffect.trigger`
+    + `expiry`) already fires a delayed ability on a matching *event*; it was extended with (a) a
+    generic `fireOnce` one-shot flag (consumed the first time it fires, then gone — "when you **next**
+    … this turn"), and (b) an attack-declaration match branch that delegates to the shared
+    `TriggerMatcher` so `Triggers.YouAttack` / `AttackEvent` behave identically to battlefield
+    triggers. Composed inline: `CreateDelayedTriggerEffect(trigger = Triggers.YouAttack,
+    fireOnce = true, effect = untap each creature you control)`.
     → **All-Out Assault**
 
 16. **Prevent-and-redirect-and-draw.** ✅ **DONE.** Prevent the next damage from a chosen source, then deal the
@@ -229,7 +234,7 @@ the overwhelming majority of the set.
    modest. Unlocks ~30 cards quickly.
 2. ✅ **Renew** (enumerator extension) + **Harmonize** (new alt-cost) — bigger lifts, ~22 cards.
 3. ✅ **Keyword counters + Decayed + leaves-graveyard trigger** (Tier 2) — small, scattered unlocks.
-4. **Tier-3 one-offs** as the relevant legendaries / rares come up. *(remaining work — items 15, 18)*
+4. **Tier-3 one-offs** as the relevant legendaries / rares come up. *(remaining work — item 18)*
 
 The clan keywords (Tier 1) cover the bulk of the remaining cards. Behold and Omen already being done
 means Temur spells and the 13 DFC dragons are essentially ready once the shared supporting effects

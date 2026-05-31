@@ -131,6 +131,13 @@ class TriggerProcessor(
         val ability = trigger.ability
         var currentState = state
 
+        // One-shot event-based delayed triggers ("when you next … this turn") are consumed
+        // the moment they fire — remove the delayed trigger from state so a later matching
+        // event the same turn doesn't fire it again.
+        trigger.consumesDelayedTriggerId?.let { delayedId ->
+            currentState = currentState.removeDelayedTriggers(setOf(delayedId))
+        }
+
         // Mark once-per-turn triggers as fired so they don't trigger again this turn
         if (ability.oncePerTurn) {
             currentState = markTriggerFired(currentState, trigger.sourceId, ability.id)

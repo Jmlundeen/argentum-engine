@@ -575,6 +575,14 @@ data class CreateDelayedTriggerEffect(
      */
     val expiry: DelayedTriggerExpiry = DelayedTriggerExpiry.EndOfTurn,
     /**
+     * For event-based delayed triggers: when true the ability is a *one-shot* — it is
+     * removed the first time it fires, then it's gone (e.g. "when you **next** attack this
+     * turn, …", "when you next cast a spell this turn, …"). When false (default) the trigger
+     * fires every matching event until [expiry] removes it (e.g. double-strike combat damage).
+     * Ignored for step-based triggers, which are always consumed on fire.
+     */
+    val fireOnce: Boolean = false,
+    /**
      * The earliest turn this step-based delayed trigger may fire. See
      * [DelayedTriggerTiming]. Orthogonal to [fireOnlyOnControllersTurn], which gates
      * whose turn the trigger fires on.
