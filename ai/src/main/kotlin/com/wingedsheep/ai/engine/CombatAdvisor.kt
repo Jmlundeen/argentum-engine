@@ -169,8 +169,15 @@ class CombatAdvisor(
         }
 
         // ── Local search: try add/remove mutations via simulation ──
-        // Only run if we're at DECLARE_ATTACKERS (simulation needs to submit DeclareAttackers)
-        if (state.step == Step.DECLARE_ATTACKERS) {
+        // Only run if we're at DECLARE_ATTACKERS (simulation needs to submit DeclareAttackers).
+        // Skip entirely when no opponent controls a creature: nothing can block, so combat is
+        // deterministic, and with zero enemy creatures there's no crack-back to weigh — the
+        // heuristic seed (attack with everything) is already optimal. Running a full-combat
+        // simulation here only burns time without ever changing the plan.
+        val enemyControlsCreature = state.turnOrder.any { other ->
+            other != playerId && projected.getBattlefieldControlledBy(other).any { projected.isCreature(it) }
+        }
+        if (state.step == Step.DECLARE_ATTACKERS && enemyControlsCreature) {
             val deadline = System.currentTimeMillis() + 1000
             improveAttackViaLocalSearch(
                 state, playerId, opponentId, validAttackers, mandatory.toSet(), seedMap, deadline
