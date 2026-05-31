@@ -411,7 +411,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   - `target = CounterTarget.Spell` / `Ability` / `SpellOrAbility` — `SpellOrAbility` dispatches at resolution by inspecting whether the stack entity has a `SpellOnStackComponent`. Used by Teferi's Response.
   - `condition = CounterCondition.UnlessPaysMana(cost, onPaid?)` / `UnlessPaysDynamic(amount, onPaid?)` — "unless its controller pays …" with an optional `onPaid: Effect` rider that fires **only** when the spell's controller pays (Divert Disaster's "If they do, you create a Lander token"). The rider executes with the counter's controller as `controllerId`, so "you" in the rider resolves to the caster of the counter. The rider does not fire when the spell is countered. Facade: `Effects.CounterUnlessPays(cost, onPaid)` / `Effects.CounterUnlessDynamicPays(amount, exileOnCounter, onPaid)`.
 - `CounterAllOnStackEffect(filter?, destination?)` — counter everything matching.
-- `LifeAuction(onWin)` — open life-bidding auction between you and the controller of a targeted spell (Mages' Contest). You open at a bid of 1; the two participants alternate topping the high bid (yes/no to top, then a number for the amount, capped at the bidder's life) until one passes. The high bidder loses that much life; `onWin` runs **only if you win**, with the original targets in context — e.g. `Effects.LifeAuction(Effects.CounterSpell())`. Pair with a `TargetSpell` requirement.
+- `OpenLifeBid(onWin, participant = Player.Opponent)` — open life-bidding auction between you and `participant` (resolved against the effect context). You open at a bid of 1; the two bidders alternate topping the high bid (yes/no to top, then a number for the amount, capped at the bidder's life) until one passes. The high bidder loses that much life; `onWin` runs **only if you win**, with the original targets in context. If `participant` resolves to you (or to nobody), you're the sole bidder and win at the opening bid. For Mages' Contest, bid against the targeted spell's controller and counter it: `Effects.OpenLifeBid(Effects.CounterSpell(), Player.ControllerOf("target spell"))` — pair with a `TargetSpell` requirement.
 - `DestroySourceOfTargetedAbilityEffect` — when the targeted stack object is a permanent's activated/triggered ability, destroy that source permanent. Compose *before* the counter step so the ability component is still readable (Teferi's Response).
 - `CopyTargetSpellEffect(target)` — copy a spell on the stack.
 - `CopyTargetTriggeredAbilityEffect(target)` — copy a triggered ability on the stack.
@@ -469,8 +469,6 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 - `ModalEffect.chooseOne { mode(...) }` / `ModalEffect.chooseN(n) { ... }` — modal effect block.
 - `ChooseActionEffect(choices)` — player picks from a list of effects.
-- `ChooseColorAndGrantProtectionToTargetEffect(target)` — pick a color, grant protection to target.
-- `ChooseColorAndGrantProtectionToGroupEffect(filter)` — same, for a group.
 - `GrantProtectionFromColor(color, target, duration)` — grant protection from a **fixed** color to a target (no player choice); a thin recipe over `GrantKeyword("PROTECTION_FROM_<COLOR>")`. "{W}: Target creature gains protection from red until end of turn." (Crimson Acolyte).
 - `ChooseColorThenEffect(whenChosen)` — pick a color, then run a function of that color.
 - `Effects.ChooseNumberThen(then, minValue=0, maxValue=16, prompt)` — pick a number in `[minValue, maxValue]`,
@@ -479,6 +477,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   multi-step cards (Void: destroy all artifacts/creatures with that mana value, then a target player reveals their
   hand and discards all nonland cards with that mana value).
 - `GrantHexproofFromChosenColorEffect(target)` — hexproof from chosen color.
+- `GrantProtectionFromChosenColorEffect(target)` — protection from chosen color. Must run inside `ChooseColorThen`; wrap in `ForEachInGroup` for the group case (Akroma's Blessing: "Creatures you control gain protection from the chosen color").
 - `ChooseCreatureTypeEffect(...)` — pause for creature-type pick.
 - `SelectTargetEffect(...)` — have a player pick from a valid set.
 - `SeparatePermanentsIntoPilesEffect(filter, piles)` — divvy into piles (Fact-or-Fiction shape).
@@ -1285,15 +1284,18 @@ of "type" to count.
   colors of the last spell cast, cleared each turn). Never blocks the first spell of the turn; a
   colorless spell shares no color, so it is always castable and casting one lifts the restriction
   until the next colored spell. (Mana Maze)
-- `OpponentsCantCastSpells(onlyDuringYourTurn = false)` — opponent-scoped continuous cast
-  *prohibition*: every player other than the source's controller can't cast any spell. With
-  `onlyDuringYourTurn = true` the lock applies only while the controller is the active player (Voice
-  of Victory: "Your opponents can't cast spells during your turn."); with `false` it applies on every
-  turn (Grand Abolisher's cast clause). Read at cast-legality time and OR'd into the central
-  `cantCastSpells` gate, so it covers every casting zone (hand, flashback/harmonize, exile, top of
-  library) uniformly; control is read from projected state so a control-changing effect flips who is
-  restricted. Deliberately *not* filtered — a "can't cast spells with even mana value" (Void
-  Winnower) prohibition needs a per-spell filter and should be a sibling ability.
+- `PlayersCantCastSpells(affected = Player.EachOpponent, spellFilter = GameObjectFilter.Any, condition = null)`
+  — continuous cast *prohibition* parameterized along three independent axes, each a reused
+  primitive: **who** (`affected`, a `Player` reference *relative to the source's controller* —
+  `EachOpponent`/`Opponent`, `You`, `Each`), **which** (`spellFilter`, matched against the card being
+  cast), and **when** (`condition`, evaluated in the controller's context, so `IsYourTurn` = "during
+  your turn", `IsNotYourTurn` = "during an opponent's turn"; `null` = always). Read at cast-legality
+  time through the single `CastPermissionUtils.reasonCannotCast` chokepoint, so it covers every
+  casting zone (hand, flashback/harmonize, exile, top of library) uniformly; control is read from
+  projected state. Examples: Voice of Victory = `PlayersCantCastSpells(Player.EachOpponent, condition
+  = IsYourTurn)`; Grand Abolisher's cast clause = `PlayersCantCastSpells(Player.EachOpponent)`; Void
+  Winnower = `PlayersCantCastSpells(Player.EachOpponent, spellFilter = GameObjectFilter(cardPredicates
+  = listOf(CardPredicate.ManaValueIsEven)))`.
 
 **Tapped-for-mana mana statics** (extra mana / replaced mana when a land is tapped for mana — resolve
 inline as triggered mana abilities, off the stack per CR 605). These fire on the *manual* mana-ability
@@ -1884,8 +1886,7 @@ staticAbility { ability = GrantLandwalkOfChosenType() }
 
 - `ChooseActionEffect(choices)` — pick one effect from a list.
 - `ChooseColorThenEffect(whenChosen)` — pick a color, then apply a function of the color.
-- `ChooseColorAndGrantProtectionTo{Target,Group}Effect` — color → protection from that color.
-- `GrantHexproofFromChosenColorEffect(target)` — same shape, hexproof.
+- `GrantHexproofFromChosenColorEffect(target)` / `GrantProtectionFromChosenColorEffect(target)` — atoms that run inside `ChooseColorThen` and read the chosen color from context (hexproof / protection from that color). Wrap in `ForEachInGroup` for "creatures you control gain protection from the chosen color" (Akroma's Blessing).
 - `ChooseCreatureTypeEffect(...)` — pause for creature-type selection.
 - `Effects.ChooseCardName(storeAs, prompt?, excludeBasicLandNames?)` — name a card (`ChooseOptionEffect(OptionType.CARD_NAME)`); the chosen name is stored in `chosenValues[storeAs]`. Options are every registry card name (searchable list, not free text); `excludeBasicLandNames` drops the five basics. Match cards by it with `GameObjectFilter.namedFromVariable(storeAs)`. (Desperate Research)
 - `Effects.StoreCardName(from, storeAs)` — capture the name of the first card in collection `from` into `chosenValues[storeAs]`. The "choose a card, then act on cards of that name" counterpart to `ChooseCardName`. (Lobotomy)
