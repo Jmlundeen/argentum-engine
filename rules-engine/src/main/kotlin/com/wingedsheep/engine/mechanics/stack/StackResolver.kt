@@ -2168,7 +2168,12 @@ class StackResolver(
         for (pid in state.turnOrder) {
             val exileZone = ZoneKey(pid, Zone.EXILE)
             if (cardId in state.getZone(exileZone)) {
+                // A suspended card cast out of exile is no longer suspended (CR 702.62) — drop
+                // the marker so it doesn't ride along onto the resulting permanent (which reuses
+                // this entity id). The exile-side countdown trigger is gated on time counters,
+                // so a leftover marker would be inert, but this keeps the permanent clean.
                 val removed = state.removeFromZone(exileZone, cardId)
+                    .updateEntity(cardId) { it.without<com.wingedsheep.engine.state.components.battlefield.SuspendedComponent>() }
                 return com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
                     .unlinkFromAllLinkedExiles(removed, cardId)
             }

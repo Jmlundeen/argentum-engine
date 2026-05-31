@@ -194,6 +194,21 @@ enum class Keyword(val displayName: String) {
     MODULAR("Modular"),
     FADING("Fading"),
     VANISHING("Vanishing"),
+
+    /**
+     * Suspend (CR 702.62). A card with suspend can be exiled with a number of time
+     * counters on it. At the beginning of its owner's upkeep a time counter is removed,
+     * and when the last is removed its owner plays it without paying its mana cost (with
+     * haste, if it's a creature).
+     *
+     * The keyword is display-only. The exile-side behavior is component-driven, not
+     * definition-driven: any exiled card carrying the engine's suspended marker (set by
+     * [com.wingedsheep.sdk.dsl.Effects.Suspend]) gets the synthesized countdown-and-cast
+     * triggered ability ([com.wingedsheep.sdk.scripting.Suspend.countdownAbility]). This
+     * lets "exile it with N time counters; it gains suspend" effects (Taigam, Master
+     * Opportunist) suspend an arbitrary card — even a card with no printed suspend.
+     */
+    SUSPEND("Suspend"),
     RENOWN("Renown"),
     FABRICATE("Fabricate"),
     TRIBUTE("Tribute"),

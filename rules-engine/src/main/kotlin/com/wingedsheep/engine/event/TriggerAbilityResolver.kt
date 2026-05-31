@@ -7,6 +7,7 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.SuppressesWardForGroupComponent
+import com.wingedsheep.engine.state.components.battlefield.SuspendedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.RingBearerComponent
@@ -75,7 +76,13 @@ class TriggerAbilityResolver(
 
         val ringBearerAbilities = getRingBearerAbilities(entityId, state)
 
-        val allGranted = grantedAbilities + staticGrantedAbilities + attachedGrantedAbilities + wardAbilities + ringBearerAbilities
+        // A suspended card (CR 702.62) gains the owner's-upkeep countdown-and-cast ability
+        // while it carries the marker. Component-driven, so it works for an arbitrary card
+        // with no printed suspend (e.g. a spell exiled by Taigam, Master Opportunist).
+        val suspendAbilities = getSuspendTriggeredAbilities(entityId, state)
+
+        val allGranted = grantedAbilities + staticGrantedAbilities + attachedGrantedAbilities +
+            wardAbilities + ringBearerAbilities + suspendAbilities
         val combined = if (allGranted.isNotEmpty()) base + allGranted else base
 
         // Apply text replacement if the entity has one
@@ -86,6 +93,18 @@ class TriggerAbilityResolver(
             combined
         }
     }
+
+    /**
+     * Grant [com.wingedsheep.sdk.scripting.Suspend.countdownAbility] to any card carrying the
+     * [SuspendedComponent] marker. The ability functions only in exile (`activeZone == EXILE`),
+     * so it is inert anywhere else and harmless to return universally.
+     */
+    private fun getSuspendTriggeredAbilities(entityId: EntityId, state: GameState): List<TriggeredAbility> =
+        if (state.getEntity(entityId)?.has<SuspendedComponent>() == true) {
+            listOf(com.wingedsheep.sdk.scripting.Suspend.countdownAbility)
+        } else {
+            emptyList()
+        }
 
     /**
      * Get triggered abilities granted by static abilities on battlefield permanents.
@@ -193,7 +212,10 @@ class TriggerAbilityResolver(
         // they survive "loses all abilities" effects on the Ring-bearer (CR 701.52c).
         val ringBearerAbilities = getRingBearerAbilities(entityId, state)
 
-        val allGranted = grantedAbilities + staticGrantedAbilities + attachedGrantedAbilities + wardAbilities + ringBearerAbilities
+        val suspendAbilities = getSuspendTriggeredAbilities(entityId, state)
+
+        val allGranted = grantedAbilities + staticGrantedAbilities + attachedGrantedAbilities +
+            wardAbilities + ringBearerAbilities + suspendAbilities
         val combined = if (allGranted.isNotEmpty()) base + allGranted else base
 
         val textReplacement = state.getEntity(entityId)?.get<TextReplacementComponent>()

@@ -100,6 +100,19 @@ data object EvokedComponent : Component
 data object CastForImpendingComponent : Component
 
 /**
+ * Marks an exiled card as suspended (CR 702.62). The marker — not the card's printed
+ * abilities — is what the engine keys on, so an arbitrary card with no printed suspend can
+ * be suspended (e.g. Taigam, Master Opportunist exiles the spell you cast and grants it
+ * suspend). While present on an exiled card, [com.wingedsheep.engine.event.TriggerAbilityResolver]
+ * grants it [com.wingedsheep.sdk.scripting.Suspend.countdownAbility] — the owner's-upkeep
+ * countdown that removes a time counter and plays the card for free when the last is gone.
+ *
+ * Stripped when the card leaves exile by a non-cast path and when it leaves the battlefield.
+ */
+@Serializable
+data object SuspendedComponent : Component
+
+/**
  * Records the mana colors spent to cast this permanent.
  * Used by mana-spent-gated trigger conditions (e.g., "if {W}{W} was spent to cast it").
  * Stripped when the permanent leaves the battlefield.

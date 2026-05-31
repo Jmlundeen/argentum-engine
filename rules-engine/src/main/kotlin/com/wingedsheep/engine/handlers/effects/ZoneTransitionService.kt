@@ -205,6 +205,17 @@ object ZoneTransitionService {
             if (entityContainer != null && entityContainer.has<FaceDownComponent>()) {
                 newState = newState.updateEntity(entityId) { c -> c.without<FaceDownComponent>() }
             }
+            // A suspended card that leaves exile by any non-cast path (returned to hand,
+            // shuffled in, exiled elsewhere) is no longer suspended (CR 702.62). The cast
+            // path is guarded separately by the countdown's intervening-if, so a leftover
+            // marker is inert there.
+            if (entityContainer != null &&
+                entityContainer.has<com.wingedsheep.engine.state.components.battlefield.SuspendedComponent>()
+            ) {
+                newState = newState.updateEntity(entityId) { c ->
+                    c.without<com.wingedsheep.engine.state.components.battlefield.SuspendedComponent>()
+                }
+            }
         }
 
         // 6. Remove from current zone

@@ -54,6 +54,7 @@ class LibraryExecutors(
         ChooseOptionPipelineExecutor(cardRegistry = cardRegistry),
         GatherCardsExecutor(),
         CopyCardIntoCollectionExecutor(),
+        GrantSuspendExecutor(),
         SelectFromCollectionExecutor(),
         ChoosePileExecutor(),
         SelectTargetPipelineExecutor(targetFinder = targetFinder ?: TargetFinder()),

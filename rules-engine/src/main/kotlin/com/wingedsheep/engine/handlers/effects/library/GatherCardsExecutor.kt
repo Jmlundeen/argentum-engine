@@ -176,6 +176,12 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
                 val count = source.count
                 if (count != null) inExile.take(count) else inExile
             }
+
+            is CardSource.Self -> {
+                val sourceId = context.sourceId
+                    ?: return EffectResult.error(state, "No source entity for CardSource.Self")
+                if (state.getEntity(sourceId) != null) listOf(sourceId) else emptyList()
+            }
         }
 
         if (cards.isEmpty()) {

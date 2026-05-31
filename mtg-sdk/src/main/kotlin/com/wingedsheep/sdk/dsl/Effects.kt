@@ -87,6 +87,7 @@ import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.effects.SetLifeTotalEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
+import com.wingedsheep.sdk.scripting.effects.GrantSuspendEffect
 import com.wingedsheep.sdk.scripting.effects.LibraryChoicePosition
 import com.wingedsheep.sdk.scripting.effects.PutOnLibraryPositionOfChoiceEffect
 import com.wingedsheep.sdk.scripting.effects.ExileFromTopRepeatingEffect
@@ -1550,6 +1551,26 @@ object Effects {
      */
     fun CastFromCollectionWithoutPayingCost(from: String): Effect =
         CastFromCollectionWithoutPayingCostEffect(from = from)
+
+    /**
+     * Suspend an already-exiled [target] with [timeCounters] time counters (CR 702.62) — a
+     * reusable two-step chain: put N time counters on the card, then mark it suspended. The
+     * marker is what the engine keys on to synthesize the owner's-upkeep countdown that
+     * removes a counter each turn and, when the last is gone, lets the owner play the card
+     * for free with haste (see [com.wingedsheep.sdk.scripting.Suspend]).
+     *
+     * The caller is responsible for getting the card into exile first, because that step
+     * differs by source zone: a spell on the stack is exiled with [CounterSpellToExile]
+     * (Taigam, Master Opportunist exiles "the spell you cast"); a printed `suspend N—[cost]`
+     * exiles the card from hand as its cast cost.
+     */
+    fun Suspend(target: EffectTarget, timeCounters: Int): Effect =
+        CompositeEffect(
+            listOf(
+                AddCountersEffect(Counters.TIME, timeCounters, target),
+                GrantSuspendEffect(target),
+            )
+        )
 
     /**
      * Repeat a body effect in a do-while loop controlled by a repeat condition.

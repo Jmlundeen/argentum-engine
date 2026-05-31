@@ -282,6 +282,7 @@ object ZoneMovementUtils {
             .without<WarpedComponent>()
             .without<EvokedComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastForImpendingComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.SuspendedComponent>()
             // Note: CastRecordComponent is NOT stripped here — it needs to persist
             // for intervening-if checks on mana-spent-gated triggers that may still
             // be on the stack when the permanent leaves the battlefield (e.g., evoke).

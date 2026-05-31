@@ -175,6 +175,20 @@ sealed interface CardSource {
             append("cards exiled by this permanent")
         }
     }
+
+    /**
+     * The ability's own source card ([com.wingedsheep.sdk.scripting.references] sourceId).
+     *
+     * Yields a single-element collection referencing the source, regardless of which zone
+     * it currently occupies. Lets a self-referential ability feed its own card into a
+     * pipeline that expects a collection — e.g. the suspend countdown gathering the exiled
+     * card so [CastFromCollectionWithoutPayingCostEffect] can play it.
+     */
+    @SerialName("Self")
+    @Serializable
+    data object Self : CardSource {
+        override val description: String = "this card"
+    }
 }
 
 /**
