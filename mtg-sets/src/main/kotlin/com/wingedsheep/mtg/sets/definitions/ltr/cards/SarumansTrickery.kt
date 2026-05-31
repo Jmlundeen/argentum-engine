@@ -24,7 +24,7 @@ val SarumansTrickery = card("Saruman's Trickery") {
     spell {
         target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
-            .then(Effects.Amass(1))
+            .then(Effects.Amass(1, "Orc"))
     }
 
     metadata {

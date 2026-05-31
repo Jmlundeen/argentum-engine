@@ -58,7 +58,7 @@ val TheTormentOfGollum = card("The Torment of Gollum") {
                     destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
                     moveType = MoveType.Discard
                 ),
-                Effects.Amass(2)
+                Effects.Amass(2, "Orc")
             )
         )
     }

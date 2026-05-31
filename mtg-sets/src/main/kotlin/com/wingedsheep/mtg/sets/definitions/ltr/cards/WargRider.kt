@@ -44,7 +44,7 @@ val WargRider = card("Warg Rider") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = Effects.Amass(2)
+        effect = Effects.Amass(2, "Orc")
     }
 
     metadata {

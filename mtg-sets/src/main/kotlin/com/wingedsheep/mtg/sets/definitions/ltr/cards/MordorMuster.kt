@@ -25,7 +25,7 @@ val MordorMuster = card("Mordor Muster") {
     spell {
         effect = Effects.DrawCards(1)
             .then(Effects.LoseLife(1, EffectTarget.Controller))
-            .then(Effects.Amass(1))
+            .then(Effects.Amass(1, "Orc"))
     }
 
     metadata {

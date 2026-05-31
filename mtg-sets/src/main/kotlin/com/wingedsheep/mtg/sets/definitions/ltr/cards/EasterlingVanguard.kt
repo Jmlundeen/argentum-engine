@@ -24,7 +24,7 @@ val EasterlingVanguard = card("Easterling Vanguard") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = Effects.Amass(1)
+        effect = Effects.Amass(1, "Orc")
     }
 
     metadata {

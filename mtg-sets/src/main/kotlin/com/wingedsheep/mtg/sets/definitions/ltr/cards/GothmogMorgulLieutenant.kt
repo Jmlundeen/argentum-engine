@@ -30,7 +30,7 @@ val GothmogMorgulLieutenant = card("Gothmog, Morgul Lieutenant") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Amass(1)
+        effect = Effects.Amass(1, "Orc")
     }
 
     staticAbility {

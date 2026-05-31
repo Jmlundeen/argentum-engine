@@ -30,7 +30,7 @@ val DunlandCrebain = card("Dunland Crebain") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Amass(2)
+        effect = Effects.Amass(2, "Orc")
     }
 
     metadata {

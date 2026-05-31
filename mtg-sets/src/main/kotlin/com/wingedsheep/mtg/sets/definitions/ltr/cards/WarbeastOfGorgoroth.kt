@@ -32,7 +32,7 @@ val WarbeastOfGorgoroth = card("Warbeast of Gorgoroth") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY
         )
-        effect = Effects.Amass(2)
+        effect = Effects.Amass(2, "Orc")
     }
 
     metadata {

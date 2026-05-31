@@ -33,7 +33,7 @@ val TreasonOfIsengard = card("Treason of Isengard") {
             )
         )
         effect = Effects.PutOnTopOfLibrary(card)
-            .then(Effects.Amass(2))
+            .then(Effects.Amass(2, "Orc"))
     }
 
     metadata {

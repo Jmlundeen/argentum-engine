@@ -27,10 +27,10 @@ val BookOfMazarbul = card("Book of Mazarbul") {
         "III — Creatures you control get +1/+0 and gain menace until end of turn."
 
     sagaChapter(1) {
-        effect = Effects.Amass(1)
+        effect = Effects.Amass(1, "Orc")
     }
     sagaChapter(2) {
-        effect = Effects.Amass(2)
+        effect = Effects.Amass(2, "Orc")
     }
     sagaChapter(3) {
         effect = EffectPatterns.modifyStatsForAll(1, 0, GroupFilter.AllCreaturesYouControl)

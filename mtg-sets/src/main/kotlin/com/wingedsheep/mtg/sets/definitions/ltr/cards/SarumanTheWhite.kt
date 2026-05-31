@@ -30,7 +30,7 @@ val SarumanTheWhite = card("Saruman the White") {
 
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
-        effect = Effects.Amass(2)
+        effect = Effects.Amass(2, "Orc")
     }
 
     metadata {

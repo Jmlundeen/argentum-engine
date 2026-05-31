@@ -27,7 +27,7 @@ val AssaultOnOsgiliath = card("Assault on Osgiliath") {
         "an Army, create a 0/0 black Orc Army creature token first.)"
 
     spell {
-        effect = Effects.Amass(DynamicAmount.XValue)
+        effect = Effects.Amass(DynamicAmount.XValue, "Orc")
             .then(
                 ForEachInGroupEffect(
                     filter = GroupFilter(

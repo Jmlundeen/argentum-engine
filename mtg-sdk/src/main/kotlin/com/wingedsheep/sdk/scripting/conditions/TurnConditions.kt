@@ -186,8 +186,17 @@ data class SourceAbilityResolvedNTimesThisTurn(val count: Int) : Condition {
         1 -> "first"
         2 -> "second"
         3 -> "third"
-        else -> "${n}th"
+        else -> "$n${ordinalSuffix(n)}"
     }
+
+    /** English ordinal suffix: 21st, 22nd, 23rd, 24th, with the 11th/12th/13th exceptions. */
+    private fun ordinalSuffix(n: Int): String =
+        if (n % 100 in 11..13) "th" else when (n % 10) {
+            1 -> "st"
+            2 -> "nd"
+            3 -> "rd"
+            else -> "th"
+        }
 }
 
 // =============================================================================

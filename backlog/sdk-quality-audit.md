@@ -197,24 +197,31 @@ User counts are caller _files_ in `mtg-sets/src/main` (worktree copies excluded)
 
 ## LOW — opportunistic / cleanup
 
-- **Dead facade entries (0 callers):** `readTheRunes`, `destroyAllSharingTypeWithSacrificed`,
-  `takeFromLinkedExile`, `eachPlayerReturnsPermanentToHand`, `chooseCreatureTypeGainControl`, plus
-  redundant `EffectPatterns.connive` / `EffectPatterns.drain` aliases (cards reach the mechanics via
-  `Effects.*`). Remove after confirming no out-of-module references.
-- **`Int` amounts that should be `DynamicAmount`** (convert when a 2nd user lands):
-  `GrantDamageBonusEffect.bonusAmount` (`PlayerEffects.kt:389`, Flame of Keld);
-  `BudgetModalEffect.budget` (`CompositeEffects.kt:1021`); `TakeExtraTurnEffect.loseAtEndStep`
-  (`PlayerEffects.kt:116`) → generic `endOfExtraTurnEffect: Effect?`.
-- **`AmassEffect.subtype` defaults to `"Orc"`** (`AmassEffect.kt:22`) — bakes one set's flavor into a
-  generic primitive (Amass is a real keyword, CR 701.47). Make `subtype` required.
-- **`GainControlByActivePlayerEffect` vs `GiveControlToTargetPlayerEffect`**
-  (`ControlEffects.kt:46, 120`) — converge on one player-parametric
-  `GiveControl(permanent, newController, duration)`; the ActivePlayer variant is also missing a
-  `duration` field.
+- **Dead facade entries — claim was stale; only `drain` was actually dead. ✅ DONE.** Re-checking
+  callers showed the original "0 callers" list was wrong: `readTheRunes` (Read the Runes),
+  `destroyAllSharingTypeWithSacrificed` (Endemic Plague), `takeFromLinkedExile` (Parallel Thoughts),
+  `eachPlayerReturnsPermanentToHand` (Words of Wind), and `chooseCreatureTypeGainControl` (Peer
+  Pressure) are all **live** — each reached by a real card through its `Effects.*` wrapper. Deleting
+  them would break those cards, so they were kept. `EffectPatterns.connive` is likewise live
+  (`Effects.Connive`); kept as a consistent sibling of the ~40 other `EffectPatterns` delegations
+  rather than singled out. The only genuinely dead entry was **`drain`** (no `Effects.Drain` wrapper,
+  zero callers) — `EffectPatterns.drain` + `MiscPatterns.drain` + its DSL-reference line deleted.
+- **`Int` amounts that should be `DynamicAmount`** (convert when a 2nd user lands — deliberately left
+  per the no-premature-generalization rule): `GrantDamageBonusEffect.bonusAmount`
+  (`PlayerEffects.kt:389`, Flame of Keld); `BudgetModalEffect.budget` (`CompositeEffects.kt:1021`);
+  `TakeExtraTurnEffect.loseAtEndStep` (`PlayerEffects.kt:116`) → generic `endOfExtraTurnEffect: Effect?`.
+- **`AmassEffect.subtype` defaulted to `"Orc"` ✅ DONE.** Default removed from `AmassEffect` and both
+  `Effects.Amass` overloads; the keyword's subtype is now required (Amass is CR 701.47 and the Army's
+  type is printed on each card). All 19 LTR call sites updated to pass `"Orc"` explicitly.
+- **`GainControlByActivePlayerEffect` vs `GiveControlToTargetPlayerEffect`** (`ControlEffects.kt:46, 120`)
+  — converge on one player-parametric `GiveControl(permanent, newController, duration)`. **Deferred:**
+  the merge needs a new `Player.ActivePlayer` reference (none exists today) whose addition ripples
+  through every exhaustive `when (player)` in the SDK + engine and reworks the hardcoded "target
+  opponent gains control" description — feature-sized blast radius, not opportunistic cleanup.
 - **`ForceExileMultiZoneEffect`** (`RemovalEffects.kt:448`) — zone set hardcoded in name/behavior;
-  1 user. Parameterize `zones: Set<Zone>` if a second multi-zone-exile card appears.
-- **Cosmetic:** `SourceAbilityResolvedNTimesThisTurn` ordinal produces "21th"/"22th"
-  (`TurnConditions.kt:199`) — only special-cases 1–3.
+  1 user. Parameterize `zones: Set<Zone>` if a second multi-zone-exile card appears. (Deferred to 2nd user.)
+- **Cosmetic:** `SourceAbilityResolvedNTimesThisTurn` ordinal produced "21th"/"22th" ✅ DONE — added an
+  `ordinalSuffix` helper (21st/22nd/23rd/24th, with the 11–13 exceptions) in `TurnConditions.kt`.
 
 ---
 
@@ -250,4 +257,6 @@ Each touches shared SDK types with cross-layer wiring, so route through the **`a
 5. #5 protection combinator ✅ done · #6 `OpenLifeBidEffect` rename ✅ done · #7 shared tally ⚠️ partial (types not yet merged)
 6. Remaining MEDIUM: #8 `CopyNextSpellCast` spellFilter (not done)
 7. #9 inline single-card `EffectPatterns` helpers (not done — all 15 still present)
-8. LOW cleanup (not done; ordinal still emits "21th"/"22th")
+8. LOW cleanup ✅ actionable items done — dead `drain` removed (the rest of the "dead facade" list
+   was stale: all live), `AmassEffect.subtype` made required, ordinal fixed. Convergence + the two
+   "wait for 2nd user" items deliberately deferred (see LOW section for rationale).

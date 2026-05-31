@@ -30,12 +30,12 @@ val OrcishMedicine = card("Orcish Medicine") {
             mode("Target creature gains lifelink until end of turn") {
                 val creature = target("target creature", Targets.Creature)
                 effect = Effects.GrantKeyword(Keyword.LIFELINK, creature)
-                    .then(Effects.Amass(1))
+                    .then(Effects.Amass(1, "Orc"))
             }
             mode("Target creature gains indestructible until end of turn") {
                 val creature = target("target creature", Targets.Creature)
                 effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
-                    .then(Effects.Amass(1))
+                    .then(Effects.Amass(1, "Orc"))
             }
         }
     }

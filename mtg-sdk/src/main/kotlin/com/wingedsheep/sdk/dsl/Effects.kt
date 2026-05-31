@@ -567,11 +567,11 @@ object Effects {
      * control, creating a 0/0 black [subtype] Army token first if they control no Army, and the
      * chosen Army becomes that subtype in addition to its other types.
      */
-    fun Amass(count: Int, subtype: String = "Orc"): Effect =
+    fun Amass(count: Int, subtype: String): Effect =
         com.wingedsheep.sdk.scripting.effects.AmassEffect(DynamicAmount.Fixed(count), subtype)
 
     /** "Amass [subtype] X" with a dynamic amount (e.g. Fall of Cair Andros, The Mouth of Sauron). */
-    fun Amass(amount: DynamicAmount, subtype: String = "Orc"): Effect =
+    fun Amass(amount: DynamicAmount, subtype: String): Effect =
         com.wingedsheep.sdk.scripting.effects.AmassEffect(amount, subtype)
 
     /**

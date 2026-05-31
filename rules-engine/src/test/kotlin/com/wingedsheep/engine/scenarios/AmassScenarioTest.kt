@@ -38,13 +38,13 @@ class AmassScenarioTest : FunSpec({
         manaCost = "{0}"
         typeLine = "Sorcery"
         oracleText = "Amass Orcs 2."
-        spell { effect = Effects.Amass(2) }
+        spell { effect = Effects.Amass(2, "Orc") }
     }
     val AmassOne = card("Amass One") {
         manaCost = "{0}"
         typeLine = "Sorcery"
         oracleText = "Amass Orcs 1."
-        spell { effect = Effects.Amass(1) }
+        spell { effect = Effects.Amass(1, "Orc") }
     }
 
     // Pre-existing Armies for the multi-Army choice. Base 2/2 so they survive state-based actions.
@@ -67,7 +67,7 @@ class AmassScenarioTest : FunSpec({
         keywords(Keyword.FLYING)
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
-            effect = Effects.Amass(2)
+            effect = Effects.Amass(2, "Orc")
         }
     }
 
@@ -84,7 +84,7 @@ class AmassScenarioTest : FunSpec({
                 to = Zone.GRAVEYARD,
                 binding = TriggerBinding.ANY
             )
-            effect = Effects.Amass(2)
+            effect = Effects.Amass(2, "Orc")
         }
     }
 

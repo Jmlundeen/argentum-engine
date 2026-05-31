@@ -564,7 +564,6 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
 - `rummage(count?)` — discard then draw.
 - `connive(target?)` — draw 1, discard 1, then put a +1/+1 counter on `target` if the discard was a nonland (CR 702.166). Also exposed as `Effects.Connive(target)`.
 - `readTheRunes()` — "draw X cards; for each, discard a card unless you sacrifice a permanent." Composes `RepeatDynamicTimesEffect(XValue, ChooseActionEffect(...))` with feasibility guards. Exposed as `Effects.ReadTheRunes()`.
-- `drain(amount, target)` — deal N damage, gain N life.
 - `eachOpponentMayPutFromHand(filter?)` — each opponent may dump a matching card.
 - `putFromHand(filter?, count?, entersTapped?)` — you may put N from hand onto battlefield.
 - `incubate(n)` — make an Incubator token with N counters.
@@ -2138,8 +2137,9 @@ Card authors rarely reference these directly; they are created/updated by the ma
   `RingBearerCantBeBlockedByGreaterPowerRule`; the ≥2/≥3/≥4 triggered abilities are appended to the bearer by
   `TriggerAbilityResolver` (see `TheRingAbilities`). For card triggers/checks use `Triggers.RingTemptsYou`
   ("Whenever the Ring tempts you") and `Conditions.SourceIsRingBearer` ("if this is your Ring-bearer").
-- **Amass [subtype] N (CR 701.47)** — `Effects.Amass(count, subtype = "Orc")` (fixed) or
-  `Effects.Amass(amount, subtype)` (a `DynamicAmount`, for "amass Orcs X"). If the controller controls no Army
+- **Amass [subtype] N (CR 701.47)** — `Effects.Amass(count, subtype)` (fixed) or
+  `Effects.Amass(amount, subtype)` (a `DynamicAmount`, for "amass Orcs X"). `subtype` is required (no default) —
+  the amassed Army's type is printed on each card (Orcs for the LTR cards). If the controller controls no Army
   creature, a 0/0 black `[subtype]` Army token is created first (composing `CreateTokenEffect`); then they put N
   +1/+1 counters on an Army they control (a `SelectCardsDecision` resolved by `AmassContinuation` picks which one
   when they control several) and that Army becomes the subtype if it isn't already. The counter/subtype back half

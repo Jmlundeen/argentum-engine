@@ -22,7 +22,7 @@ val SwarmingOfMoria = card("Swarming of Moria") {
 
     spell {
         effect = Effects.CreateTreasure()
-            .then(Effects.Amass(2))
+            .then(Effects.Amass(2, "Orc"))
     }
 
     metadata {
