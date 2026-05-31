@@ -1,6 +1,5 @@
 package com.wingedsheep.engine.handlers.effects
 
-import com.wingedsheep.engine.core.CardsDrawnEvent
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.core.EffectResult
@@ -31,7 +30,6 @@ import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.player.DamageBonusComponent
-import com.wingedsheep.engine.handlers.effects.drawing.DrawCardPrimitive
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.sdk.scripting.NoncombatDamageBonus
@@ -48,7 +46,6 @@ import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.PreventLifeGain
 import com.wingedsheep.sdk.scripting.RedirectDamage
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
-import com.wingedsheep.sdk.scripting.effects.PreventionReaction
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.events.SourceFilter
@@ -64,6 +61,13 @@ object DamageUtils {
     private val predicateEvaluator = PredicateEvaluator()
     private val conditionEvaluator = ConditionEvaluator()
     lateinit var cardRegistry: CardRegistry
+
+    /**
+     * Runs an arbitrary [Effect] through the full effect pipeline. Injected by [EngineServices]
+     * (the effect-executor registry) so prevention shields can run their `onPrevented` follow-up
+     * effect without DamageUtils depending on the executor registry directly.
+     */
+    lateinit var effectRunner: (GameState, com.wingedsheep.sdk.scripting.effects.Effect, EffectContext) -> EffectResult
 
     /**
      * Deal damage to a target (player or creature).
@@ -672,21 +676,27 @@ object DamageUtils {
     }
 
     /**
-     * Check for single-instance chosen-source prevention shields with reactions (Deflecting Palm,
-     * New Way Forward).
+     * Check for single-instance chosen-source prevention shields with a follow-up effect
+     * (Deflecting Palm, New Way Forward).
      *
-     * Scans floating effects for [SerializableModification.DeflectNextDamageFromSource] matching the
-     * damage source. If found, consumes the shield (one instance prevented) and runs each
-     * [PreventionReaction] in order against the prevented amount:
-     * - [PreventionReaction.DealToSourceController] deals that much damage to the source's controller,
-     *   sourced from the shield's own card.
-     * - [PreventionReaction.ControllerDrawsCards] has the protected player draw that many cards.
+     * Scans floating effects for [SerializableModification.PreventNextDamageFromSourceWithReaction]
+     * matching the damage source. If found, consumes the shield (one instance prevented) and runs
+     * its arbitrary `onPrevented` effect through the normal effect pipeline ([effectRunner]) with:
+     * - the prevented amount bound to `DynamicAmount.ContextProperty(PREVENTED_DAMAGE_AMOUNT)`
+     *   (carried in [EffectContext.triggerDamageAmount]),
+     * - the prevented source reachable as `EffectTarget.ControllerOfTriggeringEntity`
+     *   (carried in [EffectContext.triggeringEntityId]),
+     * - the shield's own card as the effect source ([EffectContext.sourceId]) and the protected
+     *   player as the controller ([EffectContext.controllerId], so "you draw" resolves correctly).
+     *
+     * The follow-up runs inline as the damage is prevented (not as a separate stack trigger), so it
+     * must be non-interactive — `DealDamage` to a player and `DrawCards` are, which covers both users.
      *
      * @param state The current game state
      * @param targetId The entity about to receive damage (the protected player — the shield's affected entity)
      * @param damageAmount The amount of damage about to be dealt (and thus prevented)
      * @param sourceId The entity dealing the damage
-     * @return ExecutionResult if a shield matched (damage prevented + reactions applied), null otherwise
+     * @return ExecutionResult if a shield matched (damage prevented + follow-up applied), null otherwise
      */
     fun checkDeflectDamageShield(
         state: GameState,
@@ -696,80 +706,30 @@ object DamageUtils {
     ): EffectResult? {
         val shieldIndex = state.floatingEffects.indexOfFirst { effect ->
             val mod = effect.effect.modification
-            mod is SerializableModification.DeflectNextDamageFromSource &&
+            mod is SerializableModification.PreventNextDamageFromSourceWithReaction &&
                 mod.damageSourceId == sourceId &&
                 targetId in effect.effect.affectedEntities
         }
         if (shieldIndex == -1) return null
 
         val shield = state.floatingEffects[shieldIndex]
-        val mod = shield.effect.modification as SerializableModification.DeflectNextDamageFromSource
+        val mod = shield.effect.modification as SerializableModification.PreventNextDamageFromSourceWithReaction
 
         // Consume the shield (one damage instance prevented).
         val updatedEffects = state.floatingEffects.toMutableList()
         updatedEffects.removeAt(shieldIndex)
-        var newState = state.copy(floatingEffects = updatedEffects)
-        val events = mutableListOf<EngineGameEvent>()
+        val newState = state.copy(floatingEffects = updatedEffects)
 
-        // Run each reaction keyed to the prevented amount, in listed order.
-        for (reaction in mod.reactions) {
-            when (reaction) {
-                is PreventionReaction.DealToSourceController -> {
-                    // Deal the prevented amount to the source's controller, sourced from the shield card.
-                    // If the source has no controller (e.g., it left the game), the damage is still
-                    // prevented — there is just nothing to reflect to.
-                    val sourceController = newState.getEntity(sourceId)?.get<ControllerComponent>()?.playerId
-                    if (sourceController != null) {
-                        val result = dealDamageToTarget(newState, sourceController, damageAmount, mod.deflectSourceId)
-                        newState = result.state
-                        events.addAll(result.events)
-                    }
-                }
-
-                is PreventionReaction.ControllerDrawsCards -> {
-                    // The protected player draws cards equal to the prevented amount.
-                    val (drawState, drawEvents) = drawCardsInline(newState, targetId, damageAmount)
-                    newState = drawState
-                    events.addAll(drawEvents)
-                }
-            }
-        }
-
-        return EffectResult.success(newState, events)
-    }
-
-    /**
-     * Draw [count] cards for [playerId] inline (used by prevention reactions that fire mid-damage,
-     * where pausing for draw-replacement prompts is not possible). Delegates each card to the shared
-     * [DrawCardPrimitive] (which handles empty-library loss, Rule 704.5c) and aggregates a single
-     * [CardsDrawnEvent] over the batch, matching the normal draw path's event shape.
-     */
-    private fun drawCardsInline(
-        state: GameState,
-        playerId: EntityId,
-        count: Int
-    ): Pair<GameState, List<EngineGameEvent>> {
-        if (count <= 0) return state to emptyList()
-        val primitive = DrawCardPrimitive(cardRegistry)
-        var current = state
-        val perCardEvents = mutableListOf<EngineGameEvent>()
-        val drawnIds = mutableListOf<EntityId>()
-        var remaining = count
-        while (remaining > 0) {
-            val result = primitive.drawOne(current, playerId)
-            current = result.state
-            perCardEvents.addAll(result.events)
-            if (result.failed) break // library empty — player is marked as having lost; stop drawing
-            result.drawnCardId?.let { drawnIds.add(it) }
-            remaining--
-        }
-        val events = mutableListOf<EngineGameEvent>()
-        if (drawnIds.isNotEmpty()) {
-            val cardNames = drawnIds.map { current.getEntity(it)?.get<CardComponent>()?.name ?: "Card" }
-            events.add(CardsDrawnEvent(playerId, drawnIds.size, drawnIds, cardNames))
-        }
-        events.addAll(perCardEvents)
-        return current to events
+        // Damage is prevented. Run the follow-up effect (if any) against the prevented amount.
+        val onPrevented = mod.onPrevented ?: return EffectResult.success(newState)
+        val reactionContext = EffectContext(
+            sourceId = mod.reactionSourceId,
+            controllerId = targetId,
+            opponentId = null,
+            triggeringEntityId = sourceId,
+            triggerDamageAmount = damageAmount
+        )
+        return effectRunner(newState, onPrevented, reactionContext)
     }
 
     /**

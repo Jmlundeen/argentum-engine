@@ -257,7 +257,7 @@ class CombatContinuationResumer(
         val chosenSourceId = response.selectedCards.firstOrNull()
             ?: return ExecutionResult.error(state, "No source selected")
 
-        val (effectiveState, deflectSourceId) = if (continuation.sourceId != null) {
+        val (effectiveState, reactionSourceId) = if (continuation.sourceId != null) {
             state to continuation.sourceId
         } else {
             val (id, s) = state.newEntity()
@@ -271,10 +271,10 @@ class CombatContinuationResumer(
         )
         val newState = effectiveState.addFloatingEffect(
             layer = Layer.ABILITY,
-            modification = SerializableModification.DeflectNextDamageFromSource(
+            modification = SerializableModification.PreventNextDamageFromSourceWithReaction(
                 damageSourceId = chosenSourceId,
-                deflectSourceId = deflectSourceId,
-                reactions = continuation.reactions
+                reactionSourceId = reactionSourceId,
+                onPrevented = continuation.onPrevented
             ),
             affectedEntities = setOf(continuation.controllerId),
             duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn,

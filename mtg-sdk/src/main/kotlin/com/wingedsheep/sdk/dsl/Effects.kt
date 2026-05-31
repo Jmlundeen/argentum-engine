@@ -146,7 +146,6 @@ import com.wingedsheep.sdk.scripting.effects.ForceExileMultiZoneEffect
 import com.wingedsheep.sdk.scripting.effects.LoseGameEffect
 import com.wingedsheep.sdk.scripting.effects.PreventDamageEffect
 import com.wingedsheep.sdk.scripting.effects.PreventionDirection
-import com.wingedsheep.sdk.scripting.effects.PreventionReaction
 import com.wingedsheep.sdk.scripting.effects.PreventionScope
 import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 import com.wingedsheep.sdk.scripting.effects.HijackNextTurnEffect
@@ -158,6 +157,7 @@ import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 
@@ -2033,22 +2033,31 @@ object Effects {
 
     /**
      * Choose a source on resolution, prevent the next damage it would deal to you this turn,
-     * then run [onPrevented] reactions keyed to the prevented amount. The chain primitive behind
-     * the "the next time a source of your choice would deal damage to you this turn, prevent that
-     * damage. When damage is prevented this way, …" cards (Deflecting Palm, New Way Forward).
+     * then run [onPrevented] — an arbitrary follow-up effect — when that damage is prevented.
+     * The follow-up runs with the prevented amount bound as
+     * `DynamicAmount.ContextProperty(ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT)` and the prevented
+     * source's controller reachable as `EffectTarget.ControllerOfTriggeringEntity`, sourced from this
+     * card. Compose the payoff from ordinary atomic effects — no bespoke reaction type:
+     * Deflecting Palm reflects (`DealDamage(ControllerOfTriggeringEntity, preventedAmount)`);
+     * New Way Forward reflects and draws.
      */
-    fun PreventNextDamageFromChosenSourceThen(vararg onPrevented: PreventionReaction): Effect =
+    fun PreventNextDamageFromChosenSource(onPrevented: Effect): Effect =
         PreventDamageEffect(
             sourceFilter = PreventionSourceFilter.ChosenSource,
-            onPrevented = onPrevented.toList()
+            onPrevented = onPrevented
         )
 
     /**
-     * Choose a source, prevent the next damage it would deal to you this turn,
-     * and deal that much damage to its controller (Deflecting Palm).
+     * Choose a source, prevent the next damage it would deal to you this turn, and deal that much
+     * damage to its controller (Deflecting Palm) — the canonical reflect, expressed as a follow-up.
      */
     fun DeflectNextDamageFromChosenSource(): Effect =
-        PreventNextDamageFromChosenSourceThen(PreventionReaction.DealToSourceController)
+        PreventNextDamageFromChosenSource(
+            onPrevented = DealDamageEffect(
+                amount = DynamicAmount.ContextProperty(ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT),
+                target = EffectTarget.ControllerOfTriggeringEntity
+            )
+        )
 
     /**
      * Prevent the next N damage that would be dealt to a target this turn by a source of your choice.

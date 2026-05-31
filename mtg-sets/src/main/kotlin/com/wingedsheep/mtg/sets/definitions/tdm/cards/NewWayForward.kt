@@ -3,7 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PreventionReaction
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * New Way Forward — Tarkir: Dragonstorm #211
@@ -13,9 +15,12 @@ import com.wingedsheep.sdk.scripting.effects.PreventionReaction
  * When damage is prevented this way, New Way Forward deals that much damage to that source's
  * controller and you draw that many cards.
  *
- * Deflecting Palm's prevent-and-reflect chain (a chosen-source prevention shield whose prevented
- * amount feeds [PreventionReaction.DealToSourceController]), plus an extra
- * [PreventionReaction.ControllerDrawsCards] link so you also draw that many cards.
+ * Composes the chosen-source prevention shield with an arbitrary follow-up effect: when the damage
+ * is prevented, deal the prevented amount to the source's controller and draw that many cards. Both
+ * the damage and the draw read the prevented amount via [ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT];
+ * "that source's controller" is [EffectTarget.ControllerOfTriggeringEntity] (the same pair Tephraderm
+ * uses for "that much damage to that spell's controller"). Deflecting Palm is the same shield with
+ * only the reflect half.
  *
  * Does not target: the source is chosen as New Way Forward resolves.
  */
@@ -27,9 +32,12 @@ val NewWayForward = card("New Way Forward") {
         "When damage is prevented this way, New Way Forward deals that much damage to that source's controller and you draw that many cards."
 
     spell {
-        effect = Effects.PreventNextDamageFromChosenSourceThen(
-            PreventionReaction.DealToSourceController,
-            PreventionReaction.ControllerDrawsCards
+        val preventedAmount = DynamicAmount.ContextProperty(ContextPropertyKey.PREVENTED_DAMAGE_AMOUNT)
+        effect = Effects.PreventNextDamageFromChosenSource(
+            onPrevented = Effects.Composite(
+                Effects.DealDamage(amount = preventedAmount, target = EffectTarget.ControllerOfTriggeringEntity),
+                Effects.DrawCards(count = preventedAmount)
+            )
         )
     }
 

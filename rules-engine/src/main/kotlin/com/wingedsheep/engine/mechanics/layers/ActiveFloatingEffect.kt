@@ -4,7 +4,6 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.PreventionReaction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import kotlinx.serialization.Serializable
@@ -389,24 +388,27 @@ sealed interface SerializableModification {
     data object RemoveAllAbilities : SerializableModification
 
     /**
-     * Single-instance prevention shield tied to a chosen source, with composable reactions keyed to
-     * the prevented amount: the next time [damageSourceId] would deal damage to the affected player
-     * this turn, prevent that damage, then run each [reactions] entry against the prevented amount.
-     * The shield is consumed after preventing one damage instance and removed.
+     * Single-instance prevention shield tied to a chosen source, with an arbitrary follow-up effect:
+     * the next time [damageSourceId] would deal damage to the affected player this turn, prevent that
+     * damage, then run [onPrevented] (if any). The shield is consumed after preventing one damage
+     * instance and removed.
      *
-     * `[DealToSourceController]` reflects the damage to the source's controller (Deflecting Palm);
-     * `[DealToSourceController, ControllerDrawsCards]` additionally draws that many cards
-     * (New Way Forward).
+     * The follow-up runs with the prevented amount bound as
+     * `DynamicAmount.ContextProperty(PREVENTED_DAMAGE_AMOUNT)` and the prevented source's controller
+     * reachable as `EffectTarget.ControllerOfTriggeringEntity`, sourced from [reactionSourceId]. So
+     * Deflecting Palm's `onPrevented` is `DealDamage(ControllerOfTriggeringEntity, preventedAmount)`
+     * and New Way Forward's is that plus `DrawCards(preventedAmount)` — plain effect composition,
+     * not a bespoke reaction type.
      *
      * @property damageSourceId The chosen source whose damage will be prevented
-     * @property deflectSourceId The entity that created this shield (e.g., Deflecting Palm) — used as the source of the reflected damage
-     * @property reactions What to do with the prevented amount, in order. Defaults to reflect-only for backward compatibility.
+     * @property reactionSourceId The entity that created this shield (e.g., New Way Forward) — used as the source of the follow-up effect
+     * @property onPrevented Arbitrary follow-up effect run against the prevented amount; null = pure prevention
      */
     @Serializable
-    data class DeflectNextDamageFromSource(
+    data class PreventNextDamageFromSourceWithReaction(
         val damageSourceId: EntityId,
-        val deflectSourceId: EntityId,
-        val reactions: List<PreventionReaction> = listOf(PreventionReaction.DealToSourceController)
+        val reactionSourceId: EntityId,
+        val onPrevented: Effect? = null
     ) : SerializableModification
 
     /**
@@ -494,8 +496,8 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.PreventCombatDamageToAndBy -> Modification.NoOp
     // RedirectCombatDamageToController doesn't map to a layer modification - it's checked by CombatManager directly
     is SerializableModification.RedirectCombatDamageToController -> Modification.NoOp
-    // DeflectNextDamageFromSource doesn't map to a layer modification - it's checked during damage resolution directly
-    is SerializableModification.DeflectNextDamageFromSource -> Modification.NoOp
+    // PreventNextDamageFromSourceWithReaction doesn't map to a layer modification - it's checked during damage resolution directly
+    is SerializableModification.PreventNextDamageFromSourceWithReaction -> Modification.NoOp
     // PreventAllDamageFromSource doesn't map to a layer modification - it's checked during damage resolution directly
     is SerializableModification.PreventAllDamageFromSource -> Modification.NoOp
     is SerializableModification.RemoveAllAbilities -> Modification.RemoveAllAbilities

@@ -159,12 +159,14 @@ the overwhelming majority of the set.
     → **All-Out Assault**
 
 16. **Prevent-and-redirect-and-draw.** ✅ **DONE.** Prevent the next damage from a chosen source, then deal the
-    *prevented amount* to that source's controller and draw that many cards. Modeled as a composable
-    **prevent-and-react chain**, not a bespoke effect: the existing chosen-source prevention shield
-    (Deflecting Palm) now carries a `List<PreventionReaction>` keyed to the prevented amount.
-    `DealToSourceController` is the old reflect; `ControllerDrawsCards` is the new draw link.
-    Deflecting Palm = `[DealToSourceController]`; New Way Forward =
-    `PreventNextDamageFromChosenSourceThen(DealToSourceController, ControllerDrawsCards)`.
+    *prevented amount* to that source's controller and draw that many cards. No bespoke effect: the
+    chosen-source prevention shield (Deflecting Palm) now carries an **arbitrary `onPrevented: Effect?`**
+    run when the shield fires, with the prevented amount bound as
+    `DynamicAmount.ContextProperty(PREVENTED_DAMAGE_AMOUNT)` and the source's controller reachable as
+    `EffectTarget.ControllerOfTriggeringEntity` (the same pair Tephraderm uses). The payoff is plain
+    effect composition: Deflecting Palm = `DealDamage(ControllerOfTriggeringEntity, preventedAmount)`;
+    New Way Forward = `Composite(DealDamage(…), DrawCards(preventedAmount))`. The shield runs the
+    follow-up via an injected effect runner, so any future "when prevented" payoff composes for free.
     → **New Way Forward**
 
 17. **Free-cast-from-exile gated by a dynamic MV cap.** Exile top X of opponent's library (X =
