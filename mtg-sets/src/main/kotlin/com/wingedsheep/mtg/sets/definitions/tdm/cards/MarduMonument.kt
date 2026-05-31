@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -63,12 +62,12 @@ val MarduMonument = card("Mardu Monument") {
         effect = CompositeEffect(
             buildList {
                 add(
-                    CreateTokenEffect(
-                        count = 3,
+                    Effects.CreateToken(
                         power = 1,
                         toughness = 1,
                         colors = setOf(Color.RED),
                         creatureTypes = setOf("Warrior"),
+                        count = 3,
                         imageUri = "https://cards.scryfall.io/normal/front/7/e/7edc0515-a130-45a7-aa09-0e23bba41587.jpg?1742506712"
                     )
                 )
