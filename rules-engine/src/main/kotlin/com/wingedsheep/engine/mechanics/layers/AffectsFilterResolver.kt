@@ -325,6 +325,15 @@ internal class AffectsFilterResolver {
         StatePredicate.WasDealtDamageThisTurn -> container.has<WasDealtDamageThisTurnComponent>()
         StatePredicate.HasDealtDamage -> container.has<HasDealtDamageComponent>()
         StatePredicate.HasDealtCombatDamageToPlayer -> container.has<HasDealtCombatDamageToPlayerComponent>()
+        StatePredicate.AttackedThisTurn -> {
+            val controllerId = container.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
+            val attackerSet = controllerId?.let {
+                state.getEntity(it)
+                    ?.get<com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent>()
+                    ?.attackerIds
+            } ?: emptySet()
+            entityId in attackerSet
+        }
         StatePredicate.IsFaceDown -> isFaceDown
         StatePredicate.IsFaceUp -> !isFaceDown
         StatePredicate.HasMorphAbility ->

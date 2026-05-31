@@ -124,6 +124,20 @@ sealed interface StatePredicate {
         override val description: String = "has dealt combat damage to a player"
     }
 
+    /**
+     * Was declared as an attacker at least once during the current turn (CR 506.2 — applies
+     * once the controller has declared attackers). Backed by the controller's
+     * [com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent] (which
+     * the engine already maintains for raid / "attacked this turn" tribal triggers), so it
+     * does not need a separate per-entity marker. Survives leaving combat / blockers being
+     * declared; cleared at end-of-turn cleanup alongside the player marker.
+     */
+    @SerialName("AttackedThisTurn")
+    @Serializable
+    data object AttackedThisTurn : History {
+        override val description: String = "attacked this turn"
+    }
+
     // =============================================================================
     // Face-Down State (Entity)
     // =============================================================================

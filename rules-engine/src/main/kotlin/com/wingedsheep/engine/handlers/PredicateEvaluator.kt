@@ -660,6 +660,18 @@ class PredicateEvaluator {
                 container.has<HasDealtCombatDamageToPlayerComponent>()
             }
 
+            // Whether this creature has been declared as an attacker this turn — derived
+            // from the controller's PlayerAttackersThisTurnComponent, the same set that
+            // backs raid / "you attacked with N creatures this turn" tribal triggers.
+            StatePredicate.AttackedThisTurn -> {
+                val controllerId = container.get<ControllerComponent>()?.playerId
+                    ?: return false
+                val attackerSet = state.getEntity(controllerId)
+                    ?.get<com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent>()
+                    ?.attackerIds ?: emptySet()
+                entityId in attackerSet
+            }
+
             // Face-down state
             StatePredicate.IsFaceDown -> container.has<FaceDownComponent>()
             StatePredicate.IsFaceUp -> !container.has<FaceDownComponent>()
