@@ -10,7 +10,7 @@ Verify status anytime with: `scripts/card-status --set LTR` (and `--list --set L
 
 ## Status
 
-Draft cards at **163/261**. Almost every card still unchecked in `cards.md` (excluding the
+Draft cards at **166/261**. Almost every card still unchecked in `cards.md` (excluding the
 five basic lands, which `basicLandsFallback` covers) needs at least one new engine primitive
 — see the "Engine gaps blocking the remaining cards" section below. Each card is listed under
 the primitive it is waiting on, with the exact blocking clause. Stop and open a dedicated
@@ -22,13 +22,15 @@ Healing**, **Glorfindel, Dauntless Rescuer**, **Legolas, Counter of Kills**, **N
 Watcher**, and **Elvish Mariner** (Extra) — all unblocked when the `WheneverYouScry` trigger
 landed. Elrond Lord of Rivendell, Galadriel of Lothlórien, Lost Isle Calling, and Palantír of
 Orthanc previously listed under that gap still need a secondary primitive (see Gaps 3, 6).
-The Gap 12 primitives (`EntityReference.AmassedArmy` + excess-damage trigger) also unblocked:
-**Foray of Orcs**, **Surrounded by Orcs**, and **Fall of Cair Andros**. Grishnákh, Brash
-Instigator still needs pipeline state threaded into target-predicate filters (its "with power
-≤ the amassed Army's power" filter resolves the reference to `null` during targeting today).
-Shagrat Loot Bearer still needs attach-equipment-on-attack, and The Mouth of Sauron still
-needs a dynamic Amass amount keyed to a targeted player's graveyard — both expressible by
-composing existing dynamic-amount primitives in those cards' implementations.
+The Gap 12 primitives (`EntityReference.AmassedArmy` + excess-damage trigger), now followed
+by `ReflexiveTriggerEffect`/`AmassContinuationResumer` threading the AmassedArmy pipeline
+slot, shipped **Foray of Orcs**, **Surrounded by Orcs**, and **Fall of Cair Andros**.
+Grishnákh, Brash Instigator still needs pipeline state threaded into target-predicate
+filters (its "with power ≤ the amassed Army's power" filter resolves the reference to
+`null` during targeting today). Shagrat Loot Bearer still needs attach-equipment-on-attack,
+and The Mouth of Sauron still needs a dynamic Amass amount keyed to a targeted player's
+graveyard — both expressible by composing existing dynamic-amount primitives in those
+cards' implementations.
 
 ## Data sources — do NOT hit the network
 
