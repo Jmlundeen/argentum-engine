@@ -71,7 +71,10 @@ class AmassExecutor(
             val applied = AmassResolution.applyToArmy(
                 createResult.state, tokenId, controllerId, opponentId, subtype, amount, context.sourceId, executeEffect
             )
-            return EffectResult.success(applied.state, createResult.events + applied.events)
+            // Preserve the AmassedArmy pipeline entry produced by AmassResolution so a
+            // composite "Amass X. Then [effect using amassed Army's power]" still threads
+            // the just-amassed token into the follow-up effect.
+            return applied.copy(events = createResult.events + applied.events)
         }
 
         // Exactly one Army → no choice to make.

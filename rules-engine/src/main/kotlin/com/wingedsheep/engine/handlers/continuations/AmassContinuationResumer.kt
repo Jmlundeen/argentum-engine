@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.continuations
 import com.wingedsheep.engine.core.AmassContinuation
 import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.DecisionResponse
+import com.wingedsheep.engine.core.EffectContinuation
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.handlers.effects.player.AmassResolution
@@ -46,6 +47,30 @@ class AmassContinuationResumer(
             executeEffect = services.effectExecutorRegistry::execute
         )
 
-        return checkForMore(result.state, result.events)
+        // The synchronous Amass paths thread `updatedCollections` (the AmassedArmy pipeline
+        // slot) back through the composite executor. The multi-Army resume path runs after
+        // the parent composite has already pushed its EffectContinuation, so we inject the
+        // slot into that pending frame directly — same pattern as LibraryAndZoneContinuationResumer.
+        val stateWithArmyExposed = if (result.updatedCollections.isNotEmpty()) {
+            val nextFrame = result.state.peekContinuation()
+            if (nextFrame is EffectContinuation) {
+                val (_, stateAfterPop) = result.state.popContinuation()
+                stateAfterPop.pushContinuation(
+                    nextFrame.copy(
+                        effectContext = nextFrame.effectContext.copy(
+                            pipeline = nextFrame.effectContext.pipeline.copy(
+                                storedCollections = nextFrame.effectContext.pipeline.storedCollections + result.updatedCollections
+                            )
+                        )
+                    )
+                )
+            } else {
+                result.state
+            }
+        } else {
+            result.state
+        }
+
+        return checkForMore(stateWithArmyExposed, result.events)
     }
 }
