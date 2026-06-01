@@ -10,27 +10,22 @@ Verify status anytime with: `scripts/card-status --set LTR` (and `--list --set L
 
 ## Status
 
-Draft cards at **166/261**. Almost every card still unchecked in `cards.md` (excluding the
-five basic lands, which `basicLandsFallback` covers) needs at least one new engine primitive
-— see the "Engine gaps blocking the remaining cards" section below. Each card is listed under
-the primitive it is waiting on, with the exact blocking clause. Stop and open a dedicated
-PR per gap rather than approximating.
+Draft cards at **172/261**. Every remaining unchecked card in `cards.md` (excluding the five
+basic lands, which `basicLandsFallback` covers) needs at least one new engine primitive — see
+the "Engine gaps blocking the remaining cards" section below. Each card is listed under the
+primitive it is waiting on, with the exact blocking clause. Stop and open a dedicated PR per
+gap rather than approximating.
 
-Now-composable (no remaining gap, just need to be added via `/add-card`): **Arwen Undómiel**,
-**Celeborn the Wise**, **Chance-Met Elves**, **Council's Deliberation**, **Elrond, Master of
-Healing**, **Glorfindel, Dauntless Rescuer**, **Legolas, Counter of Kills**, **Nimrodel
-Watcher**, and **Elvish Mariner** (Extra) — all unblocked when the `WheneverYouScry` trigger
-landed. Elrond Lord of Rivendell, Galadriel of Lothlórien, Lost Isle Calling, and Palantír of
-Orthanc previously listed under that gap still need a secondary primitive (see Gaps 3, 6).
-The Gap 12 primitives (`EntityReference.AmassedArmy` + excess-damage trigger), now followed
-by `ReflexiveTriggerEffect`/`AmassContinuationResumer` threading the AmassedArmy pipeline
-slot, shipped **Foray of Orcs**, **Surrounded by Orcs**, and **Fall of Cair Andros**.
-Grishnákh, Brash Instigator still needs pipeline state threaded into target-predicate
-filters (its "with power ≤ the amassed Army's power" filter resolves the reference to
-`null` during targeting today). Shagrat Loot Bearer still needs attach-equipment-on-attack,
-and The Mouth of Sauron still needs a dynamic Amass amount keyed to a targeted player's
-graveyard — both expressible by composing existing dynamic-amount primitives in those
-cards' implementations.
+Two cards have residual blockers that don't share a clean reusable gap with anything else;
+they're listed here so they don't get lost:
+
+- **Grishnákh, Brash Instigator** — needs pipeline state threaded into target-predicate
+  filters (its "with power ≤ the amassed Army's power" filter resolves the reference to
+  `null` during targeting today).
+- **Shagrat, Loot Bearer** — `AttachTargetEquipmentToCreatureEffect` exists and
+  `DynamicAmounts.attachmentsOnSelf()` reads the attachment count, but the count is
+  *all attachments* (Equipment + Auras + Fortifications) — Shagrat's "X = the number of
+  Equipment attached" needs an Equipment-filtered AttachmentCount to be rules-faithful.
 
 ## Data sources — do NOT hit the network
 
@@ -91,16 +86,6 @@ on; each bullet quotes the **specific clause** that cannot be composed today. A 
 than one gap is listed under its dominant gap with the secondary one noted inline. Clear a gap
 in its own PR, then attach all of its cards.
 
-Verified present today and used by the composed batch: `Effects.TheRingTemptsYou`,
-`Triggers.RingTemptsYou`, `Conditions.SourceIsRingBearer`, `Conditions.CreatureDiedThisTurn`,
-`Effects.Amass` (incl. `DynamicAmount.XValue`), `EffectPatterns.scry`/`mill`/`searchLibrary`,
-`ForEachInGroupEffect` + `GroupFilter`, `GrantKeyword` static, `Targets.UpToCreatures` +
-`ForEachTargetEffect`, `Triggers.WheneverYouScry` (+ `ScriedEvent` carrying cards-looked-at,
-`DynamicAmount` for "cards looked at while scrying this way"),
-`EntityReference.AmassedArmy` (+ `DynamicAmount.EntityProperty(AmassedArmy, Power/Toughness)` for
-"the amassed Army's power"), `DealsDamageEvent(requireExcess = true)` + `ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT`
-(+ `DamageDealtEvent.excessAmount`).
-
 ### Gap 2 — "draw your second card each turn" trigger
 **Engine change:** an Nth-card-drawn-per-turn trigger (per player), the draw analogue of
 `Triggers.NthSpellCast`.
@@ -136,8 +121,8 @@ web-client files; some also need "enters with N counters where N = …".
 - **Dawn of a New Age** — hope counter; "enters with a hope counter for each creature you control."
 - **Lost Isle Calling** — verse counter; "Whenever you scry, put a verse counter on this."
 - **Palantír of Orthanc** — influence counter (also complex opponent choice on the scry trigger).
-- **The One Ring** — burden counter (also Gap 9 protection-from-everything).
-- **Scroll of Isildur** — stun counter (also Saga gain-control-for-duration).
+- **The One Ring** — burden counter (also Gap 8 protection-from-everything).
+- **Scroll of Isildur** — stun counter (also Gap 37 Saga gain-control-for-duration).
 
 ### Gap 7 — keyword counters + "choose a kind of counter"
 **Engine change:** first-strike/vigilance/deathtouch/lifelink counters wired through the
@@ -332,6 +317,19 @@ turn," "dealt combat damage to you this turn," and "least power."
 - **Scroll of Isildur** — "Gain control of up to one target artifact for as long as you control
   this Saga." (also stun counter, Gap 6).
 
+### Gap 39 — grant "can't be blocked by more than one creature" as a floating effect
+**Engine change:** wire `AbilityFlag.CANT_BE_BLOCKED_BY_MORE_THAN_ONE` (already defined in
+`mtg-sdk/core/AbilityFlag.kt` but not enforced anywhere) into
+`BlockPhaseManager.validateMaxBlockersRequirements`, so that
+`Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED_BY_MORE_THAN_ONE, target, duration)` actually
+caps blockers for the duration. Today the cap is only honored when read from
+`cardDef.staticAbilities.filterIsInstance<CantBeBlockedByMoreThan>()`, so triggered abilities
+that try to grant the restriction silently no-op.
+- **Glorfindel, Dauntless Rescuer** — "Whenever you scry, choose one and Glorfindel gets +1/+1
+  until end of turn. • Glorfindel must be blocked this turn if able. • Glorfindel can't be
+  blocked by more than one creature each combat this turn." (Mode 1 is composable via
+  `MustBeBlockedEffect`; mode 2 needs this gap.)
+
 ### Gap 38 — one-off complex cards (each its own PR)
 **Engine change:** bespoke — these don't share a clean reusable gap with others.
 - **Goldberry, River-Daughter** — move counters of each kind between target permanents.
@@ -364,6 +362,9 @@ turn," "dealt combat damage to you this turn," and "least power."
 - **Flame of Anor** — see Gap 9/10 (conditional modal count).
 - **Sméagol, Helpful Guide** — reveal-until-land put under your control (the end-step Ring-tempt
   half uses `CreatureDiedThisTurn`, already present).
+- **Shadowfax, Lord of Horses** — "Whenever Shadowfax attacks, you may put a creature card with
+  lesser power from your hand onto the battlefield tapped and attacking." (Horses-haste static
+  is composable; the attack trigger needs put-from-hand-attacking with a power comparator.)
 - **Riders of the Mark** (Extra) — Affinity for Humans (composable) + end-step "if it attacked,
   return it to hand and create tokens equal to its toughness."
 - **Fires of Mount Doom** (Extra) — impulse-exile-and-play + destroy attached Equipment + damage.

@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards (261 Draft / 30 Extra)
 **Release Date:** June 23, 2023
-**Implemented:** 181 / 291
+**Implemented:** 188 / 291
 Run `scripts/card-status --set LTR` (and `--list --set LTR`) to verify status at any time.
 The split below mirrors that script: **Draft** = Scryfall `booster: true`; **Extra** =
 starter-deck/special cards and basic lands.
@@ -73,7 +73,7 @@ starter-deck/special cards and basic lands.
 - [x] Birthday Escape
 - [ ] Borne Upon a Wind
 - [x] Captain of Umbar
-- [ ] Council's Deliberation
+- [x] Council's Deliberation
 - [x] Deceive the Messenger
 - [ ] Dreadful as the Storm
 - [ ] Elrond, Lord of Rivendell
@@ -90,7 +90,7 @@ starter-deck/special cards and basic lands.
 - [x] Lórien Revealed
 - [ ] Lost Isle Calling
 - [x] Meneldor, Swift Savior
-- [ ] Nimrodel Watcher
+- [x] Nimrodel Watcher
 - [x] Pelargir Survivor
 - [ ] Press the Enemy
 - [ ] Rangers of Ithilien
@@ -193,7 +193,7 @@ starter-deck/special cards and basic lands.
 - [x] Bombadil's Song
 - [x] Brandywine Farmer
 - [x] Celeborn the Wise
-- [ ] Chance-Met Elves
+- [x] Chance-Met Elves
 - [ ] Delighted Halfling
 - [ ] Dúnedain Rangers
 - [x] Elven Chorus
@@ -239,7 +239,7 @@ starter-deck/special cards and basic lands.
 - [x] Butterbur, Bree Innkeeper
 - [x] Denethor, Ruling Steward
 - [x] Doors of Durin
-- [ ] Elrond, Master of Healing
+- [x] Elrond, Master of Healing
 - [ ] Éowyn, Fearless Knight
 - [ ] Faramir, Prince of Ithilien
 - [ ] Flame of Anor
@@ -251,11 +251,11 @@ starter-deck/special cards and basic lands.
 - [x] Gimli, Mournful Avenger
 - [ ] Gwaihir the Windlord
 - [ ] King of the Oathbreakers
-- [ ] Legolas, Counter of Kills
+- [x] Legolas, Counter of Kills
 - [x] Lotho, Corrupt Shirriff
 - [x] Mauhúr, Uruk-hai Captain
 - [x] Merry, Esquire of Rohan
-- [ ] The Mouth of Sauron
+- [x] The Mouth of Sauron
 - [x] Old Man Willow
 - [ ] Pippin, Guard of the Citadel
 - [ ] Prince Imrahil the Fair
@@ -326,7 +326,7 @@ starter-deck/special cards and basic lands.
 
 ### Blue
 
-- [ ] Elvish Mariner
+- [x] Elvish Mariner
 
 ### Black
 
