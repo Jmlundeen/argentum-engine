@@ -10,18 +10,21 @@ Verify status anytime with: `scripts/card-status --set LTR` (and `--list --set L
 
 ## Status
 
-Draft cards at **166/261**. Almost every card still unchecked in `cards.md` (excluding the
+Draft cards at **171/261**. Almost every card still unchecked in `cards.md` (excluding the
 five basic lands, which `basicLandsFallback` covers) needs at least one new engine primitive
 — see the "Engine gaps blocking the remaining cards" section below. Each card is listed under
 the primitive it is waiting on, with the exact blocking clause. Stop and open a dedicated
 PR per gap rather than approximating.
 
-Now-composable (no remaining gap, just need to be added via `/add-card`): **Arwen Undómiel**,
-**Celeborn the Wise**, **Chance-Met Elves**, **Council's Deliberation**, **Elrond, Master of
-Healing**, **Glorfindel, Dauntless Rescuer**, **Legolas, Counter of Kills**, **Nimrodel
-Watcher**, and **Elvish Mariner** (Extra) — all unblocked when the `WheneverYouScry` trigger
-landed. Elrond Lord of Rivendell, Galadriel of Lothlórien, Lost Isle Calling, and Palantír of
-Orthanc previously listed under that gap still need a secondary primitive (see Gaps 3, 6).
+The `WheneverYouScry` trigger shipped **Arwen Undómiel**, **Celeborn the Wise**, **Chance-Met
+Elves**, **Council's Deliberation**, **Elrond, Master of Healing**, **Legolas, Counter of
+Kills**, **Nimrodel Watcher**, and **Elvish Mariner** (Extra). **Glorfindel, Dauntless
+Rescuer** was on the same list but turned out to need Gap 39 below — its "can't be blocked by
+more than one creature each combat this turn" mode has no floating-effect path today (the
+`CANT_BE_BLOCKED_BY_MORE_THAN_ONE` `AbilityFlag` is defined but not enforced, and the
+`CantBeBlockedByMoreThan` static is read only from printed card definitions). Elrond Lord of
+Rivendell, Galadriel of Lothlórien, Lost Isle Calling, and Palantír of Orthanc previously
+listed under that gap still need a secondary primitive (see Gaps 3, 6).
 The Gap 12 primitives (`EntityReference.AmassedArmy` + excess-damage trigger), now followed
 by `ReflexiveTriggerEffect`/`AmassContinuationResumer` threading the AmassedArmy pipeline
 slot, shipped **Foray of Orcs**, **Surrounded by Orcs**, and **Fall of Cair Andros**.
@@ -331,6 +334,19 @@ turn," "dealt combat damage to you this turn," and "least power."
   long as you control this creature." (Ring tempts half composable).
 - **Scroll of Isildur** — "Gain control of up to one target artifact for as long as you control
   this Saga." (also stun counter, Gap 6).
+
+### Gap 39 — grant "can't be blocked by more than one creature" as a floating effect
+**Engine change:** wire `AbilityFlag.CANT_BE_BLOCKED_BY_MORE_THAN_ONE` (already defined in
+`mtg-sdk/core/AbilityFlag.kt` but not enforced anywhere) into
+`BlockPhaseManager.validateMaxBlockersRequirements`, so that
+`Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED_BY_MORE_THAN_ONE, target, duration)` actually
+caps blockers for the duration. Today the cap is only honored when read from
+`cardDef.staticAbilities.filterIsInstance<CantBeBlockedByMoreThan>()`, so triggered abilities
+that try to grant the restriction silently no-op.
+- **Glorfindel, Dauntless Rescuer** — "Whenever you scry, choose one and Glorfindel gets +1/+1
+  until end of turn. • Glorfindel must be blocked this turn if able. • Glorfindel can't be
+  blocked by more than one creature each combat this turn." (Mode 1 is composable via
+  `MustBeBlockedEffect`; mode 2 needs this gap.)
 
 ### Gap 38 — one-off complex cards (each its own PR)
 **Engine change:** bespoke — these don't share a clean reusable gap with others.
