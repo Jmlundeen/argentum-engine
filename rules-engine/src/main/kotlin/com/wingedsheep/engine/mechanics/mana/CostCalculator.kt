@@ -265,6 +265,13 @@ class CostCalculator(
                 val priorMatching = records.count { predicateEvaluator.matchesFilter(it, filter) }
                 priorMatching == gating.n - 1
             }
+            is CostGating.OnlyIf -> {
+                // Player-scoped conditions ("during your turn", "you've cast another spell", ...)
+                // evaluate against the caster. The cost modifier's source is a non-spell permanent
+                // (or the spell card itself for SelfCast), neither of which the condition needs.
+                val ctx = EffectContext(sourceId = null, controllerId = casterId, opponentId = null)
+                conditionEvaluator.evaluate(state, gating.condition, ctx)
+            }
         }
     }
 
@@ -367,14 +374,31 @@ class CostCalculator(
                     source.amount
                 else 0
             }
-            is CostReductionSource.FixedIfCondition -> {
-                val ctx = EffectContext(sourceId = null, controllerId = playerId, opponentId = null)
-                if (conditionEvaluator.evaluate(state, source.condition, ctx)) source.amount else 0
-            }
+            is CostReductionSource.PermanentsYouControlMatching ->
+                countControlledPermanentsMatching(state, playerId, source.filter)
             is CostReductionSource.DifferentlyNamedPermanentsYouControl ->
                 countDifferentlyNamedPermanents(state, playerId, source.filter)
             is CostReductionSource.PermanentsOnBattlefieldMatching ->
                 countBattlefieldPermanentsMatching(state, playerId, source.filter)
+        }
+    }
+
+    /**
+     * Count permanents the player controls matching the filter. Iterates the projected-control
+     * view (`controlledBattlefield`) so control-changing effects are honored, and evaluates the
+     * filter through [PredicateEvaluator] against projected state so type/power/subtype checks
+     * see buffs, counters, and lords (CR 613). The "you control" analogue of
+     * [countBattlefieldPermanentsMatching].
+     */
+    private fun countControlledPermanentsMatching(
+        state: GameState,
+        playerId: EntityId,
+        filter: GameObjectFilter
+    ): Int {
+        val projected = state.projectedState
+        val context = PredicateContext(controllerId = playerId)
+        return state.controlledBattlefield(playerId).count { entityId ->
+            predicateEvaluator.matches(state, projected, entityId, filter, context)
         }
     }
 

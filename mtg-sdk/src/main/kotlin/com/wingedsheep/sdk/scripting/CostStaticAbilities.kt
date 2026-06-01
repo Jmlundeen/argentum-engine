@@ -29,13 +29,12 @@ data class ModifySpellCost(
     override val description: String = buildDescription()
 
     private fun buildDescription(): String {
-        val gated = gating != CostGating.None
-        val gate = when (gating) {
-            is CostGating.NthOfTypePerTurn -> "The ${ordinal(gating.n)} "
-            CostGating.None -> ""
-        }
+        // Only the Nth-of-type gate rephrases the subject as a single spell ("The second spell ...").
+        // A conditional (OnlyIf) gate leaves the subject plural and tacks the condition on at the end.
+        val nthGating = gating as? CostGating.NthOfTypePerTurn
+        val gate = if (nthGating != null) "The ${ordinal(nthGating.n)} " else ""
         // A gated description ("The Nth ...") refers to a single spell, so phrase it in the singular.
-        val noun = if (gated) "spell" else "spells"
+        val noun = if (nthGating != null) "spell" else "spells"
         val subject = when (target) {
             SpellCostTarget.SelfCast -> "This spell"
             is SpellCostTarget.YouCast -> "${filterAdjective(target.filter)}$noun you cast"
@@ -57,14 +56,15 @@ data class ModifySpellCost(
                 "cost {${modification.amountPerSpell}} more to cast for each other spell that player has cast this turn"
             is CostModification.IncreaseLife -> "cost an additional ${modification.amount} life to cast"
         }
-        val perTurn = when (gating) {
-            is CostGating.NthOfTypePerTurn -> " each turn"
-            CostGating.None -> ""
-        }
+        val perTurn = if (nthGating != null) " each turn" else ""
         // The gated subject is singular, so make the verb agree ("cost" -> "costs").
-        val agreedVerb = if (gated) verb.replaceFirst("cost ", "costs ") else verb
+        val agreedVerb = if (nthGating != null) verb.replaceFirst("cost ", "costs ") else verb
         val prefix = if (gate.isNotEmpty()) gate + subject.replaceFirstChar { it.lowercase() } else subject
-        return "$prefix $agreedVerb$perTurn"
+        val conditionSuffix = when (val g = gating) {
+            is CostGating.OnlyIf -> " ${g.condition.description}"
+            else -> ""
+        }
+        return "$prefix $agreedVerb$perTurn$conditionSuffix"
     }
 
     // A filter that narrows nothing (e.g. GameObjectFilter.Any) describes itself as "card", which
@@ -263,6 +263,22 @@ sealed interface CostGating {
     @SerialName("NthOfTypePerTurn")
     @Serializable
     data class NthOfTypePerTurn(val n: Int) : CostGating
+
+    /**
+     * Modifier applies only while [condition] holds at cast time. The condition is evaluated with
+     * the casting player as `controllerId`, so player-scoped conditions ("during your turn",
+     * "if you've cast another spell this turn", "if your opponents control three or more creatures")
+     * all work out of the box.
+     *
+     * Gates the *entire* modification, so it composes with any [CostModification] — including the
+     * dynamic per-unit reductions ([CostModification.ReduceGenericBy]) that a fixed-amount source
+     * cannot express. This is the home for "During your turn, ..." cost effects such as
+     * Temur Battlecrier; for a fixed conditional reduction pair it with [CostModification.ReduceGeneric]
+     * (e.g. Mental Modulation: `ReduceGeneric(1)` gated by `OnlyIf(IsYourTurn)`).
+     */
+    @SerialName("OnlyIf")
+    @Serializable
+    data class OnlyIf(val condition: Condition) : CostGating
 }
 
 /**
@@ -446,17 +462,22 @@ sealed interface CostReductionSource {
     }
 
     /**
-     * Reduces cost by a fixed amount if the given [Condition] evaluates true at cast time.
-     * The condition is evaluated with the caster as `controllerId`, so "your turn",
-     * "you have the city's blessing", etc. all work out of the box.
+     * Reduces cost by the number of permanents the caster controls matching a filter.
+     * The "you control" analogue of [PermanentsOnBattlefieldMatching]; the filter carries the
+     * narrowing (type, power, subtype, ...). Power/type checks honor projected state, so buffs
+     * and lords count (e.g. Temur Battlecrier: "for each creature you control with power 4 or
+     * greater" via `PermanentsYouControlMatching(Creature.powerAtLeast(4))`).
      *
-     * Used for cards like Mental Modulation
-     * (`FixedIfCondition(1, IsYourTurn)` — "costs {1} less to cast during your turn").
+     * Generalizes the fixed [CreaturesYouControl] / [ArtifactsYouControl] shorthands to an
+     * arbitrary filter.
      */
-    @SerialName("FixedIfCondition")
+    @SerialName("PermanentsYouControlMatching")
     @Serializable
-    data class FixedIfCondition(val amount: Int, val condition: Condition) : CostReductionSource {
-        override val description: String = "$amount ${condition.description}"
+    data class PermanentsYouControlMatching(
+        val filter: GameObjectFilter
+    ) : CostReductionSource {
+        override val description: String =
+            "the number of ${filter.description} you control"
     }
 
     /**

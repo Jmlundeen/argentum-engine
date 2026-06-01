@@ -4,8 +4,8 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.CostGating
 import com.wingedsheep.sdk.scripting.CostModification
-import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
@@ -32,17 +32,15 @@ val ArwensGift = card("Arwen's Gift") {
     staticAbility {
         ability = ModifySpellCost(
             target = SpellCostTarget.SelfCast,
-            modification = CostModification.ReduceGenericBy(
-                CostReductionSource.FixedIfCondition(
-                    amount = 1,
-                    condition = Compare(
-                        left = DynamicAmount.AggregateBattlefield(
-                            player = Player.You,
-                            filter = GameObjectFilter.Creature.legendary()
-                        ),
-                        operator = ComparisonOperator.GTE,
-                        right = DynamicAmount.Fixed(2)
-                    )
+            modification = CostModification.ReduceGeneric(1),
+            gating = CostGating.OnlyIf(
+                Compare(
+                    left = DynamicAmount.AggregateBattlefield(
+                        player = Player.You,
+                        filter = GameObjectFilter.Creature.legendary()
+                    ),
+                    operator = ComparisonOperator.GTE,
+                    right = DynamicAmount.Fixed(2)
                 )
             )
         )

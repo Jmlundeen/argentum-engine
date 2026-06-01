@@ -3,8 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.CostGating
 import com.wingedsheep.sdk.scripting.CostModification
-import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
@@ -31,9 +31,8 @@ val MentalModulation = card("Mental Modulation") {
     staticAbility {
         ability = ModifySpellCost(
             target = SpellCostTarget.SelfCast,
-            modification = CostModification.ReduceGenericBy(
-                CostReductionSource.FixedIfCondition(amount = 1, condition = IsYourTurn),
-            ),
+            modification = CostModification.ReduceGeneric(1),
+            gating = CostGating.OnlyIf(IsYourTurn),
         )
     }
 

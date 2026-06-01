@@ -3,8 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.CostGating
 import com.wingedsheep.sdk.scripting.CostModification
-import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 
@@ -31,12 +31,8 @@ val GigastormTitan = card("Gigastorm Titan") {
     staticAbility {
         ability = ModifySpellCost(
             target = SpellCostTarget.SelfCast,
-            modification = CostModification.ReduceGenericBy(
-                CostReductionSource.FixedIfCondition(
-                    amount = 3,
-                    condition = Conditions.YouCastSpellsThisTurn(atLeast = 1),
-                ),
-            ),
+            modification = CostModification.ReduceGeneric(3),
+            gating = CostGating.OnlyIf(Conditions.YouCastSpellsThisTurn(atLeast = 1)),
         )
     }
 

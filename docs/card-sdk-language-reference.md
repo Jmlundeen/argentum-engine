@@ -1324,17 +1324,26 @@ staticAbility {
   "White spells you cast cost {W} more"), `IncreaseGenericPerOtherSpellThisTurn(amountPerSpell)`,
   `IncreaseLife(amount)`.
   Reduction `source: CostReductionSource` covers fixed amounts, counts of permanents/cards in
-  zones, target/condition gates, and a few mechanic-specific shapes — see
+  zones, target gates, and a few mechanic-specific shapes — e.g. `Fixed`, `CreaturesYouControl`,
+  `ArtifactsYouControl`, `PermanentsYouControlMatching(filter)` (the filtered "you control" count —
+  Temur Battlecrier's "creature you control with power 4 or greater" via
+  `GameObjectFilter.Creature.powerAtLeast(4)`), `PermanentsOnBattlefieldMatching(filter)` (the
+  same, all players), `CardsInGraveyardMatchingFilter`, `FixedIfAnyTargetMatches`, … — see
   `CostStaticAbilities.kt` for the full list.
-- `gating: CostGating` — restricts how often the modifier fires:
+- `gating: CostGating` — gates whether/how often the modifier fires:
   - `None` (default) — applies to every matching cast.
   - `NthOfTypePerTurn(n)` — only when this is the Nth matching spell each turn (1-indexed; counts the
     spell currently being cast). Use `n = 1` for "the first ... each turn" (Eluge); use
     `NthOfTypePerTurn(2)` with `target = YouCast(GameObjectFilter.Any)` for Uthros Psionicist's "the
-    second spell you cast each turn costs {2} less".
-
-`NthOfTypePerTurn` requires a filter-bearing target (`YouCast` / `AnyCaster`) — it needs a notion
-of "type" to count.
+    second spell you cast each turn costs {2} less". Requires a filter-bearing target
+    (`YouCast` / `AnyCaster`) — it needs a notion of "type" to count.
+  - `OnlyIf(condition)` — applies only while `condition` holds at cast time (evaluated with the
+    caster as controller). Gates the *whole* modification, so it composes with the dynamic per-unit
+    reductions that a fixed-amount source can't express: Temur Battlecrier's "During your turn, …"
+    is `OnlyIf(Conditions.IsYourTurn)` over `ReduceGenericBy(PermanentsYouControlMatching(…))`. For a
+    fixed conditional reduction pair it with `ReduceGeneric` (Mental Modulation:
+    `ReduceGeneric(1)` gated by `OnlyIf(IsYourTurn)`; Lashwhip Predator / Arwen's Gift gate on a
+    `Compare(...)`).
 
 **Global denial statics** (no `filter`/`duration` block — they're singleton-style)
 
@@ -1739,7 +1748,10 @@ default to "you" so card authors don't need to pass it explicitly.
 - `Not(c)` — negate.
 - `Compare(v1, op, v2)` — numeric comparison between `DynamicAmount`s.
 - `Exists(player, zone, filter)` — at least one matching object exists.
-- `FixedIfCondition(...)` — bake a condition into a static-ability gate.
+
+To gate a spell-cost reduction on a condition, use `CostGating.OnlyIf(condition)` on the
+`ModifySpellCost` ability (see **Spell cost statics**) rather than baking the condition into the
+reduction amount.
 
 ### Static-ability vs resolution-time evaluation
 

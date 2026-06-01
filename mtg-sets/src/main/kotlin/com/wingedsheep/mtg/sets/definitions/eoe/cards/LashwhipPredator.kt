@@ -3,8 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.CostGating
 import com.wingedsheep.sdk.scripting.CostModification
-import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
@@ -34,14 +34,12 @@ val LashwhipPredator = card("Lashwhip Predator") {
     staticAbility {
         ability = ModifySpellCost(
             target = SpellCostTarget.SelfCast,
-            modification = CostModification.ReduceGenericBy(
-                CostReductionSource.FixedIfCondition(
-                    amount = 2,
-                    condition = Compare(
-                        DynamicAmount.AggregateBattlefield(Player.Opponent, GameObjectFilter.Creature),
-                        ComparisonOperator.GTE,
-                        DynamicAmount.Fixed(3),
-                    ),
+            modification = CostModification.ReduceGeneric(2),
+            gating = CostGating.OnlyIf(
+                Compare(
+                    DynamicAmount.AggregateBattlefield(Player.Opponent, GameObjectFilter.Creature),
+                    ComparisonOperator.GTE,
+                    DynamicAmount.Fixed(3),
                 ),
             ),
         )
