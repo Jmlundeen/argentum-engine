@@ -317,6 +317,16 @@ object Conditions {
         Compare(DynamicAmount.LifeTotal(Player.You), ComparisonOperator.LTE, DynamicAmount.Fixed(threshold))
 
     /**
+     * If *some* player in the game has [threshold] or less life. Existential — true
+     * as soon as any player (you or any opponent, including in multiplayer) matches.
+     *
+     * Used by cards like Razortrap Gorge ("enters tapped unless a player has 13 or
+     * less life"). Distinct from [LifeAtMost], which is `Player.You` only.
+     */
+    fun APlayerLifeAtMost(threshold: Int): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.APlayerLifeAtMost(threshold)
+
+    /**
      * If your life total is N or more.
      */
     fun LifeAtLeast(threshold: Int): ConditionInterface =

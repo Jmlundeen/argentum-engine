@@ -38,6 +38,7 @@ import com.wingedsheep.sdk.scripting.conditions.APlayerControlsMostOfSubtype
 import com.wingedsheep.sdk.scripting.conditions.YouControlMostOfChosenType
 import com.wingedsheep.sdk.scripting.conditions.AllConditions
 import com.wingedsheep.sdk.scripting.conditions.AnyCondition
+import com.wingedsheep.sdk.scripting.conditions.APlayerLifeAtMost
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.Condition
@@ -192,6 +193,13 @@ class ConditionEvaluator(
             // Global facts (no controller/source needed).
             is VoidCondition ->
                 state.nonlandPermanentLeftBattlefieldThisTurn || state.spellWarpedThisTurn
+
+            // Existential over all players: some player has at most [threshold] life.
+            // Reads each player's LifeTotalComponent from state.turnOrder.
+            is APlayerLifeAtMost -> state.turnOrder.any { playerId ->
+                val life = state.getEntity(playerId)?.get<LifeTotalComponent>()?.life
+                life != null && life <= condition.threshold
+            }
 
             // Board-derived only — no targets/triggering/kicker — so it works identically in
             // resolution and projection (required for the djinn `ConditionalStaticAbility` gate).
