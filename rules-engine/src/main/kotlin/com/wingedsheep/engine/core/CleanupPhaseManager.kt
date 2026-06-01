@@ -526,11 +526,19 @@ class CleanupPhaseManager(
         }
 
         // Expire non-permanent may-play permissions whose duration has elapsed.
+        // `turnNumber` is round-based (it increments only when the starting player begins a
+        // new turn), so it can't distinguish the controller's turn from the opponent's within
+        // the same round. A permission that should last "until the end of your next turn" must
+        // therefore only expire at the cleanup of the *controller's own* turn — otherwise the
+        // non-starting player would lose it at the end of the starting player's turn in the
+        // target round, one turn early (Burning Curiosity, Sizzling Changeling).
         if (newState.mayPlayPermissions.isNotEmpty()) {
             newState = newState.copy(
                 mayPlayPermissions = newState.mayPlayPermissions.filterNot { permission ->
                     !permission.permanent && when {
-                        permission.expiresAfterTurn != null -> newState.turnNumber >= permission.expiresAfterTurn
+                        permission.expiresAfterTurn != null ->
+                            newState.turnNumber >= permission.expiresAfterTurn &&
+                                newState.activePlayerId == permission.controllerId
                         else -> true
                     }
                 }
