@@ -84,7 +84,9 @@ class CostHandler(
             }
             is AbilityCost.PayLife -> {
                 val life = state.getEntity(controllerId)?.get<LifeTotalComponent>()?.life ?: 0
-                life > cost.amount // Can pay if life is > cost (not <= 0 after)
+                // CR 119.4 — a player may pay life only if their life total is >= the payment.
+                // Paying down to exactly 0 is legal; the state-based action checker handles the loss.
+                life >= cost.amount
             }
             is AbilityCost.PayXLife -> {
                 // X can be 0, so this is always payable as long as the player has a life total.
@@ -698,7 +700,8 @@ class CostHandler(
             }
             is AdditionalCost.PayLife -> {
                 val life = state.getEntity(controllerId)?.get<LifeTotalComponent>()?.life ?: 0
-                life > cost.amount
+                // CR 119.4 — a player may pay life only if their life total is >= the payment.
+                life >= cost.amount
             }
             is AdditionalCost.PayLifePerTarget -> {
                 // Always payable: choosing zero targets pays zero life. Per-target life
