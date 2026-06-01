@@ -186,7 +186,11 @@ Refer back to [architecture-principles.md](../../../docs/architecture-principles
 
 **Only if the card uses NEW effects/keywords/triggers/conditions/static abilities** from Step 4.
 
-**File**: `game-server/src/test/kotlin/com/wingedsheep/gameserver/scenarios/{CardName}ScenarioTest.kt`
+**File**: `rules-engine/src/test/kotlin/com/wingedsheep/engine/scenarios/{CardName}ScenarioTest.kt`
+
+Scenario tests live in `rules-engine` — the engine is the source of truth, so a card's effects are
+proven there. `game-server` tests only cover frontend ↔ engine interaction (state masking, DTO
+transformation, session/tournament orchestration), not card behavior.
 
 - Set up minimal board state, exercise new effect in isolation, verify state changes, cover edge cases
 - See [examples.md](examples.md) and [card-sdk-language-reference.md](../../../docs/card-sdk-language-reference.md) for test templates and helpers

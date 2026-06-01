@@ -243,9 +243,11 @@ Pick the layer that proves the feature, per `docs/architecture-principles.md` §
   asserts the engine behaves as the CR / oracle rulings say** — including the tricky edge cases
   (replacement vs. trigger ordering, last-known info, layer interactions, timing/priority windows,
   zero/multiple instances). A rule cited in a code comment without a test that pins it down is a gap
-  (`review-changes` §5). Cover the edge cases you traced in Step 4. Put these in `rules-engine` by
-  default; only use `game-server` when the feature is genuinely a game-server concern (state masking,
-  DTO transformation, session/tournament orchestration) rather than an engine feature.
+  (`review-changes` §5). Cover the edge cases you traced in Step 4. **These belong in `rules-engine`** —
+  the engine is the source of truth, so a feature's rules are proven there, not in `game-server`.
+  `game-server` tests only cover what is genuinely a game-server concern: the interaction between the
+  frontend and the engine (state masking, DTO transformation, session/tournament orchestration). Do
+  not write a `game-server` scenario test to prove engine behavior.
 - **`ScenarioTestBase` scope** — only registered sets load; define inline test cards via
   `CardDefinition.creature(...)` + `cardRegistry.register(...)` in `init { }` for anything else.
 
