@@ -190,6 +190,25 @@ data class TargetMatchesFilter(
 }
 
 /**
+ * Condition: "if [target] is a player".
+ *
+ * True when the context target at [targetIndex] is a player (rather than a permanent, spell, or
+ * card). The companion [TargetMatchesFilter] only matches game objects and returns false for a
+ * player target, so this is the dedicated check for "any target" effects whose follow-up applies
+ * only when the chosen target was a player — e.g. Sonic Shrieker's "If a player is dealt damage
+ * this way, they discard a card." Pair with [com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget]
+ * to make that same player the subject of the follow-up.
+ */
+@SerialName("TargetIsPlayer")
+@Serializable
+data class TargetIsPlayer(
+    val targetIndex: Int = 0
+) : Condition {
+    override val description: String = "if a player is dealt damage this way"
+    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
+}
+
+/**
  * Condition: "if excess damage was dealt this way" — true when the target creature's
  * marked damage now strictly exceeds its (projected) toughness.
  *

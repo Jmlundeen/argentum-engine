@@ -1559,6 +1559,11 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
 - `TargetControlsCreature(target)` — target player has a creature.
 - `TargetControlsLand(target)` — target player has a land.
 - `TargetMatchesFilter(filter, targetIndex = 0)` — the context target matches a `GameObjectFilter`.
+- `TargetIsPlayer(targetIndex = 0)` — the context target is a player (not a permanent/spell/card).
+  `TargetMatchesFilter` matches only game objects and returns false for a player target, so this is
+  the dedicated check for "any target" effects with a player-only follow-up. Used by Sonic Shrieker
+  ("If a player is dealt damage this way, they discard a card"); pair with
+  `EffectTarget.ContextTarget(index)` to make that same player the subject of the follow-up.
 - `IfTargetTookExcessDamage(targetIndex = 0)` — true post-damage when the target creature's marked
   damage strictly exceeds its (projected) toughness. Chain after `Effects.DealDamage` in a composite
   so the marked-damage update applies before the condition reads it. Used by Orbital Plunge ("If

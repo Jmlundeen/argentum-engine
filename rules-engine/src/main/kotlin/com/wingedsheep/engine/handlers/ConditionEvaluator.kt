@@ -63,6 +63,7 @@ import com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComp
 import com.wingedsheep.sdk.scripting.conditions.SacrificedPermanentHadSubtype
 import com.wingedsheep.sdk.scripting.conditions.AnotherPermanentWithSameNameAsTarget
 import com.wingedsheep.sdk.scripting.conditions.TargetMarkedDamageExceedsToughness
+import com.wingedsheep.sdk.scripting.conditions.TargetIsPlayer
 import com.wingedsheep.sdk.scripting.conditions.TargetMatchesFilter
 import com.wingedsheep.sdk.scripting.conditions.TargetSharesMostCommonColor
 import com.wingedsheep.sdk.scripting.conditions.ColorIsMostCommon
@@ -229,6 +230,7 @@ class ConditionEvaluator(
             is TriggeringSpellHasSingleTarget -> ifResolution { evaluateTriggeringSpellHasSingleTarget(state, it) }
             is TriggeringSpellMatchesFilter -> ifResolution { evaluateTriggeringSpellMatchesFilter(state, condition, it) }
             is TargetMatchesFilter -> ifResolution { evaluateTargetMatchesFilter(state, condition, it) }
+            is TargetIsPlayer -> ifResolution { evaluateTargetIsPlayer(condition, it) }
             is TargetMarkedDamageExceedsToughness ->
                 ifResolution { evaluateTargetMarkedDamageExceedsToughness(state, condition, it) }
             is TargetSharesMostCommonColor -> ifResolution { evaluateTargetSharesMostCommonColor(state, condition, it) }
@@ -693,6 +695,19 @@ class ConditionEvaluator(
         val predicateContext = PredicateContext.fromEffectContext(context)
         val projected = state.projectedState
         return predicateEvaluator.matches(state, projected, entityId, condition.filter, predicateContext)
+    }
+
+    /**
+     * Evaluate "if a player is dealt damage this way" — true when the context target at the given
+     * index is a player target. Used by Sonic Shrieker to gate its discard follow-up on the
+     * damaged "any target" having been a player. Permanent/spell/card targets return false.
+     */
+    private fun evaluateTargetIsPlayer(
+        condition: TargetIsPlayer,
+        context: EffectContext
+    ): Boolean {
+        val target = context.targets.getOrNull(condition.targetIndex) ?: return false
+        return target is com.wingedsheep.engine.state.components.stack.ChosenTarget.Player
     }
 
     /**

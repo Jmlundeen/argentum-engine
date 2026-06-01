@@ -226,6 +226,14 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.TargetMatchesFilter(filter, targetIndex)
 
     /**
+     * If the context target at [targetIndex] is a player (not a permanent/spell/card).
+     * Used for "any target" effects with a player-only follow-up — e.g. Sonic Shrieker's
+     * "If a player is dealt damage this way, they discard a card."
+     */
+    fun TargetIsPlayer(targetIndex: Int = 0): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.TargetIsPlayer(targetIndex)
+
+    /**
      * If the target shares a color with the most common color among all permanents
      * (or a color tied for most common). Used by Tsabo's Assassin.
      */
