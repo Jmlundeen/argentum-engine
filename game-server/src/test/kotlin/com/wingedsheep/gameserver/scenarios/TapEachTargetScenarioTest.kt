@@ -24,14 +24,14 @@ import io.kotest.matchers.shouldBe
  */
 class TapEachTargetScenarioTest : ScenarioTestBase() {
 
-    private fun ScenarioTestBase.TestGame.handCardId(playerNumber: Int, name: String): EntityId {
+    private fun TestGame.handCardId(playerNumber: Int, name: String): EntityId {
         val playerId = if (playerNumber == 1) player1Id else player2Id
         return state.getHand(playerId).first {
             state.getEntity(it)?.get<CardComponent>()?.name == name
         }
     }
 
-    private fun ScenarioTestBase.TestGame.isTapped(id: EntityId): Boolean =
+    private fun TestGame.isTapped(id: EntityId): Boolean =
         state.getEntity(id)?.has<TappedComponent>() == true
 
     init {

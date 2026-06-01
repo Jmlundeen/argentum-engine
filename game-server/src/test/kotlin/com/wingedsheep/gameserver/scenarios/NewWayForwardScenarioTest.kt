@@ -22,7 +22,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
  */
 class NewWayForwardScenarioTest : ScenarioTestBase() {
 
-    private fun ScenarioTestBase.TestGame.chooseSource(sourceName: String) {
+    private fun TestGame.chooseSource(sourceName: String) {
         val decision = getPendingDecision()
         decision.shouldNotBeNull()
         decision.shouldBeInstanceOf<SelectCardsDecision>()

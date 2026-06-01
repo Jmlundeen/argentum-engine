@@ -17,6 +17,8 @@ dependencies {
     testFixturesImplementation(project(":mtg-sets"))
     testFixturesImplementation(libs.bundles.kotlinxEcosystem)
     testFixturesImplementation(kotlin("reflect"))
+    // ScenarioTestBase extends Kotest's FunSpec, so the fixtures need the Kotest API on their classpath.
+    testFixturesImplementation(libs.kotestRunner)
 
     testImplementation(project(":mtg-sets"))
     testImplementation(libs.kotestRunner)

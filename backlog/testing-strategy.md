@@ -130,27 +130,38 @@ into a single entry point is optional polish, not required.
 - `add-feature`/`add-card` skills + `docs/RULES.md` state engine-primary; game-server
   only for frontend↔engine. ✅ (committed `2e2a971c4`)
 
-### Phase 1 — Relocate the nice harness into the engine
+### Phase 1 — Relocate the nice harness into the engine (DONE)
 
 **The keystone. Relocation, not duplication.**
 
-1. Move `ScenarioTestBase` (the `ScenarioBuilder` + `TestGame`) into
-   `rules-engine/src/testFixtures/.../support/ScenarioTestBase.kt`.
-2. Replace its hand-maintained ~60-set `register(...)` list with `TestCards.all`
-   (the full `MtgSetCatalog` — strictly a superset, so nothing un-registers).
-3. It uses only engine classes already, so no dependency surgery is needed inside it.
-4. Wire `game-server` to see it: add
-   `testImplementation(testFixtures(project(":rules-engine")))` to
-   `game-server/build.gradle.kts`.
-5. Collapse game-server's `ScenarioTestBase` to a shim so the 104 existing tests
-   compile untouched:
+1. ✅ Moved `ScenarioTestBase` (the `ScenarioBuilder` + `TestGame`) into
+   `rules-engine/src/testFixtures/kotlin/com/wingedsheep/engine/support/ScenarioTestBase.kt`
+   (package `com.wingedsheep.engine.support`, alongside `GameTestDriver`/`TestCards`).
+2. ✅ Replaced its hand-maintained ~60-set `register(...)` list with
+   `register(TestCards.all)` + `register(PredefinedTokens.allTokens)`. `TestCards.all` is the
+   full `MtgSetCatalog` (a superset of the old list) plus test-only cards; the tokens are added
+   back explicitly because `TestCards.all` does **not** bundle them, so this stays a strict
+   superset and no card un-registers.
+3. ✅ It uses only engine classes, so no dependency surgery inside it — **but** the fixtures
+   source set needed Kotest on its compile classpath (the base extends `FunSpec`):
+   added `testFixturesImplementation(libs.kotestRunner)` to `rules-engine/build.gradle.kts`.
+4. ✅ Wired `game-server` to see it: added
+   `testImplementation(testFixtures(project(":rules-engine")))` to `game-server/build.gradle.kts`.
+5. ✅ Collapsed game-server's `ScenarioTestBase` to a **typealias** shim (not a subclass):
    ```kotlin
-   abstract class ScenarioTestBase : com.wingedsheep.engine.support.ScenarioTestBase()
+   typealias ScenarioTestBase = com.wingedsheep.engine.support.ScenarioTestBase
    ```
-6. `just test-rules` + `just test-server` green.
+   A subclass shim (`abstract class ScenarioTestBase : …support.ScenarioTestBase()`) does **not**
+   make the inherited nested `ScenarioTestBase.TestGame` reachable via the subclass qualifier in
+   Kotlin; the typealias makes the constructor and the bare nested names resolve. One residual
+   Kotlin limitation: you can't reach a nested class *through* a typealias qualifier
+   (`ScenarioTestBase.TestGame`), so the 3 sites that used that qualified form in member extension
+   receivers (`TapEachTargetScenarioTest`, `NewWayForwardScenarioTest`) were switched to the bare
+   `TestGame` — in scope inside any subclass, matching how the other ~100 tests already write it.
+6. ✅ `just test-rules` (520 files) + `just test-server` (104 scenario tests) green.
 
-_Outcome: engine gains the fluent builder immediately; one harness, no duplication;
-zero churn on existing game-server tests._
+_Outcome: engine gained the fluent builder immediately; one harness, no duplication; the 104
+game-server scenario tests compile and pass with only 3 one-token receiver-type edits._
 
 ### Phase 2 — Point the skills at the engine harness
 
