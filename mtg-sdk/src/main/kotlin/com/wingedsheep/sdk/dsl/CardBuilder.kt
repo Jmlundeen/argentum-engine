@@ -461,6 +461,43 @@ class CardBuilder(private val name: String) {
     }
 
     /**
+     * Add Mobilize X (Tarkir: Dragonstorm) — keyword ability + triggered ability where
+     * the token count is a [DynamicAmount] resolved on attack rather than a fixed integer.
+     *
+     * "Whenever this creature attacks, create X tapped and attacking 1/1 red Warrior
+     * creature tokens. Sacrifice those tokens at the beginning of the next end step."
+     *
+     * Used by Avenger of the Fallen ("Mobilize X, where X is the number of creature cards
+     * in your graveyard"). [label] is the placeholder rendered after "Mobilize" in the
+     * keyword list (defaults to "X"); [amountDescription] is the natural-language phrase
+     * describing the count, woven into the triggered-ability reminder text. The tokens
+     * enter tapped and attacking and are sacrificed at the next end step, identical to the
+     * fixed-count [mobilize] helper.
+     */
+    fun mobilize(amount: DynamicAmount, amountDescription: String, label: String = "X") {
+        keywordAbilityList.add(KeywordAbility.mobilizeVariable(label))
+        triggeredAbilities.add(
+            TriggeredAbility.create(
+                trigger = Triggers.Attacks.event,
+                binding = Triggers.Attacks.binding,
+                effect = CreateTokenEffect(
+                    count = amount,
+                    power = 1,
+                    toughness = 1,
+                    colors = setOf(Color.RED),
+                    creatureTypes = setOf("Warrior"),
+                    tapped = true,
+                    attacking = true,
+                    sacrificeAtStep = Step.END
+                ),
+                descriptionOverride = "Whenever this creature attacks, create $amountDescription " +
+                    "tapped and attacking 1/1 red Warrior creature tokens. Sacrifice those tokens " +
+                    "at the beginning of the next end step."
+            )
+        )
+    }
+
+    /**
      * Add Decayed (CR 702.147, Innistrad: Midnight Hunt) — keyword + static ability
      * + triggered ability.
      *

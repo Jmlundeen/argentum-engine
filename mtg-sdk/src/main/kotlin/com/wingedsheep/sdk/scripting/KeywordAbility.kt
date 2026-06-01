@@ -150,6 +150,23 @@ sealed interface KeywordAbility {
     }
 
     /**
+     * A numeric keyword whose count is determined dynamically rather than by a fixed
+     * integer — e.g. "Mobilize X, where X is the number of creature cards in your
+     * graveyard" (Avenger of the Fallen). The keyword ability itself is display-only;
+     * the dynamic count lives in the composed triggered ability that the DSL helper
+     * wires alongside it. [label] is the placeholder shown after the keyword name
+     * (defaults to "X"), so the card prints "Mobilize X".
+     *
+     * Examples:
+     * - `Variable(Keyword.MOBILIZE)` — "Mobilize X"
+     */
+    @SerialName("Variable")
+    @Serializable
+    data class Variable(override val keyword: Keyword, val label: String = "X") : KeywordAbility {
+        override val description: String = "${keyword.displayName} $label"
+    }
+
+    /**
      * Flanking.
      * "Flanking" - Whenever this creature becomes blocked by a creature without flanking,
      * the blocking creature gets -1/-1 until end of turn.
@@ -762,6 +779,15 @@ sealed interface KeywordAbility {
         fun fabricate(n: Int): KeywordAbility = Numeric(Keyword.FABRICATE, n)
         fun tribute(n: Int): KeywordAbility = Numeric(Keyword.TRIBUTE, n)
         fun mobilize(n: Int): KeywordAbility = Numeric(Keyword.MOBILIZE, n)
+
+        /**
+         * Mobilize X — display tag for a Mobilize whose count is dynamic (e.g.
+         * "Mobilize X, where X is the number of creature cards in your graveyard").
+         * The dynamic token count lives in the attack-triggered ability wired by the
+         * `mobilize(amount, ...)` DSL helper; this factory only provides the
+         * "Mobilize X" display text.
+         */
+        fun mobilizeVariable(label: String = "X"): KeywordAbility = Variable(Keyword.MOBILIZE, label)
 
         /**
          * Hideaway N — display tag for the parameterized hideaway keyword. The
