@@ -11,6 +11,7 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tdm.cards.ChanneledDragonfire
 import com.wingedsheep.mtg.sets.definitions.tdm.cards.MammothBellow
 import com.wingedsheep.mtg.sets.definitions.tdm.cards.UnendingWhisper
+import com.wingedsheep.mtg.sets.definitions.tdm.cards.WildRide
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
@@ -38,6 +39,7 @@ class HarmonizeKeywordTest : FunSpec({
         driver.registerCard(UnendingWhisper)
         driver.registerCard(ChanneledDragonfire)
         driver.registerCard(MammothBellow)
+        driver.registerCard(WildRide)
         driver.initMirrorMatch(deck = Deck.of("Grizzly Bears" to 40), startingLife = 20)
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
         return driver
@@ -144,6 +146,32 @@ class HarmonizeKeywordTest : FunSpec({
 
         driver.getLifeTotal(opponent) shouldBe 18
         driver.state.getZone(ZoneKey(player, Zone.EXILE)).contains(spell) shouldBe true
+    }
+
+    test("Wild Ride harmonize cast pumps a target creature and exiles the spell") {
+        val driver = createDriver()
+        val player = driver.activePlayer!!
+
+        val spell = driver.putCardInGraveyard(player, "Wild Ride")
+        val bears = driver.putCreatureOnBattlefield(player, "Grizzly Bears") // 2/2 target for the pump
+        driver.giveMana(player, Color.RED, 5) // full {4}{R}
+
+        driver.submit(
+            CastSpell(
+                player, spell,
+                targets = listOf(ChosenTarget.Permanent(bears)),
+                useAlternativeCost = true,
+                paymentStrategy = PaymentStrategy.FromPool
+            )
+        ).isSuccess shouldBe true
+        driver.bothPass()
+
+        // +3/+0 and haste applied; the spell is exiled (harmonize), not back in the graveyard.
+        driver.state.projectedState.getPower(bears) shouldBe 5
+        driver.state.projectedState.getToughness(bears) shouldBe 2
+        driver.state.projectedState.hasKeyword(bears, com.wingedsheep.sdk.core.Keyword.HASTE) shouldBe true
+        driver.state.getZone(ZoneKey(player, Zone.EXILE)).contains(spell) shouldBe true
+        driver.state.getZone(ZoneKey(player, Zone.GRAVEYARD)).contains(spell) shouldBe false
     }
 
     test("a harmonize card cast normally from hand still goes to the graveyard") {
