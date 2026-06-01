@@ -552,7 +552,7 @@ class LobbyHandler(
         }
 
         // Set appropriate default booster count based on format
-        // Draft: default 4 packs, max 6
+        // Draft: default 3 packs, max 6
         // Commander Draft: default 3 packs, max 6
         // Sealed: default 6 boosters, max 16
         // Winston: default 6 boosters, max 16
@@ -565,7 +565,7 @@ class LobbyHandler(
         // default; otherwise we honor the explicit client value within the format's range.
         val boosterCount = when (format) {
             TournamentFormat.DRAFT -> {
-                if (message.boosterCount == 6) 4 else message.boosterCount.coerceIn(1, 6)
+                if (message.boosterCount == 6) 3 else message.boosterCount.coerceIn(1, 6)
             }
             TournamentFormat.COMMANDER_DRAFT -> {
                 if (message.boosterCount == 6) 3 else message.boosterCount.coerceIn(1, 6)
@@ -1849,7 +1849,7 @@ class LobbyHandler(
                     }
                 }
                 lobby.boosterCount = when (newFormat) {
-                    TournamentFormat.DRAFT -> 4
+                    TournamentFormat.DRAFT -> 3
                     TournamentFormat.COMMANDER_DRAFT -> 3
                     TournamentFormat.COMMANDER_SEALED -> 8
                     TournamentFormat.SEALED -> 6
