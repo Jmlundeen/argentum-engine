@@ -49,7 +49,13 @@ enum class TurnTracker {
     /** Indicator (0 or 1) that the player sacrificed at least one Food this turn. */
     FOOD_SACRIFICED,
     /** Total cards that left the player's graveyard this turn (Bonecache Overseer). */
-    CARDS_LEFT_GRAVEYARD;
+    CARDS_LEFT_GRAVEYARD,
+    /**
+     * Number of times the player descended this turn (CR 700.11) — count of nontoken
+     * permanent cards put into the player's graveyard from any zone. Backs the descend
+     * gate and the descend N / fathomless descent ability words.
+     */
+    DESCENDED;
 
     fun descriptionFor(player: Player): String = when (this) {
         CREATURES_DIED -> "the number of creatures that died under ${player.possessive} control this turn"
@@ -65,6 +71,7 @@ enum class TurnTracker {
         LANDS_PLAYED -> "the number of lands ${player.description} played this turn"
         FOOD_SACRIFICED -> "whether ${player.description} sacrificed a Food this turn"
         CARDS_LEFT_GRAVEYARD -> "the number of cards that left ${player.possessive} graveyard this turn"
+        DESCENDED -> "the number of times ${player.description} descended this turn"
     }
 }
 

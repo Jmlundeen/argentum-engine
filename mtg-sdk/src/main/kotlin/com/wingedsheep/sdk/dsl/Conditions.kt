@@ -616,6 +616,20 @@ object Conditions {
         trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.FOOD_SACRIFICED)
 
     /**
+     * If you descended this turn (CR 700.11) — i.e. at least one nontoken permanent
+     * card was put into your graveyard from any zone this turn. Tokens do not count;
+     * non-permanent cards (instants, sorceries) do not count.
+     *
+     * Pass [atLeast] > 1 for the descend N / fathomless descent ability words
+     * ("if you descended four or more times this turn").
+     *
+     * Used by the descend gate on cards like Ruin-Lurker Bat ("At the beginning of
+     * your end step, if you descended this turn, scry 1").
+     */
+    fun YouDescendedThisTurn(atLeast: Int = 1): ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.DESCENDED, atLeast = atLeast)
+
+    /**
      * If a permanent of the given card type entered the battlefield under the given player's
      * control this turn. The permanent need not still be on the battlefield, still be of that
      * type, or still be under that player's control — only the entry event matters.

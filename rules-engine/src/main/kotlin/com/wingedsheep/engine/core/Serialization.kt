@@ -410,6 +410,7 @@ val engineSerializersModule = SerializersModule {
         subclass(MayCastCreaturesFromGraveyardWithForageComponent::class)
         subclass(NonTokenCreaturesDiedThisTurnComponent::class)
         subclass(OpponentCreaturesExiledThisTurnComponent::class)
+        subclass(PlayerDescendedThisTurnComponent::class)
         subclass(PlayerCitysBlessingComponent::class)
         subclass(PlayerHexproofComponent::class)
         subclass(PlayerShroudComponent::class)

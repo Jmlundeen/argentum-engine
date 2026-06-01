@@ -23,6 +23,7 @@ import com.wingedsheep.engine.state.components.player.CardsLeftGraveyardThisTurn
 import com.wingedsheep.engine.state.components.player.CreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.NonTokenCreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.OpponentCreaturesExiledThisTurnComponent
+import com.wingedsheep.engine.state.components.player.PlayerDescendedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.SacrificedFoodThisTurnComponent
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.CounterType
@@ -420,6 +421,24 @@ object ZoneTransitionService {
                 val existing = playerContainer.get<CardsLeftGraveyardThisTurnComponent>()
                     ?: CardsLeftGraveyardThisTurnComponent()
                 playerContainer.with(CardsLeftGraveyardThisTurnComponent(existing.count + 1))
+            }
+        }
+
+        // 8d. Descend (CR 700.11): track permanent cards put into a player's graveyard
+        // from any zone. Tokens are excluded per Scryfall ruling — although tokens are
+        // briefly placed in the graveyard before ceasing to exist, that placement does
+        // not count as the owner having descended. Non-permanent cards (instants /
+        // sorceries entering the graveyard from the stack, hand, or library) are also
+        // excluded. The count is keyed on the card's owner, not its last controller —
+        // "your graveyard" is the owner's graveyard.
+        if (actualDestZone == Zone.GRAVEYARD &&
+            cardComponent.typeLine.isPermanent &&
+            !container.has<TokenComponent>()
+        ) {
+            newState = newState.updateEntity(ownerId) { playerContainer ->
+                val existing = playerContainer.get<PlayerDescendedThisTurnComponent>()
+                    ?: PlayerDescendedThisTurnComponent()
+                playerContainer.with(PlayerDescendedThisTurnComponent(existing.count + 1))
             }
         }
 

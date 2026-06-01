@@ -1653,6 +1653,19 @@ default to "you" so card authors don't need to pass it explicitly.
   `PermanentTypesEnteredBattlefieldThisTurnComponent`, cleared by `CleanupPhaseManager` at
   end of turn. Every battlefield entry must go through `BattlefieldEntry.place` for this
   tracker to stay in sync. Shortcut: `Conditions.ArtifactEnteredBattlefieldThisTurn`.
+- `YouDescendedThisTurn(atLeast = 1)` — CR 700.11 gate: at least `atLeast` nontoken
+  permanent cards were put into your graveyard from *any* zone this turn (battlefield,
+  hand, library, stack, exile). Tokens do not count, even though they briefly enter the
+  graveyard before ceasing to exist; instants and sorceries do not count. The cards
+  themselves need not still be in the graveyard when the gate evaluates — the count is a
+  pure event tracker. Composes through `Compare(DynamicAmount.TurnTracking(Player.You,
+  TurnTracker.DESCENDED), GTE, Fixed(atLeast))`, so the same plumbing supports the bare
+  descend gate (`atLeast = 1`, Ruin-Lurker Bat: "At the beginning of your end step, if
+  you descended this turn, scry 1") and the descend N / fathomless descent ability words
+  (`atLeast = 4`, `atLeast = 8`). Backed by the per-player
+  `PlayerDescendedThisTurnComponent`, incremented in `ZoneTransitionService` whenever a
+  permanent (nontoken) card lands in a player's graveyard, and cleared by
+  `CleanupPhaseManager` at end of turn.
 
 ### Composition
 
@@ -1856,6 +1869,10 @@ the spell when the rider needs the stack (typically because it requires a player
 - `LANDS_PLAYED` — lands played this turn.
 - `FOOD_SACRIFICED` — Food tokens sacrificed.
 - `CARDS_LEFT_GRAVEYARD` — cards leaving your graveyard.
+- `DESCENDED` — number of times a player has descended this turn (CR 700.11) — i.e.
+  count of nontoken permanent cards put into that player's graveyard from any zone.
+  Backs `Conditions.YouDescendedThisTurn(atLeast)` and `DynamicAmounts.descendedThisTurn`
+  (descend N / fathomless descent ability words).
 
 ---
 

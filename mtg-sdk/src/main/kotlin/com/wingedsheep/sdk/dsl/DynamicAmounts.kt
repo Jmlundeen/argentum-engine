@@ -254,6 +254,14 @@ object DynamicAmounts {
     fun lifeGainedThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.LIFE_GAINED)
 
+    /**
+     * "The number of times [player] descended this turn" (CR 700.11) — count of
+     * nontoken permanent cards put into [player]'s graveyard from any zone this turn.
+     * Used by the descend N / fathomless descent ability words.
+     */
+    fun descendedThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.DESCENDED)
+
     /** The starting life total of a player (20 in standard, 40 in commander). */
     fun startingLifeTotal(player: Player = Player.You): DynamicAmount =
         DynamicAmount.StartingLifeTotal(player)

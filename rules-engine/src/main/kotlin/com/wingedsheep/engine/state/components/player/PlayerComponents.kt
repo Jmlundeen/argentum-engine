@@ -546,6 +546,21 @@ data class CardsLeftGraveyardThisTurnComponent(val count: Int = 0) : Component
 data object SacrificedFoodThisTurnComponent : Component
 
 /**
+ * Tracks the number of permanent (nontoken) cards put into this player's graveyard from
+ * any zone during the current turn — i.e. the number of times this player has
+ * "descended" per CR 700.11. Cleared at end of turn by CleanupPhaseManager.
+ *
+ * Per CR 700.11 / Scryfall ruling, the cards do not need to still be in the graveyard;
+ * the count is a pure event tracker.
+ *
+ * Used for the descend gate ("if you descended this turn", Ruin-Lurker Bat) and the
+ * descend N / fathomless descent ability words ("if you descended four or more times
+ * this turn", "the number of times you descended this turn").
+ */
+@Serializable
+data class PlayerDescendedThisTurnComponent(val count: Int = 0) : Component
+
+/**
  * Tracks which card types have entered the battlefield under this player's control this turn.
  * Populated by `BattlefieldEntry.place` (via `PermanentEntryTracker.record`) from the projected
  * types at the moment of entry, so a permanent that's an artifact-by-effect at ETB is recorded
