@@ -331,6 +331,20 @@ class DynamicAmountEvaluator(
                 }
             }
 
+            is DynamicAmount.SpellsCastThisTurn -> {
+                val playerIds = resolveUnifiedPlayerIds(state, amount.player, context)
+                // excludeSelf drops the resolving spell's own record, matched by the spell's
+                // stack entity id (CastSpellRecord.sourceEntityId == context.sourceId).
+                val selfId = if (amount.excludeSelf) context.sourceId else null
+                playerIds.sumOf { playerId ->
+                    val records = state.spellsCastThisTurnByPlayer[playerId] ?: emptyList()
+                    records.count { record ->
+                        (selfId == null || record.sourceEntityId != selfId) &&
+                            predicateEvaluator.matchesFilter(record, amount.filter)
+                    }
+                }
+            }
+
         }
     }
 

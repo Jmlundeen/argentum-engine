@@ -262,6 +262,25 @@ object DynamicAmounts {
     fun descendedThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.DESCENDED)
 
+    /**
+     * "The number of [filter] spells [player] has cast this turn", optionally excluding the
+     * resolving spell itself. Reads the per-player cast history, so the triggering spell counts
+     * unless [excludeSelf].
+     *
+     * ```kotlin
+     * // "other spells you've cast this turn" (Thunder Salvo's variable half)
+     * DynamicAmounts.spellsCastThisTurn(excludeSelf = true)
+     * // "noncreature spells they've cast this turn" (Magebane Lizard)
+     * DynamicAmounts.spellsCastThisTurn(Player.TriggeringPlayer, GameObjectFilter.Noncreature)
+     * ```
+     */
+    fun spellsCastThisTurn(
+        player: Player = Player.You,
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        excludeSelf: Boolean = false
+    ): DynamicAmount =
+        DynamicAmount.SpellsCastThisTurn(player, filter, excludeSelf)
+
     /** The starting life total of a player (20 in standard, 40 in commander). */
     fun startingLifeTotal(player: Player = Player.You): DynamicAmount =
         DynamicAmount.StartingLifeTotal(player)

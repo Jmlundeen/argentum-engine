@@ -2079,6 +2079,9 @@ class CastSpellHandler(
                 colors = cardComponent.colors,
                 isFaceDown = action.castFaceDown,
                 paidWithTreasureMana = paymentResult.paidWithTreasureMana,
+                // The cast card moves to the stack keeping its entity id, so this matches the
+                // resolving spell's EffectContext.sourceId (used by SpellsCastThisTurn excludeSelf).
+                sourceEntityId = action.cardId,
             )
             val existing = currentState.spellsCastThisTurnByPlayer[action.playerId] ?: emptyList()
             currentState = currentState.copy(

@@ -93,7 +93,7 @@ gather over it.
   The Gitrog Ravenous Ride & Calamity (consume the saddlers), **Luxurious Locomotive** (Treasure per
   creature that crewed it this turn). Same shape — build once, share between Saddle and Crew.
 
-### 3. `DynamicAmount` over spells cast this turn (filtered, per-player, exclude-self)
+### 3. `DynamicAmount` over spells cast this turn (filtered, per-player, exclude-self) — ✅ DONE
 
 The data exists (`GameState.spellsCastThisTurnByPlayer: Map<EntityId, List<CastSpellRecord>>`) and
 there is a `YouCastSpellsThisTurn` **condition**, but **no `DynamicAmount`** that reads a *count* of
@@ -102,6 +102,12 @@ turn. Add a `DynamicAmount.SpellsCastThisTurn(player, filter, excludeSelf)`.
 
 → **Thunder Salvo** ("2 plus the number of other spells you've cast this turn"), **Magebane Lizard**
   ("noncreature spells they've cast this turn").
+
+**Implemented:** `DynamicAmount.SpellsCastThisTurn(player, filter, excludeSelf)` +
+`DynamicAmounts.spellsCastThisTurn(...)` facade. `excludeSelf` matches the resolving spell by its
+stack entity id via a new `CastSpellRecord.sourceEntityId`. Both cards are now buildable (Thunder
+Salvo via `Add(Fixed(2), …excludeSelf=true)`; Magebane via the `Noncreature` filter). Tests:
+`SpellsCastThisTurnAmountTest`.
 
 ### 4. "Cast from your hand" cast-zone qualifier on the spell-cast tracker
 

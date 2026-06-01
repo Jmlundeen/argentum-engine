@@ -636,6 +636,11 @@ data class CommanderDamageEntry(
  * [paidWithTreasureMana] captures whether any of the mana spent to cast the spell was
  * added by tapping a Treasure (see Rain of Riches, "the first spell you cast each turn
  * that mana from a Treasure was spent to cast").
+ *
+ * [sourceEntityId] is the entity id of the spell on the stack (the card entity that was cast).
+ * It lets a resolving spell exclude its own record from a count of spells cast this turn —
+ * e.g. Thunder Salvo's "the number of *other* spells you've cast this turn". Null for synthetic
+ * records constructed only for retroactive filter matching.
  */
 @Serializable
 data class CastSpellRecord(
@@ -644,4 +649,5 @@ data class CastSpellRecord(
     val colors: Set<Color>,
     val isFaceDown: Boolean,
     val paidWithTreasureMana: Boolean = false,
+    val sourceEntityId: EntityId? = null,
 )

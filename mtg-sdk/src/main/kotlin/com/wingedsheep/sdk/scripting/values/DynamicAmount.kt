@@ -754,4 +754,57 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount = this
     }
 
+    /**
+     * Counts the spells a player has cast this turn, optionally filtered and optionally
+     * excluding the currently-resolving spell itself.
+     *
+     * Reads the per-player `spellsCastThisTurnByPlayer` history (a list of [CastSpellRecord]
+     * snapshots taken at cast time), so it counts spells regardless of where they are now —
+     * the spell that triggered an ability is already recorded and counts unless [excludeSelf].
+     *
+     * - [filter] narrows to a spell characteristic captured at cast time (type, color, mana
+     *   value). Face-down (Morph/Disguise) casts never match a non-empty filter. With
+     *   [GameObjectFilter.Any] every cast counts.
+     * - [excludeSelf] drops the resolving spell's own record (matched by its stack entity id
+     *   against the evaluation context's source), for "the number of *other* spells you've
+     *   cast this turn". It only has an effect when the source is itself the resolving spell.
+     *
+     * ```kotlin
+     * // Thunder Salvo: "2 plus the number of other spells you've cast this turn"
+     * DynamicAmount.Add(DynamicAmount.Fixed(2),
+     *     DynamicAmount.SpellsCastThisTurn(Player.You, excludeSelf = true))
+     *
+     * // Magebane Lizard: "the number of noncreature spells they've cast this turn"
+     * DynamicAmount.SpellsCastThisTurn(Player.TriggeringPlayer, GameObjectFilter.Noncreature)
+     * ```
+     *
+     * @param player Whose cast history to count (summed when the ref resolves to several players)
+     * @param filter Spell characteristics to match (default [GameObjectFilter.Any])
+     * @param excludeSelf Exclude the resolving spell's own cast record (default false)
+     */
+    @SerialName("SpellsCastThisTurn")
+    @Serializable
+    data class SpellsCastThisTurn(
+        val player: Player = Player.You,
+        val filter: GameObjectFilter = GameObjectFilter.Any,
+        val excludeSelf: Boolean = false
+    ) : DynamicAmount {
+        override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+        override val description: String = buildString {
+            append("the number of ")
+            if (excludeSelf) append("other ")
+            if (filter == GameObjectFilter.Any) append("spells")
+            else append("${filter.description} spells")
+            append(" ")
+            when (player) {
+                Player.You -> append("you've cast")
+                else -> append("${player.description} has cast")
+            }
+            append(" this turn")
+        }
+    }
+
 }

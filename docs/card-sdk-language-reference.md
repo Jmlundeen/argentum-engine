@@ -1823,6 +1823,19 @@ Numbers computed at resolution time.
 - `HandSize(player)` — cards in hand.
 - `TurnCount(player)` — turn number for that player.
 - `TurnTracking(player, TurnTracker)` — value of a per-turn counter (see below).
+- `SpellsCastThisTurn(player, filter?, excludeSelf?)` — count of spells `player` has cast this
+  turn, read from the per-player cast history (`GameState.spellsCastThisTurnByPlayer`). `filter`
+  matches a spell characteristic captured at cast time — type/color/mana value (face-down casts
+  never match a non-empty filter); defaults to `GameObjectFilter.Any`. `excludeSelf` (default
+  `false`) drops the resolving spell's *own* record, matched by its stack entity id, for "the
+  number of **other** spells you've cast this turn". The triggering spell is already recorded and
+  counts unless `excludeSelf`. DSL: `DynamicAmounts.spellsCastThisTurn(player, filter, excludeSelf)`.
+  - Thunder Salvo ("2 plus the number of other spells you've cast this turn"):
+    `Add(Fixed(2), SpellsCastThisTurn(Player.You, excludeSelf = true))`.
+  - Magebane Lizard ("the number of noncreature spells they've cast this turn"):
+    `SpellsCastThisTurn(Player.TriggeringPlayer, GameObjectFilter.Noncreature)`.
+  - Pairs with the `YouCastSpellsThisTurn` **condition** (§ conditions) — that gates a yes/no
+    threshold, this yields the count.
 
 ### Counters
 
