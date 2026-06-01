@@ -196,9 +196,12 @@ class CostHandler(
                 graveyardSize >= 3 || hasFood
             }
             is AbilityCost.Blight -> {
-                // Blight requires at least one creature you control to place -1/-1 counters on
+                // Blight requires at least one creature you control that can have -1/-1 counters
+                // put on it. A creature that "can't have counters put on it" (Blossombind) is not
+                // a legal blight target — CR 614.17b: the cost's event can't happen.
                 val projected = state.projectedState
-                projected.getBattlefieldControlledBy(controllerId).any { projected.isCreature(it) }
+                projected.getBattlefieldControlledBy(controllerId)
+                    .any { projected.isCreature(it) && projected.canReceiveCounters(it) }
             }
             is AbilityCost.RemoveCountersFromAmongFilteredPermanents ->
                 com.wingedsheep.engine.handlers.costs.RemoveCountersFromAmongFilteredPermanentsCostHandler
@@ -627,6 +630,9 @@ class CostHandler(
                 val projected = state.projectedState
                 if (projected.getController(targetId) != controllerId || !projected.isCreature(targetId)) {
                     return CostPaymentResult.failure("Blight target must be a creature you control")
+                }
+                if (!projected.canReceiveCounters(targetId)) {
+                    return CostPaymentResult.failure("Blight target can't have counters put on it")
                 }
                 val counters = targetContainer.get<CountersComponent>() ?: CountersComponent()
                 val firstThisTurn = com.wingedsheep.engine.handlers.effects.DamageUtils

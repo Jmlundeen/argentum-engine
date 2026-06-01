@@ -52,6 +52,16 @@ class ProjectedState(
     fun hasKeyword(entityId: EntityId, flag: com.wingedsheep.sdk.core.AbilityFlag): Boolean =
         hasKeyword(entityId, flag.name)
 
+    /**
+     * Whether counters can be put on this object, per "[this] can't have counters put on it"
+     * effects (e.g. Blossombind). Centralizes the prohibition so every counter-placing path —
+     * effects (AddCounters, DoubleCounters, ...) and costs (Blight) alike — agrees. CR 614.17b:
+     * because the event can't happen, a player can't even choose to pay a cost that includes it,
+     * so blight target pools must exclude such creatures rather than silently dropping the counter.
+     */
+    fun canReceiveCounters(entityId: EntityId): Boolean =
+        !hasKeyword(entityId, com.wingedsheep.sdk.core.AbilityFlag.CANT_RECEIVE_COUNTERS)
+
     fun getColors(entityId: EntityId): Set<String> = projectedValues[entityId]?.colors ?: emptySet()
 
     fun hasColor(entityId: EntityId, color: Color): Boolean =

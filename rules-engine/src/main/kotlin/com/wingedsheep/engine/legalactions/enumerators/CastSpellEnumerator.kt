@@ -198,7 +198,7 @@ class CastSpellEnumerator : ActionEnumerator {
                         blightOrPayCost = cost
                         val projected = state.projectedState
                         blightCreatures = projected.getBattlefieldControlledBy(playerId)
-                            .filter { projected.isCreature(it) }
+                            .filter { projected.isCreature(it) && projected.canReceiveCounters(it) }
                     }
                     is AdditionalCost.BlightVariable -> {
                         // Always payable when minCount = 0 (X = 0 is valid even with no
@@ -206,7 +206,7 @@ class CastSpellEnumerator : ActionEnumerator {
                         // prompt the player for X and a creature.
                         val projected = state.projectedState
                         val ownCreatures = projected.getBattlefieldControlledBy(playerId)
-                            .filter { projected.isCreature(it) }
+                            .filter { projected.isCreature(it) && projected.canReceiveCounters(it) }
                         val maxToughness = ownCreatures.maxOfOrNull { projected.getToughness(it) ?: 0 } ?: 0
                         if (maxToughness < cost.minCount) {
                             canPayAdditionalCosts = false

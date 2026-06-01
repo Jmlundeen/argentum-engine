@@ -9,7 +9,6 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
-import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -134,7 +133,7 @@ class ExploreEffectExecutor : EffectExecutor<ExploreEffect> {
         creatureId: EntityId,
         context: EffectContext
     ): Pair<GameState, List<GameEvent>> {
-        if (state.projectedState.hasKeyword(creatureId, AbilityFlag.CANT_RECEIVE_COUNTERS)) {
+        if (!state.projectedState.canReceiveCounters(creatureId)) {
             return state to emptyList()
         }
         val current = state.getEntity(creatureId)?.get<CountersComponent>() ?: CountersComponent()

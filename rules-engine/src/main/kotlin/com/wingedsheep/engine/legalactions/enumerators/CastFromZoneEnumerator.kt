@@ -428,7 +428,8 @@ class CastFromZoneEnumerator : ActionEnumerator {
                         ?.firstOrNull()
                     val blightCreatures = if (printedBlightOrPay != null) {
                         val projected = state.projectedState
-                        projected.getBattlefieldControlledBy(playerId).filter { projected.isCreature(it) }
+                        projected.getBattlefieldControlledBy(playerId)
+                            .filter { projected.isCreature(it) && projected.canReceiveCounters(it) }
                     } else emptyList()
                     val canAffordBlightPath = printedBlightOrPay != null &&
                         blightCreatures.isNotEmpty() &&

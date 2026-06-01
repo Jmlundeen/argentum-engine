@@ -242,7 +242,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                     is AbilityCost.Blight -> {
                         blightCost = effectiveCost
                         blightCreatures = projected.getBattlefieldControlledBy(playerId)
-                            .filter { projected.isCreature(it) }
+                            .filter { projected.isCreature(it) && projected.canReceiveCounters(it) }
                         if (blightCreatures.isEmpty()) continue
                     }
                     is AbilityCost.Discard -> {
@@ -390,7 +390,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                 is AbilityCost.Blight -> {
                                     blightCost = subCost
                                     blightCreatures = projected.getBattlefieldControlledBy(playerId)
-                                        .filter { projected.isCreature(it) }
+                                        .filter { projected.isCreature(it) && projected.canReceiveCounters(it) }
                                     if (blightCreatures.isEmpty()) {
                                         costCanBePaid = false
                                         break

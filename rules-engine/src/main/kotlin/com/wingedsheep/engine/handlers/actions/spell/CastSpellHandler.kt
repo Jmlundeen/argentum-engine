@@ -1105,6 +1105,9 @@ class CastSpellHandler(
                         if (!projected.isCreature(targetId)) {
                             return "Blight target must be a creature"
                         }
+                        if (!projected.canReceiveCounters(targetId)) {
+                            return "Blight target can't have counters put on it"
+                        }
                     }
                     // If blightTargets is empty, the player is paying extra mana instead
                 }
@@ -1119,7 +1122,8 @@ class CastSpellHandler(
                     val maxToughness = state.getBattlefield()
                         .filter { permId ->
                             projected.getController(permId) == action.playerId &&
-                                projected.isCreature(permId)
+                                projected.isCreature(permId) &&
+                                projected.canReceiveCounters(permId)
                         }
                         .maxOfOrNull { projected.getToughness(it) ?: 0 } ?: 0
                     if (amount > maxToughness) {
@@ -1143,6 +1147,9 @@ class CastSpellHandler(
                         }
                         if (!projected.isCreature(targetId)) {
                             return "Blight target must be a creature"
+                        }
+                        if (!projected.canReceiveCounters(targetId)) {
+                            return "Blight target can't have counters put on it"
                         }
                     }
                 }

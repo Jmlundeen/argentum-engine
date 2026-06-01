@@ -81,7 +81,7 @@ class GraveyardAbilityEnumerator : ActionEnumerator {
                     is AbilityCost.Blight -> {
                         blightCost = effectiveCost
                         blightCreatures = context.projected.getBattlefieldControlledBy(playerId)
-                            .filter { context.projected.isCreature(it) }
+                            .filter { context.projected.isCreature(it) && context.projected.canReceiveCounters(it) }
                         if (blightCreatures.isEmpty()) costCanBePaid = false
                     }
                     is AbilityCost.Composite -> {
@@ -110,7 +110,7 @@ class GraveyardAbilityEnumerator : ActionEnumerator {
                                 is AbilityCost.Blight -> {
                                     blightCost = subCost
                                     blightCreatures = context.projected.getBattlefieldControlledBy(playerId)
-                                        .filter { context.projected.isCreature(it) }
+                                        .filter { context.projected.isCreature(it) && context.projected.canReceiveCounters(it) }
                                     if (blightCreatures.isEmpty()) {
                                         costCanBePaid = false; break
                                     }

@@ -9,7 +9,6 @@ import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.scripting.effects.MoveAllLastKnownCountersEffect
 import kotlin.reflect.KClass
 
@@ -41,7 +40,7 @@ class MoveAllLastKnownCountersExecutor : EffectExecutor<MoveAllLastKnownCounters
             return EffectResult.success(state, emptyList())
         }
 
-        if (state.projectedState.hasKeyword(targetId, AbilityFlag.CANT_RECEIVE_COUNTERS)) {
+        if (!state.projectedState.canReceiveCounters(targetId)) {
             return EffectResult.success(state, emptyList())
         }
 
