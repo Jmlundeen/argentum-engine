@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 56 / 190
+**Implemented:** 57 / 190
 ---
 
 - [ ] Action News Crew
@@ -193,5 +193,5 @@
 - [ ] Weather Maker
 - [ ] West Wind Avatar
 - [ ] Wingnut, Bat on the Belfry
-- [ ] Zog, Triceraton Castaway
+- [x] Zog, Triceraton Castaway
 - [ ] Zoo Escapees
