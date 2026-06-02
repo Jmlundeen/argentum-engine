@@ -16,8 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.GrantPlayWithoutPayingCostEffect
+import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -82,10 +81,13 @@ val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
                     operator = ComparisonOperator.LTE,
                     right = DynamicAmounts.lifeGainedThisTurn()
                 ),
-                effect = CompositeEffect(listOf(
-                    GrantMayPlayFromExileEffect("nonland"),
-                    GrantPlayWithoutPayingCostEffect("nonland")
-                )),
+                // MV ≤ life gained: you may cast it for free *while this ability resolves* (the
+                // printed ruling — you can't wait to cast it later), so cast inline from exile
+                // rather than granting deferred may-play permission. Declining leaves it in exile.
+                effect = MayEffect(Effects.CastFromCollectionWithoutPayingCost("nonland")),
+                // Otherwise (MV > life gained), put the nonland into your hand. The "Otherwise" is
+                // tied to the mana-value comparison, not to declining the cast — cf. Solstice
+                // Revelations' distinct "if you don't cast that card this way" wording.
                 elseEffect = MoveCollectionEffect(
                     from = "nonland",
                     destination = CardDestination.ToZone(Zone.HAND)
