@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 35 / 190
+**Implemented:** 36 / 190
 ---
 
 - [ ] Action News Crew
@@ -88,7 +88,7 @@
 - [ ] Madame Null, Power Broker
 - [x] Make Your Move
 - [ ] Manhole Missile
-- [ ] Mechanized Ninja Cavalry
+- [x] Mechanized Ninja Cavalry
 - [ ] Metalhead
 - [ ] Michelangelo's Technique
 - [ ] Michelangelo, Game Master
