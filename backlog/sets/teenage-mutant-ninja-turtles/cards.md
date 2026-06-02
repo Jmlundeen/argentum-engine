@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 55 / 190
+**Implemented:** 56 / 190
 ---
 
 - [ ] Action News Crew
@@ -183,7 +183,7 @@
 - [ ] Turncoat Kunoichi
 - [ ] Turtle Blimp
 - [ ] Turtle Lair
-- [ ] Turtle Power!
+- [x] Turtle Power!
 - [ ] Turtle Van
 - [ ] Turtles Forever
 - [ ] Turtles in Time
