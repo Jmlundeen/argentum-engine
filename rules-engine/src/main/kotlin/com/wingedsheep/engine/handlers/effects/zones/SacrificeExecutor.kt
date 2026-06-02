@@ -150,9 +150,10 @@ class SacrificeExecutor(
         var newState = state
         val events = mutableListOf<GameEvent>()
 
-        // Capture P/T/subtype snapshots BEFORE the zone change (CR 608.2h / 112.7a) so a
-        // follow-up sibling effect — e.g. Serendib Djinn's "if you sacrifice an Island this
-        // way, ~ deals 3 damage to you" — can read the sacrificed permanent's subtypes via
+        // Capture P/T/subtype snapshots BEFORE the zone change (CR 608.2h / 113.7a — last
+        // known information) so a follow-up sibling effect — e.g. Serendib Djinn's "if you
+        // sacrifice an Island this way, ~ deals 3 damage to you" — can read the sacrificed
+        // permanent's subtypes via
         // [Conditions.SacrificedHadSubtype] or [DynamicAmount.EntityProperty(Sacrificed, ...)].
         val snapshots = if (permanentIds.isNotEmpty()) {
             capturePermanentSnapshots(permanentIds, newState.projectedState)

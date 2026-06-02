@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 /**
  * Scenario tests for Merchant Ship — covers the new
  * [com.wingedsheep.sdk.scripting.GameEvent.BecomesUnblockedEvent] trigger detection
- * (CR 509.7), mapped behind [com.wingedsheep.sdk.dsl.Triggers.AttacksAndIsntBlocked].
+ * (CR 509.3g), mapped behind [com.wingedsheep.sdk.dsl.Triggers.AttacksAndIsntBlocked].
  *
  * Oracle:
  *  - This creature can't attack unless defending player controls an Island.

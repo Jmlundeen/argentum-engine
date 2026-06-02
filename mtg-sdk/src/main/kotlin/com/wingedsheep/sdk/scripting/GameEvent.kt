@@ -533,34 +533,22 @@ sealed interface GameEvent : TextReplaceable<GameEvent> {
     }
 
     /**
-     * When an attacking creature reaches the end of the Declare Blockers step with
-     * no blockers assigned to it (CR 509.7 — "becomes unblocked").
+     * When this attacking creature reaches the end of the Declare Blockers step with
+     * no blockers assigned to it (CR 509.3g — "attacks and isn't blocked").
      *
-     * Binding SELF = "when this creature attacks and isn't blocked",
-     * ANY = "whenever a creature attacks and isn't blocked" (filter=null),
-     * ANY + filter = "whenever a [filter] attacks and isn't blocked" (any controller).
+     * SELF only — "when this creature attacks and isn't blocked". An ANY-binding
+     * filtered variant ("whenever a [filter] attacks and isn't blocked") is not yet
+     * wired in [com.wingedsheep.engine.event.TriggerMatcher]; add the matcher/detector
+     * branches and a filter field together when a card needs it.
      *
-     * Mirrors [BecomesBlockedEvent]. Emitted once per unblocked attacker after
-     * blocker declaration is finalized for the current combat.
+     * Mirrors [BecomesBlockedEvent]. Detected (not emitted) once per unblocked attacker
+     * after blocker declaration is finalized for the current combat.
      */
     @SerialName("BecomesUnblockedEvent")
     @Serializable
-    data class BecomesUnblockedEvent(
-        val filter: GameObjectFilter? = null
-    ) : GameEvent {
-        override val description: String = buildString {
-            if (filter != null) {
-                append("a ${filter.description} attacks and isn't blocked")
-            } else {
-                append("a creature attacks and isn't blocked")
-            }
-        }
-
-        override fun applyTextReplacement(replacer: TextReplacer): GameEvent {
-            val f = filter ?: return this
-            val newFilter = f.applyTextReplacement(replacer)
-            return if (newFilter !== f) copy(filter = newFilter) else this
-        }
+    data object BecomesUnblockedEvent : GameEvent {
+        override val description: String = "a creature attacks and isn't blocked"
+        override fun applyTextReplacement(replacer: TextReplacer): GameEvent = this
     }
 
     /**

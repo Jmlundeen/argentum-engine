@@ -766,7 +766,7 @@ class CardBuilder(private val name: String) {
      * ```
      * stateTriggeredAbility {
      *     condition = Conditions.YouControl(GameObjectFilter.Land.withSubtype("Island"), negate = true)
-     *     effect = Effects.Sacrifice(EffectTarget.Self)
+     *     effect = Effects.SacrificeTarget(EffectTarget.Self)
      * }
      * ```
      */

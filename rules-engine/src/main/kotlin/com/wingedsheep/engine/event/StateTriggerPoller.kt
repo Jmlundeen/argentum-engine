@@ -4,7 +4,6 @@ import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.battlefield.StateTriggerLatchesComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
@@ -61,7 +60,6 @@ class StateTriggerPoller(
             val abilities = cardDef.script.stateTriggeredAbilities
             if (abilities.isEmpty()) continue
 
-            val classLevel = container.get<ClassLevelComponent>()?.currentLevel
             val opponentId = workingState.turnOrder.firstOrNull { it != controllerId }
             val effectContext = EffectContext(
                 sourceId = permanentId,
@@ -72,7 +70,7 @@ class StateTriggerPoller(
             var latches = container.get<StateTriggerLatchesComponent>() ?: StateTriggerLatchesComponent()
             var latchesChanged = false
 
-            for (ability in abilities.filterByZone(classLevel)) {
+            for (ability in abilities) {
                 val conditionMet = conditionEvaluator.evaluate(workingState, ability.condition, effectContext)
                 val wasLatched = latches.isLatched(ability.id)
 
@@ -103,11 +101,6 @@ class StateTriggerPoller(
 
         return Result(workingState, newTriggers)
     }
-
-    private fun List<StateTriggeredAbility>.filterByZone(@Suppress("UNUSED_PARAMETER") classLevel: Int?): List<StateTriggeredAbility> =
-        // All current state-triggered abilities are battlefield-active. Class-level gating is
-        // not yet wired here; revisit if a Class card author needs a level-gated state trigger.
-        this
 
     private fun StateTriggeredAbility.asTriggeredAbility(): TriggeredAbility =
         TriggeredAbility(

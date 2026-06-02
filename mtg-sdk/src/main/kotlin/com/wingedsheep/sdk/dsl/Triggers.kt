@@ -323,20 +323,12 @@ object Triggers {
      * When this creature attacks and isn't blocked. (SELF.)
      *
      * Fires for the SELF attacker if it reaches end of Declare Blockers with no
-     * blockers assigned (CR 509.7). Used for cards like Merchant Ship: "Whenever
+     * blockers assigned (CR 509.3g). Used for cards like Merchant Ship: "Whenever
      * Merchant Ship attacks and isn't blocked, you gain 2 life."
      */
     val AttacksAndIsntBlocked: TriggerSpec = TriggerSpec(
-        event = BecomesUnblockedEvent(),
+        event = BecomesUnblockedEvent,
         binding = TriggerBinding.SELF
-    )
-
-    /**
-     * "Whenever a [filter] attacks and isn't blocked" — ANY binding with a filter.
-     */
-    fun attacksAndIsntBlocked(filter: GameObjectFilter): TriggerSpec = TriggerSpec(
-        event = BecomesUnblockedEvent(filter),
-        binding = TriggerBinding.ANY
     )
 
     /**

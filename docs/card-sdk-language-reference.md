@@ -914,11 +914,10 @@ sealed set for attack-time facts beyond the basics.
   sole consumer of `BlocksOrBecomesBlockedByEvent`. Prefer `blocks(attackerFilter=...)`
   when only the blocking direction should fire.
 - `AttacksAndIsntBlocked` — SELF. Fires once per attacker that reaches end of
-  Declare Blockers with no blockers assigned (CR 509.7). Backed by
+  Declare Blockers with no creatures declared as blockers (CR 509.3g). Backed by
   `BecomesUnblockedEvent` matched against `BlockersDeclaredEvent`. Used for
   Merchant Ship: "Whenever this creature attacks and isn't blocked, you gain 2 life."
-- `attacksAndIsntBlocked(filter)` — ANY-binding factory variant: "Whenever a
-  [filter] attacks and isn't blocked."
+  (SELF only — an ANY-binding filtered variant isn't wired in `TriggerMatcher` yet.)
 
 **`AttackPredicate`** — extensible "facts about an attack declaration."
 Adding a new attack-time mechanic is one new sealed-case + one matcher branch
@@ -1251,7 +1250,14 @@ A **state-triggered ability** fires whenever a game-state condition becomes true
 than in response to a `GameEvent`. The engine polls the condition at every priority pass
 and emits the trigger on each false → true transition. Once it has fired, a per-permanent
 `StateTriggerLatchesComponent` latch suppresses re-firing until the condition next
-evaluates false again (CR 603.8d).
+evaluates false again (CR 603.8).
+
+> **Latch note.** The printed CR 603.8 resets after the ability *leaves the stack* and
+> re-triggers if the condition is still true. This engine resets on the condition next
+> being *false* instead — equivalent for "sacrifice this creature" cards (source leaves,
+> condition clears) but divergent for a state trigger that leaves source and condition
+> intact. No such card exists yet; reset-on-leaves-the-stack should be wired before one is
+> authored.
 
 ```kotlin
 stateTriggeredAbility {

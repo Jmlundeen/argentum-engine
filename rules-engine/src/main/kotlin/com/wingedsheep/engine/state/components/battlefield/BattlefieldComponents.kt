@@ -339,9 +339,11 @@ data class TriggeredAbilityFiredThisTurnComponent(
 
 /**
  * Per-permanent latch state for [com.wingedsheep.sdk.scripting.StateTriggeredAbility]
- * instances (CR 603.8d). An [AbilityId] is in [latched] iff the engine has fired this
+ * instances (CR 603.8). An [AbilityId] is in [latched] iff the engine has fired this
  * state trigger and the condition has not yet become false again — preventing repeat
- * firings while the condition stays true. The [com.wingedsheep.engine.event.StateTriggerPoller]
+ * firings while the condition stays true. (See [com.wingedsheep.sdk.scripting.StateTriggeredAbility]
+ * for why this latch resets on condition-false rather than on leaves-the-stack.)
+ * The [com.wingedsheep.engine.event.StateTriggerPoller]
  * adds the id when emitting a [com.wingedsheep.engine.event.PendingTrigger] and removes
  * it as soon as the condition next evaluates false.
  *

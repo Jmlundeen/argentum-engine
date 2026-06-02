@@ -11,15 +11,23 @@ import kotlinx.serialization.Serializable
  * A state-triggered ability per CR 603.8: it triggers whenever its [condition] becomes true,
  * rather than in response to a [GameEvent].
  *
- * Per 603.8a–d:
- * - The condition is checked each time a player would receive priority and after the stack
- *   is empty / nothing else is happening.
- * - Once the ability has triggered, it does not trigger again until the condition has been
- *   false at some point afterward (the "latch"). The engine tracks this per
- *   (entityId, abilityId) via [com.wingedsheep.engine.state.components.battlefield.StateTriggerLatchesComponent]
+ * Per CR 603.8:
+ * - The condition is checked each time a player would receive priority.
+ * - When the condition becomes true the ability goes onto the stack as a normal triggered
+ *   ability and resolves under stack rules.
+ * - It does not trigger again while the condition stays true (the "latch"). The engine
+ *   tracks this per (entityId, abilityId) via
+ *   [com.wingedsheep.engine.state.components.battlefield.StateTriggerLatchesComponent]
  *   in the rules-engine module.
- * - When it does trigger, it goes onto the stack as a normal triggered ability and resolves
- *   under stack rules.
+ *
+ * Deliberate simplification vs the letter of CR 603.8: the printed rule resets once the
+ * ability *leaves the stack* (resolves / is countered) and re-triggers if the condition is
+ * still true. This engine instead resets the latch when the condition next evaluates
+ * *false*. The two agree for every state trigger whose effect removes the source or clears
+ * the condition (the only shape shipped so far — "sacrifice this creature" cards). They
+ * diverge only for a state trigger that leaves both the source and the condition intact,
+ * where the printed rule would re-fire each time it resolves; no such card exists yet.
+ * Revisit (reset on leaves-the-stack) before authoring one.
  *
  * Authored on cards like Dandân ("When you control no Islands, sacrifice this creature"),
  * Force Bubble ("when there are four or more depletion counters on ~, sacrifice it"), etc.

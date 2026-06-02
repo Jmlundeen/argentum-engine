@@ -132,10 +132,10 @@ class TriggerMatcher(
                     (binding != TriggerBinding.SELF || event.blockers.values.any { it.contains(sourceId) })
             }
             is GameEvent.BecomesUnblockedEvent -> {
-                // CR 509.7: fires for an attacker that has no blockers assigned. We piggyback
-                // on BlockersDeclaredEvent (emitted once at end of declare-blockers): SELF
-                // matches when sourceId is an attacker this combat AND is absent from every
-                // blocker's blocked-attackers list.
+                // CR 509.3g: fires for an attacker with no creatures declared as blockers.
+                // We piggyback on BlockersDeclaredEvent (emitted once at end of
+                // declare-blockers): SELF matches when sourceId is an attacker this combat
+                // AND is absent from every blocker's blocked-attackers list.
                 if (event !is BlockersDeclaredEvent) return false
                 if (binding != TriggerBinding.SELF) return false
                 val isAttacking = state.getEntity(sourceId)
