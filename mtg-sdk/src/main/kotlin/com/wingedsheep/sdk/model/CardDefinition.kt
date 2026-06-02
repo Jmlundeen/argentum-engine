@@ -243,6 +243,33 @@ data class CardDefinition(
             return PrintingRef(set, cn)
         }
 
+    /**
+     * Return a copy of this definition presenting a different [printing] — the card's oracle
+     * identity (script, types, P/T, name) is untouched; only the presentation metadata that the
+     * client renders (set code, collector number, art, artist, Scryfall id) is overlaid from the
+     * printing. The back-face art is overlaid too, but only when this card actually has a
+     * [backFace] and the printing carries a back-face image (so a stray back image on a
+     * single-faced printing is ignored).
+     *
+     * This is the seam the booster generator uses to make a generated card show its showcase /
+     * borderless art, and is equally usable wherever a chosen [PrintingRef] should re-skin a
+     * card for display.
+     */
+    fun withPrinting(printing: Printing): CardDefinition = copy(
+        setCode = printing.setCode,
+        metadata = metadata.copy(
+            collectorNumber = printing.collectorNumber,
+            artist = printing.artist ?: metadata.artist,
+            imageUri = printing.imageUri ?: metadata.imageUri,
+            scryfallId = printing.scryfallId ?: metadata.scryfallId,
+            releaseDate = printing.releaseDate ?: metadata.releaseDate,
+        ),
+        backFace = backFace?.let { back ->
+            val backImage = printing.backFaceImageUri ?: return@let back
+            back.copy(metadata = back.metadata.copy(imageUri = backImage))
+        },
+    )
+
     val isCreature: Boolean get() = typeLine.isCreature
     val isLand: Boolean get() = typeLine.isLand
     val isSorcery: Boolean get() = typeLine.isSorcery

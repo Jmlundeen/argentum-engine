@@ -29,7 +29,21 @@ data class Printing(
     val isPromo: Boolean = false,
     val isFullArt: Boolean = false,
     val frameEffects: List<String> = emptyList(),
+    /** Scryfall `border_color` (e.g. "black", "white", "borderless"). Null when unknown. */
+    val borderColor: String? = null,
 ) {
     /** Reference form for decks and lookup APIs. */
     val ref: PrintingRef get() = PrintingRef(setCode, collectorNumber)
+
+    /**
+     * True when this printing uses an alternate frame treatment — a *showcase* frame
+     * (`"showcase" in frameEffects`) or a *borderless* border (`borderColor == "borderless"`).
+     *
+     * This is the predicate the booster generator uses to pick "special art" printings for its
+     * variant slot, and what the deckbuilder picker can use to label a printing as a special
+     * version. It deliberately does **not** count plain full-art or promo treatments — only the
+     * showcase/borderless families a player perceives as alternate art.
+     */
+    val isAlternateFrame: Boolean
+        get() = borderColor == "borderless" || "showcase" in frameEffects
 }

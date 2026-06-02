@@ -112,6 +112,30 @@ section; do not let SDK additions land without a corresponding doc update.
 **Reprints** — add a `Printing` row in the new set's `Reprints.kt` and wire it into `MtgSet.printings`. Never duplicate
 the `CardDefinition`.
 
+**`Printing`** — a presentation-only row for one printing of a card (oracle identity stays on the `CardDefinition`).
+Carries `setCode`, `collectorNumber`, `scryfallId`, `artist`, `imageUri`, `backFaceImageUri`, `releaseDate`, `rarity`,
+plus the frame fields:
+
+- `isFullArt: Boolean` — Scryfall full-art treatment.
+- `frameEffects: List<String>` — Scryfall `frame_effects` (e.g. `["showcase"]`, `["inverted"]`).
+- `borderColor: String?` — Scryfall `border_color` (`"black" | "white" | "borderless"`).
+- `isAlternateFrame: Boolean` (derived) — true when the printing is a **showcase** frame
+  (`"showcase" in frameEffects`) or **borderless** (`borderColor == "borderless"`). This is the predicate the booster
+  variant slot selects on; plain full-art / promo treatments are not counted.
+
+`CardDefinition.withPrinting(printing)` returns a copy presenting that printing — it overlays only presentation
+metadata (set code, collector number, art, artist, Scryfall id, and the back-face art for genuine DFCs) and leaves the
+card's oracle identity untouched.
+
+**Showcase / borderless in boosters** — a set advertises a per-card variant rate via `MtgSet.boosterVariantChance`
+(default `0.0`). When non-zero, `BoosterGenerator` rolls each generated card independently and, on a hit, re-skins it
+with one of its `isAlternateFrame` `printings` of the same name (via `applyVariantPrintings` →
+`CardDefinition.withPrinting`). The swap is presentation-only: it changes the art shown in the draft/sealed pool, not
+the card's rules or its in-game (name-resolved) art. Lorwyn Eclipsed sets `boosterVariantChance = 0.15` and contributes
+its showcase/borderless rows via `LorwynEclipsedVariantPrintings` — the play-booster treatments only, with the
+collector-only ones (reversible shocklands, Japanese Showcase, Fracture Foil, serialized/headliner chase cards)
+excluded.
+
 ---
 
 ## 3. Costs (`Costs.*`)

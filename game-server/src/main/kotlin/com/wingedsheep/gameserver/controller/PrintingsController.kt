@@ -103,6 +103,7 @@ class PrintingsController(
         isPromo = isPromo,
         isFullArt = isFullArt,
         frameEffects = frameEffects,
+        borderColor = borderColor,
     )
 
     /**
@@ -123,5 +124,6 @@ class PrintingsController(
         val isPromo: Boolean,
         val isFullArt: Boolean,
         val frameEffects: List<String>,
+        val borderColor: String?,
     )
 }

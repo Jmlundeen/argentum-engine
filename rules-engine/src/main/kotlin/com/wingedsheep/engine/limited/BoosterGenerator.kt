@@ -3,6 +3,7 @@ package com.wingedsheep.engine.limited
 import com.wingedsheep.sdk.limited.BoosterStrategy
 import com.wingedsheep.sdk.limited.StandardBooster
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.Printing
 import kotlin.random.Random
 
 /**
@@ -40,11 +41,47 @@ class BoosterGenerator(
         /** Set release date in ISO `YYYY-MM-DD` form, or null if unknown. Used by clients to sort sets chronologically. */
         val releaseDate: String? = null,
         val boosterStrategy: BoosterStrategy = StandardBooster(),
+        /**
+         * Per-printing rows the set contributes (typically [com.wingedsheep.sdk.model.MtgSet.printings]).
+         * Only the alternate-frame entries among these are eligible for the variant slot; canonical
+         * reprints are ignored by [applyVariantPrintings].
+         */
+        val printings: List<Printing> = emptyList(),
+        /** See [com.wingedsheep.sdk.model.MtgSet.boosterVariantChance]. 0.0 disables the variant slot. */
+        val variantChance: Double = 0.0,
     )
 
     companion object {
 
         private val BASIC_LAND_NAMES = setOf("Plains", "Island", "Swamp", "Mountain", "Forest")
+
+        /**
+         * Re-skin each generated card with one of its alternate-frame printings (showcase /
+         * borderless) with probability [chance], leaving the card's oracle identity untouched.
+         *
+         * Pure and deterministic for a given [random]: the roll is independent per card, only
+         * fires for a card that has a matching [Printing.isAlternateFrame] printing of the same
+         * name, and otherwise passes the card through unchanged. A non-positive [chance] or an
+         * empty printing pool is a no-op. See [CardDefinition.withPrinting] for the overlay.
+         */
+        fun applyVariantPrintings(
+            cards: List<CardDefinition>,
+            printings: List<Printing>,
+            chance: Double,
+            random: Random,
+        ): List<CardDefinition> {
+            if (chance <= 0.0) return cards
+            val variantsByName = printings.filter { it.isAlternateFrame }.groupBy { it.name }
+            if (variantsByName.isEmpty()) return cards
+            return cards.map { card ->
+                val variants = variantsByName[card.name]
+                if (!variants.isNullOrEmpty() && random.nextDouble() < chance) {
+                    card.withPrinting(variants.random(random))
+                } else {
+                    card
+                }
+            }
+        }
 
         /**
          * Distribute basic lands in a deck list across art variants for a nice mix.
@@ -129,7 +166,8 @@ class BoosterGenerator(
         val setConfig = availableSets[setCode]
             ?: throw IllegalArgumentException("Unknown set code: $setCode")
         val effectiveStrategy = strategy ?: setConfig.boosterStrategy
-        return effectiveStrategy.generate(boosterPool(setConfig.cards), Random.Default)
+        val generated = effectiveStrategy.generate(boosterPool(setConfig.cards), Random.Default)
+        return applyVariantPrintings(generated, setConfig.printings, setConfig.variantChance, Random.Default)
     }
 
     /**

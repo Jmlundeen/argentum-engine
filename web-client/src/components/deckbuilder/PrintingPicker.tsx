@@ -27,6 +27,7 @@ export interface PrintingDTO {
   readonly isPromo: boolean
   readonly isFullArt: boolean
   readonly frameEffects: readonly string[]
+  readonly borderColor: string | null
 }
 
 export function PrintingPicker({

@@ -105,4 +105,6 @@ private fun MtgSet.toBoosterSetConfig(): BoosterGenerator.SetConfig =
         block = block,
         releaseDate = releaseDate,
         boosterStrategy = boosterStrategy,
+        printings = printings,
+        variantChance = boosterVariantChance,
     )

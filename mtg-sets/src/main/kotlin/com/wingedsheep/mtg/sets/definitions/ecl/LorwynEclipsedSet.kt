@@ -1,8 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ecl
 
+import com.wingedsheep.mtg.sets.definitions.ecl.cards.LorwynEclipsedVariantPrintings
 import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
+import com.wingedsheep.sdk.model.Printing
 
 /**
  * Lorwyn Eclipsed Set (2026)
@@ -21,12 +23,24 @@ object LorwynEclipsedSet : MtgSet {
     override val releaseDate = "2026-01-23"
     override val sealedSupported = true
 
+    /** ~15% of booster cards roll into their showcase / borderless [printings]. */
+    override val boosterVariantChance = 0.15
+
     override val cards: List<CardDefinition> by lazy {
         CardDiscovery.findIn(CARDS_PACKAGE)
     }
 
     override val basicLands: List<CardDefinition> by lazy {
         CardDiscovery.findBasicLandsIn(CARDS_PACKAGE).map { it.copy(setCode = code) }
+    }
+
+    /**
+     * Per-card discovered printing rows (reprints) plus the curated showcase / borderless
+     * variant printings ([LorwynEclipsedVariantPrintings]). The variant rows are an aggregate
+     * list, which [CardDiscovery.findPrintingsIn] deliberately skips, so they are appended here.
+     */
+    override val printings: List<Printing> by lazy {
+        CardDiscovery.findPrintingsIn(CARDS_PACKAGE) + LorwynEclipsedVariantPrintings
     }
 
     private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.ecl.cards"

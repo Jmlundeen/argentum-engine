@@ -55,6 +55,14 @@ interface MtgSet {
     val sealedSupported: Boolean get() = false
 
     /**
+     * Probability in `[0.0, 1.0]` that an individual card rolled into a booster is shown with one
+     * of its alternate-frame printings (showcase / borderless) instead of its canonical art. The
+     * roll is per card and only fires for cards that actually have an alternate-frame [Printing]
+     * in [printings]; sets with no such printings can leave this at the default of 0.0.
+     */
+    val boosterVariantChance: Double get() = 0.0
+
+    /**
      * Per-printing rows this set contributes to [com.wingedsheep.engine.registry.PrintingRegistry].
      *
      * Most printings are synthesised at startup from each registered [CardDefinition]'s
