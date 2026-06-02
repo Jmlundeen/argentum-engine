@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 10 / 190
+**Implemented:** 11 / 190
 ---
 
 - [ ] Action News Crew
@@ -25,7 +25,7 @@
 - [ ] Chrome Dome
 - [ ] Cool but Rude
 - [ ] Courier of Comestibles
-- [ ] Cowabunga!
+- [x] Cowabunga!
 - [ ] Crustacean Commando
 - [ ] Dark Leo & Shredder
 - [x] Death in the Family
