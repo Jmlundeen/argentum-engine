@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 29 / 190
+**Implemented:** 30 / 190
 ---
 
 - [ ] Action News Crew
@@ -30,7 +30,7 @@
 - [ ] Dark Leo & Shredder
 - [x] Death in the Family
 - [x] Dimension X
-- [ ] Dimensional Exile
+- [x] Dimensional Exile
 - [ ] Does Machines
 - [ ] Don & Leo, Problem Solvers
 - [ ] Don & Raph, Hard Science
