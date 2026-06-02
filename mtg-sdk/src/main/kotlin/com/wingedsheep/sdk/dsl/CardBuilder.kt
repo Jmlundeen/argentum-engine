@@ -360,7 +360,7 @@ class CardBuilder(private val name: String) {
      * "Flurry — Whenever you cast your second spell each turn, [effect]." The [Keyword.FLURRY]
      * tag is display-only (the engine has no dedicated Flurry handler); the behavior lives
      * entirely in the triggered ability wired here on the [Triggers.NthSpellCast] (n=2, you)
-     * event, which the [com.wingedsheep.sdk.scripting.GameEvent.NthSpellCastEvent] matcher
+     * event, which the [com.wingedsheep.sdk.scripting.EventPattern.NthSpellCastEvent] matcher
      * already fires when its controller casts their second spell of the turn.
      *
      * Author the effect/target/optional inside the block exactly like [triggeredAbility]

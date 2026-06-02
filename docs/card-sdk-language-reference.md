@@ -1055,7 +1055,7 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
 - `OpponentActivatesAbility` — an opponent activates an ability that **isn't a mana ability** (CR 605/606). Mana
   abilities don't use the stack, so they never fire this; loyalty abilities (which are activated abilities) do. Pair
   with `Effects.DealDamage(n, EffectTarget.PlayerRef(Player.TriggeringPlayer))` to punish the activator (Flamescroll
-  Celebrant). Backed by `GameEvent.AbilityActivatedEvent(player)`.
+  Celebrant). Backed by `EventPattern.AbilityActivatedEvent(player)`.
 
 **Other casters.** The same shape, scoped to a different caster via the runtime
 `Player.Each` / `Player.Opponent` matching on `SpellCastEvent`. Bind the payoff to the
@@ -1063,7 +1063,7 @@ caster with `EffectTarget.PlayerRef(Player.TriggeringPlayer)`.
 
 - `AnyPlayerCastsSpell` — any player (including you) casts a spell.
 - `OpponentCastsSpell` — an opponent casts a spell.
-- `AnyPlayerChoosesTargets` — any player casts a spell, activates an ability, or puts a triggered ability on the stack with ≥1 target (fires once per object via `GameEvent.TargetsChosenEvent`). The triggering entity is that spell/ability, so the payoff can read/change its targets (Psychic Battle).
+- `AnyPlayerChoosesTargets` — any player casts a spell, activates an ability, or puts a triggered ability on the stack with ≥1 target (fires once per object via `EventPattern.TargetsChosenEvent`). The triggering entity is that spell/ability, so the payoff can read/change its targets (Psychic Battle).
 - `anyPlayerCasts(spellFilter?, requires?)` — factory; e.g. `anyPlayerCasts(GameObjectFilter.Creature)`
   for "whenever a player casts a creature spell" (Pure Reflection).
 - `opponentCasts(spellFilter?, requires?)` — factory; e.g. `opponentCasts(GameObjectFilter.Multicolored)`
@@ -1180,7 +1180,7 @@ Triggers.youCastSpell(
 
 - `NthSpellCast(n, player?)` — fires on the Nth spell cast.
 - `WhenYouCastThisSpell()` — a "cast trigger" that fires on the spell's **own** cast while it is on
-  the stack (`GameEvent.CastThisSpellEvent`, `binding = SELF`). Distinct from a battlefield
+  the stack (`EventPattern.CastThisSpellEvent`, `binding = SELF`). Distinct from a battlefield
   `SpellCast`/`NthSpellCast` trigger that observes *other* spells: this one travels with the spell
   onto the stack and is detected only by `TriggerDetector`'s self-cast path (it is deliberately
   **not** indexed against battlefield permanents, so it never fires after the spell resolves).
@@ -1539,7 +1539,7 @@ composite abilities).
   helper. Author the effect/target/optional inside the block exactly like `triggeredAbility { }` — the
   helper forces the `Triggers.NthSpellCast(2, Player.You)` trigger, adds the FLURRY tag, and prefixes the
   rendered text with "Flurry — Whenever you cast your second spell each turn," (mirrors `prowess()` /
-  `rampage()`). The second-spell-cast event is matched by `GameEvent.NthSpellCastEvent`; no new engine
+  `rampage()`). The second-spell-cast event is matched by `EventPattern.NthSpellCastEvent`; no new engine
   subsystem is involved. Example: `flurry { effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self) }`.
 - `Afflict(n)` — defender loses N when this becomes blocked.
 - `Crew(n)` — tap N power worth to animate a Vehicle.
@@ -2177,7 +2177,7 @@ replacementEffect {
 ```
 
 - `ReplacementEffect.PreventDamage(amount?, restrictions?, appliesTo)` — prevent damage matching the
-  `GameEvent.DamageEvent` shape. `amount = null` prevents all; a number prevents up to that much.
+  `EventPattern.DamageEvent` shape. `amount = null` prevents all; a number prevents up to that much.
   `restrictions: List<Condition>` (default empty) gates the prevention on extra conditions evaluated
   against the source's controller — the same pattern as `ModifyLifeLoss.restrictions`. Use it for
   "as long as …, prevent …" statics (Spirit of Resistance: a five-distinct-colors `Compare` gate).
@@ -2188,7 +2188,7 @@ replacementEffect {
   supports `EffectTarget.ControllerOfDamageSource` (the controller of the damaging source),
   `Controller`/`Self` (the replacement's owner/controller), and `TargetController`. Harsh Judgment:
   redirect chosen-color instant/sorcery damage dealt to you back to the spell's controller.
-- **DamageEvent filters (gap #7):** `GameEvent.DamageEvent(recipient, source, damageType, amount)`.
+- **DamageEvent filters (gap #7):** `EventPattern.DamageEvent(recipient, source, damageType, amount)`.
   `amount: AmountFilter` (`Any` / `AtMost(n)` / `AtLeast(n)` / `Exactly(n)`) gates on the would-be
   amount (Callous Giant: `AtMost(3)`). `source = SourceFilter.Matching(filter)` can carry relational
   predicates: `GameObjectFilter.sharingColorWithRecipient()` (`CardPredicate.SharesColorWithRecipient`,

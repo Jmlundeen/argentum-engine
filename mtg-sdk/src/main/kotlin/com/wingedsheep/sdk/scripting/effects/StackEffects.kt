@@ -421,7 +421,7 @@ sealed interface RetargetChooser {
 /**
  * The player named by [chooser] may change the target or targets of the triggering spell or
  * ability (`context.triggeringEntityId`). Resolve from a trigger that fires on the spell/ability
- * (e.g. [com.wingedsheep.sdk.scripting.GameEvent.TargetsChosenEvent]). The chooser may change all,
+ * (e.g. [com.wingedsheep.sdk.scripting.EventPattern.TargetsChosenEvent]). The chooser may change all,
  * some, or none of the targets; new targets must be legal for the original spell/ability judged
  * from *its* controller's perspective (CR: same number, no illegal target, no target chosen twice).
  *
