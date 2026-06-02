@@ -43,7 +43,11 @@ enum class CounterType {
     TIME,
     FEATHER,
     HOURGLASS,
-    DECAYED
+    DECAYED,
+    HOPE,
+    VERSE,
+    INFLUENCE,
+    BURDEN
 }
 
 /**
@@ -99,9 +103,33 @@ object Counters {
     const val DECAYED = "decayed"
 
     /**
+     * Hope counter (LTR — Dawn of a New Age). Passive counter: no inherent rule, the card
+     * referencing it reads the count via `DynamicAmounts.countersOnSelf(...)`.
+     */
+    const val HOPE = "hope"
+
+    /**
+     * Verse counter (LTR — Lost Isle Calling). Passive counter accumulated on a Saga-like
+     * permanent; the card itself reads the count.
+     */
+    const val VERSE = "verse"
+
+    /**
+     * Influence counter (LTR — Palantír of Orthanc). Passive counter the card's own abilities
+     * scale off of.
+     */
+    const val INFLUENCE = "influence"
+
+    /**
+     * Burden counter (LTR — The One Ring). Passive counter that the card's own legendary-rule
+     * and damage trigger read; the engine has no inherent behavior tied to it.
+     */
+    const val BURDEN = "burden"
+
+    /**
      * Wildcard sentinel for triggers/events that fire on counters of *any* type, e.g.
      * "whenever one or more counters are put on a creature you control" (Stalwart Successor).
-     * A [com.wingedsheep.sdk.scripting.GameEvent.CountersPlacedEvent] with this `counterType`
+     * A [com.wingedsheep.sdk.scripting.EventPattern.CountersPlacedEvent] with this `counterType`
      * matches every counter-placement event regardless of the counter kind.
      */
     const val ANY = "any"
