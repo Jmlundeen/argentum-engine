@@ -823,11 +823,8 @@ class CostCalculator(
         projectedState: com.wingedsheep.engine.mechanics.layers.ProjectedState? = null
     ): Boolean {
         if (filter.cardPredicates.isEmpty()) return true
-        return if (filter.matchAll) {
-            filter.cardPredicates.all { matchesCardPredicate(cardDef, it, sourceEntityId, state, projectedState) }
-        } else {
-            filter.cardPredicates.any { matchesCardPredicate(cardDef, it, sourceEntityId, state, projectedState) }
-        }
+        // Conjunction over card predicates; OR lives inside a CardPredicate.Or.
+        return filter.cardPredicates.all { matchesCardPredicate(cardDef, it, sourceEntityId, state, projectedState) }
     }
 
     private fun matchesCardPredicate(

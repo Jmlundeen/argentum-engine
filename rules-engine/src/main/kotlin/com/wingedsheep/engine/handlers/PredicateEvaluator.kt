@@ -85,15 +85,11 @@ class PredicateEvaluator {
             }
         }
 
-        // Check all card predicates using projected state
-        val cardMatches = if (filter.matchAll) {
-            filter.cardPredicates.all { predicate ->
-                matchesCardPredicate(state, projected, entityId, predicate, context)
-            }
-        } else {
-            filter.cardPredicates.isEmpty() || filter.cardPredicates.any { predicate ->
-                matchesCardPredicate(state, projected, entityId, predicate, context)
-            }
+        // Check all card predicates using projected state. The list is always a
+        // conjunction; OR is expressed within a single CardPredicate.Or, not by a
+        // filter-level flag.
+        val cardMatches = filter.cardPredicates.all { predicate ->
+            matchesCardPredicate(state, projected, entityId, predicate, context)
         }
 
         if (!cardMatches) return false
@@ -773,11 +769,8 @@ class PredicateEvaluator {
         if (filter.cardPredicates.isEmpty()) return true
         if (record.isFaceDown) return false
 
-        return if (filter.matchAll) {
-            filter.cardPredicates.all { matchesRecordPredicate(record, it) }
-        } else {
-            filter.cardPredicates.any { matchesRecordPredicate(record, it) }
-        }
+        // Conjunction over card predicates; OR lives inside a CardPredicate.Or.
+        return filter.cardPredicates.all { matchesRecordPredicate(record, it) }
     }
 
     private fun matchesRecordPredicate(record: CastSpellRecord, predicate: CardPredicate): Boolean {

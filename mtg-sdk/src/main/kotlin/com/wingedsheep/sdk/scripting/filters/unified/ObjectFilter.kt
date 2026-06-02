@@ -44,8 +44,7 @@ import kotlinx.serialization.Serializable
 data class GameObjectFilter(
     val cardPredicates: List<CardPredicate> = emptyList(),
     val statePredicates: List<StatePredicate> = emptyList(),
-    val controllerPredicate: ControllerPredicate? = null,
-    val matchAll: Boolean = true  // true = AND all predicates, false = OR
+    val controllerPredicate: ControllerPredicate? = null
 ) : TextReplaceable<GameObjectFilter> {
     val description: String
         get() = buildDescription()
@@ -542,20 +541,44 @@ data class GameObjectFilter(
         controllerPredicate = other.controllerPredicate ?: controllerPredicate
     )
 
-    /** Combine with another filter using OR logic */
-    infix fun or(other: GameObjectFilter) = GameObjectFilter(
-        cardPredicates = listOf(
-            CardPredicate.Or(
-                listOf(
-                    cardPredicates.toConjunction(),
-                    other.cardPredicates.toConjunction()
+    /**
+     * Combine with another filter using OR logic over their card-type predicates.
+     *
+     * The OR is carried entirely by a single [CardPredicate.Or]; the state and controller
+     * predicates remain conjunctive *gates* applied to the whole result. This flat filter
+     * therefore can only represent an OR whose two sides share the same state/controller
+     * predicates — e.g. `Creature.youControl() or Artifact.youControl()` ("a creature or
+     * artifact you control"). A *heterogeneous* OR that correlates a card type with a
+     * different controller/state per side (e.g. "a creature you control or an artifact an
+     * opponent controls") is not expressible in the flat model and is rejected here rather
+     * than silently mis-evaluated — model it with a recursive filter union instead (a
+     * primitive the SDK does not yet have; see the SDK architecture review §2.1).
+     */
+    infix fun or(other: GameObjectFilter): GameObjectFilter {
+        require(controllerPredicate == other.controllerPredicate) {
+            "GameObjectFilter.or cannot combine filters with different controller predicates " +
+                "($controllerPredicate vs ${other.controllerPredicate}); the flat filter shares one " +
+                "controller gate across both OR branches. Use a single shared controller, or model " +
+                "the heterogeneous union explicitly."
+        }
+        require(statePredicates == other.statePredicates) {
+            "GameObjectFilter.or cannot combine filters with different state predicates " +
+                "($statePredicates vs ${other.statePredicates}); the flat filter shares one state " +
+                "gate across both OR branches."
+        }
+        return GameObjectFilter(
+            cardPredicates = listOf(
+                CardPredicate.Or(
+                    listOf(
+                        cardPredicates.toConjunction(),
+                        other.cardPredicates.toConjunction()
+                    )
                 )
-            )
-        ),
-        statePredicates = statePredicates + other.statePredicates,
-        controllerPredicate = other.controllerPredicate ?: controllerPredicate,
-        matchAll = false
-    )
+            ),
+            statePredicates = statePredicates,
+            controllerPredicate = controllerPredicate
+        )
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): GameObjectFilter {
         var changed = false
