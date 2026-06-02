@@ -109,6 +109,10 @@ object FilterQueryLanguage {
     fun formatFilter(obj: JsonObject): String? {
         val terms = mutableListOf<String>()
 
+        // A recursive union (the `or` infix) can mix per-branch state/controller predicates,
+        // which the flat query string cannot express — bail to the structured form.
+        if (obj["anyOf"] != null) return null
+
         val cardPredicates = obj["cardPredicates"]?.jsonArray ?: JsonArray(emptyList())
         val statePredicates = obj["statePredicates"]?.jsonArray ?: JsonArray(emptyList())
         val controllerPredicate = obj["controllerPredicate"]
@@ -367,11 +371,12 @@ object FilterQueryLanguage {
 
     /**
      * Check if a JSON object looks like a GameObjectFilter
-     * (has cardPredicates, statePredicates, or controllerPredicate keys).
+     * (has cardPredicates, statePredicates, controllerPredicate, or anyOf keys).
      */
     fun isGameObjectFilter(obj: JsonObject): Boolean {
         return obj.containsKey("cardPredicates")
             || obj.containsKey("statePredicates")
             || obj.containsKey("controllerPredicate")
+            || obj.containsKey("anyOf")
     }
 }

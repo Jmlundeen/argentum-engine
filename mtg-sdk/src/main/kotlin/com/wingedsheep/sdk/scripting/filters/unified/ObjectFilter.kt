@@ -44,7 +44,16 @@ import kotlinx.serialization.Serializable
 data class GameObjectFilter(
     val cardPredicates: List<CardPredicate> = emptyList(),
     val statePredicates: List<StatePredicate> = emptyList(),
-    val controllerPredicate: ControllerPredicate? = null
+    val controllerPredicate: ControllerPredicate? = null,
+    /**
+     * Recursive union: when non-empty, an object matches this filter only if it matches
+     * the base predicates above AND at least one of these sub-filters. This is what the
+     * [or] infix builds, and it is the only faithful way to express a *heterogeneous* OR —
+     * one whose branches carry different state/controller predicates (e.g. "artifact or
+     * tapped creature", where the tapped restriction applies only to the creature branch).
+     * Each branch is a full [GameObjectFilter], so it composes to any depth.
+     */
+    val anyOf: List<GameObjectFilter> = emptyList()
 ) : TextReplaceable<GameObjectFilter> {
     val description: String
         get() = buildDescription()
@@ -63,6 +72,9 @@ data class GameObjectFilter(
         cardPredicates.forEach { predicate ->
             append(predicate.description)
             append(" ")
+        }
+        if (anyOf.isNotEmpty()) {
+            append(anyOf.joinToString(" or ") { it.description })
         }
     }.trim().ifEmpty { "card" }
 
@@ -542,42 +554,36 @@ data class GameObjectFilter(
     )
 
     /**
-     * Combine with another filter using OR logic over their card-type predicates.
+     * Combine with another filter using OR logic.
      *
-     * The OR is carried entirely by a single [CardPredicate.Or]; the state and controller
-     * predicates remain conjunctive *gates* applied to the whole result. This flat filter
-     * therefore can only represent an OR whose two sides share the same state/controller
-     * predicates — e.g. `Creature.youControl() or Artifact.youControl()` ("a creature or
-     * artifact you control"). A *heterogeneous* OR that correlates a card type with a
-     * different controller/state per side (e.g. "a creature you control or an artifact an
-     * opponent controls") is not expressible in the flat model and is rejected here rather
-     * than silently mis-evaluated — model it with a recursive filter union instead (a
-     * primitive the SDK does not yet have; see the SDK architecture review §2.1).
+     * A *homogeneous* OR — both branches sharing the same state and controller gate and
+     * differing only in card-type predicates (e.g. `Creature.youControl() or
+     * Artifact.youControl()`) — collapses to a single [CardPredicate.Or] under that shared
+     * gate. This is the flat representation the whole engine already understands (including
+     * lord / subtype resolution), so the common case stays simple.
+     *
+     * A *heterogeneous* OR, whose branches carry different state/controller predicates
+     * (e.g. `Artifact or Creature.tapped()` — the tapped restriction binds only to the
+     * creature branch), cannot be flattened and instead builds the recursive [anyOf] union,
+     * where each branch is matched as a complete filter.
      */
     infix fun or(other: GameObjectFilter): GameObjectFilter {
-        require(controllerPredicate == other.controllerPredicate) {
-            "GameObjectFilter.or cannot combine filters with different controller predicates " +
-                "($controllerPredicate vs ${other.controllerPredicate}); the flat filter shares one " +
-                "controller gate across both OR branches. Use a single shared controller, or model " +
-                "the heterogeneous union explicitly."
-        }
-        require(statePredicates == other.statePredicates) {
-            "GameObjectFilter.or cannot combine filters with different state predicates " +
-                "($statePredicates vs ${other.statePredicates}); the flat filter shares one state " +
-                "gate across both OR branches."
-        }
-        return GameObjectFilter(
-            cardPredicates = listOf(
-                CardPredicate.Or(
-                    listOf(
-                        cardPredicates.toConjunction(),
-                        other.cardPredicates.toConjunction()
+        val homogeneous = controllerPredicate == other.controllerPredicate &&
+            statePredicates == other.statePredicates &&
+            anyOf.isEmpty() && other.anyOf.isEmpty()
+        return if (homogeneous) {
+            GameObjectFilter(
+                cardPredicates = listOf(
+                    CardPredicate.Or(
+                        listOf(cardPredicates.toConjunction(), other.cardPredicates.toConjunction())
                     )
-                )
-            ),
-            statePredicates = statePredicates,
-            controllerPredicate = controllerPredicate
-        )
+                ),
+                statePredicates = statePredicates,
+                controllerPredicate = controllerPredicate
+            )
+        } else {
+            GameObjectFilter(anyOf = listOf(this, other))
+        }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): GameObjectFilter {
@@ -587,10 +593,16 @@ data class GameObjectFilter(
             if (new !== it) changed = true
             new
         }
-        return if (changed) copy(cardPredicates = newPredicates) else this
+        val newAnyOf = anyOf.map {
+            val new = it.applyTextReplacement(replacer)
+            if (new !== it) changed = true
+            new
+        }
+        return if (changed) copy(cardPredicates = newPredicates, anyOf = newAnyOf) else this
     }
 }
 
 /** Wraps a list of predicates into a single conjunction; returns the single element if only one. */
 private fun List<CardPredicate>.toConjunction(): CardPredicate =
-    if (size == 1) first() else CardPredicate.And(this)
+    if (isEmpty()) CardPredicate.And(emptyList())
+    else if (size == 1) first() else CardPredicate.And(this)

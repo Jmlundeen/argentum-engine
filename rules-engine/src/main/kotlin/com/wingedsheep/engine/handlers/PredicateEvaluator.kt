@@ -99,7 +99,14 @@ class PredicateEvaluator {
             matchesStatePredicate(state, entityId, predicate, context)
         }
 
-        return stateMatches
+        if (!stateMatches) return false
+
+        // Recursive union (the `or` infix): match if any branch matches in full.
+        if (filter.anyOf.isNotEmpty()) {
+            return filter.anyOf.any { matches(state, projected, entityId, it, context) }
+        }
+
+        return true
     }
 
     /**
@@ -766,11 +773,15 @@ class PredicateEvaluator {
      * no card predicates (i.e. GameObjectFilter.Any) match them.
      */
     fun matchesFilter(record: CastSpellRecord, filter: GameObjectFilter): Boolean {
-        if (filter.cardPredicates.isEmpty()) return true
+        if (filter.cardPredicates.isEmpty() && filter.anyOf.isEmpty()) return true
         if (record.isFaceDown) return false
 
         // Conjunction over card predicates; OR lives inside a CardPredicate.Or.
-        return filter.cardPredicates.all { matchesRecordPredicate(record, it) }
+        if (!filter.cardPredicates.all { matchesRecordPredicate(record, it) }) return false
+        // Recursive union (`or` infix): only the card predicates of each branch are
+        // meaningful for a cast record; state/controller branches are skipped as above.
+        if (filter.anyOf.isNotEmpty()) return filter.anyOf.any { matchesFilter(record, it) }
+        return true
     }
 
     private fun matchesRecordPredicate(record: CastSpellRecord, predicate: CardPredicate): Boolean {
