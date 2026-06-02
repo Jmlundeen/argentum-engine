@@ -130,6 +130,27 @@ data class RestrictedManaEntry(
 )
 
 /**
+ * Tracks how many turns this player has taken so far in the game.
+ *
+ * Per CR 500.1 each turn consists of five phases, and CR 500.11 / 614.10a make a
+ * skipped turn "proceed past as though it didn't exist" — so this counter is
+ * incremented inside [com.wingedsheep.engine.core.TurnManager.startTurn], which
+ * only runs for turns the player actually takes. Skipped turns don't fire it.
+ * Initialized to 0 in GameInitializer; the value is 1 once they're partway
+ * through their first taken turn.
+ *
+ * Used by cards like Starting Town: "this land enters tapped unless it's your
+ * first, second, or third turn of the game." Eval-side condition is
+ * `ControllerTurnsTakenAtMost(3)`.
+ */
+@Serializable
+data class PlayerTurnsTakenComponent(
+    val count: Int = 0
+) : Component {
+    fun increment(): PlayerTurnsTakenComponent = copy(count = count + 1)
+}
+
+/**
  * Tracks land drops for the turn.
  */
 @Serializable

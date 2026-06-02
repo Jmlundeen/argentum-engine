@@ -18,6 +18,7 @@ import com.wingedsheep.engine.state.components.player.LoseAtEndStepComponent
 import com.wingedsheep.engine.state.components.player.LossReason
 import com.wingedsheep.engine.state.components.player.PlayerLostComponent
 import com.wingedsheep.engine.state.components.player.PlayerTurnHijackedComponent
+import com.wingedsheep.engine.state.components.player.PlayerTurnsTakenComponent
 import com.wingedsheep.engine.state.components.player.SkipCombatPhasesComponent
 import com.wingedsheep.engine.state.components.player.SkipNextTurnComponent
 import com.wingedsheep.sdk.core.Keyword
@@ -111,6 +112,15 @@ class TurnManager(
                 container.with(CardsDrawnThisTurnComponent(count = 0))
                     .with(ManaSpentOnSpellsThisTurnComponent(totalSpent = 0))
             }
+        }
+
+        // Increment the active player's turn-taken counter. CR 500.11 / 614.10a
+        // make a skipped turn "proceed past as though it didn't exist", so a
+        // skipped turn should not count — the increment lives here, downstream of
+        // the SkipNextTurn consumption path that decides whether a turn runs at all.
+        newState = newState.updateEntity(playerId) { container ->
+            val prev = container.get<PlayerTurnsTakenComponent>() ?: PlayerTurnsTakenComponent()
+            container.with(prev.increment())
         }
 
         // Activate MustAttackPlayerComponent if present (Taunt effect)

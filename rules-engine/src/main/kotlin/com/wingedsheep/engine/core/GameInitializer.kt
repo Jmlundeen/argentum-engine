@@ -7,6 +7,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.*
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
+import com.wingedsheep.engine.state.components.player.PlayerTurnsTakenComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.state.components.player.MulliganStateComponent
 import com.wingedsheep.sdk.core.Color
@@ -182,6 +183,7 @@ class GameInitializer(
                 LifeTotalComponent(startingLife),
                 ManaPoolComponent(),
                 LandDropsComponent(),
+                PlayerTurnsTakenComponent(count = 0),
                 MulliganStateComponent(
                     mulligansTaken = 0,
                     hasKept = config.skipMulligans  // Auto-keep if skipping mulligans
@@ -206,6 +208,14 @@ class GameInitializer(
             priorityPlayerId = shuffledOrder.first(),
             turnNumber = 1  // First turn is turn 1, not turn 0
         )
+        // The very first turn of the game doesn't go through TurnManager.startTurn
+        // (it's set up directly here), so seed the active player's
+        // PlayerTurnsTakenComponent to 1 to keep the "your Nth turn of the game"
+        // semantics consistent. All subsequent turn transitions go through startTurn
+        // and increment normally.
+        state = state.updateEntity(shuffledOrder.first()) { container ->
+            container.with(PlayerTurnsTakenComponent(count = 1))
+        }
 
         // 3. Instantiate cards and place in libraries (or command zone for commanders).
         // Commander setup runs first so a CommanderRegistryComponent is attached to the player

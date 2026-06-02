@@ -56,6 +56,54 @@ data object YouControlSource : Condition {
 }
 
 /**
+ * Condition: "it's [threshold] or less of the controller's turn of the game".
+ *
+ * True when the controller (resolved through context) has taken at most
+ * [threshold] turns so far — i.e. `PlayerTurnsTakenComponent.count <= threshold`.
+ * Note the counter is incremented at turn start, so during the controller's
+ * first turn it reads 1, not 0.
+ *
+ * Used by cards like Starting Town: "this land enters tapped unless it's your
+ * first, second, or third turn of the game" — that's
+ * `ControllerTurnsTakenAtMost(3)`.
+ */
+@SerialName("ControllerTurnsTakenAtMost")
+@Serializable
+data class ControllerTurnsTakenAtMost(val threshold: Int) : Condition {
+    init {
+        require(threshold >= 1) {
+            "ControllerTurnsTakenAtMost threshold must be >= 1 (turns are 1-indexed)"
+        }
+    }
+    override val description: String = "it's your ${turnsOrdinal(threshold)} turn of the game"
+    override fun applyTextReplacement(replacer: TextReplacer): Condition = this
+
+    companion object {
+        private fun turnsOrdinal(n: Int): String = when (n) {
+            1 -> "first"
+            2 -> "first or second"
+            3 -> "first, second, or third"
+            4 -> "first, second, third, or fourth"
+            5 -> "first, second, third, fourth, or fifth"
+            // Above 5 the printed phrasings switch to "first through Nth" wording —
+            // accept any int and fall back to that compact form.
+            else -> "first through ${n}${ordinalSuffix(n)}"
+        }
+
+        private fun ordinalSuffix(n: Int): String {
+            val mod100 = n % 100
+            if (mod100 in 11..13) return "th"
+            return when (n % 10) {
+                1 -> "st"
+                2 -> "nd"
+                3 -> "rd"
+                else -> "th"
+            }
+        }
+    }
+}
+
+/**
  * Condition: "if this creature is your Ring-bearer" (CR 701.52e).
  *
  * True when the source permanent is on the battlefield under the ability's controller and has the
