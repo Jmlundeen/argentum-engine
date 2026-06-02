@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 27 / 190
+**Implemented:** 28 / 190
 ---
 
 - [ ] Action News Crew
@@ -12,7 +12,7 @@
 - [ ] April O'Neil, Kunoichi Trainee
 - [x] April, Reporter of the Weird
 - [x] Armaggon, Future Shark
-- [ ] Baxter Stockman
+- [x] Baxter Stockman
 - [ ] Bebop & Rocksteady
 - [ ] Bebop, Warthog Warrior
 - [x] Bespoke Bō
