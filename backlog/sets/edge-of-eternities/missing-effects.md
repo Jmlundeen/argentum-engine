@@ -4,7 +4,7 @@ Engine features required to implement the remaining EOE cards. Each section list
 unblocks, the exact oracle clause that can't be expressed with current primitives, and a sketch of
 the engine/SDK work needed.
 
-As of the latest pass, **248 / 261** booster cards are implemented. The cards below remain
+As of the latest pass, **251 / 261** booster cards are implemented. The cards below remain
 blocked on the engine features listed here. Cards whose every clause maps to an existing primitive
 have already been implemented and are not listed. Section numbers are preserved from earlier
 revisions of this document so that [`problem-cards.md`](problem-cards.md) cross-references stay
@@ -26,18 +26,6 @@ expressible.
 
 ---
 
-## 9. Impulse "exile from top until a nonland card, you may cast it this turn" — RESOLVED
-
-**Cards:** Territorial Bruntar.
-
-**Resolution:** No new effect was needed. The existing pipeline composes:
-`GatherUntilMatchEffect(filter = Nonland, storeMatch, storeRevealed)` walks the library top-down,
-storing the matching nonland and every walked card. `MoveCollectionEffect` routes the whole
-walked pile into exile, and `GrantMayPlayFromExileEffect(from = storeMatch)` grants may-play
-(end-of-turn by default) on just the nonland. The lands stay in exile without permission.
-
----
-
 ## 10. Dynamic-toughness mass destroy + reanimate-from-batch
 
 **Cards:** Zero Point Ballad.
@@ -49,19 +37,6 @@ card put into a graveyard this way to the battlefield under your control."
 variant (`toughnessAtMost(DynamicAmount)`) so the destroy filter can read X. (b) Track which
 creatures were put into a graveyard by this destruction and allow selecting one to return when
 X ≥ 6. "Lose X life" is already expressible.
-
----
-
-## 11. Noncreature artifact tokens with custom names + embedded triggered abilities — RESOLVED
-
-**Cards:** Weapons Manufacturing.
-
-**Resolution:** Added `Munitions` to `PredefinedTokens.kt` (typeLine `"Artifact"`, with the
-leaves-battlefield damage trigger as a `triggeredAbility { }` block) and exposed
-`Effects.CreateMunitionsToken(count)` as the facade. The predefined-token path automatically
-picks up the LTB trigger via `cardRegistry.getCard("Munitions")` in `TriggerAbilityResolver`,
-so no token-creation change was needed — the predefined-token registry already supports
-noncreature type lines and embedded abilities.
 
 ---
 
@@ -117,18 +92,6 @@ trigger + haste) to a specific permanent put onto the battlefield. Put-from-hand
 
 ---
 
-## 17. Once-per-turn gating for triggered abilities (counters-placed → draw) — RESOLVED
-
-**Cards:** Terrasymbiosis.
-
-**Resolution:** No engine work was needed. `TriggeredAbility.oncePerTurn` already exists
-(used by Scavenger's Talent, Mechan Assembler, etc.), `Triggers.PlusOneCountersPlacedOnYourCreature`
-covers the counters-placed trigger, and `DynamicAmount.ContextProperty(TRIGGER_COUNTERS_PLACED_AMOUNT)`
-is the "that many" amount. Pairing them with `optional = true` for the "may" gives the full
-ability.
-
----
-
 ## 19. Cast spells from the top of your library (type-filtered) + restricted mana
 
 **Cards:** Mm'menon, the Right Hand.
@@ -167,20 +130,6 @@ addition to its other types and has no abilities."
 
 ---
 
-## 23. Multi-group graveyard return with split destinations — RESOLVED
-
-**Cards:** Pull Through the Weft.
-
-**Resolution:** No new SDK types were needed. Two independent cast-time `targets("…",
-optional = true)` calls register both prompts with their own legal-target lists. At
-resolution, `GatherCardsEffect(CardSource.ChosenTargets)` collects every selected target
-into one pipeline collection, and `FilterCollectionEffect(MatchesFilter(Land))` partitions
-the pile into `chosenLands` and `chosenNonlands`. Each subset is then routed to its own
-destination via `MoveCollectionEffect` (hand vs. battlefield-tapped). Partitioning by type
-sidesteps the `buildNamedTargets` flattening so per-requirement chosen counts don't have to
-align with the `count` maximums.
-
----
 
 ## 24. Planeswalker emblem + "becomes a 0/0 Robot artifact creature"
 
