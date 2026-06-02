@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 31 / 190
+**Implemented:** 32 / 190
 ---
 
 - [ ] Action News Crew
@@ -66,7 +66,7 @@
 - [ ] Improvised Arsenal
 - [ ] Insectoid Exterminator
 - [ ] Jennika's Technique
-- [ ] Jennika, Bad Apple Big Sister
+- [x] Jennika, Bad Apple Big Sister
 - [ ] Karai's Technique
 - [ ] Karai, Future of the Foot
 - [ ] Kitsune's Technique
