@@ -26,17 +26,15 @@ expressible.
 
 ---
 
-## 9. Impulse "exile from top until a nonland card, you may cast it this turn"
+## 9. Impulse "exile from top until a nonland card, you may cast it this turn" — RESOLVED
 
 **Cards:** Territorial Bruntar.
 
-**Clause:** "Whenever a land you control enters, exile cards from the top of your library until you
-exile a nonland card. You may cast that card this turn."
-
-**Plan:** Add an effect/pattern that exiles from the top until a nonland card is hit and grants
-may-play-this-turn on it (`GrantMayPlayFromExileEffect`). `ExileFromTopRepeatingEffect` puts the
-card into hand and doesn't grant impulse, so it can't be reused. Reach and the landfall trigger are
-already expressible.
+**Resolution:** No new effect was needed. The existing pipeline composes:
+`GatherUntilMatchEffect(filter = Nonland, storeMatch, storeRevealed)` walks the library top-down,
+storing the matching nonland and every walked card. `MoveCollectionEffect` routes the whole
+walked pile into exile, and `GrantMayPlayFromExileEffect(from = storeMatch)` grants may-play
+(end-of-turn by default) on just the nonland. The lands stay in exile without permission.
 
 ---
 

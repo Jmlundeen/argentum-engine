@@ -3,9 +3,9 @@ https://api.scryfall.com/cards/named?exact=Beyond%20the%20Quiet&set=eoe
 
 # Problem Cards
 
-## Status: cards still blocked on engine work (13: 6 small + 7 large)
+## Status: cards still blocked on engine work (12: 5 small + 7 large)
 
-The booster set is at **248 / 261**. The cards below are the only unimplemented ones; each is
+The booster set is at **249 / 261**. The cards below are the only unimplemented ones; each is
 blocked on a missing engine/SDK feature. The blocking clause and the engine change needed are
 summarized here and detailed in [`missing-effects.md`](missing-effects.md) (section numbers in
 parentheses).
@@ -14,11 +14,10 @@ Cards are split by the scope of the engine work each one requires. "Small" = a s
 SDK/engine addition that composes with existing primitives. "Large" = multiple coupled features,
 a new subsystem, or work that reaches across several engine layers.
 
-### Small engine work (6)
+### Small engine work (5)
 
 | Card | Blocking clause | Engine change needed (missing-effects §) |
 |------|-----------------|-------------------------------------------|
-| Territorial Bruntar | "exile cards from the top ... until you exile a nonland card. You may cast that card this turn" | Impulse-until-nonland effect (§9) |
 | Tannuk, Steadfast Second | "Artifact cards and red creature cards in your hand have warp {2}{R}" | Static that grants Warp (with cost) to filtered hand cards (§15) |
 | Terrasymbiosis | "Whenever you put ... +1/+1 counters on a creature ... draw that many. Do this only once each turn." | Generic once-per-turn gate on a triggered ability (§17) |
 | Weftwalking | "The first spell each player casts ... may be cast without paying its mana cost" | First-spell-each-turn free-cast static, per-player gate (§20) |
