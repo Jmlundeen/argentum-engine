@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 13 / 190
+**Implemented:** 14 / 190
 ---
 
 - [ ] Action News Crew
@@ -62,7 +62,7 @@
 - [ ] Henchbots
 - [ ] High-Flying Ace
 - [ ] Ice Cream Kitty
-- [ ] Illegitimate Business
+- [x] Illegitimate Business
 - [ ] Improvised Arsenal
 - [ ] Insectoid Exterminator
 - [ ] Jennika's Technique
