@@ -363,7 +363,7 @@ data class PlayerHexproofComponent(
 data object PlayerCitysBlessingComponent : Component
 
 /**
- * Tracks a player's emblem named **The Ring** (CR 701.52c).
+ * Tracks a player's emblem named **The Ring** (CR 701.54c).
  *
  * Presence of this component means the player has the Ring emblem. [temptCount] is how many times
  * the Ring has tempted that player, gating the emblem's four cumulative abilities:

@@ -94,14 +94,15 @@ in its own PR, then attach all of its cards.
 - **Stalwarts of Osgiliath** — same trigger (ETB Ring tempts half is already composable).
 
 ### Gap 3 — "the Ring tempted you and you chose a creature other than this" condition
-**Engine change:** a condition usable with `Triggers.RingTemptsYou` meaning "you chose a
-creature other than {source} as your Ring-bearer" (CR 701.52d).
-- **Aragorn, Company Leader** — "…if you chose a creature other than Aragorn as your
-  Ring-bearer…" (also Gap 7 keyword counters).
-- **Faramir, Field Commander** — "…if you chose a creature other than Faramir…, create a token."
-- **Gandalf, Friend of the Shire** — "…if you chose a creature other than Gandalf…, draw a card."
-  (also Gap 4 cast-as-flash).
-- **Galadriel of Lothlórien** — chapter-one half.
+**Status:** LANDED as `Conditions.YouChoseOtherCreatureAsRingBearer` (PR
+`ltr-gap3-ring-bearer-other-than`). Same PR fixed CR 701.54a — control-change executors now strip
+`RingBearerComponent` eagerly via `clearRingBearerOnControlChange`, so a temporary Threaten-style
+steal no longer silently restores the designation when control reverts at end of turn.
+- **Faramir, Field Commander** — ✅ implemented.
+- **Aragorn, Company Leader** — still blocked on Gap 7 (keyword counters).
+- **Gandalf, Friend of the Shire** — still blocked on Gap 4 (cast-as-flash for sorcery spells).
+- **Galadriel of Lothlórien** — Ring-tempt half composes via this condition; second ability still
+  needs a "Whenever you scry" trigger + "reveal top; if land, put onto battlefield tapped".
 
 ### Gap 4 — "cast [filter] spells as though they had flash" permission
 **Engine change:** a static/one-shot permission granting flash-timing to a filtered set of

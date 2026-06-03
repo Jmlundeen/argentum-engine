@@ -85,6 +85,7 @@ class GainControlByMostExecutor : EffectExecutor<GainControlByMostEffect> {
                 context = controlContext
             )
             .updateEntity(targetId) { it.with(SummoningSicknessComponent) }
+            .let { clearRingBearerOnControlChange(it, targetId, newControllerId) }
 
         val events = listOf(
             ControlChangedEvent(

@@ -1191,7 +1191,7 @@ Triggers.youCastSpell(
 
 ### The Ring
 
-- `RingTemptsYou` — whenever the Ring tempts you (CR 701.52d). Paired with `Effects.TheRingTemptsYou()`.
+- `RingTemptsYou` — whenever the Ring tempts you (CR 701.54d). Paired with `Effects.TheRingTemptsYou()`.
 
 ### Scry
 
@@ -1798,7 +1798,13 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
   trigger resolver for conditionally-granted abilities). Used by Essence Leak ("as long as enchanted
   permanent is red or green…", `GameObjectFilter.Permanent.withAnyColor(Color.RED, Color.GREEN)`).
 - `YouHaveCitysBlessing` — you have City's Blessing (10+ permanents).
-- `SourceIsRingBearer` — the source permanent is your Ring-bearer (CR 701.52e).
+- `SourceIsRingBearer` — the source permanent is your Ring-bearer (CR 701.54e).
+- `YouChoseOtherCreatureAsRingBearer` — intervening-if for `Triggers.RingTemptsYou` payoffs that fire
+  only when the controller chose a Ring-bearer other than the source (CR 701.54a). True iff the
+  controller currently has a Ring-bearer designated AND that bearer isn't the source — so it's false
+  both when the source itself was chosen and when the controller had no creature to choose. Used by
+  Aragorn (Company Leader), Faramir (Field Commander), Gandalf (Friend of the Shire), and Galadriel
+  of Lothlórien.
 
 ### Life & damage
 
@@ -2472,7 +2478,7 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
 ### Player
 
 - `PlayerCitysBlessingComponent` — you have City's Blessing.
-- `TheRingComponent` — you have the Ring emblem; `temptCount` gates its four abilities (CR 701.52).
+- `TheRingComponent` — you have the Ring emblem; `temptCount` gates its four abilities (CR 701.54).
 - `RingBearerComponent` — designates a creature as a player's Ring-bearer (on the creature, not the player).
 - `SpellsCantBeCounteredComponent` — your matching spells can't be countered.
 - `LifeGainedAmountThisTurnComponent` — accumulator for life gained.
@@ -2535,13 +2541,18 @@ Card authors rarely reference these directly; they are created/updated by the ma
 - **Player-scoped uncounterable grant** — `Effects.GrantSpellsCantBeCountered(target, filter, duration)` +
   `SpellsCantBeCounteredComponent`.
 - **Static emblems** — `Effects.CreatePermanentEmblem(...)` for planeswalker emblems with static abilities.
-- **The Ring / the Ring tempts you (CR 701.52)** — `Effects.TheRingTemptsYou(target = Controller)`: the player gets
+- **The Ring / the Ring tempts you (CR 701.54)** — `Effects.TheRingTemptsYou(target = Controller)`: the player gets
   the Ring emblem (`TheRingComponent`, tempt-count tracked) and chooses a creature they control to become their
   Ring-bearer (`RingBearerComponent` designation). The emblem's four cumulative abilities are resolved by the engine,
   not card data: the bearer is made legendary in `StateProjector` and can't be blocked by greater power via
   `RingBearerCantBeBlockedByGreaterPowerRule`; the ≥2/≥3/≥4 triggered abilities are appended to the bearer by
   `TriggerAbilityResolver` (see `TheRingAbilities`). For card triggers/checks use `Triggers.RingTemptsYou`
-  ("Whenever the Ring tempts you") and `Conditions.SourceIsRingBearer` ("if this is your Ring-bearer").
+  ("Whenever the Ring tempts you"), `Conditions.SourceIsRingBearer` ("if this is your Ring-bearer"), and
+  `Conditions.YouChoseOtherCreatureAsRingBearer` ("if you chose a creature other than this as your
+  Ring-bearer" — pairs with `Triggers.RingTemptsYou` for the Aragorn/Faramir/Gandalf/Galadriel cycle).
+  CR 701.54a: the designation ends permanently when another player gains control of the bearer —
+  every control-change executor strips `RingBearerComponent` via `clearRingBearerOnControlChange`, so a
+  temporary steal (Threaten) does not silently restore the designation when control reverts.
 - **Amass [subtype] N (CR 701.47)** — `Effects.Amass(count, subtype)` (fixed) or
   `Effects.Amass(amount, subtype)` (a `DynamicAmount`, for "amass Orcs X"). `subtype` is required (no default) —
   the amassed Army's type is printed on each card (Orcs for the LTR cards). If the controller controls no Army

@@ -102,7 +102,7 @@ data class ControllerTurnsTakenAtMost(val threshold: Int) : Condition {
 }
 
 /**
- * Condition: "if this creature is your Ring-bearer" (CR 701.52e).
+ * Condition: "if this creature is your Ring-bearer" (CR 701.54e).
  *
  * True when the source permanent is on the battlefield under the ability's controller and has the
  * Ring-bearer designation for that player. Used by cards whose effects key off "your Ring-bearer".
@@ -111,6 +111,22 @@ data class ControllerTurnsTakenAtMost(val threshold: Int) : Condition {
 @Serializable
 data object SourceIsRingBearer : Condition {
     override val description: String = "if this creature is your Ring-bearer"
+}
+
+/**
+ * Condition: "if you chose a creature other than this as your Ring-bearer" (CR 701.54a).
+ *
+ * Pairs with `Triggers.RingTemptsYou` as an intervening-if on cards whose payoff fires only when
+ * the player picked someone other than the source — Aragorn (Company Leader), Faramir (Field
+ * Commander), Gandalf (Friend of the Shire), Galadriel of Lothlórien. True when the ability's
+ * controller currently has a Ring-bearer AND that Ring-bearer isn't the source permanent. If the
+ * controller had no creatures to choose from (no bearer exists), the condition is false — they
+ * didn't choose any creature, so they didn't choose one other than the source.
+ */
+@SerialName("YouChoseOtherCreatureAsRingBearer")
+@Serializable
+data object YouChoseOtherCreatureAsRingBearer : Condition {
+    override val description: String = "if you chose a creature other than this as your Ring-bearer"
 }
 
 /**

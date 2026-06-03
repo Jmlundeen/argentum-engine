@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards (261 Draft / 30 Extra)
 **Release Date:** June 23, 2023
-**Implemented:** 190 / 291
+**Implemented:** 191 / 291
 Run `scripts/card-status --set LTR` (and `--list --set LTR`) to verify status at any time.
 The split below mirrors that script: **Draft** = Scryfall `booster: true`; **Extra** =
 starter-deck/special cards and basic lands.
@@ -38,7 +38,7 @@ starter-deck/special cards and basic lands.
 - [x] Errand-Rider of Gondor
 - [x] Escape from Orthanc
 - [x] Esquire of the King
-- [ ] Faramir, Field Commander
+- [x] Faramir, Field Commander
 - [x] Flowering of the White Tree
 - [x] Fog on the Barrow-Downs
 - [ ] Forge Anew

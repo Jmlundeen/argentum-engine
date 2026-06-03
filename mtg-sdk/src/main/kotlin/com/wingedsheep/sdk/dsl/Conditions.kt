@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked as WasKickedCondition
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid as BlightWasPaidCondition
 import com.wingedsheep.sdk.scripting.conditions.SourceMatches
 import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer as SourceIsRingBearerCondition
+import com.wingedsheep.sdk.scripting.conditions.YouChoseOtherCreatureAsRingBearer as YouChoseOtherCreatureAsRingBearerCondition
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn as IsYourTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn as IsNotYourTurnCondition
@@ -48,13 +49,19 @@ import com.wingedsheep.sdk.scripting.conditions.Condition as ConditionInterface
 object Conditions {
 
     // =========================================================================
-    // The Ring (CR 701.52)
+    // The Ring (CR 701.54)
     // =========================================================================
 
     /**
-     * If the source permanent is your Ring-bearer (CR 701.52e).
+     * If the source permanent is your Ring-bearer (CR 701.54e).
      */
     val SourceIsRingBearer: ConditionInterface = SourceIsRingBearerCondition
+
+    /**
+     * If you chose a creature other than this as your Ring-bearer (CR 701.54a). Intervening-if
+     * for `Triggers.RingTemptsYou` payoffs that fire only when the player picked someone else.
+     */
+    val YouChoseOtherCreatureAsRingBearer: ConditionInterface = YouChoseOtherCreatureAsRingBearerCondition
 
     // =========================================================================
     // Battlefield Conditions (via Exists / Compare)
