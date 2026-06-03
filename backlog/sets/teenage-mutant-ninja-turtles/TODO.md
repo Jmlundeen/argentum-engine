@@ -27,8 +27,12 @@ The remaining 94 cards mostly cluster on a handful of unresolved gaps:
 - **Vehicles / Crew** — 1 card left (Gap J — partly cleared; `Turtle Blimp`
   shipped composably, `Turtle Van` still waits on Gap LL "creature that
   crewed this vehicle this turn" tracking)
-- **Sagas** — 2 cards (Gap K)
-- Plus various one-offs from Gaps M and N–LL
+- **Sagas** — 2 cards (Gap K — Saga primitive is wired, but each TMT Saga
+  has its own separate blocker: `The Cloning of Shredder` → Gap MM
+  `addedSubtypes` on `CreateTokenCopyOfTarget`; `The Last Ronin` → Gap AA
+  "Mill X. When you do, …" sub-trigger + Gap NN "attacks alone this turn"
+  trigger condition)
+- Plus various one-offs from Gaps M and N–NN
 
 Gaps **resolved across the runs so far**:
 - **Gap C — Alliance (partly cleared)**: 6 of the 10 Alliance cards (`East
@@ -107,6 +111,14 @@ Gaps **resolved across the runs so far**:
   N)` — same shape DOM Weatherlight / BLC Rolling Hamsphere. The Vehicle
   pipeline (artifact-becomes-artifact-creature-UEOT + Crew activation) is
   fully wired. `Turtle Van` waits on Gap LL, not on Vehicle itself.
+- **Gap K — Sagas — RESOLVED at the primitive level**: the
+  `sagaChapter(N) { … }` DSL on `CardBuilder` already wires lore counters,
+  per-chapter effects, and the after-last-chapter sacrifice. Confirmed via
+  SPM Origin of Spider-Man. No TMT Saga has shipped because each carries
+  an additional unresolved primitive: `The Cloning of Shredder` →
+  `addedSubtypes` on `CreateTokenCopyOfTarget` (Gap MM); `The Last Ronin`
+  → Gap AA's "When you do" sub-trigger and a new "attacks alone this
+  turn" trigger condition (Gap NN).
 
 ## Data sources — do NOT hit the network
 
@@ -289,11 +301,26 @@ Weatherlight and BLC Rolling Hamsphere ship.
 - **Turtle Van** — still blocked, but on Gap LL ("creature that crewed this
   Vehicle this turn" filter), *not* on Vehicle itself.
 
-### Gap K — Sagas — 2 cards
-**Engine change:** Sagas with chapter abilities. Earlier sets (Dominaria, LTR) already
-have Saga support; verify it's still functional and the chapter DSL is reachable.
-- **The Cloning of Shredder**, **The Last Ronin** — chapter abilities only; no new
-  Saga primitives expected.
+### Gap K — Sagas — RESOLVED at the primitive level
+**Engine change:** none. The `sagaChapter(N) { … }` DSL on `CardBuilder`
+already wires the full Saga pipeline — lore counters on enter and after
+your draw step, per-chapter effect groups, sacrifice after the last
+chapter. Confirmed via SPM Origin of Spider-Man.
+
+Both TMT Sagas remain unchecked because each carries a *separate* blocker
+beyond Saga itself:
+- **The Cloning of Shredder** — Chapter I needs an *added* subtype on
+  `CreateTokenCopyOfTarget` ("is a Mutant in addition to its other types").
+  Today the API has `overrideSubtypes` (replaces wholesale) and
+  `addedKeywords` / `addedSupertypes` / `removedSupertypes` but no
+  `addedSubtypes`. Chapters II/III also need a "card exiled with this Saga"
+  target reading from `CardSource.FromLinkedExile`.
+- **The Last Ronin** — Chapter II needs the "Mill four. When you do,
+  return target creature card" sub-trigger (Gap AA shape). Chapter III
+  needs an "attacks alone this turn" trigger condition plus a delayed
+  UEOT counters+trample+lifelink+indestructible rider. (Earlier skip-log
+  entries listed this card as also Sneak — wrong; its only keyword is
+  `Mill`, and Mill keyword itself is already supported.)
 
 ### Gap L — Landfall, Fight, Mill keyword, basic-land-cycling — partly RESOLVED
 **Engine change:** none for Landfall + basic-land-cycling (both shipped). Fight
@@ -539,6 +566,33 @@ helper.
   paired with a `ConditionalEffect` on a subtype filter — only the crewers-
   this-turn target is missing.)
 
+### Gap MM — `addedSubtypes` on `CreateTokenCopyOfTarget` (and friends)
+**Engine change:** add an `addedSubtypes: Set<Subtype>` parameter to
+`CreateTokenCopyOfTargetEffect` (and the equivalent on
+`CreateTokenCopyOfSourceEffect`). Today the API has `overrideSubtypes`
+(replaces wholesale) and `addedKeywords` / `addedSupertypes` /
+`removedSupertypes` but no symmetrical *adder* for subtypes — so wordings
+like "in addition to its other types" against a copied permanent can't be
+expressed faithfully on the token's printed type line.
+- **The Cloning of Shredder** — "Create a token that's a copy of it, except
+  it isn't legendary and is a Mutant in addition to its other types."
+  Chapters II/III repeat the same rider against a card exiled with the
+  Saga (also needs `CardSource.FromLinkedExile` plumbing into the chapter's
+  target / pipeline).
+
+### Gap NN — "attacks alone this turn" trigger condition + delayed UEOT bundle
+**Engine change:** a triggered ability that fires when a single attacker is
+declared *and no other creature is attacking at the same time*, plus the
+"this turn" persistence (the trigger needs to keep firing for the rest of
+the turn, not just on a single declare-attackers step). Or model it as a
+turn-long delayed-trigger registered on the Saga's chapter resolution that
+listens for attacks-alone events until end of turn.
+- **The Last Ronin** — Chapter III: "Whenever a creature you control
+  attacks alone this turn, put three +1/+1 counters on it. It gains
+  trample, lifelink, and indestructible until end of turn." The counter +
+  triple-keyword rider already composes via AddCounters + a chain of
+  GrantKeyword(EndOfTurn) calls — only the trigger shape is missing.
+
 ---
 
 ## Composable — deferred for time
@@ -643,8 +697,8 @@ the top of the Status section for what closed those.
 | Splinter's Technique                  | Gap A (Sneak)                               |
 | Splinter, Hamato Yoshi                | Gap A (Sneak)                               |
 | Technodrome                           | "Can't attack or block unless its power is 6 or greater" — Gap O-shape on self |
-| The Cloning of Shredder               | Gap K (Saga)                                |
-| The Last Ronin                        | Gap K (Saga) + Gap A (Sneak)                |
+| The Cloning of Shredder               | Gap MM (addedSubtypes on CreateTokenCopy)   |
+| The Last Ronin                        | Gap AA (Mill-X-then-when-you-do) + Gap NN (attacks-alone trigger) |
 | The Last Ronin's Technique            | Gap A (Sneak) + sneak-was-paid token rider  |
 | The Neutrinos                         | Gap C (Alliance)                            |
 | The Ooze                              | Gap W (Mutagen) + dies-with-counter trigger |

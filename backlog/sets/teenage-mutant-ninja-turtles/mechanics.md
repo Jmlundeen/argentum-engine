@@ -136,12 +136,21 @@ Cross-card combinators landed since the previous progress note:
   card needing it in TMT is `Turtle Van`, which currently can't ship
   for a separate Gap LL reason. Gap I is closed at the SDK level even
   though no TMT card exercises it yet.
+- **Sagas** — the `sagaChapter(N) { … }` DSL on `CardBuilder` (same shape
+  SPM Origin of Spider-Man uses) already wires lore counters on enter and
+  after the draw step, per-chapter effect groups, and the after-last-chapter
+  sacrifice. Closes Gap K at the SDK level. Neither TMT Saga has shipped
+  yet, but for separate reasons: `The Cloning of Shredder` needs
+  `addedSubtypes` on `CreateTokenCopyOfTarget` (Gap MM); `The Last Ronin`
+  needs the "Mill X. When you do, …" sub-trigger (Gap AA) plus an
+  "attacks alone this turn" trigger condition (Gap NN).
 
 **Still not exercised** — the three new TMT mechanics' canonical pieces still
 missing (Sneak alt-cost pipeline, Disappear's per-controller permanent-left
 tracking, the display markers for Alliance / Channel / Disappear), Class
-enchantments, Sagas, the Mutagen token, and the remaining bespoke Gap M /
-N–LL shapes catalogued in `TODO.md`.
+enchantments, the Mutagen token, and the remaining bespoke Gap M / N–NN
+shapes catalogued in `TODO.md`. (Sagas and Vehicles/Crew are wired at the
+SDK level; only adjacent gaps stop the specific TMT cards from shipping.)
 
 ---
 
