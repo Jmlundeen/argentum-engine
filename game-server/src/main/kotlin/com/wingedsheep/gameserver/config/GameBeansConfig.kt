@@ -34,7 +34,7 @@ class GameBeansConfig(
         // cards from all sets, even those gated out of sealed/draft via game.sets.disabled-by-default.
         // Booster/sealed/draft generation still respects the active-set filter via boosterGenerator.
         for (set in MtgSetCatalog.all) {
-            register(set.cards.stamp(set.code).withLegalities())
+            register(set.cards.stamp(set).withLegalities())
             register(set.basicLands.withLegalities())
             set.basicLandsFallback?.let { register(it.basicLands.withLegalities()) }
         }
@@ -89,8 +89,28 @@ class GameBeansConfig(
     }
 }
 
-private fun List<CardDefinition>.stamp(setCode: String): List<CardDefinition> =
-    map { if (it.setCode == null) it.copy(setCode = setCode) else it }
+/**
+ * Stamp each card with its [set]'s identity that the bare `CardDefinition` doesn't carry:
+ * `setCode` (so the deckbuilder can resolve a default printing) and `metadata.releaseDate`
+ * (so the synthesised default printing dates from the set, not `null`).
+ *
+ * The release-date stamp is what keeps the deckbuilder defaulting to the *plain* frame: a set's
+ * showcase/borderless variant printings ship explicit release dates, but the canonical printing
+ * is synthesised from this metadata. Without the stamp it dates to `null` and sorts *after* the
+ * dated variants, so the catalog defaults to a showcase/borderless art. Stamping the set date
+ * ties the canonical printing with its variants, letting the `isAlternateFrame` tiebreaker in
+ * `PrintingRegistry.defaultPrinting` pick the plain one. Only fills gaps — never overwrites a
+ * value a card already declares.
+ */
+private fun List<CardDefinition>.stamp(set: MtgSet): List<CardDefinition> =
+    map { card ->
+        val withSet = if (card.setCode == null) card.copy(setCode = set.code) else card
+        if (withSet.metadata.releaseDate == null && set.releaseDate != null) {
+            withSet.copy(metadata = withSet.metadata.copy(releaseDate = set.releaseDate))
+        } else {
+            withSet
+        }
+    }
 
 private fun List<CardDefinition>.withLegalities(): List<CardDefinition> =
     map { LegalityData.stamp(it) }
