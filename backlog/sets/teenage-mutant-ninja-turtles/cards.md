@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 90 / 190
+**Implemented:** 91 / 190
 ---
 
 - [x] Action News Crew
@@ -162,7 +162,7 @@
 - [x] Spicy Oatmeal Pizza
 - [ ] Splinter's Technique
 - [ ] Splinter, Hamato Yoshi
-- [ ] Splinter, Radical Rat
+- [x] Splinter, Radical Rat
 - [x] Squirrelanoids
 - [x] Stockman, Mad Fly-entist
 - [x] Stomped by the Foot
