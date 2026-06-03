@@ -258,7 +258,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     }
 
     /**
-     * Whenever the Ring tempts a player (CR 701.52d). Fires after the temptee completes
+     * Whenever the Ring tempts a player (CR 701.54d). Fires after the temptee completes
      * the "the Ring tempts you" action, even if some or all of it was impossible.
      * Used by cards with "Whenever the Ring tempts you, ...".
      */

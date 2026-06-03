@@ -84,6 +84,7 @@ import com.wingedsheep.sdk.scripting.conditions.ManaSpentToCastIncludes
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid
 import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer
+import com.wingedsheep.sdk.scripting.conditions.YouChoseOtherCreatureAsRingBearer
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PermanentTypeEnteredBattlefieldThisTurn
@@ -177,7 +178,7 @@ class ConditionEvaluator(
             // Generic source-state primitive — predicate-evaluator against the source entity.
             is SourceMatches -> evaluateSourceMatchesCtx(state, condition, ctx)
 
-            // CR 701.52e: the source is your Ring-bearer — it carries your Ring-bearer designation
+            // CR 701.54e: the source is your Ring-bearer — it carries your Ring-bearer designation
             // and you still control it. The control half reads the projected controller so a
             // control-changing effect correctly ends the designation.
             is SourceIsRingBearer -> {
@@ -187,6 +188,26 @@ class ConditionEvaluator(
                 bearer != null && controllerId != null &&
                     bearer.ownerId == controllerId &&
                     state.projectedState.getController(sourceId) == controllerId
+            }
+
+            // CR 701.54a: intervening-if for "Whenever the Ring tempts you" payoffs that only
+            // fire when the player chose someone other than the source. True iff the controller
+            // currently has a Ring-bearer AND that bearer isn't the source. Reads the same
+            // controller/projected-controller pair as SourceIsRingBearer so a designation that's
+            // been suspended by a control change correctly fails to count as "a bearer".
+            is YouChoseOtherCreatureAsRingBearer -> {
+                val sourceId = ctx.sourceId
+                val controllerId = ctx.controllerId
+                if (sourceId == null || controllerId == null) {
+                    false
+                } else {
+                    val bearerId = state.getBattlefield().firstOrNull { id ->
+                        val bearer = state.getEntity(id)?.get<RingBearerComponent>() ?: return@firstOrNull false
+                        bearer.ownerId == controllerId &&
+                            state.projectedState.getController(id) == controllerId
+                    }
+                    bearerId != null && bearerId != sourceId
+                }
             }
 
             // Aura-controller-aware modified check (CR 700.4) — distinct enough from the

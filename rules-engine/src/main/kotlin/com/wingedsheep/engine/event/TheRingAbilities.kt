@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
- * The Ring emblem's cumulative triggered abilities (CR 701.52c).
+ * The Ring emblem's cumulative triggered abilities (CR 701.54c).
  *
  * The emblem is a per-player object, but its triggered abilities reference "your Ring-bearer", so
  * they are modeled as SELF-bound triggered abilities living on the Ring-bearer creature.

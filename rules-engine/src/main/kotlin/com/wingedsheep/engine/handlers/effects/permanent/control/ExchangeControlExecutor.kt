@@ -89,6 +89,8 @@ class ExchangeControlExecutor : EffectExecutor<ExchangeControlEffect> {
         newState = newState
             .updateEntity(target1Id) { it.with(SummoningSicknessComponent) }
             .updateEntity(target2Id) { it.with(SummoningSicknessComponent) }
+            .let { clearRingBearerOnControlChange(it, target1Id, controller2) }
+            .let { clearRingBearerOnControlChange(it, target2Id, controller1) }
 
         val events = listOf(
             ControlChangedEvent(

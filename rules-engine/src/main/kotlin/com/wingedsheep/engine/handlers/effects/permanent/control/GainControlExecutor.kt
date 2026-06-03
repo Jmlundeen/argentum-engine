@@ -63,6 +63,7 @@ class GainControlExecutor : EffectExecutor<GainControlEffect> {
                 context = context
             )
             .updateEntity(targetId) { it.with(SummoningSicknessComponent) }
+            .let { clearRingBearerOnControlChange(it, targetId, newControllerId) }
 
         val events = listOf(
             ControlChangedEvent(

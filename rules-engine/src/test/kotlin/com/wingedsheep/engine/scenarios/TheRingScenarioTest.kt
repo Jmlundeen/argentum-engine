@@ -11,17 +11,19 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.Duration
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
 /**
- * Substrate tests for The Ring mechanic (CR 701.52): the "the Ring tempts you" effect, the
+ * Substrate tests for The Ring mechanic (CR 701.54): the "the Ring tempts you" effect, the
  * Ring-bearer designation, the legendary + can't-be-blocked-by-greater-power static abilities,
  * the "Whenever the Ring tempts you" trigger, and the tempt-count-gated combat ability.
  */
@@ -55,9 +57,23 @@ class TheRingScenarioTest : FunSpec({
     // it's still around to be sacrificed at end of combat).
     val StoutBlocker = CardDefinition.creature("Stout Blocker", ManaCost.parse("{3}"), emptySet(), 2, 4)
 
+    // {0} sorcery: "Gain control of target creature until end of turn." — Threaten in miniature,
+    // used to exercise CR 701.54a (Ring-bearer designation ends when another player gains control).
+    val ThreatenTest = card("Threaten Test") {
+        manaCost = "{0}"
+        typeLine = "Sorcery"
+        oracleText = "Gain control of target creature until end of turn."
+        spell {
+            val t = target("creature", Targets.Creature)
+            effect = Effects.GainControl(t, Duration.EndOfTurn)
+        }
+    }
+
     fun createDriver(): GameTestDriver {
         val driver = GameTestDriver()
-        driver.registerCards(TestCards.all + listOf(RingTempter, RingWatcher, Bear, BigOgre, SmallGoblin, StoutBlocker))
+        driver.registerCards(
+            TestCards.all + listOf(RingTempter, RingWatcher, Bear, BigOgre, SmallGoblin, StoutBlocker, ThreatenTest)
+        )
         return driver
     }
 
@@ -84,6 +100,47 @@ class TheRingScenarioTest : FunSpec({
         driver.state.getEntity(active)?.get<TheRingComponent>()?.temptCount shouldBe 1
         driver.state.getEntity(bear)?.get<RingBearerComponent>()?.ownerId shouldBe active
         projector.project(driver.state).isLegendary(bear) shouldBe true
+    }
+
+    test("CR 701.54a: another player gaining control ends the Ring-bearer designation permanently") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Mountain" to 40))
+        val owner = driver.activePlayer!!                  // bear's owner — tempts themselves first
+        val thief = driver.getOpponent(owner)              // will steal the bear on their next turn
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val bear = driver.putCreatureOnBattlefield(owner, "Ring Bear")
+        driver.tempt(owner, bear)
+        driver.state.getEntity(bear)?.get<RingBearerComponent>()?.ownerId shouldBe owner
+
+        // Hand the turn to the would-be thief and arrive at their main phase. UNTAP /
+        // CLEANUP don't get priority, so we wait on DRAW (which does) instead.
+        driver.passPriorityUntil(Step.DRAW, maxPasses = 200)
+        if (driver.activePlayer != thief) driver.passPriorityUntil(Step.DRAW, maxPasses = 200)
+        driver.activePlayer shouldBe thief
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN, maxPasses = 200)
+
+        // Thief steals the bear with a Threaten-style spell.
+        val threaten = driver.putCardInHand(thief, "Threaten Test")
+        driver.castSpell(thief, threaten, listOf(bear))
+        driver.bothPass()
+        projector.project(driver.state).getController(bear) shouldBe thief
+
+        // The designation ended the moment control changed (CR 701.54a) — the component
+        // is stripped eagerly so that when control reverts the bear stays not-the-bearer.
+        driver.state.getEntity(bear)?.get<RingBearerComponent>() shouldBe null
+
+        // Advance to the owner's next draw step so the EndOfTurn floating control effect has
+        // expired and control has reverted.
+        driver.passPriorityUntil(Step.DRAW, maxPasses = 200)
+        if (driver.activePlayer != owner) driver.passPriorityUntil(Step.DRAW, maxPasses = 200)
+        driver.activePlayer shouldBe owner
+
+        projector.project(driver.state).getController(bear) shouldBe owner
+        driver.state.getEntity(bear)?.get<RingBearerComponent>() shouldBe null
+        driver.state.getBattlefield().any {
+            driver.state.getEntity(it)?.get<RingBearerComponent>()?.ownerId == owner
+        } shouldBe false
     }
 
     test("tempting again moves the Ring-bearer designation to the new creature") {
@@ -146,7 +203,7 @@ class TheRingScenarioTest : FunSpec({
         driver.getLifeTotal(active) shouldBe lifeBefore + 2
     }
 
-    test("tempting with no creatures still tempts: count increments and the trigger fires (CR 701.52a/d)") {
+    test("tempting with no creatures still tempts: count increments and the trigger fires (CR 701.54a/d)") {
         val driver = createDriver()
         driver.initMirrorMatch(deck = Deck.of("Mountain" to 40))
         val active = driver.activePlayer!!
@@ -249,7 +306,7 @@ class TheRingScenarioTest : FunSpec({
             }
         }
 
-        // The blocker survived combat damage but is sacrificed at end of combat (CR 701.52c, ≥3).
+        // The blocker survived combat damage but is sacrificed at end of combat (CR 701.54c, ≥3).
         driver.findPermanent(opponent, "Stout Blocker") shouldBe null
     }
 })

@@ -176,10 +176,10 @@ class StateProjector(
             effectApplicator.applyEffect(effect, state, projectedValues)
         }
 
-        // CR 701.52c: a player's Ring-bearer is legendary (the Ring emblem's first ability).
+        // CR 701.54c: a player's Ring-bearer is legendary (the Ring emblem's first ability).
         // Applied here as a type-changing (Layer 4) effect, after Layer 2 control is established, so
         // it reads the *projected* controller: "is your Ring-bearer" requires the creature to still
-        // be under its designator's control (CR 701.52e), so a Ring-bearer stolen by a control-
+        // be under its designator's control (CR 701.54e), so a Ring-bearer stolen by a control-
         // changing effect stops being legendary. isLegendary() reads the projected type set, so
         // adding "LEGENDARY" suffices, and it follows whichever creature currently holds the
         // designation.
