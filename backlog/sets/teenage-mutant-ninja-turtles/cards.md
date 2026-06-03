@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 85 / 190
+**Implemented:** 86 / 190
 ---
 
 - [ ] Action News Crew
@@ -87,7 +87,7 @@
 - [ ] Lord Dregg, Insect Invader
 - [ ] Madame Null, Power Broker
 - [x] Make Your Move
-- [ ] Manhole Missile
+- [x] Manhole Missile
 - [x] Mechanized Ninja Cavalry
 - [x] Metalhead
 - [ ] Michelangelo's Technique
