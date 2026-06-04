@@ -16,6 +16,7 @@ import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.core.LifeChangedEvent
 import com.wingedsheep.engine.core.SpellCastEvent
+import com.wingedsheep.engine.state.components.player.CardsDrawnThisTurnComponent
 import com.wingedsheep.engine.state.components.player.ManaSpentOnSpellsThisTurnComponent
 import com.wingedsheep.engine.core.LandTappedForManaEvent
 import com.wingedsheep.engine.core.TappedEvent
@@ -84,7 +85,7 @@ class TriggerMatcher(
                 if (event !is CardsDrawnEvent) return false
                 if (!matchesPlayer(trigger.player, event.playerId, controllerId)) return false
                 val countAfter = state.getEntity(event.playerId)
-                    ?.get<com.wingedsheep.engine.state.components.player.CardsDrawnThisTurnComponent>()
+                    ?.get<CardsDrawnThisTurnComponent>()
                     ?.count ?: 0
                 val countBefore = countAfter - event.count
                 countBefore < trigger.nthCard && trigger.nthCard <= countAfter
