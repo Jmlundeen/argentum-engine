@@ -23,9 +23,10 @@ import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
  * The Flash keyword (CR 702.8) and the flash-permission static
  * ([GrantFlashToSpellType] with filter `Artifact ∨ Legendary`, controller-only) are
  * implemented. The third clause — "if X causes a triggered ability of a permanent you
- * control to trigger, that ability triggers an additional time" — is a *trigger
- * replacement* (CR 614.5-style "triggers an additional time") and shares no clean reusable
- * primitive with anything else in LTR yet. It is tracked in `TODO.md` as a follow-up gap.
+ * control to trigger, that ability triggers an additional time" — is a trigger-count
+ * modifier (CR 603.2d: "An ability may state that a triggered ability triggers additional
+ * times") and shares no clean reusable primitive with anything else in LTR yet. It is
+ * tracked in `TODO.md` as a follow-up gap.
  * The card stays unchecked in `cards.md` until that gap lands so the backlog correctly
  * reflects which clauses are live.
  */

@@ -1734,17 +1734,20 @@ class ClientStateTransformer(
             )
         }
 
-        // Check for FlashGrantsThisTurnComponent (e.g., Borne Upon a Wind)
+        // Check for FlashGrantsThisTurnComponent (e.g., Borne Upon a Wind).
+        // GameObjectFilter.Any describes itself as "card" — render it as a bare "spells"
+        // so the Borne-Upon-a-Wind case reads naturally, and join multiple filter branches
+        // with "or" to keep stacked grants grammatical.
         container.get<FlashGrantsThisTurnComponent>()?.let { component ->
-            val filterDescription = component.filters
-                .joinToString(", ") { it.description }
-                .ifBlank { "Spells" }
+            val rendered = component.filters
+                .map { if (it == com.wingedsheep.sdk.scripting.GameObjectFilter.Any) "" else it.description.lowercase() }
+                .filter { it.isNotEmpty() }
+            val spellPhrase = if (rendered.isEmpty()) "spells" else "${rendered.joinToString(" or ")} spells"
             effects.add(
                 ClientPlayerEffect(
                     effectId = "flash_grants_this_turn",
                     name = "Flash",
-                    description = "You may cast ${filterDescription.lowercase()} spells this turn " +
-                        "as though they had flash",
+                    description = "You may cast $spellPhrase this turn as though they had flash",
                     icon = "lightning"
                 )
             )

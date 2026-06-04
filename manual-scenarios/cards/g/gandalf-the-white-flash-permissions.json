@@ -1,6 +1,7 @@
 {
   "player1Name": "Alice",
   "player2Name": "AI",
+  "aiPlayer": 2,
   "player1": {
     "lifeTotal": 20,
     "hand": [
@@ -39,6 +40,6 @@
   "priorityPlayer": 1,
   "player1StopAtSteps": [],
   "player2StopAtSteps": [],
-  "player1OpponentStopAtSteps": ["END"],
+  "player1OpponentStopAtSteps": [],
   "player2OpponentStopAtSteps": []
 }

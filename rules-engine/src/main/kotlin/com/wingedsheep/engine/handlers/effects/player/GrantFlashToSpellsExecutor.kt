@@ -35,7 +35,7 @@ class GrantFlashToSpellsExecutor : EffectExecutor<GrantFlashToSpellsEffect> {
             return EffectResult.error(state, "Target is not a player")
         }
 
-        val removeOn = when (effect.duration) {
+        val incomingRemoveOn = when (effect.duration) {
             is Duration.Permanent -> PlayerEffectRemoval.Permanent
             else -> PlayerEffectRemoval.EndOfTurn
         }
@@ -43,7 +43,15 @@ class GrantFlashToSpellsExecutor : EffectExecutor<GrantFlashToSpellsEffect> {
         val newState = state.updateEntity(targetId) { container ->
             val existing = container.get<FlashGrantsThisTurnComponent>()
             val mergedFilters = (existing?.filters ?: emptyList()) + effect.spellFilter
-            container.with(FlashGrantsThisTurnComponent(filters = mergedFilters, removeOn = removeOn))
+            // If either the existing or incoming grant is Permanent, keep Permanent — never
+            // demote a Permanent grant to EndOfTurn just because a later EndOfTurn grant landed.
+            // PlayerEffectRemoval is binary, so a single component duration can't track per-filter
+            // lifetimes; biasing toward Permanent at most over-extends EndOfTurn entries (harmless)
+            // rather than dropping a Permanent grant at cleanup (incorrect).
+            val mergedRemoveOn = if (existing?.removeOn == PlayerEffectRemoval.Permanent ||
+                incomingRemoveOn == PlayerEffectRemoval.Permanent
+            ) PlayerEffectRemoval.Permanent else PlayerEffectRemoval.EndOfTurn
+            container.with(FlashGrantsThisTurnComponent(filters = mergedFilters, removeOn = mergedRemoveOn))
         }
 
         return EffectResult.success(newState)
