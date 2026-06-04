@@ -7,6 +7,7 @@ import com.wingedsheep.engine.mechanics.layers.ActiveFloatingEffect
 import com.wingedsheep.engine.mechanics.layers.FloatingEffectData
 import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
+import com.wingedsheep.engine.mechanics.sba.creature.LethalDamageCheck
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
@@ -148,6 +149,33 @@ class PyramidsScenarioTest : FunSpec({
         driver.state.getEntity(creature)?.has<TappedComponent>() shouldBe true
         // The Pyramids shield is still around for the next destruction.
         driver.state.floatingEffects.any {
+            it.effect.modification is SerializableModification.RemoveDamageShield &&
+                creature in it.effect.affectedEntities
+        } shouldBe true
+    }
+
+    test("shield fires against lethal-damage destruction (SBA) — survives, damage cleared, untapped") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Plains" to 20, "Forest" to 20), startingLife = 20)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val active = driver.activePlayer!!
+        // A 3/3 stands in for an animated land — the SBA destruction from lethal damage is
+        // exactly the "would be destroyed" event Pyramids' second mode replaces.
+        val creature = driver.putCreatureOnBattlefield(active, "Centaur Courser")
+        driver.markDamage(creature, 3)
+        driver.addRemoveDamageShield(creature, active)
+
+        val result = LethalDamageCheck().check(driver.state)
+        driver.replaceState(result.newState)
+
+        // Survived the lethal-damage SBA because the shield fired.
+        driver.state.getEntity(creature) shouldNotBe null
+        // Damage was removed (so it's no longer lethal) and the shield does NOT tap.
+        driver.state.getEntity(creature)?.get<DamageComponent>() shouldBe null
+        driver.state.getEntity(creature)?.has<TappedComponent>() shouldBe false
+        // Shield consumed.
+        driver.state.floatingEffects.none {
             it.effect.modification is SerializableModification.RemoveDamageShield &&
                 creature in it.effect.affectedEntities
         } shouldBe true
