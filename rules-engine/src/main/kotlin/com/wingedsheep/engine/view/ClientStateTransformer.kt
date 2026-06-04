@@ -1734,6 +1734,22 @@ class ClientStateTransformer(
             )
         }
 
+        // Check for FlashGrantsThisTurnComponent (e.g., Borne Upon a Wind)
+        container.get<FlashGrantsThisTurnComponent>()?.let { component ->
+            val filterDescription = component.filters
+                .joinToString(", ") { it.description }
+                .ifBlank { "Spells" }
+            effects.add(
+                ClientPlayerEffect(
+                    effectId = "flash_grants_this_turn",
+                    name = "Flash",
+                    description = "You may cast ${filterDescription.lowercase()} spells this turn " +
+                        "as though they had flash",
+                    icon = "lightning"
+                )
+            )
+        }
+
         // Check for PlayerHexproofComponent (e.g., Dawn's Truce)
         if (container.has<PlayerHexproofComponent>()) {
             effects.add(
