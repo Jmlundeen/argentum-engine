@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.effects.stack
 import com.wingedsheep.engine.core.CounterUnlessDiscardContinuation
 import com.wingedsheep.engine.core.CounterUnlessPaysLifeContinuation
 import com.wingedsheep.engine.core.CounterUnlessPaysManaSelectionContinuation
+import com.wingedsheep.engine.core.CounterUnlessSacrificeContinuation
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.DecisionPhase
 import com.wingedsheep.engine.core.DecisionRequestedEvent
@@ -10,9 +11,13 @@ import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.ManaSourceOption
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.YesNoDecision
+import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.engine.mechanics.stack.StackResolver
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
@@ -38,7 +43,8 @@ import kotlin.reflect.KClass
  *    - WardCost.Life → YesNoDecision ("Pay N life?")
  *    - WardCost.Discard → YesNoDecision ("Discard N card(s)?"); on Yes, runs the
  *      standard discard pipeline (random or player's choice).
- *    - WardCost.Sacrifice → not yet implemented; trigger no-ops.
+ *    - WardCost.Sacrifice → SelectCardsDecision over the controller's matching permanents
+ *      (min 0, max N); selecting N pays and the spell resolves, declining counters it.
  *    If the controller can't possibly pay, counter immediately.
  */
 class WardCounterEffectExecutor(
@@ -70,8 +76,70 @@ class WardCounterEffectExecutor(
             is WardCost.Mana -> handleManaCost(state, context, spellEntityId, container, payingPlayerId, cost.manaCost)
             is WardCost.Life -> handleLifeCost(state, context, spellEntityId, container, payingPlayerId, cost.amount)
             is WardCost.Discard -> handleDiscardCost(state, context, spellEntityId, container, payingPlayerId, cost.count, cost.random)
-            is WardCost.Sacrifice -> EffectResult.success(state)
+            is WardCost.Sacrifice -> handleSacrificeCost(state, context, spellEntityId, container, payingPlayerId, cost.filter)
         }
+    }
+
+    /**
+     * Ward—Sacrifice [filter] (e.g. "Sacrifice a Food").
+     *
+     * Valid sacrifice fodder is computed against projected state via
+     * [BattlefieldFilterUtils.findMatchingOnBattlefield], so subtypes granted by continuous
+     * effects (Ygra, Eater of All making every other creature a Food) count. If the paying
+     * player controls no qualifying permanent they cannot pay, so the spell is countered
+     * immediately. Otherwise they pick which permanent(s) to sacrifice (declining → counter).
+     */
+    private fun handleSacrificeCost(
+        state: GameState,
+        context: EffectContext,
+        spellEntityId: EntityId,
+        container: ComponentContainer,
+        payingPlayerId: EntityId,
+        filter: GameObjectFilter
+    ): EffectResult {
+        val count = 1
+        val validPermanents = BattlefieldFilterUtils.findMatchingOnBattlefield(
+            state, filter.youControl(), PredicateContext(controllerId = payingPlayerId)
+        )
+
+        // Can't possibly pay → counter immediately.
+        if (validPermanents.size < count) {
+            return counterSpellOrAbility(state, spellEntityId, container)
+        }
+
+        val fodderLabel = filter.description
+        val prompt = "Sacrifice ${if (count == 1) "a" else "$count"} $fodderLabel or your spell will be countered"
+
+        val decisionResult = DecisionHandler().createCardSelectionDecision(
+            state = state,
+            playerId = payingPlayerId,
+            sourceId = context.sourceId,
+            sourceName = "Ward",
+            prompt = prompt,
+            options = validPermanents,
+            minSelections = 0,
+            maxSelections = count,
+            ordered = false,
+            phase = DecisionPhase.RESOLUTION,
+            useTargetingUI = true
+        )
+
+        val continuation = CounterUnlessSacrificeContinuation(
+            decisionId = decisionResult.pendingDecision!!.id,
+            payingPlayerId = payingPlayerId,
+            spellEntityId = spellEntityId,
+            filter = filter,
+            count = count,
+            controllerId = context.controllerId
+        )
+
+        val stateWithContinuation = decisionResult.state.pushContinuation(continuation)
+
+        return EffectResult.paused(
+            stateWithContinuation,
+            decisionResult.pendingDecision,
+            decisionResult.events
+        )
     }
 
     private fun handleDiscardCost(

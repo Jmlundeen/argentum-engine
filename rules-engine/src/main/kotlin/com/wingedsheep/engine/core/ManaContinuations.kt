@@ -5,6 +5,7 @@ import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
@@ -221,6 +222,32 @@ data class CounterUnlessDiscardContinuation(
     val spellEntityId: EntityId,
     val count: Int,
     val random: Boolean = false,
+    val exileOnCounter: Boolean = false,
+    val controllerId: EntityId? = null
+) : ContinuationFrame
+
+/**
+ * Resume after the controller chooses which permanent(s) to sacrifice to prevent
+ * their spell/ability from being countered (e.g. Ward—Sacrifice a Food, CR 702.21).
+ *
+ * The player is shown an optional card selection (min 0, max [count]). Selecting
+ * [count] qualifying permanents pays the cost and the spell resolves; selecting
+ * fewer (declining) counters the spell. Valid permanents are recomputed against
+ * projected state when the decision is presented, so subtypes granted by continuous
+ * effects (Ygra making every other creature a Food) are honored.
+ *
+ * @property payingPlayerId The spell's controller who must decide whether to pay
+ * @property spellEntityId The spell/ability that will be countered if they don't pay
+ * @property filter Filter for valid sacrifice fodder (e.g. a Food permanent)
+ * @property count Number of permanents that must be sacrificed to pay
+ */
+@Serializable
+data class CounterUnlessSacrificeContinuation(
+    override val decisionId: String,
+    val payingPlayerId: EntityId,
+    val spellEntityId: EntityId,
+    val filter: GameObjectFilter,
+    val count: Int = 1,
     val exileOnCounter: Boolean = false,
     val controllerId: EntityId? = null
 ) : ContinuationFrame

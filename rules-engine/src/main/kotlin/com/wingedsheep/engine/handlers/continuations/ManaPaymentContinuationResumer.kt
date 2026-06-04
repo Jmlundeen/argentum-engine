@@ -1,12 +1,14 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.TargetsComponent
@@ -24,6 +26,7 @@ class ManaPaymentContinuationResumer(
         resumer(CounterUnlessPaysContinuation::class, ::resumeCounterUnlessPays),
         resumer(CounterUnlessPaysLifeContinuation::class, ::resumeCounterUnlessPaysLife),
         resumer(CounterUnlessDiscardContinuation::class, ::resumeCounterUnlessDiscard),
+        resumer(CounterUnlessSacrificeContinuation::class, ::resumeCounterUnlessSacrifice),
         resumer(CounterUnlessPaysManaSelectionContinuation::class, ::resumeCounterUnlessPaysManaSelection),
         resumer(WardTapPermanentsSubCostContinuation::class, ::resumeWardTapPermanentsSubCost),
         resumer(ChangeSpellTargetContinuation::class, ::resumeChangeSpellTarget),
@@ -289,6 +292,68 @@ class ManaPaymentContinuationResumer(
         if (discardResult.isPaused) return discardResult
 
         return checkForMore(discardResult.newState, discardResult.events.toList())
+    }
+
+    /**
+     * Resume after the controller chooses which permanent(s) to sacrifice for a
+     * ward—sacrifice trigger (e.g. Ygra's "Ward—Sacrifice a Food").
+     *
+     * Selected [count] qualifying permanents → sacrifice them and let the spell resolve.
+     * Declined (fewer than [count] selected) → counter the spell.
+     *
+     * The selection is re-validated against projected state at resume time, so a permanent
+     * that lost its qualifying subtype between the prompt and the response no longer counts.
+     * Sacrifices emit [PermanentsSacrificedEvent] and run through [ZoneTransitionService] so
+     * Food-death triggers (Ygra growing) still fire off the sacrificed permanent.
+     */
+    fun resumeCounterUnlessSacrifice(
+        state: GameState,
+        continuation: CounterUnlessSacrificeContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is CardsSelectedResponse) {
+            return ExecutionResult.error(state, "Expected card selection response for counter unless sacrifice")
+        }
+
+        // Re-validate the selection against projected state — only permanents the paying
+        // player controls that still match the ward fodder filter count toward payment.
+        val valid = BattlefieldFilterUtils.findMatchingOnBattlefield(
+            state, continuation.filter.youControl(), PredicateContext(controllerId = continuation.payingPlayerId)
+        ).toSet()
+        val selectedPermanents = response.selectedCards.filter { it in valid }
+
+        // Declined / underpaid → counter the spell.
+        if (selectedPermanents.size < continuation.count) {
+            val counterResult = if (continuation.exileOnCounter) {
+                services.stackResolver.counterSpellToExile(
+                    state, continuation.spellEntityId,
+                    grantFreeCast = false,
+                    controllerId = continuation.controllerId ?: continuation.payingPlayerId
+                )
+            } else {
+                services.stackResolver.counterSpell(state, continuation.spellEntityId)
+            }
+            return checkForMore(counterResult.newState, counterResult.events)
+        }
+
+        // Paid — sacrifice the chosen permanents and let the spell resolve.
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+
+        val permanentNames = selectedPermanents.map { id ->
+            newState.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
+        }
+        events.add(PermanentsSacrificedEvent(continuation.payingPlayerId, selectedPermanents, permanentNames))
+        newState = ZoneTransitionService.trackFoodSacrifice(newState, selectedPermanents, continuation.payingPlayerId)
+
+        for (permanentId in selectedPermanents) {
+            val transitionResult = ZoneTransitionService.moveToZone(newState, permanentId, Zone.GRAVEYARD)
+            newState = transitionResult.state
+            events.addAll(transitionResult.events)
+        }
+
+        return checkForMore(newState, events)
     }
 
     /**

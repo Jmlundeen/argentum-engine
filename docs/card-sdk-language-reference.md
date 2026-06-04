@@ -1701,7 +1701,11 @@ composite abilities).
 
 **Parameterized `KeywordAbility.*`**
 
-- `Ward(amount)` — opponent pays cost to target this.
+- `Ward(amount)` — opponent pays a mana cost to target this (CR 702.21). Non-mana costs use
+  `KeywordAbility.Ward(WardCost.X)`: `WardCost.Mana`, `WardCost.Life(n)`, `WardCost.Discard(n, random)`,
+  and `WardCost.Sacrifice(filter)` ("Ward—Sacrifice a Food", Ygra). For sacrifice ward, the opponent
+  chooses which matching permanent(s) they control to sacrifice (declining counters their spell); valid
+  fodder is matched against projected state, so subtypes granted by continuous effects count.
 - `Protection(color)` — protection from a single color.
 - `ProtectionFrom(set)` — protection from a set of colors/types.
 - `Protection(ProtectionScope.Supertype("Legendary"))` / `KeywordAbility.protectionFromSupertype("Legendary")` — protection from a supertype, e.g. "protection from legendary creatures" (Tsabo Tavoc). Enforced across targeting, blocking, and combat damage via projected `PROTECTION_FROM_SUPERTYPE_<X>` keywords.
