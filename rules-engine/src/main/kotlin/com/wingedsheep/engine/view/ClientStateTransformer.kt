@@ -688,10 +688,14 @@ class ClientStateTransformer(
         // Get state components
         val isTapped = container.has<TappedComponent>()
         val isPhasedOut = container.has<PhasedOutComponent>()
-        // Summoning sickness doesn't affect creatures with haste
+        // Summoning sickness doesn't affect creatures with haste. The engine attaches the
+        // marker to every entering permanent (so Vehicles / animated lands inherit it when
+        // they become creatures), so gate on projected creature-ness here too — otherwise a
+        // freshly played Mountain or Equipment would report summoning sickness to the client.
         val hasSummoningSicknessComponent = container.has<SummoningSicknessComponent>()
         val hasHaste = keywords.contains(com.wingedsheep.sdk.core.Keyword.HASTE)
-        val hasSummoningSickness = hasSummoningSicknessComponent && !hasHaste
+        val hasSummoningSickness = hasSummoningSicknessComponent && !hasHaste &&
+            projectedState.isCreature(entityId)
 
         // Get morph data for face-down creatures
         val morphData = container.get<MorphDataComponent>()
