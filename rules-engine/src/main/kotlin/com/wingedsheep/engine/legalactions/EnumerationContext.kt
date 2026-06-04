@@ -121,6 +121,20 @@ class EnumerationContext(
         costCalculator.hasFreeCastPermission(state, playerId)
     }
 
+    /**
+     * Whether a battlefield [MayCastWithoutPayingManaCost] source grants this player permission to
+     * cast the specific card [cardId] for free. Unlike [freeCastPermissionAvailable] (a generic
+     * "any free-cast source exists?" probe), this honors a source's spell filter — e.g.
+     * Dracogenesis only frees Dragon spells.
+     */
+    fun freeCastPermissionFor(cardId: EntityId): Boolean {
+        val cardDef = state.getEntity(cardId)
+            ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()
+            ?.let { cardRegistry.getCard(it.cardDefinitionId) }
+            ?: return freeCastPermissionAvailable
+        return costCalculator.hasFreeCastPermission(state, playerId, cardDef)
+    }
+
     // Alternative casting costs from battlefield permanents (e.g., Jodah's WUBRG).
     val alternativeCastingCosts: List<ManaCost> by lazy {
         costCalculator.findAlternativeCastingCosts(state, playerId)

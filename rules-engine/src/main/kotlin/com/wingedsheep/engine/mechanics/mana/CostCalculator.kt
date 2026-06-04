@@ -1086,7 +1086,11 @@ class CostCalculator(
      * still grant the caster their free cast when the source's wording doesn't require
      * controller-only.
      */
-    fun hasFreeCastPermission(state: GameState, casterId: EntityId): Boolean {
+    fun hasFreeCastPermission(
+        state: GameState,
+        casterId: EntityId,
+        spellCardDef: CardDefinition? = null
+    ): Boolean {
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
             val card = container.get<CardComponent>() ?: continue
@@ -1102,6 +1106,13 @@ class CostCalculator(
                     if (state.activePlayerId != casterId) continue
                     if ((state.playerSpellsCastThisTurn[casterId] ?: 0) > 0) continue
                 }
+                // The permission may be scoped to a spell type (e.g. Dracogenesis — Dragons only).
+                // When the caller knows the spell being cast, enforce the filter; with no spell in
+                // hand (a generic "does any free-cast source exist?" probe) a filtered source still
+                // counts, since some castable spell may match.
+                if (spellCardDef != null && ability.spellFilter != GameObjectFilter.Any &&
+                    !matchesCardDefinition(spellCardDef, ability.spellFilter, entityId, state, state.projectedState)
+                ) continue
                 return true
             }
         }

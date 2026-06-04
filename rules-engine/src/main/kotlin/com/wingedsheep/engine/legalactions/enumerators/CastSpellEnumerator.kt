@@ -393,7 +393,7 @@ class CastSpellEnumerator : ActionEnumerator {
             // A `MayCastWithoutPayingManaCost` battlefield permission (e.g. Weftwalking) makes the
             // spell affordable for {0} when its gates are open. Emitted by its own branch below;
             // don't continue out before reaching it.
-            val canAffordFreeCast = context.freeCastPermissionAvailable
+            val canAffordFreeCast = context.freeCastPermissionFor(cardId)
             if (!canAfford && !canAffordAlternative && !canAffordSelfAlternative && !canAffordEvoke && !canAffordImpending && !canAffordBlightPath && !canAffordBeholdPath && !canAffordFreeCast) {
                 // The primary face can't be paid for by any path. Normally we skip it entirely.
                 // But if this is an Adventure/Omen/modal-DFC card whose *secondary* face is
@@ -570,7 +570,7 @@ class CastSpellEnumerator : ActionEnumerator {
             // evoke, impending) when both are legal (CR 118.9a — only one alternative cost may
             // apply to a cast, and which one is the player's choice). Routes through
             // [CastSpell.useWithoutPayingManaCost].
-            val freeCastResult = if (context.freeCastPermissionAvailable) {
+            val freeCastResult = if (context.freeCastPermissionFor(cardId)) {
                 SelfAltCostResult(
                     manaCostString = "{0}",
                     autoTapPreview = if (context.skipAutoTapPreview) null else emptyList(),

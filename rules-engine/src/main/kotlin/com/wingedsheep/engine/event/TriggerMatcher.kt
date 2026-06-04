@@ -1179,7 +1179,8 @@ class TriggerMatcher(
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsSaddled,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsWarpExiled,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.WasCastForWarp,
-        is com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasCounter -> true
+        is com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasCounter,
+        is com.wingedsheep.sdk.scripting.predicates.StatePredicate.AttachedToCardType -> true
     }
 
     /**

@@ -279,6 +279,10 @@ data object CantCastSpellsSharingColorWithLastCast : StaticAbility {
  *    wording). Default false = any player benefits ("each player casts" wording).
  *  - [firstSpellOfTurnOnly] — if true, the caster must be the active player and must have cast
  *    no spells yet this turn. Default false = no first-spell gate.
+ *  - [spellFilter] — only spells whose card matches this filter may be cast for free
+ *    (card predicates work in any zone). Default [GameObjectFilter.Any] = every spell.
+ *    Dracogenesis is `MayCastWithoutPayingManaCost(controllerOnly = true,
+ *    spellFilter = GameObjectFilter.Any.withSubtype("Dragon"))`.
  *
  * Composes for Weftwalking ({4}{U}{U}, EOE: "The first spell each player casts during each of
  * their turns may be cast without paying its mana cost.") via
@@ -296,16 +300,23 @@ data object CantCastSpellsSharingColorWithLastCast : StaticAbility {
 @Serializable
 data class MayCastWithoutPayingManaCost(
     val controllerOnly: Boolean = false,
-    val firstSpellOfTurnOnly: Boolean = false
+    val firstSpellOfTurnOnly: Boolean = false,
+    val spellFilter: GameObjectFilter = GameObjectFilter.Any
 ) : StaticAbility {
     override val description: String = buildString {
+        val noun = if (spellFilter == GameObjectFilter.Any) "spells" else "${spellFilter.description} spells"
         if (firstSpellOfTurnOnly) {
             if (controllerOnly) append("The first spell you cast each turn may be cast without paying its mana cost")
             else append("The first spell each player casts during each of their turns may be cast without paying its mana cost")
         } else {
-            if (controllerOnly) append("You may cast spells without paying their mana costs")
-            else append("Each player may cast spells without paying their mana costs")
+            if (controllerOnly) append("You may cast $noun without paying their mana costs")
+            else append("Each player may cast $noun without paying their mana costs")
         }
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = spellFilter.applyTextReplacement(replacer)
+        return if (newFilter !== spellFilter) copy(spellFilter = newFilter) else this
     }
 }
 

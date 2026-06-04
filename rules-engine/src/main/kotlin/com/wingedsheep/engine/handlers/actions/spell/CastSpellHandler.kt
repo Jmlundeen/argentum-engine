@@ -323,7 +323,7 @@ class CastSpellHandler(
             if (action.useAlternativeCost) {
                 return "Cannot combine 'without paying its mana cost' with another alternative cost"
             }
-            if (!costCalculator.hasFreeCastPermission(state, action.playerId)) {
+            if (!costCalculator.hasFreeCastPermission(state, action.playerId, cardDef)) {
                 return "'Without paying its mana cost' is not available (gate closed or no source on the battlefield)"
             }
         }
