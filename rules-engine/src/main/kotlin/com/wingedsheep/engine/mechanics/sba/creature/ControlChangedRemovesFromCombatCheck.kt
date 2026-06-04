@@ -7,6 +7,7 @@ import com.wingedsheep.engine.mechanics.sba.StateBasedActionCheck
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
+import com.wingedsheep.sdk.model.EntityId
 
 /**
  * CR 506.4 — "A permanent is removed from combat if … its controller changes …".
@@ -33,7 +34,7 @@ class ControlChangedRemovesFromCombatCheck : StateBasedActionCheck {
         val activePlayerId = state.activePlayerId
         val projected = state.projectedState
 
-        val toRemove = mutableListOf<com.wingedsheep.sdk.model.EntityId>()
+        val toRemove = mutableListOf<EntityId>()
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
             val isAttacking = container.has<AttackingComponent>()
