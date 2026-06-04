@@ -16,6 +16,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.player.CantActivateLoyaltyAbilitiesComponent
 import com.wingedsheep.engine.state.components.player.CantCastSpellsComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
+import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -110,8 +111,18 @@ class EnumerationContext(
             (perSpellCastRestrictionPresent &&
                 castPermissionUtils.spellSpecificallyRestricted(state, playerId, cardId))
 
-    // Alternative casting costs from battlefield permanents (e.g., Jodah)
-    val alternativeCastingCosts by lazy {
+    // A battlefield [MayCastWithoutPayingManaCost] source is granting the player permission to
+    // cast a spell without paying its mana cost (e.g., Weftwalking on the first spell of the
+    // player's own turn). Surfaced as its own [CastSpell.useWithoutPayingManaCost] action
+    // variant in CastSpellEnumerator, distinct from [alternativeCastingCosts] so the player can
+    // choose between this free cast and any Jodah-style alternative (CR 118.9a — only one
+    // alternative cost can apply to a cast, and which one is the player's choice).
+    val freeCastPermissionAvailable: Boolean by lazy {
+        costCalculator.hasFreeCastPermission(state, playerId)
+    }
+
+    // Alternative casting costs from battlefield permanents (e.g., Jodah's WUBRG).
+    val alternativeCastingCosts: List<ManaCost> by lazy {
         costCalculator.findAlternativeCastingCosts(state, playerId)
     }
 

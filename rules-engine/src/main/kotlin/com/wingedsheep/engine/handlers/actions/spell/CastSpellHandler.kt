@@ -315,8 +315,19 @@ class CastSpellHandler(
             if (conspireError != null) return conspireError
         }
 
-        // Calculate effective cost (free if PlayWithoutPayingCostComponent is present)
-        val playForFree = zoneResolver.hasPlayWithoutPayingCost(state, action.playerId, action.cardId)
+        // Calculate effective cost (free if PlayWithoutPayingCostComponent is present, or if a
+        // MayCastWithoutPayingManaCost battlefield source (e.g. Weftwalking) is the chosen alt).
+        val playForFreeFromComponent = zoneResolver.hasPlayWithoutPayingCost(state, action.playerId, action.cardId)
+        if (action.useWithoutPayingManaCost) {
+            // CR 118.9a — only one alternative cost can apply to a given cast.
+            if (action.useAlternativeCost) {
+                return "Cannot combine 'without paying its mana cost' with another alternative cost"
+            }
+            if (!costCalculator.hasFreeCastPermission(state, action.playerId)) {
+                return "'Without paying its mana cost' is not available (gate closed or no source on the battlefield)"
+            }
+        }
+        val playForFree = playForFreeFromComponent || action.useWithoutPayingManaCost
         // Split-layout (CR 709.3a) — only the chosen half is evaluated for legality. When
         // `faceIndex` is set, the cost is the face's printed mana cost passed through the
         // standard battlefield cost-modifier pipeline (CR 118.9a applies cost modifiers to
@@ -1305,8 +1316,11 @@ class CastSpellHandler(
         // successful cast.
         val linkedExileGranterEntry = zoneResolver.findLinkedExileGranterEntry(currentState, action.playerId, action.cardId)
 
-        // Calculate effective cost (free if PlayWithoutPayingCostComponent is present)
-        val playForFreeInExecute = zoneResolver.hasPlayWithoutPayingCost(currentState, action.playerId, action.cardId)
+        // Calculate effective cost (free if PlayWithoutPayingCostComponent is present, or if a
+        // MayCastWithoutPayingManaCost battlefield source (e.g. Weftwalking) is the chosen alt).
+        // Mutual-exclusion + gate already enforced in validate().
+        val playForFreeFromComponentExecute = zoneResolver.hasPlayWithoutPayingCost(currentState, action.playerId, action.cardId)
+        val playForFreeInExecute = playForFreeFromComponentExecute || action.useWithoutPayingManaCost
         // Split-layout (CR 709.3a) — see validate() for the rationale. Mirror the override here.
         val faceManaCostOverrideExecute: ManaCost? = action.faceIndex?.let { idx ->
             cardDef?.cardFaces?.getOrNull(idx)?.manaCost

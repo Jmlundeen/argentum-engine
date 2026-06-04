@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantAlternativeCastingCost
+import com.wingedsheep.sdk.scripting.MayCastWithoutPayingManaCost
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
@@ -1066,6 +1067,43 @@ class CostCalculator(
             }
         }
         return costs
+    }
+
+    /**
+     * Whether any battlefield permanent is currently granting [casterId] a
+     * [MayCastWithoutPayingManaCost] permission whose gates are all open
+     * (e.g. Weftwalking's `firstSpellOfTurnOnly = true`).
+     *
+     * Gates honored per source:
+     *  - `controllerOnly` — when true, the source's controller (read from projected state) must
+     *    be [casterId].
+     *  - `firstSpellOfTurnOnly` — when true, [casterId] must be the active player and must have
+     *    cast no spells yet this turn.
+     *
+     * Scans every battlefield zone (not just the caster's) so that an opponent's source can
+     * still grant the caster their free cast when the source's wording doesn't require
+     * controller-only.
+     */
+    fun hasFreeCastPermission(state: GameState, casterId: EntityId): Boolean {
+        for (entityId in state.getBattlefield()) {
+            val container = state.getEntity(entityId) ?: continue
+            val card = container.get<CardComponent>() ?: continue
+            val permanentDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val classLevel = container.get<ClassLevelComponent>()?.currentLevel
+            for (ability in permanentDef.script.effectiveStaticAbilities(classLevel)) {
+                if (ability !is MayCastWithoutPayingManaCost) continue
+                if (ability.controllerOnly) {
+                    val controllerId = state.projectedState.getController(entityId) ?: continue
+                    if (controllerId != casterId) continue
+                }
+                if (ability.firstSpellOfTurnOnly) {
+                    if (state.activePlayerId != casterId) continue
+                    if ((state.playerSpellsCastThisTurn[casterId] ?: 0) > 0) continue
+                }
+                return true
+            }
+        }
+        return false
     }
 
     /**

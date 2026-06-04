@@ -390,7 +390,11 @@ class CastSpellEnumerator : ActionEnumerator {
                 context.manaSolver.canPay(state, playerId, beholdBaseCost, spellContext = spellContext, precomputedSources = cachedSources)
             } else false
 
-            if (!canAfford && !canAffordAlternative && !canAffordSelfAlternative && !canAffordEvoke && !canAffordImpending && !canAffordBlightPath && !canAffordBeholdPath) {
+            // A `MayCastWithoutPayingManaCost` battlefield permission (e.g. Weftwalking) makes the
+            // spell affordable for {0} when its gates are open. Emitted by its own branch below;
+            // don't continue out before reaching it.
+            val canAffordFreeCast = context.freeCastPermissionAvailable
+            if (!canAfford && !canAffordAlternative && !canAffordSelfAlternative && !canAffordEvoke && !canAffordImpending && !canAffordBlightPath && !canAffordBeholdPath && !canAffordFreeCast) {
                 // The primary face can't be paid for by any path. Normally we skip it entirely.
                 // But if this is an Adventure/Omen/modal-DFC card whose *secondary* face is
                 // affordable, surface a grayed-out placeholder for the primary face so the
@@ -496,7 +500,7 @@ class CastSpellEnumerator : ActionEnumerator {
             val totalDamageToDistribute = dividedDamageEffect?.totalDamage
             val minDamagePerTarget = if (dividedDamageEffect != null) 1 else null
 
-            // Compute alternative cost info for this spell
+            // Compute alternative cost info for this spell (Jodah-style GrantAlternativeCastingCost).
             val altCostInfo = if (canAffordAlternative) {
                 val altCost = context.alternativeCastingCosts.first()
                 val altEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, altCost)
@@ -556,6 +560,20 @@ class CastSpellEnumerator : ActionEnumerator {
                 SelfAltCostResult(
                     manaCostString = impendingMana.toString(),
                     autoTapPreview = impendingPreview,
+                    additionalCostInfo = null
+                )
+            } else null
+
+            // Free cast via `MayCastWithoutPayingManaCost` (e.g. Weftwalking) — its own variant,
+            // parallel to [altCostInfo], so the player can pick it over Jodah-style
+            // `GrantAlternativeCastingCost` and over any keyword alt (flashback, harmonize, warp,
+            // evoke, impending) when both are legal (CR 118.9a — only one alternative cost may
+            // apply to a cast, and which one is the player's choice). Routes through
+            // [CastSpell.useWithoutPayingManaCost].
+            val freeCastResult = if (context.freeCastPermissionAvailable) {
+                SelfAltCostResult(
+                    manaCostString = "{0}",
+                    autoTapPreview = if (context.skipAutoTapPreview) null else emptyList(),
                     additionalCostInfo = null
                 )
             } else null
@@ -847,6 +865,18 @@ class CastSpellEnumerator : ActionEnumerator {
                                 autoTapPreview = impendingCostResult.autoTapPreview
                             ))
                         }
+                        if (freeCastResult != null) {
+                            result.add(LegalAction(
+                                actionType = "CastWithoutPayingManaCost",
+                                description = "Cast ${cardComponent.name} (Free)",
+                                action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), useWithoutPayingManaCost = true),
+                                manaCostString = freeCastResult.manaCostString,
+                                requiresDamageDistribution = requiresDamageDistribution,
+                                totalDamageToDistribute = totalDamageToDistribute,
+                                minDamagePerTarget = minDamagePerTarget,
+                                autoTapPreview = freeCastResult.autoTapPreview
+                            ))
+                        }
                         if (blightPathInfo != null) {
                             result.add(LegalAction(
                                 actionType = "CastSpell",
@@ -977,6 +1007,26 @@ class CastSpellEnumerator : ActionEnumerator {
                                 autoTapPreview = impendingCostResult.autoTapPreview
                             ))
                         }
+                        if (freeCastResult != null) {
+                            result.add(LegalAction(
+                                actionType = "CastWithoutPayingManaCost",
+                                description = "Cast ${cardComponent.name} (Free)",
+                                action = CastSpell(playerId, cardId, useWithoutPayingManaCost = true),
+                                validTargets = firstReqInfo.validTargets,
+                                requiresTargets = true,
+                                targetCount = firstReq.count,
+                                minTargets = firstReq.effectiveMinCount,
+                                targetDescription = firstReq.description,
+                                targetRequirements = if (targetReqInfos.size > 1) targetReqInfos else null,
+                                xConstrainsTargetManaValue = firstReqInfo.xConstrainsManaValue,
+                                xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
+                                manaCostString = freeCastResult.manaCostString,
+                                requiresDamageDistribution = requiresDamageDistribution,
+                                totalDamageToDistribute = totalDamageToDistribute,
+                                minDamagePerTarget = minDamagePerTarget,
+                                autoTapPreview = freeCastResult.autoTapPreview
+                            ))
+                        }
                         if (blightPathInfo != null) {
                             result.add(LegalAction(
                                 actionType = "CastSpell",
@@ -1075,6 +1125,15 @@ class CastSpellEnumerator : ActionEnumerator {
                         action = CastSpell(playerId, cardId, useAlternativeCost = true),
                         manaCostString = impendingCostResult.manaCostString,
                         autoTapPreview = impendingCostResult.autoTapPreview
+                    ))
+                }
+                if (freeCastResult != null) {
+                    result.add(LegalAction(
+                        actionType = "CastWithoutPayingManaCost",
+                        description = "Cast ${cardComponent.name} (Free)",
+                        action = CastSpell(playerId, cardId, useWithoutPayingManaCost = true),
+                        manaCostString = freeCastResult.manaCostString,
+                        autoTapPreview = freeCastResult.autoTapPreview
                     ))
                 }
                 if (blightPathInfo != null) {

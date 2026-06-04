@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 254 / 261
+**Implemented:** 255 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -260,7 +260,7 @@
 - [x] Wedgelight Rammer
 - [x] Weftblade Enhancer
 - [x] Weftstalker Ardent
-- [ ] Weftwalking
+- [x] Weftwalking
 - [x] Wurmwall Sweeper
 - [x] Xu-Ifit, Osteoharmonist
 - [x] Zealous Display
