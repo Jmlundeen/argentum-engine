@@ -1455,15 +1455,20 @@ staticAbility {
   enforced as a whole-declaration check in `AttackPhaseManager`/`BlockPhaseManager` rather than a
   per-creature rule. While any permanent with the ability is on the battlefield, declaring more
   than the smallest cap is rejected. (`BlockerCountLimit` counts distinct blocking creatures.)
-- `AdditionalETBTriggers(enteringFilter, enteringMustBeYouControl = true)` — Panharmonicon / Naban
-  "for a subtype": when a permanent matching `enteringFilter` enters, triggered abilities of
-  permanents you control that fired from that ETB trigger an additional time. `TriggerDetector.duplicateETBTriggers`.
+- `AdditionalETBOrLTBTriggers(filter, mustBeYouControl = true, directions = setOf(ENTERING))` —
+  the Panharmonicon family (CR 603.2d "triggers additional times"). When a permanent matching
+  `filter` crosses the battlefield boundary in one of `directions`, triggered abilities of
+  permanents controlled by this ability's controller that fired from that event trigger an
+  additional time per copy. Default `{ENTERING}` covers Panharmonicon / Naban / Traveling Chocobo;
+  `mustBeYouControl = false` drops the "X you control" restriction on the cause (Starfield
+  Vocalist); adding `BattlefieldDirection.LEAVING` covers Gandalf the White's "entering or leaving
+  the battlefield" wording. `TriggerDetector.duplicateETBOrLTBTriggers`; additive across copies.
 - `AdditionalSourceTriggers(sourceFilter, excludeSelf = true)` — Twinflame Travelers: all triggered
   abilities of permanents matching `sourceFilter` you control trigger an additional time (not just ETB).
   `TriggerDetector.duplicateSourceTriggers`.
 - `AdditionalAttackTriggers(attackerFilter = GameObjectFilter.Any)` — Windcrag Siege (Mardu): the
-  attack-cause analogue of `AdditionalETBTriggers`. If a creature matching `attackerFilter` being
-  declared as an attacker causes an attack-related triggered ability ("whenever a creature
+  attack-cause analogue of `AdditionalETBOrLTBTriggers`. If a creature matching `attackerFilter`
+  being declared as an attacker causes an attack-related triggered ability ("whenever a creature
   attacks" / "whenever you attack") of a permanent you control to trigger, that ability triggers an
   additional time. `TriggerDetector.duplicateAttackTriggers`; additive across copies.
 

@@ -113,19 +113,18 @@ player-scoped sibling of the existing permanent-static `GrantFlashToSpellType`; 
 consulted by `CastPermissionUtils.hasGrantedFlash` and `CastZoneResolver.hasGrantedFlash`.
 - **Borne Upon a Wind** — ✅ implemented.
 - **Gandalf, Friend of the Shire** — ✅ implemented.
-- **Gandalf the White** — partial: Flash keyword + the flash-spells static (filter
-  `Artifact ∨ Legendary`, controllerOnly) are live; the third clause (extra-trigger
-  replacement for ETB/LTB triggers from legendary/artifact permanents) is a separate gap
-  and tracked below.
+- **Gandalf the White** — ✅ implemented (Flash + flash-spells static + third clause via
+  the reshaped `AdditionalETBOrLTBTriggers`, see Gap 4b below).
 
 ### Gap 4b — "triggers an additional time" replacement for legendary/artifact ETB/LTB
-**Engine change:** a trigger-counting replacement that fires a triggered ability twice when
-its trigger source is a legendary permanent or an artifact entering or leaving the
-battlefield (a narrow trigger-replication primitive — possibly composes from a future
-generalised "the next time this trigger would fire, it fires N times instead").
-- **Gandalf the White** — third clause: "If a legendary permanent or an artifact entering
-  or leaving the battlefield causes a triggered ability of a permanent you control to
-  trigger, that ability triggers an additional time."
+**Status:** LANDED. The existing `AdditionalETBTriggers` primitive (Panharmonicon family) was
+reshaped into `AdditionalETBOrLTBTriggers` with a `BattlefieldDirection` set, generalising it
+to either ETB-only (default — Panharmonicon, Naban, Starfield Vocalist, Traveling Chocobo),
+LTB-only, or both. Gandalf the White's third clause uses `directions = {ENTERING, LEAVING}`
+with `mustBeYouControl = false`; the engine path was renamed to
+`TriggerDetector.duplicateETBOrLTBTriggers` and now consults `lastKnownController` for the
+leaving case (CR 603.10a last-known-information). Implements CR 603.2d.
+- **Gandalf the White** — ✅ implemented.
 
 ### Gap 5 — Goad
 **Engine change:** Goad effect + goaded combat-forcing state (CR 701.41).

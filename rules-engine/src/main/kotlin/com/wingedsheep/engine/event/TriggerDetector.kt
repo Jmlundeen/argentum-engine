@@ -246,10 +246,11 @@ class TriggerDetector(
         // Detect Saga chapter triggers from lore counter additions
         detectSagaChapterTriggers(state, events, triggers)
 
-        // Duplicate triggers for "additional time" static abilities (e.g., Naban, Panharmonicon).
-        // When a creature matching the filter ETBs, triggered abilities on the controller's
+        // Duplicate triggers for "additional time" static abilities (e.g., Naban, Panharmonicon,
+        // Gandalf the White). When a permanent matching the filter enters or leaves the
+        // battlefield (per the static's directions), triggered abilities on the controller's
         // permanents that fired from that event trigger an additional time per copy.
-        duplicateETBTriggers(state, events, triggers)
+        duplicateETBOrLTBTriggers(state, events, triggers)
 
         // Duplicate triggers caused by a creature being declared as an attacker (Windcrag Siege's
         // Mardu mode). The attack-cause analogue of duplicateETBTriggers.
@@ -1835,15 +1836,18 @@ class TriggerDetector(
     }
 
     /**
-     * Duplicate ETB triggers for "additional time" static abilities (Naban, Panharmonicon).
+     * Duplicate ETB and LTB triggers for [AdditionalETBOrLTBTriggers] static abilities
+     * (Naban, Panharmonicon, Starfield Vocalist, Gandalf the White).
      *
-     * For each ZoneChangeEvent(to=BATTLEFIELD) in the events, checks if any permanent on
-     * the battlefield has AdditionalETBTriggers whose enteringFilter matches the entering entity.
-     * If so, duplicates all triggers that fired from that ETB event for the controller's permanents.
+     * For each ZoneChangeEvent whose `toZone == BATTLEFIELD` (entering) or whose `fromZone
+     * == BATTLEFIELD` (leaving), checks every battlefield permanent whose static matches the
+     * filter and the direction. For each match, duplicates triggers belonging to the
+     * static's controller whose triggering entity is the cause and whose trigger pattern
+     * matches the direction.
      *
      * Multiple copies are additive: N copies add N extra copies of each trigger.
      */
-    private fun duplicateETBTriggers(
+    private fun duplicateETBOrLTBTriggers(
         state: GameState,
         events: List<EngineGameEvent>,
         triggers: MutableList<PendingTrigger>
@@ -1851,18 +1855,23 @@ class TriggerDetector(
         val registry = cardRegistry
         val projected = state.projectedState
 
-        // Find ETB events (zone changes to battlefield)
-        val etbEvents = events.filterIsInstance<ZoneChangeEvent>().filter { it.toZone == Zone.BATTLEFIELD }
-        if (etbEvents.isEmpty()) return
+        // Battlefield-boundary-crossing events: pure entering, or pure leaving. A same-batch
+        // zone change that goes battlefield → battlefield is not a thing the engine emits, so
+        // we don't have to disambiguate.
+        val zoneEvents = events.filterIsInstance<ZoneChangeEvent>().filter {
+            it.toZone == Zone.BATTLEFIELD ||
+                (it.fromZone == Zone.BATTLEFIELD && it.toZone != Zone.BATTLEFIELD)
+        }
+        if (zoneEvents.isEmpty()) return
 
-        // Collect all AdditionalETBTriggers static abilities from battlefield permanents
-        data class ETBDoubler(
+        data class Doubler(
             val controllerId: EntityId,
             val filter: GameObjectFilter,
             val sourceId: EntityId,
-            val enteringMustBeYouControl: Boolean,
+            val mustBeYouControl: Boolean,
+            val directions: Set<BattlefieldDirection>,
         )
-        val doublers = mutableListOf<ETBDoubler>()
+        val doublers = mutableListOf<Doubler>()
 
         for (permanentId in state.getBattlefield()) {
             val container = state.getEntity(permanentId) ?: continue
@@ -1873,13 +1882,14 @@ class TriggerDetector(
 
             val classLevel = container.get<ClassLevelComponent>()?.currentLevel
             for (ability in cardDef.script.effectiveStaticAbilities(classLevel)) {
-                if (ability is AdditionalETBTriggers) {
+                if (ability is AdditionalETBOrLTBTriggers) {
                     doublers.add(
-                        ETBDoubler(
+                        Doubler(
                             controllerId = controllerId,
-                            filter = ability.enteringFilter,
+                            filter = ability.filter,
                             sourceId = permanentId,
-                            enteringMustBeYouControl = ability.enteringMustBeYouControl,
+                            mustBeYouControl = ability.mustBeYouControl,
+                            directions = ability.directions,
                         )
                     )
                 }
@@ -1888,38 +1898,48 @@ class TriggerDetector(
 
         if (doublers.isEmpty()) return
 
-        // For each ETB event, check if the entering creature matches any doubler
         val duplicates = mutableListOf<PendingTrigger>()
 
-        for (etbEvent in etbEvents) {
-            val enteringEntityId = etbEvent.entityId
+        for (event in zoneEvents) {
+            val direction = if (event.toZone == Zone.BATTLEFIELD) BattlefieldDirection.ENTERING
+                else BattlefieldDirection.LEAVING
+            val causeEntityId = event.entityId
 
             for (doubler in doublers) {
-                if (doubler.enteringMustBeYouControl) {
-                    // The entering permanent must be controlled by the doubler's controller
-                    // (matches "X you control entering" wording — Naban, Traveling Chocobo, etc.)
-                    val enteringController = projected.getController(enteringEntityId) ?: etbEvent.ownerId
-                    if (enteringController != doubler.controllerId) continue
+                if (direction !in doubler.directions) continue
+
+                if (doubler.mustBeYouControl) {
+                    // Entering → consult projected controller (entity is on the battlefield now).
+                    // Leaving → projected state has no entry; use the last-known controller
+                    // snapshotted on the ZoneChangeEvent, falling back to owner.
+                    val causeController = when (direction) {
+                        BattlefieldDirection.ENTERING ->
+                            projected.getController(causeEntityId) ?: event.ownerId
+                        BattlefieldDirection.LEAVING ->
+                            event.lastKnownController ?: event.ownerId
+                    }
+                    if (causeController != doubler.controllerId) continue
                 }
 
-                // Check if the entering creature matches the filter
                 if (doubler.filter != GameObjectFilter.Any) {
                     if (!predicateEvaluator.matches(
-                            state, projected, enteringEntityId, doubler.filter,
+                            state, projected, causeEntityId, doubler.filter,
                             PredicateContext(controllerId = doubler.controllerId, sourceId = doubler.sourceId)
                         )) continue
                 }
 
-                // Find all existing triggers that fired from this ETB event
-                // and belong to permanents controlled by the doubler's controller
                 for (trigger in triggers) {
-                    if (trigger.triggerContext.triggeringEntityId != enteringEntityId) continue
+                    if (trigger.triggerContext.triggeringEntityId != causeEntityId) continue
                     if (trigger.controllerId != doubler.controllerId) continue
 
-                    // Only duplicate triggers that are ETB-related (ZoneChangeEvent triggers)
                     val triggerEvent = trigger.ability.trigger
                     if (triggerEvent !is EventPattern.ZoneChangeEvent) continue
-                    if (triggerEvent.to != Zone.BATTLEFIELD) continue
+                    when (direction) {
+                        BattlefieldDirection.ENTERING ->
+                            if (triggerEvent.to != Zone.BATTLEFIELD) continue
+                        BattlefieldDirection.LEAVING ->
+                            if (triggerEvent.from != Zone.BATTLEFIELD) continue
+                    }
 
                     duplicates.add(trigger)
                 }
