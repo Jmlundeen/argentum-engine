@@ -107,12 +107,25 @@ steal no longer silently restores the designation when control reverts at end of
   needs a "Whenever you scry" trigger + "reveal top; if land, put onto battlefield tapped".
 
 ### Gap 4 — "cast [filter] spells as though they had flash" permission
-**Engine change:** a static/one-shot permission granting flash-timing to a filtered set of
-spells.
-- **Borne Upon a Wind** — "You may cast spells this turn as though they had flash."
-- **Gandalf, Friend of the Shire** — "You may cast sorcery spells as though they had flash."
-- **Gandalf the White** — "You may cast legendary spells and artifact spells as though they
-  had flash." (also needs the extra-trigger replacement below).
+**Status:** LANDED as `Effects.GrantFlashToSpells(target, spellFilter, duration)` plus
+`FlashGrantsThisTurnComponent` (PR `ltr-gap4-cast-as-flash`). The Effect is the turn-scoped,
+player-scoped sibling of the existing permanent-static `GrantFlashToSpellType`; both are
+consulted by `CastPermissionUtils.hasGrantedFlash` and `CastZoneResolver.hasGrantedFlash`.
+- **Borne Upon a Wind** — ✅ implemented.
+- **Gandalf, Friend of the Shire** — ✅ implemented.
+- **Gandalf the White** — partial: Flash keyword + the flash-spells static (filter
+  `Artifact ∨ Legendary`, controllerOnly) are live; the third clause (extra-trigger
+  replacement for ETB/LTB triggers from legendary/artifact permanents) is a separate gap
+  and tracked below.
+
+### Gap 4b — "triggers an additional time" replacement for legendary/artifact ETB/LTB
+**Engine change:** a trigger-counting replacement that fires a triggered ability twice when
+its trigger source is a legendary permanent or an artifact entering or leaving the
+battlefield (a narrow trigger-replication primitive — possibly composes from a future
+generalised "the next time this trigger would fire, it fires N times instead").
+- **Gandalf the White** — third clause: "If a legendary permanent or an artifact entering
+  or leaving the battlefield causes a triggered ability of a permanent you control to
+  trigger, that ability triggers an additional time."
 
 ### Gap 5 — Goad
 **Engine change:** Goad effect + goaded combat-forcing state (CR 701.41).
