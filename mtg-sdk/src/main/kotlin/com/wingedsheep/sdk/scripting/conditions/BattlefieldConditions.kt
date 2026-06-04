@@ -148,6 +148,19 @@ data object TriggeringEntityHadMinusOneMinusOneCounter : Condition {
 }
 
 /**
+ * Condition: "if it had counters on it" (intervening-if for dies/leaves triggers).
+ * Reads the last-known total counter count (across every counter kind) captured on the
+ * dying/leaving entity at the moment it left the battlefield (Rule 603.10 / 603.6c). True
+ * when that entity had at least one counter of any kind. Used by cards like Host of the
+ * Hereafter whose dies trigger only fires when the creature died with counters on it.
+ */
+@SerialName("TriggeringEntityHadCounters")
+@Serializable
+data object TriggeringEntityHadCounters : Condition {
+    override val description: String = "if it had counters on it"
+}
+
+/**
  * Condition: "with a single target" — true iff the triggering spell or ability
  * has exactly one target chosen. Reads the triggering entity's TargetsComponent.
  * Used by cards like Spinerock Tyrant whose trigger fires only when you cast an

@@ -858,6 +858,15 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadMinusOneMinusOneCounter
 
     /**
+     * If the triggering entity had at least one counter of any kind on it when it left
+     * the battlefield. Used as an intervening-if condition on dies/leaves triggers, e.g.
+     * Host of the Hereafter: "Whenever this creature or another creature you control dies,
+     * if it had counters on it, ...".
+     */
+    val TriggeringEntityHadCounters: ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadCounters
+
+    /**
      * If the triggering entity was NOT put onto the battlefield by this source's ability.
      * Used to break ETB-trigger loops on cards like Kodama of the East Tree:
      * "if it wasn't put onto the battlefield with this ability". Pair with

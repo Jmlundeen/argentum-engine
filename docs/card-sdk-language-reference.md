@@ -1779,6 +1779,12 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
   and projection). Desugars to `Compare(AggregateBattlefield(You, filter, DISTINCT_COUNTER_TYPES),
   GTE, count)`. Used by Hundred-Battle Veteran ("three or more different kinds of counters among
   creatures you control").
+- `TriggeringEntityHadCounters` — intervening-if for dies/leaves triggers: true when the triggering
+  entity had ≥1 counter of *any* kind on it the moment it left the battlefield (reads the last-known
+  total counter count, CR 603.10 / 603.6c). Resolution-only. Pair with `Triggers.YourCreatureDies` +
+  `Effects.MoveAllLastKnownCounters` for "whenever this or another creature you control dies, if it
+  had counters on it, move its counters" (Host of the Hereafter). Companion to the existing
+  `TriggeringEntityHadMinusOneMinusOneCounter` (which checks only -1/-1 counters, e.g. Retched Wretch).
 - `TargetControlsCreature(target)` — target player has a creature.
 - `TargetControlsLand(target)` — target player has a land.
 - `TargetMatchesFilter(filter, targetIndex = 0)` — the context target matches a `GameObjectFilter`.
