@@ -51,8 +51,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DealDamage",
                         "amount": {
                             "type": "Fixed",
@@ -822,8 +823,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -1010,8 +1012,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -2933,8 +2936,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DealDamage",
                         "amount": {
                             "type": "EntityProperty",
@@ -3015,8 +3019,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Counter",
                         "condition": {
                             "type": "CounterCondition.UnlessPaysMana",
@@ -3840,8 +3845,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -4112,8 +4118,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
@@ -4162,8 +4169,9 @@
                 },
                 "binding": "OTHER",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "ModifyStats",
                         "powerModifier": {
                             "type": "Fixed",
@@ -4244,8 +4252,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "ModifyStats",
                         "powerModifier": {
                             "type": "Fixed",
@@ -4397,8 +4406,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "GrantKeyword",
                         "keyword": "FEAR",
                         "target": {
@@ -5422,8 +5432,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7868,8 +7879,9 @@
                 "id": "ability_1",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7914,8 +7926,9 @@
                 "id": "ability_1",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7967,8 +7980,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -8014,8 +8028,9 @@
                 "id": "ability_1",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -8064,8 +8079,9 @@
                 "id": "ability_1",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -8185,8 +8201,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             "SacrificeSelf",
@@ -8487,8 +8504,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "Fixed",
@@ -8822,8 +8840,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "AddCounters",
                         "counterType": "+1/+1",
                         "count": 1,
@@ -9364,8 +9383,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -9668,8 +9688,9 @@
                 },
                 "binding": "OTHER",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "AddColorlessMana",
                         "amount": {
                             "type": "AggregateBattlefield",
@@ -11175,8 +11196,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "ModifyStats",
                         "powerModifier": {
                             "type": "Fixed",
@@ -11684,8 +11706,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "GainLife",
                         "amount": {
                             "type": "Fixed",
@@ -11875,8 +11898,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             "SacrificeSelf",
@@ -12539,8 +12563,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -13451,8 +13476,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DealDamage",
                         "amount": {
                             "type": "Fixed",
@@ -13720,8 +13746,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "ForEachInGroup",
                         "filter": {
                             "baseFilter": "creature"
@@ -13870,8 +13897,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DealDamage",
                         "amount": {
                             "type": "Fixed",
@@ -14004,8 +14032,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DealDamage",
                         "amount": {
                             "type": "Fixed",
@@ -14719,8 +14748,9 @@
                 "id": "ability_1",
                 "trigger": "CycleEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "PreventDamageShield",
                         "target": {
                             "type": "BoundVariable",
@@ -17072,8 +17102,9 @@
                     "to": "Graveyard"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -17254,8 +17285,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "Fixed",

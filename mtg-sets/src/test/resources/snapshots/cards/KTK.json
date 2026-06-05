@@ -30,8 +30,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -4016,8 +4017,9 @@
                         }
                     },
                     "then": {
-                        "type": "May",
-                        "effect": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
                             "type": "Composite",
                             "effects": [
                                 {
@@ -5355,8 +5357,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -5645,8 +5648,9 @@
                     "recipient": "AnyPlayer"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -8393,8 +8397,9 @@
                         "recipient": "AnyPlayer"
                     },
                     "effect": {
-                        "type": "May",
-                        "effect": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
                             "type": "Composite",
                             "effects": [
                                 {
@@ -11895,8 +11900,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "Fixed",
@@ -12516,8 +12522,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {

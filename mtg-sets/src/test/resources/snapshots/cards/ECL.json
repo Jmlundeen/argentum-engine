@@ -521,8 +521,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -574,8 +575,9 @@
                     "intoBackFace": false
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -1350,8 +1352,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -1415,8 +1418,9 @@
                 "id": "ability_2",
                 "trigger": "AttackEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -1781,8 +1785,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -2262,8 +2267,9 @@
                                 }
                             },
                             "then": {
-                                "type": "May",
-                                "effect": {
+                                "type": "Gated",
+                                "gate": "Gate.MayDecide",
+                                "then": {
                                     "type": "CastFromCollectionWithoutPayingCost",
                                     "from": "nonland"
                                 }
@@ -3124,8 +3130,9 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -3807,8 +3814,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -5542,8 +5550,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7170,8 +7179,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7231,8 +7241,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7535,8 +7546,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "Composite",
@@ -9498,8 +9510,9 @@
                     "id": "ability_4",
                     "trigger": "AttackEvent",
                     "effect": {
-                        "type": "May",
-                        "effect": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
                             "type": "Composite",
                             "effects": [
                                 {
@@ -16434,8 +16447,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -16571,8 +16585,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -19117,8 +19132,9 @@
                     }
                 },
                 {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "Composite",

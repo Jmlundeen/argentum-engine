@@ -1,6 +1,7 @@
 package com.wingedsheep.ai.engine
 
 import com.wingedsheep.engine.handlers.effects.composite.asConditional
+import com.wingedsheep.engine.handlers.effects.composite.asMayDecide
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
@@ -232,6 +233,8 @@ object LimitedCardRater {
             val elseScore = conditional.otherwise?.let { scoreEffect(it) } ?: 0.0
             return (thenScore + elseScore) * 0.6
         }
+        // Optional "may" (lowered MayEffect / Gate.MayDecide) — discount the payoff.
+        effect.asMayDecide()?.let { return scoreEffect(it.then) * 0.8 }
         return when (effect) {
             // Removal — the most valuable effect type in limited
             is MoveToZoneEffect -> when {
@@ -297,9 +300,6 @@ object LimitedCardRater {
 
             // Composite — sum children
             is CompositeEffect -> effect.effects.sumOf { scoreEffect(it) }.coerceAtMost(2.5)
-
-            // Optional — discount
-            is MayEffect -> scoreEffect(effect.effect) * 0.8
 
             // Everything else
             else -> 0.0

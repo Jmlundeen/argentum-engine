@@ -1699,8 +1699,9 @@
                 },
                 "binding": "OTHER",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "Fixed",

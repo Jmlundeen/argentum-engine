@@ -10085,8 +10085,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -10821,8 +10822,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
@@ -11096,8 +11098,9 @@
                     "to": "Graveyard"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -12536,8 +12539,9 @@
                 },
                 "binding": "ATTACHED",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "Fixed",
@@ -14527,8 +14531,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {

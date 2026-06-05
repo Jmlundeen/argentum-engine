@@ -338,8 +338,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -2100,8 +2101,12 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayDecide",
+                        "hint": "Exile three cards from your graveyard or sacrifice a Food"
+                    },
+                    "then": {
                         "type": "ChooseAction",
                         "choices": [
                             {
@@ -2176,8 +2181,7 @@
                             }
                         ]
                     },
-                    "descriptionOverride": "You may forage",
-                    "hint": "Exile three cards from your graveyard or sacrifice a Food"
+                    "descriptionOverride": "You may forage"
                 }
             }
         ]
@@ -2216,8 +2220,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -3530,8 +3535,12 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayDecide",
+                        "hint": "Exile three cards from your graveyard or sacrifice a Food"
+                    },
+                    "then": {
                         "type": "ChooseAction",
                         "choices": [
                             {
@@ -3606,8 +3615,7 @@
                             }
                         ]
                     },
-                    "descriptionOverride": "You may forage",
-                    "hint": "Exile three cards from your graveyard or sacrifice a Food"
+                    "descriptionOverride": "You may forage"
                 }
             }
         ]
@@ -4089,8 +4097,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -6816,8 +6825,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7359,8 +7369,9 @@
                         },
                         "binding": "ANY",
                         "effect": {
-                            "type": "May",
-                            "effect": {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
                                 "type": "Composite",
                                 "effects": [
                                     {
@@ -7439,8 +7450,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7784,8 +7796,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -7827,8 +7840,9 @@
                 "id": "ability_2",
                 "trigger": "PermanentsSacrificedEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -10616,8 +10630,9 @@
                         {
                             "type": "CreateDelayedTrigger",
                             "effect": {
-                                "type": "May",
-                                "effect": {
+                                "type": "Gated",
+                                "gate": "Gate.MayDecide",
+                                "then": {
                                     "type": "Composite",
                                     "effects": [
                                         {
@@ -11976,8 +11991,9 @@
                         ]
                     },
                     "otherwise": {
-                        "type": "May",
-                        "effect": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
                             "type": "MoveToZone",
                             "target": "Self",
                             "destination": "Hand"
@@ -18929,8 +18945,9 @@
                         }
                     },
                     "then": {
-                        "type": "May",
-                        "effect": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
                             "type": "Composite",
                             "effects": [
                                 {
@@ -21861,8 +21878,9 @@
                     "firstTimeEachTurn": true
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "Composite",

@@ -303,8 +303,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "Composite",
@@ -2045,8 +2046,9 @@
                             "type": "ConditionalOnCollection",
                             "collection": "castable",
                             "ifNotEmpty": {
-                                "type": "May",
-                                "effect": {
+                                "type": "Gated",
+                                "gate": "Gate.MayDecide",
+                                "then": {
                                     "type": "CastFromCollectionWithoutPayingCost",
                                     "from": "castable"
                                 }
@@ -2877,8 +2879,9 @@
                             "imageUri": "https://cards.scryfall.io/normal/front/6/3/633d2d10-def7-426f-8496-ed6b45684299.jpg?1742421122"
                         },
                         {
-                            "type": "May",
-                            "effect": {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
                                 "type": "AttachEquipment",
                                 "target": {
                                     "type": "PipelineTarget",
@@ -8921,8 +8924,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -10609,8 +10613,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "Composite",
@@ -11675,8 +11680,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -12321,8 +12327,9 @@
                 "id": "ability_1",
                 "trigger": "TapEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "Composite",
@@ -14308,8 +14315,9 @@
                             "storeAs": "copy"
                         },
                         {
-                            "type": "May",
-                            "effect": {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
                                 "type": "CastFromCollectionWithoutPayingCost",
                                 "from": "copy"
                             },

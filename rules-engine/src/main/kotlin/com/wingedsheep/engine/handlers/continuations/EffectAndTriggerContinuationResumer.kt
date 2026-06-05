@@ -6,9 +6,9 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
+import com.wingedsheep.engine.handlers.effects.composite.asMayDecide
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.Gate
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import java.util.UUID
 
 /**
@@ -269,8 +269,8 @@ class EffectAndTriggerContinuationResumer(
         }
 
         val trigger = continuation.trigger
-        val mayEffect = trigger.ability.effect as MayEffect
-        val innerEffect = mayEffect.effect
+        val innerEffect = trigger.ability.effect.asMayDecide()?.then
+            ?: return ExecutionResult.error(state, "May trigger continuation resumed on a non-may effect")
 
         val unwrappedAbility = trigger.ability.copy(effect = innerEffect)
         val unwrappedTrigger = trigger.copy(ability = unwrappedAbility)

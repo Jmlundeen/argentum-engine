@@ -1906,8 +1906,9 @@
                 "trigger": "ScriedEvent",
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "MoveToZone",
@@ -2268,8 +2269,9 @@
                         },
                         "EmitScriedEvent",
                         {
-                            "type": "May",
-                            "effect": {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
                                 "type": "Composite",
                                 "effects": [
                                     {
@@ -2831,8 +2833,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -2960,8 +2963,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "Fixed",
@@ -7027,8 +7031,9 @@
                 "trigger": "ScriedEvent",
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "TapUntap",
                         "target": "Self",
                         "tap": false

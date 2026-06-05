@@ -2204,8 +2204,9 @@
                 "id": "ability_1",
                 "trigger": "AttackEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -4062,8 +4063,9 @@
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -8467,8 +8469,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -9478,8 +9481,9 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "Composite",
@@ -12189,8 +12193,9 @@
                             }
                         },
                         {
-                            "type": "May",
-                            "effect": {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
                                 "type": "DealDamage",
                                 "amount": {
                                     "type": "Fixed",
@@ -12202,8 +12207,8 @@
                                 },
                                 "damageSource": "Self"
                             },
-                            "descriptionOverride": "Have Requiem Monolith deal 1 damage to that creature?",
-                            "decisionMaker": "TargetController"
+                            "decisionMaker": "TargetController",
+                            "descriptionOverride": "Have Requiem Monolith deal 1 damage to that creature?"
                         }
                     ]
                 },
@@ -12536,8 +12541,9 @@
                             "storeAs": "copy"
                         },
                         {
-                            "type": "May",
-                            "effect": {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
                                 "type": "CastFromCollectionWithoutPayingCost",
                                 "from": "copy"
                             },
@@ -15051,8 +15057,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "ContextProperty",
@@ -15957,8 +15964,9 @@
                 "id": "ability_1",
                 "trigger": "TapEvent",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "Composite",
                         "effects": [
                             {
@@ -18391,8 +18399,9 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "May",
-                    "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
                         "type": "IfYouDo",
                         "action": {
                             "type": "Composite",

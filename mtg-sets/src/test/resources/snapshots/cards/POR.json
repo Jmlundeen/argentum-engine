@@ -3996,8 +3996,9 @@
                     ]
                 },
                 {
-                    "type": "May",
-                    "effect": "ShuffleLibrary"
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": "ShuffleLibrary"
                 },
                 {
                     "type": "DrawCards",

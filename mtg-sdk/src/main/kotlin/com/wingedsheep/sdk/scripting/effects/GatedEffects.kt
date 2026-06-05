@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting.effects
 
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -97,16 +98,25 @@ sealed interface Gate {
 
     /**
      * Pure yes/no — "You may [then]." The decision-maker chooses whether
-     * [GatedEffect.then] happens at all. Replaces the simple MayEffect shape.
+     * [GatedEffect.then] happens at all. Replaces the `MayEffect` wrapper (see the
+     * [MayEffect] facade).
      *
      * @property prompt Optional override for the yes/no prompt text.
      * @property hint Optional reminder text shown under the prompt.
+     * @property sourceRequiredZone If set, the gate is skipped silently (no prompt, nothing
+     *   happens) when the source has left this zone by resolution — e.g. a "when this dies, you
+     *   may ..." ability whose source is no longer where the may-action needs it.
+     * @property inlineOnTrigger When true, the yes/no is rendered inline on the triggering
+     *   permanent rather than as a centered modal (the Dragon Shadow / "may" trigger UX); flows
+     *   into `DecisionContext.inlineOnTrigger`.
      */
     @SerialName("Gate.MayDecide")
     @Serializable
     data class MayDecide(
         val prompt: String? = null,
-        val hint: String? = null
+        val hint: String? = null,
+        val sourceRequiredZone: Zone? = null,
+        val inlineOnTrigger: Boolean = false
     ) : Gate {
         override fun applyTextReplacement(replacer: TextReplacer): Gate = this
     }
@@ -171,5 +181,40 @@ fun OptionalCostEffect(
     gate = Gate.MayPay(cost),
     then = ifPaid,
     otherwise = ifNotPaid,
+    descriptionOverride = descriptionOverride
+)
+
+/**
+ * "You may [effect]." — the player may choose to perform or skip [effect].
+ *
+ * Backwards-compatible facade preserved for the cards that authored against the former
+ * `MayEffect` data class. It now lowers to a [GatedEffect] with a [Gate.MayDecide] gate —
+ * one frame, one executor, one resumer — so there is no bespoke `MayEffect` executor.
+ * Card source is unchanged; only the compiled/serialized representation moved to `Gated`.
+ *
+ * @param effect The optional inner effect (becomes [GatedEffect.then]).
+ * @param descriptionOverride Hand-written prompt text instead of the gate-derived "You may …".
+ * @param sourceRequiredZone Skip silently if the source has left this zone by resolution.
+ * @param inlineOnTrigger Render the yes/no inline on the triggering permanent.
+ * @param hint Optional reminder text shown under the prompt.
+ * @param decisionMaker Who answers the yes/no. Defaults to the controller; only the prompt is
+ *   delegated (e.g. [EffectTarget.TargetController] for "that creature's controller may …").
+ */
+@Suppress("FunctionName")
+fun MayEffect(
+    effect: Effect,
+    descriptionOverride: String? = null,
+    sourceRequiredZone: Zone? = null,
+    inlineOnTrigger: Boolean = false,
+    hint: String? = null,
+    decisionMaker: EffectTarget? = null
+): GatedEffect = GatedEffect(
+    gate = Gate.MayDecide(
+        hint = hint,
+        sourceRequiredZone = sourceRequiredZone,
+        inlineOnTrigger = inlineOnTrigger
+    ),
+    then = effect,
+    decisionMaker = decisionMaker,
     descriptionOverride = descriptionOverride
 )

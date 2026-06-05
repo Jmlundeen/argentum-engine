@@ -12,6 +12,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.Gate
@@ -68,6 +69,25 @@ class GatedEffectExecutor(
             }
         }
 
+        // Gate.MayDecide: two cases where the former MayEffect skipped the prompt entirely.
+        if (gate is Gate.MayDecide) {
+            // Source must still be in its required zone (e.g. a dies-trigger "may" whose source
+            // has since left) — otherwise the may-action is impossible, so skip silently.
+            if (gate.sourceRequiredZone != null && context.sourceId != null) {
+                val inRequiredZone = state.zones.any { (zoneKey, entities) ->
+                    zoneKey.zoneType == gate.sourceRequiredZone && context.sourceId in entities
+                }
+                if (!inRequiredZone) return EffectResult.success(state)
+            }
+            // A ChooseActionEffect payoff with no feasible choice — don't ask the may question at all.
+            val then = effect.then
+            if (then is ChooseActionEffect &&
+                then.choices.none { checkFeasibility(state, context.controllerId, it.feasibilityCheck) }
+            ) {
+                return EffectResult.success(state)
+            }
+        }
+
         val playerId = effect.decisionMaker
             ?.let { TargetResolutionUtils.resolvePlayerTarget(it, context, state) }
             ?: context.controllerId
@@ -105,7 +125,8 @@ class GatedEffectExecutor(
                 sourceId = context.sourceId,
                 sourceName = sourceName,
                 phase = DecisionPhase.RESOLUTION,
-                triggeringEntityId = context.triggeringEntityId
+                triggeringEntityId = context.triggeringEntityId,
+                inlineOnTrigger = (gate as? Gate.MayDecide)?.inlineOnTrigger ?: false
             ),
             yesText = "Yes",
             noText = "No",

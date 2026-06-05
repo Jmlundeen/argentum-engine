@@ -575,7 +575,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   targets on `then`/`otherwise` lock at trigger time (CR 603.3d) and the gate is resolved at
   resolution time (CR 117.3a) by `decisionMaker` (defaults to the controller) — the may-vs-target
   timing is correct by construction rather than re-encoded per wrapper. Gates:
-  - `Gate.MayDecide(prompt?, hint?)` — pure yes/no ("You may [then].").
+  - `Gate.MayDecide(prompt?, hint?, sourceRequiredZone?, inlineOnTrigger?)` — pure yes/no
+    ("You may [then]."). Replaces `MayEffect` (see the `MayEffect` facade below). `sourceRequiredZone`
+    skips the gate silently when the source has left that zone by resolution; `inlineOnTrigger`
+    renders the yes/no on the triggering permanent rather than as a modal.
   - `Gate.MayPay(cost)` — "You may [cost]. If you do, [then]." `cost` is a cost **effect**
     (`PayManaCostEffect`, `PayLifeEffect`, `SacrificeEffect`, or a `CompositeEffect` of them). An
     unaffordable cost (mana/life recognized; other shapes assumed payable) skips the prompt straight
@@ -586,6 +589,12 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
     The condition evaluates through the shared `ConditionEvaluationContext` (identical at resolution
     and projection). Replaces `ConditionalEffect` (see "Sequencing & conditional" below).
   - New gate kinds (`DoAction` for IfYouDo, APNAP `AnyPlayerMayPay`) fold in as those wrappers migrate.
+- `MayEffect(effect, descriptionOverride?, sourceRequiredZone?, inlineOnTrigger?, hint?, decisionMaker?)`
+  — "You may [effect]." Facade preserved for existing cards; it now **lowers to
+  `GatedEffect(Gate.MayDecide(...), then = effect)`** (compiled form is `Gated`, no distinct `May` type
+  or executor). The may-vs-target trigger reorder — for a "may" ability that *also* targets, the yes/no
+  is asked *before* target selection (Invigorating Boon) — recognizes the lowered shape via the
+  `Effect.asMayDecide()` matcher (a bare `Gate.MayDecide` with no `otherwise`).
 - `OptionalCostEffect(cost, ifPaid, ifNotPaid?)` — "You may [cost]. If you do, [ifPaid]." Facade
   preserved for existing cards; it now **lowers to `GatedEffect` with a `Gate.MayPay`** gate (compiled
   form is `Gated`, not a distinct `OptionalCost` type).

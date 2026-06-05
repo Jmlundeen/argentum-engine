@@ -24,7 +24,6 @@ import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.LookAtFaceDownEffect
 import com.wingedsheep.sdk.scripting.effects.LoseAllCreatureTypesEffect
 import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
@@ -171,7 +170,6 @@ object CardValidator {
         when (effect) {
             is CompositeEffect -> effect.effects.forEach { collectIndicesRecursive(it, indices) }
             is ForEachTargetEffect -> effect.effects.forEach { collectIndicesRecursive(it, indices) }
-            is MayEffect -> collectIndicesRecursive(effect.effect, indices)
             is GatedEffect -> {
                 when (val gate = effect.gate) {
                     is Gate.MayPay -> collectIndicesRecursive(gate.cost, indices)

@@ -30,7 +30,7 @@ import com.wingedsheep.engine.state.permissions.hasMayPlayFor
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GiftGivenEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
+import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
@@ -1206,7 +1206,8 @@ class ClientStateTransformer(
     private fun effectTreeContainsGift(effect: Effect): Boolean = when (effect) {
         is GiftGivenEffect -> true
         is CompositeEffect -> effect.effects.any { effectTreeContainsGift(it) }
-        is MayEffect -> effectTreeContainsGift(effect.effect)
+        is GatedEffect -> effectTreeContainsGift(effect.then) ||
+            (effect.otherwise?.let { effectTreeContainsGift(it) } ?: false)
         is ModalEffect -> effect.modes.any { effectTreeContainsGift(it.effect) }
         else -> false
     }
