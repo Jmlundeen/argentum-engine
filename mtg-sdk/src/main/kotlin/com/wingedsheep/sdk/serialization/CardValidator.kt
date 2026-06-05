@@ -27,7 +27,6 @@ import com.wingedsheep.sdk.scripting.effects.LookAtFaceDownEffect
 import com.wingedsheep.sdk.scripting.effects.LoseAllCreatureTypesEffect
 import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.effects.MayEffect
-import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
@@ -196,7 +195,6 @@ object CardValidator {
             is StoreCountEffect -> collectIndicesRecursive(effect.effect, indices)
             is BlightEffect -> collectIndicesRecursive(effect.innerEffect, indices)
             is TapCreatureForEffectEffect -> collectIndicesRecursive(effect.innerEffect, indices)
-            is MayPayManaEffect -> collectIndicesRecursive(effect.effect, indices)
             is ModalEffect -> effect.modes.forEach { collectIndicesRecursive(it.effect, indices) }
             is PayOrSufferEffect -> collectIndicesRecursive(effect.suffer, indices)
             is AnyPlayerMayPayEffect -> {
