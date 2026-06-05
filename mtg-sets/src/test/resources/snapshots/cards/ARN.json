@@ -1444,6 +1444,55 @@
     "colorIdentityOverride": []
 }
 
+// Jandor's Ring
+{
+    "name": "Jandor's Ring",
+    "manaCost": "{6}",
+    "typeLine": "Artifact",
+    "oracleText": "{2}, {T}, Discard the last card you drew this turn: Draw a card.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{2}"
+                        },
+                        "CostTap",
+                        "CostDiscardLastDrawnThisTurn"
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/1/71504078-a16f-4dc4-9626-0ecc42b1e93b.jpg?1562916016",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "If you do not have the card still in your hand, you can't pay the cost."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "If you draw more than one card due to a spell or ability, you must discard the last one of those drawn."
+            }
+        ]
+    }
+}
+
 // Jandor's Saddlebags
 {
     "name": "Jandor's Saddlebags",

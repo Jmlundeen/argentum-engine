@@ -1446,7 +1446,14 @@
                                     "Hand",
                                     "Library"
                                 ],
-                                "filter": "name:Scion of Darkness"
+                                "filter": {
+                                    "cardPredicates": [
+                                        {
+                                            "type": "NameEquals",
+                                            "name": "Scion of Darkness"
+                                        }
+                                    ]
+                                }
                             },
                             "storeAs": "searchable"
                         },

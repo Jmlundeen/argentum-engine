@@ -1,7 +1,9 @@
 package com.wingedsheep.mtg.sets
 
 import com.wingedsheep.sdk.serialization.CardExporter
+import com.wingedsheep.sdk.serialization.CardLoader
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 /**
  * Golden snapshot of every registered card's compiled effect tree (Lesson 2,
@@ -29,20 +31,30 @@ import io.kotest.core.spec.style.FunSpec
  * preserving any intra-card cross-references between abilities. Cards are sorted by name so set
  * iteration order never leaks into the file.
  *
- * **Scope.** This pins the *encode* direction (CardDefinition → JSON). It does not exercise the
- * decode path; the hand-picked [com.wingedsheep.sdk.serialization.CardLoader] round-trip tests still
- * own that. A corpus-wide round-trip was prototyped here but revealed a pre-existing compact/expand
- * asymmetry in `CompactJsonTransformer` (several sets' exported JSON does not re-decode); fixing that
- * is tracked separately and is not a prerequisite for this regression net.
+ * The second test round-trips every card through [CardLoader.fromJson] — a corpus-wide check of the
+ * *decode* path (export → load → re-export) that the hand-picked round-trip tests only spot-check.
+ * It is the acceptance net for `CompactJsonTransformer`'s schema-driven expand: any new polymorphic
+ * SDK field that the compactor shrinks but the expander can't restore fails here for the whole
+ * corpus, not silently on one card.
  */
 class CardDefinitionSnapshotTest : FunSpec({
 
     MtgSetCatalog.all.forEach { set ->
+        val sorted = set.cards.sortedBy { it.name }
+
         test("${set.code} (${set.displayName}): card trees match golden") {
-            val actual = set.cards.sortedBy { it.name }.joinToString("\n\n") { card ->
+            val actual = sorted.joinToString("\n\n") { card ->
                 "// ${card.name}\n${normalizeAbilityIds(CardExporter.exportToJson(card))}"
             }
             GoldenSnapshot.verify("snapshots/cards/${set.code}.json", actual)
+        }
+
+        test("${set.code} (${set.displayName}): cards survive a JSON round-trip") {
+            for (card in sorted) {
+                val exported = CardExporter.exportToJson(card)
+                val reExported = CardExporter.exportToJson(CardLoader.fromJson(exported))
+                normalizeAbilityIds(reExported) shouldBe normalizeAbilityIds(exported)
+            }
         }
     }
 })

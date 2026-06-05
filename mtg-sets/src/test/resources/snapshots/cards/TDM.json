@@ -4484,7 +4484,23 @@
                             "source": {
                                 "type": "FromZone",
                                 "zone": "Library",
-                                "filter": "name:Dragonstorm Globe|name:Boulderborn Dragon"
+                                "filter": {
+                                    "cardPredicates": [
+                                        {
+                                            "type": "Or",
+                                            "predicates": [
+                                                {
+                                                    "type": "NameEquals",
+                                                    "name": "Dragonstorm Globe"
+                                                },
+                                                {
+                                                    "type": "NameEquals",
+                                                    "name": "Boulderborn Dragon"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
                             },
                             "storeAs": "searchable"
                         },

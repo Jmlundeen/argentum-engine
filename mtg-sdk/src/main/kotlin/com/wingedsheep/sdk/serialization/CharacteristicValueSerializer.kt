@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
@@ -17,8 +18,15 @@ import kotlinx.serialization.json.*
  * - DynamicWithOffset(source, 1) serializes as `{"type": "DynamicWithOffset", "source": "...", "offset": 1}`
  */
 object CharacteristicValueSerializer : KSerializer<CharacteristicValue> {
+    // Declares the embedded `source: DynamicAmount` so descriptor-driven tooling
+    // (e.g. CompactJsonTransformer.expand) can see through this custom serializer into the
+    // polymorphic DynamicAmount it wraps. serialize/deserialize below still own the actual logic.
     override val descriptor: SerialDescriptor =
-        buildClassSerialDescriptor("CharacteristicValue")
+        buildClassSerialDescriptor("CharacteristicValue") {
+            element<String>("type")
+            element("source", DynamicAmount.serializer().descriptor)
+            element<Int>("offset")
+        }
 
     override fun serialize(encoder: Encoder, value: CharacteristicValue) {
         val jsonEncoder = encoder as JsonEncoder

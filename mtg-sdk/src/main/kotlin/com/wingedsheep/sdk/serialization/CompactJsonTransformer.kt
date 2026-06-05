@@ -1,112 +1,35 @@
 package com.wingedsheep.sdk.serialization
 
+import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import kotlinx.serialization.descriptors.PolymorphicKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.json.*
+import kotlinx.serialization.serializer
 
 /**
  * Transforms card JSON between verbose and compact forms.
  *
  * **Compact** (for export): Simplifies singleton polymorphic objects like
- * `{"type": "EntersBattlefield"}` to just `"EntersBattlefield"`.
+ * `{"type": "EntersBattlefield"}` to just `"EntersBattlefield"`, and compacts
+ * [GameObjectFilter] objects to query strings via [FilterQueryLanguage].
  *
- * **Expand** (for loading): Reverses the compact transformation, restoring
- * strings in known polymorphic positions to `{"type": "..."}` objects.
+ * **Expand** (for loading): Reverses the compact transformation. Rather than matching on a
+ * hand-maintained allowlist of key names — which silently rots the moment a new polymorphic field
+ * is added, and cannot disambiguate keys that are polymorphic in one type but a plain enum in
+ * another (`scope`, `counterType`) — expand walks the [CardDefinition] serial-descriptor tree in
+ * lockstep with the JSON. At every position it knows the *expected type*, so it restores a bare
+ * string to `{"type": "..."}` exactly when the schema says that position is polymorphic, parses a
+ * filter query string exactly where a [GameObjectFilter] is expected, and leaves genuine strings,
+ * enums, and contextual values (ManaCost/TypeLine) untouched. This makes compact/expand symmetric by
+ * construction; a new polymorphic type needs no change here.
  *
- * This transformation is applied at the CardExporter/CardLoader boundary,
- * keeping the core kotlinx.serialization infrastructure unchanged.
+ * This transformation is applied at the CardExporter/CardLoader boundary, keeping the core
+ * kotlinx.serialization infrastructure unchanged.
  */
 object CompactJsonTransformer {
-
-    /**
-     * Keys whose values are exclusively DynamicAmount sealed types.
-     * Integer primitives in these positions are expanded to `{"type": "Fixed", "amount": n}`
-     * during loading (backward compatibility for pre-DynamicAmount JSON files).
-     * Note: "amount" is NOT included because it is `Int` in many effects.
-     */
-    private val DYNAMIC_AMOUNT_INTEGER_KEYS = setOf(
-        "powerModifier", "toughnessModifier", "dynamicPower", "dynamicToughness",
-    )
-
-    /**
-     * Keys whose values are single polymorphic sealed-type objects.
-     * Strings in these positions are expanded to `{"type": "..."}` during loading.
-     */
-    private val POLYMORPHIC_OBJECT_KEYS = setOf(
-        // Effect / Trigger / Target
-        "trigger", "effect", "target", "spellEffect",
-        // Nested effects (composites, conditionals, reflexive triggers, coin flip, pay-or-suffer)
-        "reflexiveEffect", "replacementEffect", "action", "ifTrue", "ifFalse", "wonEffect", "lostEffect", "suffer",
-        // Conditions
-        "condition", "triggerCondition",
-        // Costs and requirements
-        "cost", "targetRequirement", "baseRequirement", "copyTargetRequirement",
-        // Damage
-        "damageType",
-        // Filters and predicates
-        "controllerPredicate", "statePredicate", "predicate",
-        // Static ability references
-        "ability",
-        // Pipeline effect internals
-        "source", "selection",
-        // Player references (sealed interface, e.g., in AggregateBattlefield, ForEachPlayerEffect)
-        "player", "players",
-        // DynamicAmount fields (sealed interface used for numeric expressions)
-        "amount", "count", "amountSource", "powerModifier", "toughnessModifier",
-        "perPlayerAmount", "dynamicPower", "dynamicToughness",
-        // Compare condition operands (sealed interface DynamicAmount)
-        "left", "right",
-        // Divide operands (sealed interface DynamicAmount)
-        "numerator", "denominator",
-        // Event and Effect Parameters
-        "recipient", "controller", "timing", "duration",
-        "reductionSource", "copyCost", "repeatCondition",
-        // Damage source override (EffectTarget sealed interface)
-        "damageSource",
-        // CounterEffect sealed parameters
-        "targetSource", "counterDestination",
-        // Controller override for "under your control" effects (EffectTarget sealed interface)
-        "controllerOverride",
-        // EntityProperty fields (EntityReference and EntityNumericProperty sealed interfaces)
-        "entity", "numericProperty"
-    )
-
-    /**
-     * Known singleton serial names that can appear in a `scope` field carrying a
-     * polymorphic sealed type ([com.wingedsheep.sdk.scripting.filters.unified.Scope],
-     * [com.wingedsheep.sdk.scripting.ProtectionScope], or
-     * [com.wingedsheep.sdk.scripting.references.Player]).
-     *
-     * `scope` cannot be added to [POLYMORPHIC_OBJECT_KEYS] unconditionally because
-     * other effects use the same key for plain enums (`PreventionScope`,
-     * `FaceDownLookScope`); their enum string values must NOT be expanded into
-     * `{"type": "..."}` objects.
-     */
-    private val POLYMORPHIC_SCOPE_SINGLETONS = setOf(
-        // GroupFilter.Scope
-        "Battlefield", "AttachedTo", "Self",
-        // ProtectionScope (namespaced serial names)
-        "ProtectionScope.Everything", "ProtectionScope.EachOpponent",
-        // Player (used as DynamicAmount.CountPlayersWith.scope)
-        "You", "Opponent", "EachOpponent", "Each", "ActivePlayerFirst",
-        "Any", "TargetPlayer", "TargetOpponent", "TriggeringPlayer"
-    )
-
-    /**
-     * Known singleton names for CounterTypeFilter. Used to disambiguate
-     * CounterTypeFilter objects from standard String counter types.
-     */
-    private val COUNTER_FILTER_SINGLETONS = setOf(
-        "CounterAny", "PlusOnePlusOne", "MinusOneMinusOne", "Loyalty"
-    )
-
-    /**
-     * Keys whose values are arrays of polymorphic sealed-type objects.
-     */
-    private val POLYMORPHIC_ARRAY_KEYS = setOf(
-        "cardPredicates", "effects", "costs",
-        "targetRequirements", "staticAbilities",
-        "predicates", "conditions", "statePredicates",
-        "restrictions", "protectedTargets",
-    )
 
     /**
      * Keys whose values are GameObjectFilter JSON objects that can be
@@ -116,6 +39,13 @@ object CompactJsonTransformer {
         "filter", "baseFilter", "sourceFilter",
         "tokenFilter", "cardFilter", "matchFilter", "targetFilter"
     )
+
+    private val FILTER_SERIAL_NAME = serializer<GameObjectFilter>().descriptor.serialName
+    private val DYNAMIC_AMOUNT_SERIAL_NAME = serializer<DynamicAmount>().descriptor.serialName
+
+    // =============================================================================
+    // Compact
+    // =============================================================================
 
     /**
      * Compact a JSON element by replacing singleton polymorphic objects with strings.
@@ -144,70 +74,22 @@ object CompactJsonTransformer {
             // First compact the inner elements (e.g., singleton predicates)
             val compacted = compact(value) as JsonObject
             val query = FilterQueryLanguage.formatFilter(compacted)
-            if (query != null) return JsonPrimitive(query)
+            // Only emit the query string if it can actually be parsed back. This guards against
+            // formatFilter/parseFilter gaps (e.g. multi-word `name:` terms, or `name:` inside an
+            // OR) where formatFilter produces a string parseFilter rejects — such filters stay in
+            // the verbose object form, which the descriptor-driven expand restores losslessly,
+            // rather than producing JSON that can't be re-read. (The corpus round-trip test in
+            // mtg-sets is the correctness oracle that a parseable query also decodes faithfully.)
+            if (query != null && parsesBack(query)) return JsonPrimitive(query)
             // If the query language can't represent it, fall through to normal compaction
             return compacted
         }
         return compact(value)
     }
 
-    /**
-     * Expand a JSON element by restoring compacted strings to polymorphic objects.
-     *
-     * Rules:
-     * - String values under known polymorphic keys → `{"type": "string"}`
-     * - String elements in known polymorphic arrays → `{"type": "string"}`
-     * - ManaCost strings (containing `{`) are never expanded
-     */
-    fun expand(element: JsonElement): JsonElement = when (element) {
-        is JsonObject -> {
-            JsonObject(element.mapValues { (key, value) ->
-                when {
-                    // Filter query string → expand to GameObjectFilter JSON
-                    key in FILTER_KEYS && value is JsonPrimitive && value.isString ->
-                        expand(FilterQueryLanguage.parseFilter(value.content))
-
-                    // Special case for counterType due to name collision (String vs CounterTypeFilter)
-                    key == "counterType" && value is JsonPrimitive && value.isString
-                            && value.content in COUNTER_FILTER_SINGLETONS ->
-                        buildJsonObject { put("type", value.content) }
-
-                    // Special case for scope: polymorphic when it carries a known
-                    // sealed-type singleton; left as a string when it's an enum
-                    // (PreventionScope, FaceDownLookScope).
-                    key == "scope" && value is JsonPrimitive && value.isString
-                            && value.content in POLYMORPHIC_SCOPE_SINGLETONS ->
-                        buildJsonObject { put("type", value.content) }
-
-                    // String value under a polymorphic key → expand to {"type": "..."}
-                    key in POLYMORPHIC_OBJECT_KEYS && value is JsonPrimitive && value.isString
-                            && !value.content.contains("{") ->
-                        buildJsonObject { put("type", value.content) }
-
-                    // Integer under a DynamicAmount key → expand to {"type": "Fixed", "amount": n}
-                    // (backward compatibility for pre-DynamicAmount JSON files)
-                    key in DYNAMIC_AMOUNT_INTEGER_KEYS && value is JsonPrimitive
-                            && !value.isString && value.intOrNull != null ->
-                        buildJsonObject { put("type", "Fixed"); put("amount", value.int) }
-
-                    // Array under a polymorphic array key → expand string elements
-                    key in POLYMORPHIC_ARRAY_KEYS && value is JsonArray ->
-                        JsonArray(value.map { expandArrayElement(it) })
-
-                    // Recurse into nested structures
-                    else -> expand(value)
-                }
-            })
-        }
-        is JsonArray -> JsonArray(element.map { expand(it) })
-        is JsonPrimitive -> element
-    }
-
-    private fun expandArrayElement(element: JsonElement): JsonElement = when {
-        element is JsonPrimitive && element.isString && !element.content.contains("{") ->
-            buildJsonObject { put("type", element.content) }
-        else -> expand(element)
-    }
+    /** True iff [query] parses back without error (see [compactValue]). */
+    private fun parsesBack(query: String): Boolean =
+        runCatching { FilterQueryLanguage.parseFilter(query) }.isSuccess
 
     /**
      * Check if a JSON object is a singleton polymorphic object: exactly one key "type"
@@ -218,5 +100,104 @@ object CompactJsonTransformer {
                 && obj.containsKey("type")
                 && obj["type"] is JsonPrimitive
                 && (obj["type"] as JsonPrimitive).isString
+    }
+
+    // =============================================================================
+    // Expand (schema-driven)
+    // =============================================================================
+
+    /** Expand a compacted card JSON element back to the verbose form kotlinx.serialization decodes. */
+    fun expand(element: JsonElement): JsonElement =
+        expand(element, serializer<CardDefinition>().descriptor)
+
+    /**
+     * Expand [element] against the [descriptor] of the type expected at this position. A null
+     * descriptor means the position is unknown to the schema (e.g. an `ignoreUnknownKeys` extra
+     * field); such values are decode-ignored anyway, so they are left verbatim.
+     */
+    private fun expand(element: JsonElement, descriptor: SerialDescriptor?): JsonElement {
+        if (descriptor == null) return element
+        return when (element) {
+            is JsonNull -> element
+            is JsonPrimitive -> expandPrimitive(element, descriptor)
+            is JsonArray -> expandArray(element, descriptor)
+            is JsonObject -> expandObject(element, descriptor)
+        }
+    }
+
+    private fun expandPrimitive(prim: JsonPrimitive, descriptor: SerialDescriptor): JsonElement {
+        // kotlinx appends "?" to a nullable descriptor's serial name; compare against the base.
+        val baseName = descriptor.serialName.removeSuffix("?")
+        if (prim.isString) {
+            return when {
+                // A bare string where a polymorphic type is expected = a compacted singleton.
+                descriptor.kind is PolymorphicKind ->
+                    buildJsonObject { put("type", prim.content) }
+                // A query string where a GameObjectFilter is expected = a compacted filter.
+                baseName == FILTER_SERIAL_NAME ->
+                    expand(FilterQueryLanguage.parseFilter(prim.content), descriptor)
+                // Genuine String / enum / contextual (ManaCost, TypeLine) — leave as-is.
+                else -> prim
+            }
+        }
+        // Backward compatibility: a bare integer where a DynamicAmount is expected expands to a
+        // Fixed amount (pre-DynamicAmount JSON files wrote plain ints for these positions).
+        if (prim.intOrNull != null && baseName == DYNAMIC_AMOUNT_SERIAL_NAME) {
+            return buildJsonObject { put("type", "Fixed"); put("amount", prim.int) }
+        }
+        return prim
+    }
+
+    private fun expandArray(arr: JsonArray, descriptor: SerialDescriptor): JsonElement {
+        val elementDescriptor = if (descriptor.kind == StructureKind.LIST) {
+            descriptor.getElementDescriptor(0)
+        } else {
+            null
+        }
+        return JsonArray(arr.map { expand(it, elementDescriptor) })
+    }
+
+    private fun expandObject(obj: JsonObject, descriptor: SerialDescriptor): JsonElement = when (descriptor.kind) {
+        is PolymorphicKind -> {
+            // {"type": "Sub", ...fields}: resolve the concrete subtype, expand its fields against it.
+            val typeName = (obj["type"] as? JsonPrimitive)?.contentOrNull
+            val subDescriptor = typeName?.let { resolveSubtype(descriptor, it) }
+            JsonObject(
+                obj.mapValues { (key, value) ->
+                    if (key == "type") value else expand(value, subDescriptor?.elementDescriptorOrNull(key))
+                },
+            )
+        }
+        StructureKind.MAP ->
+            JsonObject(obj.mapValues { (_, value) -> expand(value, descriptor.getElementDescriptor(1)) })
+        StructureKind.CLASS, StructureKind.OBJECT ->
+            JsonObject(obj.mapValues { (key, value) -> expand(value, descriptor.elementDescriptorOrNull(key)) })
+        // CONTEXTUAL or any unexpected structure: recurse without guidance so nothing is mangled.
+        else -> JsonObject(obj.mapValues { (_, value) -> expand(value, null) })
+    }
+
+    private fun SerialDescriptor.elementDescriptorOrNull(name: String): SerialDescriptor? {
+        val index = getElementIndex(name)
+        return if (index >= 0) getElementDescriptor(index) else null
+    }
+
+    /**
+     * Resolve the concrete subtype descriptor for [typeName] within a sealed/polymorphic
+     * [polyDescriptor]. A sealed descriptor's second element ("value") enumerates the subtypes,
+     * keyed by their serial name.
+     */
+    private fun resolveSubtype(polyDescriptor: SerialDescriptor, typeName: String): SerialDescriptor? {
+        if (polyDescriptor.elementsCount < 2) return null
+        val subtypes = polyDescriptor.getElementDescriptor(1)
+        val index = subtypes.getElementIndex(typeName)
+        if (index >= 0) return subtypes.getElementDescriptor(index)
+        // Fallback: match by serial name (handles fully-qualified discriminators).
+        for (i in 0 until subtypes.elementsCount) {
+            val child = subtypes.getElementDescriptor(i)
+            if (child.serialName == typeName || child.serialName.substringAfterLast('.') == typeName) {
+                return child
+            }
+        }
+        return null
     }
 }
