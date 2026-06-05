@@ -167,6 +167,39 @@ def implemented_names(set_code: str) -> set[str]:
     return {front(n) for n in CS.scan_implementations(info.cards_dir)}
 
 
+def all_implemented_names() -> set[str]:
+    """Every card front-face implemented anywhere in the repo, across all sets.
+
+    Used to dedup a cross-set AUTOGEN union down to genuinely net-new cards: a reprint
+    already authored under one set still shows up as 'missing' in every other set it
+    appears in, so subtract the union of all implementations to get the real count.
+    """
+    names: set[str] = set()
+    for s in CS.discover_sets():
+        names |= {front(n) for n in CS.scan_implementations(s.cards_dir)}
+    return names
+
+
+_ALL_SET_CODES: list[str] | None = None
+
+
+def all_set_codes() -> list[str]:
+    """Every booster-draftable set code Scryfall knows, newest-first.
+
+    Pulled live from Scryfall's `/sets` index (reusing card-status's fetcher) and
+    filtered to the same set types card-status treats as Standard-shaped
+    (core / expansion / draft_innovation) — the booster sets this tooling reasons about.
+    """
+    global _ALL_SET_CODES
+    if _ALL_SET_CODES is None:
+        payload = CS.scryfall_get(f"{CS.SCRYFALL_BASE}/sets")
+        sets = [s for s in payload.get("data", [])
+                if s.get("set_type") in CS.STANDARD_SET_TYPES and not s.get("digital", False)]
+        sets.sort(key=lambda s: s.get("released_at") or "", reverse=True)
+        _ALL_SET_CODES = [s["code"].upper() for s in sets]
+    return _ALL_SET_CODES
+
+
 def canonical_names(set_code: str, *, refresh: bool = False):
     """(draft_names, extra_names) front-faced, from card-status's Scryfall cache."""
     payload = CS.load_canonical(set_code.upper(), force_refresh=refresh)

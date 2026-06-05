@@ -73,7 +73,8 @@ def all_with_mtgish(set_code):
     return names, probe.load_mtgish_index(set(names))
 
 
-def mode_gaps(set_code, effects, keywords, mapping, list_cat):
+def classify_missing(set_code, effects, keywords, mapping):
+    """Bucket a set's unimplemented cards into AUTOGEN/SCAFFOLD/BLOCKED/UNMATCHED."""
     missing, idx = missing_with_mtgish(set_code)
     cats = {"AUTOGEN": [], "SCAFFOLD": [], "BLOCKED": [], "UNMATCHED": []}
     block_tax = Counter()
@@ -87,6 +88,11 @@ def mode_gaps(set_code, effects, keywords, mapping, list_cat):
         if cat == "BLOCKED":
             for _d, v, _verdict in probe.analyze(card, effects, keywords, mapping)[2]:
                 block_tax[v] += 1
+    return missing, cats, block_tax
+
+
+def mode_gaps(set_code, effects, keywords, mapping, list_cat):
+    missing, cats, block_tax = classify_missing(set_code, effects, keywords, mapping)
 
     n = len(missing)
     print(f"== {set_code.upper()} auto-generation gap — {n} unimplemented cards ==\n")
@@ -151,20 +157,89 @@ def mode_emit_all(set_code, effects, keywords, mapping, outdir):
     return 0
 
 
+def mode_gaps_all(effects, keywords, mapping, list_cat, unique):
+    """Run the auto-gen gap over every booster set Scryfall knows, summing the AUTOGEN total."""
+    codes = probe.all_set_codes()
+    print(f"== auto-generation gap across {len(codes)} Scryfall booster sets ==", file=sys.stderr)
+    print("   (corpus is name-keyed oracle IR — every set is reasoned over, not just a sample)\n",
+          file=sys.stderr)
+    rows, totals = [], Counter()
+    autogen_union: set[str] = set()  # front-faced AUTOGEN names, deduped across sets
+    for i, code in enumerate(codes, 1):
+        print(f"  [{i:>3}/{len(codes)}] {code} ...", end="\r", file=sys.stderr, flush=True)
+        if probe.canonical_names(code)[0] is None:
+            continue  # no Scryfall cache and fetch failed — skip rather than abort the sweep
+        missing, cats, _ = classify_missing(code, effects, keywords, mapping)
+        if not missing:
+            continue
+        autogen_union.update(probe.front(n) for n in cats["AUTOGEN"])
+        row = (code, len(missing), len(cats["AUTOGEN"]), len(cats["SCAFFOLD"]),
+               len(cats["BLOCKED"]), len(cats["UNMATCHED"]))
+        rows.append(row)
+        for k in ("AUTOGEN", "SCAFFOLD", "BLOCKED", "UNMATCHED"):
+            totals[k] += len(cats[k])
+        totals["MISSING"] += len(missing)
+        if list_cat:
+            names = cats.get(list_cat.upper(), [])
+            if names:
+                print(f"\n{code} {list_cat.upper()} ({len(names)}):", file=sys.stderr)
+                for nm in names:
+                    print(f"  - {nm}", file=sys.stderr)
+    print(" " * 40, end="\r", file=sys.stderr)  # clear the progress line
+
+    rows.sort(key=lambda r: (-r[2], -r[1]))  # most AUTOGEN first, then biggest backlog
+    print(f"  {'SET':<5} {'missing':>7} {'AUTOGEN':>7} {'SCAFFOLD':>8} {'BLOCKED':>7} {'UNMATCHED':>9}")
+    print("  " + "-" * 54)
+    for code, miss, auto, scaf, block, unm in rows:
+        print(f"  {code:<5} {miss:>7} {auto:>7} {scaf:>8} {block:>7} {unm:>9}")
+    print("  " + "-" * 54)
+    print(f"  {'TOTAL':<5} {totals['MISSING']:>7} {totals['AUTOGEN']:>7} "
+          f"{totals['SCAFFOLD']:>8} {totals['BLOCKED']:>7} {totals['UNMATCHED']:>9}")
+    print(f"\n  {totals['AUTOGEN']} unimplemented cards across {len(rows)} sets would auto-author "
+          f"a whole compiling card today.")
+    print("  (per-set count — a reprint counts once per set, and once per already-authored printing)")
+
+    if unique:
+        distinct = len(autogen_union)
+        net_new = sorted(autogen_union - probe.all_implemented_names())
+        print("\n  NET-NEW (deduped across sets, minus everything already implemented anywhere):")
+        print(f"    {distinct:>6}  distinct AUTOGEN card names (cross-set duplicates collapsed)")
+        print(f"    {len(net_new):>6}  genuinely unimplemented — the real auto-authorable backlog")
+        print(f"\n  NET-NEW cards ({len(net_new)}):")
+        for nm in net_new:
+            print(f"    - {nm}")
+    else:
+        print("  (--unique collapses cross-set reprints + already-implemented cards into a "
+              "net-new count)")
+    print("\n  Per set: `just coverage-generate --set <CODE>` drafts its AUTOGEN cards into staging.")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--set", metavar="CODE", required=True)
+    target = ap.add_mutually_exclusive_group(required=True)
+    target.add_argument("--set", metavar="CODE", help="one set code")
+    target.add_argument("--all", action="store_true",
+                        help="with --gaps: sweep every Scryfall booster set, sum the AUTOGEN total")
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--gaps", action="store_true", help="report the auto-gen gap (default)")
     g.add_argument("--write", action="store_true", help="write draft .kt files for AUTOGEN cards")
     g.add_argument("--emit-all", action="store_true", dest="emit_all",
                    help="emit every whole-renderable card (impl included) for the Kotlin gate")
     ap.add_argument("--list", metavar="CAT", help="with --gaps: list AUTOGEN/SCAFFOLD/BLOCKED")
+    ap.add_argument("--unique", action="store_true",
+                    help="with --all: also report net-new cards (deduped, minus all implementations)")
     ap.add_argument("--out", metavar="DIR", help="output dir (--write / --emit-all)")
     args = ap.parse_args()
     effects, keywords, mapping = (probe.load_effect_serialnames(), probe.load_keywords(),
                                   probe.load_mapping())
+    if args.unique and not args.all:
+        ap.error("--unique only applies to --all")
+    if args.all:
+        if args.write or args.emit_all:
+            ap.error("--all is only supported with --gaps")
+        return mode_gaps_all(effects, keywords, mapping, args.list, args.unique)
     if args.write:
         return mode_write(args.set, effects, keywords, mapping, args.out)
     if args.emit_all:
