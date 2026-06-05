@@ -1,0 +1,21 @@
+// Holy Day
+{
+    "name": "Holy Day",
+    "manaCost": "{W}",
+    "typeLine": "Instant",
+    "oracleText": "Prevent all combat damage that would be dealt this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "PreventDamageShield",
+            "scope": "CombatOnly"
+        }
+    },
+    "metadata": {
+        "collectorNumber": "20",
+        "artist": "Justin Hampton",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/6/f6c95a2b-bf44-4ff2-9c6a-916773346edd.jpg?1591104919"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

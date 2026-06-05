@@ -1,0 +1,47 @@
+// Rain of Riches
+{
+    "name": "Rain of Riches",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, create two Treasure tokens.\nThe first spell you cast each turn that mana from a Treasure was spent to cast has cascade. (When you cast the spell, exile cards from the top of your library until you exile a nonland card that costs less. You may cast it without paying its mana cost. Put the exiled cards on the bottom in a random order.)",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure",
+                    "count": 2
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "requires": [
+                        {
+                            "type": "SpellPaidWithManaFromSubtype",
+                            "subtype": "Treasure"
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": "Cascade",
+                "triggerCondition": "IsFirstSpellPaidWithTreasureManaCastThisTurn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "RARE",
+        "artist": "Evyn Fong",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/c/1c5241c1-ffe9-4490-b4df-7e91c372c27c.jpg?1673482136"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

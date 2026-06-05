@@ -1,0 +1,517 @@
+// Armageddon
+{
+    "name": "Armageddon",
+    "manaCost": "{3}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "land"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "2",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/b/5b6ddce7-b9c5-431d-a0b0-46d4aa93cbcb.jpg?1559591324"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Bog Wraith
+{
+    "name": "Bog Wraith",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Wraith",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "SWAMPWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "95",
+        "rarity": "UNCOMMON",
+        "artist": "Jeff A. Menges",
+        "flavorText": "'Twas in the bogs of Cannelbrae\nMy mate did meet an early grave\n'Twas nothing left for us to save\nIn the peat-filled bogs of Cannelbrae.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/7/6701874e-986e-4b81-9268-90b6171e6187.jpg?1559591359"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Clone
+{
+    "name": "Clone",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Shapeshifter",
+    "oracleText": "You may have Clone enter the battlefield as a copy of any creature on the battlefield.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "replacementEffects": [
+            "EntersAsCopy"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "51",
+        "rarity": "UNCOMMON",
+        "artist": "Julie Baroh",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/0/f00d33dd-4eb2-4446-9813-1923d8e2d2f3.jpg?1559591454"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Earthquake
+{
+    "name": "Earthquake",
+    "manaCost": "{X}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEachInGroup",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "NotKeyword",
+                                    "keyword": "FLYING"
+                                }
+                            ]
+                        }
+                    },
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": "XValue",
+                        "target": "Self"
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": "XValue",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "146",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e68ac362-6cdc-48a6-bdd3-4f8ea32add64.jpg?1559591701"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fire Elemental
+{
+    "name": "Fire Elemental",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Creature — Elemental",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "148",
+        "rarity": "UNCOMMON",
+        "artist": "Melissa A. Benson",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/a/da237992-2919-4e37-8f56-2164095f59b5.jpg?1559591353"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Flashfires
+{
+    "name": "Flashfires",
+    "manaCost": "{3}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "land Plains"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "rarity": "UNCOMMON",
+        "artist": "Dameon Willich",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/e/ee8a05a4-0ce3-4abe-bb60-08af53cf08e5.jpg?1559591304"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Giant Spider
+{
+    "name": "Giant Spider",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Spider",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "metadata": {
+        "collectorNumber": "198",
+        "artist": "Sandra Everingham",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/7/77636b4c-faea-4bf5-b88c-dd5bb88dc930.jpg?1559591693"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Grizzly Bears
+{
+    "name": "Grizzly Bears",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Bear",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "199",
+        "artist": "Jeff A. Menges",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce2d603a-3231-4a8c-bf39-1617586ea870.jpg?1559591691"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Hill Giant
+{
+    "name": "Hill Giant",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Giant",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "metadata": {
+        "collectorNumber": "157",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0ddb98e8-13fe-4786-83f7-b72c56db135a.jpg?1559591379"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Hurricane
+{
+    "name": "Hurricane",
+    "manaCost": "{X}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEachInGroup",
+                    "filter": {
+                        "baseFilter": "creature kw:flying"
+                    },
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": "XValue",
+                        "target": "Self"
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": "XValue",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "200",
+        "rarity": "UNCOMMON",
+        "artist": "Dameon Willich",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/2/52f5a19f-16e4-4d35-89e1-969ac8202f88.jpg?1559591426"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Icy Manipulator
+{
+    "name": "Icy Manipulator",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "{1}, {T}: Tap target artifact, creature, or land.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{1}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "artifact, creature, or land"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact|creature|land"
+                        },
+                        "id": "artifact, creature, or land"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "248",
+        "rarity": "UNCOMMON",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29dc1596-a2e7-4d60-9f99-89babaef8a06.jpg?1559591386"
+    },
+    "colorIdentityOverride": []
+}
+
+// Juggernaut
+{
+    "name": "Juggernaut",
+    "manaCost": "{4}",
+    "typeLine": "Artifact Creature — Juggernaut",
+    "oracleText": "Juggernaut attacks each combat if able.\nJuggernaut can't be blocked by Walls.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 3
+    },
+    "script": {
+        "staticAbilities": [
+            "MustAttack",
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "HasSubtype",
+                            "subtype": "Wall"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "255",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/c/dcd6a291-5282-4f49-8203-d9b416083c48.jpg?1559591652"
+    },
+    "colorIdentityOverride": []
+}
+
+// Llanowar Elves
+{
+    "name": "Llanowar Elves",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "{T}: Add {G}.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "210",
+        "artist": "Anson Maddocks",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d4f1cc9e-4f99-4c26-ac1b-8ef069fa8ceb.jpg?1559591371"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Merfolk of the Pearl Trident
+{
+    "name": "Merfolk of the Pearl Trident",
+    "manaCost": "{U}",
+    "typeLine": "Creature — Merfolk",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "artist": "Jeff A. Menges",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/b/2b871039-6a66-4ac3-95e7-24759c1f2f92.jpg?1559591367"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Phantasmal Terrain
+{
+    "name": "Phantasmal Terrain",
+    "manaCost": "{U}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant land\nAs this Aura enters, choose a basic land type.\nEnchanted land is the chosen type.",
+    "script": {
+        "staticAbilities": [
+            "SetEnchantedLandTypeFromChosen"
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "BASIC_LAND_TYPE"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "land"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "68",
+        "artist": "Dameon Willich",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/c/1c371aa1-1619-41e3-8364-7bc9b8cf5d14.jpg?1559591494"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Raise Dead
+{
+    "name": "Raise Dead",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            },
+            "destination": "Hand"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature own:you",
+                    "zone": "Graveyard"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "artist": "Jeff A. Menges",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce07bede-2219-427c-a61a-56518751de42.jpg?1559591346"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Sol Ring
+{
+    "name": "Sol Ring",
+    "manaCost": "{1}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {C}{C}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "269",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/4/c4300d24-1cae-4dd5-be7e-38cc677cf5bd.jpg?1559591399"
+    },
+    "colorIdentityOverride": []
+}

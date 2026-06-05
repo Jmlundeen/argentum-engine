@@ -1,0 +1,6837 @@
+// Alabaster Dragon
+{
+    "name": "Alabaster Dragon",
+    "manaCost": "{4}{W}{W}",
+    "typeLine": "Creature — Dragon",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Library",
+                    "placement": "Shuffled"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "RARE",
+        "artist": "Ted Naifeh",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/e/1edc6ec1-3b34-45e0-8573-39eba1d10efa.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Alluring Scent
+{
+    "name": "Alluring Scent",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MustBeBlocked",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "157",
+        "rarity": "RARE",
+        "artist": "Heather Hudson",
+        "flavorText": "None can resist the call.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/7/8726242e-bfd8-4ed5-a016-ac0c82e4762b.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Anaconda
+{
+    "name": "Anaconda",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Snake",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "SWAMPWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "158",
+        "rarity": "UNCOMMON",
+        "artist": "Una Fricker",
+        "flavorText": "Silent death glides through the murky waters.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/a/0a2012ad-6425-4935-83af-fc7309ec2ece.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Ancestral Memories
+{
+    "name": "Ancestral Memories",
+    "manaCost": "{2}{U}{U}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 7
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put in graveyard"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "40",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/f/cf9b613c-61bf-4c2d-9c90-2949e442aea5.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Angelic Blessing
+{
+    "name": "Angelic Blessing",
+    "manaCost": "{2}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "FLYING",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "2",
+        "artist": "DiTerlizzi",
+        "flavorText": "A peasant can do more by faith than a king by force.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/31dda640-2a00-437e-855f-173c487e7395.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Archangel
+{
+    "name": "Archangel",
+    "manaCost": "{5}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING",
+        "VIGILANCE"
+    ],
+    "metadata": {
+        "collectorNumber": "3",
+        "rarity": "RARE",
+        "artist": "Quinton Hoover",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/8/387b9236-1241-44b7-9436-1fbc9970b692.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Ardent Militia
+{
+    "name": "Ardent Militia",
+    "manaCost": "{4}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 5
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "metadata": {
+        "collectorNumber": "4",
+        "rarity": "UNCOMMON",
+        "artist": "Mike Raabe",
+        "flavorText": "Some fight for honor and some for gold. We fight for those who cannot.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/4/543f8c6a-bcf1-4400-82e5-83d36cb60464.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Armored Pegasus
+{
+    "name": "Armored Pegasus",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Pegasus",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "6",
+        "artist": "Andrew Robinson",
+        "flavorText": "Asked how it survived a run-in with a bog imp, the pegasus's rider said, \"I would have died for my horse.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/8/a81b61af-cdb7-468f-9ff0-db82aa084023.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Arrogant Vampire
+{
+    "name": "Arrogant Vampire",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Creature — Vampire",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "UNCOMMON",
+        "artist": "Pete Venters",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/7/e7342875-d49b-4fa7-a2fb-8dfc5e3d6e4f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Assassin's Blade
+{
+    "name": "Assassin's Blade",
+    "manaCost": "{1}{B}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotColor",
+                                "color": "BLACK"
+                            }
+                        ],
+                        "statePredicates": [
+                            "IsAttacking"
+                        ]
+                    }
+                },
+                "id": "target"
+            }
+        ],
+        "castRestrictions": [
+            {
+                "type": "OnlyDuringStep",
+                "step": "DECLARE_ATTACKERS"
+            },
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "YouWereAttackedThisStep"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b80e8fe0-eccb-4268-a6ce-1365c68e6b13.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Balance of Power
+{
+    "name": "Balance of Power",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": {
+                "type": "IfPositive",
+                "amount": {
+                    "type": "Subtract",
+                    "left": {
+                        "type": "Count",
+                        "player": "TargetOpponent",
+                        "zone": "Hand"
+                    },
+                    "right": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Hand"
+                    }
+                }
+            }
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "41",
+        "rarity": "RARE",
+        "artist": "Adam Rex",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/8/3875e753-117a-40b6-9cd2-dd5dfd11a38d.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Baleful Stare
+{
+    "name": "Baleful Stare",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "RevealHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Count",
+                        "player": "TargetOpponent",
+                        "zone": "Hand",
+                        "filter": "Mountain|red"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "42",
+        "rarity": "UNCOMMON",
+        "artist": "John Coulthart",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/49fb46c8-30ae-4457-a726-6fe1ddd183d5.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Bee Sting
+{
+    "name": "Bee Sting",
+    "manaCost": "{3}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 2
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "UNCOMMON",
+        "artist": "Thomas M. Baxa",
+        "flavorText": "Nature's smallest warriors pack a powerful punch.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/3/23bcf64a-ae3d-4abb-acc7-81bba237f37b.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Blaze
+{
+    "name": "Blaze",
+    "manaCost": "{X}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": "XValue",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "118",
+        "rarity": "UNCOMMON",
+        "artist": "Michael Sutfin",
+        "flavorText": "Fire answers to no one.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f175c959-3b5d-46a3-9194-fad2359bbff9.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Blessed Reversal
+{
+    "name": "Blessed Reversal",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Multiply",
+                "amount": {
+                    "type": "AggregateBattlefield",
+                    "player": "Opponent",
+                    "filter": "creature attacking"
+                },
+                "multiplier": 3
+            }
+        },
+        "castRestrictions": [
+            {
+                "type": "OnlyDuringStep",
+                "step": "DECLARE_ATTACKERS"
+            },
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "YouWereAttackedThisStep"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "rarity": "RARE",
+        "artist": "Zina Saunders",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/899ecc19-8106-4e5a-bb25-aaea9684ba0e.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Bog Imp
+{
+    "name": "Bog Imp",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Imp",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "81",
+        "artist": "Richard Kane Ferguson",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/8681b3fd-33e5-4a45-8650-a4a142405096.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Bog Raiders
+{
+    "name": "Bog Raiders",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Zombie",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "SWAMPWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "82",
+        "artist": "Chippy",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/eb7bbb7a-b59a-4a01-b1cb-66eef881ffcd.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Boiling Seas
+{
+    "name": "Boiling Seas",
+    "manaCost": "{3}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "land Island"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "119",
+        "rarity": "UNCOMMON",
+        "artist": "John Matson",
+        "flavorText": "The ocean itself turns to steam.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/1/d1523c1b-2ba1-4581-8502-47544d450d8e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Border Guard
+{
+    "name": "Border Guard",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "9",
+        "artist": "Kev Walker",
+        "flavorText": "\"Join the army, see foreign countries!\" they say. I wish the countries would come to me.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/8/985af775-2036-459d-83c6-31ac84a0ffb1.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Breath of Life
+{
+    "name": "Breath of Life",
+    "manaCost": "{3}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Battlefield"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "10",
+        "artist": "DiTerlizzi",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bcea5e09-6385-41df-970b-ac26c9b46127.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Bull Hippo
+{
+    "name": "Bull Hippo",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Hippo",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "ISLANDWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "160",
+        "rarity": "UNCOMMON",
+        "artist": "Una Fricker",
+        "flavorText": "The rivers are its domain, and it does not share.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/0/30dd236b-94fc-4c56-aeae-215c71a009ea.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Burning Cloak
+{
+    "name": "Burning Cloak",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "120",
+        "artist": "Roger Raupp",
+        "flavorText": "Power comes at a price.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/2/e2b8f443-dba5-45a5-bb2e-f57b4fdd1d01.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Capricious Sorcerer
+{
+    "name": "Capricious Sorcerer",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "target"
+                    }
+                ],
+                "restrictions": [
+                    {
+                        "type": "ActivationAll",
+                        "restrictions": [
+                            "OnlyDuringYourTurn",
+                            {
+                                "type": "BeforeStep",
+                                "step": "DECLARE_ATTACKERS"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "43",
+        "rarity": "RARE",
+        "artist": "Zina Saunders",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b8d5eec0-0afe-4af9-ba1b-70282df8cd0a.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Charging Bandits
+{
+    "name": "Charging Bandits",
+    "manaCost": "{4}{B}",
+    "typeLine": "Creature — Human Rogue",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "84",
+        "rarity": "UNCOMMON",
+        "artist": "Michael Sutfin",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/7/1721ee11-c7ee-4878-b2ab-4f090e0c5def.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Charging Paladin
+{
+    "name": "Charging Paladin",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Knight",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "11",
+        "rarity": "UNCOMMON",
+        "artist": "Kev Walker",
+        "flavorText": "A true warrior's thoughts are of victory, not death.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29db1bbf-a6cf-460c-bec8-dbd682157af4.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Charging Rhino
+{
+    "name": "Charging Rhino",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Creature — Rhino",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedByMoreThan",
+                "maxBlockers": 1
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "161",
+        "rarity": "UNCOMMON",
+        "artist": "Una Fricker",
+        "flavorText": "Physical and mental might are like thunder and lightning. One comes from the other.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/49e47248-051c-4ee6-aad2-352ebd1f38ca.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Cloak of Feathers
+{
+    "name": "Cloak of Feathers",
+    "manaCost": "{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "FLYING",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "44",
+        "artist": "Rebecca Guay",
+        "flavorText": "\"A thousand feathers from a thousand birds, sewn with magic and song.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/7/9746790c-a426-4135-8c9d-afb82a0c26b8.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Cloud Dragon
+{
+    "name": "Cloud Dragon",
+    "manaCost": "{5}{U}",
+    "typeLine": "Creature — Illusion Dragon",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CanOnlyBlockCreaturesWith",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "HasKeyword",
+                            "keyword": "FLYING"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "RARE",
+        "artist": "John Avon",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/b/4bb7fb59-65c0-4af6-9d3a-79cd6602d004.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Cloud Pirates
+{
+    "name": "Cloud Pirates",
+    "manaCost": "{U}",
+    "typeLine": "Creature — Human Pirate",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CanOnlyBlockCreaturesWith",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "HasKeyword",
+                            "keyword": "FLYING"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "46",
+        "artist": "Phil Foglio",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/f/9f7386c6-d17a-4c7d-884d-2471b87d8b8e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Cloud Spirit
+{
+    "name": "Cloud Spirit",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Spirit",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CanOnlyBlockCreaturesWith",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "HasKeyword",
+                            "keyword": "FLYING"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "47",
+        "rarity": "UNCOMMON",
+        "artist": "DiTerlizzi",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/cc7547aa-fcf7-4b6e-955d-cc5ebc40cd7d.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Command of Unsummoning
+{
+    "name": "Command of Unsummoning",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature[0]"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature[1]"
+                    },
+                    "destination": "Hand"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 2,
+                "minCount": 1,
+                "filter": {
+                    "baseFilter": "creature attacking"
+                },
+                "id": "creature"
+            }
+        ],
+        "castRestrictions": [
+            {
+                "type": "OnlyDuringStep",
+                "step": "DECLARE_ATTACKERS"
+            },
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "YouWereAttackedThisStep"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "UNCOMMON",
+        "artist": "Phil Foglio",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e61b97fc-fa42-40a6-918e-e06383bfcae3.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Coral Eel
+{
+    "name": "Coral Eel",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Fish",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "artist": "Una Fricker",
+        "flavorText": "\"Some fishers like to eat eels, and some eels like to eat fishers.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/5/35bbb10f-c118-4905-8329-3963af415178.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Craven Giant
+{
+    "name": "Craven Giant",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Giant",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 1
+    },
+    "script": {
+        "staticAbilities": [
+            "CantBlock"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "121",
+        "artist": "Greg Staples",
+        "flavorText": "Size does not equal courage.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/a/4a2e1c12-f848-43b4-9505-851c66a509f1.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Craven Knight
+{
+    "name": "Craven Knight",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Human Knight",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "staticAbilities": [
+            "CantBlock"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "85",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d4cbae27-4a1a-4e16-8876-9a2925c45302.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Cruel Bargain
+{
+    "name": "Cruel Bargain",
+    "manaCost": "{B}{B}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Divide",
+                        "numerator": {
+                            "type": "LifeTotal",
+                            "player": "You"
+                        },
+                        "denominator": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "target": "Controller"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "86",
+        "rarity": "RARE",
+        "artist": "Kev Walker",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/6/96837a9e-dd68-4ce8-b760-0e1c22837164.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Cruel Fate
+{
+    "name": "Cruel Fate",
+    "manaCost": "{4}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        },
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "toGraveyard",
+                    "storeRemainder": "toTop",
+                    "selectedLabel": "Put in graveyard",
+                    "remainderLabel": "Put on top"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "toGraveyard",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "toTop",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        },
+                        "placement": "Top"
+                    },
+                    "order": "ControllerChooses"
+                }
+            ]
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "RARE",
+        "artist": "Adrian Smith",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/4/44bea0d4-946e-4cb8-b6f1-50231d52bfbe.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Cruel Tutor
+{
+    "name": "Cruel Tutor",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        "ShuffleLibrary",
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Top"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": "Controller"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "87",
+        "rarity": "RARE",
+        "artist": "Brian Snoddy",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/c/6c05bfb5-dd36-44c5-a60d-43f7f8c68a6b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Deep Wood
+{
+    "name": "Deep Wood",
+    "manaCost": "{1}{G}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": {
+            "type": "PreventDamageShield",
+            "sourceFilter": "AttackingCreatures"
+        },
+        "castRestrictions": [
+            {
+                "type": "OnlyDuringStep",
+                "step": "DECLARE_ATTACKERS"
+            },
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "YouWereAttackedThisStep"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "162",
+        "rarity": "RARE",
+        "artist": "Terese Nielsen",
+        "flavorText": "In the deep wood, the trees themselves offer protection.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/2/4216c5aa-9df0-4e7c-b3e9-a3f712b17ce7.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Deep-Sea Serpent
+{
+    "name": "Deep-Sea Serpent",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Creature — Serpent",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantAttackUnless",
+                "condition": {
+                    "type": "Exists",
+                    "player": "Opponent",
+                    "zone": "Battlefield",
+                    "filter": "land Island"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "51",
+        "rarity": "UNCOMMON",
+        "artist": "Scott M. Fischer",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2d7f8d8-30fb-47c7-8927-646c41f0b9bc.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Defiant Stand
+{
+    "name": "Defiant Stand",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "tap": false
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ],
+        "castRestrictions": [
+            {
+                "type": "OnlyDuringStep",
+                "step": "DECLARE_ATTACKERS"
+            },
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "YouWereAttackedThisStep"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "12",
+        "rarity": "UNCOMMON",
+        "artist": "Hannibal King",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/c/9cc37fd2-5c34-4522-8113-e6dd2181550b.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Desert Drake
+{
+    "name": "Desert Drake",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Drake",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "UNCOMMON",
+        "artist": "Roger Raupp",
+        "flavorText": "It hunts the scorching winds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/4/24673b35-aed2-40c0-a4ae-93bc4d392562.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Devastation
+{
+    "name": "Devastation",
+    "manaCost": "{5}{R}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature|land"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "rarity": "RARE",
+        "artist": "Eric Peterson",
+        "flavorText": "Nothing remains.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/1/71cce019-162c-4969-89ac-1cf94148a032.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Devoted Hero
+{
+    "name": "Devoted Hero",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Elf Soldier",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "13",
+        "artist": "DiTerlizzi",
+        "flavorText": "The heart's courage is the soul's guardian.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/89fb4bf8-51b6-44a8-92ac-e5aec4e4f2bc.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Djinn of the Lamp
+{
+    "name": "Djinn of the Lamp",
+    "manaCost": "{5}{U}{U}",
+    "typeLine": "Creature — Djinn",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "52",
+        "rarity": "RARE",
+        "artist": "DiTerlizzi",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/a/3a5e7b52-2663-4140-9758-f24b8b947876.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Dread Charge
+{
+    "name": "Dread Charge",
+    "manaCost": "{3}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "GrantCantBeBlockedExceptByColor",
+            "filter": {
+                "baseFilter": "creature black ctrl:you"
+            },
+            "canOnlyBeBlockedByColor": "BLACK"
+        }
+    },
+    "metadata": {
+        "collectorNumber": "88",
+        "rarity": "RARE",
+        "artist": "Kev Walker",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/d/ed0ca934-6989-415b-8816-7c66d22b4707.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Dread Reaper
+{
+    "name": "Dread Reaper",
+    "manaCost": "{3}{B}{B}{B}",
+    "typeLine": "Creature — Horror",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": "Controller"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "89",
+        "rarity": "RARE",
+        "artist": "rk post",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/eb25d674-11f3-42d2-ba2f-e9a5d55a7852.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Dry Spell
+{
+    "name": "Dry Spell",
+    "manaCost": "{1}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEachInGroup",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "Self"
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "90",
+        "rarity": "UNCOMMON",
+        "artist": "Quinton Hoover",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/1/a142f369-8fdd-4dc8-b5d9-3493455cc588.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Déjà Vu
+{
+    "name": "Déjà Vu",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Hand"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "sorcery own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "53",
+        "artist": "Hannibal King",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c93d4e9-7fd6-4814-b86b-89b92d1dad3b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Ebon Dragon
+{
+    "name": "Ebon Dragon",
+    "manaCost": "{5}{B}{B}",
+    "typeLine": "Creature — Dragon",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "player": {
+                                    "type": "ContextPlayer",
+                                    "index": 0
+                                }
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "chooser": "TargetPlayer",
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 1 card to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": {
+                                    "type": "ContextPlayer",
+                                    "index": 0
+                                }
+                            },
+                            "moveType": "Discard"
+                        }
+                    ]
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "91",
+        "rarity": "RARE",
+        "artist": "Ron Spencer",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4f10cf69-d3dc-43a4-9595-0f7d245c5efa.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Elite Cat Warrior
+{
+    "name": "Elite Cat Warrior",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Cat Warrior",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FORESTWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "163",
+        "artist": "Mark Zug",
+        "flavorText": "She walks where she wills, and her claws find their marks.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/3/7396c4e9-b0d8-4b8f-8c17-6f913a967b17.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Elven Cache
+{
+    "name": "Elven Cache",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Hand"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Graveyard"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "164",
+        "artist": "Randy Gallegos",
+        "flavorText": "The elves never forget where they buried their treasures.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68939020-eb6a-4d77-a850-4df96cf01918.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Elvish Ranger
+{
+    "name": "Elvish Ranger",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elf Ranger",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "165",
+        "artist": "Randy Gallegos",
+        "flavorText": "Swift and sure, the ranger finds her mark.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/26caff65-3a96-46f2-8f0b-e5091b632a2e.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Endless Cockroaches
+{
+    "name": "Endless Cockroaches",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Creature — Insect",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "92",
+        "rarity": "RARE",
+        "artist": "Ron Spencer",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0d3d18b9-ad59-435b-934b-703e10287e32.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Exhaustion
+{
+    "name": "Exhaustion",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "SkipUntap",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "rarity": "RARE",
+        "artist": "DiTerlizzi",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d6a5c33-cf74-4cec-a4f4-1aac9e7b8f79.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// False Peace
+{
+    "name": "False Peace",
+    "manaCost": "{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "SkipCombatPhases",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "14",
+        "artist": "Zina Saunders",
+        "flavorText": "Mutual consent is not required for war.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d4234262-56c6-4bd1-b425-12db931829d5.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Feral Shadow
+{
+    "name": "Feral Shadow",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Nightstalker",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "93",
+        "artist": "Andrew Robinson",
+        "flavorText": "\"We are the shadow on the sun, the thorn on the rose, the pain that sharpens the blade.\" —Nightstalker's oath",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/4/c46f4c00-6bf8-440b-9761-b17a0e36c27e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Final Strike
+{
+    "name": "Final Strike",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "EntityProperty",
+                "entity": "Sacrificed",
+                "numericProperty": "Power"
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "target"
+            }
+        ],
+        "additionalCosts": [
+            {
+                "type": "SacrificePermanent",
+                "filter": "creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "94",
+        "rarity": "RARE",
+        "artist": "Andrew Robinson",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/c/ecdfcb03-2f77-4f54-af62-3012cd3efd4f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Fire Dragon
+{
+    "name": "Fire Dragon",
+    "manaCost": "{6}{R}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "land Mountain"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "125",
+        "rarity": "RARE",
+        "artist": "Edward Beard, Jr.",
+        "flavorText": "Its breath carries the fury of the mountains themselves.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/f/bf1f26d1-4381-470a-bfbf-ef226f980597.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fire Imp
+{
+    "name": "Fire Imp",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Imp",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "126",
+        "rarity": "UNCOMMON",
+        "artist": "Pete Venters",
+        "flavorText": "Small but deadly.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/a/ea7edaf3-7941-4085-bdbc-e5c9832b6444.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fire Snake
+{
+    "name": "Fire Snake",
+    "manaCost": "{4}{R}",
+    "typeLine": "Creature — Snake",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "land"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "127",
+        "artist": "Andrew Robinson",
+        "flavorText": "Its death leaves scorched earth behind.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d4c36e32-59e8-4e3d-903e-a264211f2a82.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fire Tempest
+{
+    "name": "Fire Tempest",
+    "manaCost": "{5}{R}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEachInGroup",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 6
+                        },
+                        "target": "Self"
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 6
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "128",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "flavorText": "A storm of fire consumes all in its path.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/92334ebe-3d7a-46de-8b91-931e5d56a5a5.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fleet-Footed Monk
+{
+    "name": "Fleet-Footed Monk",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Monk",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "PowerAtLeast",
+                            "min": 2
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "artist": "D. Alexander Gregory",
+        "flavorText": "Hesitation is for the faithless. My belief lends me speed.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/3/03cd972d-1cc1-4fb1-9b4e-a88ea115cf7f.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Flux
+{
+    "name": "Flux",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEachPlayer",
+                    "players": "Each",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 100
+                                }
+                            },
+                            "storeSelected": "toDiscard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "toDiscard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "VariableReference",
+                                "variableName": "toDiscard_count"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "UNCOMMON",
+        "artist": "Ted Naifeh",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/c/3c26bf66-8fa8-4f69-9556-c9fcc56a7f33.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Foot Soldiers
+{
+    "name": "Foot Soldiers",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "artist": "Kev Walker",
+        "flavorText": "Infantry deployment is the art of putting troops in the wrong place at the right time.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/5/458ddb33-66c4-4753-b1eb-8937ab812a81.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Forked Lightning
+{
+    "name": "Forked Lightning",
+    "manaCost": "{3}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DividedDamage",
+            "totalDamage": 4
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 3,
+                "minCount": 1,
+                "filter": {
+                    "baseFilter": "creature"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "rarity": "UNCOMMON",
+        "artist": "Sandra Everingham",
+        "flavorText": "Lightning strikes thrice.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/5/85883197-fd55-4e82-862f-87be4f789493.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Fruition
+{
+    "name": "Fruition",
+    "manaCost": "{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Count",
+                "player": "Each",
+                "zone": "Battlefield",
+                "filter": "land Forest"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "166",
+        "artist": "Kev Walker",
+        "flavorText": "The forest gives life to those who respect it.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/4/147082a3-1408-44f9-ab39-f069cee5c710.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Giant Octopus
+{
+    "name": "Giant Octopus",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Octopus",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "metadata": {
+        "collectorNumber": "56",
+        "artist": "John Matson",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/5/4528edca-cc36-4f63-9615-24ca315d672c.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Gift of Estates
+{
+    "name": "Gift of Estates",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Conditional",
+            "condition": {
+                "type": "Compare",
+                "left": {
+                    "type": "AggregateBattlefield",
+                    "player": "Opponent",
+                    "filter": "land"
+                },
+                "operator": "GT",
+                "right": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "land"
+                }
+            },
+            "effect": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "GatherCards",
+                        "source": {
+                            "type": "FromZone",
+                            "zone": "Library",
+                            "filter": "land Plains"
+                        },
+                        "storeAs": "searchable"
+                    },
+                    {
+                        "type": "SelectFromCollection",
+                        "from": "searchable",
+                        "selection": {
+                            "type": "ChooseUpTo",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 3
+                            }
+                        },
+                        "storeSelected": "found"
+                    },
+                    {
+                        "type": "MoveCollection",
+                        "from": "found",
+                        "destination": {
+                            "type": "ToZone",
+                            "zone": "Hand"
+                        },
+                        "revealed": true
+                    },
+                    "ShuffleLibrary"
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "17",
+        "rarity": "RARE",
+        "artist": "Kaja Foglio",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/4/342b5afe-544f-4fa1-a833-4e0590b41eed.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Goblin Bully
+{
+    "name": "Goblin Bully",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "artist": "Pete Venters",
+        "flavorText": "It's easy to stand head and shoulders over those with no backbone.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/0/2094f2f6-8b38-47d6-973d-271986b5d982.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Gorilla Warrior
+{
+    "name": "Gorilla Warrior",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Ape Warrior",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "168",
+        "artist": "Paolo Parente",
+        "flavorText": "The great apes fight with fury and purpose.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/8/38f9c3f3-0d4d-4eec-bd14-9be3233178dc.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Gravedigger
+{
+    "name": "Gravedigger",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Zombie",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Hand"
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "95",
+        "rarity": "UNCOMMON",
+        "artist": "Dermot Power",
+        "flavorText": "\"A grave is merely a grave if you disturb it only once.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/9/b979d70e-d514-420f-886c-f60e2bb1861f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Hand of Death
+{
+    "name": "Hand of Death",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotColor",
+                                "color": "BLACK"
+                            }
+                        ]
+                    }
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "96",
+        "artist": "Brian Snoddy",
+        "flavorText": "Reach out your hand and touch the dead.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/27f136b8-52be-49b9-919b-2b9785254350.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Harsh Justice
+{
+    "name": "Harsh Justice",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": "ReflectCombatDamage",
+        "castRestrictions": [
+            {
+                "type": "OnlyDuringStep",
+                "step": "DECLARE_ATTACKERS"
+            },
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "YouWereAttackedThisStep"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "rarity": "RARE",
+        "artist": "John Coulthart",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/3657001a-7f79-4d3f-9d35-462ecf684fa8.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Highland Giant
+{
+    "name": "Highland Giant",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Giant",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "132",
+        "artist": "Randy Gallegos",
+        "flavorText": "Though slow-witted and slow-moving, they are quick to anger.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/2/32f49716-1522-4f36-92c9-63ef2059c4ef.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Horned Turtle
+{
+    "name": "Horned Turtle",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Turtle",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "57",
+        "artist": "Adrian Smith",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/7/a7d25497-36b4-48b9-ba01-f24f6222d6be.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Howling Fury
+{
+    "name": "Howling Fury",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ModifyStats",
+            "powerModifier": {
+                "type": "Fixed",
+                "amount": 4
+            },
+            "toughnessModifier": {
+                "type": "Fixed",
+                "amount": 0
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "97",
+        "artist": "Clyde Caldwell",
+        "flavorText": "The rage of the cursed can be harnessed but never controlled.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/4/a49a7c61-8696-4bab-9c96-05028db3a9f9.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Hulking Cyclops
+{
+    "name": "Hulking Cyclops",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Creature — Cyclops",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "staticAbilities": [
+            "CantBlock"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "134",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Gallegos",
+        "flavorText": "Sometimes a foe's greatest weakness is itself.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f20ae982-8a70-4dd3-8254-0d447954f580.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Hulking Goblin
+{
+    "name": "Hulking Goblin",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "staticAbilities": [
+            "CantBlock"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "135",
+        "artist": "Kev Walker",
+        "flavorText": "Bigger goblins don't flee from danger—they just can't turn around.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/e/8e3eead8-7e07-4463-9e67-c396d2d7931e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Ingenious Thief
+{
+    "name": "Ingenious Thief",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Human Rogue",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "LookAtTargetHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "58",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/e/be341805-b4de-456e-8b46-4ee5fdbca7e0.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Jungle Lion
+{
+    "name": "Jungle Lion",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Cat",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "staticAbilities": [
+            "CantBlock"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "171",
+        "artist": "Janine Johnston",
+        "flavorText": "The lion lurks in the deepest jungle, waiting for unwary prey.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/1/613ceee3-92c7-46f1-8267-d6229ab15df5.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Keen-Eyed Archers
+{
+    "name": "Keen-Eyed Archers",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Elf Archer",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "metadata": {
+        "collectorNumber": "19",
+        "artist": "Alan Rabinowitz",
+        "flavorText": "If it has wings, shoot it. If it doesn't, shoot it anyway.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/594de429-58ed-4a0c-9631-464cde7a48c3.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// King's Assassin
+{
+    "name": "King's Assassin",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Creature — Human Assassin",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature tapped"
+                        },
+                        "id": "target"
+                    }
+                ],
+                "restrictions": [
+                    {
+                        "type": "ActivationAll",
+                        "restrictions": [
+                            "OnlyDuringYourTurn",
+                            {
+                                "type": "BeforeStep",
+                                "step": "DECLARE_ATTACKERS"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "98",
+        "rarity": "RARE",
+        "artist": "Ron Spencer",
+        "flavorText": "The king rules by day, but the assassin rules by night.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/7/670a3149-54fb-4fd2-bc66-3ee9bcc3519d.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Knight Errant
+{
+    "name": "Knight Errant",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Knight",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "20",
+        "artist": "Dan Frazier",
+        "flavorText": "Before honor is humility.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/c/9c31b4b4-18fc-4a6e-8d74-fd5340964320.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Last Chance
+{
+    "name": "Last Chance",
+    "manaCost": "{R}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "TakeExtraTurn",
+            "loseAtEndStep": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "RARE",
+        "artist": "David A. Cherry",
+        "flavorText": "One final chance to seize victory—or embrace defeat.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/86f2c423-1694-466e-9a7d-4ec99e53578d.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Lava Axe
+{
+    "name": "Lava Axe",
+    "manaCost": "{4}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 5
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "137",
+        "artist": "Brian Snoddy",
+        "flavorText": "The axe comes down, and the enemy goes up—in flames.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2bebbad-76aa-4388-891a-583e8af9509d.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Lava Flow
+{
+    "name": "Lava Flow",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|land"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "138",
+        "rarity": "UNCOMMON",
+        "artist": "John Coulthart",
+        "flavorText": "Nothing stands before the river of fire.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/89e825e4-98be-49f0-bc5e-c8988118dcef.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Lizard Warrior
+{
+    "name": "Lizard Warrior",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Lizard Warrior",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "139",
+        "artist": "Tony Szczudlo",
+        "flavorText": "Don't let its appearance frighten you. Let its claws and teeth do that.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/5/053cd970-5b79-410b-8420-82d9a490b897.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Man-o'-War
+{
+    "name": "Man-o'-War",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Jellyfish",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "59",
+        "rarity": "UNCOMMON",
+        "artist": "Una Fricker",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/8/e835b618-83c1-46e2-b8bd-aec56f58ccfc.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Mercenary Knight
+{
+    "name": "Mercenary Knight",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Human Mercenary Knight",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": {
+                        "type": "Discard",
+                        "filter": "creature"
+                    },
+                    "suffer": "SacrificeSelf"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "99",
+        "rarity": "RARE",
+        "artist": "Paolo Parente",
+        "flavorText": "A mercenary's loyalty lasts only as long as the coin.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/c/ec9f97a2-b04e-418b-89c7-1c019288f27a.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Mind Knives
+{
+    "name": "Mind Knives",
+    "manaCost": "{1}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "storeAs": "hand"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "hand",
+                    "selection": {
+                        "type": "Random",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "discarded"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "discarded",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "moveType": "Discard"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "100",
+        "artist": "Andrew Robinson",
+        "flavorText": "The mind can cut deeper than any blade.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/1/d17e23a6-6313-416d-b826-5df5833371dc.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Mind Rot
+{
+    "name": "Mind Rot",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "storeAs": "hand"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "hand",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "chooser": "TargetPlayer",
+                    "storeSelected": "discarded",
+                    "prompt": "Choose 2 cards to discard"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "discarded",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "moveType": "Discard"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "101",
+        "artist": "Brian Snoddy",
+        "flavorText": "The mind is a fragile thing, easily shattered.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/9/b91d355d-8409-4f0b-87ce-7590a8b9ebc0.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Minotaur Warrior
+{
+    "name": "Minotaur Warrior",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Minotaur Warrior",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "metadata": {
+        "collectorNumber": "140",
+        "artist": "Scott M. Fischer",
+        "flavorText": "The herd's patience, the stampede's fury.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/6/c694f5db-a4ad-4abd-acff-d6b340d2387c.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Mobilize
+{
+    "name": "Mobilize",
+    "manaCost": "{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            },
+            "effect": {
+                "type": "TapUntap",
+                "target": "Self",
+                "tap": false
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "172",
+        "artist": "Rebecca Guay",
+        "flavorText": "Rise, warriors! The battle awaits!",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/7/9712ecaa-4059-44ba-98b7-07bfe7411b5b.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Monstrous Growth
+{
+    "name": "Monstrous Growth",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ModifyStats",
+            "powerModifier": {
+                "type": "Fixed",
+                "amount": 4
+            },
+            "toughnessModifier": {
+                "type": "Fixed",
+                "amount": 4
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "173",
+        "artist": "Dan Frazier",
+        "flavorText": "Size does matter.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/f/1fd2edb9-0b53-432e-bb3b-171d2a85439d.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Moon Sprite
+{
+    "name": "Moon Sprite",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Faerie",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "174",
+        "rarity": "UNCOMMON",
+        "artist": "Terese Nielsen",
+        "flavorText": "Dancing in the moonlight, she weaves dreams into the night.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/0/f0944759-ee9f-4ae0-9d1b-2533ff6791a2.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Mountain Goat
+{
+    "name": "Mountain Goat",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goat",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "MOUNTAINWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "141",
+        "artist": "Heather Hudson",
+        "flavorText": "The mountain is as much its domain as the sky is the eagle's.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/2/325100f1-d424-4db0-bfa9-24877156c0ba.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Muck Rats
+{
+    "name": "Muck Rats",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Rat",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "102",
+        "artist": "Heather Hudson",
+        "flavorText": "They scurry through the darkness, leaving only disease in their wake.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d4041226-7ce2-46d1-8844-20fa50b6568a.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Mystic Denial
+{
+    "name": "Mystic Denial",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|sorcery",
+                    "zone": "Stack"
+                }
+            }
+        ],
+        "castRestrictions": [
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "OpponentSpellOnStack"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "61",
+        "rarity": "UNCOMMON",
+        "artist": "Hannibal King",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/2/52d60f29-6da0-4ce6-9c92-96f313007271.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Natural Order
+{
+    "name": "Natural Order",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "creature green"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        },
+        "additionalCosts": [
+            {
+                "type": "SacrificePermanent",
+                "filter": "creature green"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "175",
+        "rarity": "RARE",
+        "artist": "Alan Rabinowitz",
+        "flavorText": "Nature's cycle continues: from life, life springs forth.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/cecb34f8-6961-4c27-9368-26d156714d7b.jpg",
+        "rulings": [
+            {
+                "date": "6/8/2016",
+                "text": "Sacrificing a green creature is part of Natural Order's cost. You can't sacrifice more creatures to search for more creature cards, and you can't cast Natural Order at all if you control no green creatures."
+            },
+            {
+                "date": "6/8/2016",
+                "text": "Players can respond to this spell only after it's been cast and all its costs have been paid. No one can try to destroy the creature you sacrificed to stop you from casting this spell or to make you sacrifice a different one."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Natural Spring
+{
+    "name": "Natural Spring",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Fixed",
+                "amount": 8
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "176",
+        "rarity": "UNCOMMON",
+        "artist": "Janine Johnston",
+        "flavorText": "The spring's waters carry the healing essence of the forest.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/d/8ddfc1cc-5c13-443c-a0ae-0bcc931923e7.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Nature's Cloak
+{
+    "name": "Nature's Cloak",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature green ctrl:you"
+            },
+            "effect": {
+                "type": "GrantKeyword",
+                "keyword": "FORESTWALK",
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "177",
+        "rarity": "RARE",
+        "artist": "Rebecca Guay",
+        "flavorText": "The forest cloaks its children in leaves and shadow.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/d/1dfaba58-d0ab-4d1d-91dd-48543c862165.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Nature's Lore
+{
+    "name": "Nature's Lore",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "land Forest"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "178",
+        "artist": "Terese Nielsen",
+        "flavorText": "The forest reveals its secrets to those who listen.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/5/d5242227-d033-4e03-b1e6-b334b17bb158.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Nature's Ruin
+{
+    "name": "Nature's Ruin",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature green"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "103",
+        "rarity": "UNCOMMON",
+        "artist": "Jeff Miracola",
+        "flavorText": "The forest withers and dies as darkness spreads.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/5950f52a-493e-432e-9175-0272c0edb232.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Needle Storm
+{
+    "name": "Needle Storm",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature kw:flying"
+            },
+            "effect": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 4
+                },
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "179",
+        "rarity": "UNCOMMON",
+        "artist": "Charles Gillespie",
+        "flavorText": "The forest defends its domain against all who soar above.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29a44e44-94b1-4bd2-8e00-6bd2ec07ee4c.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Noxious Toad
+{
+    "name": "Noxious Toad",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Frog",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "ForEachPlayer",
+                    "players": "EachOpponent",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "discarded"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "104",
+        "rarity": "UNCOMMON",
+        "artist": "Ron Spencer",
+        "flavorText": "Even in death, its poison lingers.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/5/b5ec75ba-bae2-4ccc-b18b-ad4639cfb548.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Omen
+{
+    "name": "Omen",
+    "manaCost": "{1}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "looked",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Top"
+                            },
+                            "order": "ControllerChooses"
+                        }
+                    ]
+                },
+                {
+                    "type": "May",
+                    "effect": "ShuffleLibrary"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "62",
+        "artist": "Eric Peterson",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/b/6be1956e-c43e-4a6c-950a-5be6e6ca013f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Owl Familiar
+{
+    "name": "Owl Familiar",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Bird",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "63",
+        "artist": "Janine Johnston",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/9/d9587bcb-0ece-4b36-85dc-76899e403b08.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Panther Warriors
+{
+    "name": "Panther Warriors",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Cat Warrior",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 3
+    },
+    "metadata": {
+        "collectorNumber": "180",
+        "artist": "Eric Peterson",
+        "flavorText": "Swift and deadly, they strike from the shadows.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/b/8be610ce-5b84-416e-b427-98887642ff01.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Path of Peace
+{
+    "name": "Path of Peace",
+    "manaCost": "{3}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "OwnerGainsLife",
+                    "amount": 4
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "21",
+        "artist": "Pete Venters",
+        "flavorText": "\"The soldier reaped the profits of peace.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/1/a1f3e1c9-bfad-49a1-b171-6fa344ef2eef.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Personal Tutor
+{
+    "name": "Personal Tutor",
+    "manaCost": "{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "sorcery"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                "ShuffleLibrary",
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Top"
+                    },
+                    "revealed": true
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "rarity": "UNCOMMON",
+        "artist": "D. Alexander Gregory",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/e/1edc3917-fded-4773-8f8d-62bd861c1131.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Phantom Warrior
+{
+    "name": "Phantom Warrior",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Creature — Illusion Warrior",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "flags": [
+        "CANT_BE_BLOCKED"
+    ],
+    "metadata": {
+        "collectorNumber": "65",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6dbcb0df-d1cc-4718-ba1e-b590852cce20.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Pillaging Horde
+{
+    "name": "Pillaging Horde",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Human Barbarian",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": {
+                        "type": "Discard",
+                        "random": true
+                    },
+                    "suffer": "SacrificeSelf"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "142",
+        "rarity": "RARE",
+        "artist": "Tom Wänerstrand",
+        "flavorText": "They take what they want and burn the rest.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/d/1daad744-e6b2-4bd8-83df-2e97e9e60d16.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Plant Elemental
+{
+    "name": "Plant Elemental",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Plant Elemental",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": {
+                        "type": "Sacrifice",
+                        "filter": "land Forest"
+                    },
+                    "suffer": "SacrificeSelf"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "181",
+        "rarity": "UNCOMMON",
+        "artist": "Donato Giancola",
+        "flavorText": "Rooted in the forest's magic, it draws life from the land itself.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/892594db-1d66-4c45-bd54-608a9972ca77.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Primeval Force
+{
+    "name": "Primeval Force",
+    "manaCost": "{2}{G}{G}{G}",
+    "typeLine": "Creature — Elemental",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 8
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": {
+                        "type": "Sacrifice",
+                        "filter": "land Forest",
+                        "count": 3
+                    },
+                    "suffer": "SacrificeSelf"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "182",
+        "rarity": "RARE",
+        "artist": "John Avon",
+        "flavorText": "The raw power of nature personified, demanding tribute from the land.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/c/1ce7fc51-0ed8-49d9-bdba-ba5a89e1e852.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Prosperity
+{
+    "name": "Prosperity",
+    "manaCost": "{X}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachPlayer",
+            "players": "Each",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": "XValue"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "rarity": "RARE",
+        "artist": "Phil Foglio",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/269bb4fc-9d8f-42cc-8f71-6a658e41533c.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Pyroclasm
+{
+    "name": "Pyroclasm",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature"
+            },
+            "effect": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "143",
+        "rarity": "UNCOMMON",
+        "artist": "John Avon",
+        "flavorText": "A wave of fire sweeps across the land.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/e/de214247-e5e3-4d8f-935a-797218416be1.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Python
+{
+    "name": "Python",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Creature — Snake",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "105",
+        "artist": "Una Fricker",
+        "flavorText": "Silent and deadly, it strikes without warning.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/82c552a1-6245-4caf-8249-765ce7ea80d2.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Raging Cougar
+{
+    "name": "Raging Cougar",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Cat",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "metadata": {
+        "collectorNumber": "144",
+        "artist": "Una Fricker",
+        "flavorText": "Swift as thought, deadly as action.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/d/fd9d126a-9db9-4adc-9cf6-11408c63201d.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Raging Goblin
+{
+    "name": "Raging Goblin",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goblin Berserker",
+    "oracleText": "Haste",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "metadata": {
+        "collectorNumber": "145",
+        "artist": "Pete Venters",
+        "flavorText": "Charging alone takes uncommon daring or uncommon stupidity. Or both.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/e/fed57a17-7847-4e60-bc40-4452880f12a3.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Raging Minotaur
+{
+    "name": "Raging Minotaur",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Minotaur Berserker",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "metadata": {
+        "collectorNumber": "146",
+        "artist": "Randy Gallegos",
+        "flavorText": "In a rage, the minotaur knows no friend from foe.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/e/2ea4be95-8147-431c-8bb8-8fe7e5a2ad53.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Rain of Salt
+{
+    "name": "Rain of Salt",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "land[0]"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "land[1]"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 2,
+                "filter": {
+                    "baseFilter": "land"
+                },
+                "id": "land"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "147",
+        "rarity": "UNCOMMON",
+        "artist": "Allen Williams",
+        "flavorText": "It pelts the land with its fury, spoiling what was once sweet.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/661ffab2-9cf5-492d-874f-de73d7a13e2b.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Rain of Tears
+{
+    "name": "Rain of Tears",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "106",
+        "rarity": "UNCOMMON",
+        "artist": "Jim Nelson",
+        "flavorText": "The land weeps as corruption takes hold.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/0/803ba4ef-24ed-4f45-aed8-f9442322e31e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Redwood Treefolk
+{
+    "name": "Redwood Treefolk",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Treefolk",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 6
+    },
+    "metadata": {
+        "collectorNumber": "183",
+        "artist": "Randy Gallegos",
+        "flavorText": "The mightiest redwoods outlive whole civilizations.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/9/e9399667-ae2a-4b64-84dd-8f97f3e5fe79.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Regal Unicorn
+{
+    "name": "Regal Unicorn",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Unicorn",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "metadata": {
+        "collectorNumber": "22",
+        "artist": "Zina Saunders",
+        "flavorText": "\"Unicorns don't care if you believe in them any more than you care if they believe in you.\"\n—Hanna, ship's navigator",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/a/daa1fb8c-12fa-4e9c-979f-55e89356acaf.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Renewing Dawn
+{
+    "name": "Renewing Dawn",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Multiply",
+                "amount": {
+                    "type": "AggregateBattlefield",
+                    "player": "TargetOpponent",
+                    "filter": "land Mountain"
+                },
+                "multiplier": 2
+            }
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "23",
+        "rarity": "UNCOMMON",
+        "artist": "John Avon",
+        "flavorText": "Dawn brings a new day, and a new day brings hope.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/5/e56300cb-6b44-47fe-9508-c33ad5670b4b.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Rowan Treefolk
+{
+    "name": "Rowan Treefolk",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Treefolk",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "184",
+        "artist": "Randy Gallegos",
+        "flavorText": "The rowan tree is said to protect against evil spirits.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/5/852a0956-8558-4754-ab57-6f1cc4de740e.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Sacred Knight
+{
+    "name": "Sacred Knight",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Human Knight",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "Or",
+                            "predicates": [
+                                {
+                                    "type": "HasColor",
+                                    "color": "BLACK"
+                                },
+                                {
+                                    "type": "HasColor",
+                                    "color": "RED"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "artist": "Donato Giancola",
+        "flavorText": "\"No flame, no horror can sway me from my cause.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/7/57b19990-c4a2-433d-a9ce-005216e9e4ac.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Sacred Nectar
+{
+    "name": "Sacred Nectar",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Fixed",
+                "amount": 4
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "25",
+        "artist": "Janine Johnston",
+        "flavorText": "\"For he on honey-dew hath fed,\nAnd drunk the milk of Paradise.\"\n—Samuel Taylor Coleridge, \"Kubla Khan\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/8/484d1b31-5363-49ef-9b13-2005568636c1.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Scorching Spear
+{
+    "name": "Scorching Spear",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 1
+            },
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            }
+        },
+        "targetRequirements": [
+            "AnyTarget"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "148",
+        "artist": "Dan Frazier",
+        "flavorText": "A single point of flame can pierce the mightiest armor.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/e/9e4817bd-68e8-4a85-983a-ee6dda2bbf33.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Scorching Winds
+{
+    "name": "Scorching Winds",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature attacking"
+            },
+            "effect": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "target": "Self"
+            }
+        },
+        "castRestrictions": [
+            {
+                "type": "OnlyDuringStep",
+                "step": "DECLARE_ATTACKERS"
+            },
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "YouWereAttackedThisStep"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "rarity": "UNCOMMON",
+        "artist": "D. Alexander Gregory",
+        "flavorText": "The desert wind carries fire in its breath.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/f/5fec371e-d4ba-439f-b1b8-2aac3f5b36bf.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Seasoned Marshal
+{
+    "name": "Seasoned Marshal",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "26",
+        "rarity": "UNCOMMON",
+        "artist": "Zina Saunders",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/7/17db0060-3667-4c8c-ae9b-d62dceac64e3.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Serpent Assassin
+{
+    "name": "Serpent Assassin",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Creature — Snake Assassin",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "NotColor",
+                                    "color": "BLACK"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "108",
+        "rarity": "UNCOMMON",
+        "artist": "Ron Spencer",
+        "flavorText": "Swift, silent, and utterly lethal.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/0/1018f6ff-5eaa-4fe1-ba20-544df799f5b2.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Serpent Warrior
+{
+    "name": "Serpent Warrior",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Snake Warrior",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": "Controller"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "artist": "Andrew Robinson",
+        "flavorText": "Its venom courses through your veins even as you command it.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/3/c364fd06-64c5-45f6-8ed5-64f44a1e8bda.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Skeletal Crocodile
+{
+    "name": "Skeletal Crocodile",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Crocodile Skeleton",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "artist": "Heather Hudson",
+        "flavorText": "Animated bones given a hunger for living flesh.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/ebcbbd6f-2915-4b4c-85d3-1d9b55d36c11.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Skeletal Snake
+{
+    "name": "Skeletal Snake",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Snake Skeleton",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "artist": "Heather Hudson",
+        "flavorText": "Bones slither through the darkness.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/2/42bd4896-4191-4479-be57-070753f8725c.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Snapping Drake
+{
+    "name": "Snapping Drake",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Drake",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "67",
+        "artist": "Christopher Rush",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/b/7b49dd4c-ead6-4d94-9acb-0518d1f6426e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Sorcerous Sight
+{
+    "name": "Sorcerous Sight",
+    "manaCost": "{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "LookAtTargetHand",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "68",
+        "artist": "Kaja Foglio",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/c/ecfd43dc-e5fd-43bc-babb-fe7ecb6ccd00.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Soul Shred
+{
+    "name": "Soul Shred",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotColor",
+                                "color": "BLACK"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "112",
+        "rarity": "UNCOMMON",
+        "artist": "Brom",
+        "flavorText": "Life flows from one to another.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/990902d2-9594-4963-807c-48a90324d487.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Spined Wurm
+{
+    "name": "Spined Wurm",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Wurm",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "185",
+        "artist": "Richard Kane Ferguson",
+        "flavorText": "Towering over the treetops, the wurm cares not for the smaller creatures beneath.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/0/0053bd00-90fd-48c2-8f79-952d5d1e3e74.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Spiritual Guardian
+{
+    "name": "Spiritual Guardian",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Creature — Spirit",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "27",
+        "rarity": "RARE",
+        "artist": "Terese Nielsen",
+        "flavorText": "\"Hope is born within.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0dbea02f-9124-4e1a-8693-d988a0a3adae.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Spitting Earth
+{
+    "name": "Spitting Earth",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "land Mountain"
+            },
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "artist": "Adrian Smith",
+        "flavorText": "The mountains themselves rise to defend their domain.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/eb16998c-cfa4-49cc-8e37-2dfc33fa2f1e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Spotted Griffin
+{
+    "name": "Spotted Griffin",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Griffin",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "28",
+        "artist": "William Simpson",
+        "flavorText": "\"When the cat flies and the bird stalks, guard your midden.\"\n—Goblin saying",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4f5b708b-368f-48d2-8eca-40f2ae6d5178.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Stalking Tiger
+{
+    "name": "Stalking Tiger",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Cat",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedByMoreThan",
+                "maxBlockers": 1
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "186",
+        "artist": "Una Fricker",
+        "flavorText": "Silent as a shadow, patient as stone.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cbc78337-2d1a-4a1d-8630-fcf7a7f6abce.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Starlight
+{
+    "name": "Starlight",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Multiply",
+                "amount": {
+                    "type": "AggregateBattlefield",
+                    "player": "TargetOpponent",
+                    "filter": "creature black"
+                },
+                "multiplier": 3
+            }
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "29",
+        "rarity": "UNCOMMON",
+        "artist": "John Avon",
+        "flavorText": "Stars are like coins dropped into the night by an angel.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/6/f6992524-6921-473b-8301-cb63fe502600.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Starlit Angel
+{
+    "name": "Starlit Angel",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "30",
+        "rarity": "UNCOMMON",
+        "artist": "Rebecca Guay",
+        "flavorText": "To soar as high as hope, to dive as swift as justice.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/36691cd0-c709-4452-a61a-d6e2049fdfcf.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Steadfastness
+{
+    "name": "Steadfastness",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            },
+            "effect": {
+                "type": "ModifyStats",
+                "powerModifier": {
+                    "type": "Fixed",
+                    "amount": 0
+                },
+                "toughnessModifier": {
+                    "type": "Fixed",
+                    "amount": 3
+                },
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "31",
+        "artist": "Kev Walker",
+        "flavorText": "\"Brute force wins the battles. Conviction wins the wars.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cb4693b3-d5d7-4401-aee3-119d3eb276a2.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Stern Marshal
+{
+    "name": "Stern Marshal",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        }
+                    }
+                ],
+                "restrictions": [
+                    "OnlyDuringYourTurn",
+                    {
+                        "type": "BeforeStep",
+                        "step": "DECLARE_ATTACKERS"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "32",
+        "rarity": "RARE",
+        "artist": "D. Alexander Gregory",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/8/18fbfbc0-c55b-4e56-a3d2-5d09571c36c8.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Stone Rain
+{
+    "name": "Stone Rain",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "artist": "John Matson",
+        "flavorText": "I cast a thousand tiny suns— Beware my many dawns.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/7/57f84a13-d7dc-491b-a77c-1b99b6797d7e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Storm Crow
+{
+    "name": "Storm Crow",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Bird",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "69",
+        "artist": "Una Fricker",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/f/dfe87b59-b456-4532-a695-0dea3110d878.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Summer Bloom
+{
+    "name": "Summer Bloom",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "PlayAdditionalLands",
+            "count": 3
+        }
+    },
+    "metadata": {
+        "collectorNumber": "187",
+        "rarity": "UNCOMMON",
+        "artist": "Alan Rabinowitz",
+        "flavorText": "In summer's warmth, the land yields its bounty freely.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/e/5e86abcc-272e-4959-90ee-343b9f546ea7.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Sylvan Tutor
+{
+    "name": "Sylvan Tutor",
+    "manaCost": "{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "creature"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                "ShuffleLibrary",
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Top"
+                    },
+                    "revealed": true
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "188",
+        "rarity": "RARE",
+        "artist": "Terese Nielsen",
+        "flavorText": "The forest knows where its children hide.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/8/287ba07e-6434-4850-940f-454fcab3f535.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Symbol of Unsummoning
+{
+    "name": "Symbol of Unsummoning",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "70",
+        "artist": "Adam Rex",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/5/55811106-9f30-4e34-924e-2c9401b49574.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Taunt
+{
+    "name": "Taunt",
+    "manaCost": "{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Taunt",
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            }
+        },
+        "targetRequirements": [
+            "TargetPlayer"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "71",
+        "rarity": "UNCOMMON",
+        "artist": "Jeff Miracola",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/4/f4d87322-aba4-4187-9655-1da1f18615f8.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Temporary Truce
+{
+    "name": "Temporary Truce",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachPlayer",
+            "players": "ActivePlayerFirst",
+            "effects": [
+                {
+                    "type": "DrawUpTo",
+                    "maxCards": 2,
+                    "storeNotDrawnAs": "cardsNotDrawn"
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Multiply",
+                        "amount": {
+                            "type": "VariableReference",
+                            "variableName": "cardsNotDrawn"
+                        },
+                        "multiplier": 2
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "33",
+        "rarity": "RARE",
+        "artist": "Mike Raabe",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/f/5f6ee294-7dbb-4872-81d1-c69c7337cf9f.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Theft of Dreams
+{
+    "name": "Theft of Dreams",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": {
+                "type": "AggregateBattlefield",
+                "player": "TargetOpponent",
+                "filter": "creature tapped"
+            }
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "72",
+        "rarity": "UNCOMMON",
+        "artist": "Brian Snoddy",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29019e28-4ef8-4732-9972-0a47305fe303.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Thing from the Deep
+{
+    "name": "Thing from the Deep",
+    "manaCost": "{6}{U}{U}{U}",
+    "typeLine": "Creature — Leviathan",
+    "creatureStats": {
+        "power": 9,
+        "toughness": 9
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": {
+                        "type": "Sacrifice",
+                        "filter": "land Island"
+                    },
+                    "suffer": "SacrificeSelf"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "rarity": "RARE",
+        "artist": "Pete Venters",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cb3b9682-7f3a-4857-9ecf-01f3530659fc.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Thundering Wurm
+{
+    "name": "Thundering Wurm",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Wurm",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": {
+                        "type": "Discard",
+                        "filter": "land"
+                    },
+                    "suffer": "SacrificeSelf"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "189",
+        "rarity": "UNCOMMON",
+        "artist": "Greg Staples",
+        "flavorText": "Its passage shakes the earth like thunder.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/b/8b0ba623-d17f-4f0e-b914-da139a3971df.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Thundermare
+{
+    "name": "Thundermare",
+    "manaCost": "{5}{R}",
+    "typeLine": "Creature — Elemental Horse",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEachInGroup",
+                    "filter": {
+                        "baseFilter": "creature",
+                        "excludeSelf": true
+                    },
+                    "effect": {
+                        "type": "TapUntap",
+                        "target": "Self"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "152",
+        "rarity": "RARE",
+        "artist": "Una Fricker",
+        "flavorText": "Thunder and lightning herald the coming storm.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/59a9f3f5-c80f-47a4-bf84-b7262437017f.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Tidal Surge
+{
+    "name": "Tidal Surge",
+    "manaCost": "{1}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachTarget",
+            "effects": [
+                {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 3,
+                "optional": true,
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotKeyword",
+                                "keyword": "FLYING"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "74",
+        "artist": "Drew Tucker",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/0/a027c31d-c662-4ce1-a0d1-a32e62f6a724.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Time Ebb
+{
+    "name": "Time Ebb",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            },
+            "destination": "Library",
+            "placement": "Top"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "75",
+        "artist": "Randy Gallegos",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/5/e5fd26ca-dc7d-453d-8653-7f967e8f6dc7.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Touch of Brilliance
+{
+    "name": "Touch of Brilliance",
+    "manaCost": "{3}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": {
+                "type": "Fixed",
+                "amount": 2
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "76",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/9/196474ce-e28e-48f0-b407-dc5535adf1b6.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Treetop Defense
+{
+    "name": "Treetop Defense",
+    "manaCost": "{1}{G}",
+    "typeLine": "Instant",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            },
+            "effect": {
+                "type": "GrantKeyword",
+                "keyword": "REACH",
+                "target": "Self"
+            }
+        },
+        "castRestrictions": [
+            {
+                "type": "OnlyDuringStep",
+                "step": "DECLARE_ATTACKERS"
+            },
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": "YouWereAttackedThisStep"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "190",
+        "rarity": "RARE",
+        "artist": "Richard Kane Ferguson",
+        "flavorText": "From the treetops, no flyer escapes unscathed.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f5e134b3-e8af-41e9-928d-c217ea7b2b13.jpg",
+        "rulings": [
+            {
+                "date": "10/4/2004",
+                "text": "This card was originally printed as a sorcery and has received errata to make it an instant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Undying Beast
+{
+    "name": "Undying Beast",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Beast",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Library",
+                    "placement": "Top"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "113",
+        "artist": "Scott Kirschner",
+        "flavorText": "It returns, again and again, never truly vanquished.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/c/9c95c752-3add-4830-8159-036b8689f40a.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Untamed Wilds
+{
+    "name": "Untamed Wilds",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "basicland"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "191",
+        "rarity": "UNCOMMON",
+        "artist": "NéNé Thomas",
+        "flavorText": "The wild places hold secrets waiting to be found.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/f/1f4fd77e-ee43-4de7-9ee8-1075ff70b5e7.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Valorous Charge
+{
+    "name": "Valorous Charge",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature white"
+            },
+            "effect": {
+                "type": "ModifyStats",
+                "powerModifier": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "toughnessModifier": {
+                    "type": "Fixed",
+                    "amount": 0
+                },
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "rarity": "UNCOMMON",
+        "artist": "Douglas Shuler",
+        "flavorText": "\"Stand in the way of truth at your peril.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/7/67f61bdf-cbcd-4a63-8866-eb13ec9b351c.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Vampiric Feast
+{
+    "name": "Vampiric Feast",
+    "manaCost": "{5}{B}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 4
+                    },
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            "AnyTarget"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "114",
+        "rarity": "UNCOMMON",
+        "artist": "Pete Venters",
+        "flavorText": "The vampire's hunger knows no bounds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/9/19500ffb-bfad-46d6-8a6e-d134405959c0.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Vampiric Touch
+{
+    "name": "Vampiric Touch",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "115",
+        "artist": "Mike Raabe",
+        "flavorText": "A gentle caress that drains the soul.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/3/231f7598-8c47-4828-8240-e2a545a7ac5b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Venerable Monk
+{
+    "name": "Venerable Monk",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Monk Cleric",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "rarity": "UNCOMMON",
+        "artist": "D. Alexander Gregory",
+        "flavorText": "\"His presence brings not only a strong arm but also renewed hope.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/72322032-c287-4a9e-9d61-a452f6c45bfb.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Vengeance
+{
+    "name": "Vengeance",
+    "manaCost": "{3}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature tapped"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "36",
+        "rarity": "UNCOMMON",
+        "artist": "Andrew Robinson",
+        "flavorText": "\"Bitter as wormwood, sweet as mulled wine.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/9/c91c249b-157c-4f1d-8171-29d1e75b1c9f.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Virtue's Ruin
+{
+    "name": "Virtue's Ruin",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature white"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "116",
+        "rarity": "UNCOMMON",
+        "artist": "Adam Rex",
+        "flavorText": "Virtue crumbles before the relentless march of darkness.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/7854928a-d467-4616-b96b-de7e5fe7303e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Volcanic Dragon
+{
+    "name": "Volcanic Dragon",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "HASTE"
+    ],
+    "metadata": {
+        "collectorNumber": "153",
+        "rarity": "RARE",
+        "artist": "Tom Wänerstrand",
+        "flavorText": "Speed and fire make a deadly combination.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/9/d99c5c70-7568-42d3-939c-b6ee1ed94b9f.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Volcanic Hammer
+{
+    "name": "Volcanic Hammer",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 3
+            },
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            }
+        },
+        "targetRequirements": [
+            "AnyTarget"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "154",
+        "artist": "Brian Snoddy",
+        "flavorText": "Forged in the heart of a volcano.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/5/9563d7c1-4ed1-4919-b0b8-ea1ec9d4bbf6.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Wall of Granite
+{
+    "name": "Wall of Granite",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Wall",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 7
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "metadata": {
+        "collectorNumber": "155",
+        "rarity": "UNCOMMON",
+        "artist": "John Matson",
+        "flavorText": "Solid as the mountain from which it came.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/70c5ac71-bf45-4b99-8184-36ce88dd728a.jpg",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "As of the Champions of Kamigawa rules update, the Wall creature type no longer inherently prevents attacking. All Walls printed before this update received errata granting the defender keyword."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Wall of Swords
+{
+    "name": "Wall of Swords",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Wall",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 5
+    },
+    "keywords": [
+        "DEFENDER",
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "37",
+        "rarity": "UNCOMMON",
+        "artist": "Douglas Shuler",
+        "flavorText": "\"Sharper than wind, lighter than air.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/e/3e8d55a3-0d7f-4fba-9879-9a8264110e78.jpg",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "As of the Champions of Kamigawa rules update, the Wall creature type no longer inherently prevents attacking. All Walls printed before this update received errata granting the defender keyword."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Warrior's Charge
+{
+    "name": "Warrior's Charge",
+    "manaCost": "{2}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            },
+            "effect": {
+                "type": "ModifyStats",
+                "powerModifier": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "toughnessModifier": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "artist": "Ted Naifeh",
+        "flavorText": "\"It is not the absence of fear that makes a warrior, but its domination.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/8668e4af-ae89-4fab-8015-8dc643c6cd36.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Whiptail Wurm
+{
+    "name": "Whiptail Wurm",
+    "manaCost": "{6}{G}",
+    "typeLine": "Creature — Wurm",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 5
+    },
+    "metadata": {
+        "collectorNumber": "192",
+        "rarity": "UNCOMMON",
+        "artist": "Roger Raupp",
+        "flavorText": "Its tail strikes with devastating force.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/1/a1e76072-e76d-485e-b94c-c29849bc8a6f.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Wicked Pact
+{
+    "name": "Wicked Pact",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "first nonblack creature"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "second nonblack creature"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": "Controller"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotColor",
+                                "color": "BLACK"
+                            }
+                        ]
+                    }
+                },
+                "id": "first nonblack creature"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotColor",
+                                "color": "BLACK"
+                            }
+                        ]
+                    }
+                },
+                "id": "second nonblack creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "117",
+        "rarity": "RARE",
+        "artist": "Ron Spencer",
+        "flavorText": "Power demands sacrifice.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/4/e4d7c251-cb65-4ffc-8bf0-5e9692004a87.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Willow Dryad
+{
+    "name": "Willow Dryad",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Dryad",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FORESTWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "193",
+        "artist": "Rebecca Guay",
+        "flavorText": "She dances among the willows, unseen by mortal eyes.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/d/1def835b-aabb-4a9d-8fb9-460452de0d79.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Wind Drake
+{
+    "name": "Wind Drake",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Drake",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "77",
+        "artist": "Clyde Caldwell",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/4/5486d2dc-9a5d-4f58-a5ec-d94de54b852f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Winds of Change
+{
+    "name": "Winds of Change",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachPlayer",
+            "players": "Each",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand"
+                    },
+                    "storeAs": "wheelHand"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "wheelHand",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Shuffled"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "VariableReference",
+                        "variableName": "wheelHand_count"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "156",
+        "rarity": "RARE",
+        "artist": "NéNé Thomas",
+        "flavorText": "Change comes like the wind—swift and unpredictable.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/3/735b8aec-62d4-46db-9a68-a6c69cb6fd98.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Winter's Grasp
+{
+    "name": "Winter's Grasp",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "ContextTarget",
+                "index": 0
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "194",
+        "rarity": "UNCOMMON",
+        "artist": "Rebecca Guay",
+        "flavorText": "Winter's cold grip claims all, even the land itself.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/2/b2215de4-da49-4270-aec7-5e16a938bae4.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Withering Gaze
+{
+    "name": "Withering Gaze",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                "RevealHand",
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Count",
+                        "player": "TargetOpponent",
+                        "zone": "Hand",
+                        "filter": "Forest|green"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "78",
+        "rarity": "UNCOMMON",
+        "artist": "Anthony S. Waters",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/e/0e952a48-9e60-4fce-8423-7f0bafd29bb1.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Wood Elves
+{
+    "name": "Wood Elves",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elf Scout",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "land Forest"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
+                        },
+                        "ShuffleLibrary"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "195",
+        "artist": "Quinton Hoover",
+        "flavorText": "They know every path through the forest, even the ones yet unmade.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7f1fb90-5c85-46a5-802d-248cc0250921.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Wrath of God
+{
+    "name": "Wrath of God",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            },
+            "noRegenerate": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "RARE",
+        "artist": "Mike Raabe",
+        "flavorText": "\"'Twas said they died, not that they were dead.\"\n—Matthew Prior",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d75d8204-6f9d-4a7a-bb8b-d51ac65a30fa.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

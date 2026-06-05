@@ -14,6 +14,8 @@ dependencies {
 
 tasks.withType<Test> {
     systemProperty("verifyImageUris", System.getProperty("verifyImageUris") ?: "false")
+    // Forward the snapshot re-bless switch into the forked test JVM (see CardDefinitionSnapshotTest).
+    System.getProperty("updateSnapshots")?.let { systemProperty("updateSnapshots", it) }
 }
 
 // One-shot Scryfall sync — populates legalities.json from the live Scryfall API.

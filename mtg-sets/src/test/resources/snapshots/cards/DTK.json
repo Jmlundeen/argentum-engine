@@ -1,0 +1,454 @@
+// Aerie Bowmasters
+{
+    "name": "Aerie Bowmasters",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Dog Archer",
+    "oracleText": "Reach (This creature can block creatures with flying.)\nMegamorph {5}{G} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Morph",
+            "morphCost": {
+                "type": "PayMana",
+                "cost": "{5}{G}"
+            },
+            "faceUpEffect": {
+                "type": "AddCounters",
+                "counterType": "+1/+1",
+                "count": 1,
+                "target": "Self"
+            }
+        }
+    ],
+    "metadata": {
+        "collectorNumber": "170",
+        "artist": "Matt Stewart",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/6/a6db26b5-d28c-4524-9347-eec412d584bc.jpg?1562791100"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Ancient Carp
+{
+    "name": "Ancient Carp",
+    "manaCost": "{4}{U}",
+    "typeLine": "Creature — Fish",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 5
+    },
+    "metadata": {
+        "collectorNumber": "44",
+        "artist": "Christopher Burdett",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/f/1fef6e95-e7f1-4646-be5e-130c8b5a3ca6.jpg?1562783481"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Anticipate
+{
+    "name": "Anticipate",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Look at the top three cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put on bottom"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "ControllerChooses"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "artist": "Lake Hurwitz",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/7028d9e8-002f-43a1-bdce-0db0b6a642b0.jpg?1562788114"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Atarka Monument
+{
+    "name": "Atarka Monument",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {R} or {G}.\n{4}{R}{G}: This artifact becomes a 4/4 red and green Dragon artifact creature with flying until end of turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{4}{R}{G}"
+                },
+                "effect": {
+                    "type": "BecomeCreature",
+                    "power": 4,
+                    "toughness": 4,
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "creatureTypes": [
+                        "Dragon"
+                    ],
+                    "colors": [
+                        "RED",
+                        "GREEN"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "235",
+        "rarity": "UNCOMMON",
+        "artist": "Daniel Ljunggren",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/63d52217-a340-4567-9b07-28092a7dc561.jpg?1562787370"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
+// Aven Tactician
+{
+    "name": "Aven Tactician",
+    "manaCost": "{4}{W}",
+    "typeLine": "Creature — Bird Soldier",
+    "oracleText": "Flying\nWhen this creature enters, bolster 1. (Choose a creature with the least toughness among creatures you control and put a +1/+1 counter on it.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "ControlledPermanents",
+                                "filter": "creature"
+                            },
+                            "storeAs": "bolsterCreatures"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "bolsterCreatures",
+                            "filter": "LeastToughness",
+                            "storeMatching": "bolsterLeastToughness"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "bolsterLeastToughness",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "bolstered",
+                            "prompt": "Bolster 1 — choose a creature with the least toughness",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "AddCountersToCollection",
+                            "collectionName": "bolstered",
+                            "counterType": "+1/+1"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "artist": "Christopher Moeller",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/9/b9dfc3ec-ca06-40a6-b77c-c2432af9802f.jpg?1562792120"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Berserkers' Onslaught
+{
+    "name": "Berserkers' Onslaught",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "Attacking creatures you control have double strike.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "DOUBLE_STRIKE",
+                "filter": {
+                    "baseFilter": "creature attacking ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "rarity": "RARE",
+        "artist": "Zoltan Boros",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/e/ee571a78-16b2-40ba-92b2-87c1bf4b39bc.jpg?1562795277"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Colossodon Yearling
+{
+    "name": "Colossodon Yearling",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Beast",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "178",
+        "artist": "Yeong-Hao Han",
+        "flavorText": "The colossodon's hard outer shell stops many predators, but with a gentle flip from a dragon, it quickly becomes a meal in a bowl.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2c60e63-0b86-4100-a932-bb9e9b197610.jpg?1562795540"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Defeat
+{
+    "name": "Defeat",
+    "manaCost": "{1}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy target creature with power 2 or less.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature pow<=2"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "97",
+        "artist": "Dave Kendall",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/0/60473300-0bdc-4e89-87d9-28c8d7b4d83d.jpg?1562787158"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Dragon's Eye Sentry
+{
+    "name": "Dragon's Eye Sentry",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Human Monk",
+    "oracleText": "Defender, first strike",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEFENDER",
+        "FIRST_STRIKE"
+    ],
+    "metadata": {
+        "collectorNumber": "11",
+        "artist": "Anastasia Ovchinnikova",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/5/750880cd-59bf-4b67-a2d5-9b66e4d05665.jpg?1562788403"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Dragonlord's Servant
+{
+    "name": "Dragonlord's Servant",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin Shaman",
+    "oracleText": "Dragon spells you cast cost {1} less to cast.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "Dragon"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "138",
+        "rarity": "UNCOMMON",
+        "artist": "Steve Prescott",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0ffcdd54-b6be-4d42-82c0-ae927037e859.jpg?1562782618"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Dromoka Warrior
+{
+    "name": "Dromoka Warrior",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Warrior",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "14",
+        "artist": "Zack Stella",
+        "flavorText": "Dromoka has regard for the humans who serve under her. In return for her protection, they obey with steadfast loyalty, acting as weapons for her and her scalelords against the other clans.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/3/13ae001b-556f-4576-8cf4-0b8902997bb1.jpg?1562782782"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Twin Bolt
+{
+    "name": "Twin Bolt",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Twin Bolt deals 2 damage divided as you choose among one or two targets.",
+    "script": {
+        "spellEffect": {
+            "type": "DividedDamage",
+            "totalDamage": 2,
+            "maxTargets": 2
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "count": 2,
+                "minCount": 1
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "164",
+        "artist": "Svetlin Velinov",
+        "flavorText": "\"Kolaghan archers are trained in Dakla, the way of the bow. They utilize their dragonlord's lightning to strike their target, no matter how small, how fast, or how far away.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/b/5bd58ec4-34a9-4fc2-b057-438492e2e06e.jpg?1562786902"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

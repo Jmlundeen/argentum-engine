@@ -1,0 +1,118 @@
+// Cursed Flesh
+{
+    "name": "Cursed Flesh",
+    "manaCost": "{B}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets -1/-1 and has fear. (It can't be blocked except by artifact creatures and/or black creatures.)",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": -1,
+                "toughnessBonus": -1
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "FEAR"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "56",
+        "artist": "Ron Spencer",
+        "flavorText": "A farewell to arms . . . and feet . . . and legs . . . .",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/4/7433b9bf-ee6e-41fe-b826-0d20584198b1.jpg?1562087858"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Maniacal Rage
+{
+    "name": "Maniacal Rage",
+    "manaCost": "{1}{R}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +2/+2 and can't block.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 2
+            },
+            {
+                "type": "CantBlock",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "87",
+        "artist": "Pete Venters",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/3/f3aa840f-6a70-4674-acb7-ded0ea4397d8.jpg?1562089267"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Shackles
+{
+    "name": "Shackles",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature doesn't untap during its controller's untap step.\n{W}: Return this Aura to its owner's hand.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{W}"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand"
+                },
+                "descriptionOverride": "{W}: Return this Aura to its owner's hand."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "DOESNT_UNTAP"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "artist": "Heather Hudson",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/5/c5315668-b8ef-49ab-a8f5-144adc7bcd84.jpg?1562088793"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

@@ -1,0 +1,393 @@
+// Canopy Spider
+{
+    "name": "Canopy Spider",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Spider",
+    "oracleText": "Reach",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "metadata": {
+        "collectorNumber": "217",
+        "artist": "Christopher Rush",
+        "flavorText": "\"We know our place in the cycle of life—and it is not as flies.\"\n—Eladamri, Lord of Leaves",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/f/afc114b0-2e95-4143-a4b6-6537813946e7.jpg?1562055929"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Choke
+{
+    "name": "Choke",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "Islands don't untap during their controllers' untap steps.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "DOESNT_UNTAP",
+                "filter": {
+                    "baseFilter": "land Island"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "219",
+        "rarity": "UNCOMMON",
+        "artist": "Terese Nielsen",
+        "flavorText": "\"One day we shall walk where once was water.\"\n—Eladamri, Lord of Leaves",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/2/e2f85205-3c4f-4411-b09c-d1271be56dde.jpg?1562057333"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Flickering Ward
+{
+    "name": "Flickering Ward",
+    "manaCost": "{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nAs this Aura enters, choose a color.\nEnchanted creature has protection from the chosen color. This effect doesn't remove this Aura.\n{W}: Return this Aura to its owner's hand.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{W}"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantProtectionFromChosenColorToGroup",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "COLOR"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "rarity": "UNCOMMON",
+        "artist": "Greg Simanson",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d4d2b011-bb0d-463c-bf2a-04b6650771a3.jpg?1562056865"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Fylamarid
+{
+    "name": "Fylamarid",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Creature — Squid Beast",
+    "oracleText": "Flying\nThis creature can't be blocked by blue creatures.\n{U}: Target creature becomes blue until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{U}"
+                },
+                "effect": {
+                    "type": "ChangeColor",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    },
+                    "colors": [
+                        "BLUE"
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target creature"
+                    }
+                ],
+                "descriptionOverride": "{U}: Target creature becomes blue until end of turn."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "HasColor",
+                            "color": "BLUE"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "rarity": "UNCOMMON",
+        "artist": "Una Fricker",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/d/8dd4f686-79e3-4067-81f9-7fae0c25dc8f.jpg?1562055416"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Harrow
+{
+    "name": "Harrow",
+    "manaCost": "{2}{G}",
+    "typeLine": "Instant",
+    "oracleText": "As an additional cost to cast this spell, sacrifice a land.\nSearch your library for up to two basic land cards, put them onto the battlefield, then shuffle.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "basicland"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        },
+        "additionalCosts": [
+            {
+                "type": "SacrificePermanent",
+                "filter": "land"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "230",
+        "rarity": "UNCOMMON",
+        "artist": "Eric David Anderson",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/c/3c207142-4880-4935-9827-b91bc7d9d643.jpg?1562053754"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Orim's Prayer
+{
+    "name": "Orim's Prayer",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever one or more creatures attack you, you gain 1 life for each attacking creature.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "CreaturesAttackYouEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "Opponent",
+                        "filter": "creature attacking"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "32",
+        "rarity": "UNCOMMON",
+        "artist": "Donato Giancola",
+        "flavorText": "\"As usual, there will be time for prayer only *after* the worst happens.\"\n—Orim, Samite healer",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/d/2dc45565-4b56-49ba-b115-be8e0de7d937.jpg?1562053272",
+        "rulings": [
+            {
+                "date": "2008-04-01",
+                "text": "The ability only triggers when one or more creatures attack you. It will not trigger on creatures attacking a planeswalker you control."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Reckless Spite
+{
+    "name": "Reckless Spite",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy two target nonblack creatures. You lose 5 life.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 1
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "You"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 2,
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotColor",
+                                "color": "BLACK"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "152",
+        "rarity": "UNCOMMON",
+        "artist": "Pete Venters",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/1/9141daea-1f4f-4227-b7d7-20753e3cb4d4.jpg?1562055421"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Stun
+{
+    "name": "Stun",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature can't block this turn.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CantBlockTargetCreatures",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "207",
+        "artist": "Terese Nielsen",
+        "flavorText": "\"I concede it was a cheap shot, but it was the only one I could afford.\"\n—Gerrard of the *Weatherlight*",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/0/c09c0da6-37a7-42ba-b264-18898ee372f0.jpg?1562056397"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

@@ -1,0 +1,287 @@
+// Annul
+{
+    "name": "Annul",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target artifact or enchantment spell.",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact|enchantment",
+                    "zone": "Stack"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "59",
+        "artist": "Greg Simanson",
+        "flavorText": "The most effective way to destroy a spell is to ensure it was never cast in the first place.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/f/3f8c73ff-be92-41ca-93a7-76f9823adb38.jpg?1562908208"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Arc Lightning
+{
+    "name": "Arc Lightning",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Arc Lightning deals 3 damage divided as you choose among one, two, or three targets.",
+    "script": {
+        "spellEffect": {
+            "type": "DividedDamage",
+            "totalDamage": 3
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "count": 3,
+                "minCount": 1
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "174",
+        "artist": "Andrew Goldhawk",
+        "flavorText": "Rainclouds don't last long in Shiv, but that doesn't stop the lightning.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/c/0c81ade7-0074-4447-ba2c-b16fa0f09ccb.jpg?1562897576"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Disciple of Grace
+{
+    "name": "Disciple of Grace",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Cleric",
+    "oracleText": "Protection from black\nCycling {2}",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywordAbilities": [
+        {
+            "type": "Protection",
+            "scope": {
+                "type": "ProtectionScope.Color",
+                "color": "BLACK"
+            }
+        },
+        {
+            "type": "Cycling",
+            "cost": "{2}"
+        }
+    ],
+    "metadata": {
+        "collectorNumber": "10",
+        "artist": "Robh Ruppel",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/3/83fa36d2-0a60-40a5-a182-a63e1e65b2bd.jpg?1562922861"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Duress
+{
+    "name": "Duress",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target opponent reveals their hand. You choose a noncreature, nonland card from it. That player discards that card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "RevealHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target opponent"
+                    }
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "storeAs": "opponentHand"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "opponentHand",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "noncreature nonland",
+                    "storeSelected": "toDiscard",
+                    "prompt": "Choose a noncreature, nonland card to discard",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "toDiscard",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "moveType": "Discard"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "target opponent"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "132",
+        "artist": "Lawrence Snelly",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/ca367f49-0f4a-4b7f-8104-851893fbcd8a.jpg?1562937711"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Greater Good
+{
+    "name": "Greater Good",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "Sacrifice a creature: Draw cards equal to the sacrificed creature's power, then discard three cards.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostSacrifice",
+                    "filter": "creature"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "EntityProperty",
+                                "entity": "Sacrificed",
+                                "numericProperty": "Power"
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 3
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 3 cards to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "257",
+        "rarity": "RARE",
+        "artist": "Pete Venters",
+        "flavorText": "\"We have more sprouts than they have hands.\"\n—Gamelen, Citanul elder",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/2/12befd35-2dc6-4852-a153-75b553042643.jpg?1562898942"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Lay Waste
+{
+    "name": "Lay Waste",
+    "manaCost": "{3}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy target land.\nCycling {2}",
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{2}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "201",
+        "artist": "Terese Nielsen",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/6/46fa1186-51fa-419a-9cd0-42403d1dd4a7.jpg?1562909719"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

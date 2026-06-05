@@ -101,6 +101,10 @@ continuations, layer system, mana, priority): [`docs/architecture-principles.md`
 ## Testing
 
 - **Unit / integration / scenario tests** — Kotest in `rules-engine` and `game-server`.
+- **Card snapshot net** — `CardDefinitionSnapshotTest` (in `mtg-sets`) pins every registered card's
+  compiled JSON tree against a committed golden per set, so any SDK change shows up as a reviewable
+  per-card diff across the whole corpus. After an *intentional* change, re-bless with
+  `./gradlew :mtg-sets:test --tests "*CardDefinitionSnapshotTest" -DupdateSnapshots=true`.
 - **E2E tests** — Playwright in `e2e-scenarios/`, run against full stack. Patterns, scenario config, and `GamePage`
   helper reference: [`docs/e2e-test-patterns.md`](docs/e2e-test-patterns.md).
 - **Manual self-play** — drive a full game over the gym server's HTTP step loop to shake out new-set cards that

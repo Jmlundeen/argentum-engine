@@ -1,0 +1,68 @@
+// Exotic Orchard
+{
+    "name": "Exotic Orchard",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add one mana of any color that a land an opponent controls could produce.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "colorSet": {
+                        "type": "ManaColorSet.LandsCouldProduce",
+                        "scope": "OPPONENTS"
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "142",
+        "rarity": "RARE",
+        "artist": "Steven Belledin",
+        "flavorText": "\"It was a strange morning. When we awoke, we found our trees transformed. We didn't know whether to water them or polish them.\"\n—Pulan, Bant orchardist",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/a/6aae6480-4e71-4d94-a648-f80d3849d792.jpg?1562801539"
+    },
+    "colorIdentityOverride": []
+}
+
+// Reliquary Tower
+{
+    "name": "Reliquary Tower",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "You have no maximum hand size.\n{T}: Add {C}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "staticAbilities": [
+            "NoMaximumHandSize"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "143",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Ejsing",
+        "flavorText": "When the aven scouts located the tower in Esper, the Knights of the Reliquary set off on a righteous crusade to recover their lost treasures.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/5/c5c0c1a5-dce7-4c7d-8a5b-0bf93ba68ace.jpg?1562803667"
+    },
+    "colorIdentityOverride": []
+}

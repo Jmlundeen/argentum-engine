@@ -1,0 +1,28 @@
+// Sheltered Thicket
+{
+    "name": "Sheltered Thicket",
+    "manaCost": "",
+    "typeLine": "Land — Mountain Forest",
+    "oracleText": "({T}: Add {R} or {G}.)\nThis land enters tapped.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{2}"
+        }
+    ],
+    "script": {
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "248",
+        "rarity": "RARE",
+        "artist": "Sung Choi",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/2/d23cd764-3f5c-4c93-ba83-e5ff397003a2.jpg?1543676414"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}

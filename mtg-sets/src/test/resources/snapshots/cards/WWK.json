@@ -1,0 +1,97 @@
+// Raging Ravine
+{
+    "name": "Raging Ravine",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped.\n{T}: Add {R} or {G}.\n{2}{R}{G}: Until end of turn, this land becomes a 3/3 red and green Elemental creature with \"Whenever this creature attacks, put a +1/+1 counter on it.\" It's still a land.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{2}{R}{G}"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "BecomeCreature",
+                            "power": 3,
+                            "toughness": 3,
+                            "creatureTypes": [
+                                "Elemental"
+                            ],
+                            "colors": [
+                                "RED",
+                                "GREEN"
+                            ]
+                        },
+                        {
+                            "type": "GrantTriggeredAbility",
+                            "ability": {
+                                "id": "ability_4",
+                                "trigger": "AttackEvent",
+                                "effect": {
+                                    "type": "AddCounters",
+                                    "counterType": "+1/+1",
+                                    "count": 1,
+                                    "target": "Self"
+                                },
+                                "descriptionOverride": "Whenever this creature attacks, put a +1/+1 counter on it."
+                            },
+                            "target": "Self"
+                        }
+                    ]
+                }
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "141",
+        "rarity": "RARE",
+        "artist": "Todd Lockwood",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cb7b6fb5-4d38-4734-b46f-923322cff24e.jpg?1764758780",
+        "rulings": [
+            {
+                "date": "2010-03-01",
+                "text": "If Raging Ravine becomes a creature but you haven't controlled it continuously since your most recent turn began, you won't be able to activate its mana ability or attack with it that turn."
+            },
+            {
+                "date": "2010-03-01",
+                "text": "Any +1/+1 counters put on Raging Ravine remain on it even after it stops being a creature. They'll have no effect until it becomes a creature again."
+            },
+            {
+                "date": "2010-03-01",
+                "text": "If Raging Ravine's last ability is activated multiple times in a turn, it will get that many instances of the granted triggered ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}

@@ -1,0 +1,57 @@
+// Warstorm Surge
+{
+    "name": "Warstorm Surge",
+    "manaCost": "{5}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a creature you control enters, it deals damage equal to its power to any target.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Triggering",
+                        "numericProperty": "Power"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "any target"
+                    },
+                    "damageSource": "TriggeringEntity"
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "any target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "160",
+        "rarity": "RARE",
+        "artist": "Raymond Swanland",
+        "flavorText": "\"Listen to the roar! Feel the thunder! The Immersturm shouts its approval with every bolt of lightning!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/1/b16443df-52c6-4c9d-a7ff-89a37e593a0a.jpg?1562655722",
+        "rulings": [
+            {
+                "date": "2011-09-22",
+                "text": "The creature that entered deals damage equal to its current power to the targeted permanent or player. If it's no longer on the battlefield, its last known existence on the battlefield is checked to determine its power."
+            },
+            {
+                "date": "2011-09-22",
+                "text": "Warstorm Surge is the source of the ability, but the creature is the source of the damage. The ability couldn't target a creature with protection from red, for example. It could target a creature with protection from creatures, but all the damage would be prevented. Since damage is dealt by the creature, abilities like lifelink, deathtouch and infect are taken into account, even if the creature has left the battlefield by the time it deals damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

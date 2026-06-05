@@ -1,0 +1,36 @@
+// Simoon
+{
+    "name": "Simoon",
+    "manaCost": "{R}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Simoon deals 1 damage to each creature target opponent controls.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature ctrl:target-opponent"
+            },
+            "effect": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "target": "Self"
+            }
+        },
+        "targetRequirements": [
+            "TargetOpponent"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Gallegos",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/4/642d9239-82e0-4696-ad99-10796042d1f8.jpg?1587913163"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}

@@ -1,0 +1,34 @@
+// Dragon Fodder
+{
+    "name": "Dragon Fodder",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create two 1/1 red Goblin creature tokens.",
+    "script": {
+        "spellEffect": {
+            "type": "CreateToken",
+            "count": {
+                "type": "Fixed",
+                "amount": 2
+            },
+            "power": 1,
+            "toughness": 1,
+            "colors": [
+                "RED"
+            ],
+            "creatureTypes": [
+                "Goblin"
+            ],
+            "imageUri": "https://cards.scryfall.io/normal/front/e/d/ed418a8b-f158-492d-a323-6265b3175292.jpg?1562640121"
+        }
+    },
+    "metadata": {
+        "collectorNumber": "97",
+        "artist": "Jaime Jones",
+        "flavorText": "Goblins journey to the sacrificial peaks in pairs so that the rare survivor might be able to relate the details of the other's grisly demise.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/e/9eab4120-e7d8-4132-a304-30b88e3175e2.jpg?1562707210"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

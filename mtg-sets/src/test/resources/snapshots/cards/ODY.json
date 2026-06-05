@@ -1,0 +1,88 @@
+// Mossfire Valley
+{
+    "name": "Mossfire Valley",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{1}, {T}: Add {R}{G}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{1}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "GREEN"
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "321",
+        "rarity": "RARE",
+        "artist": "John Avon",
+        "flavorText": "Lush growth spreads like a ferocious blaze across the Otarian hillsides.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/b/6b6c08ce-d01d-4ae6-81d3-149679e27e6a.jpg?1562914931"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
+// Zombify
+{
+    "name": "Zombify",
+    "manaCost": "{3}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target creature card from your graveyard to the battlefield.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target creature card from your graveyard"
+            },
+            "destination": "Battlefield"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "target creature card from your graveyard"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "171",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Romanoski",
+        "flavorText": "\"The first birth celebrates life. The second birth mocks it.\"\n—Mystic elder",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/1/513a2a6f-9ae6-42cb-b75f-6b45fc35f36e.jpg?1562909871"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}

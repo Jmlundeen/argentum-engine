@@ -1,0 +1,99 @@
+// Flamescroll Celebrant
+{
+    "name": "Flamescroll Celebrant",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Human Shaman",
+    "oracleText": "Whenever an opponent activates an ability that isn't a mana ability, this creature deals 1 damage to that player.\n{1}{R}: This creature gets +2/+0 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "AbilityActivatedEvent",
+                    "player": "Opponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{1}{R}"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "RARE",
+        "artist": "Uriah Voth",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0dba25e3-2b4f-45d4-965f-3834bcb359ee.jpg?1739656768",
+        "rulings": [
+            {
+                "date": "4/16/2021",
+                "text": "An activated ability that costs mana to activate is not a “mana ability” unless it could also produce mana and has no targets."
+            },
+            {
+                "date": "4/16/2021",
+                "text": "Loyalty abilities of planeswalkers are activated abilities, so activating one causes Flamescroll Celebrant's ability to trigger."
+            },
+            {
+                "date": "4/16/2021",
+                "text": "Casting Revel in Silence in response to a spell or ability won't affect that spell or ability. That is, it's not countermagic."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ],
+    "layout": "MODAL_DFC",
+    "cardFaces": [
+        {
+            "name": "Revel in Silence",
+            "manaCost": "{W}{W}",
+            "typeLine": "Instant",
+            "oracleText": "Your opponents can't cast spells or activate planeswalkers' loyalty abilities this turn.\nExile Revel in Silence.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        "CantCastSpells",
+                        "CantActivateLoyaltyAbilities"
+                    ]
+                },
+                "selfExileOnResolve": true
+            },
+            "imageUri": "https://cards.scryfall.io/normal/back/0/d/0dba25e3-2b4f-45d4-965f-3834bcb359ee.jpg?1739656768"
+        }
+    ]
+}

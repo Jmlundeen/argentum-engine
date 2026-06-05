@@ -1,0 +1,34 @@
+// Thought Vessel
+{
+    "name": "Thought Vessel",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "You have no maximum hand size.\n{T}: Add {C}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "staticAbilities": [
+            "NoMaximumHandSize"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "artist": "rk post",
+        "flavorText": "Infinite possibilities contained in a finite space.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e0cd769e-1aaf-458c-849f-3b6ebc7fd8c5.jpg?1562710607"
+    },
+    "colorIdentityOverride": []
+}

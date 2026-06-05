@@ -1,0 +1,133 @@
+// Domri, Anarch of Bolas
+{
+    "name": "Domri, Anarch of Bolas",
+    "manaCost": "{1}{R}{G}",
+    "typeLine": "Legendary Planeswalker — Domri",
+    "oracleText": "Creatures you control get +1/+0.\n+1: Add {R} or {G}. Creature spells you cast this turn can't be countered.\n−2: Target creature you control fights target creature you don't control.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddDynamicMana",
+                            "amountSource": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "allowedColors": [
+                                "RED",
+                                "GREEN"
+                            ]
+                        },
+                        "GrantSpellsCantBeCountered"
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -2
+                },
+                "effect": {
+                    "type": "Conditional",
+                    "condition": {
+                        "type": "All",
+                        "conditions": [
+                            {
+                                "type": "TargetMatchesFilter",
+                                "filter": "creature ctrl:you"
+                            },
+                            {
+                                "type": "TargetMatchesFilter",
+                                "filter": "creature ctrl:opponent",
+                                "targetIndex": 1
+                            }
+                        ]
+                    },
+                    "effect": {
+                        "type": "Fight",
+                        "target1": {
+                            "type": "BoundVariable",
+                            "name": "creature you control"
+                        },
+                        "target2": {
+                            "type": "BoundVariable",
+                            "name": "creature you don't control"
+                        }
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    },
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:opponent"
+                        },
+                        "id": "creature you don't control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 0,
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "191",
+        "rarity": "RARE",
+        "artist": "Raymond Swanland",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/1/c1af9881-e35b-4be2-8716-ea7c6664e22c.jpg?1557577104",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "Because it's a loyalty ability, Domri's first loyalty ability isn't a mana ability. It can be activated only any time you could cast a sorcery. It uses the stack and can be responded to."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "After Domri's first loyalty ability has resolved, no creature spells you cast can be countered during that turn, not just the one you spend the mana on."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "A spell or ability that counters spells can still target a creature spell you control after Domri's first loyalty ability has resolved. When that spell or ability resolves, the creature spell won't be countered, but any additional effects of that spell or ability will still happen."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If Domri leaves the battlefield before his last ability resolves, most likely because he only had 2 loyalty when you activated the ability, the creature won't have +1/+0 from Domri's static ability while it fights."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If either target is an illegal target as Domri's last ability resolves, no creature will deal or be dealt damage."
+            }
+        ]
+    },
+    "startingLoyalty": 3,
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
