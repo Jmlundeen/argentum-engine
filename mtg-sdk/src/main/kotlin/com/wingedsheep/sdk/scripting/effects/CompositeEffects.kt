@@ -257,59 +257,46 @@ data class ModalEffect(
 }
 
 /**
- * Conditional execution gated on whether [action] actually accomplished its work.
+ * "[action]. If you do, [ifYouDo]." — conditional execution gated on whether [action] actually
+ * accomplished its work, not on a yes/no decision. The classic case: "You may discard a card. If
+ * you do, draw a card" — when the player declines or the hand is empty, no discard happens, so no
+ * draw happens.
  *
- * Models MTG's "[action]. If you do, [ifYouDo]" templating, where the downstream
- * payoff is conditional on the preceding instruction being carried out — not on a
- * yes/no decision. The classic case: "You may discard a card. If you do, draw a
- * card" — when the player declines or the hand is empty, no discard happens, so
- * no draw happens.
+ * Backwards-compatible facade preserved for the cards (and the `Effects.IfYouDo` facade) that
+ * authored against the former `IfYouDoEffect` data class. It now lowers to a [GatedEffect] with a
+ * [Gate.DoAction] gate — one frame, one executor, one resumer — so there is no bespoke `IfYouDo`
+ * executor or continuation type of its own. Card source is unchanged; only the compiled/serialized
+ * representation moved to `Gated`.
  *
- * Differences from related effects:
- * - [MayEffect] gates on the *decision* (yes/no), not the *outcome*. A "yes" with
- *   nothing to discard still passes through MayEffect. Wrap with `MayEffect` for
- *   "You may [action]. If you do, [effect]": `MayEffect(IfYouDoEffect(action, then))`.
- * - [OptionalCostEffect] gates on *paying a recognized cost primitive* (mana / life)
- *   via a payability check before prompting. It does not handle discard / sacrifice /
- *   mill / etc. where success is data-driven.
- * - [CompositeEffect].`stopOnError` aborts on raised errors only — silent
- *   zero-progress actions (empty hand, no legal sacrifice) still let downstream
- *   effects run.
+ * Differences from related gates:
+ * - [MayEffect] / [Gate.MayDecide] gates on the *decision* (yes/no), not the *outcome*. A "yes"
+ *   with nothing to discard still passes through. Wrap with `MayEffect` for "You may [action]. If
+ *   you do, [effect]": `MayEffect(IfYouDoEffect(action, then))`.
+ * - [OptionalCostEffect] / [Gate.MayPay] gates on *paying a recognized cost primitive* (mana /
+ *   life) via a payability check before prompting; it does not handle discard / sacrifice / mill /
+ *   etc. where success is data-driven.
+ * - [CompositeEffect].`stopOnError` aborts on raised errors only — silent zero-progress actions
+ *   (empty hand, no legal sacrifice) still let downstream effects run.
  *
- * @property action The action whose outcome gates [ifYouDo]
- * @property ifYouDo Effect that runs only if [action] performed its work
- * @property ifYouDont Optional effect that runs if [action] did nothing
- * @property successCriterion How to determine "did it happen". Defaults to
- *           [SuccessCriterion.Auto], which infers from the action shape (pipeline
- *           ending in a move → destination zone grew).
+ * @param action The action whose outcome gates [ifYouDo] (becomes [Gate.DoAction.action]).
+ * @param ifYouDo Effect that runs only if [action] performed its work (becomes [GatedEffect.then]).
+ * @param ifYouDont Optional effect that runs if [action] did nothing (becomes [GatedEffect.otherwise]).
+ * @param successCriterion How to determine "did it happen". Defaults to [SuccessCriterion.Auto],
+ *   which infers from the action shape (pipeline ending in a move → destination zone grew).
  */
-@SerialName("IfYouDo")
-@Serializable
-data class IfYouDoEffect(
-    val action: Effect,
-    val ifYouDo: Effect,
-    val ifYouDont: Effect? = null,
-    val successCriterion: SuccessCriterion = SuccessCriterion.Auto,
-    val descriptionOverride: String? = null
-) : Effect {
-    override val description: String = descriptionOverride ?: buildString {
-        append(action.description.replaceFirstChar { it.uppercase() })
-        append(". If you do, ")
-        append(ifYouDo.description.replaceFirstChar { it.lowercase() })
-        if (ifYouDont != null) {
-            append(". If you don't, ")
-            append(ifYouDont.description.replaceFirstChar { it.lowercase() })
-        }
-    }
-
-    override fun applyTextReplacement(replacer: TextReplacer): Effect {
-        val newAction = action.applyTextReplacement(replacer)
-        val newIfYouDo = ifYouDo.applyTextReplacement(replacer)
-        val newIfYouDont = ifYouDont?.applyTextReplacement(replacer)
-        return if (newAction !== action || newIfYouDo !== ifYouDo || newIfYouDont !== ifYouDont)
-            copy(action = newAction, ifYouDo = newIfYouDo, ifYouDont = newIfYouDont) else this
-    }
-}
+@Suppress("FunctionName")
+fun IfYouDoEffect(
+    action: Effect,
+    ifYouDo: Effect,
+    ifYouDont: Effect? = null,
+    successCriterion: SuccessCriterion = SuccessCriterion.Auto,
+    descriptionOverride: String? = null
+): GatedEffect = GatedEffect(
+    gate = Gate.DoAction(action, successCriterion),
+    then = ifYouDo,
+    otherwise = ifYouDont,
+    descriptionOverride = descriptionOverride
+)
 
 /**
  * How to determine whether an [IfYouDoEffect] action accomplished its work.

@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -18,6 +19,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
+import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
@@ -37,6 +39,9 @@ import io.kotest.matchers.types.shouldBeInstanceOf
  *    hand; the single frame makes it correct by construction.
  *  - [Gate.MayDecide] — the pure yes/no gate new cards can opt into, and the `MayEffect` facade
  *    that lowers onto it (yes/no end-to-end, plus the `sourceRequiredZone` skip the wrapper owned).
+ *  - [Gate.DoAction] — the action-outcome gate (the lowering target for `IfYouDoEffect`): an action
+ *    runs, then its outcome (not a decision) gates `then` vs `otherwise`, and the `IfYouDoEffect`
+ *    facade that lowers onto it.
  */
 class GatedEffectScenarioTest : ScenarioTestBase() {
 
@@ -163,6 +168,59 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = MayEffect(DrawCardsEffect(1), sourceRequiredZone = Zone.GRAVEYARD)
+                        )
+                    )
+                )
+            )
+        )
+
+        // "When this enters, mill a card. If you do, draw a card. Otherwise, lose 1 life." authored
+        // directly with a Gate.DoAction: the milling action's outcome (did the graveyard grow?) gates
+        // `then` vs `otherwise` — no yes/no decision, the Auto criterion's zone-delta probe decides.
+        cardRegistry.register(
+            CardDefinition.creature(
+                name = "Outcome Seer",
+                manaCost = ManaCost.parse("{0}"),
+                subtypes = setOf(Subtype("Wizard")),
+                power = 1,
+                toughness = 1,
+                script = CardScript(
+                    triggeredAbilities = listOf(
+                        TriggeredAbility(
+                            id = AbilityId.generate(),
+                            trigger = Triggers.EntersBattlefield.event,
+                            binding = Triggers.EntersBattlefield.binding,
+                            effect = GatedEffect(
+                                gate = Gate.DoAction(action = EffectPatterns.mill(1)),
+                                then = DrawCardsEffect(1),
+                                otherwise = Effects.LoseLife(1, EffectTarget.Controller)
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
+        // Same behavior authored via the IfYouDoEffect facade — proves the facade lowers to a
+        // Gate.DoAction that resolves end-to-end through the GatedEffect frame.
+        cardRegistry.register(
+            CardDefinition.creature(
+                name = "Outcome Drawer",
+                manaCost = ManaCost.parse("{0}"),
+                subtypes = setOf(Subtype("Wizard")),
+                power = 1,
+                toughness = 1,
+                script = CardScript(
+                    triggeredAbilities = listOf(
+                        TriggeredAbility(
+                            id = AbilityId.generate(),
+                            trigger = Triggers.EntersBattlefield.event,
+                            binding = Triggers.EntersBattlefield.binding,
+                            effect = IfYouDoEffect(
+                                action = EffectPatterns.mill(1),
+                                ifYouDo = DrawCardsEffect(1),
+                                ifYouDont = Effects.LoseLife(1, EffectTarget.Controller)
+                            )
                         )
                     )
                 )
@@ -378,6 +436,71 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                 withClue("nothing drawn (hand is one smaller from casting the creature)") {
                     game.handSize(1) shouldBe handBefore - 1
                 }
+            }
+        }
+
+        context("Gate.DoAction (IfYouDoEffect lowering)") {
+
+            test("the action accomplishing its work runs `then`, not `otherwise`") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardInHand(1, "Outcome Seer")
+                    .withCardInLibrary(1, "Target Dummy") // milled
+                    .withCardInLibrary(1, "Target Dummy") // drawn
+                    .withLifeTotal(1, 20)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val handBefore = game.handSize(1)
+                game.castSpell(1, "Outcome Seer").error shouldBe null
+                game.resolveStack()
+
+                withClue("no decision — DoAction is an outcome gate, not a yes/no") {
+                    game.hasPendingDecision() shouldBe false
+                }
+                withClue("the mill grew the graveyard, so `then` drew a card") {
+                    // hand = handBefore - 1 (cast Outcome Seer) + 1 (drawn by `then`)
+                    game.handSize(1) shouldBe handBefore
+                }
+                withClue("`otherwise` did not run") { game.getLifeTotal(1) shouldBe 20 }
+            }
+
+            test("the action doing nothing runs `otherwise`, not `then`") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardInHand(1, "Outcome Seer")
+                    // empty library: the mill moves nothing, so the graveyard never grows
+                    .withLifeTotal(1, 20)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                game.castSpell(1, "Outcome Seer").error shouldBe null
+                game.resolveStack()
+
+                withClue("the mill found nothing, so `otherwise` ran") { game.getLifeTotal(1) shouldBe 19 }
+            }
+
+            test("the IfYouDoEffect facade lowers and branches the same way") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardInHand(1, "Outcome Drawer")
+                    .withCardInLibrary(1, "Target Dummy") // milled
+                    .withCardInLibrary(1, "Target Dummy") // drawn
+                    .withLifeTotal(1, 20)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val handBefore = game.handSize(1)
+                game.castSpell(1, "Outcome Drawer").error shouldBe null
+                game.resolveStack()
+
+                withClue("the facade ran `then` (drew a card) on a successful mill") {
+                    game.handSize(1) shouldBe handBefore
+                }
+                withClue("`otherwise` did not run") { game.getLifeTotal(1) shouldBe 20 }
             }
         }
     }

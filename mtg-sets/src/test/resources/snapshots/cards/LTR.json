@@ -1909,13 +1909,16 @@
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
                     "then": {
-                        "type": "IfYouDo",
-                        "action": {
-                            "type": "MoveToZone",
-                            "target": "Self",
-                            "destination": "Exile"
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.DoAction",
+                            "action": {
+                                "type": "MoveToZone",
+                                "target": "Self",
+                                "destination": "Exile"
+                            }
                         },
-                        "ifYouDo": {
+                        "then": {
                             "type": "DrawCards",
                             "count": {
                                 "type": "Fixed",

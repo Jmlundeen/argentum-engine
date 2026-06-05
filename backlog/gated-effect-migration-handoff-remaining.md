@@ -67,8 +67,9 @@ Where the frame lives:
 | `MayPayManaEffect` | ✅ done | #488 | Facade → `Gate.MayPay(PayManaCostEffect)`. **Read §3 — it set two precedents you will reuse.** |
 | `ConditionalEffect` | ✅ done | #491 | Facade → `Gate.WhenCondition(condition)` — a synchronous state-test gate (no decision/pause). Added `Effect.asConditional()` matcher (§3a); routed the 3 `is ConditionalEffect` engine sites (ClientStateTransformer stack-resolve, ActivatedAbilityEnumerator stacking, LimitedCardRater) through it. Deleted `ConditionalEffectExecutor`. 171 snapshot lowerings, pure rename. |
 | `MayEffect` | ✅ done | #492 | Facade → `Gate.MayDecide` — extended that gate with `sourceRequiredZone` + `inlineOnTrigger` and ported both skip cases (source-left-zone, infeasible `ChooseActionEffect`) into `GatedEffectExecutor`'s MayDecide branch. Added `Effect.asMayDecide()` matcher (§3a, exact bare-may shape: no `otherwise`); routed the trigger machinery (`TriggerProcessor` may-then-target reorder, `resumeMayTrigger` unwrap), `ClientStateTransformer` gift-walk, `CreateDelayedTriggerExecutor` context-target resolve, `CardValidator` index walk, and `LimitedCardRater` through it. Deleted `MayEffectExecutor` (kept `MayAbilityContinuation`/`resumeMayAbility` — still produced by Reflexive/Explore executors). 121 snapshot lowerings, pure rename. |
+| `IfYouDoEffect` | ✅ done | #TBD | Facade → `Gate.DoAction(action, successCriterion)` — a new **action-outcome** (non-decision) gate. Added a `Gate.DoAction` branch in `GatedEffectExecutor` (pre-push pattern: snapshot → push continuation → run action → sync-pop+evaluate, or leave it for the auto-resumer if the action pauses); moved the snapshot-capture + `SuccessCriterion` evaluation out of the deleted executor into `GatedEffectExecutor`. Renamed `IfYouDoContinuation`/`IfYouDoSnapshot` → `GatedActionContinuation`/`GatedActionSnapshot` (the action-drain counterpart to the yes/no `GatedEffectContinuation`); re-pointed the `CoreAutoResumerModule` auto-resumer + `Serialization` registration. No type-keyed engine sites existed, so no `asX()` matcher was needed. Deleted `IfYouDoEffectExecutor`. 13 snapshot lowerings (`IfYouDo` → `Gated`+`Gate.DoAction`), pure rename. |
 
-The remaining wrappers are in §5 (start with #3 `IfYouDoEffect` next).
+The remaining wrappers are in §5 (start with #4 `PayOrSufferEffect` next).
 
 ---
 
@@ -160,7 +161,7 @@ order: the new-gate-but-synchronous one first, then the two monsters, then decid
 |---|---|---|---|---|---|
 | 1 | ~~`ConditionalEffect`~~ ✅ done | `WhenCondition(condition)` | B | ~168 | ~~`ConditionalEffectExecutor`~~ deleted |
 | 2 | ~~`MayEffect`~~ ✅ done | `MayDecide` | A* | ~129 | ~~`MayEffectExecutor`~~ deleted |
-| 3 | `IfYouDoEffect` | `DoAction(action, criterion)` **(new)** | B | ~16 | `IfYouDoEffectExecutor` |
+| 3 | ~~`IfYouDoEffect`~~ ✅ done | `DoAction(action, criterion)` | B | ~16 | ~~`IfYouDoEffectExecutor`~~ deleted |
 | 4 | `PayOrSufferEffect` | `MayPay(cost)` w/ `then=null, otherwise=suffer` | A/B | ~28 | (continuations in `SacrificeAndPayContinuationResumer`) |
 | 5 | `MayPayXForEffect` | new "may pay X" gate | B | ~4 | `MayPayXForEffectExecutor` |
 | 6 | `AnyPlayerMayPayEffect` | `AnyPlayerMayPay(cost)` **(new)** | B | ~6 | `PlayerExecutors` branch |

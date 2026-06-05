@@ -173,6 +173,7 @@ object CardValidator {
             is GatedEffect -> {
                 when (val gate = effect.gate) {
                     is Gate.MayPay -> collectIndicesRecursive(gate.cost, indices)
+                    is Gate.DoAction -> collectIndicesRecursive(gate.action, indices)
                     is Gate.MayDecide -> {}
                     is Gate.WhenCondition -> {}
                 }

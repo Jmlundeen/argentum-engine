@@ -588,7 +588,18 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
     holds at resolution; no prompt, no pause — `then`/`otherwise` run synchronously in the executor.
     The condition evaluates through the shared `ConditionEvaluationContext` (identical at resolution
     and projection). Replaces `ConditionalEffect` (see "Sequencing & conditional" below).
-  - New gate kinds (`DoAction` for IfYouDo, APNAP `AnyPlayerMayPay`) fold in as those wrappers migrate.
+  - `Gate.DoAction(action, successCriterion?)` — **not a decision, an *action-outcome* test.**
+    `action` is performed (it may itself pause for sub-decisions); once it has fully drained,
+    `successCriterion` scores it against a pre-action snapshot to decide whether it "happened" —
+    success → `then`, failure → `otherwise`. This is "[action]. If you do, [then]" (a declined or
+    no-op action runs `otherwise`, not `then`), distinct from `MayDecide` (gates on the yes/no) and
+    `MayPay` (gates on paying a cost). `successCriterion` defaults to `SuccessCriterion.Auto`, which
+    infers success from the action's terminal zone-move (a pipeline `MoveCollection`, or a single
+    `MoveToZone` of the source itself) growing its destination zone; non-zone-move actions fall
+    through to fail-open. The executor pre-pushes a `GatedActionContinuation` so a paused action
+    auto-resumes and evaluates after its own continuations drain. Replaces `IfYouDoEffect` (see
+    "Sequencing & conditional" below).
+  - The remaining gate kind (APNAP `AnyPlayerMayPay`) folds in as that wrapper migrates.
 - `MayEffect(effect, descriptionOverride?, sourceRequiredZone?, inlineOnTrigger?, hint?, decisionMaker?)`
   — "You may [effect]." Facade preserved for existing cards; it now **lowers to
   `GatedEffect(Gate.MayDecide(...), then = effect)`** (compiled form is `Gated`, no distinct `May` type
@@ -632,7 +643,15 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   a synchronous state test — no decision, no pause. Engine paths that recognize a conditional branch
   (stack-time branch resolution for opponent views, repeat-activation analysis, limited rating) key
   off the lowered `Gate.WhenCondition` shape via the `Effect.asConditional()` matcher.
-- `IfYouDoEffect(action, reflexive, optional)` — if optional action is taken, run reflexive effect.
+- `IfYouDoEffect(action, ifYouDo, ifYouDont?, successCriterion?)` — "[action]. If you do, [ifYouDo].
+  Otherwise, [ifYouDont]." Gates the payoff on whether `action` actually accomplished its work (a
+  declined or no-op action runs `ifYouDont`, not `ifYouDo`) — not on a yes/no decision. Facade
+  preserved for existing cards; it now **lowers to `GatedEffect(Gate.DoAction(action,
+  successCriterion), then = ifYouDo, otherwise = ifYouDont)`** (compiled form is `Gated`, not a
+  distinct `IfYouDo` type or executor). `successCriterion` defaults to `SuccessCriterion.Auto` (infer
+  from the action's terminal zone-move); use `SuccessCriterion.Always` / `CollectionNonEmpty(name, min)`
+  when that inference is wrong. Wrap with `MayEffect` for the optional "You may [action]. If you do,
+  [effect]" shape.
 - `ReflexiveTriggerEffect(action, reflexive, optional)` — same shape but the reflexive effect goes on the stack.
 
 ### Modal & choice

@@ -91,11 +91,11 @@ class CoreAutoResumerModule(
             mergeAndContinue(searchResult, events, checkForMore)
         },
 
-        autoResumer(IfYouDoContinuation::class) { state, continuation, events, checkForMore ->
-            val branchResult = com.wingedsheep.engine.handlers.effects.composite.IfYouDoEffectExecutor.evaluateAndDispatch(
+        autoResumer(GatedActionContinuation::class) { state, continuation, events, checkForMore ->
+            val branchResult = com.wingedsheep.engine.handlers.effects.composite.GatedEffectExecutor.evaluateAndDispatch(
                 state = state,
-                ifYouDo = continuation.ifYouDo,
-                ifYouDont = continuation.ifYouDont,
+                then = continuation.then,
+                otherwise = continuation.otherwise,
                 criterion = continuation.successCriterion,
                 snapshot = continuation.snapshot,
                 effectContext = continuation.effectContext,

@@ -8,17 +8,26 @@ import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
+import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
+import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
+import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import java.util.UUID
 import kotlin.reflect.KClass
 
@@ -69,6 +78,13 @@ class GatedEffectExecutor(
             }
         }
 
+        // Gate.DoAction: an action-outcome gate, not a decision. Run `action` (which may pause for
+        // its own sub-decisions); once it has fully drained, score it via the SuccessCriterion
+        // against a pre-action snapshot to pick `then` (it happened) vs `otherwise` (it didn't).
+        if (gate is Gate.DoAction) {
+            return executeDoAction(state, gate, effect, context)
+        }
+
         // Gate.MayDecide: two cases where the former MayEffect skipped the prompt entirely.
         if (gate is Gate.MayDecide) {
             // Source must still be in its required zone (e.g. a dies-trigger "may" whose source
@@ -114,6 +130,7 @@ class GatedEffectExecutor(
             is Gate.MayDecide -> gate.hint ?: effect.hint
             is Gate.MayPay -> effect.hint
             is Gate.WhenCondition -> effect.hint // unreachable: handled by the synchronous branch above
+            is Gate.DoAction -> effect.hint // unreachable: handled by the action-drain branch above
         }
 
         val decisionId = UUID.randomUUID().toString()
@@ -232,4 +249,187 @@ class GatedEffectExecutor(
             is CompositeEffect -> cost.effects.all { canAfford(state, playerId, it) }
             else -> true
         }
+
+    /**
+     * Resolve a [Gate.DoAction] gate (the lowered `IfYouDoEffect`). Follows the former
+     * `IfYouDoEffectExecutor`'s pre-push pattern: a [GatedActionContinuation] is pushed *before*
+     * the action runs. If the action completes synchronously the continuation is popped inline and
+     * the outcome evaluated; otherwise it stays on the stack for the auto-resumer
+     * (`CoreAutoResumerModule`) to pick up once the action's own continuations have drained.
+     */
+    private fun executeDoAction(
+        state: GameState,
+        gate: Gate.DoAction,
+        effect: GatedEffect,
+        context: EffectContext
+    ): EffectResult {
+        val snapshot = captureSnapshot(state, gate.action, gate.successCriterion, context)
+
+        val continuation = GatedActionContinuation(
+            decisionId = "pending",
+            then = effect.then,
+            otherwise = effect.otherwise,
+            successCriterion = gate.successCriterion,
+            snapshot = snapshot,
+            effectContext = context
+        )
+        val stateWithCont = state.pushContinuation(continuation)
+
+        val result = effectExecutor(stateWithCont, gate.action, context)
+
+        if (result.isPaused) {
+            // Action paused; leave the continuation on the stack for the auto-resumer.
+            return result
+        }
+
+        // Action ran synchronously (success or recoverable error). Pop our pre-pushed
+        // continuation and evaluate the outcome inline.
+        val (_, stateWithoutCont) = result.state.popContinuation()
+        return evaluateAndDispatch(
+            state = stateWithoutCont,
+            then = effect.then,
+            otherwise = effect.otherwise,
+            criterion = gate.successCriterion,
+            snapshot = snapshot,
+            effectContext = context,
+            priorEvents = result.events,
+            effectExecutor = effectExecutor
+        )
+    }
+
+    /**
+     * Capture the data the [SuccessCriterion] needs to evaluate the post-action delta.
+     *
+     * For [SuccessCriterion.Auto], the probe recognizes two zone-move shapes and records the
+     * destination zone's pre-execution size:
+     * - a terminal pipeline [MoveCollectionEffect] (multi-object moves), and
+     * - a terminal single-target [MoveToZoneEffect] whose target is [EffectTarget.Self]
+     *   (e.g. "exile this card from your graveyard. If you do, …" — Council's Deliberation).
+     *
+     * The collection move is checked first so a pipeline that ends in one keeps its existing
+     * semantics. Single-target moves with a non-Self target aren't resolvable here without full
+     * target resolution, so they (and genuinely non-move actions such as deal-damage / gain-life)
+     * yield an empty snapshot and fall through to the criterion's intrinsic evaluation — for
+     * [SuccessCriterion.Auto] that means [evaluateAuto]'s fail-open default, which is correct for
+     * actions whose "did it happen" isn't a zone delta.
+     */
+    private fun captureSnapshot(
+        state: GameState,
+        action: Effect,
+        criterion: SuccessCriterion,
+        context: EffectContext
+    ): GatedActionSnapshot {
+        if (criterion !is SuccessCriterion.Auto) return GatedActionSnapshot()
+
+        findTerminalMove(action)?.let { move ->
+            val destination = move.destination as? CardDestination.ToZone ?: return GatedActionSnapshot()
+            val ownerId = resolvePlayer(destination.player, context) ?: return GatedActionSnapshot()
+            return zoneSnapshot(state, ownerId, destination.zone)
+        }
+
+        findTerminalSingleMove(action)?.let { move ->
+            // Only the Self target resolves to a concrete moved entity here; the destination
+            // zone is owned by that entity's owner (e.g. self-exile from a graveyard lands in
+            // that card's owner's exile). Other targets fall through to fail-open as before.
+            if (move.target !is EffectTarget.Self) return GatedActionSnapshot()
+            val movedId = context.sourceId ?: return GatedActionSnapshot()
+            val ownerId = state.getEntity(movedId)?.get<OwnerComponent>()?.playerId ?: return GatedActionSnapshot()
+            return zoneSnapshot(state, ownerId, move.destination)
+        }
+
+        return GatedActionSnapshot()
+    }
+
+    private fun zoneSnapshot(state: GameState, ownerId: EntityId, zone: Zone): GatedActionSnapshot =
+        GatedActionSnapshot(
+            destinationZoneOwner = ownerId,
+            destinationZoneType = zone,
+            destinationZonePreSize = state.zones[ZoneKey(ownerId, zone)]?.size ?: 0
+        )
+
+    /**
+     * Walk the effect tree for the last [MoveCollectionEffect] in execution order.
+     * Returns null for shapes the auto-probe doesn't recognize.
+     */
+    private fun findTerminalMove(effect: Effect): MoveCollectionEffect? = when (effect) {
+        is MoveCollectionEffect -> effect
+        is CompositeEffect -> effect.effects.asReversed().firstNotNullOfOrNull { findTerminalMove(it) }
+        else -> null
+    }
+
+    /**
+     * Walk the effect tree for the last single-target [MoveToZoneEffect] in execution order.
+     * Returns null for shapes the auto-probe doesn't recognize.
+     */
+    private fun findTerminalSingleMove(effect: Effect): MoveToZoneEffect? = when (effect) {
+        is MoveToZoneEffect -> effect
+        is CompositeEffect -> effect.effects.asReversed().firstNotNullOfOrNull { findTerminalSingleMove(it) }
+        else -> null
+    }
+
+    private fun resolvePlayer(player: Player, context: EffectContext): EntityId? = when (player) {
+        is Player.You -> context.controllerId
+        is Player.Opponent -> context.opponentId
+        is Player.TargetOpponent -> context.opponentId
+        is Player.TargetPlayer -> context.targets.firstOrNull()?.let { TargetResolutionUtils.run { it.toEntityId() } }
+        is Player.ContextPlayer -> context.targets.getOrNull(player.index)?.let { TargetResolutionUtils.run { it.toEntityId() } }
+        is Player.TriggeringPlayer -> context.triggeringEntityId
+        else -> context.controllerId
+    }
+
+    companion object {
+        /**
+         * Evaluate a [Gate.DoAction] criterion against the post-action state and dispatch `then`
+         * (it happened) or `otherwise` (it didn't). Shared between the synchronous path in
+         * [executeDoAction] and the auto-resumer that handles paused-action completion.
+         */
+        fun evaluateAndDispatch(
+            state: GameState,
+            then: Effect,
+            otherwise: Effect?,
+            criterion: SuccessCriterion,
+            snapshot: GatedActionSnapshot,
+            effectContext: EffectContext,
+            priorEvents: List<GameEvent>,
+            effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
+        ): EffectResult {
+            val happened = evaluate(state, criterion, snapshot)
+            val branch = if (happened) then else otherwise
+                ?: return EffectResult.success(state, priorEvents)
+            val branchResult = effectExecutor(state, branch, effectContext)
+            return branchResult.copy(events = priorEvents + branchResult.events)
+        }
+
+        /**
+         * Did the action accomplish its work, given the snapshot taken before it ran?
+         */
+        private fun evaluate(
+            state: GameState,
+            criterion: SuccessCriterion,
+            snapshot: GatedActionSnapshot
+        ): Boolean = when (criterion) {
+            is SuccessCriterion.Always -> true
+            is SuccessCriterion.Auto -> evaluateAuto(state, snapshot)
+            is SuccessCriterion.CollectionNonEmpty ->
+                // Pipeline storage doesn't propagate up to this level after resume — until that
+                // plumbing exists, fall back to Auto's zone-delta probe (set by captureSnapshot
+                // when the action's terminal move is recognized).
+                evaluateAuto(state, snapshot)
+        }
+
+        private fun evaluateAuto(state: GameState, snapshot: GatedActionSnapshot): Boolean {
+            val owner = snapshot.destinationZoneOwner
+            val zone = snapshot.destinationZoneType
+            if (owner == null || zone == null) {
+                // No zone-move probe was capturable. This is reached only for non-zone-move actions
+                // (deal damage, gain/lose life, draw, …) whose "did it happen" isn't a zone-size
+                // delta — for those, treating the action as performed (fail open) is the correct
+                // default. Zone-move shapes (collection moves and self-target single moves) are
+                // probed in captureSnapshot and never land here.
+                return true
+            }
+            val postSize = state.zones[ZoneKey(owner, zone)]?.size ?: 0
+            return postSize > snapshot.destinationZonePreSize
+        }
+    }
 }

@@ -71,6 +71,14 @@ data class GatedEffect(
                 append(". Otherwise, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
             }
         }
+        is Gate.DoAction -> buildString {
+            append(g.action.description.replaceFirstChar { it.uppercase() })
+            append(". If you do, ")
+            append(then.description.replaceFirstChar { it.lowercase() })
+            if (otherwise != null) {
+                append(". If you don't, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
+            }
+        }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
@@ -158,6 +166,35 @@ sealed interface Gate {
         override fun applyTextReplacement(replacer: TextReplacer): Gate {
             val newCondition = condition.applyTextReplacement(replacer)
             return if (newCondition !== condition) copy(condition = newCondition) else this
+        }
+    }
+
+    /**
+     * Not a decision — an *action-outcome* gate. [action] is performed (it may itself pause for
+     * its own sub-decisions); once it has fully resolved, [successCriterion] scores it against a
+     * pre-action snapshot to decide whether the action actually "happened". On success →
+     * [GatedEffect.then]; on failure → [GatedEffect.otherwise].
+     *
+     * Models MTG's "[action]. If you do, [then]" templating, where the payoff is conditional on
+     * the instruction being carried out — not on a yes/no decision. The classic case: "You may
+     * discard a card. If you do, draw a card" — when the player declines or the hand is empty no
+     * discard happens, so the draw ([then]) doesn't either. Distinct from [MayDecide] (gates on
+     * the *decision*, so a "yes" with nothing to discard still passes) and [MayPay] (gates on
+     * paying a recognized cost primitive). Replaces the `IfYouDoEffect` wrapper (see its facade).
+     *
+     * @property action The action whose outcome gates the branch.
+     * @property successCriterion How to decide "did it happen" — see [SuccessCriterion]. Defaults
+     *   to [SuccessCriterion.Auto] (infer from the action's terminal zone-move shape).
+     */
+    @SerialName("Gate.DoAction")
+    @Serializable
+    data class DoAction(
+        val action: Effect,
+        val successCriterion: SuccessCriterion = SuccessCriterion.Auto
+    ) : Gate {
+        override fun applyTextReplacement(replacer: TextReplacer): Gate {
+            val newAction = action.applyTextReplacement(replacer)
+            return if (newAction !== action) copy(action = newAction) else this
         }
     }
 }

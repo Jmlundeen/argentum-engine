@@ -136,26 +136,32 @@ data class ResolveSpellContinuation(
 ) : ContinuationFrame
 
 /**
- * Pre-pushed by [com.wingedsheep.engine.handlers.effects.composite.IfYouDoEffectExecutor]
- * before executing the gated action. Auto-resumes once the action's own continuation
- * stack has fully resolved; evaluates [successCriterion] against the snapshot to decide
- * whether to dispatch [ifYouDo] or [ifYouDont].
+ * Pre-pushed by [com.wingedsheep.engine.handlers.effects.composite.GatedEffectExecutor] for a
+ * [com.wingedsheep.sdk.scripting.effects.Gate.DoAction] gate, before executing the gated action.
+ * Auto-resumes once the action's own continuation stack has fully resolved; evaluates
+ * [successCriterion] against the snapshot to decide whether to dispatch [then] or [otherwise].
  *
+ * This is the *action-drain* counterpart to [GatedEffectContinuation] (which resumes on a yes/no
+ * decision): a [Gate.DoAction] has no decision to answer, so the auto-resumer picks it up when the
+ * action's own continuations have drained.
+ *
+ * @property then Effect to run iff the action accomplished its work (the gate's `then`).
+ * @property otherwise Effect to run iff the action did nothing (the gate's `otherwise`).
  * @property snapshot Pre-execution data the criterion needs to compute the delta
  *           (e.g., destination zone size before the action ran).
  */
 @Serializable
-data class IfYouDoContinuation(
+data class GatedActionContinuation(
     override val decisionId: String,
-    val ifYouDo: Effect,
-    val ifYouDont: Effect?,
+    val then: Effect,
+    val otherwise: Effect?,
     val successCriterion: SuccessCriterion,
-    val snapshot: IfYouDoSnapshot,
+    val snapshot: GatedActionSnapshot,
     val effectContext: EffectContext
 ) : ContinuationFrame
 
 /**
- * Probe data captured before [IfYouDoContinuation]'s action ran.
+ * Probe data captured before [GatedActionContinuation]'s action ran.
  *
  * For pipeline-shaped actions ending in a `MoveCollectionEffect`, [destinationZoneOwner]
  * + [destinationZoneType] identify a zone whose pre-action size is stored in
@@ -167,7 +173,7 @@ data class IfYouDoContinuation(
  * probes simultaneously.
  */
 @Serializable
-data class IfYouDoSnapshot(
+data class GatedActionSnapshot(
     val destinationZoneOwner: EntityId? = null,
     val destinationZoneType: Zone? = null,
     val destinationZonePreSize: Int = 0

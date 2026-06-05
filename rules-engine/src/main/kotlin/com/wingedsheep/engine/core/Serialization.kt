@@ -183,7 +183,7 @@ val engineSerializersModule = SerializersModule {
         subclass(GatedEffectContinuation::class)
         subclass(MayRevealCardFromHandContinuation::class)
         subclass(BeholdContinuation::class)
-        subclass(IfYouDoContinuation::class)
+        subclass(GatedActionContinuation::class)
         subclass(HandSizeDiscardContinuation::class)
         subclass(LegendRuleContinuation::class)
         subclass(CommanderZoneChoiceContinuation::class)
