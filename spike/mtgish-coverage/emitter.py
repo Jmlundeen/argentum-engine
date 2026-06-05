@@ -120,6 +120,24 @@ def metadata_lines(meta, indent="    ") -> list[str]:
     return out
 
 
+def doc_comment_lines(card, scryfall) -> list[str]:
+    """A KDoc header echoing the printed card (name / cost / type / P-T / oracle text), matching the
+    hand-authored idiom so a reviewer can diff the emitted DSL against the real rules text. The
+    oracle text is the authoritative card wording from Scryfall's cache (None if no cache)."""
+    head = [card["Name"]]
+    mana = render_mana(card.get("ManaCost"))
+    if mana:
+        head.append(mana)
+    head.append(render_typeline(card.get("Typeline", {})))
+    pt = card.get("CardPT")
+    if pt:
+        head.append(f'{pt.get("Power")}/{pt.get("Toughness")}')
+    oracle = (scryfall or {}).get("oracle_text")
+    if oracle:  # split multi-line / multi-face text; never let "*/" close the KDoc early
+        head += oracle.replace("*/", "* /").split("\n")
+    return ["/**"] + [f" * {line}" if line else " *" for line in head] + [" */"]
+
+
 # ---------------------------------------------------------------------------
 # mtgish numeric / structure helpers
 # ---------------------------------------------------------------------------
@@ -377,6 +395,20 @@ def _dynamic_amount(node, used) -> str | None:
     if gn in ("XValue", "X", "ValueX"):
         used.add("DynamicAmount")
         return "DynamicAmount.XValue"
+    if gn == "PowerOfTheSacrificedCreature":  # Final Strike: damage = sacrificed creature's power
+        used.add("DynamicAmounts")
+        return "DynamicAmounts.sacrificedPower()"
+    if gn == "LifeTotalOfPlayer":
+        used.update(["DynamicAmount", "Player"])
+        player = "Player.Opponent" if _contains(node, "_Player", "Opponent") else "Player.You"
+        return f"DynamicAmount.LifeTotal({player})"
+    if gn in ("HalfRoundedUp", "HalfRoundedDown"):  # Cruel Bargain: lose half your life, rounded up
+        inner = _dynamic_amount(node.get("args"), used)
+        if inner is None:
+            return None
+        used.add("DynamicAmount")
+        roundup = "true" if gn == "HalfRoundedUp" else "false"
+        return f"DynamicAmount.Divide({inner}, DynamicAmount.Fixed(2), roundUp = {roundup})"
     if gn == "Multiply" and isinstance(node.get("args"), list) and len(node["args"]) == 2:
         a, b = node["args"]
         mult = _find_integer(a) if isinstance(_find_integer(a), int) else _find_integer(b)
@@ -524,7 +556,7 @@ def render_action(node, tvar, used, reasons, keywords=frozenset()) -> str | None
         used.add("GainLifeEffect")
         return f"GainLifeEffect({amt})"
     if a == "LoseLife":
-        amt = _amount(args, used)
+        amt = _amount(args, used) or _dynamic_amount(_amount_node(args), used)
         if amt is None:
             return None
         used.update(["LoseLifeEffect", "EffectTarget"])
@@ -1014,7 +1046,8 @@ def render_card(card, scryfall, effects, keywords, mapping,
     if kw:
         used.add("Keyword")
 
-    body = [f'val {ident} = card("{_kt_str(name)}") {{',
+    body = [*doc_comment_lines(card, scryfall),
+            f'val {ident} = card("{_kt_str(name)}") {{',
             f'    manaCost = "{render_mana(card.get("ManaCost"))}"']
     ci = color_identity_dsl(scryfall)
     if ci is not None:
@@ -1113,14 +1146,24 @@ def _render_each_player(node, used) -> str | None:
 def _paycost_dsl(cost_node, used) -> str | None:
     blob = json.dumps(cost_node)
     used.add("PayCost")
+    # Sacrifice-as-cost: "...unless you sacrifice a Forest" / "...three Forests". The Unless branch's
+    # SacrificePermanent (sac self) is captured by _echo_effect's `suffer = SacrificeSelfEffect`, so
+    # the cost is purely PayCost.Sacrifice(filter[, count]) — matching the golden's {PayOrSuffer,
+    # Sacrifice} tree (Plant Elemental, Primeval Force, Thing from the Deep).
+    kind = cost_node.get("_Cost") if isinstance(cost_node, dict) else None
+    if kind in ("SacrificeAPermanent", "SacrificeNumberPermanents"):
+        filt = land_search_filter_dsl(cost_node, used)  # IsLandType -> Land.withSubtype, etc.
+        args = [filt]
+        count = _find_integer(cost_node) if kind == "SacrificeNumberPermanents" else 1
+        if isinstance(count, int) and count != 1:
+            args.append(f"count = {count}")
+        return f"PayCost.Sacrifice({', '.join(args)})"
     if "DiscardACardAtRandom" in blob:
         return "PayCost.Discard(random = true)"
     if "Discard" in blob:
         return "PayCost.Discard()"
     if "Mana" in blob:
         return "PayCost.OwnManaCost"
-    # Sacrifice-as-cost ("sacrifice N Forests unless…") also needs a real Sacrifice *effect* in the
-    # golden tree, which a PayCost can't supply — leave to SCAFFOLD rather than emit a caps mismatch.
     return None
 
 

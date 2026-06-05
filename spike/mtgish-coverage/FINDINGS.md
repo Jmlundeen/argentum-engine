@@ -135,6 +135,11 @@ just coverage-fidelity --set POR    →  184 cards (vs compiled golden)
   mean capability recall: 93.0%
 ```
 
+> **Superseded by the renders-whole metric (see "Maturation").** These are the *original lenient*
+> tier counts kept for the narrative below. Under the current strict emitter the same command reports
+> **AUTO 171 / 92.9%, SCAFFOLD 5 / 2.7%, MISS 8 / 4.3%, recall 96.9%** — and the compile gate confirms
+> 179/184 emitted, 0 capability mismatch.
+
 **AUTO is real — the emitter reproduces hand-authored DSL byte-for-byte.** `--emit "Hand of Death"`
 produces, line for line, the committed `HandOfDeath.kt`:
 
@@ -295,9 +300,12 @@ illustrative emitter didn't have to satisfy — so "AUTO" over-counted. Now `fid
 and the gate all tier on the *same* renderer: a card is AUTO ⟺ the emitter emits every action/ability.
 This is stricter and honest by construction (no flag can be flipped without code that emits).
 
-**2. Generated code is COMPLETE — no TODO stubs.** `scripts/card-status`'s Scryfall cache (schema v5)
-now retains per-printing rarity/collector/artist/imageUri/flavor/color-identity; the emitter renders a
-full `metadata { … }` block + `colorIdentity` matching the hand-authored idiom.
+**2. Generated code is COMPLETE — no TODO stubs.** `scripts/card-status`'s Scryfall cache (schema v6)
+now retains per-printing rarity/collector/artist/imageUri/flavor/color-identity **plus `oracle_text`**;
+the emitter renders a full `metadata { … }` block + `colorIdentity` matching the hand-authored idiom,
+and prepends a KDoc `/** name / cost / type / P-T / oracle text */` header above every `val` (the
+authoritative printed wording, so a reviewer can diff the emitted DSL against the real card — the same
+doc-comment idiom hand-authored cards carry; gate-neutral, since oracle text isn't in the snapshot).
 
 **3. The Kotlin compile-verification gate (Hybrid design).** `just coverage-verify --set POR`:
 emits every whole-renderable card into an isolated `generatedCards` Gradle source set, **compiles
@@ -308,34 +316,39 @@ on both sides. This turns AUTO from a static-tag prediction into **"compiles + c
 ```
 Portal (POR):
   coverage calibration         200/200 = 100%
-  auto-emitted & COMPILED       174/184   (every emitted card compiles — Gradle)
-  VERIFIED (caps match golden)  174        capability MISMATCH: 0
-  left to hand                   10        (the emitter DECLINES rather than emit a wrong card)
+  auto-emitted & COMPILED       179/184   (every emitted card compiles — Gradle)
+  VERIFIED (caps match golden)  179        capability MISMATCH: 0
+  left to hand                    5        (the emitter DECLINES rather than emit a wrong card)
 ```
 
-The gate **passes** when every emitted card is correct (0 mismatch); coverage (174/184) is reported,
+The gate **passes** when every emitted card is correct (0 mismatch); coverage (179/184) is reported,
 not pass/failed — a generator declining a card it can't render faithfully is correct behaviour.
 
-**The 10 it declines are the genuinely engine-feature-complex residue** — exactly the tail the spike
+**The 5 it declines are the genuinely engine-feature-complex residue** — exactly the tail the spike
 predicted needs hand-authoring (`add-card`): delayed/global triggers (Last Chance, Harsh Justice), a
 damage-prevention replacement (Deep Wood), a static "can't attack unless the defender controls an
-Island" (Deep-Sea Serpent), "sacrifice unless you sacrifice X" (Plant Elemental, Primeval Force,
-Thing from the Deep), and exotic dynamic amounts (Cruel Bargain's half-life, Final Strike's
-power-of-the-sacrificed-creature, Ebon Dragon's discard-then-may rider). The each-player loops
-(Flux, Winds of Change, Noxious Toad) and conditional spells (Gift of Estates, Balance of Power) are
-now emitted via the `EffectPatterns.eachPlayer*`/`wheelEffect`/`Conditions.*` facades.
+Island" (Deep-Sea Serpent), and an optional targeted ETB rider (Ebon Dragon's discard-then-may). The
+each-player loops (Flux, Winds of Change, Noxious Toad) and conditional spells (Gift of Estates,
+Balance of Power) emit via the `EffectPatterns.eachPlayer*`/`wheelEffect`/`Conditions.*` facades; the
+**"sacrifice unless you sacrifice X"** gate (Plant Elemental, Primeval Force, Thing from the Deep) now
+emits as `PayOrSufferEffect(cost = PayCost.Sacrifice(filter[, count]), suffer = SacrificeSelfEffect)`,
+and **exotic dynamic amounts** (Cruel Bargain's half-life → `DynamicAmount.Divide(LifeTotal, Fixed(2),
+roundUp)`, Final Strike's power-of-the-sacrificed → `DynamicAmounts.sacrificedPower()`) render whole —
+five cards moved out of the declined pile (174→179) by general emitter rules, not per-card fits.
 
 **Honest cross-set reality — the strict metric corrects the old inflation.** Re-running `--all` with
 the renders-whole definition:
 
 ```
   SET   AUTO   (old lenient AUTO)
-  POR   88.6%  (was 75%)
-  INV   17.6%  (was 48%)   ONS 15.0% (was 38%)   KTK 19.0% (was 47%) …
+  POR   92.9%  (was 75%)
+  INV   17.6%  (was 48%)   ONS 15.6% (was 38%)   KTK 19.0% (was 47%) …
 ```
 
-Portal rose (real emitter work + 100% mapping); **unseen sets fell** — because the old ~45% was
-inflated by a structure-check the emitter never had to honour. ~15–20% is the honest "renders whole,
-compiles, caps-match" rate on a Portal-tuned emitter, and the convergence path is unchanged: each
-emitter handler/mapping line added helps every set (the recall column is the KPI). The verdict stands —
-a **reviewed-draft scaffolder**, now with a real compile gate; the scenario test remains the final word.
+Portal rose (real emitter work + 100% mapping; the sacrifice-unless gate + computed-amount renderers
+took it 88.6→92.9%); **unseen sets fell** — because the old ~45% was inflated by a structure-check the
+emitter never had to honour, and they barely moved on the latest handlers since those targeted
+Portal-specific shapes. ~15–20% is the honest "renders whole, compiles, caps-match" rate on a
+Portal-tuned emitter, and the convergence path is unchanged: each emitter handler/mapping line added
+helps every set (the recall column is the KPI). The verdict stands — a **reviewed-draft scaffolder**,
+now with a real compile gate; the scenario test remains the final word.

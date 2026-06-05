@@ -47,7 +47,7 @@ SCRYFALL_BASE = "https://api.scryfall.com"
 USER_AGENT = "argentum-engine-card-status/1.0"
 REQUEST_DELAY_SEC = 0.15  # Scryfall asks for 50–100ms between requests; pad for bursty paginations
 REFRESH_WINDOW_DAYS = 30
-CACHE_SCHEMA_VERSION = 5
+CACHE_SCHEMA_VERSION = 6  # v6: per-card oracle_text captured for the codegen bridge
 
 # A set is in current Standard if both:
 #   (a) its set_type is one of these (excludes commander, masters, alchemy, etc.), AND
@@ -237,6 +237,13 @@ def card_metadata(card: dict) -> dict:
     image_uri = image_uris.get("normal")
     if image_uri:  # drop the ?<timestamp> cache-buster; the repo convention stores the bare URL
         image_uri = image_uri.split("?", 1)[0]
+    # oracle_text lives at the card level for single-faced cards; multi-faced cards carry it per
+    # face, joined the way the SDK joins them (`\n//\n`) so the generator can echo the full text.
+    oracle_text = card.get("oracle_text")
+    if oracle_text is None:
+        faces = card.get("card_faces") or []
+        face_texts = [f.get("oracle_text", "") for f in faces if isinstance(f, dict)]
+        oracle_text = "\n//\n".join(t for t in face_texts if t) or None
     return {
         "rarity": card.get("rarity"),
         "collector_number": card.get("collector_number"),
@@ -244,6 +251,7 @@ def card_metadata(card: dict) -> dict:
         "image_uri": image_uri,
         "flavor_text": card.get("flavor_text"),
         "color_identity": card.get("color_identity", []),
+        "oracle_text": oracle_text,
     }
 
 
