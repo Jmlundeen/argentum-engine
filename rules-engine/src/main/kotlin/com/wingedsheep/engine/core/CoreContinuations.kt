@@ -5,6 +5,7 @@ import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
@@ -188,6 +189,32 @@ data class MayAbilityContinuation(
     val sourceName: String?,
     val effectIfYes: Effect?,
     val effectIfNo: Effect?,
+    val effectContext: EffectContext
+) : ContinuationFrame
+
+/**
+ * Resume a [com.wingedsheep.sdk.scripting.effects.GatedEffect] after its gate has been
+ * resolved by a yes/no decision.
+ *
+ * The unified frame for the decision-driven gate kinds ([Gate.MayDecide], [Gate.MayPay]):
+ * the executor pauses with a [YesNoDecision], and this continuation carries everything the
+ * resumer needs to dispatch the right branch in the canonical order — run [then] on success
+ * (for [Gate.MayPay], paying [Gate.MayPay.cost] first), or [otherwise] on a decline.
+ *
+ * [effectContext] carries the locked `targets` so a targeted [then] (e.g. "you may pay {2};
+ * if you do, destroy target creature") resolves against the trigger-time target rather than
+ * re-choosing one — see the engine load-bearing rule on propagating targets.
+ *
+ * @property gate The gate that was offered (determines how a "yes" is consumed).
+ * @property then Effect to run iff the gate succeeds.
+ * @property otherwise Effect to run iff the gate fails / is declined.
+ */
+@Serializable
+data class GatedEffectContinuation(
+    override val decisionId: String,
+    val gate: Gate,
+    val then: Effect,
+    val otherwise: Effect?,
     val effectContext: EffectContext
 ) : ContinuationFrame
 

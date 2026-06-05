@@ -32,7 +32,8 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
+import com.wingedsheep.sdk.scripting.effects.Gate
+import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
@@ -179,10 +180,13 @@ object CardValidator {
                 collectIndicesRecursive(effect.effect, indices)
                 effect.elseEffect?.let { collectIndicesRecursive(it, indices) }
             }
-            is OptionalCostEffect -> {
-                collectIndicesRecursive(effect.cost, indices)
-                collectIndicesRecursive(effect.ifPaid, indices)
-                effect.ifNotPaid?.let { collectIndicesRecursive(it, indices) }
+            is GatedEffect -> {
+                when (val gate = effect.gate) {
+                    is Gate.MayPay -> collectIndicesRecursive(gate.cost, indices)
+                    is Gate.MayDecide -> {}
+                }
+                collectIndicesRecursive(effect.then, indices)
+                effect.otherwise?.let { collectIndicesRecursive(it, indices) }
             }
             is ReflexiveTriggerEffect -> {
                 collectIndicesRecursive(effect.action, indices)

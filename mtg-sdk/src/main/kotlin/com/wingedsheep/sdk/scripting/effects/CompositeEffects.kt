@@ -419,43 +419,6 @@ data class BeholdEffect(
 }
 
 /**
- * Effect with an optional cost - "You may [cost]. If you do, [ifPaid]."
- *
- * This is the fundamental building block for optional effects like:
- * - "You may pay {2}. If you do, draw a card."
- * - "You may sacrifice a creature. If you do, deal 3 damage to any target."
- * - "You may discard a card. If you do, draw two cards."
- *
- * @property cost The optional cost the player may pay (e.g., PayLifeEffect, SacrificeEffect)
- * @property ifPaid The effect that happens if the player pays the cost
- * @property ifNotPaid Optional effect if the player doesn't pay (usually null)
- */
-@SerialName("OptionalCost")
-@Serializable
-data class OptionalCostEffect(
-    val cost: Effect,
-    val ifPaid: Effect,
-    val ifNotPaid: Effect? = null,
-    val descriptionOverride: String? = null
-) : Effect {
-    override val description: String = descriptionOverride ?: buildString {
-        append("You may ${cost.description.replaceFirstChar { it.lowercase() }}. ")
-        append("If you do, ${ifPaid.description.replaceFirstChar { it.lowercase() }}")
-        if (ifNotPaid != null) {
-            append(". Otherwise, ${ifNotPaid.description.replaceFirstChar { it.lowercase() }}")
-        }
-    }
-
-    override fun applyTextReplacement(replacer: TextReplacer): Effect {
-        val newCost = cost.applyTextReplacement(replacer)
-        val newIfPaid = ifPaid.applyTextReplacement(replacer)
-        val newIfNotPaid = ifNotPaid?.applyTextReplacement(replacer)
-        return if (newCost !== cost || newIfPaid !== ifPaid || newIfNotPaid !== ifNotPaid)
-            copy(cost = newCost, ifPaid = newIfPaid, ifNotPaid = newIfNotPaid) else this
-    }
-}
-
-/**
  * Reflexive trigger - "When you do, [effect]."
  *
  * Used for abilities that trigger from the resolution of another effect.

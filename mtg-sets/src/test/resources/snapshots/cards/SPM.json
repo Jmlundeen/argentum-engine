@@ -1100,68 +1100,71 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "OptionalCost",
-                    "cost": {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "GatherCards",
-                                "source": {
-                                    "type": "ControlledPermanents",
-                                    "filter": {
-                                        "cardPredicates": [
-                                            {
-                                                "type": "Or",
-                                                "predicates": [
-                                                    "IsCreature",
-                                                    {
-                                                        "type": "And",
-                                                        "predicates": [
-                                                            "IsArtifact",
-                                                            {
-                                                                "type": "HasSubtype",
-                                                                "subtype": "Treasure"
-                                                            }
-                                                        ]
-                                                    }
-                                                ]
-                                            }
-                                        ],
-                                        "statePredicates": [
-                                            "IsUntapped"
-                                        ]
-                                    }
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "ControlledPermanents",
+                                        "filter": {
+                                            "cardPredicates": [
+                                                {
+                                                    "type": "Or",
+                                                    "predicates": [
+                                                        "IsCreature",
+                                                        {
+                                                            "type": "And",
+                                                            "predicates": [
+                                                                "IsArtifact",
+                                                                {
+                                                                    "type": "HasSubtype",
+                                                                    "subtype": "Treasure"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "statePredicates": [
+                                                "IsUntapped"
+                                            ]
+                                        }
+                                    },
+                                    "storeAs": "rentTargets"
                                 },
-                                "storeAs": "rentTargets"
-                            },
-                            {
-                                "type": "SelectFromCollection",
-                                "from": "rentTargets",
-                                "selection": {
-                                    "type": "ChooseExactly",
-                                    "count": {
-                                        "type": "Fixed",
-                                        "amount": 2
-                                    }
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "rentTargets",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        }
+                                    },
+                                    "storeSelected": "toTap",
+                                    "prompt": "Tap two untapped creatures and/or Treasures you control",
+                                    "useTargetingUI": true
                                 },
-                                "storeSelected": "toTap",
-                                "prompt": "Tap two untapped creatures and/or Treasures you control",
-                                "useTargetingUI": true
-                            },
-                            {
-                                "type": "TapUntapCollection",
-                                "collectionName": "toTap"
-                            }
-                        ]
+                                {
+                                    "type": "TapUntapCollection",
+                                    "collectionName": "toTap"
+                                }
+                            ]
+                        }
                     },
-                    "ifPaid": {
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "Fixed",
                             "amount": 1
                         }
                     },
-                    "ifNotPaid": "SacrificeSelf",
+                    "otherwise": "SacrificeSelf",
                     "descriptionOverride": "Tap two untapped creatures and/or Treasures you control. If you do, draw a card. Otherwise, sacrifice Rent Is Due."
                 }
             }

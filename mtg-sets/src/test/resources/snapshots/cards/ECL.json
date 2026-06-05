@@ -9544,45 +9544,48 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "OptionalCost",
-                    "cost": {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "GatherCards",
-                                "source": {
-                                    "type": "ControlledPermanents",
-                                    "filter": "creature"
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "ControlledPermanents",
+                                        "filter": "creature"
+                                    },
+                                    "storeAs": "blightTargets"
                                 },
-                                "storeAs": "blightTargets"
-                            },
-                            {
-                                "type": "SelectFromCollection",
-                                "from": "blightTargets",
-                                "selection": {
-                                    "type": "ChooseExactly",
-                                    "count": {
-                                        "type": "Fixed",
-                                        "amount": 1
-                                    }
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "blightTargets",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "blighted",
+                                    "prompt": "Blight 2 — choose a creature you control",
+                                    "useTargetingUI": true
                                 },
-                                "storeSelected": "blighted",
-                                "prompt": "Blight 2 — choose a creature you control",
-                                "useTargetingUI": true
-                            },
-                            {
-                                "type": "AddCountersToCollection",
-                                "collectionName": "blighted",
-                                "counterType": "-1/-1",
-                                "count": 2
-                            }
-                        ]
+                                {
+                                    "type": "AddCountersToCollection",
+                                    "collectionName": "blighted",
+                                    "counterType": "-1/-1",
+                                    "count": 2
+                                }
+                            ]
+                        }
                     },
-                    "ifPaid": {
+                    "then": {
                         "type": "Composite",
                         "effects": []
                     },
-                    "ifNotPaid": {
+                    "otherwise": {
                         "type": "LoseLife",
                         "amount": {
                             "type": "Fixed",
@@ -15377,40 +15380,43 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "OptionalCost",
-                    "cost": {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "GatherCards",
-                                "source": {
-                                    "type": "ControlledPermanents",
-                                    "filter": "creature"
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "ControlledPermanents",
+                                        "filter": "creature"
+                                    },
+                                    "storeAs": "blightTargets"
                                 },
-                                "storeAs": "blightTargets"
-                            },
-                            {
-                                "type": "SelectFromCollection",
-                                "from": "blightTargets",
-                                "selection": {
-                                    "type": "ChooseExactly",
-                                    "count": {
-                                        "type": "Fixed",
-                                        "amount": 1
-                                    }
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "blightTargets",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "blighted",
+                                    "prompt": "Blight 1 — choose a creature you control",
+                                    "useTargetingUI": true
                                 },
-                                "storeSelected": "blighted",
-                                "prompt": "Blight 1 — choose a creature you control",
-                                "useTargetingUI": true
-                            },
-                            {
-                                "type": "AddCountersToCollection",
-                                "collectionName": "blighted",
-                                "counterType": "-1/-1"
-                            }
-                        ]
+                                {
+                                    "type": "AddCountersToCollection",
+                                    "collectionName": "blighted",
+                                    "counterType": "-1/-1"
+                                }
+                            ]
+                        }
                     },
-                    "ifPaid": {
+                    "then": {
                         "type": "CreatePredefinedToken",
                         "tokenType": "Treasure"
                     },
@@ -19773,12 +19779,15 @@
                 "trigger": "SpellCastEvent",
                 "binding": "ANY",
                 "effect": {
-                    "type": "OptionalCost",
-                    "cost": {
-                        "type": "PayLife",
-                        "amount": 1
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayLife",
+                            "amount": 1
+                        }
                     },
-                    "ifPaid": {
+                    "then": {
                         "type": "DrawCards",
                         "count": {
                             "type": "Fixed",

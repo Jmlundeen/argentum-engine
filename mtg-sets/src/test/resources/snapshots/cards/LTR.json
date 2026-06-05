@@ -9315,12 +9315,15 @@
     "oracleText": "You may sacrifice a Food. If you do, target creature gets +4/+4 until end of turn. Otherwise, that creature gets +2/+2 until end of turn.",
     "script": {
         "spellEffect": {
-            "type": "OptionalCost",
-            "cost": {
-                "type": "Sacrifice",
-                "filter": "Food"
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.MayPay",
+                "cost": {
+                    "type": "Sacrifice",
+                    "filter": "Food"
+                }
             },
-            "ifPaid": {
+            "then": {
                 "type": "ModifyStats",
                 "powerModifier": {
                     "type": "Fixed",
@@ -9335,7 +9338,7 @@
                     "name": "target creature"
                 }
             },
-            "ifNotPaid": {
+            "otherwise": {
                 "type": "ModifyStats",
                 "powerModifier": {
                     "type": "Fixed",

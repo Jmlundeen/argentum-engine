@@ -4,7 +4,10 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
+import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.MayEffect
 import java.util.UUID
 
@@ -29,6 +32,7 @@ class EffectAndTriggerContinuationResumer(
             ExecutionResult.success(state)
         },
         resumer(MayAbilityContinuation::class, ::resumeMayAbility),
+        resumer(GatedEffectContinuation::class, ::resumeGatedEffect),
         resumer(MayRevealCardFromHandContinuation::class, ::resumeMayRevealCardFromHand),
         resumer(BeholdContinuation::class, ::resumeBehold),
         resumer(MayTriggerContinuation::class, ::resumeMayTrigger),
@@ -306,6 +310,49 @@ class EffectAndTriggerContinuationResumer(
         }
 
         val result = services.effectExecutorRegistry.execute(state, effectToExecute, context).toExecutionResult()
+
+        if (result.isPaused) {
+            return result
+        }
+
+        return checkForMore(result.state, result.events.toList())
+    }
+
+    /**
+     * Resume a [GatedEffect] after its gate's yes/no decision. The canonical unwind:
+     * on "yes", run [GatedEffectContinuation.then] — for [Gate.MayPay], pay the cost first
+     * (a `stopOnError` composite so an unpayable cost aborts the payoff, mirroring the former
+     * OptionalCost behavior); on "no", run [GatedEffectContinuation.otherwise]. The locked
+     * targets travel in the continuation's [EffectContext], so a targeted `then` resolves
+     * against its trigger-time target.
+     */
+    private fun resumeGatedEffect(
+        state: GameState,
+        continuation: GatedEffectContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is YesNoResponse) {
+            return ExecutionResult.error(state, "Expected yes/no response for gated effect")
+        }
+
+        val effectToExecute: Effect? = if (response.choice) {
+            when (val gate = continuation.gate) {
+                is Gate.MayDecide -> continuation.then
+                is Gate.MayPay ->
+                    CompositeEffect(listOf(gate.cost, continuation.then), stopOnError = true)
+            }
+        } else {
+            continuation.otherwise
+        }
+
+        if (effectToExecute == null) {
+            return checkForMore(state, emptyList())
+        }
+
+        val result = services.effectExecutorRegistry
+            .execute(state, effectToExecute, continuation.effectContext)
+            .toExecutionResult()
 
         if (result.isPaused) {
             return result

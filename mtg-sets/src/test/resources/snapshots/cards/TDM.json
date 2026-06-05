@@ -3463,12 +3463,15 @@
                 "id": "ability_1",
                 "trigger": "AttackEvent",
                 "effect": {
-                    "type": "OptionalCost",
-                    "cost": {
-                        "type": "PayManaCost",
-                        "cost": "{1}{W}"
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{1}{W}"
+                        }
                     },
-                    "ifPaid": {
+                    "then": {
                         "type": "Modal",
                         "modes": [
                             {

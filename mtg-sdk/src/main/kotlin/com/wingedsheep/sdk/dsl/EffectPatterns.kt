@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
+import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
@@ -44,10 +45,10 @@ object EffectPatterns {
     // Optional Cost Patterns (MiscPatterns)
     // =========================================================================
 
-    fun mayPay(cost: Effect, effect: Effect): OptionalCostEffect =
+    fun mayPay(cost: Effect, effect: Effect): GatedEffect =
         MiscPatterns.mayPay(cost, effect)
 
-    fun mayPayOrElse(cost: Effect, ifPaid: Effect, ifNotPaid: Effect): OptionalCostEffect =
+    fun mayPayOrElse(cost: Effect, ifPaid: Effect, ifNotPaid: Effect): GatedEffect =
         MiscPatterns.mayPayOrElse(cost, ifPaid, ifNotPaid)
 
     /**
