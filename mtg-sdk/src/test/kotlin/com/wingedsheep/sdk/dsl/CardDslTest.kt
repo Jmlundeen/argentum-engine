@@ -17,6 +17,8 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
+import com.wingedsheep.sdk.scripting.effects.Gate
+import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
@@ -912,9 +914,10 @@ class CardDslTest : DescribeSpec({
                 DrawCardsEffect(2)
             )
 
-            effect.shouldBeInstanceOf<OptionalCostEffect>()
-            effect.cost shouldBe PayLifeEffect(3)
-            effect.ifPaid shouldBe DrawCardsEffect(2, EffectTarget.Controller)
+            val gated = effect.shouldBeInstanceOf<GatedEffect>()
+            val gate = gated.gate.shouldBeInstanceOf<Gate.MayPay>()
+            gate.cost shouldBe PayLifeEffect(3)
+            gated.then shouldBe DrawCardsEffect(2, EffectTarget.Controller)
         }
 
         it("should create reflexive trigger shorthand") {

@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
@@ -37,10 +38,10 @@ import com.wingedsheep.sdk.scripting.values.EffectVariable
  */
 object MiscPatterns {
 
-    fun mayPay(cost: Effect, effect: Effect): OptionalCostEffect =
+    fun mayPay(cost: Effect, effect: Effect): GatedEffect =
         OptionalCostEffect(cost, effect)
 
-    fun mayPayOrElse(cost: Effect, ifPaid: Effect, ifNotPaid: Effect): OptionalCostEffect =
+    fun mayPayOrElse(cost: Effect, ifPaid: Effect, ifNotPaid: Effect): GatedEffect =
         OptionalCostEffect(cost, ifPaid, ifNotPaid)
 
     /**

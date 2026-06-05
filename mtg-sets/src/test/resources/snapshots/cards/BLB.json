@@ -15767,14 +15767,17 @@
                         },
                         "binding": "ANY",
                         "effect": {
-                            "type": "OptionalCost",
-                            "cost": {
-                                "type": "Sacrifice",
-                                "filter": "nonland permanent",
-                                "count": 3,
-                                "excludeSource": true
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.MayPay",
+                                "cost": {
+                                    "type": "Sacrifice",
+                                    "filter": "nonland permanent",
+                                    "count": 3,
+                                    "excludeSource": true
+                                }
                             },
-                            "ifPaid": {
+                            "then": {
                                 "type": "Composite",
                                 "effects": [
                                     {
@@ -22547,21 +22550,24 @@
                             "storeAs": "eligible"
                         },
                         {
-                            "type": "OptionalCost",
-                            "cost": {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "PayManaCost",
-                                        "cost": "{W}{B}"
-                                    },
-                                    {
-                                        "type": "PayLife",
-                                        "amount": 2
-                                    }
-                                ]
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.MayPay",
+                                "cost": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "PayManaCost",
+                                            "cost": "{W}{B}"
+                                        },
+                                        {
+                                            "type": "PayLife",
+                                            "amount": 2
+                                        }
+                                    ]
+                                }
                             },
-                            "ifPaid": {
+                            "then": {
                                 "type": "Composite",
                                 "effects": [
                                     {
@@ -22612,21 +22618,24 @@
                             "storeAs": "eligible"
                         },
                         {
-                            "type": "OptionalCost",
-                            "cost": {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "PayManaCost",
-                                        "cost": "{W}{B}"
-                                    },
-                                    {
-                                        "type": "PayLife",
-                                        "amount": 2
-                                    }
-                                ]
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.MayPay",
+                                "cost": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "PayManaCost",
+                                            "cost": "{W}{B}"
+                                        },
+                                        {
+                                            "type": "PayLife",
+                                            "amount": 2
+                                        }
+                                    ]
+                                }
                             },
-                            "ifPaid": {
+                            "then": {
                                 "type": "Composite",
                                 "effects": [
                                     {

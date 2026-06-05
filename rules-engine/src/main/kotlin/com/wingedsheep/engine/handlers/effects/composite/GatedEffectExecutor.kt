@@ -3,57 +3,72 @@ package com.wingedsheep.engine.handlers.effects.composite
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
+import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
-import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
+import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
+import com.wingedsheep.sdk.scripting.effects.Gate
+import com.wingedsheep.sdk.scripting.effects.GatedEffect
 import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import java.util.UUID
 import kotlin.reflect.KClass
 
 /**
- * Executor for OptionalCostEffect.
- * Handles "You may [cost]. If you do, [ifPaid]. Otherwise, [ifNotPaid]." effects.
+ * One executor for the [GatedEffect] frame — the unified replacement for the bespoke
+ * may / optional-cost executors. It owns the canonical resolution order for every
+ * decision-driven [Gate]:
  *
- * Presents a yes/no choice. If yes, executes [cost] then [ifPaid].
- * If no, executes [ifNotPaid] (if present).
+ *  1. Resolve the decision-maker (defaults to the ability's controller).
+ *  2. [Gate.MayPay] only: skip the prompt entirely when the cost is unaffordable, falling
+ *     through to [GatedEffect.otherwise] — asking yes/no for an unpayable cost is a UX trap
+ *     that can also silently drop pieces of a composite cost.
+ *  3. Pause with a [YesNoDecision]. The [GatedEffectContinuation] carries the *already-locked*
+ *     targets in its [EffectContext], so a targeted [GatedEffect.then] resolves against the
+ *     trigger-time target (CR 603.3d) instead of re-choosing one at resolution.
  *
- * Used for Gift mechanics and similar optional cost patterns.
+ * The "yes" branch is consumed by `EffectAndTriggerContinuationResumer.resumeGatedEffect`;
+ * the gate kind decides *how* — run [GatedEffect.then] directly ([Gate.MayDecide]) or pay the
+ * cost first ([Gate.MayPay]).
  */
-class OptionalCostEffectExecutor(
+class GatedEffectExecutor(
     private val cardRegistry: CardRegistry,
     private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
-) : EffectExecutor<OptionalCostEffect> {
+) : EffectExecutor<GatedEffect> {
 
-    override val effectType: KClass<OptionalCostEffect> = OptionalCostEffect::class
+    override val effectType: KClass<GatedEffect> = GatedEffect::class
 
     private val manaSolver = ManaSolver(cardRegistry)
 
     override fun execute(
         state: GameState,
-        effect: OptionalCostEffect,
+        effect: GatedEffect,
         context: EffectContext
     ): EffectResult {
-        val playerId = context.controllerId
+        val playerId = effect.decisionMaker
+            ?.let { TargetResolutionUtils.resolvePlayerTarget(it, context, state) }
+            ?: context.controllerId
 
-        // If the player can't actually pay the cost, skip the prompt entirely
-        // and fall through to ifNotPaid (or no-op). Asking yes/no for an
-        // unpayable cost is a UX trap that can also silently skip pieces of
-        // a composite cost (e.g. paying life when mana can't be paid).
-        if (!canAfford(state, playerId, effect.cost)) {
-            return effect.ifNotPaid
+        // Gate.MayPay: don't offer an impossible "yes" — fall straight through to `otherwise`.
+        val gate = effect.gate
+        if (gate is Gate.MayPay && !canAfford(state, playerId, gate.cost)) {
+            return effect.otherwise
                 ?.let { effectExecutor(state, it, context) }
                 ?: EffectResult.success(state)
         }
 
         val sourceName = context.sourceId?.let { sourceId ->
             state.getEntity(sourceId)?.get<CardComponent>()?.name
+        }
+
+        val hint = when (gate) {
+            is Gate.MayDecide -> gate.hint ?: effect.hint
+            is Gate.MayPay -> effect.hint
         }
 
         val decisionId = UUID.randomUUID().toString()
@@ -68,18 +83,15 @@ class OptionalCostEffectExecutor(
                 triggeringEntityId = context.triggeringEntityId
             ),
             yesText = "Yes",
-            noText = "No"
+            noText = "No",
+            hint = hint
         )
 
-        // If yes: execute cost then ifPaid (stopOnError ensures cost failure aborts the payoff)
-        val effectIfYes = CompositeEffect(listOf(effect.cost, effect.ifPaid), stopOnError = true)
-
-        val continuation = MayAbilityContinuation(
+        val continuation = GatedEffectContinuation(
             decisionId = decisionId,
-            playerId = playerId,
-            sourceName = sourceName,
-            effectIfYes = effectIfYes,
-            effectIfNo = effect.ifNotPaid,
+            gate = gate,
+            then = effect.then,
+            otherwise = effect.otherwise,
             effectContext = context
         )
 
@@ -101,13 +113,11 @@ class OptionalCostEffectExecutor(
     }
 
     /**
-     * Checks whether [playerId] can pay the given cost effect right now.
-     *
-     * Recognizes the payment primitives that appear inside an [OptionalCostEffect]'s
-     * cost slot: [PayManaCostEffect], [PayLifeEffect], and a [CompositeEffect]
-     * composing them. Unknown effect shapes are assumed payable — failing open
-     * preserves existing behavior for exotic cost pipelines and still lets the
-     * executor abort later via `stopOnError`.
+     * Whether [playerId] can pay [cost] right now. Mirrors the former
+     * `OptionalCostEffectExecutor`: recognizes the payment primitives that appear in a
+     * [Gate.MayPay] cost slot ([PayManaCostEffect], [PayLifeEffect], and a [CompositeEffect]
+     * composing them). Unknown shapes fail open (assumed payable) so exotic cost pipelines
+     * still prompt and abort later via the resumer's `stopOnError` composite.
      */
     private fun canAfford(state: GameState, playerId: EntityId, cost: Effect): Boolean =
         when (cost) {

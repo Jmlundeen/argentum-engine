@@ -569,7 +569,22 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   Crab). Do **not** pass a magic `count = 20` to mean "any number" — use `unlimited`/`dynamicMaxCount`.
 - `PhaseOutEffect(target = Self)` — phase the target permanent out (Rule 702.26); facade `Effects.PhaseOut(target)`. While phased out it's treated as though it doesn't exist (excluded from `getBattlefield`, so from projection, triggers, combat, targeting, and SBAs) and phases back in before its controller's next untap step. Indirect phasing (attached Auras/Equipment) is handled automatically. Used as the `suffer` branch of a pay-or-phase trigger (Vaporous Djinn: "phases out unless you pay {U}{U}" = `PayOrSufferEffect(PayCost.Mana(...), Effects.PhaseOut())`).
 - `MarkExileOnDeathEffect(target)` — replace next "to graveyard" with "to exile".
-- `OptionalCostEffect(cost, effect)` — pay cost to trigger an effect.
+- `GatedEffect(gate, then, otherwise?, decisionMaker?)` — **the unified resolution frame for the
+  optional / gated-effect cluster** (phase-rs Lesson 1). A `Gate` decides whether `then` runs; if it
+  fails, `otherwise` runs. One executor + one continuation/resumer own the canonical unwind order, so
+  targets on `then`/`otherwise` lock at trigger time (CR 603.3d) and the gate is resolved at
+  resolution time (CR 117.3a) by `decisionMaker` (defaults to the controller) — the may-vs-target
+  timing is correct by construction rather than re-encoded per wrapper. Gates:
+  - `Gate.MayDecide(prompt?, hint?)` — pure yes/no ("You may [then].").
+  - `Gate.MayPay(cost)` — "You may [cost]. If you do, [then]." `cost` is a cost **effect**
+    (`PayManaCostEffect`, `PayLifeEffect`, `SacrificeEffect`, or a `CompositeEffect` of them). An
+    unaffordable cost (mana/life recognized; other shapes assumed payable) skips the prompt straight
+    to `otherwise`. On "yes", the cost is paid then `then` runs (`stopOnError`: an unpayable cost
+    aborts the payoff). New gate kinds (`DoAction` for IfYouDo, `WhenCondition` for ConditionalEffect,
+    APNAP `AnyPlayerMayPay`) fold in as those wrappers migrate.
+- `OptionalCostEffect(cost, ifPaid, ifNotPaid?)` — "You may [cost]. If you do, [ifPaid]." Facade
+  preserved for existing cards; it now **lowers to `GatedEffect` with a `Gate.MayPay`** gate (compiled
+  form is `Gated`, not a distinct `OptionalCost` type).
 - `Effects.AnyPlayerMayPay(cost, consequence)` / `Effects.UnlessAnyPlayerPays(cost, effect)` —
   back the single `AnyPlayerMayPayEffect(cost, consequence?, consequenceIfNonePaid?)`, which asks
   each player in APNAP order whether to pay `cost`. The first to pay runs `consequence` and stops
