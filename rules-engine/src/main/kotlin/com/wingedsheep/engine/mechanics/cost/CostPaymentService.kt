@@ -1,0 +1,508 @@
+package com.wingedsheep.engine.mechanics.cost
+
+import com.wingedsheep.engine.core.CardsDiscardedEvent
+import com.wingedsheep.engine.core.CardsRevealedEvent
+import com.wingedsheep.engine.core.ChooseOptionDecision
+import com.wingedsheep.engine.core.CostPaymentContinuation
+import com.wingedsheep.engine.core.DecisionContext
+import com.wingedsheep.engine.core.DecisionPhase
+import com.wingedsheep.engine.core.DecisionRequestedEvent
+import com.wingedsheep.engine.core.EngineServices
+import com.wingedsheep.engine.core.GameEvent
+import com.wingedsheep.engine.core.LifeChangeReason
+import com.wingedsheep.engine.core.LifeChangedEvent
+import com.wingedsheep.engine.core.ManaSpentEvent
+import com.wingedsheep.engine.core.PermanentsSacrificedEvent
+import com.wingedsheep.engine.core.TappedEvent
+import com.wingedsheep.engine.core.ZoneChangeEvent
+import com.wingedsheep.engine.handlers.DecisionHandler
+import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
+import com.wingedsheep.engine.handlers.effects.DamageUtils
+import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+import com.wingedsheep.engine.mechanics.mana.ManaPool
+import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.battlefield.TappedComponent
+import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
+import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.costs.PayCost
+import java.util.UUID
+
+/**
+ * Single, shared engine service that owns paying every [PayCost] variant.
+ *
+ * Before this existed, five consumers (morph turn-face-up, PayOrSuffer, AnyPlayerMayPay, chain-copy,
+ * and the face-up legal-action enumerator) each carried their own `when (cost: PayCost)` switch, each
+ * covering a *different, incomplete* subset of the ten variants — so a cost that worked as a morph
+ * cost could silently fail as a punisher cost and vice-versa. This service consolidates the two
+ * questions every one of them asks:
+ *
+ * - [canAfford] — the affordability pre-check (CR 118.3). Pure and allocation-light enough to run in
+ *   legal-action enumeration; never mutates or prompts.
+ * - [pay] — performs the payment, pausing with the right decision (battlefield targeting for
+ *   sacrifice / return / tap, card-selection for discard / exile / reveal, yes/no for mana / life,
+ *   option-pick for [PayCost.Choice]) and resuming through a single
+ *   [com.wingedsheep.engine.core.CostPaymentContinuation].
+ *
+ * It is deliberately *not* a lowering of costs into effects (a cost is checked, atomic, and can't be
+ * responded to — categorically not an effect): [PayCost] stays the authoring vocabulary; this is just
+ * the one place that executes it.
+ *
+ * The payment-performing mutations ([performPayment]) live here too so the resumer is a thin caller.
+ */
+class CostPaymentService(private val services: EngineServices) {
+
+    private val predicateEvaluator = PredicateEvaluator()
+    private val decisionHandler = DecisionHandler()
+
+    // ---------------------------------------------------------------------------------------------
+    // Affordability (CR 118.3) — pure, no mutation, safe for the legal-action hot path.
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Whether [payerId] can pay [cost]. For battlefield selection costs the [sourceId] is excluded
+     * from the candidate pool (you can't sacrifice/return/tap the very permanent whose cost this is).
+     */
+    fun canAfford(state: GameState, payerId: EntityId, cost: PayCost, sourceId: EntityId): Boolean {
+        return when (val c = resolve(state, cost, sourceId)) {
+            is PayCost.Mana -> services.manaSolver.canPay(state, payerId, c.cost)
+            // Only unresolvable own-mana-costs reach here (missing source/card component) — unpayable.
+            is PayCost.OwnManaCost -> false
+            // CR 119.4 — a player may pay life only if their life total is at least the amount; paying
+            // life that would reduce them to 0 or less is legal (they then lose as a state-based action).
+            is PayCost.PayLife -> life(state, payerId) >= c.amount
+            is PayCost.Discard -> cardsInHand(state, payerId, c.filter).size >= c.count
+            is PayCost.Exile -> cardsInZone(state, payerId, c.filter, c.zone).size >= c.count
+            is PayCost.RevealCard -> cardsInHand(state, payerId, c.filter).size >= c.count
+            is PayCost.Sacrifice -> controlledMatching(state, payerId, c.filter, sourceId).size >= c.count
+            is PayCost.ReturnToHand -> controlledMatching(state, payerId, c.filter, sourceId).size >= c.count
+            is PayCost.Tap -> controlledUntapped(state, payerId, c.filter, sourceId).size >= c.count
+            is PayCost.Choice -> c.options.any { canAfford(state, payerId, it, sourceId) }
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Pay — build the right prompt and push a single continuation.
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Attempt to pay [cost]. Returns [PaymentResult.Unaffordable] synchronously when the payer can't
+     * pay; otherwise returns [PaymentResult.Pending] with a [CostPaymentContinuation] pushed. The
+     * terminal paid/declined outcome (and the [ctx] follow-up) is realized when that continuation
+     * resumes.
+     */
+    fun pay(
+        state: GameState,
+        payerId: EntityId,
+        cost: PayCost,
+        sourceId: EntityId,
+        ctx: CostPaymentContext = CostPaymentContext()
+    ): PaymentResult {
+        val resolved = resolve(state, cost, sourceId)
+        if (!canAfford(state, payerId, resolved, sourceId)) {
+            return PaymentResult.Unaffordable(state)
+        }
+        val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: "the source"
+
+        return when (resolved) {
+            is PayCost.Mana ->
+                yesNoPrompt(state, payerId, resolved, sourceId, sourceName, ctx, "Pay ${resolved.cost}?", "Pay ${resolved.cost}")
+            is PayCost.PayLife ->
+                yesNoPrompt(state, payerId, resolved, sourceId, sourceName, ctx, "Pay ${resolved.amount} life?", "Pay ${resolved.amount} life")
+            is PayCost.Discard ->
+                if (resolved.random) {
+                    val word = if (resolved.count == 1) "a card" else "${resolved.count} cards"
+                    yesNoPrompt(state, payerId, resolved, sourceId, sourceName, ctx, "Discard $word at random?", "Discard")
+                } else {
+                    selectionPrompt(state, payerId, resolved, sourceId, sourceName, ctx, cardsInHand(state, payerId, resolved.filter), resolved.count, useTargetingUI = false)
+                }
+            is PayCost.Exile ->
+                selectionPrompt(state, payerId, resolved, sourceId, sourceName, ctx, cardsInZone(state, payerId, resolved.filter, resolved.zone), resolved.count, useTargetingUI = resolved.zone == Zone.BATTLEFIELD)
+            is PayCost.RevealCard ->
+                selectionPrompt(state, payerId, resolved, sourceId, sourceName, ctx, cardsInHand(state, payerId, resolved.filter), resolved.count, useTargetingUI = false)
+            is PayCost.Sacrifice ->
+                selectionPrompt(state, payerId, resolved, sourceId, sourceName, ctx, controlledMatching(state, payerId, resolved.filter, sourceId), resolved.count, useTargetingUI = true)
+            is PayCost.ReturnToHand ->
+                selectionPrompt(state, payerId, resolved, sourceId, sourceName, ctx, controlledMatching(state, payerId, resolved.filter, sourceId), resolved.count, useTargetingUI = true)
+            is PayCost.Tap ->
+                selectionPrompt(state, payerId, resolved, sourceId, sourceName, ctx, controlledUntapped(state, payerId, resolved.filter, sourceId), resolved.count, useTargetingUI = true)
+            is PayCost.Choice -> choicePrompt(state, payerId, resolved, sourceId, sourceName, ctx)
+            // resolve() only yields OwnManaCost when unresolvable, and canAfford already rejected it.
+            is PayCost.OwnManaCost -> PaymentResult.Unaffordable(state)
+        }
+    }
+
+    private fun yesNoPrompt(
+        state: GameState,
+        payerId: EntityId,
+        cost: PayCost,
+        sourceId: EntityId,
+        sourceName: String,
+        ctx: CostPaymentContext,
+        prompt: String,
+        yesText: String
+    ): PaymentResult {
+        val result = decisionHandler.createYesNoDecision(
+            state = state,
+            playerId = payerId,
+            sourceId = sourceId,
+            sourceName = sourceName,
+            prompt = prompt,
+            yesText = yesText,
+            noText = "Don't pay",
+            phase = DecisionPhase.RESOLUTION
+        )
+        val decision = result.pendingDecision!!
+        val stateWithContinuation = result.state.pushContinuation(continuation(decision.id, payerId, sourceId, sourceName, cost, ctx))
+        return PaymentResult.Pending(stateWithContinuation, decision, result.events)
+    }
+
+    private fun selectionPrompt(
+        state: GameState,
+        payerId: EntityId,
+        cost: PayCost,
+        sourceId: EntityId,
+        sourceName: String,
+        ctx: CostPaymentContext,
+        options: List<EntityId>,
+        count: Int,
+        useTargetingUI: Boolean
+    ): PaymentResult {
+        val result = decisionHandler.createCardSelectionDecision(
+            state = state,
+            playerId = payerId,
+            sourceId = sourceId,
+            sourceName = sourceName,
+            prompt = "${cost.description.replaceFirstChar { it.uppercase() }}?",
+            options = options,
+            minSelections = 0,
+            maxSelections = count,
+            ordered = false,
+            phase = DecisionPhase.RESOLUTION,
+            useTargetingUI = useTargetingUI
+        )
+        val decision = result.pendingDecision!!
+        val stateWithContinuation = result.state.pushContinuation(continuation(decision.id, payerId, sourceId, sourceName, cost, ctx))
+        return PaymentResult.Pending(stateWithContinuation, decision, result.events)
+    }
+
+    private fun choicePrompt(
+        state: GameState,
+        payerId: EntityId,
+        cost: PayCost.Choice,
+        sourceId: EntityId,
+        sourceName: String,
+        ctx: CostPaymentContext
+    ): PaymentResult {
+        // Offer only options the payer can actually pay; index 0..affordable.size-1 maps positionally,
+        // and the trailing "Don't pay" option means decline.
+        val affordable = cost.options.filter { canAfford(state, payerId, it, sourceId) }
+        val labels = affordable.map { it.description.replaceFirstChar { ch -> ch.uppercase() } } + "Don't pay"
+        val decisionId = UUID.randomUUID().toString()
+        val decision = ChooseOptionDecision(
+            id = decisionId,
+            playerId = payerId,
+            prompt = "Choose one:",
+            context = DecisionContext(sourceId = sourceId, sourceName = sourceName, phase = DecisionPhase.RESOLUTION),
+            options = labels
+        )
+        // Store the reduced (affordable-only) Choice so the resumer can map the option index directly.
+        val reduced = PayCost.Choice(affordable)
+        val stateWithContinuation = state.withPendingDecision(decision)
+            .pushContinuation(continuation(decisionId, payerId, sourceId, sourceName, reduced, ctx))
+        return PaymentResult.Pending(
+            stateWithContinuation,
+            decision,
+            listOf(DecisionRequestedEvent(decisionId, payerId, "CHOOSE_OPTION", decision.prompt))
+        )
+    }
+
+    private fun continuation(
+        decisionId: String,
+        payerId: EntityId,
+        sourceId: EntityId,
+        sourceName: String,
+        cost: PayCost,
+        ctx: CostPaymentContext
+    ): CostPaymentContinuation = CostPaymentContinuation(
+        decisionId = decisionId,
+        payerId = payerId,
+        sourceId = sourceId,
+        sourceName = sourceName,
+        cost = cost,
+        onPaid = ctx.onPaid,
+        onDeclined = ctx.onDeclined,
+        targets = ctx.targets,
+        namedTargets = ctx.namedTargets,
+        storedCollections = ctx.storedCollections
+    )
+
+    // ---------------------------------------------------------------------------------------------
+    // Perform payment — mutate state once the payer has committed. Called by the resumer.
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Apply the payment for [cost], where [selected] holds the entities the payer chose for a
+     * selection cost (empty for yes/no costs and random discard). Returns the new state, the emitted
+     * events, and whether the payment actually completed (mana solving can still fail defensively).
+     *
+     * [cost] must already be resolved ([PayCost.OwnManaCost] mapped to [PayCost.Mana]) and, for
+     * [PayCost.Choice], a single chosen sub-cost — the resumer never calls this with a Choice.
+     */
+    fun performPayment(
+        state: GameState,
+        payerId: EntityId,
+        cost: PayCost,
+        sourceId: EntityId,
+        selected: List<EntityId>
+    ): CostPaymentExecution = when (cost) {
+        is PayCost.Mana -> payMana(state, payerId, cost.cost, sourceId)
+        is PayCost.PayLife -> payLife(state, payerId, cost.amount)
+        is PayCost.Discard ->
+            if (cost.random) discardRandom(state, payerId, cost.filter, cost.count)
+            else discardSelected(state, payerId, selected)
+        is PayCost.Exile -> exileSelected(state, payerId, selected, cost.zone)
+        is PayCost.RevealCard -> revealSelected(state, payerId, selected)
+        is PayCost.Sacrifice -> sacrificeSelected(state, payerId, selected)
+        is PayCost.ReturnToHand -> returnSelected(state, selected)
+        is PayCost.Tap -> tapSelected(state, selected)
+        is PayCost.OwnManaCost -> CostPaymentExecution(state, emptyList(), success = false)
+        is PayCost.Choice -> CostPaymentExecution(state, emptyList(), success = false)
+    }
+
+    private fun payMana(state: GameState, payerId: EntityId, manaCost: ManaCost, sourceId: EntityId): CostPaymentExecution {
+        val playerEntity = state.getEntity(payerId) ?: return CostPaymentExecution(state, emptyList(), false)
+        val poolComponent = playerEntity.get<ManaPoolComponent>() ?: ManaPoolComponent()
+        val pool = ManaPool(
+            poolComponent.white, poolComponent.blue, poolComponent.black,
+            poolComponent.red, poolComponent.green, poolComponent.colorless
+        )
+
+        // Spend floating mana first, then tap sources for the remainder.
+        val partial = pool.payPartial(manaCost)
+        var combined = pool
+        var current = state
+        val events = mutableListOf<GameEvent>()
+
+        if (!partial.remainingCost.isEmpty()) {
+            val solution = services.manaSolver.solve(current, payerId, partial.remainingCost)
+                ?: return CostPaymentExecution(state, emptyList(), false)
+            val (afterTaps, tapEvents) = services.manaAbilitySideEffectExecutor
+                .tapSourcesWithSideEffects(current, solution, payerId)
+            current = afterTaps
+            events.addAll(tapEvents)
+            for ((_, production) in solution.manaProduced) {
+                combined = if (production.color != null) combined.add(production.color)
+                else combined.addColorless(production.colorless)
+            }
+        }
+
+        val newPool = combined.pay(manaCost) ?: return CostPaymentExecution(state, emptyList(), false)
+        current = current.updateEntity(payerId) {
+            it.with(ManaPoolComponent(newPool.white, newPool.blue, newPool.black, newPool.red, newPool.green, newPool.colorless))
+        }
+
+        val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: "the source"
+        events.add(
+            ManaSpentEvent(
+                playerId = payerId,
+                reason = "Pay cost for $sourceName",
+                white = combined.white - newPool.white,
+                blue = combined.blue - newPool.blue,
+                black = combined.black - newPool.black,
+                red = combined.red - newPool.red,
+                green = combined.green - newPool.green,
+                colorless = combined.colorless - newPool.colorless
+            )
+        )
+        return CostPaymentExecution(current, events, success = true)
+    }
+
+    private fun payLife(state: GameState, payerId: EntityId, amount: Int): CostPaymentExecution {
+        val currentLife = life(state, payerId)
+        val newLife = currentLife - amount
+        var newState = state.updateEntity(payerId) { it.with(LifeTotalComponent(newLife)) }
+        newState = DamageUtils.markLifeLostThisTurn(newState, payerId)
+        val events = listOf(LifeChangedEvent(payerId, currentLife, newLife, LifeChangeReason.PAYMENT))
+        return CostPaymentExecution(newState, events, success = true)
+    }
+
+    private fun discardSelected(state: GameState, payerId: EntityId, selected: List<EntityId>): CostPaymentExecution {
+        val handZone = ZoneKey(payerId, Zone.HAND)
+        val graveyardZone = ZoneKey(payerId, Zone.GRAVEYARD)
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        val names = mutableListOf<String>()
+        for (cardId in selected) {
+            val name = newState.getEntity(cardId)?.get<CardComponent>()?.name ?: "Unknown"
+            names.add(name)
+            newState = newState.removeFromZone(handZone, cardId).addToZone(graveyardZone, cardId)
+            events.add(ZoneChangeEvent(cardId, name, Zone.HAND, Zone.GRAVEYARD, payerId))
+        }
+        events.add(0, CardsDiscardedEvent(payerId, selected, names))
+        return CostPaymentExecution(newState, events, success = true)
+    }
+
+    private fun discardRandom(state: GameState, payerId: EntityId, filter: GameObjectFilter, count: Int): CostPaymentExecution {
+        val handZone = ZoneKey(payerId, Zone.HAND)
+        val graveyardZone = ZoneKey(payerId, Zone.GRAVEYARD)
+        val context = PredicateContext(controllerId = payerId)
+        val valid = state.getZone(handZone).filter {
+            predicateEvaluator.matches(state, state.projectedState, it, filter, context)
+        }
+        if (valid.isEmpty()) return CostPaymentExecution(state, emptyList(), success = false)
+
+        val (shuffled, stateAfterShuffle) = state.nextRandom { shuffle(valid) }
+        val toDiscard = shuffled.take(count)
+        var newState = stateAfterShuffle
+        val events = mutableListOf<GameEvent>()
+        val names = mutableListOf<String>()
+        for (cardId in toDiscard) {
+            val name = newState.getEntity(cardId)?.get<CardComponent>()?.name ?: "Unknown"
+            names.add(name)
+            newState = newState.removeFromZone(handZone, cardId).addToZone(graveyardZone, cardId)
+            events.add(ZoneChangeEvent(cardId, name, Zone.HAND, Zone.GRAVEYARD, payerId))
+        }
+        events.add(0, CardsDiscardedEvent(payerId, toDiscard, names))
+        return CostPaymentExecution(newState, events, success = true)
+    }
+
+    private fun exileSelected(state: GameState, payerId: EntityId, selected: List<EntityId>, zone: Zone): CostPaymentExecution {
+        val fromZone = ZoneKey(payerId, zone)
+        val exileZone = ZoneKey(payerId, Zone.EXILE)
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        for (cardId in selected) {
+            val name = newState.getEntity(cardId)?.get<CardComponent>()?.name ?: "Unknown"
+            newState = newState.removeFromZone(fromZone, cardId).addToZone(exileZone, cardId)
+            events.add(ZoneChangeEvent(cardId, name, zone, Zone.EXILE, payerId))
+        }
+        return CostPaymentExecution(newState, events, success = true)
+    }
+
+    private fun revealSelected(state: GameState, payerId: EntityId, selected: List<EntityId>): CostPaymentExecution {
+        // The cards stay in hand; revealing is purely informational.
+        val names = selected.map { state.getEntity(it)?.get<CardComponent>()?.name ?: "Unknown" }
+        val events = listOf(CardsRevealedEvent(payerId, selected, names, source = "Cost payment"))
+        return CostPaymentExecution(state, events, success = true)
+    }
+
+    private fun sacrificeSelected(state: GameState, payerId: EntityId, selected: List<EntityId>): CostPaymentExecution {
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        if (selected.isNotEmpty()) {
+            val names = selected.map { newState.getEntity(it)?.get<CardComponent>()?.name ?: "Unknown" }
+            events.add(PermanentsSacrificedEvent(payerId, selected, names))
+            newState = ZoneTransitionService.trackFoodSacrifice(newState, selected, payerId)
+        }
+        for (permanentId in selected) {
+            val transition = ZoneTransitionService.moveToZone(newState, permanentId, Zone.GRAVEYARD)
+            newState = transition.state
+            events.addAll(transition.events)
+        }
+        return CostPaymentExecution(newState, events, success = true)
+    }
+
+    private fun returnSelected(state: GameState, selected: List<EntityId>): CostPaymentExecution {
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        for (permanentId in selected) {
+            val result = ZoneMovementUtils.movePermanentToZone(newState, permanentId, Zone.HAND)
+            if (result.error != null) return CostPaymentExecution(state, emptyList(), success = false)
+            newState = result.state
+            events.addAll(result.events)
+        }
+        return CostPaymentExecution(newState, events, success = true)
+    }
+
+    private fun tapSelected(state: GameState, selected: List<EntityId>): CostPaymentExecution {
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        for (permanentId in selected) {
+            val entity = newState.getEntity(permanentId) ?: continue
+            if (entity.has<TappedComponent>()) continue
+            val name = entity.get<CardComponent>()?.name ?: "Unknown"
+            newState = newState.updateEntity(permanentId) { it.with(TappedComponent) }
+            events.add(TappedEvent(permanentId, name))
+        }
+        return CostPaymentExecution(newState, events, success = true)
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Shared helpers
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Lowers [PayCost.OwnManaCost] to a concrete [PayCost.Mana] against the source's printed cost so
+     * every other code path sees a uniform shape. A source with no mana cost (a land, a token) has an
+     * empty [ManaCost] — which is `{0}` and trivially payable. Returns the cost unchanged if the
+     * source/card component is missing (unresolvable → reported unaffordable).
+     */
+    private fun resolve(state: GameState, cost: PayCost, sourceId: EntityId): PayCost {
+        if (cost !is PayCost.OwnManaCost) return cost
+        val manaCost = state.getEntity(sourceId)?.get<CardComponent>()?.manaCost ?: return cost
+        return PayCost.Mana(manaCost)
+    }
+
+    private fun life(state: GameState, playerId: EntityId): Int =
+        state.getEntity(playerId)?.get<LifeTotalComponent>()?.life ?: 0
+
+    private fun cardsInHand(state: GameState, playerId: EntityId, filter: GameObjectFilter): List<EntityId> {
+        val context = PredicateContext(controllerId = playerId)
+        return state.getZone(playerId, Zone.HAND).filter {
+            predicateEvaluator.matches(state, state.projectedState, it, filter, context)
+        }
+    }
+
+    private fun cardsInZone(state: GameState, playerId: EntityId, filter: GameObjectFilter, zone: Zone): List<EntityId> {
+        if (zone == Zone.BATTLEFIELD) {
+            return BattlefieldFilterUtils.findMatchingOnBattlefield(
+                state, filter.youControl(), PredicateContext(controllerId = playerId)
+            )
+        }
+        val context = PredicateContext(controllerId = playerId)
+        return state.getZone(playerId, zone).filter {
+            predicateEvaluator.matches(state, state.projectedState, it, filter, context)
+        }
+    }
+
+    private fun controlledMatching(state: GameState, playerId: EntityId, filter: GameObjectFilter, sourceId: EntityId): List<EntityId> =
+        BattlefieldFilterUtils.findMatchingOnBattlefield(
+            state, filter.youControl(), PredicateContext(controllerId = playerId), excludeSelfId = sourceId
+        )
+
+    private fun controlledUntapped(state: GameState, playerId: EntityId, filter: GameObjectFilter, sourceId: EntityId): List<EntityId> =
+        BattlefieldFilterUtils.findMatchingOnBattlefield(
+            state, filter.youControl().untapped(), PredicateContext(controllerId = playerId), excludeSelfId = sourceId
+        )
+
+    /** How many entities a selection cost requires; 0 for non-selection costs. */
+    fun requiredCount(cost: PayCost): Int = when (cost) {
+        is PayCost.Discard -> cost.count
+        is PayCost.Exile -> cost.count
+        is PayCost.RevealCard -> cost.count
+        is PayCost.Sacrifice -> cost.count
+        is PayCost.ReturnToHand -> cost.count
+        is PayCost.Tap -> cost.count
+        else -> 0
+    }
+}
+
+/**
+ * Result of [CostPaymentService.performPayment]: the post-payment state, the events it emitted, and
+ * whether the payment actually completed ([success] is false only on a defensive failure such as a
+ * mana solve that unexpectedly comes up short, in which case [state]/[events] are left untouched).
+ */
+data class CostPaymentExecution(
+    val state: GameState,
+    val events: List<GameEvent>,
+    val success: Boolean
+)
