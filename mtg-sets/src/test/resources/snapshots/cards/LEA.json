@@ -592,6 +592,32 @@
     ]
 }
 
+// Dark Ritual
+{
+    "name": "Dark Ritual",
+    "manaCost": "{B}",
+    "typeLine": "Instant",
+    "oracleText": "Add {B}{B}{B}.",
+    "script": {
+        "spellEffect": {
+            "type": "AddMana",
+            "color": "BLACK",
+            "amount": {
+                "type": "Fixed",
+                "amount": 3
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "98",
+        "artist": "Sandra Everingham",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/ebb6664d-23ca-456e-9916-afcd6f26aa7f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Deathgrip
 {
     "name": "Deathgrip",
