@@ -178,15 +178,17 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     val trig = rule["args"].asArr?.firstOrNull() as? JsonObject ?: return null
 
     // SELF self-triggers (this permanent enters / dies / attacks / deals combat damage to a player).
+    // `isSelf` distinguishes "the subject IS this permanent" from an `Other(ThisPermanent)` clause
+    // ("another …"), which contains ThisPermanent only as the exclusion reference.
     for ((mtTrigger, dsl) in TRIGGER_SPEC) {
-        if (jsonContains(trig, "_Trigger", mtTrigger) && jsonContains(trig, "_Permanent", "ThisPermanent")) return dsl
+        if (jsonContains(trig, "_Trigger", mtTrigger) && isSelf(trig)) return dsl
     }
 
     // "Whenever ~ deals damage" / "Whenever ~ is dealt damage" (SELF) — paired with a "that much"
     // gain/lose-life or token effect.
-    if (jsonContains(trig, "_Trigger", "WhenAPermanentDealsDamage") && jsonContains(trig, "_Permanent", "ThisPermanent"))
+    if (jsonContains(trig, "_Trigger", "WhenAPermanentDealsDamage") && isSelf(trig))
         return "Triggers.DealsDamage"
-    if (jsonContains(trig, "_Trigger", "WhenAPermanentIsDealtDamage") && jsonContains(trig, "_Permanent", "ThisPermanent"))
+    if (jsonContains(trig, "_Trigger", "WhenAPermanentIsDealtDamage") && isSelf(trig))
         return "Triggers.TakesDamage"
 
     // Phase/step triggers. "your upkeep" is scoped to You; "each end step" to any player.
@@ -204,12 +206,13 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     if (jsonContains(trig, "_Trigger", "WhenACreatureAttacks") && isPlainCreatureFilter(trig))
         return "Triggers.attacks(binding = TriggerBinding.ANY)"
 
-    // "Whenever a [filtered] permanent enters the battlefield" (not this permanent) — a typed/coloured
-    // enters trigger, ANY binding (Wirewood Savage's "Whenever a Beast enters").
-    if (jsonContains(trig, "_Trigger", "WhenAPermanentEntersTheBattlefield") &&
-        !jsonContains(trig, "_Permanent", "ThisPermanent")) {
+    // "Whenever a [filtered] permanent enters the battlefield" (the SELF case returned above): an
+    // `Other(ThisPermanent)` clause means "another …" -> OTHER binding (Elvish Vanguard's "another
+    // Elf", Wretched Anurid's "another creature"); otherwise "a …" -> ANY (Wirewood Savage's "a Beast").
+    if (jsonContains(trig, "_Trigger", "WhenAPermanentEntersTheBattlefield")) {
+        val binding = if (jsonContains(trig, "_Permanents", "Other")) "TriggerBinding.OTHER" else "TriggerBinding.ANY"
         val filter = gameObjectFilterDsl(trig) ?: return null
-        return "Triggers.entersBattlefield(filter = $filter, binding = TriggerBinding.ANY)"
+        return "Triggers.entersBattlefield(filter = $filter, binding = $binding)"
     }
 
     // "Whenever you cast a [type] spell" — WhenAPlayerCastsASpell scoped to You + a spell-type filter.
@@ -225,6 +228,11 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     }
     return null
 }
+
+/** True when a trigger's subject IS this permanent — ThisPermanent present, but NOT merely as the
+ *  reference inside an `Other(ThisPermanent)` "another permanent" exclusion clause. */
+private fun isSelf(trig: JsonObject): Boolean =
+    jsonContains(trig, "_Permanent", "ThisPermanent") && !jsonContains(trig, "_Permanents", "Other")
 
 /** True when a trigger's permanent filter is a plain "creature" with no subtype / controller / count
  *  restriction — the only attacks shape we can render as a filterless ANY-binding trigger. */
