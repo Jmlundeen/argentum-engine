@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -37,13 +37,13 @@ val SorinSolemnVisitor = card("Sorin, Solemn Visitor") {
     // +1: Until your next turn, creatures you control get +1/+0 and gain lifelink.
     loyaltyAbility(+1) {
         effect = Effects.Composite(
-            EffectPatterns.modifyStatsForAll(
+            Patterns.Group.modifyStatsForAll(
                 power = 1,
                 toughness = 0,
                 filter = GroupFilter.AllCreaturesYouControl,
                 duration = Duration.UntilYourNextTurn
             ),
-            EffectPatterns.grantKeywordToAll(
+            Patterns.Group.grantKeywordToAll(
                 keyword = Keyword.LIFELINK,
                 filter = GroupFilter.AllCreaturesYouControl,
                 duration = Duration.UntilYourNextTurn

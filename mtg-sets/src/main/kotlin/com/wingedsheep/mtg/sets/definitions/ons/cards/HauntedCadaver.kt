@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
@@ -27,7 +27,7 @@ val HauntedCadaver = card("Haunted Cadaver") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = MayEffect(
-            SacrificeSelfEffect then EffectPatterns.eachOpponentDiscards(3)
+            SacrificeSelfEffect then Patterns.Hand.eachOpponentDiscards(3)
         )
     }
 

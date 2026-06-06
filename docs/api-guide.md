@@ -73,7 +73,7 @@ val BellowingCrier = card("Bellowing Crier") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.loot()
+        effect = Patterns.Hand.loot()
     }
 
     metadata { rarity = Rarity.COMMON }
@@ -82,7 +82,8 @@ val BellowingCrier = card("Bellowing Crier") {
 
 ### Key conventions
 
-- **Use the facades**, not raw constructors: `Effects.*`, `EffectPatterns.*`, `Triggers.*`,
+- **Use the facades**, not raw constructors: `Effects.*`, the pattern objects (`Patterns.Library.*`,
+  `Patterns.Hand.*`, `Patterns.Group.*`, `Patterns.Exile.*`, `Patterns.CreatureType.*`, `Patterns.Mechanic.*`), `Triggers.*`,
   `Costs.*`, `Conditions.*`, `Filters.*`. Raw data-class construction bypasses the curated API and
   ages badly when shapes change.
 - **Targets**: declare each target inside `spell { … }` / `triggeredAbility { … }` with
@@ -184,29 +185,32 @@ new executor code. The engine provides composable building blocks that chain int
 | `RevealUntilEffect` | Reveal from library until a filter matches |
 | `ForEachPlayerEffect` / `ForEachTargetEffect` | Iterate a sub-pipeline per player or target |
 
-Many mechanics are already available as pre-built compositions in `EffectPatterns`:
+Many mechanics are already available as pre-built compositions, reached through the single
+`Patterns` index (`Patterns.Library.*`, `Patterns.Hand.*`, `Patterns.Group.*`, `Patterns.Exile.*`,
+`Patterns.CreatureType.*`, `Patterns.Mechanic.*`):
 
 ```kotlin
-EffectPatterns.scry(2)          // Gather → Select → Move(bottom) → Move(top)
-EffectPatterns.surveil(2)       // Gather → Select → Move(graveyard) → Move(top)
-EffectPatterns.mill(3)          // Gather → Move(graveyard)
-EffectPatterns.searchLibrary(filter = GameObjectFilter.BasicLand)
+Patterns.Library.scry(2)          // Gather → Select → Move(bottom) → Move(top)
+Patterns.Library.surveil(2)       // Gather → Select → Move(graveyard) → Move(top)
+Patterns.Library.mill(3)          // Gather → Move(graveyard)
+Patterns.Library.searchLibrary(filter = GameObjectFilter.BasicLand)
 
-EffectPatterns.lookAtTopAndKeep(count = 7, keepCount = 2)   // Ancestral Memories
-EffectPatterns.wheelEffect(Player.Each)                     // Winds of Change
-EffectPatterns.revealUntilNonlandDealDamage(target)         // Erratic Explosion
-EffectPatterns.revealUntilCreatureTypeToBattlefield()       // Riptide Shapeshifter
+Patterns.Library.lookAtTopAndKeep(count = 7, keepCount = 2)   // Ancestral Memories
+Patterns.Hand.wheelEffect(Player.Each)                     // Winds of Change
+Patterns.Library.revealUntilNonlandDealDamage(target)         // Erratic Explosion
 ```
 
-If your mechanic fits the gather/select/move shape, add a new factory method to `EffectPatterns.kt`
-and (if it deserves a top-level facade) expose it through `Effects.kt`. See the language
+If your mechanic fits the gather/select/move shape, add a new factory method to the relevant
+pattern object (e.g. `LibraryPatterns.kt`, reached via `Patterns.Library`) and (if it deserves a
+top-level facade) expose it
+through `Effects.kt`. See the language
 reference §5 for the full pipeline catalog.
 
 Chain effects with `.then(...)`:
 
 ```kotlin
 spell {
-    effect = EffectPatterns.scry(1).then(Effects.DrawCards(1))   // Opt
+    effect = Patterns.Library.scry(1).then(Effects.DrawCards(1))   // Opt
 }
 ```
 

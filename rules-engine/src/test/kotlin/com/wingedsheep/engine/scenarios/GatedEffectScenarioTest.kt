@@ -8,10 +8,10 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.AbilityId
@@ -191,7 +191,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = GatedEffect(
-                                gate = Gate.DoAction(action = EffectPatterns.mill(1)),
+                                gate = Gate.DoAction(action = Patterns.Library.mill(1)),
                                 then = DrawCardsEffect(1),
                                 otherwise = Effects.LoseLife(1, EffectTarget.Controller)
                             )
@@ -217,7 +217,7 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                             trigger = Triggers.EntersBattlefield.event,
                             binding = Triggers.EntersBattlefield.binding,
                             effect = IfYouDoEffect(
-                                action = EffectPatterns.mill(1),
+                                action = Patterns.Library.mill(1),
                                 ifYouDo = DrawCardsEffect(1),
                                 ifYouDont = Effects.LoseLife(1, EffectTarget.Controller)
                             )

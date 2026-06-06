@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -27,7 +27,7 @@ val GempalmStrider = card("Gempalm Strider") {
 
     triggeredAbility {
         trigger = Triggers.YouCycleThis
-        effect = EffectPatterns.modifyStatsForAll(2, 2, GroupFilter.allCreaturesWithSubtype("Elf"))
+        effect = Patterns.Group.modifyStatsForAll(2, 2, GroupFilter.allCreaturesWithSubtype("Elf"))
     }
 
     metadata {

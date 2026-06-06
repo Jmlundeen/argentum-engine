@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.avr.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.model.Rarity
  * X is locked in at resolution as the number of creatures you control (which already
  * includes Craterhoof itself, since it is on the battlefield when the ability resolves).
  * Both the keyword grant and the stat boost apply to every creature you control at that
- * time via [EffectPatterns] group helpers (each iterates the projected battlefield), so a
+ * time via [Patterns.Group] group helpers (each iterates the projected battlefield), so a
  * creature that enters after resolution is unaffected.
  */
 val CraterhoofBehemoth = card("Craterhoof Behemoth") {
@@ -37,9 +37,9 @@ val CraterhoofBehemoth = card("Craterhoof Behemoth") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.grantKeywordToAll(Keyword.TRAMPLE, Filters.Group.creaturesYouControl)
+        effect = Patterns.Group.grantKeywordToAll(Keyword.TRAMPLE, Filters.Group.creaturesYouControl)
             .then(
-                EffectPatterns.modifyStatsForAll(
+                Patterns.Group.modifyStatsForAll(
                     DynamicAmounts.creaturesYouControl(),
                     DynamicAmounts.creaturesYouControl(),
                     Filters.Group.creaturesYouControl

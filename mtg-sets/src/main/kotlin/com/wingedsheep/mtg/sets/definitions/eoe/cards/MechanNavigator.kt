@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -22,7 +22,7 @@ val MechanNavigator = card("Mechan Navigator") {
     // Whenever this creature becomes tapped, draw a card, then discard a card
     triggeredAbility {
         trigger = Triggers.BecomesTapped
-        effect = EffectPatterns.loot(draw = 1, discard = 1)
+        effect = Patterns.Hand.loot(draw = 1, discard = 1)
     }
 
     metadata {

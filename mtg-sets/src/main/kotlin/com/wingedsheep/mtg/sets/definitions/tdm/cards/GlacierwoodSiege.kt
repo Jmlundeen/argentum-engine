@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
@@ -58,7 +58,7 @@ val GlacierwoodSiege = card("Glacierwood Siege") {
         trigger = Triggers.YouCastInstantOrSorcery
         triggerCondition = SourceChosenModeIs("temur")
         val t = target("target", Targets.Player)
-        effect = EffectPatterns.mill(4, t)
+        effect = Patterns.Library.mill(4, t)
     }
 
     // Sultai — You may play lands from your graveyard.

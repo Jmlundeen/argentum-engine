@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -33,7 +32,7 @@ val ZeroPointBallad = card("Zero Point Ballad") {
         "to the battlefield under your control."
 
     spell {
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
                 Effects.DestroyAll(
                     filter = GameObjectFilter.Creature.toughnessAtMostX(),
@@ -46,7 +45,7 @@ val ZeroPointBallad = card("Zero Point Ballad") {
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(6)
                     ),
-                    effect = CompositeEffect(
+                    effect = Effects.Composite(
                         listOf(
                             SelectFromCollectionEffect(
                                 from = "destroyed",

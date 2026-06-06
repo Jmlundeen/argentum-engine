@@ -4,10 +4,10 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *
  * The ETB is a mandatory single-card library search restricted to basic lands carrying one of
  * the three Abzan basic subtypes, revealed and placed into hand then shuffled (atomic
- * [EffectPatterns.searchLibrary]). The sacrifice ability mirrors Kin-Tree Invocation: an X/X
+ * [Patterns.Library.searchLibrary]). The sacrifice ability mirrors Kin-Tree Invocation: an X/X
  * token whose P/T are read at resolution as the greatest toughness among creatures you control
  * ([DynamicAmounts.battlefield] MAX toughness).
  */
@@ -39,7 +39,7 @@ val AbzanMonument = card("Abzan Monument") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.searchLibrary(
+        effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand.withAnyOfSubtypes(
                 listOf(Subtype.PLAINS, Subtype.SWAMP, Subtype.FOREST)
             ),

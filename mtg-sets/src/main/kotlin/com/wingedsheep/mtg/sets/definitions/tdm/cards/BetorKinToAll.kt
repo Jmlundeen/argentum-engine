@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -53,7 +52,7 @@ val BetorKinToAll = card("Betor, Kin to All") {
             .then(
                 ConditionalEffect(
                     condition = totalToughnessAtLeast(20),
-                    effect = ForEachInGroupEffect(
+                    effect = Effects.ForEachInGroup(
                         filter = GroupFilter.AllCreaturesYouControl,
                         effect = TapUntapEffect(EffectTarget.Self, tap = false)
                     )

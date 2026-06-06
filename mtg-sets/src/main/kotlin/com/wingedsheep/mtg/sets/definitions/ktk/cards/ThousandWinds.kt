@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -31,7 +31,7 @@ val ThousandWinds = card("Thousand Winds") {
 
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
-        effect = EffectPatterns.returnAllToHand(
+        effect = Patterns.Group.returnAllToHand(
             GroupFilter(
                 baseFilter = GameObjectFilter.Creature.tapped(),
                 excludeSelf = true

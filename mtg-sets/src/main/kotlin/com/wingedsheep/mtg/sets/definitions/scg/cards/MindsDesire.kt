@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -20,7 +20,7 @@ val MindsDesire = card("Mind's Desire") {
     oracleText = "Shuffle your library. Then exile the top card of your library. Until end of turn, you may play that card without paying its mana cost.\nStorm (When you cast this spell, copy it for each spell cast before it this turn.)"
 
     spell {
-        effect = EffectPatterns.shuffleAndExileTopPlayFree()
+        effect = Patterns.Exile.shuffleAndExileTopPlayFree()
     }
 
     keywords(Keyword.STORM)

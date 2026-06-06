@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -103,7 +103,7 @@ val SpecimenFreighter = card("Specimen Freighter") {
     // Whenever this Spacecraft attacks, defending player mills four cards
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = EffectPatterns.mill(4, EffectTarget.PlayerRef(Player.Opponent))
+        effect = Patterns.Library.mill(4, EffectTarget.PlayerRef(Player.Opponent))
     }
 
     metadata {

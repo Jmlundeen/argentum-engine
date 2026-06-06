@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -28,12 +28,12 @@ val ThundercloudElemental = card("Thundercloud Elemental") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{U}")
-        effect = EffectPatterns.tapAll(Filters.Group.creatures { toughnessAtMost(2) })
+        effect = Patterns.Group.tapAll(Filters.Group.creatures { toughnessAtMost(2) })
     }
 
     activatedAbility {
         cost = Costs.Mana("{3}{U}")
-        effect = EffectPatterns.removeKeywordFromAll(Keyword.FLYING, Filters.Group.otherCreatures)
+        effect = Patterns.Group.removeKeywordFromAll(Keyword.FLYING, Filters.Group.otherCreatures)
     }
 
     metadata {

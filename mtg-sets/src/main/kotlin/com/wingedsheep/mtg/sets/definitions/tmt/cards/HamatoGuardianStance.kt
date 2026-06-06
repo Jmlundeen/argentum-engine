@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 
@@ -25,7 +25,7 @@ val HamatoGuardianStance = card("Hamato Guardian Stance") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(1, 3, creature)
             .then(Effects.GrantKeyword(Keyword.FLYING, creature, Duration.EndOfTurn))
-            .then(EffectPatterns.scry(1))
+            .then(Patterns.Library.scry(1))
     }
 
     metadata {

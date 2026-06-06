@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -18,7 +18,7 @@ val Opt = card("Opt") {
     oracleText = "Scry 1. (Look at the top card of your library. You may put that card on the bottom of your library.)\nDraw a card."
 
     spell {
-        effect = EffectPatterns.scry(1).then(Effects.DrawCards(1))
+        effect = Patterns.Library.scry(1).then(Effects.DrawCards(1))
     }
 
     metadata {

@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -42,7 +42,7 @@ val VeteranIceClimber = card("Veteran Ice Climber") {
     triggeredAbility {
         trigger = Triggers.Attacks
         target("up to one target player", TargetPlayer(optional = true))
-        effect = EffectPatterns.mill(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0))
+        effect = Patterns.Library.mill(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0))
         description = "Whenever this creature attacks, up to one target player mills cards equal to this creature's power."
     }
 

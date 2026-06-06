@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -33,7 +33,7 @@ val DreamBeavers = card("Dream Beavers") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent))
             .then(Effects.GainLife(1))
-            .then(EffectPatterns.scry(1))
+            .then(Patterns.Library.scry(1))
     }
 
     metadata {

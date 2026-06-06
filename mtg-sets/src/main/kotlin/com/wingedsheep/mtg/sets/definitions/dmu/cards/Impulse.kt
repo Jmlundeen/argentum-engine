@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dmu.cards
 
-import com.wingedsheep.sdk.dsl.LibraryPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -17,7 +17,7 @@ val Impulse = card("Impulse") {
     oracleText = "Look at the top four cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order."
 
     spell {
-        effect = LibraryPatterns.lookAtTopAndKeep(
+        effect = Patterns.Library.lookAtTopAndKeep(
             count = 4,
             keepCount = 1,
             keepDestination = com.wingedsheep.sdk.scripting.effects.CardDestination.ToZone(com.wingedsheep.sdk.core.Zone.HAND),

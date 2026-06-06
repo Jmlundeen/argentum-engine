@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -44,9 +43,9 @@ val DoorsOfDurin = card("Doors of Durin") {
 
     triggeredAbility {
         trigger = Triggers.YouAttack
-        effect = EffectPatterns.scry(2).then(
+        effect = Patterns.Library.scry(2).then(
             MayEffect(
-                effect = CompositeEffect(listOf(
+                effect = Effects.Composite(listOf(
                     GatherCardsEffect(
                         source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You),
                         storeAs = "top"

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -19,7 +19,7 @@ val Charge = card("Charge") {
     oracleText = "Creatures you control get +1/+1 until end of turn."
 
     spell {
-        effect = EffectPatterns.modifyStatsForAll(
+        effect = Patterns.Group.modifyStatsForAll(
             1, 1,
             GroupFilter(GameObjectFilter.Creature.youControl())
         )

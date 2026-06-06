@@ -2,8 +2,8 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
@@ -26,7 +26,7 @@ val WorldlyCounsel = card("Worldly Counsel") {
 
     spell {
         // Look at domain cards, keep one in hand, rest to bottom of library in chosen order.
-        effect = EffectPatterns.lookAtTopAndKeep(
+        effect = Patterns.Library.lookAtTopAndKeep(
             count = DynamicAmounts.domain(),
             keepCount = DynamicAmount.Fixed(1),
             keepDestination = CardDestination.ToZone(Zone.HAND),

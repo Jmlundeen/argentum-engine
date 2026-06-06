@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CharacteristicValue
 import com.wingedsheep.sdk.model.Rarity
@@ -53,7 +53,7 @@ private val SaheelisLatticeFront = card("Saheeli's Lattice") {
         trigger = Triggers.EntersBattlefield
         effect = MayEffect(
             IfYouDoEffect(
-                action = EffectPatterns.discardCards(1),
+                action = Patterns.Hand.discardCards(1),
                 ifYouDo = Effects.DrawCards(2)
             )
         )

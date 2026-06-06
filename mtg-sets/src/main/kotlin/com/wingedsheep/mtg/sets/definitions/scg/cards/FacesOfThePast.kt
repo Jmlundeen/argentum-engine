@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -40,11 +40,11 @@ val FacesOfThePast = card("Faces of the Past") {
         trigger = Triggers.AnyCreatureDies
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                EffectPatterns.tapAll(sharesTypeFilter),
+                Patterns.Group.tapAll(sharesTypeFilter),
                 "Tap all creatures that share a creature type with it"
             ),
             Mode.noTarget(
-                EffectPatterns.untapGroup(sharesTypeFilter),
+                Patterns.Group.untapGroup(sharesTypeFilter),
                 "Untap all creatures that share a creature type with it"
             )
         )

@@ -64,7 +64,7 @@ internal val zoneHandlers: Map<String, ActionHandler> = buildMap {
 }
 
 internal fun EmitCtx.renderSearch(args: JsonElement?): String? {
-    used.add("EffectPatterns")
+    used.add("Patterns")
     val blob = compact(args)
     val dest = when {
         "PutFoundCardsOntoBattlefield" in blob -> "BATTLEFIELD"
@@ -79,16 +79,16 @@ internal fun EmitCtx.renderSearch(args: JsonElement?): String? {
     if (count is Int && count != 1) parts.add("count = $count")
     parts.add("destination = SearchDestination.$dest")
     if ("RevealFoundCards" in blob) parts.add("reveal = true")
-    return "EffectPatterns.searchLibrary(${parts.joinToString(", ")})"
+    return "Patterns.Library.searchLibrary(${parts.joinToString(", ")})"
 }
 
 internal fun EmitCtx.renderLook(node: JsonObject): String? {
-    used.add("EffectPatterns")
+    used.add("Patterns")
     val look = findInteger(node) ?: return null
     val blob = compact(node)
     var keep: Int? = null
     for (m in Regex(""""PutNumber\w*IntoHand".*?"args":\s*(\d+)""").findAll(blob)) keep = m.groupValues[1].toInt()
-    if (keep != null) return "EffectPatterns.lookAtTopAndKeep(count = $look, keepCount = $keep)"
-    if ("PutTheRemainingCardsOnTopOfLibraryInAnyOrder" in blob) return "EffectPatterns.lookAtTopAndReorder(count = $look)"
+    if (keep != null) return "Patterns.Library.lookAtTopAndKeep(count = $look, keepCount = $keep)"
+    if ("PutTheRemainingCardsOnTopOfLibraryInAnyOrder" in blob) return "Patterns.Library.lookAtTopAndReorder(count = $look)"
     return null
 }

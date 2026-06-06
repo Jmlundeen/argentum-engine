@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 
 /**
@@ -27,12 +26,12 @@ val DoseOfDawnglow = card("Dose of Dawnglow") {
 
     spell {
         val creature = target("target creature card from your graveyard", Targets.CreatureCardInYourGraveyard)
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
                 Effects.PutOntoBattlefield(creature),
                 ConditionalEffect(
                     condition = Conditions.Not(Conditions.IsYourMainPhase),
-                    effect = EffectPatterns.blight(2)
+                    effect = Patterns.Mechanic.blight(2)
                 )
             )
         )

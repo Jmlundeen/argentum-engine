@@ -1,15 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -39,7 +38,7 @@ val GaeasBlessing = card("Gaea's Blessing") {
             filter = TargetFilter.CardInGraveyard
         )
         effect = ForEachTargetEffect(
-            effects = listOf(MoveToZoneEffect(EffectTarget.ContextTarget(0), Zone.LIBRARY))
+            effects = listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY))
         ).then(ShuffleLibraryEffect())
             .then(Effects.DrawCards(1))
     }
@@ -52,7 +51,7 @@ val GaeasBlessing = card("Gaea's Blessing") {
             binding = TriggerBinding.SELF
         )
         triggerZone = Zone.GRAVEYARD
-        effect = EffectPatterns.shuffleGraveyardIntoLibrary(EffectTarget.Controller)
+        effect = Patterns.Library.shuffleGraveyardIntoLibrary(EffectTarget.Controller)
     }
 
     metadata {

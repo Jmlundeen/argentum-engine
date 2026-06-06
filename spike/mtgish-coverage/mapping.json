@@ -237,7 +237,7 @@
   },
   "DiscardACard": {
     "kind": "composed",
-    "note": "EffectPatterns.discardCards -> Gather/Select/MoveCollection",
+    "note": "Patterns.Hand.discardCards -> Gather/Select/MoveCollection",
     "tags": [
       "MoveCollection"
     ]
@@ -258,7 +258,7 @@
   },
   "DiscardACardAtRandom": {
     "kind": "composed",
-    "note": "EffectPatterns.discardRandom -> MoveCollection",
+    "note": "Patterns.Hand.discardRandom -> MoveCollection",
     "tags": [
       "MoveCollection"
     ]
@@ -324,7 +324,7 @@
   },
   "LookAtTheTopNumberCardsOfLibrary": {
     "kind": "composed",
-    "note": "EffectPatterns.lookAtTopAndKeep/Reorder -> Gather/Select/MoveCollection",
+    "note": "Patterns.Library.lookAtTopAndKeep/Reorder -> Gather/Select/MoveCollection",
     "tags": [
       "MoveCollection"
     ]

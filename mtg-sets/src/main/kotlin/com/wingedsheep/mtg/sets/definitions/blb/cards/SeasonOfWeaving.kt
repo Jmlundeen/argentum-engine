@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.BudgetModalEffect
@@ -53,7 +53,7 @@ val SeasonOfWeaving = card("Season of Weaving") {
                 ),
                 BudgetMode(
                     cost = 3,
-                    effect = EffectPatterns.returnAllToHand(
+                    effect = Patterns.Group.returnAllToHand(
                         GroupFilter(
                             baseFilter = GameObjectFilter.NonlandPermanent.nontoken()
                         )

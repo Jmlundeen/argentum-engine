@@ -1,11 +1,11 @@
 package com.wingedsheep.engine.handlers.effects
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
@@ -40,7 +40,7 @@ class SurveilNTest : FunSpec({
             ActivatedAbility(
                 id = surveilAbilityId,
                 cost = AbilityCost.Mana(ManaCost.parse("{2}{U}")),
-                effect = EffectPatterns.surveil(2)
+                effect = Patterns.Library.surveil(2)
             )
         )
     )

@@ -3,12 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
@@ -49,9 +48,9 @@ val HoardersOverflow = card("Hoarder's Overflow") {
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
         description = "{1}{R}, Sacrifice: Discard your hand, draw cards equal to stash counters"
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
-                EffectPatterns.discardHand(),
+                Patterns.Hand.discardHand(),
                 DrawCardsEffect(
                     count = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.STASH)),
                     target = EffectTarget.Controller

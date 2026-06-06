@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -38,7 +38,7 @@ val DecreeOfPain = card("Decree of Pain") {
 
     triggeredAbility {
         trigger = Triggers.YouCycleThis
-        effect = EffectPatterns.modifyStatsForAll(-2, -2, GroupFilter.AllCreatures)
+        effect = Patterns.Group.modifyStatsForAll(-2, -2, GroupFilter.AllCreatures)
     }
 
     metadata {

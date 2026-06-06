@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Look at the top four cards of your library. Put two of them into your hand and the rest
  * into your graveyard.
  *
- * The classic Sultai "dig" — modeled with [EffectPatterns.lookAtTopAndKeep] (count = 4,
+ * The classic Sultai "dig" — modeled with [Patterns.Library.lookAtTopAndKeep] (count = 4,
  * keepCount = 2). The keeper cards go to hand and the remainder to the graveyard. Each of the
  * three hybrid mana symbols can be paid with two generic or one of the respective color.
  */
@@ -24,7 +24,7 @@ val RakshasasBargain = card("Rakshasa's Bargain") {
         "and the rest into your graveyard."
 
     spell {
-        effect = EffectPatterns.lookAtTopAndKeep(
+        effect = Patterns.Library.lookAtTopAndKeep(
             count = 4,
             keepCount = 2
         )

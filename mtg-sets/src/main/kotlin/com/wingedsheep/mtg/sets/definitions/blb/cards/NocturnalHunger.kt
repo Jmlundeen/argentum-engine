@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
@@ -31,7 +31,7 @@ val NocturnalHunger = card("Nocturnal Hunger") {
     val destroyEffect = Effects.Destroy(EffectTarget.ContextTarget(0))
 
     spell {
-        effect = EffectPatterns.giftSpell(
+        effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — destroy target creature, you lose 2 life
             Mode.withTarget(
                 destroyEffect.then(Effects.LoseLife(2, EffectTarget.Controller)),

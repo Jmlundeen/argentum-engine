@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -34,7 +33,7 @@ val ManholeMissile = card("Manhole Missile") {
 
     spell {
         val creature = target("target creature", Targets.Creature)
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
                 Effects.DealDamage(3, creature),
                 GatherCardsEffect(
@@ -59,7 +58,7 @@ val ManholeMissile = card("Manhole Missile") {
                 ConditionalOnCollectionEffect(
                     collection = "bottomed",
                     ifNotEmpty = Effects.DrawCards(1),
-                    ifEmpty = CompositeEffect(listOf())
+                    ifEmpty = Effects.Composite(listOf())
                 ),
             )
         )

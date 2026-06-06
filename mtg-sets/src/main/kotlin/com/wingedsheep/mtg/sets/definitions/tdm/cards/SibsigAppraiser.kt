@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  * When this creature enters, look at the top two cards of your library. Put one of them into
  * your hand and the other into your graveyard.
  *
- * Exactly the [EffectPatterns.lookAtTopAndKeep] shape: count = 2, keepCount = 1. The kept card
+ * Exactly the [Patterns.Library.lookAtTopAndKeep] shape: count = 2, keepCount = 1. The kept card
  * goes to HAND and the remainder to the GRAVEYARD (the pattern defaults), matching oracle text.
  */
 val SibsigAppraiser = card("Sibsig Appraiser") {
@@ -26,7 +26,7 @@ val SibsigAppraiser = card("Sibsig Appraiser") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.lookAtTopAndKeep(count = 2, keepCount = 1)
+        effect = Patterns.Library.lookAtTopAndKeep(count = 2, keepCount = 1)
     }
 
     metadata {

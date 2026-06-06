@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.HandLookedAtEvent
 import com.wingedsheep.engine.core.LookedAtCardsEvent
@@ -15,7 +16,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.*
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
@@ -75,7 +75,7 @@ class SpyNetworkTest : FunSpec({
                         )
                     ),
                     LookAtFaceDownEffect(EffectTarget.ContextTarget(0), FaceDownLookScope.ALL_CONTROLLED_BY_TARGET_PLAYER),
-                    EffectPatterns.lookAtTopAndReorder(4)
+                    Patterns.Library.lookAtTopAndReorder(4)
                 )
             ),
             TargetPlayer()

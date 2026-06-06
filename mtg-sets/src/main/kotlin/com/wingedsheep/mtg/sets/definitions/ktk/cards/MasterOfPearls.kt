@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -26,7 +26,7 @@ val MasterOfPearls = card("Master of Pearls") {
 
     triggeredAbility {
         trigger = Triggers.TurnedFaceUp
-        effect = EffectPatterns.modifyStatsForAll(2, 2, GroupFilter.AllCreaturesYouControl)
+        effect = Patterns.Group.modifyStatsForAll(2, 2, GroupFilter.AllCreaturesYouControl)
     }
 
     metadata {

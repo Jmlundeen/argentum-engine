@@ -11,10 +11,10 @@ internal fun BridgeBuilder.zoneMovement() {
 
     composed("SearchLibrary", "Gather->Select->Move SearchLibrary pattern", composes = listOf("MoveCollection", "ShuffleLibrary"))
 
-    composed("DiscardACard", "EffectPatterns.discardCards -> Gather/Select/MoveCollection", composes = listOf("MoveCollection"))
+    composed("DiscardACard", "Patterns.Hand.discardCards -> Gather/Select/MoveCollection", composes = listOf("MoveCollection"))
     composed("DiscardNumberCards", "MoveToZone hand->graveyard, N", composes = listOf("MoveCollection"))
     composed("DiscardAnyNumberOfCards", "MoveToZone hand->graveyard, any", composes = listOf("MoveCollection"))
-    composed("DiscardACardAtRandom", "EffectPatterns.discardRandom -> MoveCollection", composes = listOf("MoveCollection"))
+    composed("DiscardACardAtRandom", "Patterns.Hand.discardRandom -> MoveCollection", composes = listOf("MoveCollection"))
 
     composed("PutGraveyardCardIntoHand", "MoveCollection graveyard->hand", composes = listOf("MoveToZone"))
     composed("PutGraveyardCardOntoBattlefield", "MoveCollection graveyard->battlefield (reanimate)", composes = listOf("MoveToZone"))
@@ -30,7 +30,7 @@ internal fun BridgeBuilder.zoneMovement() {
     composed("PutEachPermanentIntoItsOwnersHand", "EachPlayerReturnsPermanentToHand", composes = listOf("MoveCollection", "MoveToZone"))
     composed("PutPermanentOnTopOfOwnersLibrary", "PutOnLibraryPositionOfChoice", composes = listOf("MoveToZone"))
 
-    composed("LookAtTheTopNumberCardsOfLibrary", "EffectPatterns.lookAtTopAndKeep/Reorder -> Gather/Select/MoveCollection", composes = listOf("MoveCollection"))
+    composed("LookAtTheTopNumberCardsOfLibrary", "Patterns.Library.lookAtTopAndKeep/Reorder -> Gather/Select/MoveCollection", composes = listOf("MoveCollection"))
     composed("LookAtTheTopNumberCardsOfPlayersLibrary", "look pipeline on opponent library -> MoveCollection", composes = listOf("MoveCollection"))
 
     composed("ExilePermanent", UNIVERSAL, composes = listOf("MoveToZone"))

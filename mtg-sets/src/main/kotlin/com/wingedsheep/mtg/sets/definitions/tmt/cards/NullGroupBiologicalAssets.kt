@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
@@ -38,7 +38,7 @@ val NullGroupBiologicalAssets = card("Null Group Biological Assets") {
     triggeredAbility {
         trigger = Triggers.Attacks
         optional = true
-        effect = EffectPatterns.rummage(1)
+        effect = Patterns.Hand.rummage(1)
     }
 
     metadata {

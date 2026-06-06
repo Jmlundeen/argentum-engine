@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.MayEffect
@@ -35,7 +35,7 @@ val SentinelOfThePearlTrident = card("Sentinel of the Pearl Trident") {
         val t = target("historic", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Historic.youControl())
         ))
-        effect = MayEffect(EffectPatterns.exileUntilEndStep(t))
+        effect = MayEffect(Patterns.Exile.exileUntilEndStep(t))
     }
 
     metadata {

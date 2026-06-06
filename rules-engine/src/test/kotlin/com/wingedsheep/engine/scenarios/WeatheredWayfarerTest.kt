@@ -8,9 +8,9 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.*
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.ActivationRestriction
@@ -39,7 +39,7 @@ class WeatheredWayfarerTest : FunSpec({
 
         activatedAbility {
             cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
-            effect = EffectPatterns.searchLibrary(
+            effect = Patterns.Library.searchLibrary(
                 filter = Filters.Land,
                 count = 1,
                 destination = SearchDestination.HAND,

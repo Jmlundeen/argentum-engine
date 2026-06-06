@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
@@ -30,7 +30,7 @@ val Mindwhisker = card("Mindwhisker") {
     // At the beginning of your upkeep, surveil 1
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = EffectPatterns.surveil(1)
+        effect = Patterns.Library.surveil(1)
     }
 
     // Threshold: creatures your opponents control get -1/-0

@@ -3,12 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.dsl.EffectPatterns
-
 /**
  * Flooded Strand
  * Land
@@ -22,7 +21,7 @@ val FloodedStrand = card("Flooded Strand") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.PayLife(1), Costs.SacrificeSelf)
-        effect = EffectPatterns.searchLibrary(
+        effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter(
                 cardPredicates = listOf(
                     CardPredicate.IsLand,

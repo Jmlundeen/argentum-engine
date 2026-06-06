@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -18,7 +18,7 @@ val PlanarPortal = card("Planar Portal") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{6}"), Costs.Tap)
-        effect = EffectPatterns.searchLibrary()
+        effect = Patterns.Library.searchLibrary()
     }
 
     metadata {

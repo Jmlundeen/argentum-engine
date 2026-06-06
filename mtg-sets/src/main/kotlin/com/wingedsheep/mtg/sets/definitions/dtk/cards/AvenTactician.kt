@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.dtk.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -30,7 +30,7 @@ val AvenTactician = card("Aven Tactician") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.bolster(1)
+        effect = Patterns.Mechanic.bolster(1)
     }
 
     metadata {

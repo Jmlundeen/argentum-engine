@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 
@@ -29,7 +29,7 @@ val StockmanMadFlyEntist = card("Stockman, Mad Fly-entist") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.loot(1)
+        effect = Patterns.Hand.loot(1)
     }
 
     keywordAbility(KeywordAbility.typecycling("Island", "{2}"))

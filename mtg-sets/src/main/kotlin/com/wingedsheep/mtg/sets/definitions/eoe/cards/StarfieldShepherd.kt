@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
@@ -33,7 +33,7 @@ val StarfieldShepherd = card("Starfield Shepherd") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val searchFilter = GameObjectFilter.BasicLand.withSubtype(Subtype.PLAINS) or GameObjectFilter.Creature.manaValueAtMost(1)
-        effect = EffectPatterns.searchLibrary(
+        effect = Patterns.Library.searchLibrary(
             filter = searchFilter,
             count = 1,
             destination = SearchDestination.HAND,

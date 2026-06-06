@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.continuations
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
@@ -77,7 +78,7 @@ class CoreAutoResumerModule(
         },
 
         autoResumer(TypecycleSearchContinuation::class) { state, continuation, events, checkForMore ->
-            val searchEffect = com.wingedsheep.sdk.dsl.EffectPatterns.searchLibrary(
+            val searchEffect = com.wingedsheep.sdk.dsl.Patterns.Library.searchLibrary(
                 filter = continuation.searchFilter,
                 count = 1,
                 reveal = true

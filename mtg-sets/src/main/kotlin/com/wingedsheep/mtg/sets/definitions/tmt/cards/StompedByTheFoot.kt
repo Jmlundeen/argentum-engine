@@ -2,8 +2,8 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -29,7 +29,7 @@ val StompedByTheFoot = card("Stomped by the Foot") {
 
     keywordAbility(
         KeywordAbility.kicker(
-            AdditionalCost.SacrificePermanent(
+            Costs.additional.SacrificePermanent(
                 filter = GameObjectFilter(
                     cardPredicates = listOf(
                         CardPredicate.Or(

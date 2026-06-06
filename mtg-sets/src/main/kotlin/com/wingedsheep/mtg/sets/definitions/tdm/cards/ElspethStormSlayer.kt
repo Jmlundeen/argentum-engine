@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.DoubleTokenCreation
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -57,11 +56,11 @@ val ElspethStormSlayer = card("Elspeth, Storm Slayer") {
     // 0: Put a +1/+1 counter on each creature you control. Those creatures gain flying until
     // your next turn.
     loyaltyAbility(0) {
-        effect = ForEachInGroupEffect(
+        effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
             effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         ).then(
-            ForEachInGroupEffect(
+            Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
                 effect = GrantKeywordEffect(Keyword.FLYING, EffectTarget.Self, Duration.UntilYourNextTurn)
             )

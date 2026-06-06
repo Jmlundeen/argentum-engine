@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -37,7 +37,7 @@ val CorpseberryCultivator = card("Corpseberry Cultivator") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         effect = MayEffect(
-            effect = EffectPatterns.forage(
+            effect = Patterns.Mechanic.forage(
                 afterEffect = Effects.AddCounters("PLUS_ONE_PLUS_ONE", 1, EffectTarget.Self)
             ),
             descriptionOverride = "You may forage",

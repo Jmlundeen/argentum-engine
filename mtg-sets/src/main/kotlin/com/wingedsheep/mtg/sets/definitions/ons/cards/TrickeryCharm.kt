@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -34,7 +34,7 @@ val TrickeryCharm = card("Trickery Charm") {
                 effect = BecomeCreatureTypeEffect(target = t)
             }
             mode("Look at the top four cards of your library, then put them back in any order") {
-                effect = EffectPatterns.lookAtTopAndReorder(4)
+                effect = Patterns.Library.lookAtTopAndReorder(4)
             }
         }
     }

@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  * it into your graveyard.)
  *
  * Flying and vigilance are keyword helpers; the attack trigger uses the atomic
- * [EffectPatterns.surveil] composition.
+ * [Patterns.Library.surveil] composition.
  */
 val BoulderbornDragon = card("Boulderborn Dragon") {
     manaCost = "{5}"
@@ -29,7 +29,7 @@ val BoulderbornDragon = card("Boulderborn Dragon") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = EffectPatterns.surveil(1)
+        effect = Patterns.Library.surveil(1)
         description = "Whenever this creature attacks, surveil 1."
     }
 

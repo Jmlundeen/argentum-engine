@@ -2,8 +2,8 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
@@ -30,7 +30,7 @@ val EsquireOfTheKing = card("Esquire of the King") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}{W}"), Costs.Tap)
-        effect = EffectPatterns.modifyStatsForAll(
+        effect = Patterns.Group.modifyStatsForAll(
             1, 1,
             GroupFilter(GameObjectFilter.Creature.youControl())
         )

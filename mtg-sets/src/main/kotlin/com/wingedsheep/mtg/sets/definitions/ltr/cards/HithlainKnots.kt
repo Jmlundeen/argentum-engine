@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -24,7 +24,7 @@ val HithlainKnots = card("Hithlain Knots") {
     spell {
         target("target creature", Targets.Creature)
         effect = Effects.Tap(EffectTarget.ContextTarget(0)) then
-            EffectPatterns.scry(1) then
+            Patterns.Library.scry(1) then
             Effects.DrawCards(1)
     }
 

@@ -1,10 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 
@@ -21,9 +20,9 @@ val Omen = card("Omen") {
     typeLine = "Sorcery"
 
     spell {
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
-                EffectPatterns.lookAtTopAndReorder(3),
+                Patterns.Library.lookAtTopAndReorder(3),
                 MayEffect(ShuffleLibraryEffect()),
                 Effects.DrawCards(1)
             )

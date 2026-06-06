@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -22,7 +22,7 @@ val RiptideChronologist = card("Riptide Chronologist") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.SacrificeSelf)
-        effect = EffectPatterns.chooseCreatureTypeUntap()
+        effect = Patterns.CreatureType.chooseCreatureTypeUntap()
     }
 
     metadata {

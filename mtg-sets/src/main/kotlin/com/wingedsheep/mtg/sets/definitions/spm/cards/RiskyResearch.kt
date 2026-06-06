@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -13,7 +13,7 @@ val RiskyResearch = card("Risky Research") {
     oracleText = "Surveil 2, then draw two cards, then you lose 2 life."
 
     spell {
-        effect = EffectPatterns.surveil(2) then Effects.DrawCards(2) then Effects.LoseLife(2, EffectTarget.Controller)
+        effect = Patterns.Library.surveil(2) then Effects.DrawCards(2) then Effects.LoseLife(2, EffectTarget.Controller)
     }
 
     metadata {

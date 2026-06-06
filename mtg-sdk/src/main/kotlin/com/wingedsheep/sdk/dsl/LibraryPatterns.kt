@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.EmitScriedEventEffect
+import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
@@ -445,4 +446,32 @@ object LibraryPatterns {
             )
         )
     }
+
+    /**
+     * "Each player searches their library for [count] card(s) matching [filter], reveals them,
+     * puts them into their hand, then shuffles." Per-player Gather → Select → Move → Shuffle.
+     */
+    fun eachPlayerSearchesLibrary(
+        filter: GameObjectFilter,
+        count: DynamicAmount
+    ): ForEachPlayerEffect = ForEachPlayerEffect(
+        players = Player.Each,
+        effects = listOf(
+            GatherCardsEffect(
+                source = CardSource.FromZone(Zone.LIBRARY, Player.You, filter),
+                storeAs = "searchable"
+            ),
+            SelectFromCollectionEffect(
+                from = "searchable",
+                selection = SelectionMode.ChooseUpTo(count),
+                storeSelected = "found"
+            ),
+            MoveCollectionEffect(
+                from = "found",
+                destination = CardDestination.ToZone(Zone.HAND),
+                revealed = true
+            ),
+            ShuffleLibraryEffect()
+        )
+    )
 }

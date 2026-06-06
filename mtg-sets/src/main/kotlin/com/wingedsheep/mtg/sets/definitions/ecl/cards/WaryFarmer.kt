@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
@@ -35,7 +35,7 @@ val WaryFarmer = card("Wary Farmer") {
                 .youControl(),
             excludeSelf = true
         )
-        effect = EffectPatterns.surveil(1)
+        effect = Patterns.Library.surveil(1)
     }
 
     metadata {

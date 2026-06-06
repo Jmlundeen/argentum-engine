@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
+import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.GainControlEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
@@ -17,8 +18,11 @@ import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RemoveKeywordEffect
+import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -183,4 +187,28 @@ object GroupPatterns {
             filter = filter,
             effect = GainControlEffect(EffectTarget.Self, duration)
         )
+
+    /**
+     * "Each player returns a permanent they control to its owner's hand." Per-player
+     * Gather → Select(1) → Move(hand), in active-player-first order.
+     */
+    fun eachPlayerReturnsPermanentToHand(): ForEachPlayerEffect = ForEachPlayerEffect(
+        players = Player.ActivePlayerFirst,
+        effects = listOf(
+            GatherCardsEffect(
+                source = CardSource.ControlledPermanents(Player.You),
+                storeAs = "permanents"
+            ),
+            SelectFromCollectionEffect(
+                from = "permanents",
+                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
+                storeSelected = "chosen",
+                prompt = "Choose a permanent to return to its owner's hand"
+            ),
+            MoveCollectionEffect(
+                from = "chosen",
+                destination = CardDestination.ToZone(Zone.HAND, Player.You)
+            )
+        )
+    )
 }

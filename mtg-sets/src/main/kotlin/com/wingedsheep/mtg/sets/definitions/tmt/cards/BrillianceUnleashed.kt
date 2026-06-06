@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -46,7 +45,7 @@ val BrillianceUnleashed = card("Brilliance Unleashed") {
                         zone = Zone.GRAVEYARD,
                     )
                 )
-                effect = MoveToZoneEffect(
+                effect = Effects.Move(
                     target = com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget(0),
                     destination = Zone.BATTLEFIELD,
                     fromZone = Zone.GRAVEYARD,

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 
 /**
  * Alesha's Legacy
@@ -22,7 +21,7 @@ val AleshasLegacy = card("Alesha's Legacy") {
 
     spell {
         val target = target("target creature you control", Targets.CreatureYouControl)
-        effect = CompositeEffect(listOf(
+        effect = Effects.Composite(listOf(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, target),
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, target),
         ))

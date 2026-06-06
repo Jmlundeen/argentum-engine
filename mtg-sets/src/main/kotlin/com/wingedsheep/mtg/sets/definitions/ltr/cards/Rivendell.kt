@@ -3,8 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.EntersTapped
@@ -49,7 +49,7 @@ val Rivendell = card("Rivendell") {
     // {1}{U}, {T}: Scry 2. Activate only if you control a legendary creature.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
-        effect = EffectPatterns.scry(2)
+        effect = Patterns.Library.scry(2)
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
                 Exists(
