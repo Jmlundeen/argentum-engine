@@ -720,6 +720,42 @@
     ]
 }
 
+// Drudge Skeletons
+{
+    "name": "Drudge Skeletons",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Skeleton",
+    "oracleText": "{B}: Regenerate this creature. (The next time this creature would be destroyed this turn, instead tap it, remove it from combat, and heal all damage on it.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{B}"
+                },
+                "effect": {
+                    "type": "Regenerate",
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "106",
+        "artist": "Sandra Everingham",
+        "flavorText": "Bones scattered around us joined to form misshapen bodies. We struck at them repeatedly—they fell, but soon formed again, with the same mocking look on their faceless skulls.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/3/23614289-0d73-4747-a849-5cb67cc97d6a.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dwarven Demolition Team
 {
     "name": "Dwarven Demolition Team",
@@ -1838,6 +1874,44 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Living Wall
+{
+    "name": "Living Wall",
+    "manaCost": "{4}",
+    "typeLine": "Artifact Creature — Wall",
+    "oracleText": "Defender (This creature can't attack.)\n{1}: Regenerate this creature.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 6
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{1}"
+                },
+                "effect": {
+                    "type": "Regenerate",
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "258",
+        "rarity": "UNCOMMON",
+        "artist": "Anson Maddocks",
+        "flavorText": "Some fiendish mage had created a horrifying wall of living flesh, patched together from a jumble of still-recognizable body parts. As we sought to hew our way through it, some unknown power healed the gaping wounds we cut, denying us passage.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/a/4a98ada6-923a-44a5-bdef-ea6a160b481e.jpg"
+    },
+    "colorIdentityOverride": []
 }
 
 // Llanowar Elves
@@ -3369,6 +3443,43 @@
     ]
 }
 
+// Uthden Troll
+{
+    "name": "Uthden Troll",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Troll",
+    "oracleText": "{R}: Regenerate this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{R}"
+                },
+                "effect": {
+                    "type": "Regenerate",
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "180",
+        "rarity": "UNCOMMON",
+        "artist": "Douglas Shuler",
+        "flavorText": "\"Oi oi oi, me gotta hurt in 'ere,\nOi oi oi, me smell a ting is near,\nGonna bosh 'n gonna nosh 'n da\nhurt'll disappear.\"\n—Traditional",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/f/2ff21a6f-83a7-4bf3-a078-294e303232cc.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Volcanic Eruption
 {
     "name": "Volcanic Eruption",
@@ -3474,6 +3585,86 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Wall of Bone
+{
+    "name": "Wall of Bone",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Skeleton Wall",
+    "oracleText": "Defender (This creature can't attack.)\n{B}: Regenerate this creature. (The next time this creature would be destroyed this turn, instead tap it, remove it from combat, and heal all damage on it.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{B}"
+                },
+                "effect": {
+                    "type": "Regenerate",
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "132",
+        "rarity": "UNCOMMON",
+        "artist": "Anson Maddocks",
+        "flavorText": "The Wall of Bone is said to be an aspect of the Great Wall in Hel, where the bones of all sinners wait for Ragnarok, when Hela will call them forth for the final battle.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/e/ae20d442-a544-4a03-9ebf-5ecb137c67dd.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Wall of Brambles
+{
+    "name": "Wall of Brambles",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Plant Wall",
+    "oracleText": "Defender (This creature can't attack.)\n{G}: Regenerate this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{G}"
+                },
+                "effect": {
+                    "type": "Regenerate",
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "223",
+        "rarity": "UNCOMMON",
+        "artist": "Anson Maddocks",
+        "flavorText": "\"What else, when chaos draws all forces inward to shape a single leaf.\" —Conrad Aiken",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/f/af2a4558-db6e-41b2-aff6-b164d93282a0.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -3846,6 +4037,46 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Will-o'-the-Wisp
+{
+    "name": "Will-o'-the-Wisp",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "Flying (This creature can't be blocked except by creatures with flying or reach.)\n{B}: Regenerate this creature. (The next time this creature would be destroyed this turn, instead tap it, remove it from combat, and heal all damage on it.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{B}"
+                },
+                "effect": {
+                    "type": "Regenerate",
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "135",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "flavorText": "\"About, about in reel and rout\nThe death-fires danced at night;\nThe water, like a witch's oils,\nBurnt green, and blue and white.\"\n—Samuel Coleridge, \"The Rime of the Ancient Mariner\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/1/a1a6f8e9-7bc1-4151-b55f-acf877b1a7a6.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 

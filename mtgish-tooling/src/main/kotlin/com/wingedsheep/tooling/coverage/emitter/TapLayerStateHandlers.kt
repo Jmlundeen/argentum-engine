@@ -19,6 +19,13 @@ internal val tapLayerStateHandlers: Map<String, ActionHandler> = actionHandlers 
         val tgt = refTarget(args, tvar) ?: return@on null
         "Effects.${if (node.strField("_Action") == "TapPermanent") "Tap" else "Untap"}($tgt)"
     }
+    on("RegeneratePermanent") { _, args, _ ->
+        // Self-regeneration ("{cost}: Regenerate this") renders faithfully. A chosen target's
+        // requirement isn't always recovered exactly (e.g. "Regenerate target Zombie" flattens the
+        // subtype to "permanent"), so scaffold the targeted case rather than emit a too-broad target.
+        if (!jsonContains(args, "_Permanent", "ThisPermanent")) return@on null
+        "RegenerateEffect(EffectTarget.Self)"
+    }
     on("TapEachPermanent", "UntapEachPermanent") { node, args, _ ->
         val verb = if (node.strField("_Action") == "TapEachPermanent") "Tap" else "Untap"
         if (jsonContains(node, "_Permanents", "Ref_TargetPermanents")) {  // Tidal Surge: each chosen target
