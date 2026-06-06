@@ -112,6 +112,21 @@ sealed interface ManaRestriction {
     }
 
     /**
+     * "Spend this mana only to cast a spell from anywhere other than your hand."
+     *
+     * Used by Mm'menon, the Right Hand's granted artifact ability. Generalizes
+     * [CastFromExileOnly] by accepting any non-hand origin (exile, graveyard, top of
+     * library, command zone, …), not exile alone — mirroring the printed text. Rejects
+     * ability activations (the oracle says "cast a spell," not "activate an ability").
+     */
+    @SerialName("CastFromNonHandOnly")
+    @Serializable
+    data object CastFromNonHandOnly : ManaRestriction {
+        override val description: String =
+            "Spend this mana only to cast a spell from anywhere other than your hand"
+    }
+
+    /**
      * "Spend this mana only to cast a spell that has any of the given subtypes."
      *
      * Generalizes [SubtypeSpellsOrAbilitiesOnly] to a *set* of subtypes joined by OR, for

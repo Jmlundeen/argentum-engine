@@ -2512,6 +2512,10 @@ restriction matches the spell context.
   variant). Maelstrom of the Spirit Dragon: `SubtypeSpellsOnly(setOf("Dragon", "Omen"))`
   ("a Dragon spell or an Omen spell").
 - `ManaRestriction.CastFromExileOnly` — only spells cast from exile.
+- `ManaRestriction.CastFromNonHandOnly` — only spells cast from anywhere other than
+  hand (exile, graveyard, top of library, command zone, …). Mm'menon, the Right Hand's
+  granted artifact mana ability. Generalizes `CastFromExileOnly` by allowing all non-hand
+  origins instead of exile alone; rejects ability activations.
 - `ManaRestriction.CardTypeSpellsOrAbilitiesOnly(cardType, allowSpells?, allowAbilities?)` —
   Steelswarm Operator shape.
 

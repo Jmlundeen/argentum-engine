@@ -657,6 +657,7 @@ class CastSpellHandler(
                 hasXInCost = cardComponent.manaCost.hasX,
                 subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
                 isFromExile = isCastFromExile(state, action.cardId),
+                isFromHand = isCastFromHand(state, action.cardId),
                 cardTypes = cardComponent.typeLine.cardTypes,
             )
         } else null
@@ -752,6 +753,9 @@ class CastSpellHandler(
 
     private fun isCastFromExile(state: GameState, cardId: EntityId): Boolean =
         state.turnOrder.any { ownerId -> cardId in state.getZone(ZoneKey(ownerId, Zone.EXILE)) }
+
+    private fun isCastFromHand(state: GameState, cardId: EntityId): Boolean =
+        state.turnOrder.any { ownerId -> cardId in state.getZone(ZoneKey(ownerId, Zone.HAND)) }
 
     private fun validateConspire(
         state: GameState,
@@ -1946,6 +1950,7 @@ class CastSpellHandler(
             hasXInCost = cardComponent.manaCost.hasX,
             subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
             isFromExile = isCastFromExile(currentState, action.cardId),
+            isFromHand = isCastFromHand(currentState, action.cardId),
             cardTypes = cardComponent.typeLine.cardTypes,
         )
 

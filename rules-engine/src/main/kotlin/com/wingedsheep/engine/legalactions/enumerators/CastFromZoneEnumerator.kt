@@ -1751,6 +1751,10 @@ class CastFromZoneEnumerator : ActionEnumerator {
                 hasXInCost = cardComponent.manaCost.hasX,
                 subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
                 cardTypes = cardComponent.typeLine.cardTypes,
+                // This enumerator only enumerates non-hand-zone casts (command, library, exile,
+                // graveyard, …) — `sourceZone` is never "HAND" here. Mark accordingly so
+                // [ManaRestriction.CastFromNonHandOnly] mana is eligible for the kicked variant.
+                isFromHand = false,
             )
             val canAffordKickedMana = context.manaSolver.canPay(
                 state, playerId, kickedCost,

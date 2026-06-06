@@ -35,6 +35,16 @@ data class SpellPaymentContext(
     val isAbilityActivation: Boolean = false,
     /** Card types of the source whose ability is being activated (empty for spell-cast contexts). */
     val abilitySourceCardTypes: Set<com.wingedsheep.sdk.core.CardType> = emptySet(),
+    /**
+     * True when the spell is being cast from the caster's hand. Defaults to `true` because most
+     * spell casts originate from hand and the standard [CastSpellEnumerator] path is hand-only;
+     * cast-from-non-hand paths (top of library, exile, graveyard, command zone) must set this to
+     * `false` so restrictions like [ManaRestriction.CastFromNonHandOnly] recognize the cast.
+     *
+     * The field is irrelevant for ability activations because every restriction that reads it
+     * also requires `!isAbilityActivation`.
+     */
+    val isFromHand: Boolean = true,
 )
 
 /**
@@ -52,6 +62,7 @@ fun ManaRestriction.isSatisfiedBy(context: SpellPaymentContext): Boolean = when 
         (!creatureOnly || (!context.isAbilityActivation && context.isCreature)) &&
             context.subtypes.any { it.equals(subtype, ignoreCase = true) }
     is ManaRestriction.CastFromExileOnly -> !context.isAbilityActivation && context.isFromExile
+    is ManaRestriction.CastFromNonHandOnly -> !context.isAbilityActivation && !context.isFromHand
     is ManaRestriction.SubtypeSpellsOnly ->
         !context.isAbilityActivation &&
             subtypes.any { sub -> context.subtypes.any { it.equals(sub, ignoreCase = true) } }
