@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.effects
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureRef
 
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.GameState
@@ -52,7 +53,7 @@ object TargetResolutionUtils {
         }
         if (effectTarget is EffectTarget.ChosenCreature) {
             val sourceId = context.sourceId ?: return null
-            return state.getEntity(sourceId)?.get<com.wingedsheep.engine.state.components.identity.ChosenCreatureComponent>()?.creatureId
+            return state.getEntity(sourceId)?.chosenCreatureRef()
         }
         if (effectTarget is EffectTarget.TargetController) {
             val targetEntity = context.targets.firstOrNull()?.toEntityId() ?: return null

@@ -1,37 +1,12 @@
 package com.wingedsheep.engine.handlers.effects.token
 
-import com.wingedsheep.engine.core.EffectResult
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
-import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.effects.EffectExecutor
-import com.wingedsheep.engine.state.ComponentContainer
-import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
-import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenColorComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
-import com.wingedsheep.engine.state.components.identity.ControllerComponent
-import com.wingedsheep.engine.state.components.identity.TokenComponent
-import com.wingedsheep.sdk.core.ManaCost
-import com.wingedsheep.sdk.core.TypeLine
-import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.model.CreatureStats
-import com.wingedsheep.engine.core.ZoneChangeEvent
-import com.wingedsheep.sdk.scripting.effects.CreateChosenTokenEffect
-import kotlin.reflect.KClass
-
 /**
- * Executor for CreateChosenTokenEffect.
- * Creates a creature token using the chosen color and creature type from the source permanent,
- * with dynamic power/toughness evaluated at resolution time.
+ * Scryfall token art keyed by creature type. Shared by token-creation executors to give a
+ * created creature token a sensible image when its subtype maps to a known token printing.
+ * (Formerly private to the now-removed CreateChosenTokenExecutor.)
  */
-class CreateChosenTokenExecutor(
-    private val dynamicAmountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
-) : EffectExecutor<CreateChosenTokenEffect> {
-
-    companion object {
-        /** Scryfall token art mapped by creature type. */
-        val TOKEN_IMAGES: Map<String, String> = mapOf(
+object TokenArt {
+    val IMAGES: Map<String, String> = mapOf(
             "Angel" to "https://cards.scryfall.io/art_crop/front/c/7/c7f3264a-7b4a-4fef-af73-d4241742a4e8.jpg?1561758046",
             "Ape" to "https://cards.scryfall.io/art_crop/front/8/3/8343e00c-5fc6-46a0-a238-3759338dced4.jpg?1562542388",
             "Assassin" to "https://cards.scryfall.io/art_crop/front/8/9/89eb9f92-d189-4438-b6fe-cb253055d63e.jpg?1562539812",
@@ -122,67 +97,5 @@ class CreateChosenTokenExecutor(
             "Wraith" to "https://cards.scryfall.io/art_crop/front/9/a/9afb58e8-f5a7-49f9-8287-77757bd3268c.jpg",
             "Wurm" to "https://cards.scryfall.io/art_crop/front/9/f/9fc04b19-e636-4868-8224-a5da75ea01c8.jpg?1561757701",
             "Zombie" to "https://cards.scryfall.io/art_crop/front/8/e/8e7b5995-ee8b-40d1-b157-8df96c02cc5b.jpg?1761614925",
-        )
-    }
-
-    override val effectType: KClass<CreateChosenTokenEffect> = CreateChosenTokenEffect::class
-
-    override fun execute(
-        state: GameState,
-        effect: CreateChosenTokenEffect,
-        context: EffectContext
-    ): EffectResult {
-        val sourceId = context.sourceId ?: return EffectResult.success(state)
-        val sourceEntity = state.getEntity(sourceId) ?: return EffectResult.success(state)
-
-        // Read chosen color and creature type from source
-        val chosenColor = sourceEntity.get<ChosenColorComponent>()?.color
-        val chosenType = sourceEntity.get<ChosenCreatureTypeComponent>()?.creatureType
-
-        val colors = if (chosenColor != null) setOf(chosenColor) else emptySet()
-        val creatureTypes = if (chosenType != null) setOf(chosenType) else setOf("Creature")
-
-        // Evaluate dynamic P/T
-        val power = dynamicAmountEvaluator.evaluate(state, effect.dynamicPower, context)
-        val toughness = dynamicAmountEvaluator.evaluate(state, effect.dynamicToughness, context)
-
-        // Look up token art — try each creature type until a match is found
-        val tokenImageUri = creatureTypes.firstNotNullOfOrNull { TOKEN_IMAGES[it] }
-
-        val (tokenId, stateWithId) = state.newEntity()
-        val tokenName = "${creatureTypes.joinToString(" ")} Token"
-        val tokenComponent = CardComponent(
-            cardDefinitionId = "token:$tokenName",
-            name = tokenName,
-            manaCost = ManaCost.ZERO,
-            typeLine = TypeLine.parse("Creature - ${creatureTypes.joinToString(" ")}"),
-            baseStats = CreatureStats(power, toughness),
-            colors = colors,
-            ownerId = context.controllerId,
-            imageUri = tokenImageUri
-        )
-
-        val container = ComponentContainer.of(
-            tokenComponent,
-            TokenComponent,
-            ControllerComponent(context.controllerId),
-            SummoningSicknessComponent
-        )
-
-        var newState = stateWithId.withEntity(tokenId, container)
-        newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-            .place(newState, context.controllerId, tokenId)
-
-        val events = listOf(
-            ZoneChangeEvent(
-                entityId = tokenId,
-                entityName = tokenName,
-                fromZone = null,
-                toZone = Zone.BATTLEFIELD,
-                ownerId = context.controllerId
-            )
-        )
-
-        return EffectResult.success(newState, events)
-    }
+    )
 }

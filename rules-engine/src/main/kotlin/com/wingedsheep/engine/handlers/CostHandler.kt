@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.CountersAddedEvent
@@ -16,7 +17,6 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
@@ -99,7 +99,7 @@ class CostHandler(
                 eligible.size >= cost.count
             }
             is AbilityCost.SacrificeChosenCreatureType -> {
-                val chosenType = state.getEntity(sourceId)?.get<ChosenCreatureTypeComponent>()?.creatureType
+                val chosenType = state.getEntity(sourceId)?.chosenCreatureType()
                     ?: return false
                 val filter = GameObjectFilter.Creature.withSubtype(chosenType)
                 findMatchingPermanentsUnified(state, controllerId, filter).isNotEmpty()
@@ -314,7 +314,7 @@ class CostHandler(
                 val sacrificeFilter = when (cost) {
                     is AbilityCost.Sacrifice -> cost.filter
                     is AbilityCost.SacrificeChosenCreatureType -> {
-                        val chosenType = state.getEntity(sourceId)?.get<ChosenCreatureTypeComponent>()?.creatureType
+                        val chosenType = state.getEntity(sourceId)?.chosenCreatureType()
                             ?: return CostPaymentResult.failure("No creature type chosen")
                         GameObjectFilter.Creature.withSubtype(chosenType)
                     }

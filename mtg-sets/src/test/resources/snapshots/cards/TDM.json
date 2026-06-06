@@ -956,8 +956,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 }
-                            },
-                            "description": "Create a 2/2 white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false
@@ -3526,8 +3525,7 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     }
-                                },
-                                "description": "Create a 1/1 white Spirit creature token"
+                                }
                             }
                         ],
                         "countsAsModalSpell": false
@@ -4664,8 +4662,7 @@
                                     "type": "Fixed",
                                     "amount": 3
                                 }
-                            },
-                            "description": "Create a 3/3 white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false
@@ -6025,8 +6022,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 }
-                            },
-                            "description": "Create a 1/1 white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false
@@ -7538,8 +7534,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 }
-                            },
-                            "description": "Create a 2/2 white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false
@@ -7583,8 +7578,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 }
-                            },
-                            "description": "Create a 2/2 white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false
@@ -8319,8 +8313,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 }
-                            },
-                            "description": "Create a 1/1 white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false
@@ -8885,8 +8878,7 @@
                                 ],
                                 "dynamicPower": "XValue",
                                 "dynamicToughness": "XValue"
-                            },
-                            "description": "Create a X/X white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false
@@ -13821,8 +13813,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 }
-                            },
-                            "description": "Create a 2/2 white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false
@@ -14716,8 +14707,7 @@
                                             "type": "Fixed",
                                             "amount": 1
                                         }
-                                    },
-                                    "description": "Create a 1/1 white Spirit creature token"
+                                    }
                                 }
                             ],
                             "countsAsModalSpell": false
@@ -18710,8 +18700,7 @@
                                         "counterType": "CounterAny"
                                     }
                                 }
-                            },
-                            "description": "Create a it's the number of  counters/it's the number of  counters white Spirit creature token"
+                            }
                         }
                     ],
                     "countsAsModalSpell": false

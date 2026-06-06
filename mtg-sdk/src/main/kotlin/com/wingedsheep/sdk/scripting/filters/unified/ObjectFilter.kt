@@ -384,7 +384,7 @@ data class GameObjectFilter(
         cardPredicates = cardPredicates + CardPredicate.HasChosenSubtype
     )
 
-    /** Must include the color chosen on the source permanent (ChosenColorComponent) */
+    /** Must include the color chosen on the source permanent (CastChoicesComponent) */
     fun sharingChosenColorWithSource() = copy(
         cardPredicates = cardPredicates + CardPredicate.SharesChosenColorWithSource
     )

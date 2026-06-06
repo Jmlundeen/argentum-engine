@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.mechanics.mana
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -6,7 +7,6 @@ import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenColorComponent
 import com.wingedsheep.engine.state.components.identity.CommanderRegistryComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.EntityId
@@ -30,7 +30,7 @@ object ManaColorSetResolver {
      * controller may pick from; an empty result means no mana is produced.
      *
      * @param sourceId The permanent/spell providing the mana ability (used by
-     *   [ManaColorSet.SourceChosenColor] to read `ChosenColorComponent`).
+     *   [ManaColorSet.SourceChosenColor] to read `CastChoicesComponent`).
      * @param controllerId The player resolving the ability — used by
      *   [ManaColorSet.CommanderIdentity] (commander lookup),
      *   [ManaColorSet.AmongPermanents] (control filter), and
@@ -117,6 +117,6 @@ object ManaColorSetResolver {
 
     private fun sourceChosenColor(state: GameState, sourceId: EntityId?): Set<Color> {
         val source = sourceId?.let { state.getEntity(it) } ?: return emptySet()
-        return setOfNotNull(source.get<ChosenColorComponent>()?.color)
+        return setOfNotNull(source.chosenColor())
     }
 }

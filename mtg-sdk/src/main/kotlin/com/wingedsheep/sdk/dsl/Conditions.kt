@@ -20,6 +20,8 @@ import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand as WasCastFromHa
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone as WasCastFromZoneCondition
 import com.wingedsheep.sdk.scripting.conditions.WasKicked as WasKickedCondition
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid as BlightWasPaidCondition
+import com.wingedsheep.sdk.scripting.conditions.CastChoiceMade as CastChoiceMadeCondition
+import com.wingedsheep.sdk.scripting.conditions.CastChoiceIs as CastChoiceIsCondition
 import com.wingedsheep.sdk.scripting.conditions.SourceMatches
 import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer as SourceIsRingBearerCondition
 import com.wingedsheep.sdk.scripting.conditions.YouChoseOtherCreatureAsRingBearer as YouChoseOtherCreatureAsRingBearerCondition
@@ -490,6 +492,20 @@ object Conditions {
      */
     val BlightWasPaid: ConditionInterface =
         BlightWasPaidCondition
+
+    /**
+     * If a value was locked in for [slot] when the source was cast / as it entered
+     * ("a color was chosen", "this spell was kicked"). Reads the durable cast-choices bag.
+     */
+    fun CastChoiceMade(slot: com.wingedsheep.sdk.scripting.ChoiceSlot): ConditionInterface =
+        CastChoiceMadeCondition(slot)
+
+    /**
+     * If the value locked in for [slot] equals [value] (text compare; color uses the enum name).
+     * The generic slot reader, e.g. `CastChoiceIs(ChoiceSlot.MODE, "Khans")`.
+     */
+    fun CastChoiceIs(slot: com.wingedsheep.sdk.scripting.ChoiceSlot, value: String): ConditionInterface =
+        CastChoiceIsCondition(slot, value)
 
     /**
      * If specific colored mana was spent to cast this spell.

@@ -923,18 +923,17 @@ class ClientStateTransformer(
         // Get chosen creature type for "as enters" permanents (e.g., Doom Cannon) or spells on stack (e.g., Aphetto Dredging).
         // Note: temporary type changes from floating SetCreatureSubtypes effects (e.g., Mistform Wall, Figure of Fable)
         // are surfaced via the "type-change" active-effect badge in buildCardActiveEffects, not as a chosen-type label.
-        val chosenCreatureType = container.get<ChosenCreatureTypeComponent>()?.creatureType
+        val chosenCreatureType = container.chosenCreatureType()
             ?: spellOnStack?.chosenCreatureType
 
         // Get chosen color for "as enters, choose a color" permanents (e.g., Riptide Replicator)
-        val chosenColor = container.get<ChosenColorComponent>()?.color?.displayName
+        val chosenColor = container.chosenColor()?.displayName
 
         // Get chosen mode label for "as enters, choose X or Y" permanents (e.g., Outpost Siege).
         // Resolve the stored mode id back to the display label declared in the card's
         // EntersWithChoice(modeOptions = [...]) so the UI can show the human-friendly name.
         val chosenMode = container
-            .get<com.wingedsheep.engine.state.components.identity.ChosenModeComponent>()
-            ?.modeId
+            .chosenModeId()
             ?.let { modeId ->
                 val modeOptions = cardDef?.script?.replacementEffects
                     ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithChoice>()

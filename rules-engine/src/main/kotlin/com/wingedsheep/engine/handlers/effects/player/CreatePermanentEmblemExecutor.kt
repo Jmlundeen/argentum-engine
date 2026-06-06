@@ -10,9 +10,11 @@ import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.engine.state.components.battlefield.withCastChoice
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.EmblemSourceComponent
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CreatePermanentEmblemEffect
 import kotlin.reflect.KClass
@@ -58,14 +60,16 @@ class CreatePermanentEmblemExecutor : EffectExecutor<CreatePermanentEmblemEffect
 
         // Build the synthetic emblem source entity. It carries the controller (so "you control"
         // filters resolve correctly), the chosen creature type (so chosenSubtypeKey filters
-        // find a ChosenCreatureTypeComponent), and an EmblemSourceComponent that lets the
+        // find a CastChoicesComponent), and an EmblemSourceComponent that lets the
         // client transformer surface a badge on the controller's player effects panel.
         val (emblemId, stateWithId) = state.newEntity()
         var emblemContainer: ComponentContainer = ComponentContainer.EMPTY
             .with(ControllerComponent(controllerId))
             .with(EmblemSourceComponent(sourceName = sourceName, description = resolvedDescription))
         if (chosenType != null) {
-            emblemContainer = emblemContainer.with(ChosenCreatureTypeComponent(chosenType))
+            emblemContainer = emblemContainer.withCastChoice(
+                ChoiceSlot.CREATURE_TYPE, ChoiceValue.TextChoice(chosenType)
+            )
         }
 
         var newState = stateWithId.withEntity(emblemId, emblemContainer)

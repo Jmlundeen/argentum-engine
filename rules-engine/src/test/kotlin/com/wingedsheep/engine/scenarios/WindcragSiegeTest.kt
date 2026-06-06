@@ -1,7 +1,9 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
-import com.wingedsheep.engine.state.components.identity.ChosenModeComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tdm.cards.HollowmurkSiege
@@ -59,11 +61,11 @@ class WindcragSiegeTest : FunSpec({
 
         // Hollowmurk Abzan: "whenever you attack, put a +1/+1 counter on target attacking creature."
         val hollowmurk = driver.putPermanentOnBattlefield(you, "Hollowmurk Siege")
-        driver.addComponent(hollowmurk, ChosenModeComponent("abzan"))
+        driver.addComponent(hollowmurk, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("abzan"))))
 
         // Windcrag Mardu doubles that attack trigger.
         val windcrag = driver.putPermanentOnBattlefield(you, "Windcrag Siege")
-        driver.addComponent(windcrag, ChosenModeComponent("mardu"))
+        driver.addComponent(windcrag, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("mardu"))))
 
         driver.passPriorityUntil(Step.DECLARE_ATTACKERS)
         driver.declareAttackers(you, listOf(attacker), opponent)
@@ -85,11 +87,11 @@ class WindcragSiegeTest : FunSpec({
         driver.removeSummoningSickness(attacker)
 
         val hollowmurk = driver.putPermanentOnBattlefield(you, "Hollowmurk Siege")
-        driver.addComponent(hollowmurk, ChosenModeComponent("abzan"))
+        driver.addComponent(hollowmurk, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("abzan"))))
 
         // Windcrag present but in Jeskai mode — no attack-trigger doubling.
         val windcrag = driver.putPermanentOnBattlefield(you, "Windcrag Siege")
-        driver.addComponent(windcrag, ChosenModeComponent("jeskai"))
+        driver.addComponent(windcrag, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("jeskai"))))
 
         driver.passPriorityUntil(Step.DECLARE_ATTACKERS)
         driver.declareAttackers(you, listOf(attacker), opponent)
@@ -107,7 +109,7 @@ class WindcragSiegeTest : FunSpec({
         val creaturesBefore = driver.getCreatures(you).toSet()
 
         val windcrag = driver.putPermanentOnBattlefield(you, "Windcrag Siege")
-        driver.addComponent(windcrag, ChosenModeComponent("jeskai"))
+        driver.addComponent(windcrag, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("jeskai"))))
 
         // Advance through the opponent's turn back to OUR next upkeep so the trigger fires.
         var guard = 0

@@ -1,8 +1,10 @@
 # Scoping: cast-time choices & inherited X (the "declare directive" problem)
 
-**Status:** Phase 1 done — `DynamicAmount.CastX` + durable `CastChoicesComponent`; Hydroid Krasis
-implemented and tested (RNA set scaffolded). Phases 2–4 (slot generalization, `declare { }` DSL,
-emitter payoff) not started. **Owner:** TBD. **Related:**
+**Status:** Phases 1–2 done. Phase 1 — `DynamicAmount.CastX` + durable `CastChoicesComponent`; Hydroid
+Krasis. Phase 2 — `CastChoicesComponent` generalized to a `ChoiceSlot` bag (X + color/type/land-type/mode/
+creature + kicked + blight), `DynamicAmount.CastChoice` + `Conditions.CastChoiceMade`/`CastChoiceIs`,
+Riptide Replicator off `CreateChosenTokenEffect`, blight off `ContextProperty`. Phases 3–4 (`declare { }`
+DSL, emitter payoff) not started. **Owner:** TBD. **Related:**
 [`sdk-language-design.md`](sdk-language-design.md), [`forge-parity-harness.md`](forge-parity-harness.md),
 and the `:mtgish-tooling` *"Creator's note: extra costs & chosen / inherited values"* in
 [`../mtgish-tooling/README.md`](../mtgish-tooling/README.md) (this doc is the design that note asks for).
@@ -241,10 +243,21 @@ cards read like the hand-authored targets in §5.3.
       (`HydroidKrasisScenarioTest`, plus an X=5 round-down case.)
 - [x] X survives a dies-trigger (LKI, via the leave `ZoneChangeEvent.xValue`) and is *not* inherited by
       a copy (CR 707.2; `CastXNotInheritedByCopyTest` clones an X-cast creature → no counters/component).
-- [ ] (Phase 2+) `CastChoicesComponent` unifies X + chosen color/type/mode + kicked + blight; Riptide
-      Replicator migrated off `CreateChosenTokenEffect`.
-- [x] `docs/card-sdk-language-reference.md` updated for `DynamicAmount.CastX` (the `declare { }` DSL and
-      slot readers remain Phase 2/3).
+- [x] (Phase 2) `CastChoicesComponent` unifies X + chosen color/type/land-type/mode/creature + kicked +
+      blight in one durable bag (the former `Chosen*Component`s and `WasKickedComponent` deleted; reads go
+      through accessor helpers). Generic slot vocabulary added: `ChoiceSlot`,
+      `DynamicAmount.CastChoice(slot)`, `Conditions.CastChoiceMade(slot)` / `CastChoiceIs(slot, value)`.
+      Riptide Replicator migrated off `CreateChosenTokenEffect` (now deleted) onto
+      `Effects.CreateTokenOfChosenColorAndType` (reads `ChoiceSlot.COLOR` / `ChoiceSlot.CREATURE_TYPE`);
+      Soul Immolation's blight X migrated from `ContextProperty(ADDITIONAL_COST_BLIGHT_AMOUNT)` (removed) to
+      `CastChoice(ChoiceSlot.BLIGHT_AMOUNT)`. Tests: `RiptideReplicatorScenarioTest`,
+      `SoulImmolationBlightTest`, `CastChoiceConditionTest`. The existing named SDK readers
+      (`SourceChosenModeIs`, `HasChosenSubtype`, `SharesChosenColorWithSource`,
+      `ManaColorSet.SourceChosenColor`, `Conditions.WasKicked`) were re-pointed at the bag rather than
+      renamed. The `declare { }` DSL (Phase 3) and emitter payoff (Phase 4) remain.
+- [x] `docs/card-sdk-language-reference.md` updated for `DynamicAmount.CastX`, `CastChoice(slot)`,
+      `Conditions.CastChoiceMade` / `CastChoiceIs`, and `Effects.CreateTokenOfChosenColorAndType` (the
+      `declare { }` DSL remains Phase 3).
 
 > Build with the **`add-feature`** skill — this is a cross-layer SDK primitive (SDK → engine →
 > projection/triggers → continuations → server DTO if X is shown), not a single card.

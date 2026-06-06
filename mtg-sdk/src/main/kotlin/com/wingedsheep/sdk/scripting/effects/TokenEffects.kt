@@ -15,38 +15,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 // =============================================================================
-// Chosen Token Effects
-// =============================================================================
-
-/**
- * Create a creature token using the chosen color and creature type from the source permanent.
- * Power/toughness are determined by dynamic amounts evaluated at resolution time.
- *
- * Used for Riptide Replicator: "Create an X/X creature token of the chosen color and type,
- * where X is the number of charge counters on Riptide Replicator."
- *
- * Reads ChosenColorComponent and ChosenCreatureTypeComponent from the source.
- *
- * @property dynamicPower Dynamic amount for the token's power
- * @property dynamicToughness Dynamic amount for the token's toughness
- */
-@SerialName("CreateChosenToken")
-@Serializable
-data class CreateChosenTokenEffect(
-    val dynamicPower: DynamicAmount,
-    val dynamicToughness: DynamicAmount
-) : Effect {
-    override val description: String =
-        "Create an ${dynamicPower.description}/${dynamicToughness.description} creature token of the chosen color and type"
-
-    override fun applyTextReplacement(replacer: TextReplacer): Effect {
-        val newPower = dynamicPower.applyTextReplacement(replacer)
-        val newToughness = dynamicToughness.applyTextReplacement(replacer)
-        return if (newPower !== dynamicPower || newToughness !== dynamicToughness) copy(dynamicPower = newPower, dynamicToughness = newToughness) else this
-    }
-}
-
-// =============================================================================
 // Token Effects
 // =============================================================================
 
@@ -96,7 +64,19 @@ data class CreateTokenEffect(
     val exileAtStep: Step? = null,
     val sacrificeAtStep: Step? = null,
     /** Counters to place on the token when it enters the battlefield. */
-    val initialCounters: Map<String, Int> = emptyMap()
+    val initialCounters: Map<String, Int> = emptyMap(),
+    /**
+     * If set, the token's color is the color the source locked into this cast-choice slot
+     * (rather than the fixed [colors]) — e.g. Riptide Replicator "of the chosen color".
+     * Read from the source's cast-choices bag at resolution; null means use [colors].
+     */
+    val colorsFromChoice: com.wingedsheep.sdk.scripting.ChoiceSlot? = null,
+    /**
+     * If set, the token's creature type is the type the source locked into this cast-choice slot
+     * (rather than the fixed [creatureTypes]) — e.g. Riptide Replicator "of the chosen type".
+     * Read from the source's cast-choices bag at resolution; null means use [creatureTypes].
+     */
+    val creatureTypesFromChoice: com.wingedsheep.sdk.scripting.ChoiceSlot? = null
 ) : Effect {
     constructor(
         count: Int,
@@ -112,24 +92,22 @@ data class CreateTokenEffect(
     ) : this(DynamicAmount.Fixed(count), power, toughness, colors, creatureTypes, keywords, name, imageUri, controller, legendary = legendary, artifactToken = false)
 
     override val description: String = buildString {
+        val pt = if (dynamicPower != null && dynamicToughness != null) {
+            "${dynamicPower.description}/${dynamicToughness.description}"
+        } else "$power/$toughness"
+        val colorWord = if (colorsFromChoice != null) "the chosen color"
+            else colors.joinToString(" and ") { it.displayName.lowercase() }
+        val typeWord = if (creatureTypesFromChoice != null) "the chosen type"
+            else creatureTypes.joinToString(" ")
         append("Create ")
         when (val c = count) {
             is DynamicAmount.Fixed -> {
                 append(if (c.amount == 1) "a" else "${c.amount}")
-                append(" $power/$toughness ")
-                append(colors.joinToString(" and ") { it.displayName.lowercase() })
-                append(" ")
-                append(creatureTypes.joinToString(" "))
-                append(" creature token")
+                append(" $pt $colorWord $typeWord creature token")
                 if (c.amount != 1) append("s")
             }
             else -> {
-                append(c.description)
-                append(" $power/$toughness ")
-                append(colors.joinToString(" and ") { it.displayName.lowercase() })
-                append(" ")
-                append(creatureTypes.joinToString(" "))
-                append(" creature tokens")
+                append("${c.description} $pt $colorWord $typeWord creature tokens")
             }
         }
         if (keywords.isNotEmpty()) {

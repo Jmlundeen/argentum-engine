@@ -1,8 +1,8 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.wasKickedChoice
 
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.state.components.battlefield.WasKickedComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.ManaCost
@@ -60,7 +60,7 @@ class CastKickerFromZoneTest : FunSpec({
         keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{2}")))
     }
 
-    test("casting kicked from graveyard applies WasKickedComponent") {
+    test("casting kicked from graveyard applies CastChoicesComponent") {
         val driver = GameTestDriver()
         driver.registerCards(TestCards.all)
         driver.registerCard(kickerCreatureFromGraveyard)
@@ -95,10 +95,10 @@ class CastKickerFromZoneTest : FunSpec({
         // Verify kicked
         val creatures = driver.getCreatures(p1)
         creatures.size shouldBe 1
-        driver.state.getEntity(creatures.first())?.has<WasKickedComponent>() shouldBe true
+        driver.state.getEntity(creatures.first())?.wasKickedChoice() shouldBe true
     }
 
-    test("non-kicked cast from graveyard does not get WasKickedComponent") {
+    test("non-kicked cast from graveyard does not get CastChoicesComponent") {
         val driver = GameTestDriver()
         driver.registerCards(TestCards.all)
         driver.registerCard(kickerCreatureFromGraveyard)
@@ -133,7 +133,7 @@ class CastKickerFromZoneTest : FunSpec({
         // Verify not kicked
         val creatures = driver.getCreatures(p1)
         creatures.size shouldBe 1
-        driver.state.getEntity(creatures.first())?.has<WasKickedComponent>() shouldBe false
+        driver.state.getEntity(creatures.first())?.wasKickedChoice() shouldBe false
     }
 
     test("casting kicked from graveyard with life cost succeeds") {

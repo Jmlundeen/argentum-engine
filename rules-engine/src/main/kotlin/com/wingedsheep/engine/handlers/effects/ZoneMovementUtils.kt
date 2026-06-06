@@ -26,7 +26,6 @@ import com.wingedsheep.engine.state.components.battlefield.CastFromHandComponent
 import com.wingedsheep.engine.state.components.battlefield.WarpedComponent
 import com.wingedsheep.engine.state.components.battlefield.EvokedComponent
 import com.wingedsheep.engine.state.components.battlefield.CastRecordComponent
-import com.wingedsheep.engine.state.components.battlefield.WasKickedComponent
 import com.wingedsheep.engine.state.components.battlefield.CraftedFromExiledComponent
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.battlefield.MayCastFromLinkedExileUsedThisTurnComponent
@@ -279,12 +278,11 @@ object ZoneMovementUtils {
             .without<CastFromHandComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.EnteredFromGraveyardComponent>()
-            .without<WasKickedComponent>()
             .without<WarpedComponent>()
             .without<EvokedComponent>()
-            // Cast-time X (DynamicAmount.CastX) is forgotten when the object changes zones
-            // (CR 400.7). It is captured as last-known info on the leave ZoneChangeEvent so
-            // dies/leaves triggers can still read it.
+            // Cast-time choices (DynamicAmount.CastX / CastChoice, chosen color/type/mode, kicked)
+            // are forgotten when the object changes zones (CR 400.7). The cast X is captured as
+            // last-known info on the leave ZoneChangeEvent so dies/leaves triggers can still read it.
             .without<com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastForImpendingComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.SuspendedComponent>()

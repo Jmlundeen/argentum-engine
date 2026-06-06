@@ -1,4 +1,8 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ChooseOptionDecision
@@ -6,7 +10,6 @@ import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -72,10 +75,10 @@ class CallousOppressorTest : FunSpec({
 
         // Verify the chosen creature type is stored on the permanent
         val oppressor = driver.state.getBattlefield().find { entityId ->
-            driver.state.getEntity(entityId)?.get<ChosenCreatureTypeComponent>() != null
+            driver.state.getEntity(entityId)?.chosenCreatureType() != null
         }
         oppressor shouldNotBe null
-        driver.state.getEntity(oppressor!!)?.get<ChosenCreatureTypeComponent>()?.creatureType shouldBe "Goblin"
+        driver.state.getEntity(oppressor!!)?.chosenCreatureType() shouldBe "Goblin"
     }
 
     test("Tap to steal creature not of chosen type") {
@@ -93,7 +96,7 @@ class CallousOppressorTest : FunSpec({
         val oppressor = driver.putCreatureOnBattlefield(activePlayer, "Callous Oppressor")
         driver.removeSummoningSickness(oppressor)
         driver.replaceState(driver.state.updateEntity(oppressor) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
         })
 
         // Put an Elf (not a Goblin) on the opponent's battlefield
@@ -133,7 +136,7 @@ class CallousOppressorTest : FunSpec({
         val oppressor = driver.putCreatureOnBattlefield(activePlayer, "Callous Oppressor")
         driver.removeSummoningSickness(oppressor)
         driver.replaceState(driver.state.updateEntity(oppressor) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
         })
 
         // Put a Goblin on the opponent's battlefield
@@ -166,7 +169,7 @@ class CallousOppressorTest : FunSpec({
         val oppressor = driver.putCreatureOnBattlefield(activePlayer, "Callous Oppressor")
         driver.removeSummoningSickness(oppressor)
         driver.replaceState(driver.state.updateEntity(oppressor) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
         })
 
         // Put an Elf on the opponent's battlefield
@@ -214,7 +217,7 @@ class CallousOppressorTest : FunSpec({
         val oppressor = driver.putCreatureOnBattlefield(activePlayer, "Callous Oppressor")
         driver.removeSummoningSickness(oppressor)
         driver.replaceState(driver.state.updateEntity(oppressor) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
         })
 
         // Put an Elf on the opponent's battlefield
@@ -261,7 +264,7 @@ class CallousOppressorTest : FunSpec({
         val oppressor = driver.putCreatureOnBattlefield(activePlayer, "Callous Oppressor")
         driver.removeSummoningSickness(oppressor)
         driver.replaceState(driver.state.updateEntity(oppressor) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
                 .with(TappedComponent)
         })
 

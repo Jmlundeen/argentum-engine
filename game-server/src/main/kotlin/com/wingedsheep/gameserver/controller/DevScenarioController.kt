@@ -7,6 +7,8 @@ import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.engine.state.components.battlefield.withCastChoice
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.battlefield.SagaComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
@@ -16,6 +18,7 @@ import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ProtectionScope
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.view.ClientStateTransformer
@@ -721,12 +724,15 @@ class DevScenarioController(
             }
 
             if (chosenCreatureType != null) {
-                container = container.with(ChosenCreatureTypeComponent(chosenCreatureType))
+                container = container.withCastChoice(
+                    ChoiceSlot.CREATURE_TYPE, ChoiceValue.TextChoice(chosenCreatureType)
+                )
             }
 
             if (chosenColor != null) {
-                container = container.with(
-                    ChosenColorComponent(com.wingedsheep.sdk.core.Color.valueOf(chosenColor))
+                container = container.withCastChoice(
+                    ChoiceSlot.COLOR,
+                    ChoiceValue.ColorChoice(com.wingedsheep.sdk.core.Color.valueOf(chosenColor))
                 )
             }
 

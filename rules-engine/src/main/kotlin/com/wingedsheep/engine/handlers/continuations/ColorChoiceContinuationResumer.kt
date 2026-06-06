@@ -2,7 +2,9 @@ package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.identity.ChosenColorComponent
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.engine.state.components.battlefield.withCastChoice
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 
 class ColorChoiceContinuationResumer(
     private val services: com.wingedsheep.engine.core.EngineServices,
@@ -107,7 +109,7 @@ class ColorChoiceContinuationResumer(
         }
 
         val newState = state.updateEntity(targetId) { container ->
-            container.with(ChosenColorComponent(response.color))
+            container.withCastChoice(ChoiceSlot.COLOR, ChoiceValue.ColorChoice(response.color))
         }
 
         return checkForMore(newState, emptyList())

@@ -463,6 +463,12 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   tokens whose P/T is computed at resolution (e.g. Pure Reflection's X/X Reflection where X = the cast spell's mana
   value, via `DynamicAmounts.triggeringManaValue()`). `controller` directs who gets the token (e.g.
   `EffectTarget.PlayerRef(Player.TriggeringPlayer)` for "that player creates …"); `imageUri` sets custom token art.
+- `CreateTokenOfChosenColorAndType(dynamicPower, dynamicToughness, count?)` — a token whose **color and
+  creature type are the ones the source locked into its cast-choice slots** (`ChoiceSlot.COLOR` /
+  `ChoiceSlot.CREATURE_TYPE`), read off the source's `CastChoicesComponent` at resolution. Riptide
+  Replicator: "create an X/X creature token of the chosen color and type." (Replaces the old one-off
+  `CreateChosenTokenEffect`; under the hood it sets `CreateTokenEffect.colorsFromChoice` /
+  `creatureTypesFromChoice`.)
 - `CreateTokenCopyOfSelf(count?, tapped?)` — token copies of source.
 - `CreateTokenCopyOfTarget(target, count?, overridePower?, overrideToughness?, tapped?, attacking?, triggeredAbilities?, addedKeywords?, addedSupertypes?, removedSupertypes?, overrideColors?, overrideSubtypes?, sacrificeAtStep?, sacrificeOnlyOnControllersTurn?)` —
   token copy of another permanent (or a card in any zone — the executor copies the target's `CardComponent`,
@@ -2266,8 +2272,22 @@ Other gates available in both contexts:
 
 - `ColorIsMostCommon(color)` — board-derived, so it gates a `ConditionalStaticAbility` directly
   (the Invasion djinns rely on this).
-- `SourceChosenModeIs("id")` — gate on the chosen mode (Sieges / `EntersWithChoice`).
-  Currently resolution-only; can be extended to projection if needed.
+- `SourceChosenModeIs("id")` — gate on the chosen mode (Sieges / `EntersWithChoice`). Works at both
+  resolution and projection.
+- `CastChoiceMade(slot)` — generic "was a value locked into this `ChoiceSlot`" guard over the durable
+  cast-choices bag (mtgish's `AColorWasChosen`): `CastChoiceMade(ChoiceSlot.COLOR)`,
+  `CastChoiceMade(ChoiceSlot.KICKED)`. Works at resolution and projection.
+- `CastChoiceIs(slot, "value")` — the slot's value equals `value` (text compare; color compares against
+  the enum name): `CastChoiceIs(ChoiceSlot.MODE, "Khans")`, `CastChoiceIs(ChoiceSlot.COLOR, "RED")`. The
+  generic slot reader new cards should prefer over per-slot conditions; the §8 emitter target for
+  mtgish's `TheChosenColor`/`TheChosenCreatureType` guards.
+
+**Cast-choice slots (`ChoiceSlot`).** The choices an object locks in *as it is cast / as it enters*
+(CR 601.2b) — color, creature type, land type, mode, chosen creature, kicked-ness, blight amount — all
+ride one durable `CastChoicesComponent` on the stable entity (the immutable-ECS analogue of Forge's
+SVar bag). `{X}` has its own dedicated reader (`DynamicAmount.CastX`); the other slots are read
+generically via `DynamicAmount.CastChoice(slot)` (numeric), `CastChoiceMade(slot)` / `CastChoiceIs(slot,
+value)` (conditions), or consumed directly by effects (e.g. `Effects.CreateTokenOfChosenColorAndType`).
 
 ---
 
@@ -2289,6 +2309,13 @@ Numbers computed at resolution time.
   the stack); preserved as last-known information for dies/leaves triggers. A copy of a *permanent*
   (Clone) does not inherit it (CR 707.2); a copy of a *spell* on the stack does. Hydroid Krasis reads
   `CastX` for both its cast trigger ("draw half X") and its enters-with-X-counters replacement.
+- `CastChoice(slot)` — the *numeric* value locked into a `ChoiceSlot` as this object was cast, read off
+  the same durable `CastChoicesComponent` as `CastX` (falling back to the resolution context, so an
+  instant/sorcery that never becomes a permanent still resolves it). The only numeric slot today is
+  `ChoiceSlot.BLIGHT_AMOUNT` — the X declared for a `blight X` additional cost (Soul Immolation "deals X
+  damage…"). Non-numeric slots (color, creature type, mode) are read by the `CastChoiceMade` /
+  `CastChoiceIs` conditions or consumed directly by effects, not by `DynamicAmount`. (Replaces the old
+  `ContextProperty(ADDITIONAL_COST_BLIGHT_AMOUNT)`.)
 - `TotalManaSpent` — total mana paid from the pool to cast the current spell (sum of every per-color
   bucket; for X spells the X portion is included). E.g. Memory Deluge "where X is the mana spent."
 - `ManaSpentOnX(color)` — the amount of `{color}` mana spent on the `{X}` portion specifically, broken
@@ -2426,7 +2453,8 @@ sibling effect that reads `DynamicAmount.EntityProperty(EntityReference.AmassedA
   - `TRIGGER_COUNTERS_PLACED_AMOUNT` — counters placed in the triggering event (Simic Ascendancy).
   - `LAST_KNOWN_PLUS_ONE_COUNTER_COUNT` / `LAST_KNOWN_TOTAL_COUNTER_COUNT` — counters on the
     source as it last existed on the battlefield (Hooded Hydra / Shadow Urchin).
-  - `ADDITIONAL_COST_EXILED_COUNT` / `ADDITIONAL_COST_BLIGHT_AMOUNT` — cost-step accumulators.
+  - `ADDITIONAL_COST_EXILED_COUNT` — cost-step accumulator. (The blight-X amount moved to
+    `DynamicAmount.CastChoice(ChoiceSlot.BLIGHT_AMOUNT)`.)
   - `TARGET_COUNT` — still-legal targets in the current effect context.
   - `LINKED_EXILE_CARD_COUNT` / `LINKED_EXILE_DISTINCT_CARD_TYPE_COUNT` — cards / distinct
     types in the source's linked exile pile (Veteran Survivor / Keen-Eyed Curator).

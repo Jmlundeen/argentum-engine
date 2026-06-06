@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * Creatures of the chosen color without flying can't attack you.
  *
  * The chosen color is stored at ETB via [EntersWithChoice] (ChoiceType.COLOR →
- * ChosenColorComponent). The attack restriction reuses [CantBeAttackedWithout], narrowed by
+ * CastChoicesComponent). The attack restriction reuses [CantBeAttackedWithout], narrowed by
  * an [CantBeAttackedWithout.attackerFilter] that matches only creatures sharing the chosen
  * color (resolved with this enchantment as the predicate source).
  */

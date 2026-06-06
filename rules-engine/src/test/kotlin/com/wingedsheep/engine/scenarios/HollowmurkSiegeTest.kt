@@ -1,7 +1,9 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
-import com.wingedsheep.engine.state.components.identity.ChosenModeComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tdm.cards.HollowmurkSiege
@@ -40,7 +42,7 @@ class HollowmurkSiegeTest : FunSpec({
         driver.removeSummoningSickness(attacker)
 
         val siege = driver.putPermanentOnBattlefield(you, "Hollowmurk Siege")
-        driver.addComponent(siege, ChosenModeComponent("abzan"))
+        driver.addComponent(siege, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("abzan"))))
 
         driver.passPriorityUntil(Step.DECLARE_ATTACKERS)
         driver.declareAttackers(you, listOf(attacker), opponent)
@@ -65,9 +67,9 @@ class HollowmurkSiegeTest : FunSpec({
 
         // Abzan siege supplies the counter; Sultai siege reacts to it.
         val abzan = driver.putPermanentOnBattlefield(you, "Hollowmurk Siege")
-        driver.addComponent(abzan, ChosenModeComponent("abzan"))
+        driver.addComponent(abzan, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("abzan"))))
         val sultai = driver.putPermanentOnBattlefield(you, "Hollowmurk Siege")
-        driver.addComponent(sultai, ChosenModeComponent("sultai"))
+        driver.addComponent(sultai, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("sultai"))))
 
         val handBefore = driver.getHandSize(you)
 

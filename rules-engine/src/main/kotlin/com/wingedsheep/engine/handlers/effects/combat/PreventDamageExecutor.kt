@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.effects.combat
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.DeflectDamageSourceChoiceContinuation
@@ -13,7 +14,6 @@ import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.PreventDamageEffect
@@ -148,7 +148,7 @@ class PreventDamageExecutor(
         val sourceEntity = state.getEntity(sourceId)
             ?: return EffectResult.error(state, "Source entity not found: $sourceId")
 
-        val chosenType = sourceEntity.get<ChosenCreatureTypeComponent>()?.creatureType
+        val chosenType = sourceEntity.chosenCreatureType()
             ?: return EffectResult.error(state, "No chosen creature type on source: $sourceId")
 
         val newState = state.addFloatingEffect(

@@ -52,7 +52,7 @@ data class ConditionalStaticAbility(
  * The engine checks for this ability after a mana ability on the enchanted land resolves.
  *
  * @property color The color of additional mana to produce. When `null`, the color is
- *   read from the aura's `ChosenColorComponent` at resolution (e.g., Shimmerwilds Growth).
+ *   read from the aura's `CastChoicesComponent` at resolution (e.g., Shimmerwilds Growth).
  *   If the source has no chosen color, no mana is added (per Oracle ruling). Ignored when
  *   [anyColor] is true.
  * @property amount How much additional mana to produce (evaluated dynamically)
@@ -84,7 +84,7 @@ data class AdditionalManaOnTap(
  * produce are swapped for [color] instead.
  *
  * When [color] is `null`, the replacement color is read from the aura's own
- * `ChosenColorComponent` (set via `EntersWithChoice(ChoiceType.COLOR)`) at resolution
+ * `CastChoicesComponent` (set via `EntersWithChoice(ChoiceType.COLOR)`) at resolution
  * time. If no color is chosen, no replacement happens and the land produces as normal.
  *
  * This is how Shimmerwilds Growth realises "Enchanted land is the chosen color":

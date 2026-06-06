@@ -12020,7 +12020,11 @@
                     ]
                 },
                 "effect": {
-                    "type": "CreateChosenToken",
+                    "type": "CreateToken",
+                    "power": 0,
+                    "toughness": 0,
+                    "colors": [],
+                    "creatureTypes": [],
                     "dynamicPower": {
                         "type": "EntityProperty",
                         "entity": "Source",
@@ -12042,7 +12046,9 @@
                                 "name": "charge"
                             }
                         }
-                    }
+                    },
+                    "colorsFromChoice": "COLOR",
+                    "creatureTypesFromChoice": "CREATURE_TYPE"
                 }
             }
         ],

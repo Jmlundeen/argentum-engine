@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-import com.wingedsheep.sdk.scripting.effects.CreateChosenTokenEffect
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.ChoiceType
@@ -39,7 +39,7 @@ val RiptideReplicator = card("Riptide Replicator") {
             Costs.Mana("{4}"),
             Costs.Tap
         )
-        effect = CreateChosenTokenEffect(
+        effect = Effects.CreateTokenOfChosenColorAndType(
             dynamicPower = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE)),
             dynamicToughness = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE))
         )

@@ -1131,7 +1131,7 @@ object Effects {
      *    `AddAnyColorManaSpendOnChosenType(creatureOnly = true,
      *     riders = setOf(ManaSpellRider.MakesSpellUncounterable))`
      *
-     * The executor reads the source's `ChosenCreatureTypeComponent` and bakes that
+     * The executor reads the source's `CastChoicesComponent` and bakes that
      * subtype into the restriction at the moment mana is added to the pool.
      */
     fun AddAnyColorManaSpendOnChosenType(
@@ -1273,6 +1273,26 @@ object Effects {
         controller = controller,
         dynamicPower = dynamicPower, dynamicToughness = dynamicToughness,
         imageUri = imageUri
+    )
+
+    /**
+     * Create a creature token whose color and creature type are the ones the source locked into its
+     * cast-choice slots (e.g. Riptide Replicator: "create an X/X creature token of the chosen color
+     * and type"), with dynamic power/toughness. Reads `ChoiceSlot.COLOR` / `ChoiceSlot.CREATURE_TYPE`
+     * from the source's durable cast-choices bag at resolution — the generic replacement for the old
+     * one-off `CreateChosenTokenEffect`.
+     */
+    fun CreateTokenOfChosenColorAndType(
+        dynamicPower: DynamicAmount,
+        dynamicToughness: DynamicAmount,
+        count: Int = 1
+    ): Effect = CreateTokenEffect(
+        count = DynamicAmount.Fixed(count),
+        power = 0, toughness = 0,
+        colors = emptySet(), creatureTypes = emptySet(),
+        dynamicPower = dynamicPower, dynamicToughness = dynamicToughness,
+        colorsFromChoice = com.wingedsheep.sdk.scripting.ChoiceSlot.COLOR,
+        creatureTypesFromChoice = com.wingedsheep.sdk.scripting.ChoiceSlot.CREATURE_TYPE
     )
 
     /**

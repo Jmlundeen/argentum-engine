@@ -29,7 +29,7 @@ data class GrantProtection(
 /**
  * Grants protection from the chosen color to a group of creatures.
  * Used for "As this enters, choose a color. [Group] have protection from the chosen color."
- * The chosen color is stored on the permanent via ChosenColorComponent and resolved dynamically.
+ * The chosen color is stored on the permanent via CastChoicesComponent and resolved dynamically.
  * Example: Ward Sliver (all Slivers have protection from the chosen color)
  *
  * @property filter The group of creatures that gain protection

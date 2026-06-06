@@ -1,4 +1,6 @@
 package com.wingedsheep.engine.handlers
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.GameState
@@ -15,7 +17,6 @@ import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.HasMorphAbilityComponent
@@ -379,7 +380,7 @@ class PredicateEvaluator {
             CardPredicate.NotOfSourceChosenType -> {
                 val sourceId = context?.sourceId ?: return true
                 val chosenType = state.getEntity(sourceId)
-                    ?.get<ChosenCreatureTypeComponent>()?.creatureType
+                    ?.chosenCreatureType()
                     ?: return true
                 val hasSubtype = projectedValues?.subtypes?.any { it.equals(chosenType, ignoreCase = true) }
                     ?: card.typeLine.hasSubtype(Subtype(chosenType))
@@ -418,7 +419,7 @@ class PredicateEvaluator {
             CardPredicate.HasChosenSubtype -> {
                 val sourceId = context?.sourceId ?: return false
                 val chosenType = state.getEntity(sourceId)
-                    ?.get<ChosenCreatureTypeComponent>()?.creatureType
+                    ?.chosenCreatureType()
                     ?: return false
                 val entitySubtypes = projectedValues?.subtypes ?: card.typeLine.subtypes.map { it.value }.toSet()
                 entitySubtypes.any { it.equals(chosenType, ignoreCase = true) } ||
@@ -453,7 +454,7 @@ class PredicateEvaluator {
             CardPredicate.SharesChosenColorWithSource -> {
                 val sourceId = context?.sourceId ?: return false
                 val chosenColor = state.getEntity(sourceId)
-                    ?.get<com.wingedsheep.engine.state.components.identity.ChosenColorComponent>()?.color
+                    ?.chosenColor()
                     ?: return false
                 chosenColor.name in colors
             }

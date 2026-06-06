@@ -6,6 +6,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
+import com.wingedsheep.engine.state.components.battlefield.blightAmountChoice
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantsStationUsingToughnessComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -91,6 +92,18 @@ class DynamicAmountEvaluator(
                     ?: source?.get<SpellOnStackComponent>()?.xValue
                     ?: context.xValue
                     ?: 0
+            }
+
+            // A numeric value locked in for a ChoiceSlot, read off the durable cast-choices bag on
+            // the source, falling back to the resolution context so an instant/sorcery that never
+            // becomes a permanent still resolves it from what was paid at cast.
+            is DynamicAmount.CastChoice -> {
+                val source = context.sourceId?.let { state.getEntity(it) }
+                when (amount.slot) {
+                    com.wingedsheep.sdk.scripting.ChoiceSlot.BLIGHT_AMOUNT ->
+                        source?.blightAmountChoice() ?: context.additionalCostBlightAmount
+                    else -> 0
+                }
             }
 
             is DynamicAmount.TotalManaSpent -> context.totalManaSpent
@@ -428,7 +441,6 @@ class DynamicAmountEvaluator(
         ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT -> context.triggerTotalCounterCount ?: 0
 
         ContextPropertyKey.ADDITIONAL_COST_EXILED_COUNT -> context.exiledCardCount
-        ContextPropertyKey.ADDITIONAL_COST_BLIGHT_AMOUNT -> context.additionalCostBlightAmount
 
         ContextPropertyKey.TARGET_COUNT -> context.targets.size
 

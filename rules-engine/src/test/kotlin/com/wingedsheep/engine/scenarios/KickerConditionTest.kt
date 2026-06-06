@@ -1,8 +1,8 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.wasKickedChoice
 
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.state.components.battlefield.WasKickedComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Keyword
@@ -74,11 +74,11 @@ class KickerConditionTest : FunSpec({
         driver.passPriority(p1)
         driver.passPriority(driver.player2)
 
-        // Verify the permanent has WasKickedComponent
+        // Verify the permanent has CastChoicesComponent
         val creatures = driver.getCreatures(p1)
         creatures.size shouldBe 1
         val creatureId = creatures.first()
-        driver.state.getEntity(creatureId)?.has<WasKickedComponent>() shouldBe true
+        driver.state.getEntity(creatureId)?.wasKickedChoice() shouldBe true
 
         // Advance to end step - the trigger should NOT fire because it was kicked
         driver.passPriorityUntil(Step.END)
@@ -121,11 +121,11 @@ class KickerConditionTest : FunSpec({
         driver.passPriority(p1)
         driver.passPriority(driver.player2)
 
-        // Verify no WasKickedComponent
+        // Verify no CastChoicesComponent
         val creatures = driver.getCreatures(p1)
         creatures.size shouldBe 1
         val creatureId = creatures.first()
-        driver.state.getEntity(creatureId)?.has<WasKickedComponent>() shouldBe false
+        driver.state.getEntity(creatureId)?.wasKickedChoice() shouldBe false
 
         // Advance to end step - the trigger SHOULD fire and sacrifice the creature
         driver.passPriorityUntil(Step.END)

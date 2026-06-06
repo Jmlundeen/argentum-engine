@@ -93,7 +93,7 @@ data class GrantWard(
 
 /**
  * Grants the landwalk keyword matching the basic land type chosen as the source entered
- * (resolved at projection time from the source's `ChosenLandTypeComponent`):
+ * (resolved at projection time from the source's `CastChoicesComponent`):
  * Plains→Plainswalk, Island→Islandwalk, Swamp→Swampwalk, Mountain→Mountainwalk, Forest→Forestwalk.
  *
  * Used for Auras like Traveler's Cloak ("As this Aura enters, choose a basic land type. Enchanted

@@ -80,7 +80,7 @@ sealed interface ManaRestriction {
      * (or, when [creatureOnly] is false, also to activate an ability of a source of that subtype)."
      *
      * The [subtype] is baked at the moment the mana is added to the pool
-     * (e.g., read from the source's ChosenCreatureTypeComponent), so the
+     * (e.g., read from the source's CastChoicesComponent), so the
      * restriction becomes self-contained and serializable.
      *
      * When [creatureOnly] is true, only creature spells of that subtype satisfy the

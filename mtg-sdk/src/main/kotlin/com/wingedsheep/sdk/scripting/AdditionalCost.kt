@@ -235,7 +235,7 @@ sealed interface AdditionalCost : TextReplaceable<AdditionalCost> {
     /**
      * Blight X (variable): the caster declares X at cast time, puts X -1/-1
      * counters on a creature they control, and X is exposed to the spell's
-     * effects via `DynamicAmount.ContextProperty(ContextPropertyKey.ADDITIONAL_COST_BLIGHT_AMOUNT)`.
+     * effects via `DynamicAmount.CastChoice(ChoiceSlot.BLIGHT_AMOUNT)`.
      *
      * X is bounded by the greatest toughness among creatures the caster controls
      * (per CR text on Soul Immolation). The cap is computed at cast-enumeration

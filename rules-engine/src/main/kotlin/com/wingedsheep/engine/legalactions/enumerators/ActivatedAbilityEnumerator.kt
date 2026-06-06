@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.legalactions.enumerators
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.legalactions.ActionEnumerator
@@ -14,7 +15,6 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.TextReplacementComponent
@@ -224,7 +224,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         if (bounceTargets.size < bounceCost.count) continue
                     }
                     is AbilityCost.SacrificeChosenCreatureType -> {
-                        val chosenType = container.get<ChosenCreatureTypeComponent>()?.creatureType
+                        val chosenType = container.chosenCreatureType()
                         if (chosenType == null) continue
                         val dynamicFilter = GameObjectFilter.Creature.withSubtype(chosenType)
                         sacrificeCost = AbilityCost.Sacrifice(dynamicFilter)
@@ -317,7 +317,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                     }
                                 }
                                 is AbilityCost.SacrificeChosenCreatureType -> {
-                                    val chosenType = container.get<ChosenCreatureTypeComponent>()?.creatureType
+                                    val chosenType = container.chosenCreatureType()
                                     if (chosenType == null) {
                                         costCanBePaid = false
                                         break

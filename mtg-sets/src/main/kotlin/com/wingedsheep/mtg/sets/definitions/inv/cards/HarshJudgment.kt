@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Invasion engine gap #7: this is the first card to use the [RedirectDamage] static
  * replacement (previously defined but unwired). The chosen color is stored at ETB via
- * [EntersWithChoice] (ChoiceType.COLOR → ChosenColorComponent); the source filter combines
+ * [EntersWithChoice] (ChoiceType.COLOR → CastChoicesComponent); the source filter combines
  * `InstantOrSorcery` with [CardPredicate.SharesChosenColorWithSource]; and the redirect
  * destination uses the new [EffectTarget.ControllerOfDamageSource].
  */

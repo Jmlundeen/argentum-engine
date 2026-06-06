@@ -6,7 +6,10 @@ import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.engine.state.components.battlefield.withCastChoice
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -518,14 +521,14 @@ class ModalAndCloneContinuationResumer(
         val controllerId = continuation.controllerId
         val ownerId = continuation.ownerId
 
-        // Store the chosen value based on choice type
+        // Store the chosen value based on choice type — into the unified cast-choices bag.
         var newState = when (continuation.choiceType) {
             com.wingedsheep.sdk.scripting.ChoiceType.COLOR -> {
                 if (response !is ColorChosenResponse) {
                     return ExecutionResult.error(state, "Expected color choice response")
                 }
                 state.updateEntity(spellId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenColorComponent(response.color))
+                    c.withCastChoice(ChoiceSlot.COLOR, ChoiceValue.ColorChoice(response.color))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_TYPE -> {
@@ -535,7 +538,7 @@ class ModalAndCloneContinuationResumer(
                 val chosenType = continuation.creatureTypes.getOrNull(response.optionIndex)
                     ?: return ExecutionResult.error(state, "Invalid creature type index: ${response.optionIndex}")
                 state.updateEntity(spellId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent(chosenType))
+                    c.withCastChoice(ChoiceSlot.CREATURE_TYPE, ChoiceValue.TextChoice(chosenType))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_ON_BATTLEFIELD -> {
@@ -545,7 +548,7 @@ class ModalAndCloneContinuationResumer(
                 val chosenCreatureId = response.selectedCards.firstOrNull()
                     ?: return ExecutionResult.error(state, "No creature selected")
                 state.updateEntity(spellId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenCreatureComponent(chosenCreatureId))
+                    c.withCastChoice(ChoiceSlot.CREATURE, ChoiceValue.EntityChoice(chosenCreatureId))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.MODE -> {
@@ -555,7 +558,7 @@ class ModalAndCloneContinuationResumer(
                 val modeId = continuation.modeOptionIds.getOrNull(response.optionIndex)
                     ?: return ExecutionResult.error(state, "Invalid mode option index: ${response.optionIndex}")
                 state.updateEntity(spellId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenModeComponent(modeId))
+                    c.withCastChoice(ChoiceSlot.MODE, ChoiceValue.TextChoice(modeId))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.BASIC_LAND_TYPE -> {
@@ -565,7 +568,7 @@ class ModalAndCloneContinuationResumer(
                 val chosenType = continuation.landTypes.getOrNull(response.optionIndex)
                     ?: return ExecutionResult.error(state, "Invalid land type index: ${response.optionIndex}")
                 state.updateEntity(spellId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenLandTypeComponent(chosenType))
+                    c.withCastChoice(ChoiceSlot.LAND_TYPE, ChoiceValue.TextChoice(chosenType))
                 }
             }
         }
@@ -624,14 +627,14 @@ class ModalAndCloneContinuationResumer(
         response: DecisionResponse,
         checkForMore: CheckForMore
     ): ExecutionResult {
-        // Store the chosen value based on choice type
+        // Store the chosen value based on choice type — into the unified cast-choices bag.
         var newState = when (continuation.choiceType) {
             com.wingedsheep.sdk.scripting.ChoiceType.COLOR -> {
                 if (response !is ColorChosenResponse) {
                     return ExecutionResult.error(state, "Expected color choice response")
                 }
                 state.updateEntity(continuation.landId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenColorComponent(response.color))
+                    c.withCastChoice(ChoiceSlot.COLOR, ChoiceValue.ColorChoice(response.color))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_TYPE -> {
@@ -641,7 +644,7 @@ class ModalAndCloneContinuationResumer(
                 val chosenType = continuation.creatureTypes.getOrNull(response.optionIndex)
                     ?: return ExecutionResult.error(state, "Invalid creature type index: ${response.optionIndex}")
                 state.updateEntity(continuation.landId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent(chosenType))
+                    c.withCastChoice(ChoiceSlot.CREATURE_TYPE, ChoiceValue.TextChoice(chosenType))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.CREATURE_ON_BATTLEFIELD -> {
@@ -655,7 +658,7 @@ class ModalAndCloneContinuationResumer(
                 val modeId = continuation.modeOptionIds.getOrNull(response.optionIndex)
                     ?: return ExecutionResult.error(state, "Invalid mode option index: ${response.optionIndex}")
                 state.updateEntity(continuation.landId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenModeComponent(modeId))
+                    c.withCastChoice(ChoiceSlot.MODE, ChoiceValue.TextChoice(modeId))
                 }
             }
             com.wingedsheep.sdk.scripting.ChoiceType.BASIC_LAND_TYPE -> {
@@ -665,7 +668,7 @@ class ModalAndCloneContinuationResumer(
                 val chosenType = continuation.landTypes.getOrNull(response.optionIndex)
                     ?: return ExecutionResult.error(state, "Invalid land type index: ${response.optionIndex}")
                 state.updateEntity(continuation.landId) { c ->
-                    c.with(com.wingedsheep.engine.state.components.identity.ChosenLandTypeComponent(chosenType))
+                    c.withCastChoice(ChoiceSlot.LAND_TYPE, ChoiceValue.TextChoice(chosenType))
                 }
             }
         }

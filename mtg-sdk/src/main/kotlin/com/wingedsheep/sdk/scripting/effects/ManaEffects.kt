@@ -167,7 +167,7 @@ data class AddDynamicManaEffect(
  *    "Spend this mana only to cast a creature spell of the chosen type, and that spell
  *    can't be countered."
  *
- * At resolution, the executor reads the source's ChosenCreatureTypeComponent,
+ * At resolution, the executor reads the source's CastChoicesComponent,
  * prompts the player to choose a color, and adds restricted mana whose
  * [ManaRestriction] is a freshly-minted [ManaRestriction.SubtypeSpellsOrAbilitiesOnly]
  * carrying that subtype (and [creatureOnly]), with [riders] propagated. If no creature

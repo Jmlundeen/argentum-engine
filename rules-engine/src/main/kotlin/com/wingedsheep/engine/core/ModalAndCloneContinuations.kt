@@ -197,7 +197,7 @@ data class EntersWithChoiceSpellContinuation(
      * For [com.wingedsheep.sdk.scripting.ChoiceType.MODE] choices, the
      * positionally aligned list of mode ids. The response's chosen index
      * indexes into this list to recover the stable mode id stored on the
-     * resulting [com.wingedsheep.engine.state.components.identity.ChosenModeComponent].
+     * resulting [com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent].
      */
     val modeOptionIds: List<String> = emptyList(),
     /**

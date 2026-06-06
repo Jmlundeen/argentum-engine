@@ -15,8 +15,14 @@ import com.wingedsheep.engine.state.components.battlefield.EnteredViaAbilityComp
 import com.wingedsheep.engine.state.components.battlefield.HasDealtCombatDamageToPlayerComponent
 import com.wingedsheep.engine.state.components.battlefield.HasDealtDamageComponent
 import com.wingedsheep.engine.state.components.battlefield.CastRecordComponent
-import com.wingedsheep.engine.state.components.battlefield.WasKickedComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
+import com.wingedsheep.engine.state.components.battlefield.chosenLandType
+import com.wingedsheep.engine.state.components.battlefield.chosenModeId
+import com.wingedsheep.engine.state.components.battlefield.wasKickedChoice
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackedThisTurnComponent
@@ -57,9 +63,11 @@ import com.wingedsheep.sdk.scripting.conditions.ControllerTurnsTakenAtMost
 import com.wingedsheep.sdk.scripting.conditions.SourceCastForImpending
 import com.wingedsheep.sdk.scripting.conditions.SourceIsModified
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
+import com.wingedsheep.sdk.scripting.conditions.CastChoiceMade
+import com.wingedsheep.sdk.scripting.conditions.CastChoiceIs
 import com.wingedsheep.sdk.scripting.conditions.SourceMatches
 import com.wingedsheep.engine.state.components.battlefield.CastForImpendingComponent
-import com.wingedsheep.engine.state.components.identity.ChosenModeComponent
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.conditions.WasCast
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone
@@ -271,13 +279,26 @@ class ConditionEvaluator(
             is ManaSpentToCastIncludes -> ifResolution { evaluateManaSpentToCastIncludes(state, condition, it) }
             is NoManaSpentToCast -> ifResolution { evaluateNoManaSpentToCast(state, it) }
             is SourceChosenModeIs -> {
-                // Dual-mode: the chosen mode is a stable component on the source permanent,
-                // readable both at resolution (gating triggered abilities) and during
-                // projection (gating mode-dependent continuous static abilities, e.g.
+                // Dual-mode: the chosen mode is stored in the durable cast-choices bag on the
+                // source permanent, readable both at resolution (gating triggered abilities) and
+                // during projection (gating mode-dependent continuous static abilities, e.g.
                 // Frostcliff/Windcrag Sieges' lord and static modes).
                 val sourceId = ctx.sourceId
                 sourceId != null &&
-                    state.getEntity(sourceId)?.get<ChosenModeComponent>()?.modeId == condition.modeId
+                    state.getEntity(sourceId)?.chosenModeId() == condition.modeId
+            }
+            is CastChoiceMade -> {
+                // Generic "was this choice made" guard over the durable cast-choices bag; works at
+                // both resolution and projection.
+                val sourceId = ctx.sourceId
+                sourceId != null &&
+                    state.getEntity(sourceId)?.get<CastChoicesComponent>()
+                        ?.chosen?.containsKey(condition.slot) == true
+            }
+            is CastChoiceIs -> {
+                val sourceId = ctx.sourceId
+                sourceId != null &&
+                    castChoiceMatches(state.getEntity(sourceId), condition.slot, condition.value)
             }
             is SacrificedPermanentHadSubtype -> ifResolution { evaluateSacrificedPermanentHadSubtype(condition, it) }
             is TriggeringEntityWasHistoric -> ifResolution { evaluateTriggeringEntityWasHistoric(state, it) }
@@ -641,11 +662,28 @@ class ConditionEvaluator(
     }
 
     private fun evaluateWasKicked(state: GameState, context: EffectContext): Boolean {
-        // Check the component on the permanent first (for triggered abilities)
+        // Check the durable cast-choices bag on the permanent first (for triggered abilities)
         val sourceId = context.sourceId ?: return context.wasKicked
-        if (state.getEntity(sourceId)?.has<WasKickedComponent>() == true) return true
+        if (state.getEntity(sourceId)?.wasKickedChoice() == true) return true
         // Fall back to context (for spell resolution, e.g. kicker additional effects)
         return context.wasKicked
+    }
+
+    /** Compare the value locked into [slot] on [entity]'s cast-choices bag to [value] as text. */
+    private fun castChoiceMatches(
+        entity: com.wingedsheep.engine.state.ComponentContainer?,
+        slot: ChoiceSlot,
+        value: String
+    ): Boolean {
+        val cv = entity?.get<CastChoicesComponent>()?.chosen?.get(slot) ?: return false
+        val actual = when (cv) {
+            is ChoiceValue.ColorChoice -> cv.color.name
+            is ChoiceValue.TextChoice -> cv.text
+            is ChoiceValue.NumberChoice -> cv.amount.toString()
+            is ChoiceValue.EntityChoice -> cv.entityId.toString()
+            ChoiceValue.Flag -> "true"
+        }
+        return actual.equals(value, ignoreCase = true)
     }
 
     private fun evaluateManaSpentToCastIncludes(

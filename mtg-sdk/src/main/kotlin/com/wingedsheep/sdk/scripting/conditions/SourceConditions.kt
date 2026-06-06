@@ -282,7 +282,7 @@ data object SourceCastForImpending : Condition {
 /**
  * Condition: "If the chosen mode is [modeId]".
  *
- * Reads the `ChosenModeComponent` stored on the source permanent (set by an
+ * Reads the `CastChoicesComponent` stored on the source permanent (set by an
  * `EntersWithChoice(ChoiceType.MODE,...)` replacement effect). Used to gate
  * triggered or static abilities on a card-defined named choice — e.g., a
  * Siege whose upkeep trigger only fires when "Khans" was chosen.
@@ -293,6 +293,42 @@ data object SourceCastForImpending : Condition {
 @Serializable
 data class SourceChosenModeIs(val modeId: String) : Condition {
     override val description: String = "if the chosen mode is \"$modeId\""
+}
+
+/**
+ * Condition: a value was locked in for [slot] when the source was cast / as it entered.
+ *
+ * The generic "was this choice made" guard (mtgish's `AColorWasChosen`), reading the durable
+ * cast-choices bag on the source. Works at both resolution and projection. Use for any
+ * [com.wingedsheep.sdk.scripting.ChoiceSlot] — e.g. `CastChoiceMade(ChoiceSlot.COLOR)` gates an
+ * effect on "a color was chosen", `CastChoiceMade(ChoiceSlot.KICKED)` is "this spell was kicked".
+ *
+ * @property slot Which cast-choice slot must hold a value.
+ */
+@SerialName("CastChoiceMade")
+@Serializable
+data class CastChoiceMade(val slot: com.wingedsheep.sdk.scripting.ChoiceSlot) : Condition {
+    override val description: String = "if a ${slot.name.lowercase().replace('_', ' ')} was chosen"
+}
+
+/**
+ * Condition: the value locked in for [slot] equals [value] (compared as text).
+ *
+ * The generic slot reader that subsumes per-slot conditions like [SourceChosenModeIs] for new
+ * cards — `CastChoiceIs(ChoiceSlot.MODE, "Khans")`, `CastChoiceIs(ChoiceSlot.COLOR, "RED")`,
+ * `CastChoiceIs(ChoiceSlot.CREATURE_TYPE, "Goblin")`. Color values compare against the color's
+ * enum name. Works at both resolution and projection.
+ *
+ * @property slot Which cast-choice slot to read.
+ * @property value The expected value, as text (mode id, creature/land type, or color enum name).
+ */
+@SerialName("CastChoiceIs")
+@Serializable
+data class CastChoiceIs(
+    val slot: com.wingedsheep.sdk.scripting.ChoiceSlot,
+    val value: String
+) : Condition {
+    override val description: String = "if the chosen ${slot.name.lowercase().replace('_', ' ')} is \"$value\""
 }
 
 /**

@@ -1,4 +1,7 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
@@ -11,7 +14,6 @@ import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenColorComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.engine.support.GameTestDriver
@@ -45,7 +47,7 @@ class SunDappledCelebrantConvokeTest : FunSpec({
 
     /**
      * Manually attach Shimmerwilds Growth to a target land with a chosen color.
-     * Mirrors the runtime aura state (CardComponent + ChosenColorComponent +
+     * Mirrors the runtime aura state (CardComponent + CastChoicesComponent +
      * AttachedToComponent), which is what the mana solver's
      * `augmentWithAuraBonusMana` and the override-color lookup read at solve time.
      */
@@ -76,7 +78,7 @@ class SunDappledCelebrantConvokeTest : FunSpec({
             OwnerComponent(playerId),
             ControllerComponent(playerId),
             AttachedToComponent(targetLandId),
-            ChosenColorComponent(chosenColor)
+            CastChoicesComponent(chosen = mapOf(ChoiceSlot.COLOR to ChoiceValue.ColorChoice(chosenColor)))
         )
 
         var newState = state.withEntity(auraId, container)

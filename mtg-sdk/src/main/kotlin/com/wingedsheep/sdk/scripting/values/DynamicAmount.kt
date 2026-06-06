@@ -107,8 +107,6 @@ enum class ContextPropertyKey(val description: String) {
     TRIGGER_LIFE_LOST("the life lost"),
     /** Number of cards exiled as an additional cost (Chill Haunting). */
     ADDITIONAL_COST_EXILED_COUNT("the number of cards exiled"),
-    /** X chosen for a `blight X` additional cost (Soul Immolation). */
-    ADDITIONAL_COST_BLIGHT_AMOUNT("X"),
     /** Number of (still-legal) targets in the current effect context. */
     TARGET_COUNT("the number of targets"),
     /** Number of +1/+1 counters on the source as it last existed on the battlefield (Hooded Hydra). */
@@ -283,6 +281,28 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("CastX")
     @Serializable
     data object CastX : DynamicAmount {
+        override val description: String = "X"
+    }
+
+    /**
+     * A *numeric* value locked in for a [com.wingedsheep.sdk.scripting.ChoiceSlot] as this object
+     * was cast, read off the *current object* regardless of zone — the sibling of [CastX] for the
+     * other cast-choice slots that carry a number.
+     *
+     * Currently the only numeric slot is [com.wingedsheep.sdk.scripting.ChoiceSlot.BLIGHT_AMOUNT]
+     * (the X declared for a `blight X` additional cost, e.g. Soul Immolation). It reads the durable
+     * [com.wingedsheep.sdk.scripting.ChoiceSlot] value off the cast-choices bag, falling back to the
+     * resolution context so a spell that never becomes a permanent (an instant/sorcery) still
+     * resolves it from the value paid at cast.
+     *
+     * The non-numeric slots (color, creature type, mode) are read by conditions
+     * ([com.wingedsheep.sdk.scripting.conditions.CastChoiceMade] /
+     * [com.wingedsheep.sdk.scripting.conditions.CastChoiceIs]) or consumed directly by effects
+     * (e.g. token creation), not by [DynamicAmount].
+     */
+    @SerialName("CastChoice")
+    @Serializable
+    data class CastChoice(val slot: com.wingedsheep.sdk.scripting.ChoiceSlot) : DynamicAmount {
         override val description: String = "X"
     }
 

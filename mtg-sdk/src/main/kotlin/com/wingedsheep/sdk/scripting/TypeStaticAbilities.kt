@@ -125,7 +125,7 @@ data class GrantColor(
 }
 
 /**
- * Adds the chosen color (resolved from the source's `ChosenColorComponent`) to the target.
+ * Adds the chosen color (resolved from the source's `CastChoicesComponent`) to the target.
  * Used for auras like Shimmerwilds Growth: "Enchanted land is the chosen color."
  *
  * This is a Layer 5 (color-changing) continuous effect. If the source has no chosen color
@@ -223,7 +223,7 @@ data class SetEnchantedLandType(
 
 /**
  * Enchanted land becomes the basic land type chosen as the source entered (resolved from the
- * source's `ChosenLandTypeComponent`). Used for auras like Phantasmal Terrain:
+ * source's `CastChoicesComponent`). Used for auras like Phantasmal Terrain:
  * "As this Aura enters, choose a basic land type. Enchanted land is the chosen type."
  * This replaces all existing land subtypes with the chosen type (Rule 305.7). The
  * chosen-value counterpart to [SetEnchantedLandType], mirroring [GrantChosenColor]'s

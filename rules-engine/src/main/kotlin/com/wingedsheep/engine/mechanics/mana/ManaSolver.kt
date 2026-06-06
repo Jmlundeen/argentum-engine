@@ -1,4 +1,6 @@
 package com.wingedsheep.engine.mechanics.mana
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
@@ -41,8 +43,6 @@ import com.wingedsheep.sdk.scripting.DampLandManaProduction
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.engine.state.components.identity.ChosenColorComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -1058,7 +1058,7 @@ class ManaSolver(
                     }
                     is AddAnyColorManaSpendOnChosenTypeEffect -> {
                         val chosenType = state.getEntity(entityId)
-                            ?.get<ChosenCreatureTypeComponent>()?.creatureType
+                            ?.chosenCreatureType()
                         if (chosenType != null) {
                             combinedColors.addAll(Color.entries)
                             effectColors.addAll(Color.entries)
@@ -1303,7 +1303,7 @@ class ManaSolver(
             is AddManaOfChoiceEffect -> manaEffect.restriction
             is AddDynamicManaEffect -> manaEffect.restriction
             // AddAnyColorManaSpendOnChosenTypeEffect derives its restriction at resolution
-            // time from the source's ChosenCreatureTypeComponent, so we don't pre-filter it.
+            // time from the source's CastChoicesComponent, so we don't pre-filter it.
             else -> null
         }
     }
@@ -1346,7 +1346,7 @@ class ManaSolver(
             for (staticAbility in cardDef.script.staticAbilities) {
                 val o = staticAbility as? com.wingedsheep.sdk.scripting.OverrideEnchantedLandManaColor ?: continue
                 override = o.color
-                    ?: container.get<ChosenColorComponent>()?.color
+                    ?: container.chosenColor()
                     ?: continue
             }
         }
@@ -1422,7 +1422,7 @@ class ManaSolver(
                         // Resolve the color: null means "read the aura's chosen color".
                         // If no color is chosen (shouldn't happen in practice), skip.
                         val manaColor = additionalMana.color
-                            ?: container.get<ChosenColorComponent>()?.color
+                            ?: container.chosenColor()
                             ?: continue
                         totalBonus += amount
                         bonusColor = manaColor

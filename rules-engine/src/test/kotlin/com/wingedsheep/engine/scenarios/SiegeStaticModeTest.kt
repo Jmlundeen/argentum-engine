@@ -1,6 +1,8 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 
-import com.wingedsheep.engine.state.components.identity.ChosenModeComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tdm.cards.FrostcliffSiege
@@ -35,7 +37,7 @@ class SiegeStaticModeTest : FunSpec({
         val bear = driver.putCreatureOnBattlefield(you, "Centaur Courser") // 3/3
 
         val siege = driver.putPermanentOnBattlefield(you, "Frostcliff Siege")
-        driver.addComponent(siege, ChosenModeComponent("temur"))
+        driver.addComponent(siege, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("temur"))))
 
         val projected = driver.state.projectedState
         projected.getPower(bear) shouldBe 4
@@ -51,7 +53,7 @@ class SiegeStaticModeTest : FunSpec({
         val bear = driver.putCreatureOnBattlefield(you, "Centaur Courser") // 3/3
 
         val siege = driver.putPermanentOnBattlefield(you, "Frostcliff Siege")
-        driver.addComponent(siege, ChosenModeComponent("jeskai"))
+        driver.addComponent(siege, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("jeskai"))))
 
         val projected = driver.state.projectedState
         projected.getPower(bear) shouldBe 3
@@ -64,7 +66,7 @@ class SiegeStaticModeTest : FunSpec({
 
         val you = driver.activePlayer!!
         val siege = driver.putPermanentOnBattlefield(you, "Glacierwood Siege")
-        driver.addComponent(siege, ChosenModeComponent("sultai"))
+        driver.addComponent(siege, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("sultai"))))
 
         // A land sitting in the graveyard.
         val land = driver.putCardInGraveyard(you, "Forest")

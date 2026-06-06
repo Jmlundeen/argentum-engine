@@ -909,7 +909,7 @@ enum class ChoiceType {
      * Choose a basic land type (Plains, Island, Swamp, Mountain, or Forest)
      * (e.g., Phantasmal Terrain: "As this Aura enters, choose a basic land type").
      * The chosen type is stored on the permanent in a
-     * [com.wingedsheep.engine.state.components.identity.ChosenLandTypeComponent]
+     * [com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent]
      * and read by [com.wingedsheep.sdk.scripting.SetEnchantedLandTypeFromChosen].
      */
     BASIC_LAND_TYPE
@@ -920,7 +920,7 @@ enum class ChoiceType {
  *
  * The [id] is the stable, machine-readable identifier referenced by
  * [com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs] and stored
- * on the resulting [com.wingedsheep.engine.state.components.identity.ChosenModeComponent].
+ * on the resulting [com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent].
  * The [label] is the human-readable display text shown in the prompt.
  *
  * [description] supplies optional rules text shown alongside the label

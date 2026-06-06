@@ -14,6 +14,8 @@ import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnCompon
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -84,6 +86,26 @@ class CreateTokenExecutor(
         )
         if (replacementResult != null) return replacementResult
 
+        // Resolve the token's color / creature type from the source's cast-choices bag when the
+        // effect sources them from a ChoiceSlot (Riptide Replicator "of the chosen color and type");
+        // otherwise use the fixed sets baked into the effect.
+        val sourceBag = effect.colorsFromChoice?.let { context.sourceId }
+            ?.let { state.getEntity(it) }
+            ?.get<CastChoicesComponent>()
+            ?: effect.creatureTypesFromChoice?.let { context.sourceId }
+                ?.let { state.getEntity(it) }
+                ?.get<CastChoicesComponent>()
+        val effectiveColors = effect.colorsFromChoice?.let { slot ->
+            (sourceBag?.chosen?.get(slot) as? ChoiceValue.ColorChoice)?.color?.let { setOf(it) } ?: emptySet()
+        } ?: effect.colors
+        val effectiveCreatureTypes = effect.creatureTypesFromChoice?.let { slot ->
+            (sourceBag?.chosen?.get(slot) as? ChoiceValue.TextChoice)?.text?.let { setOf(it) } ?: setOf("Creature")
+        } ?: effect.creatureTypes
+        val resolvedImageUri = effect.imageUri
+            ?: if (effect.creatureTypesFromChoice != null) {
+                effectiveCreatureTypes.firstNotNullOfOrNull { TokenArt.IMAGES[it] }
+            } else null
+
         var newState = state
         val createdTokens = mutableListOf<EntityId>()
 
@@ -93,7 +115,7 @@ class CreateTokenExecutor(
             createdTokens.add(tokenId)
 
             // Create token entity
-            val defaultName = "${effect.creatureTypes.joinToString(" ")} Token"
+            val defaultName = "${effectiveCreatureTypes.joinToString(" ")} Token"
             val tokenName = effect.name ?: defaultName
             val tokenPower = effect.dynamicPower?.let { amountEvaluator.evaluate(state, it, context) } ?: effect.power
             val tokenToughness = effect.dynamicToughness?.let { amountEvaluator.evaluate(state, it, context) } ?: effect.toughness
@@ -104,15 +126,15 @@ class CreateTokenExecutor(
                 append("Creature")
             }
             val tokenComponent = CardComponent(
-                cardDefinitionId = "token:${effect.creatureTypes.joinToString("-")}",
+                cardDefinitionId = "token:${effectiveCreatureTypes.joinToString("-")}",
                 name = tokenName,
                 manaCost = ManaCost.ZERO,
-                typeLine = TypeLine.parse("$typeLinePrefix - ${effect.creatureTypes.joinToString(" ")}"),
+                typeLine = TypeLine.parse("$typeLinePrefix - ${effectiveCreatureTypes.joinToString(" ")}"),
                 baseStats = CreatureStats(tokenPower, tokenToughness),
                 baseKeywords = effect.keywords,
-                colors = effect.colors,
+                colors = effectiveColors,
                 ownerId = tokenControllerId,
-                imageUri = effect.imageUri
+                imageUri = resolvedImageUri
             )
 
             val components = mutableListOf<Component>(

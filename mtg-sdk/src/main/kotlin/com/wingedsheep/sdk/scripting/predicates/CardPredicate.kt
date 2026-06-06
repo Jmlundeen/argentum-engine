@@ -542,7 +542,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
         override val description: String = "that shares a creature type with it"
     }
 
-    /** Matches creatures that have the subtype chosen on the source permanent (ChosenCreatureTypeComponent) */
+    /** Matches creatures that have the subtype chosen on the source permanent (CastChoicesComponent) */
     @SerialName("HasChosenSubtype")
     @Serializable
     data object HasChosenSubtype : CardPredicate {
@@ -551,7 +551,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
 
     /**
      * Matches objects whose color set includes the color chosen on the source
-     * permanent (read from its ChosenColorComponent). Composable color analogue of
+     * permanent (read from its CastChoicesComponent). Composable color analogue of
      * [HasChosenSubtype] — combine with a type predicate to express e.g. "an instant
      * or sorcery spell of the chosen color" (Harsh Judgment). Colorless objects never
      * match; if the source has no chosen color, nothing matches.

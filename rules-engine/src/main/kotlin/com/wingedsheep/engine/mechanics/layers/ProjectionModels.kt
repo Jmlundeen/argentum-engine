@@ -291,7 +291,7 @@ sealed interface Modification {
 
     /**
      * Replace all basic land subtypes with the type chosen as the source entered
-     * (resolved dynamically from the source's ChosenLandTypeComponent).
+     * (resolved dynamically from the source's CastChoicesComponent).
      * Used by Phantasmal Terrain: "Enchanted land is the chosen type."
      * The chosen-value counterpart to [SetBasicLandTypes], mirroring [AddChosenColor].
      * If the source has no chosen land type, no modification is applied.
@@ -334,7 +334,7 @@ sealed interface Modification {
     }
 
     /**
-     * Adds the chosen color (resolved dynamically from source's ChosenColorComponent).
+     * Adds the chosen color (resolved dynamically from source's CastChoicesComponent).
      * Used for Shimmerwilds Growth: "Enchanted land is the chosen color."
      * If the source has no chosen color, no modification is applied.
      */
@@ -371,7 +371,7 @@ sealed interface Modification {
     }
 
     /**
-     * Grants protection from the chosen color (resolved dynamically from source's ChosenColorComponent).
+     * Grants protection from the chosen color (resolved dynamically from source's CastChoicesComponent).
      * Used for Ward Sliver: "All Slivers have protection from the chosen color."
      */
     @Serializable
@@ -381,7 +381,7 @@ sealed interface Modification {
 
     /**
      * Grants the landwalk keyword matching the source's chosen basic land type (resolved at
-     * apply-time from the source's `ChosenLandTypeComponent`): Plains→PLAINSWALK, Island→ISLANDWALK,
+     * apply-time from the source's `CastChoicesComponent`): Plains→PLAINSWALK, Island→ISLANDWALK,
      * Swamp→SWAMPWALK, Mountain→MOUNTAINWALK, Forest→FORESTWALK. Used for Traveler's Cloak. The
      * chosen-value counterpart to [GrantKeyword]. If the source has no chosen land type (or an
      * unrecognized one), nothing is granted.

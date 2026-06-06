@@ -16312,8 +16312,8 @@
                 {
                     "type": "DealDamage",
                     "amount": {
-                        "type": "ContextProperty",
-                        "key": "ADDITIONAL_COST_BLIGHT_AMOUNT"
+                        "type": "CastChoice",
+                        "slot": "BLIGHT_AMOUNT"
                     },
                     "target": {
                         "type": "PlayerRef",
@@ -16328,8 +16328,8 @@
                     "effect": {
                         "type": "DealDamage",
                         "amount": {
-                            "type": "ContextProperty",
-                            "key": "ADDITIONAL_COST_BLIGHT_AMOUNT"
+                            "type": "CastChoice",
+                            "slot": "BLIGHT_AMOUNT"
                         },
                         "target": "Self"
                     }

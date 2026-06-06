@@ -78,7 +78,7 @@ sealed interface ManaColorSet {
     }
 
     /**
-     * The single color recorded on the source permanent's `ChosenColorComponent`
+     * The single color recorded on the source permanent's `CastChoicesComponent`
      * (set when it entered the battlefield, e.g., via `EntersWithChoice(COLOR)`).
      * If no color was chosen, no mana is produced. Used by Unchartered Haven and
      * Ashling Rekindled.

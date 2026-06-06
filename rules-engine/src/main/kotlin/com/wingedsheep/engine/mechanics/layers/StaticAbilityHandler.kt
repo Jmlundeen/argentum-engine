@@ -430,7 +430,7 @@ class StaticAbilityHandler(
             is SetEnchantedLandTypeFromChosen -> {
                 // "Enchanted land is the chosen type" - Layer 4 type-changing effect.
                 // The chosen type is resolved at projection time from the source's
-                // ChosenLandTypeComponent; replaces all basic land subtypes (Rule 305.7).
+                // CastChoicesComponent; replaces all basic land subtypes (Rule 305.7).
                 ContinuousEffectData(
                     modification = Modification.SetBasicLandTypesFromChosen,
                     affectsFilter = AffectsFilter.AttachedPermanent
@@ -439,7 +439,7 @@ class StaticAbilityHandler(
             is GrantLandwalkOfChosenType -> {
                 // "Enchanted creature has landwalk of the chosen type" - Layer 6 ability-adding.
                 // The landwalk keyword is resolved at projection time from the source's
-                // ChosenLandTypeComponent (Plains→Plainswalk, Island→Islandwalk, etc.).
+                // CastChoicesComponent (Plains→Plainswalk, Island→Islandwalk, etc.).
                 ContinuousEffectData(
                     modification = Modification.GrantLandwalkFromChosen,
                     affectsFilter = convertGroupFilter(ability.filter)
@@ -657,7 +657,7 @@ class StaticAbilityHandler(
         }
 
         // Chosen subtype filters must go through Generic so resolveGenericFilter can
-        // read ChosenCreatureTypeComponent from the source entity
+        // read CastChoicesComponent from the source entity
         if (filter.chosenSubtypeKey != null) {
             return AffectsFilter.Generic(filter)
         }

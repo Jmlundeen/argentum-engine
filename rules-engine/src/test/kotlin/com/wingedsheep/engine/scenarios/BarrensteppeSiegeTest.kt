@@ -1,7 +1,9 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
-import com.wingedsheep.engine.state.components.identity.ChosenModeComponent
 import com.wingedsheep.engine.state.components.player.CreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -37,7 +39,7 @@ class BarrensteppeSiegeTest : FunSpec({
         val bear2 = driver.putCreatureOnBattlefield(you, "Centaur Courser")
 
         val siege = driver.putPermanentOnBattlefield(you, "Barrensteppe Siege")
-        driver.addComponent(siege, ChosenModeComponent("abzan"))
+        driver.addComponent(siege, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("abzan"))))
 
         driver.passPriorityUntil(Step.END)
         while (driver.state.stack.isNotEmpty()) driver.bothPass()
@@ -57,7 +59,7 @@ class BarrensteppeSiegeTest : FunSpec({
         driver.putCreatureOnBattlefield(opponent, "Centaur Courser")
 
         val siege = driver.putPermanentOnBattlefield(you, "Barrensteppe Siege")
-        driver.addComponent(siege, ChosenModeComponent("mardu"))
+        driver.addComponent(siege, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("mardu"))))
         // Simulate a creature having died under your control this turn (engine-maintained tracker).
         driver.addComponent(you, CreaturesDiedThisTurnComponent(1))
 
@@ -76,7 +78,7 @@ class BarrensteppeSiegeTest : FunSpec({
         driver.putCreatureOnBattlefield(opponent, "Centaur Courser")
 
         val siege = driver.putPermanentOnBattlefield(you, "Barrensteppe Siege")
-        driver.addComponent(siege, ChosenModeComponent("mardu"))
+        driver.addComponent(siege, CastChoicesComponent(chosen = mapOf(ChoiceSlot.MODE to ChoiceValue.TextChoice("mardu"))))
         // No CreaturesDiedThisTurnComponent on `you` — the intervening-if fails, ability never fires.
 
         driver.passPriorityUntil(Step.END)

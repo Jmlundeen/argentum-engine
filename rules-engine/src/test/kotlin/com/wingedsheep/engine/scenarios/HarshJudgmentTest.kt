@@ -1,6 +1,8 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 
-import com.wingedsheep.engine.state.components.identity.ChosenColorComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.GameTestDriver
@@ -22,7 +24,7 @@ import io.kotest.matchers.shouldBe
  *
  * The Harsh Judgment controller is the *non-active* player so the active player's spell has a
  * distinct controller to redirect to. The chosen color is injected directly (the
- * EntersWithChoice(COLOR) → ChosenColorComponent path is covered elsewhere).
+ * EntersWithChoice(COLOR) → CastChoicesComponent path is covered elsewhere).
  */
 class HarshJudgmentTest : FunSpec({
 
@@ -42,7 +44,7 @@ class HarshJudgmentTest : FunSpec({
         val (driver, active, defender) = newGame()
         // Defender controls Harsh Judgment with red chosen.
         val judgment = driver.putPermanentOnBattlefield(defender, "Harsh Judgment")
-        driver.addComponent(judgment, ChosenColorComponent(Color.RED))
+        driver.addComponent(judgment, CastChoicesComponent(chosen = mapOf(ChoiceSlot.COLOR to ChoiceValue.ColorChoice(Color.RED))))
 
         // Active player casts a red instant (Lightning Bolt) at the defender.
         driver.giveMana(active, Color.RED, 1)
@@ -58,7 +60,7 @@ class HarshJudgmentTest : FunSpec({
     test("does not redirect a spell of a different color") {
         val (driver, active, defender) = newGame()
         val judgment = driver.putPermanentOnBattlefield(defender, "Harsh Judgment")
-        driver.addComponent(judgment, ChosenColorComponent(Color.BLUE))
+        driver.addComponent(judgment, CastChoicesComponent(chosen = mapOf(ChoiceSlot.COLOR to ChoiceValue.ColorChoice(Color.BLUE))))
 
         driver.giveMana(active, Color.RED, 1)
         val bolt = driver.putCardInHand(active, "Lightning Bolt")

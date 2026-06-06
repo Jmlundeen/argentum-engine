@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.actions.ability
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ExecutionResult
@@ -1363,7 +1364,7 @@ class ActivateAbilityHandler(
             for (staticAbility in cardDef.script.staticAbilities) {
                 val o = staticAbility as? com.wingedsheep.sdk.scripting.OverrideEnchantedLandManaColor ?: continue
                 override = o.color
-                    ?: container.get<com.wingedsheep.engine.state.components.identity.ChosenColorComponent>()?.color
+                    ?: container.chosenColor()
                     ?: continue
             }
         }
@@ -1438,7 +1439,7 @@ class ActivateAbilityHandler(
                 // Resolve the color: if the ability specifies null, read the aura's chosen color.
                 // If no color is chosen (e.g., somehow on battlefield without a choice), skip.
                 val manaColor = additionalMana.color
-                    ?: container.get<com.wingedsheep.engine.state.components.identity.ChosenColorComponent>()?.color
+                    ?: container.chosenColor()
                     ?: continue
 
                 // Triggered mana ability — apply AdditionalSourceTriggers doublers

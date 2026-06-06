@@ -1,4 +1,6 @@
 package com.wingedsheep.engine.mechanics.layers
+import com.wingedsheep.engine.state.components.battlefield.chosenLandType
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.handlers.ConditionEvaluationContext
 import com.wingedsheep.engine.handlers.ConditionEvaluator
@@ -8,7 +10,6 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
-import com.wingedsheep.engine.state.components.identity.ChosenColorComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
@@ -87,7 +88,7 @@ internal class EffectApplicator(
                 }
                 is Modification.GrantLandwalkFromChosen -> {
                     val chosenLandType = state.getEntity(effect.sourceId)
-                        ?.get<com.wingedsheep.engine.state.components.identity.ChosenLandTypeComponent>()?.landType
+                        ?.chosenLandType()
                     val landwalk = when (chosenLandType) {
                         com.wingedsheep.sdk.core.Subtype.PLAINS.value -> Keyword.PLAINSWALK
                         com.wingedsheep.sdk.core.Subtype.ISLAND.value -> Keyword.ISLANDWALK
@@ -109,7 +110,7 @@ internal class EffectApplicator(
                 }
                 is Modification.AddChosenColor -> {
                     val chosenColor = state.getEntity(effect.sourceId)
-                        ?.get<ChosenColorComponent>()?.color
+                        ?.chosenColor()
                     if (chosenColor != null) {
                         values.colors.add(chosenColor.name)
                     }
@@ -143,7 +144,7 @@ internal class EffectApplicator(
                 }
                 is Modification.SetBasicLandTypesFromChosen -> {
                     val chosenLandType = state.getEntity(effect.sourceId)
-                        ?.get<com.wingedsheep.engine.state.components.identity.ChosenLandTypeComponent>()?.landType
+                        ?.chosenLandType()
                     if (chosenLandType != null) {
                         val basicLandTypes = com.wingedsheep.sdk.core.Subtype.ALL_BASIC_LAND_TYPES
                         values.subtypes.removeAll { it in basicLandTypes }
@@ -176,7 +177,7 @@ internal class EffectApplicator(
                 }
                 is Modification.GrantProtectionFromChosenColor -> {
                     val chosenColor = state.getEntity(effect.sourceId)
-                        ?.get<ChosenColorComponent>()?.color
+                        ?.chosenColor()
                     if (chosenColor != null) {
                         values.keywords.add("PROTECTION_FROM_${chosenColor.name}")
                     }

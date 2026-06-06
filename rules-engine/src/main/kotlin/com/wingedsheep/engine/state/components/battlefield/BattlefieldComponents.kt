@@ -66,14 +66,6 @@ data object CastFromGraveyardComponent : Component
 data object EnteredFromGraveyardComponent : Component
 
 /**
- * Marks a permanent as having been kicked when cast.
- * Added when a kicked spell resolves from the stack.
- * Used by cards like Skizzik to check if the kicker cost was paid.
- */
-@Serializable
-data object WasKickedComponent : Component
-
-/**
  * Marks a permanent as having been cast for its warp cost.
  * Added when a warped spell resolves from the stack.
  * At the beginning of the next end step, this permanent is exiled.

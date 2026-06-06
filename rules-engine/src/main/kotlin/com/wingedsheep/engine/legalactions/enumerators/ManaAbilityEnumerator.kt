@@ -1,4 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.legalactions.ActionEnumerator
@@ -13,7 +15,6 @@ import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.TextReplacementComponent
@@ -136,7 +137,7 @@ class ManaAbilityEnumerator : ActionEnumerator {
                         if (sacrificeTargets.size < sacrificeCost.count) affordable = false
                     }
                     is AbilityCost.SacrificeChosenCreatureType -> {
-                        val chosenType = container.get<ChosenCreatureTypeComponent>()?.creatureType
+                        val chosenType = container.chosenCreatureType()
                         if (chosenType == null) {
                             affordable = false
                         } else {
@@ -181,7 +182,7 @@ class ManaAbilityEnumerator : ActionEnumerator {
                                     }
                                 }
                                 is AbilityCost.SacrificeChosenCreatureType -> {
-                                    val chosenType = container.get<ChosenCreatureTypeComponent>()?.creatureType
+                                    val chosenType = container.chosenCreatureType()
                                     if (chosenType == null) {
                                         affordable = false; break
                                     }
@@ -331,7 +332,7 @@ class ManaAbilityEnumerator : ActionEnumerator {
         }
 
         val chosenType = state.getEntity(entityId)
-            ?.get<ChosenCreatureTypeComponent>()?.creatureType
+            ?.chosenCreatureType()
         if (chosenType == null) {
             return ability.description
         }
@@ -370,7 +371,7 @@ class ManaAbilityEnumerator : ActionEnumerator {
             for (staticAbility in cardDef.script.staticAbilities) {
                 val o = staticAbility as? OverrideEnchantedLandManaColor ?: continue
                 override = o.color
-                    ?: container.get<com.wingedsheep.engine.state.components.identity.ChosenColorComponent>()?.color
+                    ?: container.chosenColor()
                     ?: continue
             }
         }

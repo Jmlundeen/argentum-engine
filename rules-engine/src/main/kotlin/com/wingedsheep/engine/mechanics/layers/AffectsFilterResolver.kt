@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.mechanics.layers
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -13,7 +14,6 @@ import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.HasMorphAbilityComponent
@@ -258,9 +258,9 @@ internal class AffectsFilterResolver {
         val baseFilter = groupFilter.baseFilter
         val controller = projectedController(state, sourceId, projectedValues)
 
-        // Read chosen subtype once from source's ChosenCreatureTypeComponent if needed
+        // Read chosen subtype once from source's CastChoicesComponent if needed
         val chosenSubtype = if (groupFilter.chosenSubtypeKey != null) {
-            state.getEntity(sourceId)?.get<ChosenCreatureTypeComponent>()?.creatureType
+            state.getEntity(sourceId)?.chosenCreatureType()
                 ?: return emptySet()
         } else null
 
@@ -306,7 +306,7 @@ internal class AffectsFilterResolver {
                 }
             }
 
-            // Check chosen subtype constraint (from source's ChosenCreatureTypeComponent)
+            // Check chosen subtype constraint (from source's CastChoicesComponent)
             if (chosenSubtype != null) {
                 if (!subtypes.any { it.equals(chosenSubtype, ignoreCase = true) }) return@filter false
             }

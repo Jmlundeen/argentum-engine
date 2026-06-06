@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.mechanics.mana
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.registry.CardRegistry
@@ -126,8 +127,7 @@ object LandManaColorInspector {
             is ManaColorSet.AnyColor -> out.addAll(Color.entries)
             is ManaColorSet.Specific -> out.addAll(colorSet.colors)
             is ManaColorSet.SourceChosenColor -> {
-                sourceContainer.get<com.wingedsheep.engine.state.components.identity.ChosenColorComponent>()
-                    ?.color?.let { out.add(it) }
+                sourceContainer.chosenColor()?.let { out.add(it) }
             }
             is ManaColorSet.CommanderIdentity,
             is ManaColorSet.AmongPermanents,

@@ -17,7 +17,6 @@ import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.battlefield.SagaComponent
 import com.wingedsheep.engine.state.components.battlefield.CastFromHandComponent
 import com.wingedsheep.engine.state.components.battlefield.WarpedComponent
-import com.wingedsheep.engine.state.components.battlefield.WasKickedComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
@@ -1016,20 +1015,37 @@ class StackResolver(
                 updated = updated.with(com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent)
             }
 
-            // Track if this permanent was kicked (for cards like Skizzik)
-            if (spellComponent.wasKicked) {
-                updated = updated.with(WasKickedComponent)
-            }
-
-            // Carry the cast-time X durably onto the permanent (CR 601.2b choices ride the stable
-            // entity onto the battlefield) so triggered/activated abilities can read "the X this
-            // was cast with" via DynamicAmount.CastX for its whole life on the battlefield, with no
-            // counter laundering. The component is stripped when the permanent leaves the
-            // battlefield (new object, CR 400.7) — see ZoneMovementUtils.stripBattlefieldComponents.
-            spellComponent.xValue?.let { castX ->
-                updated = updated.with(
-                    com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent(x = castX)
-                )
+            // Carry the cast-time choices durably onto the permanent (CR 601.2b choices ride the
+            // stable entity onto the battlefield) so triggered/activated abilities can read "the X
+            // / color / type / kicked-ness this was cast with" via DynamicAmount.CastX /
+            // DynamicAmount.CastChoice / Conditions.CastChoice* for its whole life on the
+            // battlefield, with no counter laundering. The bag is stripped when the permanent leaves
+            // the battlefield (new object, CR 400.7) — see ZoneMovementUtils.stripBattlefieldComponents.
+            //
+            // Merge the *as-it-enters* choices already written by the EntersWithChoice resumers
+            // (color/type/mode/…) with the *as-it-was-cast* choices carried on the stack object
+            // (X / kicked / blight) into one CastChoicesComponent.
+            run {
+                val entered = updated.get<com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent>()
+                var bag = entered ?: com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent()
+                spellComponent.xValue?.let { bag = bag.copy(x = it) }
+                if (spellComponent.wasKicked) {
+                    bag = bag.withChoice(
+                        com.wingedsheep.sdk.scripting.ChoiceSlot.KICKED,
+                        com.wingedsheep.engine.state.components.battlefield.ChoiceValue.Flag
+                    )
+                }
+                if (spellComponent.additionalCostBlightAmount > 0) {
+                    bag = bag.withChoice(
+                        com.wingedsheep.sdk.scripting.ChoiceSlot.BLIGHT_AMOUNT,
+                        com.wingedsheep.engine.state.components.battlefield.ChoiceValue.NumberChoice(
+                            spellComponent.additionalCostBlightAmount
+                        )
+                    )
+                }
+                if (bag.x != null || bag.chosen.isNotEmpty()) {
+                    updated = updated.with(bag)
+                }
             }
 
             // Track if this permanent was cast for its warp cost

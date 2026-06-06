@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.GrantLandwalkOfChosenType
  *
  * Scoping note: the engine models landwalk only for the five basic land types (the only land
  * subtypes with a corresponding landwalk keyword), so the entry choice is restricted to
- * `BASIC_LAND_TYPE`. [GrantLandwalkOfChosenType] reads the recorded `ChosenLandTypeComponent` at
+ * `BASIC_LAND_TYPE`. [GrantLandwalkOfChosenType] reads the recorded `CastChoicesComponent` at
  * projection time and grants the matching keyword (Plains→Plainswalk, …).
  */
 val TravelersCloak = card("Traveler's Cloak") {

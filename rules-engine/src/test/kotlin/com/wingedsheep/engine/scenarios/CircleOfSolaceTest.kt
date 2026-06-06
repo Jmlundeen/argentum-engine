@@ -1,7 +1,9 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 
 import com.wingedsheep.engine.core.ActivateAbility
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -45,7 +47,7 @@ class CircleOfSolaceTest : FunSpec({
         // Opponent has Circle of Solace with chosen type "Goblin"
         val circle = driver.putPermanentOnBattlefield(opponent, "Circle of Solace")
         driver.replaceState(driver.state.updateEntity(circle) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
         })
 
         // Active player has a Goblin
@@ -92,7 +94,7 @@ class CircleOfSolaceTest : FunSpec({
         // Opponent has Circle of Solace with chosen type "Goblin"
         val circle = driver.putPermanentOnBattlefield(opponent, "Circle of Solace")
         driver.replaceState(driver.state.updateEntity(circle) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
         })
 
         // Active player has an Elf (not a Goblin)
@@ -138,7 +140,7 @@ class CircleOfSolaceTest : FunSpec({
         // Opponent has Circle of Solace with chosen type "Goblin"
         val circle = driver.putPermanentOnBattlefield(opponent, "Circle of Solace")
         driver.replaceState(driver.state.updateEntity(circle) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
         })
 
         // Active player has two Goblins
@@ -186,7 +188,7 @@ class CircleOfSolaceTest : FunSpec({
         // Opponent has Circle of Solace with chosen type "Goblin"
         val circle = driver.putPermanentOnBattlefield(opponent, "Circle of Solace")
         driver.replaceState(driver.state.updateEntity(circle) { c ->
-            c.with(ChosenCreatureTypeComponent("Goblin"))
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
         })
 
         // Active player has two Goblins

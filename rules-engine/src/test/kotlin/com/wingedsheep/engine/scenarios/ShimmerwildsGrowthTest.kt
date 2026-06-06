@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ChooseColorDecision
@@ -7,7 +8,6 @@ import com.wingedsheep.engine.legalactions.EnumerationMode
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
-import com.wingedsheep.engine.state.components.identity.ChosenColorComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -75,9 +75,9 @@ class ShimmerwildsGrowthTest : FunSpec({
                 ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name
             name == "Shimmerwilds Growth"
         }
-        val chosen = driver.state.getEntity(auraId)!!.get<ChosenColorComponent>()
+        val chosen = driver.state.getEntity(auraId)!!.chosenColor()
         chosen.shouldNotBeNull()
-        chosen.color shouldBe Color.BLUE
+        chosen shouldBe Color.BLUE
 
         // Aura is attached to the Forest.
         driver.state.getEntity(auraId)!!.get<AttachedToComponent>()!!.targetId shouldBe forest

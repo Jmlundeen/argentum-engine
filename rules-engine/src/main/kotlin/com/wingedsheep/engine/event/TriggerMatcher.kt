@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.event
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 
 import com.wingedsheep.engine.core.BecomesTargetEvent
 import com.wingedsheep.engine.core.AbilityActivatedEvent
@@ -30,7 +31,6 @@ import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.sdk.core.Keyword
@@ -516,10 +516,10 @@ class TriggerMatcher(
                         }
                     }
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasChosenSubtype -> {
-                        // Resolve the chosen subtype from the trigger source's ChosenCreatureTypeComponent
+                        // Resolve the chosen subtype from the trigger source's CastChoicesComponent
                         // and check that the entering/leaving entity has that subtype.
                         val chosenType = state.getEntity(sourceId)
-                            ?.get<ChosenCreatureTypeComponent>()?.creatureType
+                            ?.chosenCreatureType()
                             ?: return false
                         val hasSubtype = if (event.toZone == Zone.BATTLEFIELD) {
                             projected.hasSubtype(event.entityId, chosenType)
@@ -984,7 +984,7 @@ class TriggerMatcher(
         if (isFaceDown) return false
 
         // Use base-state matching (spells on the stack don't get continuous effects)
-        // Pass sourceId so HasChosenSubtype can read the trigger source's ChosenCreatureTypeComponent
+        // Pass sourceId so HasChosenSubtype can read the trigger source's CastChoicesComponent
         val context = com.wingedsheep.engine.handlers.PredicateContext(
             controllerId = event.casterId,
             sourceId = triggerSourceId

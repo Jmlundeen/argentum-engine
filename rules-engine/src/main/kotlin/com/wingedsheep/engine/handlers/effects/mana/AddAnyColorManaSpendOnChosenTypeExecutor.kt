@@ -1,11 +1,11 @@
 package com.wingedsheep.engine.handlers.effects.mana
+import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.identity.ChosenCreatureTypeComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEffect
@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 /**
  * Executor for [AddAnyColorManaSpendOnChosenTypeEffect].
  *
- * Reads the source permanent's [ChosenCreatureTypeComponent] and adds mana of the
+ * Reads the source permanent's [CastChoicesComponent] and adds mana of the
  * player's chosen color with a restriction baked to that specific subtype.
  * If no creature type has been chosen on the source, no mana is produced.
  */
@@ -33,7 +33,7 @@ class AddAnyColorManaSpendOnChosenTypeExecutor(
     ): EffectResult {
         val sourceId = context.sourceId ?: return EffectResult.success(state)
         val chosenType = state.getEntity(sourceId)
-            ?.get<ChosenCreatureTypeComponent>()?.creatureType
+            ?.chosenCreatureType()
             ?: return EffectResult.success(state)
 
         val color = context.manaColorChoice ?: Color.GREEN
