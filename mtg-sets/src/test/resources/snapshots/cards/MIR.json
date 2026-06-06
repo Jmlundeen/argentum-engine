@@ -1,3 +1,69 @@
+// Ancestral Memories
+{
+    "name": "Ancestral Memories",
+    "manaCost": "{2}{U}{U}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 7
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put in graveyard"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "52",
+        "rarity": "RARE",
+        "artist": "William Donohoe",
+        "flavorText": "\"Even the ancient storytellers proclaimed Zhalfir to be dominant over all Jamuraa. Kaervek's invasion shocked us all.\"\n—Hakim, Loreweaver",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/1/b1d1298b-9f56-4540-8d6b-7eecfe38cf62.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Blinding Light
 {
     "name": "Blinding Light",
@@ -430,6 +496,29 @@
     ]
 }
 
+// Feral Shadow
+{
+    "name": "Feral Shadow",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Nightstalker",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "122",
+        "artist": "Cliff Nielsen",
+        "flavorText": "\"The night stalkers are such a minor power in Urborg. Their sad eagerness to elevate themselves makes them willing tools in the plundering of little Femeref.\"\n—Kaervek",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/7/672e2d34-1aae-47c7-8b7a-e3354bbbd662.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Fetid Horror
 {
     "name": "Fetid Horror",
@@ -754,6 +843,73 @@
     ]
 }
 
+// Spitting Earth
+{
+    "name": "Spitting Earth",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "land Mountain"
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "193",
+        "artist": "Brian Snõddy",
+        "flavorText": "\"There are times solid ground gives precious little comfort.\"\n—Talibah, embermage",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e6b774d2-1272-4cd2-b5f8-dfe3ca6e41ee.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Stalking Tiger
+{
+    "name": "Stalking Tiger",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Cat",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedByMoreThan",
+                "maxBlockers": 1
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "243",
+        "artist": "Terese Nielsen",
+        "flavorText": "In the Jamuraan jungles, there is often no separating beauty from danger.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f12cc4e9-010a-4ff7-a026-dcb6113a36fb.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Teeka's Dragon
 {
     "name": "Teeka's Dragon",
@@ -871,6 +1027,31 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Volcanic Dragon
+{
+    "name": "Volcanic Dragon",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "HASTE"
+    ],
+    "metadata": {
+        "collectorNumber": "201",
+        "rarity": "RARE",
+        "artist": "Janine Johnston",
+        "flavorText": "Speed and fire are always a deadly combination.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bda123a7-d121-483a-8ff0-a541ccdbc7ca.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 

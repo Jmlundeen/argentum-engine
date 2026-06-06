@@ -1,0 +1,50 @@
+// Dry Spell
+{
+    "name": "Dry Spell",
+    "manaCost": "{1}{B}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEachInGroup",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "Self"
+                    }
+                },
+                {
+                    "type": "ForEachPlayer",
+                    "players": "Each",
+                    "effects": [
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "46a",
+        "artist": "Brian Snõddy",
+        "flavorText": "\"Wherever water is lacking, all things suffer.\"\n—Autumn Willow",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/4/547c10ea-8ace-4496-8b99-61863c0cec1b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}

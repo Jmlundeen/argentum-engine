@@ -1,0 +1,42 @@
+// Elvish Ranger
+{
+    "name": "Elvish Ranger",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elf Ranger",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "88a",
+        "artist": "Terese Nielsen",
+        "flavorText": "\"No one may fault an Elvish Ranger's heart, but the simplest frailty may fell even the proudest warrior.\"\n—Kaysa, Elder Druid of the Juniper Order",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/d/ad9f1b09-73c2-43c5-a28b-4a40fff7b727.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Storm Crow
+{
+    "name": "Storm Crow",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Bird",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "36a",
+        "artist": "Sandra Everingham",
+        "flavorText": "\"It tells you that the worst is coming. Do you listen?\"\n—Lovisa Coldeyes, Balduvian Chieftain",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/2/a2d4ea78-16f1-46ac-8a60-db20c37aad5e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}

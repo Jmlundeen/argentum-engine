@@ -1,34 +1,23 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.dsl.card
-import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SearchDestination
+
 /**
- * Untamed Wilds
- * {2}{G}
- * Sorcery
- * Search your library for a basic land card, put that card onto the battlefield, then shuffle.
+ * Untamed Wilds reprint in POR.
+ *
+ * The canonical [com.wingedsheep.sdk.model.CardDefinition] (script, types, P/T) lives in
+ * LEG's `cards/` package (the card's earliest real printing). This file contributes only
+ * the POR-specific presentation row — set, collector number, art — picked up automatically
+ * by `CardDiscovery.findPrintingsIn` and surfaced via the set's `printings`.
  */
-val UntamedWilds = card("Untamed Wilds") {
-    manaCost = "{2}{G}"
-    colorIdentity = "G"
-    typeLine = "Sorcery"
-
-    spell {
-        effect = Patterns.Library.searchLibrary(
-            filter = GameObjectFilter.BasicLand,
-            destination = SearchDestination.BATTLEFIELD,
-            entersTapped = false
-        )
-    }
-
-    metadata {
-        rarity = Rarity.UNCOMMON
-        collectorNumber = "191"
-        artist = "NéNé Thomas"
-        flavorText = "The wild places hold secrets waiting to be found."
-        imageUri = "https://cards.scryfall.io/normal/front/1/f/1f4fd77e-ee43-4de7-9ee8-1075ff70b5e7.jpg"
-    }
-}
+val UntamedWildsReprint = Printing(
+    oracleId = "b3b4c21d-f8d7-455f-be46-d5eb909d54df",
+    name = "Untamed Wilds",
+    setCode = "POR",
+    collectorNumber = "191",
+    artist = "Romas Kukalis",
+    imageUri = "https://cards.scryfall.io/normal/front/1/f/1f4fd77e-ee43-4de7-9ee8-1075ff70b5e7.jpg",
+    releaseDate = "1997-05-01",
+    rarity = Rarity.UNCOMMON,
+)

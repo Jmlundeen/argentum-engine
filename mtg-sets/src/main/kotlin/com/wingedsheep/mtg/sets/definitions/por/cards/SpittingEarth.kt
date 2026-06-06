@@ -1,37 +1,23 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
- * Spitting Earth
- * {1}{R}
- * Sorcery
- * Spitting Earth deals damage to target creature equal to the number of Mountains you control.
+ * Spitting Earth reprint in POR.
+ *
+ * The canonical [com.wingedsheep.sdk.model.CardDefinition] (script, types, P/T) lives in
+ * MIR's `cards/` package (the card's earliest real printing). This file contributes only
+ * the POR-specific presentation row — set, collector number, art — picked up automatically
+ * by `CardDiscovery.findPrintingsIn` and surfaced via the set's `printings`.
  */
-val SpittingEarth = card("Spitting Earth") {
-    manaCost = "{1}{R}"
-    colorIdentity = "R"
-    typeLine = "Sorcery"
-
-    spell {
-        target = TargetCreature()
-        effect = DealDamageEffect(
-            amount = DynamicAmounts.landsWithSubtype(Subtype.MOUNTAIN),
-            target = EffectTarget.ContextTarget(0)
-        )
-    }
-
-    metadata {
-        rarity = Rarity.COMMON
-        collectorNumber = "150"
-        artist = "Adrian Smith"
-        flavorText = "The mountains themselves rise to defend their domain."
-        imageUri = "https://cards.scryfall.io/normal/front/e/b/eb16998c-cfa4-49cc-8e37-2dfc33fa2f1e.jpg"
-    }
-}
+val SpittingEarthReprint = Printing(
+    oracleId = "0c3bf4e1-d91e-4dd3-a800-e40971222c71",
+    name = "Spitting Earth",
+    setCode = "POR",
+    collectorNumber = "150",
+    artist = "Hannibal King",
+    imageUri = "https://cards.scryfall.io/normal/front/e/b/eb16998c-cfa4-49cc-8e37-2dfc33fa2f1e.jpg",
+    releaseDate = "1997-05-01",
+    rarity = Rarity.COMMON,
+)

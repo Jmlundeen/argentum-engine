@@ -1,31 +1,23 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
 /**
- * Wall of Swords
- * {3}{W}
- * Creature - Wall
- * 3/5
- * Defender, flying
+ * Wall of Swords reprint in POR.
+ *
+ * The canonical [com.wingedsheep.sdk.model.CardDefinition] (script, types, P/T) lives in
+ * LEA's `cards/` package (the card's earliest real printing). This file contributes only
+ * the POR-specific presentation row — set, collector number, art — picked up automatically
+ * by `CardDiscovery.findPrintingsIn` and surfaced via the set's `printings`.
  */
-val WallOfSwords = card("Wall of Swords") {
-    manaCost = "{3}{W}"
-    colorIdentity = "W"
-    typeLine = "Creature — Wall"
-    power = 3
-    toughness = 5
-
-    keywords(Keyword.DEFENDER, Keyword.FLYING)
-
-    metadata {
-        rarity = Rarity.UNCOMMON
-        collectorNumber = "37"
-        artist = "Douglas Shuler"
-        flavorText = "\"Sharper than wind, lighter than air.\""
-        imageUri = "https://cards.scryfall.io/normal/front/3/e/3e8d55a3-0d7f-4fba-9879-9a8264110e78.jpg"
-        ruling("2004-10-04", "As of the Champions of Kamigawa rules update, the Wall creature type no longer inherently prevents attacking. All Walls printed before this update received errata granting the defender keyword.")
-    }
-}
+val WallOfSwordsReprint = Printing(
+    oracleId = "eb098958-50d3-4476-ba74-382033703ff9",
+    name = "Wall of Swords",
+    setCode = "POR",
+    collectorNumber = "37",
+    artist = "Douglas Shuler",
+    imageUri = "https://cards.scryfall.io/normal/front/3/e/3e8d55a3-0d7f-4fba-9879-9a8264110e78.jpg",
+    releaseDate = "1997-05-01",
+    rarity = Rarity.UNCOMMON,
+)

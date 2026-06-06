@@ -5,9 +5,9 @@ import com.wingedsheep.sdk.serialization.CardExporter
 import java.io.File
 
 /**
- * Compile-verification gate for the mtgish auto-generator (the Kotlin half of the Hybrid design).
+ * Compile-verification gate for the mtgish auto-generator.
  *
- * The Python emitter (`spike/mtgish-coverage/`) writes draft `.kt` for a set into the
+ * The `:mtgish-tooling` emitter writes draft `.kt` for a set into the
  * `generatedCards` source set; Gradle compiles them (so a draft that doesn't compile fails the
  * build before we get here). This tool then loads each compiled card via the same reflective
  * [CardDiscovery] the real sets use and serialises it with the same [CardExporter] that produces

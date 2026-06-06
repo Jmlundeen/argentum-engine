@@ -1,36 +1,23 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.dsl.Effects
 
 /**
- * Man-o'-War
- * {2}{U}
- * Creature - Jellyfish
- * 2/2
- * When Man-o'-War enters, return target creature to its owner's hand.
+ * Man-o'-War reprint in POR.
+ *
+ * The canonical [com.wingedsheep.sdk.model.CardDefinition] (script, types, P/T) lives in
+ * VIS's `cards/` package (the card's earliest real printing). This file contributes only
+ * the POR-specific presentation row — set, collector number, art — picked up automatically
+ * by `CardDiscovery.findPrintingsIn` and surfaced via the set's `printings`.
  */
-val ManOWar = card("Man-o'-War") {
-    manaCost = "{2}{U}"
-    colorIdentity = "U"
-    typeLine = "Creature — Jellyfish"
-    power = 2
-    toughness = 2
-
-    triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        val t = target("target", TargetCreature())
-        effect = Effects.Move(t, Zone.HAND)
-    }
-
-    metadata {
-        rarity = Rarity.UNCOMMON
-        collectorNumber = "59"
-        artist = "Una Fricker"
-        imageUri = "https://cards.scryfall.io/normal/front/e/8/e835b618-83c1-46e2-b8bd-aec56f58ccfc.jpg"
-    }
-}
+val ManOWarReprint = Printing(
+    oracleId = "67a3541c-8408-40c8-b44f-90035b860f57",
+    name = "Man-o'-War",
+    setCode = "POR",
+    collectorNumber = "59",
+    artist = "Una Fricker",
+    imageUri = "https://cards.scryfall.io/normal/front/e/8/e835b618-83c1-46e2-b8bd-aec56f58ccfc.jpg",
+    releaseDate = "1997-05-01",
+    rarity = Rarity.UNCOMMON,
+)

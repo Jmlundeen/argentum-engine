@@ -179,3 +179,9 @@ gradle-app.setting
 # Local environment files
 .env
 /web-client/tsconfig.tsbuildinfo
+
+# Claude Code runtime lock (per-session pid/lock — never commit)
+.claude/scheduled_tasks.lock
+
+# Claude Code per-agent git worktrees (transient — never commit)
+.claude/worktrees/
