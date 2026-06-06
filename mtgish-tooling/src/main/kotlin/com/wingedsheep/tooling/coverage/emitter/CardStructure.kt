@@ -149,8 +149,16 @@ internal fun EmitCtx.triggerBlock(rule: JsonObject): List<String>? {
     if (actions == null) { reasons.add("trigger-actions"); return null }
     val (tdsl, tvar) = spellTarget(targets, actions)
     if (tdsl == null) return null
-    val edsl = renderEffectList(actions, tvar) ?: return null
+
+    // "you may [do X]" on a triggered ability is an OPTIONAL ability (declined at announcement /
+    // by choosing no targets), not a resolution-time MayEffect. Unwrap a lone MayAction so the
+    // ability carries `optional = true` and a plain effect — the engine's idiom for "may [target]".
+    val mayWrapped = actions.singleOrNull()?.strField("_Action") == "MayAction"
+    val effectActions = if (mayWrapped) listOf(innerAction(actions.single()) ?: return null) else actions
+    val edsl = renderEffectList(effectActions, tvar) ?: return null
+
     val lines = mutableListOf("    triggeredAbility {", "        trigger = $spec")
+    if (mayWrapped) lines.add("        optional = true")
     if (tvar != null) lines.add("        val t = target(\"target\", $tdsl)")
     lines.addAll(listOf("        effect = $edsl", "    }"))
     return lines

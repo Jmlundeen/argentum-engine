@@ -2,6 +2,7 @@ package com.wingedsheep.tooling.coverage
 
 import com.wingedsheep.tooling.coverage.emitter.Emitter
 import com.wingedsheep.tooling.coverage.emitter.RenderResult
+import com.wingedsheep.tooling.coverage.emitter.reprintRowSource
 import kotlinx.serialization.json.JsonObject
 import java.io.File
 import java.util.Locale
@@ -16,6 +17,15 @@ import java.util.Locale
  *  --write-all SET replace a real set's card sources with mtgish-generated files, scaffolds included;
  *                 add --complete-only to skip the scaffolds and write only whole-renderable cards
  *  --all          with --gaps: sweep every Scryfall booster set, sum the AUTOGEN total
+ *  --relocate SET emit the canonical for every card whose earliest printing is a DIFFERENT set into
+ *                 that earlier set's `cards/` package (backfills canonicals so SET can become rows)
+ *  --skip-reprints (with --write / --write-all) drop reprints entirely instead of emitting a row
+ *
+ * The write paths (--write / --write-all) verify each card's canonical home against Scryfall's
+ * cross-set printing list: only the card's earliest real printing gets a full `card(...)`; later
+ * printings get a `Printing(...)` reprint row, never a second colliding canonical (the bug that
+ * broke `check-card-printing` for Portal). A card whose earliest set isn't scaffolded yet is
+ * emitted under a TODO so it's flagged rather than silently misplaced.
  *
  * Drafts stay in staging: they're predictions from approximate IR; ground truth stays a
  * human-authored card whose scenario test passes. Deliberately NOT a card loader.
@@ -43,6 +53,49 @@ object Autogen {
     private fun classify(card: JsonObject, setCode: String, effects: Set<String>, keywords: Set<String>): String {
         if (!Probe.analyze(card, effects, keywords).coverable) return "BLOCKED"
         return if (render(card, setCode, effects, keywords, genPackage(setCode)).complete) "AUTOGEN" else "SCAFFOLD"
+    }
+
+    /**
+     * Where a card's `CardDefinition` belongs relative to the set being generated. Cross-set
+     * Scryfall printing data decides whether this set is the card's canonical home (its earliest
+     * real printing) or just a later reprint — so the generator never emits a second, colliding
+     * `card(...)` for a reprint (the bug that broke `check-card-printing` for Portal).
+     */
+    private sealed interface Placement {
+        /** This set is the card's earliest real printing — emit the full `card(...)` definition. */
+        object Canonical : Placement
+        /** A later printing whose canonical lives in a scaffolded set — emit a `Printing(...)` row. */
+        data class Reprint(val source: String) : Placement
+        /** A later printing whose earliest home isn't scaffolded — emit the card under a TODO. */
+        data class Misplaced(val earliest: String, val released: String?) : Placement
+    }
+
+    private fun classifyPlacement(name: String, setCode: String, pkg: String): Placement {
+        // No Scryfall data at all (offline, no cache) -> assume canonical (preserve old behaviour).
+        val earliest = Printings.earliestRealSet(name) ?: return Placement.Canonical
+        if (earliest.equals(setCode, ignoreCase = true)) return Placement.Canonical
+        val target = Printings.printingFor(name, setCode)
+        val oracleId = target?.oracleId ?: Printings.printingsOf(name).firstNotNullOfOrNull { it.oracleId }
+        // A Printing(...) row is only valid when the canonical CardDefinition actually exists in the
+        // earlier set — otherwise the row dangles (no definition to attach to) and the card is
+        // unplayable. When it doesn't, keep the full card here under a TODO; `--relocate` adds the
+        // missing canonical to its correct set.
+        val canonicalImplemented = earliest.lowercase() in Cards.canonicalSetsForCard(name)
+        if (!canonicalImplemented || oracleId == null) {
+            return Placement.Misplaced(earliest, Printings.printingFor(name, earliest)?.releasedAt)
+        }
+        val meta = Cards.scryfallCard(setCode, name)
+        return Placement.Reprint(reprintRowSource(name, pkg, earliest, setCode, oracleId, target?.releasedAt, meta))
+    }
+
+    private fun misplacedTodo(name: String, earliest: String, released: String?): String {
+        val date = released?.takeIf { it.isNotEmpty() }?.let { " ($it)" } ?: ""
+        return buildString {
+            appendLine("// TODO(mtgish): \"$name\"'s earliest real printing is ${earliest.uppercase()}$date, which is not")
+            appendLine("// scaffolded. The canonical CardDefinition belongs there — this is a misplaced canonical.")
+            appendLine("// Scaffold ${earliest.uppercase()} and replace this file with a Printing(...) row.")
+            appendLine("// See scripts/check-card-printing.py.")
+        }
     }
 
     private fun missingWithMtgish(setCode: String): Pair<List<String>, Map<String, JsonObject>> {
@@ -103,21 +156,40 @@ object Autogen {
         return 0
     }
 
-    private fun modeWrite(setCode: String, effects: Set<String>, keywords: Set<String>, outdir: String?): Int {
+    private fun modeWrite(setCode: String, effects: Set<String>, keywords: Set<String>, outdir: String?, skipReprints: Boolean): Int {
         val (missing, idx) = missingWithMtgish(setCode)
         val out = if (outdir != null) File(outdir) else File(DEFAULT_GENERATED_ROOT, setCode.lowercase())
         out.mkdirs()
         var written = 0
+        var reprints = 0
+        var misplaced = 0
         for (name in missing) {
             val card = idx[name] ?: continue
             if (isBasicLand(card)) continue
             if (!Probe.analyze(card, effects, keywords).coverable) continue
-            val res = render(card, setCode, effects, keywords, draftPackage(setCode))
-            if (!res.complete) continue
-            File(out, sourceFileName(name)).writeText(res.text)
-            written++
+            when (val placement = classifyPlacement(name, setCode, draftPackage(setCode))) {
+                is Placement.Reprint -> {
+                    if (skipReprints) continue
+                    File(out, sourceFileName(name)).writeText(placement.source)
+                    reprints++; written++
+                }
+                is Placement.Misplaced -> {
+                    val res = render(card, setCode, effects, keywords, draftPackage(setCode))
+                    if (!res.complete) continue
+                    File(out, sourceFileName(name)).writeText(misplacedTodo(name, placement.earliest, placement.released) + res.text)
+                    misplaced++; written++
+                }
+                Placement.Canonical -> {
+                    val res = render(card, setCode, effects, keywords, draftPackage(setCode))
+                    if (!res.complete) continue
+                    File(out, sourceFileName(name)).writeText(res.text)
+                    written++
+                }
+            }
         }
-        println("wrote $written draft card(s) to $out")
+        println("wrote $written draft file(s) to $out")
+        if (reprints > 0) println("  reprint rows: $reprints (canonical lives in an earlier set — emitted a Printing(...) row)")
+        if (misplaced > 0) println("  misplaced canonicals: $misplaced (earliest set not scaffolded — emitted under a TODO)")
         println("These are DRAFTS — compile, add a scenario test, and review before moving into the set.")
         return 0
     }
@@ -142,7 +214,7 @@ object Autogen {
         return 0
     }
 
-    private fun modeWriteAll(setCode: String, effects: Set<String>, keywords: Set<String>, outdir: String?, completeOnly: Boolean): Int {
+    private fun modeWriteAll(setCode: String, effects: Set<String>, keywords: Set<String>, outdir: String?, completeOnly: Boolean, skipReprints: Boolean): Int {
         val (names, idx) = allWithMtgish(setCode)
         val out = if (outdir != null) File(outdir) else File(DEFINITIONS_ROOT, "${setCode.lowercase()}/cards")
         if (out.exists()) out.listFiles { f -> f.extension == "kt" }?.forEach { if (!isBasicLandSource(it)) it.delete() }
@@ -150,25 +222,91 @@ object Autogen {
         var written = 0
         var scaffold = 0
         var skippedScaffold = 0
+        var reprints = 0
+        var misplaced = 0
         var unmatched = 0
         var skippedBasicLands = 0
         for (name in names) {
             val card = idx[name]
             if (card == null) { unmatched++; continue }
             if (isBasicLand(card)) { skippedBasicLands++; continue }
-            val res = render(card, setCode, effects, keywords, draftPackage(setCode))
-            if (!res.complete) {
-                if (completeOnly) { skippedScaffold++; continue }  // --complete-only: emit confidently-whole cards only
-                scaffold++
+            // A card whose canonical home is an earlier set must contribute only a Printing(...) row
+            // here, never a second colliding `card(...)` (would fail check-card-printing).
+            when (val placement = classifyPlacement(name, setCode, draftPackage(setCode))) {
+                is Placement.Reprint -> {
+                    if (skipReprints) continue
+                    File(out, sourceFileName(name)).writeText(placement.source)
+                    reprints++; written++
+                    continue
+                }
+                is Placement.Misplaced -> {
+                    val res = render(card, setCode, effects, keywords, draftPackage(setCode))
+                    if (!res.complete && completeOnly) { skippedScaffold++; continue }
+                    if (!res.complete) scaffold++
+                    File(out, sourceFileName(name)).writeText(misplacedTodo(name, placement.earliest, placement.released) + res.text)
+                    misplaced++; written++
+                    continue
+                }
+                Placement.Canonical -> {
+                    val res = render(card, setCode, effects, keywords, draftPackage(setCode))
+                    if (!res.complete) {
+                        if (completeOnly) { skippedScaffold++; continue }  // --complete-only: emit confidently-whole cards only
+                        scaffold++
+                    }
+                    File(out, sourceFileName(name)).writeText(res.text)
+                    written++
+                }
             }
-            File(out, sourceFileName(name)).writeText(res.text)
-            written++
         }
         println("write-all: wrote $written/${names.size} card source file(s) to $out (package ${draftPackage(setCode)})")
         if (scaffold > 0) println("  scaffolds: $scaffold (compileable source with STRUCTURE comments; behaviour incomplete)")
+        if (reprints > 0) println("  reprint rows: $reprints (canonical lives in an earlier set — emitted a Printing(...) row)")
+        if (misplaced > 0) println("  misplaced canonicals: $misplaced (earliest set not scaffolded — emitted under a TODO)")
         if (skippedScaffold > 0) println("  skipped (incomplete render, --complete-only): $skippedScaffold")
         if (unmatched > 0) println("  unmatched in mtgish: $unmatched")
         if (skippedBasicLands > 0) println("  skipped basic lands: $skippedBasicLands (preserved existing basicLand definitions)")
+        return 0
+    }
+
+    /**
+     * Relocate misplaced canonicals: for each card in [setCode] whose earliest real printing is a
+     * DIFFERENT set, emit the canonical `card(...)` into that earlier set's `cards/` package (with
+     * the earlier set's own Scryfall metadata) — unless it already lives there. This is the inverse
+     * of a reprint row: it backfills the canonical so the later set can safely become a `Printing(...)`
+     * row. Earlier sets that aren't scaffolded yet still get a `cards/` file written here; scaffold
+     * the `MtgSet` object + `MtgSetCatalog` entry to register them.
+     */
+    private fun modeRelocate(setCode: String, effects: Set<String>, keywords: Set<String>): Int {
+        val (names, idx) = allWithMtgish(setCode)
+        var moved = 0
+        var already = 0
+        var incomplete = 0
+        var unmatched = 0
+        val perSet = sortedMapOf<String, Int>()
+        for (name in names) {
+            val card = idx[name]
+            if (card == null) { unmatched++; continue }
+            if (isBasicLand(card)) continue
+            val earliest = Printings.earliestRealSet(name) ?: continue
+            if (earliest.equals(setCode, ignoreCase = true)) continue           // canonical home is this set
+            if (earliest.lowercase() in Cards.canonicalSetsForCard(name)) { already++; continue }
+            val res = render(card, earliest, effects, keywords, draftPackage(earliest))
+            if (!res.complete) {
+                incomplete++
+                System.err.println("relocate: \"$name\" -> ${earliest.uppercase()} renders incomplete; left in ${setCode.uppercase()}")
+                continue
+            }
+            val dir = File(DEFINITIONS_ROOT, "${earliest.lowercase()}/cards").apply { mkdirs() }
+            File(dir, sourceFileName(name)).writeText(res.text)
+            moved++
+            perSet.merge(earliest.uppercase(), 1, Int::plus)
+        }
+        println("relocate: wrote $moved canonical(s) into their earliest set(s) from ${setCode.uppercase()}")
+        perSet.forEach { (s, c) -> println("  $s: $c") }
+        if (already > 0) println("  already canonical in the earlier set: $already")
+        if (incomplete > 0) println("  incomplete render (left in ${setCode.uppercase()}): $incomplete")
+        if (unmatched > 0) println("  unmatched in mtgish: $unmatched")
+        println("These are DRAFTS — compile, add scenario tests, and review. New sets need an MtgSet object + MtgSetCatalog entry.")
         return 0
     }
 
@@ -226,10 +364,11 @@ object Autogen {
     fun run(args: List<String>): Int {
         var setCode: String? = null
         var all = false
-        var gaps = false; var write = false; var emitAll = false; var writeAll = false
+        var gaps = false; var write = false; var emitAll = false; var writeAll = false; var relocate = false
         var listCat: String? = null
         var unique = false
         var completeOnly = false
+        var skipReprints = false
         var out: String? = null
         var i = 0
         while (i < args.size) {
@@ -240,9 +379,11 @@ object Autogen {
                 "--write" -> write = true
                 "--emit-all" -> emitAll = true
                 "--write-all" -> writeAll = true
+                "--relocate" -> relocate = true
                 "--list" -> listCat = args[++i]
                 "--unique" -> unique = true
                 "--complete-only" -> completeOnly = true
+                "--skip-reprints" -> skipReprints = true
                 "--out" -> out = args[++i]
                 else -> { System.err.println("autogen: unknown argument $a"); return 2 }
             }
@@ -252,13 +393,14 @@ object Autogen {
         val keywords = Registry.loadKeywords()
         if (unique && !all) { System.err.println("autogen: --unique only applies to --all"); return 2 }
         if (all) {
-            if (write || emitAll || writeAll) { System.err.println("autogen: --all is only supported with --gaps"); return 2 }
+            if (write || emitAll || writeAll || relocate) { System.err.println("autogen: --all is only supported with --gaps"); return 2 }
             return modeGapsAll(effects, keywords, listCat, unique)
         }
         if (setCode == null) { System.err.println("autogen: --set CODE (or --all) is required"); return 2 }
         return when {
-            writeAll -> modeWriteAll(setCode, effects, keywords, out, completeOnly)
-            write -> modeWrite(setCode, effects, keywords, out)
+            relocate -> modeRelocate(setCode, effects, keywords)
+            writeAll -> modeWriteAll(setCode, effects, keywords, out, completeOnly, skipReprints)
+            write -> modeWrite(setCode, effects, keywords, out, skipReprints)
             emitAll -> modeEmitAll(setCode, effects, keywords, out)
             else -> modeGaps(setCode, effects, keywords, listCat)
         }

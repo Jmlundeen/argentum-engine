@@ -144,3 +144,27 @@ By default this writes complete generated cards and scaffold files for unsupport
 preserved, and mtgish basic-land entries are skipped, because sets can contain multiple basic-land
 printings that Scryfall/mtgish collapse by name. Use it only when intentionally converting a set to
 mtgish-authored source, then compile and refresh snapshots.
+
+## Canonical vs reprint placement
+
+The write paths (`--write` / `--write-all`) verify each card's **canonical home** against Scryfall's
+cross-set printing list — the same rule `scripts/check-card-printing.py` enforces: a card's
+`CardDefinition` must live in its *earliest real-expansion printing*, and every later set contributes
+only a `Printing(...)` row, never a second colliding `card(...)` (which `CardRegistry` would resolve
+last-registration-wins). So a card whose earliest printing is a different set is emitted as a
+`Printing(...)` row instead of a full definition — but only when the canonical is **actually
+implemented** in that earlier set. If it isn't (the canonical doesn't exist yet, or its earliest set
+isn't scaffolded), the card is kept as a full `card(...)` under a `// TODO(mtgish)` banner so it's
+flagged rather than silently misplaced. Pass `--skip-reprints` to drop reprints entirely instead.
+
+To resolve those TODOs, `--relocate` backfills the missing canonicals:
+
+```bash
+just coverage-relocate POR     # emit the canonical for every POR card whose earliest set is elsewhere
+                               # into that earlier set's cards/ package (with the earlier set's metadata)
+```
+
+After relocating, scaffold any brand-new earlier sets (an `MtgSet` object + a `MtgSetCatalog` entry),
+re-run `coverage-refresh-set` so the later set becomes `Printing(...)` rows, then compile + refresh
+snapshots. Network: `--relocate` and the write paths do one Scryfall `unique=prints` lookup per card,
+cached under `~/.cache/scryfall/printings/` (shared with `check-card-printing.py`).

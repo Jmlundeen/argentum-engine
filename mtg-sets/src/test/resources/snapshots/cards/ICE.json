@@ -1,0 +1,109 @@
+// Mountain Goat
+{
+    "name": "Mountain Goat",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goat",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "MOUNTAINWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "203",
+        "artist": "Cornelius Brudi",
+        "flavorText": "\"Folkore has it that to capture a Mountain Goat is a sign of divine blessing. I just know it's a sign that dinner is on the way.\"\n—Klazina Jansdotter, Leader of the Order of the Sacred Torch",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/ccf70276-a40c-4d25-b584-4c8a07a00602.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Nature's Lore
+{
+    "name": "Nature's Lore",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "land Forest"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "255",
+        "rarity": "UNCOMMON",
+        "artist": "Rick Emond",
+        "flavorText": "\"Fyndhorn is our home.\"\n—Kolbjörn, Elder Druid of the Juniper Order",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/668d2969-b6b7-4507-bdd4-20bbaa68035a.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Pyroclasm
+{
+    "name": "Pyroclasm",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature"
+            },
+            "effect": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "214",
+        "rarity": "UNCOMMON",
+        "artist": "Pat Lewis",
+        "flavorText": "\"Leaves more room for the big ones to fight in, you know.\"\n—Jaya Ballard, Task Mage",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/8/88040748-ad76-4b9a-bd4e-87e5980e9816.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

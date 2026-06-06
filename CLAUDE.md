@@ -74,6 +74,7 @@ just coverage-fidelity --emit "Lava Axe"  # print the generated cardDef DSL (com
 # AUTO-GEN — turn the bridge on a set's UNIMPLEMENTED cards.
 just coverage-gaps --set TMP            # AUTOGEN / SCAFFOLD / BLOCKED counts + blocked-capability leaderboard
 just coverage-generate --set TMP        # draft .kt for the AUTOGEN cards -> mtgish-tooling/generated/<set>/
+just coverage-relocate TMP              # backfill canonicals of cards whose earliest printing is another set
 
 # VERIFY — the real gate: COMPILE the emitted cards + diff serialized caps vs golden.
 just coverage-verify --set POR          # POR: 184/184 emitted & compile-verified, 0 capability mismatch
@@ -90,6 +91,13 @@ test, and be human-reviewed before moving into a set's `cards/` package. `covera
 real gate). The emitter is Portal-tuned: it renders 100% of Portal (compile-verified) but only ~15-20% of unseen
 sets, converging as you add emitter handlers / bridge entries (one helps all sets). Keep using
 the `add-card` skill for real implementation.
+
+**Reprint placement.** The write paths verify each card's canonical home against Scryfall's cross-set
+printing list (the `check-card-printing` rule): only a card's *earliest real printing* gets a full
+`card(...)`; later sets get a `Printing(...)` row, never a duplicate canonical. A card whose earliest
+set lacks the canonical is left as a TODO-flagged `card(...)`; `just coverage-relocate <SET>` backfills
+those canonicals into their correct earlier set (scaffold any brand-new set's `MtgSet` + `MtgSetCatalog`
+entry afterward).
 
 ## Module Layout
 

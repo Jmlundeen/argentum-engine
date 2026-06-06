@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -28,8 +27,9 @@ val SeasonedMarshal = card("Seasoned Marshal") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.Attacks
+        optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = MayEffect(Effects.Tap(t))
+        effect = Effects.Tap(t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

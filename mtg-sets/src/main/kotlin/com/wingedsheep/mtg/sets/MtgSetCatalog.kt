@@ -73,6 +73,10 @@ import com.wingedsheep.mtg.sets.definitions.tmt.TeenageMutantNinjaTurtlesSet
 import com.wingedsheep.mtg.sets.definitions.war.WarOfTheSparkSet
 import com.wingedsheep.mtg.sets.definitions.woe.WildsOfEldrainSet
 import com.wingedsheep.mtg.sets.definitions.wwk.WorldwakeSet
+import com.wingedsheep.mtg.sets.definitions.drk.TheDarkSet
+import com.wingedsheep.mtg.sets.definitions.hml.HomelandsSet
+import com.wingedsheep.mtg.sets.definitions.all.AlliancesSet
+import com.wingedsheep.mtg.sets.definitions.ice.IceAgeSet
 import com.wingedsheep.sdk.model.MtgSet
 
 /**
@@ -88,6 +92,10 @@ object MtgSetCatalog {
         AlphaSet,
         ArabianNightsSet,
         LegendsSet,
+        TheDarkSet,
+        IceAgeSet,
+        HomelandsSet,
+        AlliancesSet,
         PortalSet,
         PortalSecondAgeSet,
         MirageSet,

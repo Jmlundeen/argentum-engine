@@ -111,6 +111,15 @@ coverage-generate *ARGS: _coverage-tool
 coverage-refresh-set SET *ARGS: _coverage-tool
     @mtgish-tooling/build/install/mtgish-tooling/bin/mtgish-tooling autogen --write-all --set {{SET}} {{ARGS}}
 
+# Relocate misplaced canonicals: for every card in SET whose earliest real printing is a DIFFERENT
+# set, emit the canonical card(...) into that earlier set's cards/ package (with its own metadata),
+# so SET can safely carry only Printing(...) rows. New earlier sets still need an MtgSet object +
+# MtgSetCatalog entry. DRAFTS — compile + scenario-test + review before relying on them.
+#   just coverage-relocate POR
+[group: 'build']
+coverage-relocate SET: _coverage-tool
+    @mtgish-tooling/build/install/mtgish-tooling/bin/mtgish-tooling autogen --relocate --set {{SET}}
+
 # COMPILE-VERIFICATION GATE — the real proof that AUTO cards are emittable, not just predicted.
 # Emits every whole-renderable card of a set into an isolated Gradle source set, COMPILES them,
 # serialises each via the same CardExporter the golden snapshots use, then gameplay-tree diffs vs

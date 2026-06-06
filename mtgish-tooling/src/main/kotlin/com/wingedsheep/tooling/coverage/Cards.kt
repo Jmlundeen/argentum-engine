@@ -52,4 +52,25 @@ object Cards {
         }
         return hits
     }
+
+    /**
+     * Set codes (lowercase) whose `cards/` package holds the *canonical* `card("Name") { ... }`
+     * definition for this card — NOT sets that merely carry a `Printing(...)` reprint row.
+     *
+     * The generator needs this to decide whether a reprint row is safe: a `Printing(...)` row in a
+     * later set is only valid if some earlier set actually implements the `CardDefinition` it points
+     * at. Without that, the row would dangle and the card would be unplayable, so the generator
+     * keeps the full `card(...)` (under a TODO) instead.
+     */
+    fun canonicalSetsForCard(name: String): Set<String> {
+        val fn = front(name)
+        val pattern = Regex("""\bcard\(\s*"(${Regex.escape(name)}|${Regex.escape(fn)})"""")
+        val hits = mutableSetOf<String>()
+        for (s in Scryfall.discoverSets()) {
+            val implementsCanonically = s.cardsDir.listFiles { f -> f.name.endsWith(".kt") }
+                ?.any { pattern.containsMatchIn(it.readText()) } ?: false
+            if (implementsCanonically) hits.add(s.code.lowercase())
+        }
+        return hits
+    }
 }

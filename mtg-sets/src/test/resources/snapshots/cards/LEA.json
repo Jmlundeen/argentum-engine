@@ -515,3 +515,94 @@
     },
     "colorIdentityOverride": []
 }
+
+// Stone Rain
+{
+    "name": "Stone Rain",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "177",
+        "artist": "Daniel Gelon",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/7/57ff74cb-a2ed-4123-ac42-f72f9820049e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Wall of Swords
+{
+    "name": "Wall of Swords",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Wall",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 5
+    },
+    "keywords": [
+        "DEFENDER",
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "42",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Tedin",
+        "flavorText": "Just as the evil ones approached to slay Justina, she cast a great spell, imbuing her weapons with her own life force. Thus she fulfilled the prophecy: \"In the death of your savior will you find salvation.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/99ec4723-b36c-4015-b361-736a6523e8f5.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Wrath of God
+{
+    "name": "Wrath of God",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            },
+            "noRegenerate": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "RARE",
+        "artist": "Quinton Hoover",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/2/a2788d69-6a3a-42f0-8736-cc6b57755ecd.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

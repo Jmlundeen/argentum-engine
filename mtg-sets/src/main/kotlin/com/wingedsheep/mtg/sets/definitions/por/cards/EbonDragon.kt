@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 
@@ -30,8 +29,9 @@ val EbonDragon = card("Ebon Dragon") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
+        optional = true
         val t = target("target", TargetOpponent())
-        effect = MayEffect(EffectPatterns.discardCards(1, t))
+        effect = EffectPatterns.discardCards(1, t)
     }
     metadata {
         rarity = Rarity.RARE

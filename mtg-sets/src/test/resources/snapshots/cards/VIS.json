@@ -1,3 +1,265 @@
+// Archangel
+{
+    "name": "Archangel",
+    "manaCost": "{5}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING",
+        "VIGILANCE"
+    ],
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "RARE",
+        "artist": "Christopher Rush",
+        "flavorText": "\"My mother once told me angels sing their swords' names with each strike.\"\n—Sisay, Captain of the Weatherlight",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/368144bf-d415-48ab-a957-9d7ac1ceb353.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Elven Cache
+{
+    "name": "Elven Cache",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Hand"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Graveyard"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "105",
+        "artist": "John Matson",
+        "flavorText": "\"The elves can hide better than most can look.\"\n—Mwani, Mtenda herder",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/0/80fa078f-c74a-42b2-af97-7ca2c29dc316.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Hulking Cyclops
+{
+    "name": "Hulking Cyclops",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Creature — Cyclops",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "staticAbilities": [
+            "CantBlock"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "84",
+        "rarity": "UNCOMMON",
+        "artist": "DiTerlizzi",
+        "flavorText": "\"Some say a great cyclops turns the world in its hands, looking down upon it with its one bright eye.\"\n—Afari, Tales",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/3/a3ee5ea8-7023-4dde-ab51-d3ba234d74b9.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Man-o'-War
+{
+    "name": "Man-o'-War",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Jellyfish",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "artist": "Jon J Muth",
+        "flavorText": "\"Beauty to the eye does not always translate to the touch.\"\n—Naimah, Femeref philosopher",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/d/4dbf9bf9-75cd-4b25-a3a1-43b7e029700b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Natural Order
+{
+    "name": "Natural Order",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "creature green"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        },
+        "additionalCosts": [
+            {
+                "type": "SacrificePermanent",
+                "filter": "creature green"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "114",
+        "rarity": "RARE",
+        "artist": "Terese Nielsen",
+        "flavorText": ". . . but the price of Mangara's freedom was Asmira's life.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/0845f0b0-9413-4ddd-861d-9607636bebc6.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Panther Warriors
+{
+    "name": "Panther Warriors",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Cat Warrior",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 3
+    },
+    "metadata": {
+        "collectorNumber": "115",
+        "artist": "Cecil Fernando",
+        "flavorText": "\"When you run you're graceful and swift, sleek as a powerful panther.\"\n—\"Love Song of Night and Day\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/6/76c9bc99-28e3-4d64-8383-2b92011104ed.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Prosperity
+{
+    "name": "Prosperity",
+    "manaCost": "{X}{U}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachPlayer",
+            "players": "Each",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": "XValue"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "40",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Frazier",
+        "flavorText": "\"Wealth is a good thing, compared to poverty—your food is better, your robes are softer, and your companions have bathed more recently.\"\n—Kipkemboi, Kukemssa pirate",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/f/3fa5e806-3cf2-4241-b45d-a05d2b715efd.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Python
+{
+    "name": "Python",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Creature — Snake",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "68",
+        "artist": "Steve White",
+        "flavorText": "\"How can you claim the gods are merciless when they robbed the snake of its limbs to give the other creatures a sporting chance?\"\n—Hakim, Loreweaver",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/7/e7e99969-6c21-4de6-ba57-44ef7f9c8c47.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Simoon
 {
     "name": "Simoon",
@@ -31,6 +293,29 @@
     },
     "colorIdentityOverride": [
         "RED",
+        "GREEN"
+    ]
+}
+
+// Summer Bloom
+{
+    "name": "Summer Bloom",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "PlayAdditionalLands",
+            "count": 3
+        }
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "UNCOMMON",
+        "artist": "Nicola Leonard",
+        "flavorText": "\"Our love is like the river in the summer season of long rains. / For a little while it spilled its banks, flooding the crops in the fields.\"\n—\"Love Song of Night and Day\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/5/35d78f4e-d95d-49bc-9971-06a68a4e35fd.jpg"
+    },
+    "colorIdentityOverride": [
         "GREEN"
     ]
 }

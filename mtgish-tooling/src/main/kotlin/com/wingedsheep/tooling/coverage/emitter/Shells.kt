@@ -25,7 +25,7 @@ private val MANA = mapOf(
     "ManaCostG" to "{G}", "ManaCostC" to "{C}", "ManaCostX" to "{X}",
 )
 private val COLOR_LETTERS = listOf("W", "U", "B", "R", "G")
-private val RARITY_DSL = mapOf(
+internal val RARITY_DSL = mapOf(
     "common" to "COMMON", "uncommon" to "UNCOMMON", "rare" to "RARE",
     "mythic" to "MYTHIC", "special" to "SPECIAL", "bonus" to "BONUS",
 )

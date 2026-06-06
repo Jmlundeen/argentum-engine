@@ -19,3 +19,105 @@
         "WHITE"
     ]
 }
+
+// Untamed Wilds
+{
+    "name": "Untamed Wilds",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "basicland"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "210",
+        "rarity": "UNCOMMON",
+        "artist": "NéNé Thomas",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/8/887f22af-8b92-422a-9cd5-f3977674bcdc.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Winds of Change
+{
+    "name": "Winds of Change",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachPlayer",
+            "players": "Each",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand"
+                    },
+                    "storeAs": "wheelHand"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "wheelHand",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Shuffled"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "VariableReference",
+                        "variableName": "wheelHand_count"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "172",
+        "rarity": "UNCOMMON",
+        "artist": "Justin Hampton",
+        "flavorText": "\"'Tis the set of sails, and not the gales,/ Which tells us the way to go.\" —Ella Wheeler Wilcox",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/8/186fd917-8d65-4de5-8546-a32a5f6d3bab.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

@@ -1,0 +1,22 @@
+// Bog Imp
+{
+    "name": "Bog Imp",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Imp",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "41",
+        "artist": "Ron Spencer",
+        "flavorText": "On guard for larger dangers, we underestimated the power and speed of the Imp's muck-crusted claws.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/3/e3bb7271-634a-4612-9073-7a5438e8c2b8.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
