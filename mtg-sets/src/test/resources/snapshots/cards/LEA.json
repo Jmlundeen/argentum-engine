@@ -1,3 +1,64 @@
+// Air Elemental
+{
+    "name": "Air Elemental",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Creature — Elemental",
+    "oracleText": "Flying",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "46",
+        "rarity": "UNCOMMON",
+        "artist": "Richard Thomas",
+        "flavorText": "These spirits of the air are winsome and wild, and cannot be truly contained. Only marginally intelligent, they often substitute whimsy for strategy, delighting in mischief and mayhem.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/9/69c3b2a3-0daa-4d42-832d-fcdfda6555ea.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Ancestral Recall
+{
+    "name": "Ancestral Recall",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Target player draws three cards.",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": {
+                "type": "Fixed",
+                "amount": 3
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "47",
+        "rarity": "RARE",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/70e7ddf2-5604-41e7-bb9d-ddd03d3e9d0b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Armageddon
 {
     "name": "Armageddon",
@@ -28,6 +89,164 @@
     ]
 }
 
+// Badlands
+{
+    "name": "Badlands",
+    "manaCost": "",
+    "typeLine": "Land — Swamp Mountain",
+    "oracleText": "({T}: Add {B} or {R}.)",
+    "metadata": {
+        "collectorNumber": "277",
+        "rarity": "RARE",
+        "artist": "Rob Alexander",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/1/717f6d10-9144-4ade-9ac6-a481cc66b875.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
+// Bayou
+{
+    "name": "Bayou",
+    "manaCost": "",
+    "typeLine": "Land — Swamp Forest",
+    "oracleText": "({T}: Add {B} or {G}.)",
+    "metadata": {
+        "collectorNumber": "278",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/1/412ceddd-2b9a-4551-a6bf-ae2830a2010a.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
+// Benalish Hero
+{
+    "name": "Benalish Hero",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "Banding (Any creatures with banding, and up to one without, can attack in a band. Bands are blocked as a group. If any creatures with banding you control are blocking or being blocked by a creature, you divide that creature's combat damage, not its controller, among any of the creatures it's being blocked by or is blocking.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "BANDING"
+    ],
+    "metadata": {
+        "collectorNumber": "4",
+        "artist": "Douglas Shuler",
+        "flavorText": "Benalia has a complex caste system that changes with the lunar year. No matter what the season, the only caste that cannot be attained by either heredity or money is that of the hero.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/1/11600105-56c6-4073-a4a6-8469030b39c9.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Birds of Paradise
+{
+    "name": "Birds of Paradise",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Bird",
+    "oracleText": "Flying\n{T}: Add one mana of any color.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "186",
+        "rarity": "RARE",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/5/55fe6449-1f23-43dc-adee-d144cd505b5c.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Black Knight
+{
+    "name": "Black Knight",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "First strike (This creature deals combat damage before creatures without first strike.)\nProtection from white (This creature can't be blocked, targeted, dealt damage, or enchanted by anything white.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FIRST_STRIKE"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Protection",
+            "scope": {
+                "type": "ProtectionScope.Color",
+                "color": "WHITE"
+            }
+        }
+    ],
+    "metadata": {
+        "collectorNumber": "94",
+        "rarity": "UNCOMMON",
+        "artist": "Jeff A. Menges",
+        "flavorText": "Battle doesn't need a purpose; the battle is its own purpose. You don't ask why a plague spreads or a field burns. Don't ask why I fight.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/1/c1662949-0d69-49a3-8c69-daf10717ed4e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Blue Elemental Blast
+{
+    "name": "Blue Elemental Blast",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Counter target red spell.\n• Destroy target red permanent.",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "artist": "Richard Thomas",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/0/20d666ef-39bf-4fbf-8201-5f1056539da2.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Bog Wraith
 {
     "name": "Bog Wraith",
@@ -50,6 +269,74 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Braingeyser
+{
+    "name": "Braingeyser",
+    "manaCost": "{X}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target player draws X cards.",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": "XValue",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "RARE",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/2/62b19a12-6914-430e-81ce-dcfca47884df.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Celestial Prism
+{
+    "name": "Celestial Prism",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "{2}, {T}: Add one mana of any color.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{2}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "234",
+        "rarity": "UNCOMMON",
+        "artist": "Amy Weber",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/4/a47417cb-1ea7-4f65-ba06-e27a99373114.jpg"
+    },
+    "colorIdentityOverride": []
 }
 
 // Clone
@@ -75,6 +362,253 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Counterspell
+{
+    "name": "Counterspell",
+    "manaCost": "{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target spell.",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0df55e3f-14de-46ef-b6b1-616618724d9e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Craw Wurm
+{
+    "name": "Craw Wurm",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Creature — Wurm",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "190",
+        "artist": "Daniel Gelon",
+        "flavorText": "The most terrifying thing about the Craw Wurm is probably the horrible crashing sound it makes as it speeds through the forest. This noise is so loud it echoes through the trees and seems to come from all directions at once.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/f/bfed1a95-bd67-4e16-a781-81866028af2f.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Deathgrip
+{
+    "name": "Deathgrip",
+    "manaCost": "{B}{B}",
+    "typeLine": "Enchantment",
+    "oracleText": "{B}{B}: Counter target green spell.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{B}{B}"
+                },
+                "effect": "Counter",
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {},
+                            "zone": "Stack"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "100",
+        "rarity": "UNCOMMON",
+        "artist": "Anson Maddocks",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/3/2371c126-f19a-472a-ba5f-3b1366274ea0.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Demonic Tutor
+{
+    "name": "Demonic Tutor",
+    "manaCost": "{1}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for a card, put that card into your hand, then shuffle.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "104",
+        "rarity": "UNCOMMON",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/1/711d4d54-5520-4de8-9b93-79902ed8e562.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Disenchant
+{
+    "name": "Disenchant",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target artifact or enchantment.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact|enchantment"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "artist": "Amy Weber",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/2722d7e2-61c6-4934-9c21-875ee78fd06c.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Dwarven Demolition Team
+{
+    "name": "Dwarven Demolition Team",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Dwarf",
+    "oracleText": "{T}: Destroy target Wall.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "142",
+        "rarity": "UNCOMMON",
+        "artist": "Kev Brockschmidt",
+        "flavorText": "Foolishly, Najib retreated to his castle at El-Abar; the next morning he was dead. In just one night, the dwarven forces had reduced the mighty walls to mere rubble.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/3/03482c9c-1f25-4d73-9243-17462ea37ac4.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Earth Elemental
+{
+    "name": "Earth Elemental",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Creature — Elemental",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 5
+    },
+    "metadata": {
+        "collectorNumber": "144",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Frazier",
+        "flavorText": "Earth Elementals have the eternal strength of stone and the endurance of mountains. Primordially connected to the land they inhabit, they take a long-term view of things, scorning the impetuous haste of short-lived mortal creatures.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/2/b24b5864-44c0-4bc8-8705-9504f83b2c03.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -128,6 +662,31 @@
     ]
 }
 
+// Elvish Archers
+{
+    "name": "Elvish Archers",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elf Archer",
+    "oracleText": "First strike",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FIRST_STRIKE"
+    ],
+    "metadata": {
+        "collectorNumber": "191",
+        "rarity": "RARE",
+        "artist": "Anson Maddocks",
+        "flavorText": "I tell you, there was so many arrows flying about you couldn't hardly see the sun. So I says to young Angus, \"Well, at least now we're fighting in the shade!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/c/1cb9d405-f2b5-4e10-a405-feafd2a87d90.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Fire Elemental
 {
     "name": "Fire Elemental",
@@ -178,6 +737,92 @@
     ]
 }
 
+// Frozen Shade
+{
+    "name": "Frozen Shade",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Shade",
+    "oracleText": "{B}: This creature gets +1/+1 until end of turn.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{B}"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "artist": "Douglas Shuler",
+        "flavorText": "\"There are some qualities—some incorporate things,/ That have a double life, which thus is made/ A type of twin entity which springs/ From matter and light, evinced in solid and shade.\"\n—Edgar Allan Poe, \"Silence\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0bd76c8-4cff-4c15-9686-7a299b589814.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Giant Growth
+{
+    "name": "Giant Growth",
+    "manaCost": "{G}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gets +3/+3 until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "ModifyStats",
+            "powerModifier": {
+                "type": "Fixed",
+                "amount": 3
+            },
+            "toughnessModifier": {
+                "type": "Fixed",
+                "amount": 3
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "197",
+        "artist": "Sandra Everingham",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/367dbefe-3366-408e-9fcf-7dc00f8cc201.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Giant Spider
 {
     "name": "Giant Spider",
@@ -200,6 +845,148 @@
     ]
 }
 
+// Glasses of Urza
+{
+    "name": "Glasses of Urza",
+    "manaCost": "{1}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Look at target player's hand.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "LookAtTargetHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetPlayer",
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "245",
+        "rarity": "UNCOMMON",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/cafc2350-5d64-4379-9198-79a114654d45.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
+// Goblin Balloon Brigade
+{
+    "name": "Goblin Balloon Brigade",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goblin Warrior",
+    "oracleText": "{R}: This creature gains flying until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{R}"
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "FLYING",
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "153",
+        "rarity": "UNCOMMON",
+        "artist": "Andi Rusu",
+        "flavorText": "\"From up here we can drop rocks and arrows and more rocks!\" \"Uh, yeah boss, but how do we get down?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/1/5129b422-7a35-4bc5-b14b-c814012a0d8f.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Granite Gargoyle
+{
+    "name": "Granite Gargoyle",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Gargoyle",
+    "oracleText": "Flying\n{R}: This creature gets +0/+1 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{R}"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "155",
+        "rarity": "RARE",
+        "artist": "Christopher Rush",
+        "flavorText": "\"While most overworlders fortunately don't realize this, Gargoyles can be most delicious, providing you have the appropriate tools to carve them.\"\n—The Underworld Cookbook, by Asmoranomardicadaistinaculdacar",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f15bf2b2-6848-4fbd-b89a-8d8da8ae1cdc.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Gray Ogre
+{
+    "name": "Gray Ogre",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Ogre",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "156",
+        "artist": "Dan Frazier",
+        "flavorText": "The Ogre philosopher Gnerdel believed the purpose of life was to live as high on the food chain as possible. She refused to eat vegetarians, and preferred to live entirely on creatures that preyed on sentient beings.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/3/73ae5276-b607-4f23-a9d2-e8cc7b8e3693.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Grizzly Bears
 {
     "name": "Grizzly Bears",
@@ -219,6 +1006,55 @@
     ]
 }
 
+// Helm of Chatzuk
+{
+    "name": "Helm of Chatzuk",
+    "manaCost": "{1}",
+    "typeLine": "Artifact",
+    "oracleText": "{1}, {T}: Target creature gains banding until end of turn. (Any creatures with banding, and up to one without, can attack in a band. Bands are blocked as a group. If any creatures with banding a player controls are blocking or being blocked by a creature, that player divides that creature's combat damage, not its controller, among any of the creatures it's being blocked by or is blocking.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{1}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "BANDING",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "246",
+        "rarity": "RARE",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/7/3792c6ef-c4e6-4923-9a51-7d28fbc5c393.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
 // Hill Giant
 {
     "name": "Hill Giant",
@@ -232,6 +1068,26 @@
         "collectorNumber": "157",
         "artist": "Dan Frazier",
         "imageUri": "https://cards.scryfall.io/normal/front/0/d/0ddb98e8-13fe-4786-83f7-b72c56db135a.jpg?1559591379"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Hurloon Minotaur
+{
+    "name": "Hurloon Minotaur",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Creature — Minotaur",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "metadata": {
+        "collectorNumber": "158",
+        "artist": "Anson Maddocks",
+        "flavorText": "The Minotaurs of the Hurloon Mountains are known for their love of battle. They are also known for their hymns to the dead, sung for friend and foe alike. These hymns can last for days, filling the mountain valleys with their low, haunting sounds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/78a9088f-8755-47cb-aa93-51d992ccab90.jpg"
     },
     "colorIdentityOverride": [
         "RED"
@@ -274,6 +1130,43 @@
         "rarity": "UNCOMMON",
         "artist": "Dameon Willich",
         "imageUri": "https://cards.scryfall.io/normal/front/5/2/52f5a19f-16e4-4d35-89e1-969ac8202f88.jpg?1559591426"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Ice Storm
+{
+    "name": "Ice Storm",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy target land.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "201",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/9914836e-2fa6-4390-94b2-431427848a54.jpg"
     },
     "colorIdentityOverride": [
         "GREEN"
@@ -328,6 +1221,65 @@
     "colorIdentityOverride": []
 }
 
+// Ironroot Treefolk
+{
+    "name": "Ironroot Treefolk",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Treefolk",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 5
+    },
+    "metadata": {
+        "collectorNumber": "203",
+        "artist": "Jesper Myrfors",
+        "flavorText": "The mating habits of Treefolk, particularly the stalwart Ironroot Treefolk, are truly absurd. Molasses comes to mind. It's amazing the species can survive at all given such protracted periods of mate selection, conjugation, and gestation.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/9/b93c5869-7777-44bb-967a-e9439b25ced4.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Jayemdae Tome
+{
+    "name": "Jayemdae Tome",
+    "manaCost": "{4}",
+    "typeLine": "Artifact — Book",
+    "oracleText": "{4}, {T}: Draw a card.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{4}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "254",
+        "rarity": "RARE",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/cac8c421-5b92-481d-b2de-560c0231ab58.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
 // Juggernaut
 {
     "name": "Juggernaut",
@@ -364,6 +1316,162 @@
     "colorIdentityOverride": []
 }
 
+// Jump
+{
+    "name": "Jump",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gains flying until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "GrantKeyword",
+            "keyword": "FLYING",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "60",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cb3f4b11-ad1b-48e2-a500-787d351b0174.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Ley Druid
+{
+    "name": "Ley Druid",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Human Druid",
+    "oracleText": "{T}: Untap target land.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "tap": false
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "205",
+        "rarity": "UNCOMMON",
+        "artist": "Sandra Everingham",
+        "flavorText": "After years of training, the Druid becomes one with nature, drawing power from the land and returning it when needed.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/9/f9232508-d363-4ef3-987a-741f6bff331f.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Lifeforce
+{
+    "name": "Lifeforce",
+    "manaCost": "{G}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "{G}{G}: Counter target black spell.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{G}{G}"
+                },
+                "effect": "Counter",
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {},
+                            "zone": "Stack"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "206",
+        "rarity": "UNCOMMON",
+        "artist": "Dameon Willich",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/2/e292577e-6232-44fa-a9c2-cc09949c6ed3.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Lightning Bolt
+{
+    "name": "Lightning Bolt",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "oracleText": "Lightning Bolt deals 3 damage to any target.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 3
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "161",
+        "artist": "Christopher Rush",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/5/d573ef03-4730-45aa-93dd-e45ac1dbaf4a.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Llanowar Elves
 {
     "name": "Llanowar Elves",
@@ -398,6 +1506,31 @@
     ]
 }
 
+// Mahamoti Djinn
+{
+    "name": "Mahamoti Djinn",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Creature — Djinn",
+    "oracleText": "Flying (This creature can't be blocked except by creatures with flying or reach.)",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "64",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "flavorText": "Of royal blood among the spirits of the air, the Mahamoti Djinn rides on the wings of the winds. As dangerous in the gambling hall as he is in battle, he is a master of trickery and misdirection.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/36204ddd-ddf7-4b44-ae3c-b4a5a41ac9cb.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Merfolk of the Pearl Trident
 {
     "name": "Merfolk of the Pearl Trident",
@@ -414,6 +1547,302 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Mesa Pegasus
+{
+    "name": "Mesa Pegasus",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Pegasus",
+    "oracleText": "Flying; banding (Any creatures with banding, and up to one without, can attack in a band. Bands are blocked as a group. If any creatures with banding you control are blocking or being blocked by a creature, you divide that creature's combat damage, not its controller, among any of the creatures it's being blocked by or is blocking.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "BANDING",
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "28",
+        "artist": "Melissa A. Benson",
+        "flavorText": "Before a woman marries in the village of Sursi, she must visit the land of the Mesa Pegasus. Legend has it that if the woman is pure of heart and her love is true, a Mesa Pegasus will appear, blessing her family with long life and good fortune.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/a/eaac88da-d19e-4771-944c-3709963d04e7.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Mons's Goblin Raiders
+{
+    "name": "Mons's Goblin Raiders",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goblin",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "164",
+        "artist": "Jeff A. Menges",
+        "flavorText": "The intricate dynamics of Rundvelt Goblin affairs are often confused with anarchy. The chaos, however, is the chaos of a thundercloud, and direction will sporadically and violently appear. Pashalik Mons and his raiders are the thunderhead that leads in the storm.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/4/b4eb3db3-6a7c-488a-9433-d5d1d3133816.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Mox Emerald
+{
+    "name": "Mox Emerald",
+    "manaCost": "{0}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {G}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "261",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/0/b0e1427c-05cd-465b-be59-97ed6e39f7ba.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Mox Jet
+{
+    "name": "Mox Jet",
+    "manaCost": "{0}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {B}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "262",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/92bcd1ce-19b1-4d78-8b09-95242ca08d76.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Mox Pearl
+{
+    "name": "Mox Pearl",
+    "manaCost": "{0}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {W}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "263",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/e/8ebe4be7-e12a-4596-a899-fbd5b152e879.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Mox Ruby
+{
+    "name": "Mox Ruby",
+    "manaCost": "{0}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "264",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/8945585f-4773-493d-a0fe-d707db910b38.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Mox Sapphire
+{
+    "name": "Mox Sapphire",
+    "manaCost": "{0}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {U}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "265",
+        "rarity": "RARE",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/82da0972-b17b-4600-9efd-e9430a0db04b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Northern Paladin
+{
+    "name": "Northern Paladin",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "{W}{W}, {T}: Destroy target black permanent.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{W}{W}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "29",
+        "rarity": "RARE",
+        "artist": "Douglas Shuler",
+        "flavorText": "\"Look to the north; there you will find aid and comfort.\" —The Book of Tal",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/6303233b-35eb-49ca-b844-ba6b9fe1cbd2.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Obsianus Golem
+{
+    "name": "Obsianus Golem",
+    "manaCost": "{6}",
+    "typeLine": "Artifact Creature — Golem",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 6
+    },
+    "metadata": {
+        "collectorNumber": "267",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Myrfors",
+        "flavorText": "\"The foot stone is connected to the ankle stone, the ankle stone is connected to the leg stone...\"\n—Song of the Artificer",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/c/4c8e9f5c-deba-4443-bf9d-fb2be75c5418.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
+// Pearled Unicorn
+{
+    "name": "Pearled Unicorn",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Unicorn",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "30",
+        "artist": "Cornelius Brudi",
+        "flavorText": "\"'Do you know, I always thought Unicorns were fabulous monsters, too? I never saw one alive before!' 'Well, now that we have seen each other,' said the Unicorn, 'if you'll believe in me, I'll believe in you.'\" —Lewis Carroll",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6daf1aab-1e58-4a5a-bc66-cb3f7c86e0e8.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -444,6 +1873,95 @@
         "collectorNumber": "68",
         "artist": "Dameon Willich",
         "imageUri": "https://cards.scryfall.io/normal/front/1/c/1c371aa1-1619-41e3-8364-7bc9b8cf5d14.jpg?1559591494"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Phantom Monster
+{
+    "name": "Phantom Monster",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Illusion",
+    "oracleText": "Flying",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "69",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Myrfors",
+        "flavorText": "\"While, like a ghastly rapid river,\nThrough the pale door,\nA hideous throng rush out forever,\nAnd laugh—but smile no more.\"\n—Edgar Allan Poe, \"The Haunted Palace\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/4/e46d2cf5-e8d0-4fb2-b950-252d52084b63.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Plateau
+{
+    "name": "Plateau",
+    "manaCost": "",
+    "typeLine": "Land — Mountain Plains",
+    "oracleText": "({T}: Add {R} or {W}.)",
+    "metadata": {
+        "collectorNumber": "279",
+        "rarity": "RARE",
+        "artist": "Drew Tucker",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/e/6eafa00b-c628-40f6-86eb-88e1361fc7a0.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "RED"
+    ]
+}
+
+// Prodigal Sorcerer
+{
+    "name": "Prodigal Sorcerer",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Wizard Sorcerer",
+    "oracleText": "{T}: This creature deals 1 damage to any target.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "artist": "Douglas Shuler",
+        "flavorText": "Occasionally a member of the Institute of Arcane Study acquires a taste for worldly pleasures. Seldom do they have trouble finding employment.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/4/e4dc1103-7bf1-47f6-9006-d3ed9ccd7a6a.jpg"
     },
     "colorIdentityOverride": [
         "BLUE"
@@ -484,6 +2002,545 @@
     ]
 }
 
+// Red Elemental Blast
+{
+    "name": "Red Elemental Blast",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Counter target blue spell.\n• Destroy target blue permanent.",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "169",
+        "artist": "Richard Thomas",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/7/776ad9be-3309-4f1d-9f27-6219d9477662.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Regrowth
+{
+    "name": "Regrowth",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target card from your graveyard to your hand.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Hand"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Graveyard"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "214",
+        "rarity": "UNCOMMON",
+        "artist": "Dameon Willich",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/a/badc73ec-3728-4246-90c7-5f4eb7051ed5.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Resurrection
+{
+    "name": "Resurrection",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target creature card from your graveyard to the battlefield.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Battlefield"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Frazier",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4fff6e6f-4ebd-4ec8-9443-59efb22d376c.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Righteousness
+{
+    "name": "Righteousness",
+    "manaCost": "{W}",
+    "typeLine": "Instant",
+    "oracleText": "Target blocking creature gets +7/+7 until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "ModifyStats",
+            "powerModifier": {
+                "type": "Fixed",
+                "amount": 7
+            },
+            "toughnessModifier": {
+                "type": "Fixed",
+                "amount": 7
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "36",
+        "rarity": "RARE",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0ba7b76-f3d0-47d0-8a35-0c08e67200fb.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Roc of Kher Ridges
+{
+    "name": "Roc of Kher Ridges",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Bird",
+    "oracleText": "Flying",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "170",
+        "rarity": "RARE",
+        "artist": "Andi Rusu",
+        "flavorText": "We encountered a valley topped with immense boulders and eerie rock formations. Suddenly one of these boulders toppled from its perch and sprouted gargantuan wings, casting a shadow of darkness and sending us fleeing in terror.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/3/731a4b86-c213-4d8e-bf01-0a0e8cff0ff1.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Rod of Ruin
+{
+    "name": "Rod of Ruin",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "{3}, {T}: This artifact deals 1 damage to any target.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{3}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "268",
+        "rarity": "UNCOMMON",
+        "artist": "Christopher Rush",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/f/af957200-c538-4f52-b105-6db7a7abb4dc.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
+// Royal Assassin
+{
+    "name": "Royal Assassin",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Creature — Human Assassin",
+    "oracleText": "{T}: Destroy target tapped creature.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature tapped"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "rarity": "RARE",
+        "artist": "Tom Wänerstrand",
+        "flavorText": "Trained in the arts of stealth, the royal assassins choose their victims carefully, relying on timing and precision rather than brute force.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/59590768-fa96-4869-8763-9d5ab6ac22ad.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Savannah
+{
+    "name": "Savannah",
+    "manaCost": "",
+    "typeLine": "Land — Forest Plains",
+    "oracleText": "({T}: Add {G} or {W}.)",
+    "metadata": {
+        "collectorNumber": "280",
+        "rarity": "RARE",
+        "artist": "Rob Alexander",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/4/94f7e24c-2546-41b6-81ad-5e920b07e64e.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "GREEN"
+    ]
+}
+
+// Savannah Lions
+{
+    "name": "Savannah Lions",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Cat",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "rarity": "RARE",
+        "artist": "Daniel Gelon",
+        "flavorText": "The traditional kings of the jungle command a healthy respect in other climates as well. Relying mainly on their stealth and speed, Savannah Lions can take a victim by surprise, even in the endless flat plains of their homeland.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/0/d05b92bd-797e-413f-a8b0-32e0937a1ee0.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Scathe Zombies
+{
+    "name": "Scathe Zombies",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Zombie",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "metadata": {
+        "collectorNumber": "125",
+        "artist": "Jesper Myrfors",
+        "flavorText": "\"They groaned, they stirred, they all uprose,/ Nor spake, nor moved their eyes;/ It had been strange, even in a dream,/ To have seen those dead men rise.\"/ —Samuel Coleridge, \"The Rime of the Ancient Mariner\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/9/e9be6dcf-5e25-4b8c-9cd0-badf3771f81e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Scrubland
+{
+    "name": "Scrubland",
+    "manaCost": "",
+    "typeLine": "Land — Plains Swamp",
+    "oracleText": "({T}: Add {W} or {B}.)",
+    "metadata": {
+        "collectorNumber": "281",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/e/bebe39d4-21fb-46a4-a1ec-b97102e46c15.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
+// Scryb Sprites
+{
+    "name": "Scryb Sprites",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Faerie",
+    "oracleText": "Flying",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "215",
+        "artist": "Amy Weber",
+        "flavorText": "The only sound was the gentle clicking of the Faeries' wings. Then those intruders who were still standing turned and fled. One thing was certain: they didn't think the Scryb were very funny anymore.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6d929c38-91e6-457c-937a-d1884f4bba44.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Serra Angel
+{
+    "name": "Serra Angel",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nVigilance (Attacking doesn't cause this creature to tap.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "VIGILANCE"
+    ],
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "UNCOMMON",
+        "artist": "Douglas Shuler",
+        "flavorText": "Born with wings of light and a sword of faith, this heavenly incarnation embodies both fury and purity.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/8/f8ac5006-91bd-4803-93da-f87cf196dd2f.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Shanodin Dryads
+{
+    "name": "Shanodin Dryads",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Nymph Dryad",
+    "oracleText": "Forestwalk (This creature can't be blocked as long as defending player controls a Forest.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FORESTWALK"
+    ],
+    "metadata": {
+        "collectorNumber": "216",
+        "artist": "Anson Maddocks",
+        "flavorText": "Moving without sound, swift figures pass through branches and undergrowth completely unhindered. One with the trees around them, the Dryads of Shanodin Forest are seen only when they wish to be.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/1/814cf35c-f1ad-4bf4-8c10-a5592c3b1be8.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Shatter
+{
+    "name": "Shatter",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target artifact.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "173",
+        "artist": "Amy Weber",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/50dc7fc1-cb6a-4c68-b993-1a25cf16226e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Shivan Dragon
+{
+    "name": "Shivan Dragon",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\n{R}: This creature gets +1/+0 until end of turn.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{R}"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "174",
+        "rarity": "RARE",
+        "artist": "Melissa A. Benson",
+        "flavorText": "While it's true most Dragons are cruel, the Shivan Dragon seems to take particular glee in the misery of others, often tormenting its victims much like a cat plays with a mouse before delivering the final blow.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/e/fefbf149-f988-4f8b-9f53-56f5878116a6.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Sinkhole
+{
+    "name": "Sinkhole",
+    "manaCost": "{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy target land.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "129",
+        "artist": "Sandra Everingham",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/4/04b31611-9053-4eaf-b392-21bb644fef5f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Sol Ring
 {
     "name": "Sol Ring",
@@ -514,6 +2571,35 @@
         "imageUri": "https://cards.scryfall.io/normal/front/c/4/c4300d24-1cae-4dd5-be7e-38cc677cf5bd.jpg?1559591399"
     },
     "colorIdentityOverride": []
+}
+
+// Spell Blast
+{
+    "name": "Spell Blast",
+    "manaCost": "{X}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target spell with mana value X. (For example, if that spell's mana cost is {3}{U}{U}, X is 5.)",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "artist": "Brian Snõddy",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/4/845734da-ab03-4dbc-bb5f-96481d3b8e88.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // Stone Rain
@@ -551,6 +2637,457 @@
     ]
 }
 
+// Stream of Life
+{
+    "name": "Stream of Life",
+    "manaCost": "{X}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target player gains X life.",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": "XValue",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "217",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/a/aa1c4d4b-2645-4cd9-823e-3c9bb2eb48f9.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Taiga
+{
+    "name": "Taiga",
+    "manaCost": "",
+    "typeLine": "Land — Mountain Forest",
+    "oracleText": "({T}: Add {R} or {G}.)",
+    "metadata": {
+        "collectorNumber": "282",
+        "rarity": "RARE",
+        "artist": "Rob Alexander",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/0/60df6592-0b3b-4b87-aeb2-8fa94b4fb7be.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
+// Timber Wolves
+{
+    "name": "Timber Wolves",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Wolf",
+    "oracleText": "Banding (Any creatures with banding, and up to one without, can attack in a band. Bands are blocked as a group. If any creatures with banding you control are blocking or being blocked by a creature, you divide that creature's combat damage, not its controller, among any of the creatures it's being blocked by or is blocking.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "BANDING"
+    ],
+    "metadata": {
+        "collectorNumber": "219",
+        "rarity": "RARE",
+        "artist": "Melissa A. Benson",
+        "flavorText": "Though many think of Wolves as solitary predators, they are actually extremely social animals. During a hunt they often call to each other, which can be quite unsettling for their prey.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bc2570a4-eef9-430d-b6c2-cd51d29b9d01.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Time Walk
+{
+    "name": "Time Walk",
+    "manaCost": "{1}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Take an extra turn after this one.",
+    "script": {
+        "spellEffect": "TakeExtraTurn"
+    },
+    "metadata": {
+        "collectorNumber": "83",
+        "rarity": "RARE",
+        "artist": "Amy Weber",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e0139f60-d48e-46fb-9f5a-1e3d7558c834.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Tranquility
+{
+    "name": "Tranquility",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy all enchantments.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "enchantment"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "220",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/7/774cc5a6-3a69-4812-add4-eb5eb6389238.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Tropical Island
+{
+    "name": "Tropical Island",
+    "manaCost": "",
+    "typeLine": "Land — Forest Island",
+    "oracleText": "({T}: Add {G} or {U}.)",
+    "metadata": {
+        "collectorNumber": "283",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/9/a9c6c759-aabf-44e7-ba8c-33c5df232b56.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "GREEN"
+    ]
+}
+
+// Tsunami
+{
+    "name": "Tsunami",
+    "manaCost": "{3}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy all Islands.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "land Island"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "221",
+        "rarity": "UNCOMMON",
+        "artist": "Richard Thomas",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/e/9ed67d61-cf47-446b-b454-eb404a8686b7.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Tundra
+{
+    "name": "Tundra",
+    "manaCost": "",
+    "typeLine": "Land — Plains Island",
+    "oracleText": "({T}: Add {W} or {U}.)",
+    "metadata": {
+        "collectorNumber": "284",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/0/a03e8c5b-f4ed-4fd7-ba05-db813ccc05eb.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
+    ]
+}
+
+// Underground Sea
+{
+    "name": "Underground Sea",
+    "manaCost": "",
+    "typeLine": "Land — Island Swamp",
+    "oracleText": "({T}: Add {U} or {B}.)",
+    "metadata": {
+        "collectorNumber": "285",
+        "rarity": "RARE",
+        "artist": "Rob Alexander",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/f/ff76ac86-8a8a-47fe-9388-8950ca3e26c3.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
+// Unsummon
+{
+    "name": "Unsummon",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Return target creature to its owner's hand.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Hand"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "86",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/5/8512f2c1-6361-4b79-843f-80b6bceeeb99.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Volcanic Eruption
+{
+    "name": "Volcanic Eruption",
+    "manaCost": "{X}{U}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy X target Mountains. Volcanic Eruption deals damage to each creature and each player equal to the number of Mountains put into a graveyard this way.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEachTarget",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
+                            "destination": "Graveyard",
+                            "byDestruction": true
+                        }
+                    ]
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ForEachInGroup",
+                            "filter": {
+                                "baseFilter": "land Mountain"
+                            },
+                            "effect": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "AggregateBattlefield",
+                                    "player": "You",
+                                    "filter": "land Mountain"
+                                },
+                                "target": "Self"
+                            }
+                        },
+                        {
+                            "type": "ForEachPlayer",
+                            "players": "Each",
+                            "effects": [
+                                {
+                                    "type": "DealDamage",
+                                    "amount": {
+                                        "type": "AggregateBattlefield",
+                                        "player": "You",
+                                        "filter": "land Mountain"
+                                    },
+                                    "target": "Controller"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "permanent"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "88",
+        "rarity": "RARE",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/8/a80582b1-09db-45f8-b362-0e5207a5a8e6.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Wall of Air
+{
+    "name": "Wall of Air",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Creature — Wall",
+    "oracleText": "Defender, flying (This creature can't attack, and it can block creatures with flying.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 5
+    },
+    "keywords": [
+        "DEFENDER",
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "89",
+        "rarity": "UNCOMMON",
+        "artist": "Richard Thomas",
+        "flavorText": "\"This 'standing windstorm' can hold us off indefinitely? Ridiculous!\" Saying nothing, she put a pinch of salt on the table. With a bang she clapped her hands, and the salt disappeared, blown away.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/a/da56fdf3-6a8f-4833-a5c3-197650cc4889.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Wall of Fire
+{
+    "name": "Wall of Fire",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Creature — Wall",
+    "oracleText": "Defender (This creature can't attack.)\n{R}: This creature gets +1/+0 until end of turn.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 5
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{R}"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "181",
+        "rarity": "UNCOMMON",
+        "artist": "Richard Thomas",
+        "flavorText": "Conjured from the bowels of hell, the fiery wall forms an impassable barrier, searing the soul of any creature attempting to pass through its terrible bursts of flame.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/f/efcf12cd-fb70-444e-9641-73ffa0e8f16e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Wall of Ice
+{
+    "name": "Wall of Ice",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Wall",
+    "oracleText": "Defender (This creature can't attack.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 7
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "metadata": {
+        "collectorNumber": "224",
+        "rarity": "UNCOMMON",
+        "artist": "Richard Thomas",
+        "flavorText": "\"And through the drifts the snowy cliffs/ Did send a dismal sheen:/ Nor shapes of men nor beasts we ken—/ The ice was all between.\"/\n—Samuel Coleridge, \"The Rime of the Ancient Mariner\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/cc743a03-867c-4bb0-8fb0-2bcaa0a8a756.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Wall of Stone
+{
+    "name": "Wall of Stone",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Creature — Wall",
+    "oracleText": "Defender (This creature can't attack.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 8
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "metadata": {
+        "collectorNumber": "182",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Frazier",
+        "flavorText": "The Earth herself lends her strength to these walls of living stone, which possess the stability of ancient mountains. These mighty bulwarks thwart ground-based troops, providing welcome relief for weary warriors who defend the land.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/4/140e567c-6e4a-42b0-8084-d6c9695ae802.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Wall of Swords
 {
     "name": "Wall of Swords",
@@ -570,6 +3107,157 @@
         "artist": "Mark Tedin",
         "flavorText": "Just as the evil ones approached to slay Justina, she cast a great spell, imbuing her weapons with her own life force. Thus she fulfilled the prophecy: \"In the death of your savior will you find salvation.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/9/9/99ec4723-b36c-4015-b361-736a6523e8f5.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Wall of Water
+{
+    "name": "Wall of Water",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Creature — Wall",
+    "oracleText": "Defender (This creature can't attack.)\n{U}: This creature gets +1/+0 until end of turn.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 5
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{U}"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "90",
+        "rarity": "UNCOMMON",
+        "artist": "Richard Thomas",
+        "flavorText": "A deafening roar arose as the fury of an enormous vertical river supplanted our serenity. Eddies turned into whirling geysers, leveling everything in their path.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/1/41faed1a-ded8-49ee-8e2a-c60d377775d7.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Wall of Wood
+{
+    "name": "Wall of Wood",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Wall",
+    "oracleText": "Defender (This creature can't attack.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "metadata": {
+        "collectorNumber": "225",
+        "artist": "Mark Tedin",
+        "flavorText": "Everybody knows that to ward off trouble, you knock on wood. But usually it's better to make a wall out of the wood and let trouble do the knocking.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/d/8df80424-3bd9-4982-ad79-e55d9ba3b43d.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// War Mammoth
+{
+    "name": "War Mammoth",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Elephant",
+    "oracleText": "Trample",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "metadata": {
+        "collectorNumber": "227",
+        "artist": "Jeff A. Menges",
+        "flavorText": "I didn't think Mammoths could ever hold a candle to a well-trained battle horse. Then one day I turned my back on a drunken soldier. His blow never landed; Mi'cha flung the brute over ten meters.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/8/c8d6081e-f686-4263-a0a2-21c0d9af5fdb.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Water Elemental
+{
+    "name": "Water Elemental",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Creature — Elemental",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "metadata": {
+        "collectorNumber": "91",
+        "rarity": "UNCOMMON",
+        "artist": "Jeff A. Menges",
+        "flavorText": "Unpredictable as the sea itself, Water Elementals shift without warning from tranquility to tempest. Capricious and fickle, they flow restlessly from one shape to another, expressing their moods with their physical forms.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/d/8de940d6-98c0-46a9-b5fd-e2b0899ea19e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// White Knight
+{
+    "name": "White Knight",
+    "manaCost": "{W}{W}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "First strike (This creature deals combat damage before creatures without first strike.)\nProtection from black (This creature can't be blocked, targeted, dealt damage, or enchanted by anything black.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FIRST_STRIKE"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Protection",
+            "scope": {
+                "type": "ProtectionScope.Color",
+                "color": "BLACK"
+            }
+        }
+    ],
+    "metadata": {
+        "collectorNumber": "43",
+        "rarity": "UNCOMMON",
+        "artist": "Daniel Gelon",
+        "flavorText": "Out of the blackness and stench of the engulfing swamp emerged a shimmering figure. Only the splattered armor and ichor-stained sword hinted at the unfathomable evil the knight had just laid waste.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/50abfba8-c9f9-4ebf-965a-4b425fe83129.jpg"
     },
     "colorIdentityOverride": [
         "WHITE"
