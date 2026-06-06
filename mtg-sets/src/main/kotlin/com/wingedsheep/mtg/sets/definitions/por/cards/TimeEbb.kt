@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -25,7 +25,7 @@ val TimeEbb = card("Time Ebb") {
     typeLine = "Sorcery"
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = MoveToZoneEffect(t, Zone.LIBRARY, ZonePlacement.Top)
+        effect = Effects.Move(t, Zone.LIBRARY, ZonePlacement.Top)
     }
     metadata {
         rarity = Rarity.COMMON

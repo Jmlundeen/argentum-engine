@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -36,7 +36,7 @@ val DawnhandEulogist = card("Dawnhand Eulogist") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.mill(3) then ConditionalEffect(
+        effect = Patterns.Library.mill(3) then ConditionalEffect(
             condition = Conditions.GraveyardContainsSubtype(Subtype.ELF),
             effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
                 .then(Effects.GainLife(2))

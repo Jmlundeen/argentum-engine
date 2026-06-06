@@ -3,13 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.GroupPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -47,7 +46,7 @@ private val CecilRedeemedPaladin = card("Cecil, Redeemed Paladin") {
     // Protect — Whenever Cecil attacks, other attacking creatures gain indestructible until end of turn.
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = GroupPatterns.grantKeywordToAll(
+        effect = Patterns.Group.grantKeywordToAll(
             keyword = Keyword.INDESTRUCTIBLE,
             filter = GroupFilter(GameObjectFilter.Creature.attacking(), excludeSelf = true)
         )
@@ -77,7 +76,7 @@ private val CecilDarkKnightFrontFace = card("Cecil, Dark Knight") {
     // total is less than or equal to half your starting life total, untap Cecil and transform it.
     triggeredAbility {
         trigger = Triggers.DealsDamage
-        effect = CompositeEffect(listOf(
+        effect = Effects.Composite(listOf(
             Effects.LoseLife(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT), EffectTarget.Controller),
             ConditionalEffect(
                 condition = Compare(
@@ -85,7 +84,7 @@ private val CecilDarkKnightFrontFace = card("Cecil, Dark Knight") {
                     ComparisonOperator.LTE,
                     DynamicAmount.Divide(DynamicAmounts.startingLifeTotal(Player.You), DynamicAmount.Fixed(2), roundUp = false)
                 ),
-                effect = CompositeEffect(listOf(
+                effect = Effects.Composite(listOf(
                     Effects.Untap(EffectTarget.Self),
                     TransformEffect(EffectTarget.Self)
                 ))

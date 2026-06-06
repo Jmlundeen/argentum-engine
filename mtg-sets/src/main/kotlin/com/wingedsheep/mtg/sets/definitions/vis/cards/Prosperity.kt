@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.vis.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 
@@ -20,7 +20,7 @@ val Prosperity = card("Prosperity") {
     colorIdentity = "U"
     typeLine = "Sorcery"
     spell {
-        effect = EffectPatterns.eachPlayerDrawsX(includeController = true, includeOpponents = true)
+        effect = Patterns.Hand.eachPlayerDrawsX(includeController = true, includeOpponents = true)
     }
     metadata {
         rarity = Rarity.UNCOMMON

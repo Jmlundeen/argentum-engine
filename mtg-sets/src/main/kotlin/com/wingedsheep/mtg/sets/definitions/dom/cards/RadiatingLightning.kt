@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -24,7 +24,7 @@ val RadiatingLightning = card("Radiating Lightning") {
     spell {
         val player = target("target player", Targets.Player)
         effect = Effects.DealDamage(3, player)
-            .then(EffectPatterns.dealDamageToAll(1, GroupFilter(GameObjectFilter.Creature.targetPlayerControls())))
+            .then(Patterns.Group.dealDamageToAll(1, GroupFilter(GameObjectFilter.Creature.targetPlayerControls())))
     }
 
     metadata {

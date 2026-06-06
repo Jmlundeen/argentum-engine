@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -25,7 +25,7 @@ val GristleGlutton = card("Gristle Glutton") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.Blight(1))
-        effect = EffectPatterns.rummage(1)
+        effect = Patterns.Hand.rummage(1)
     }
 
     metadata {

@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
@@ -67,7 +67,7 @@ val SarkhanTheDragonspeaker = card("Sarkhan, the Dragonspeaker") {
                 ability = TriggeredAbility.create(
                     trigger = Triggers.YourEndStep.event,
                     binding = Triggers.YourEndStep.binding,
-                    effect = EffectPatterns.discardHand()
+                    effect = Patterns.Hand.discardHand()
                 ),
                 descriptionOverride = "At the beginning of your end step, discard your hand."
             )

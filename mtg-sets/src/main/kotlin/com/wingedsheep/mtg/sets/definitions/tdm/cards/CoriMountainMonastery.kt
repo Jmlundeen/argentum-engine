@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
@@ -59,7 +59,7 @@ val CoriMountainMonastery = card("Cori Mountain Monastery") {
     // play that card.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{R}"), Costs.Tap)
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
                 GatherCardsEffect(
                     source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),

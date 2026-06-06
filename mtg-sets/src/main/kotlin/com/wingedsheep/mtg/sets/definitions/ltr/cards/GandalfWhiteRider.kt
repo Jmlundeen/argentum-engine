@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,8 +33,8 @@ val GandalfWhiteRider = card("Gandalf, White Rider") {
 
     triggeredAbility {
         trigger = Triggers.YouCastSpell
-        effect = EffectPatterns.modifyStatsForAll(1, 0, Filters.Group.creaturesYouControl)
-            .then(EffectPatterns.scry(1))
+        effect = Patterns.Group.modifyStatsForAll(1, 0, Filters.Group.creaturesYouControl)
+            .then(Patterns.Library.scry(1))
     }
 
     triggeredAbility {

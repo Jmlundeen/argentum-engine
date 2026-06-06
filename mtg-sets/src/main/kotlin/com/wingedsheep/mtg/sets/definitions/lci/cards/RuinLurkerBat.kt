@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -41,7 +41,7 @@ val RuinLurkerBat = card("Ruin-Lurker Bat") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         triggerCondition = Conditions.YouDescendedThisTurn()
-        effect = EffectPatterns.scry(1)
+        effect = Patterns.Library.scry(1)
     }
 
     metadata {

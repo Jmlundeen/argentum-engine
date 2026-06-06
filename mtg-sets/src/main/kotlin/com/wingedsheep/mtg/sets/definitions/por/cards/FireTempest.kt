@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -28,7 +27,7 @@ val FireTempest = card("Fire Tempest") {
     typeLine = "Sorcery"
     spell {
         effect = Effects.Composite(
-            ForEachInGroupEffect(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(6, EffectTarget.Self)),
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(6, EffectTarget.Self)),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(6, EffectTarget.Controller)))
         )
     }

@@ -198,9 +198,9 @@ internal fun EmitCtx.paycostDsl(costNode: JsonElement?): String? {
         val args = mutableListOf(filt)
         val count = if (kind == "SacrificeNumberPermanents") findInteger(costNode) else 1
         if (count is Int && count != 1) args.add("count = $count")
-        return "PayCost.Sacrifice(${args.joinToString(", ")})"
+        return "Costs.pay.Sacrifice(${args.joinToString(", ")})"
     }
-    if ("DiscardACardAtRandom" in blob) return "PayCost.Discard(random = true)"
+    if ("DiscardACardAtRandom" in blob) return "Costs.pay.Discard(random = true)"
     if ("Discard" in blob) {
         val oracle = oracleText?.lowercase() ?: ""
         val filter = when {
@@ -208,9 +208,9 @@ internal fun EmitCtx.paycostDsl(costNode: JsonElement?): String? {
             "discard a land card" in oracle || "\"Land\"" in blob -> "GameObjectFilter.Land"
             else -> null
         }
-        return if (filter == null) "PayCost.Discard()" else "PayCost.Discard(filter = $filter)"
+        return if (filter == null) "Costs.pay.Discard()" else "Costs.pay.Discard(filter = $filter)"
     }
-    if ("Mana" in blob) return "PayCost.OwnManaCost"
+    if ("Mana" in blob) return "Costs.pay.OwnManaCost"
     return null
 }
 

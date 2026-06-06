@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * Deathtouch and Mobilize 1 are keyword helpers (`mobilize(n)` adds the display keyword plus the
  * attack-triggered tapped-and-attacking Warrior token that's sacrificed at the next end step). The
- * enters-the-battlefield surveil 1 uses the atomic [EffectPatterns.surveil] composition.
+ * enters-the-battlefield surveil 1 uses the atomic [Patterns.Library.surveil] composition.
  */
 val NightbladeBrigade = card("Nightblade Brigade") {
     manaCost = "{2}{B}"
@@ -34,7 +34,7 @@ val NightbladeBrigade = card("Nightblade Brigade") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.surveil(1)
+        effect = Patterns.Library.surveil(1)
         description = "When this creature enters, surveil 1."
     }
 

@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.effects.CardDestination
@@ -25,7 +25,7 @@ val DigThroughTime = card("Dig Through Time") {
     keywords(Keyword.DELVE)
 
     spell {
-        effect = EffectPatterns.lookAtTopAndKeep(
+        effect = Patterns.Library.lookAtTopAndKeep(
             count = 7,
             keepCount = 2,
             restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom)

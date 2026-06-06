@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -28,7 +28,7 @@ val AltarOfTheBrood = card("Altar of the Brood") {
         )
         effect = ForEachPlayerEffect(
             players = Player.EachOpponent,
-            effects = EffectPatterns.mill(1).effects
+            effects = Patterns.Library.mill(1).effects
         )
     }
 

@@ -5,12 +5,12 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -29,7 +29,7 @@ val ScorchingWinds = card("Scorching Winds") {
     spell {
         castOnlyDuring(Step.DECLARE_ATTACKERS)
         castOnlyIf(YouWereAttackedThisStep)
-        effect = ForEachInGroupEffect(GroupFilter(GameObjectFilter.Creature.attacking()), DealDamageEffect(1, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature.attacking()), DealDamageEffect(1, EffectTarget.Self))
     }
     metadata {
         rarity = Rarity.UNCOMMON

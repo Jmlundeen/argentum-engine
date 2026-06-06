@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -35,7 +34,7 @@ val StarfallInvocation = card("Starfall Invocation") {
     oracleText = "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, they draw a card before its other effects.)\nDestroy all creatures. If the gift was promised, return a creature card put into your graveyard this way to the battlefield under your control."
 
     spell {
-        effect = EffectPatterns.giftSpell(
+        effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — just destroy all creatures
             Mode.noTarget(
                 Effects.DestroyAll(GameObjectFilter.Creature),
@@ -43,7 +42,7 @@ val StarfallInvocation = card("Starfall Invocation") {
             ),
             // Mode 2: Gift a card — opponent draws, destroy all creatures, then return one of yours
             Mode.noTarget(
-                CompositeEffect(listOf(
+                Effects.Composite(listOf(
                     DrawCardsEffect(1, EffectTarget.PlayerRef(Player.EachOpponent)),
                     Effects.DestroyAll(GameObjectFilter.Creature, storeDestroyedAs = "destroyed"),
                     SelectFromCollectionEffect(

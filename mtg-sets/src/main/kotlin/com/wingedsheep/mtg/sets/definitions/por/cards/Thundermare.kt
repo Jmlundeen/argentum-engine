@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -32,7 +31,7 @@ val Thundermare = card("Thundermare") {
     keywords(Keyword.HASTE)
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ForEachInGroupEffect(GroupFilter(GameObjectFilter.Creature, excludeSelf = true), Effects.Tap(EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature, excludeSelf = true), Effects.Tap(EffectTarget.Self))
     }
     metadata {
         rarity = Rarity.RARE

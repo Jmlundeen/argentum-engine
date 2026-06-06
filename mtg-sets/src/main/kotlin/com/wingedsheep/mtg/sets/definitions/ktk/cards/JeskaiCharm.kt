@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -35,12 +35,12 @@ val JeskaiCharm = card("Jeskai Charm") {
                 effect = Effects.DealDamage(4, t)
             }
             mode("Creatures you control get +1/+1 and gain lifelink until end of turn") {
-                effect = EffectPatterns.modifyStatsForAll(
+                effect = Patterns.Group.modifyStatsForAll(
                     power = 1,
                     toughness = 1,
                     filter = GroupFilter.AllCreaturesYouControl
                 ).then(
-                    EffectPatterns.grantKeywordToAll(
+                    Patterns.Group.grantKeywordToAll(
                         keyword = Keyword.LIFELINK,
                         filter = GroupFilter.AllCreaturesYouControl
                     )

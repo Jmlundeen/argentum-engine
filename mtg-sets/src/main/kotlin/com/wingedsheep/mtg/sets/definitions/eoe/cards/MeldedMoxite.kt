@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
 import com.wingedsheep.sdk.scripting.effects.MayEffect
@@ -28,7 +28,7 @@ val MeldedMoxite = card("Melded Moxite") {
         trigger = Triggers.EntersBattlefield
         effect = MayEffect(
             IfYouDoEffect(
-                action = EffectPatterns.discardCards(1),
+                action = Patterns.Hand.discardCards(1),
                 ifYouDo = Effects.DrawCards(2)
             )
         )

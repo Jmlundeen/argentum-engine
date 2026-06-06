@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -71,7 +70,7 @@ val BloomvineRegent = card("Bloomvine Regent") {
             "onto the battlefield tapped and the other into your hand, then shuffle. " +
             "(Also shuffle this card.)"
         spell {
-            effect = CompositeEffect(
+            effect = Effects.Composite(
                 listOf(
                     GatherCardsEffect(
                         source = CardSource.FromZone(

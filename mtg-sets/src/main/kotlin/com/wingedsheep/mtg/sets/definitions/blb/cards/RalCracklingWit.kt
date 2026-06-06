@@ -3,12 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -50,12 +49,12 @@ val RalCracklingWit = card("Ral, Crackling Wit") {
 
     // −3: Draw three cards, then discard two cards.
     loyaltyAbility(-3) {
-        effect = Effects.DrawCards(3).then(EffectPatterns.discardCards(2))
+        effect = Effects.DrawCards(3).then(Patterns.Hand.discardCards(2))
     }
 
     // −10: Draw three cards. You get an emblem with "Instant and sorcery spells you cast have storm."
     loyaltyAbility(-10) {
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(3),
                 Effects.GrantSpellKeyword(Keyword.STORM, GameObjectFilter.InstantOrSorcery)

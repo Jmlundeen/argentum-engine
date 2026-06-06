@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -30,7 +30,7 @@ val TheFlameOfKeld = card("The Flame of Keld") {
         "it deals that much damage plus 2 instead."
 
     sagaChapter(1) {
-        effect = EffectPatterns.discardHand(EffectTarget.Controller)
+        effect = Patterns.Hand.discardHand(EffectTarget.Controller)
     }
 
     sagaChapter(2) {

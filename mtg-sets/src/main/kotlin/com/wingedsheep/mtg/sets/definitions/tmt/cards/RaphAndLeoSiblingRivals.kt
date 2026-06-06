@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCombatPhaseEffect
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -51,7 +51,7 @@ val RaphAndLeoSiblingRivals = card("Raph & Leo, Sibling Rivals") {
             "one or two attacking creatures",
             TargetCreature(count = 2, minCount = 1, filter = TargetFilter.AttackingCreature)
         )
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
                 ForEachTargetEffect(
                     listOf(TapUntapEffect(EffectTarget.ContextTarget(0), tap = false))

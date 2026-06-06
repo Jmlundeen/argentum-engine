@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -36,7 +36,7 @@ val WicksPatrol = card("Wick's Patrol") {
         val greatestMV = DynamicAmounts.zone(Player.You, Zone.GRAVEYARD).maxManaValue()
         val negX = DynamicAmount.Multiply(greatestMV, -1)
         effect = ReflexiveTriggerEffect(
-            action = EffectPatterns.mill(3),
+            action = Patterns.Library.mill(3),
             optional = false,
             reflexiveEffect = Effects.ModifyStats(negX, negX, EffectTarget.ContextTarget(0)),
             reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)

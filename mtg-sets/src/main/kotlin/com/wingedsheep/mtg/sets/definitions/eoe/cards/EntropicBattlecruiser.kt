@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -87,7 +87,7 @@ val EntropicBattlecruiser = card("Entropic Battlecruiser") {
             effects = listOf(
                 ConditionalEffect(
                     condition = Exists(Player.You, Zone.HAND),
-                    effect = EffectPatterns.discardCards(1, EffectTarget.Controller),
+                    effect = Patterns.Hand.discardCards(1, EffectTarget.Controller),
                     elseEffect = LoseLifeEffect(3, EffectTarget.Controller)
                 )
             )

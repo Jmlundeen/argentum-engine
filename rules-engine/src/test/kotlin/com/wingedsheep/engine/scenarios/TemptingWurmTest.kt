@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.engine.core.ChooseTargetsDecision
@@ -8,7 +9,6 @@ import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
@@ -40,7 +40,7 @@ class TemptingWurmTest : FunSpec({
             TriggeredAbility.create(
                 trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                 binding = TriggerBinding.SELF,
-                effect = EffectPatterns.eachOpponentMayPutFromHand(
+                effect = Patterns.Hand.eachOpponentMayPutFromHand(
                     filter = GameObjectFilter.Artifact or GameObjectFilter.Creature or GameObjectFilter.Enchantment or GameObjectFilter.Land
                 )
             )

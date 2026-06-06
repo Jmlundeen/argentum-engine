@@ -22,7 +22,7 @@ If anything below is unclear, that's the fastest place to ask.
   playthrough, is exactly what I'm looking for.
 - **Batching is fine when the cards reuse existing effects.** If every card
   in the PR is built from primitives already in `Effects.*` /
-  `EffectPatterns.*`, feel free to bundle several. But if a card introduces a
+  `Patterns.*`, feel free to bundle several. But if a card introduces a
   *new* effect, please give it tests and keep it to one new-effect card per
   PR — those need closer review.
 - **Ideas, suggestions, bug reports** — open an issue or post in Discord. No
@@ -39,7 +39,7 @@ for, roughly in order:
    rulings and oracle errata). Cards that "mostly work" but quietly skip a
    clause are the most common reason PRs get sent back.
 2. **Composes existing primitives.** The engine has a deliberate set of
-   building blocks — `Effects.*`, `EffectPatterns.*`, conditions, dynamic
+   building blocks — `Effects.*`, `Patterns.*`, conditions, dynamic
    amounts, target filters, replacement and triggered abilities. New
    single-purpose effects that duplicate something already in the SDK are the
    second most common reason PRs get sent back. Please read
@@ -56,7 +56,7 @@ for, roughly in order:
    prompts clear, log readable, opponent sees what they should.
 5. **Scoped sensibly.** Bundling several cards in one PR is fine *if* each
    one is built entirely from primitives already in `Effects.*` /
-   `EffectPatterns.*` — those are quick to review together. If a card
+   `Patterns.*` — those are quick to review together. If a card
    introduces a new effect, executor, condition, or other engine-level
    primitive, please keep it to **one new-effect card per PR** and include
    tests for the new primitive itself (not just the card that uses it).
@@ -97,7 +97,7 @@ These come up often enough to be worth calling out:
 
 - **One-off effects.** If you find yourself writing a new `Effect` + executor
   that resembles `Destroy`, `Mill`, `Scry`, or any of the existing
-  `EffectPatterns`, stop and see whether you can compose what's there
+  `Patterns.*` recipes, stop and see whether you can compose what's there
   instead. New effect types are sometimes the right answer, but the bar is
   high.
 - **Bypassing the projection layer.** Battlefield filtering by type,

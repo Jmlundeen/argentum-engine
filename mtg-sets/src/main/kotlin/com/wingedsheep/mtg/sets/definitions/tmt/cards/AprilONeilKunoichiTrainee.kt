@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -26,7 +26,7 @@ val AprilONeilKunoichiTrainee = card("April O'Neil, Kunoichi Trainee") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.scry(2)
+        effect = Patterns.Library.scry(2)
     }
 
     staticAbility {

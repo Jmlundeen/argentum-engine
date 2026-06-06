@@ -23,7 +23,7 @@ Read this before touching code. It is the lens for every decision below.
 
 - **Composition over monoliths.** The strongest version of a feature is usually *not a new type
   at all* — it's a composition of existing atoms. Before adding an `Effect`, ask whether
-  `CompositeEffect` of existing effects, an `EffectPatterns.*` recipe, or a `DynamicAmount` /
+  `CompositeEffect` of existing effects, a `Patterns.*` recipe, or a `DynamicAmount` /
   `GameObjectFilter` parameterization already expresses it. The Gather → Select → Move pipeline
   (`docs/architecture-principles.md` §1.5) covers almost all zone/library manipulation with zero
   new executors. Reach for a new type only when no composition reads the state, produces the
@@ -94,8 +94,8 @@ the next card? Does the name match the semantics?*
 Before adding any new SDK type, attempt the composition. Concretely:
 
 - **Behavior** → `CompositeEffect(listOf(...))` of existing `Effects.*`, or a new recipe in
-  `EffectPatterns.kt` composing existing atoms (see [feedback: no single-use patterns] — only add
-  an `EffectPatterns.*` helper when a *second* user appears, or it's a named MTG mechanic; inline
+  a pattern object (e.g. `LibraryPatterns.kt`, reached via `Patterns.Library`) composing existing atoms (see [feedback: no single-use patterns] — only add
+  a `Patterns.*` recipe when a *second* user appears, or it's a named MTG mechanic; inline
   with explicit flags otherwise).
 - **A number that changes with game state** → a `DynamicAmount` composition
   (`Add`, `Subtract`, `Multiply`, `Min`, `Max`, `EntityProperty`, counts over a filter), not a new
@@ -297,7 +297,7 @@ signature changed, run the broader module suite.
 - Battlefield reads against base state instead of projected state.
 - A new `GameEvent` without a `ClientEvent.kt` branch; client-visible state without a transformer.
 - Game logic creeping into `web-client`.
-- A single-use `EffectPatterns.*` helper with no second caller (inline it).
+- A single-use `Patterns.*` recipe with no second caller (inline it).
 
 ## Important rules
 

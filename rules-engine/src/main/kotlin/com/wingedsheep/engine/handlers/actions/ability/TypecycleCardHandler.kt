@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.actions.ability
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.CardCycledEvent
 import com.wingedsheep.engine.core.ExecutionResult
@@ -25,7 +26,6 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventCycling
@@ -242,7 +242,7 @@ class TypecycleCardHandler(
         }
 
         // Search library for a card matching the typecycling variant's filter
-        val searchEffect = EffectPatterns.searchLibrary(
+        val searchEffect = Patterns.Library.searchLibrary(
             filter = variant.searchFilter,
             count = 1,
             reveal = true

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -66,7 +65,7 @@ private fun felotharSacrificeEffect(): Effect = ReflexiveTriggerEffect(
         target = EffectTarget.Controller
     ),
     optional = true,
-    reflexiveEffect = ForEachInGroupEffect(
+    reflexiveEffect = Effects.ForEachInGroup(
         filter = GroupFilter.AllCreaturesYouControl,
         effect = AddCountersEffect(
             counterType = Counters.PLUS_ONE_PLUS_ONE,

@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.dsl.EffectPatterns
-
 /**
  * Explosive Vegetation
  * {3}{G}
@@ -20,7 +19,7 @@ val ExplosiveVegetation = card("Explosive Vegetation") {
     oracleText = "Search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle."
 
     spell {
-        effect = EffectPatterns.searchLibrary(
+        effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand,
             count = 2,
             destination = SearchDestination.BATTLEFIELD,

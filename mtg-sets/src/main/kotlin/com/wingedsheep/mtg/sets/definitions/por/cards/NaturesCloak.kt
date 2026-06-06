@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,7 +25,7 @@ val NaturesCloak = card("Nature's Cloak") {
     colorIdentity = "G"
     typeLine = "Sorcery"
     spell {
-        effect = ForEachInGroupEffect(GroupFilter(GameObjectFilter.Creature.withColor(Color.GREEN).youControl()), Effects.GrantKeyword(Keyword.FORESTWALK, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature.withColor(Color.GREEN).youControl()), Effects.GrantKeyword(Keyword.FORESTWALK, EffectTarget.Self))
     }
     metadata {
         rarity = Rarity.RARE

@@ -5,7 +5,7 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -31,7 +31,7 @@ val EbonDragon = card("Ebon Dragon") {
         trigger = Triggers.EntersBattlefield
         optional = true
         val t = target("target", TargetOpponent())
-        effect = EffectPatterns.discardCards(1, t)
+        effect = Patterns.Hand.discardCards(1, t)
     }
     metadata {
         rarity = Rarity.RARE

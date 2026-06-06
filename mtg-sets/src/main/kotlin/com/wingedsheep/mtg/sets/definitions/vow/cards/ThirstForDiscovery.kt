@@ -1,15 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
@@ -43,7 +42,7 @@ val ThirstForDiscovery = card("Thirst for Discovery") {
                     choices = listOf(
                         EffectChoice(
                             label = "Discard a basic land card",
-                            effect = CompositeEffect(
+                            effect = Effects.Composite(
                                 listOf(
                                     GatherCardsEffect(
                                         source = CardSource.FromZone(
@@ -74,7 +73,7 @@ val ThirstForDiscovery = card("Thirst for Discovery") {
                         ),
                         EffectChoice(
                             label = "Discard two cards",
-                            effect = EffectPatterns.discardCards(2)
+                            effect = Patterns.Hand.discardCards(2)
                         )
                     )
                 )

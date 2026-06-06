@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -47,7 +47,7 @@ val TyvarThePummeler = card("Tyvar, the Pummeler") {
         cost = Costs.Mana("{3}{G}{G}")
         effect = Effects.Composite(
             Effects.StoreNumber("tyvar_pump_x", x),
-            EffectPatterns.modifyStatsForAll(
+            Patterns.Group.modifyStatsForAll(
                 power = DynamicAmount.VariableReference("tyvar_pump_x"),
                 toughness = DynamicAmount.VariableReference("tyvar_pump_x"),
                 filter = GroupFilter.AllCreaturesYouControl

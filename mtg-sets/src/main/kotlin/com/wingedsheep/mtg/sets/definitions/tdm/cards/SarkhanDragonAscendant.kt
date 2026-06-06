@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -54,7 +53,7 @@ val SarkhanDragonAscendant = card("Sarkhan, Dragon Ascendant") {
             filter = GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON),
             binding = TriggerBinding.ANY
         )
-        effect = CompositeEffect(listOf(
+        effect = Effects.Composite(listOf(
             Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             AddCreatureTypeEffect("Dragon", EffectTarget.Self, Duration.EndOfTurn),
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self, Duration.EndOfTurn)

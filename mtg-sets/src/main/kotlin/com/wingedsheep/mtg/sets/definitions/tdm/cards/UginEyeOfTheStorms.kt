@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -80,7 +79,7 @@ val UginEyeOfTheStorms = card("Ugin, Eye of the Storms") {
     // +2: You gain 3 life and draw a card.
     loyaltyAbility(+2) {
         description = "You gain 3 life and draw a card."
-        effect = CompositeEffect(listOf(Effects.GainLife(3), Effects.DrawCards(1)))
+        effect = Effects.Composite(listOf(Effects.GainLife(3), Effects.DrawCards(1)))
     }
 
     // 0: Add {C}{C}{C}.
@@ -94,7 +93,7 @@ val UginEyeOfTheStorms = card("Ugin, Eye of the Storms") {
     loyaltyAbility(-11) {
         description = "Search your library for any number of colorless nonland cards, exile them, then " +
             "shuffle. Until end of turn, you may cast those cards without paying their mana costs."
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
                 GatherCardsEffect(
                     source = CardSource.FromZone(

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -30,7 +29,7 @@ val TreetopDefense = card("Treetop Defense") {
     spell {
         castOnlyDuring(Step.DECLARE_ATTACKERS)
         castOnlyIf(YouWereAttackedThisStep)
-        effect = ForEachInGroupEffect(GroupFilter(GameObjectFilter.Creature.youControl()), Effects.GrantKeyword(Keyword.REACH, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature.youControl()), Effects.GrantKeyword(Keyword.REACH, EffectTarget.Self))
     }
     metadata {
         rarity = Rarity.RARE

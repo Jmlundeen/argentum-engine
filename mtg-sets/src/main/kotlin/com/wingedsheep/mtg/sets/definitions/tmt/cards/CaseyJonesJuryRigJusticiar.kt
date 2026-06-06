@@ -4,12 +4,12 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -41,7 +41,7 @@ val CaseyJonesJuryRigJusticiar = card("Casey Jones, Jury-Rig Justiciar") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
                 GatherCardsEffect(
                     source = CardSource.TopOfLibrary(DynamicAmount.Fixed(4)),

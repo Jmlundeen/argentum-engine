@@ -77,7 +77,7 @@ private fun EmitCtx.additionalCostLine(rule: JsonObject): String? {
     val cost = node["args"] as? JsonObject ?: return null
     if (cost.strField("_Cost") != "SacrificeAPermanent") return null
     val filter = gameObjectFilterDsl(cost["args"]) ?: return null
-    return "    additionalCost(AdditionalCost.SacrificePermanent($filter))"
+    return "    additionalCost(Costs.additional.SacrificePermanent($filter))"
 }
 
 private fun EmitCtx.castRestrictionLines(rules: List<JsonObject>): List<String>? {

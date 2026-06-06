@@ -4,8 +4,8 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -26,7 +26,7 @@ val CruelTutor = card("Cruel Tutor") {
     typeLine = "Sorcery"
     spell {
         effect = Effects.Composite(
-            EffectPatterns.searchLibrary(filter = GameObjectFilter.Any, destination = SearchDestination.TOP_OF_LIBRARY),
+            Patterns.Library.searchLibrary(filter = GameObjectFilter.Any, destination = SearchDestination.TOP_OF_LIBRARY),
             LoseLifeEffect(2, EffectTarget.Controller)
         )
     }

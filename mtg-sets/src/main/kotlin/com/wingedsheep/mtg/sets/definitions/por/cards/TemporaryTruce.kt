@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 
@@ -20,7 +20,7 @@ val TemporaryTruce = card("Temporary Truce") {
     colorIdentity = "W"
     typeLine = "Sorcery"
     spell {
-        effect = EffectPatterns.eachPlayerMayDraw(maxCards = 2, lifePerCardNotDrawn = 2)
+        effect = Patterns.Hand.eachPlayerMayDraw(maxCards = 2, lifePerCardNotDrawn = 2)
     }
     metadata {
         rarity = Rarity.RARE

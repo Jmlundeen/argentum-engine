@@ -5,8 +5,8 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -32,7 +32,7 @@ val OwlFamiliar = card("Owl Familiar") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
             DrawCardsEffect(1),
-            EffectPatterns.discardCards(1)
+            Patterns.Hand.discardCards(1)
         )
     }
     metadata {

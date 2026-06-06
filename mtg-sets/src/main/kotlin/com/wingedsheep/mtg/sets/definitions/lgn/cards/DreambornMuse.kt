@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -27,7 +27,7 @@ val DreambornMuse = card("Dreamborn Muse") {
 
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = EffectPatterns.mill(
+        effect = Patterns.Library.mill(
             DynamicAmount.Count(Player.TriggeringPlayer, Zone.HAND),
             EffectTarget.PlayerRef(Player.TriggeringPlayer)
         )

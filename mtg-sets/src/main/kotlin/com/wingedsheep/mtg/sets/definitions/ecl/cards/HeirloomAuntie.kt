@@ -2,9 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
@@ -49,7 +49,7 @@ val HeirloomAuntie = card("Heirloom Auntie") {
             ),
             binding = TriggerBinding.OTHER
         )
-        effect = EffectPatterns.surveil(1) then
+        effect = Patterns.Library.surveil(1) then
             Effects.RemoveCounters(Counters.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
     }
 

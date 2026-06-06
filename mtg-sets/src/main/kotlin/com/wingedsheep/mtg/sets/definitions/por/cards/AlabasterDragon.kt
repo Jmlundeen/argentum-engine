@@ -6,10 +6,10 @@ package com.wingedsheep.mtg.sets.definitions.por.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -31,7 +31,7 @@ val AlabasterDragon = card("Alabaster Dragon") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = MoveToZoneEffect(EffectTarget.Self, Zone.LIBRARY, ZonePlacement.Shuffled)
+        effect = Effects.Move(EffectTarget.Self, Zone.LIBRARY, ZonePlacement.Shuffled)
     }
     metadata {
         rarity = Rarity.RARE

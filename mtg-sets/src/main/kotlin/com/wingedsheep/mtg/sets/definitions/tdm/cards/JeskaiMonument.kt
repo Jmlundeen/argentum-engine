@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -38,7 +38,7 @@ val JeskaiMonument = card("Jeskai Monument") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.searchLibrary(
+        effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand.withAnyOfSubtypes(
                 listOf(Subtype.ISLAND, Subtype.MOUNTAIN, Subtype.PLAINS)
             ),

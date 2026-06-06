@@ -5,8 +5,8 @@ import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -50,7 +50,7 @@ class GlarbCalamitysAugurTest : FunSpec({
 
         activatedAbility {
             cost = AbilityCost.Tap
-            effect = EffectPatterns.surveil(2)
+            effect = Patterns.Library.surveil(2)
         }
     }
 

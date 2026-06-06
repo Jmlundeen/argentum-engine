@@ -14,7 +14,7 @@ internal val damageDrawLifeHandlers: Map<String, ActionHandler> = actionHandlers
         val amt = amount(args) ?: dynamicAmount(amountNode(args)) ?: return@on null
         if (jsonContains(args, "_DamageRecipient", "EachPermanent")) {  // mass: deal N to each creature
             val filter = groupFilterDsl(args) ?: return@on null
-            val eachPermanent = "ForEachInGroupEffect($filter, DealDamageEffect($amt, EffectTarget.Self))"
+            val eachPermanent = "Effects.ForEachInGroup($filter, DealDamageEffect($amt, EffectTarget.Self))"
             if (jsonContains(args, "_DamageRecipient", "EachPlayer")) {
                 return@on composite(listOf(
                     eachPermanent,
@@ -55,7 +55,7 @@ internal val damageDrawLifeHandlers: Map<String, ActionHandler> = actionHandlers
     simple("CounterSpell", dsl = "CounterEffect()")
     simple("Shuffle", dsl = "ShuffleLibraryEffect()")
     simple("TakeAnExtraTurn", dsl = "TakeExtraTurnEffect()")
-    simple("DiscardACardAtRandom", dsl = "EffectPatterns.discardRandom(1)")
+    simple("DiscardACardAtRandom", dsl = "Patterns.Hand.discardRandom(1)")
 
     on("GainLife") { _, args, _ ->
         val amt = amount(args) ?: return@on null
@@ -67,7 +67,7 @@ internal val damageDrawLifeHandlers: Map<String, ActionHandler> = actionHandlers
     }
 
     on("DiscardACard", "DiscardNumberCards", "DiscardAnyNumberOfCards") { _, args, _ ->
-        "EffectPatterns.discardCards(${(findInteger(args) as? Int) ?: 1})"
+        "Patterns.Hand.discardCards(${(findInteger(args) as? Int) ?: 1})"
     }
 
     on("LookAtPlayersHand") { _, args, tvar ->

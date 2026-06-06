@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  * Mirrors the other clan Monuments (Abzan/Jeskai/Mardu/Temur): the ETB is a single
  * (non-optional) basic-land search across the three Sultai basic subtypes via
  * [GameObjectFilter.BasicLand.withAnyOfSubtypes], revealed to hand then shuffle
- * ([EffectPatterns.searchLibrary]). The activated ability pays {2}{B}{G}{U} + tap +
+ * ([Patterns.Library.searchLibrary]). The activated ability pays {2}{B}{G}{U} + tap +
  * sacrifice-self at sorcery speed ([TimingRule.SorcerySpeed]) and creates two fixed 2/2 black
  * Zombie Druid tokens ([Effects.CreateToken]).
  */
@@ -39,7 +39,7 @@ val SultaiMonument = card("Sultai Monument") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.searchLibrary(
+        effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand.withAnyOfSubtypes(
                 listOf(Subtype.SWAMP, Subtype.FOREST, Subtype.ISLAND)
             ),

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.MayEffect
@@ -37,7 +37,7 @@ val ElanorGardner = card("Elanor Gardner") {
         trigger = Triggers.YourEndStep
         triggerCondition = Conditions.SacrificedFoodThisTurn
         effect = MayEffect(
-            EffectPatterns.searchLibrary(
+            Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
                 count = 1,
                 destination = SearchDestination.BATTLEFIELD,

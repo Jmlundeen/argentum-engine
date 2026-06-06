@@ -13,35 +13,35 @@ internal val zoneHandlers: Map<String, ActionHandler> = actionHandlers {
 
     on("PutEachPermanentIntoItsOwnersHand") { node, _, _ ->  // bounce each chosen target
         if (jsonContains(node, "_Permanents", "Ref_TargetPermanents")) {
-            "ForEachTargetEffect(listOf(MoveToZoneEffect(EffectTarget.ContextTarget(0), Zone.HAND)))"
+            "ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)))"
         } else null
     }
 
     on("DestroyPermanent") { _, args, tvar ->
         val tgt = refTarget(args, tvar) ?: return@on null
-        "MoveToZoneEffect($tgt, Zone.GRAVEYARD, byDestruction = true)"
+        "Effects.Move($tgt, Zone.GRAVEYARD, byDestruction = true)"
     }
     on("DestroyEachPermanent", "DestroyEachPermanentNoRegen") { node, args, _ ->
         if (jsonContains(args, "_Permanents", "Ref_TargetPermanents")) {
             val noregen = if (node.strField("_Action") == "DestroyEachPermanentNoRegen") ", noRegenerate = true" else ""
-            return@on "ForEachTargetEffect(listOf(MoveToZoneEffect(EffectTarget.ContextTarget(0), " +
+            return@on "ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), " +
                 "Zone.GRAVEYARD, byDestruction = true$noregen)))"
         }
         if (oracleText?.contains("target", ignoreCase = true) == true) return@on null
         val noregen = if (node.strField("_Action") == "DestroyEachPermanentNoRegen") "true" else "false"
         val filter = groupFilterDsl(args) ?: return@on null
-        "ForEachInGroupEffect($filter, MoveToZoneEffect(EffectTarget.Self, " +
+        "Effects.ForEachInGroup($filter, Effects.Move(EffectTarget.Self, " +
             "Zone.GRAVEYARD, byDestruction = true), noRegenerate = $noregen)"
     }
 
     on("PutPermanentIntoItsOwnersHand") { _, args, tvar ->  // bounce
         val tgt = refTarget(args, tvar) ?: return@on null
-        "MoveToZoneEffect($tgt, Zone.HAND)"
+        "Effects.Move($tgt, Zone.HAND)"
     }
 
     on("ShuffleGraveyardCardIntoLibrary") { _, args, tvar ->  // e.g. Alabaster Dragon
         val tgt = refTarget(args, tvar) ?: "EffectTarget.Self"
-        "MoveToZoneEffect($tgt, Zone.LIBRARY, ZonePlacement.Shuffled)"
+        "Effects.Move($tgt, Zone.LIBRARY, ZonePlacement.Shuffled)"
     }
 
     on("SearchLibrary") { _, args, _ -> renderSearch(args) }
@@ -60,9 +60,9 @@ internal val zoneHandlers: Map<String, ActionHandler> = actionHandlers {
             "ReturnDeadGraveyardCardToTopOfLibrary" to "LIBRARY", "PutPermanentOnTopOfOwnersLibrary" to "LIBRARY",
         )[a]
         if (a == "PutPermanentOnTopOfOwnersLibrary" || a == "ReturnDeadGraveyardCardToTopOfLibrary") {
-            "MoveToZoneEffect($tgt, Zone.$zone, ZonePlacement.Top)"
+            "Effects.Move($tgt, Zone.$zone, ZonePlacement.Top)"
         } else {
-            "MoveToZoneEffect($tgt, Zone.$zone)"
+            "Effects.Move($tgt, Zone.$zone)"
         }
     }
 }
@@ -81,7 +81,7 @@ internal fun EmitCtx.renderSearch(args: JsonElement?): String? {
     if (count is Int && count != 1) parts.add("count = $count")
     parts.add("destination = SearchDestination.$dest")
     if ("RevealFoundCards" in blob) parts.add("reveal = true")
-    return "EffectPatterns.searchLibrary(${parts.joinToString(", ")})"
+    return "Patterns.Library.searchLibrary(${parts.joinToString(", ")})"
 }
 
 internal fun EmitCtx.renderLook(node: JsonObject, args: JsonElement?, tvar: String?): String? {
@@ -110,7 +110,7 @@ internal fun EmitCtx.renderLook(node: JsonObject, args: JsonElement?, tvar: Stri
     }
     var keep: Int? = null
     for (m in Regex(""""PutNumber\w*IntoHand".*?"args":\s*(\d+)""").findAll(blob)) keep = m.groupValues[1].toInt()
-    if (keep != null) return "EffectPatterns.lookAtTopAndKeep(count = $look, keepCount = $keep)"
-    if ("PutTheRemainingCardsOnTopOfLibraryInAnyOrder" in blob) return "EffectPatterns.lookAtTopAndReorder(count = $look)"
+    if (keep != null) return "Patterns.Library.lookAtTopAndKeep(count = $look, keepCount = $keep)"
+    if ("PutTheRemainingCardsOnTopOfLibraryInAnyOrder" in blob) return "Patterns.Library.lookAtTopAndReorder(count = $look)"
     return null
 }

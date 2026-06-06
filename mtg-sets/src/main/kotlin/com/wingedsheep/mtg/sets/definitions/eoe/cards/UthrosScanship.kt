@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -41,7 +41,7 @@ val UthrosScanship = card("Uthros Scanship") {
     // ETB: draw two cards, then discard a card
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.loot(draw = 2, discard = 1)
+        effect = Patterns.Hand.loot(draw = 2, discard = 1)
     }
 
     // Station activated ability: tap another creature → add charge counters equal to its power

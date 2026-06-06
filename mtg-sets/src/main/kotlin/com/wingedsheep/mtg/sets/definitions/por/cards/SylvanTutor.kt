@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -22,7 +22,7 @@ val SylvanTutor = card("Sylvan Tutor") {
     colorIdentity = "G"
     typeLine = "Sorcery"
     spell {
-        effect = EffectPatterns.searchLibrary(filter = GameObjectFilter.Creature, destination = SearchDestination.TOP_OF_LIBRARY, reveal = true)
+        effect = Patterns.Library.searchLibrary(filter = GameObjectFilter.Creature, destination = SearchDestination.TOP_OF_LIBRARY, reveal = true)
     }
     metadata {
         rarity = Rarity.RARE

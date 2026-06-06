@@ -2,7 +2,6 @@ package com.wingedsheep.engine.support
 
 import com.wingedsheep.mtg.sets.MtgSetCatalog
 import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
@@ -20,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
@@ -309,7 +309,7 @@ object TestCards {
             effect = CompositeEffect(
                 listOf(
                     DrawCardsEffect(1, EffectTarget.Controller),
-                    EffectPatterns.discardCards(1, EffectTarget.Controller)
+                    Patterns.Hand.discardCards(1, EffectTarget.Controller)
                 )
             )
         )

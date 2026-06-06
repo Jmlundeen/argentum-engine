@@ -5,7 +5,7 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -24,7 +24,7 @@ val GiftOfEstates = card("Gift of Estates") {
     typeLine = "Sorcery"
     spell {
         condition = Conditions.OpponentControlsMoreLands
-        effect = EffectPatterns.searchLibrary(filter = GameObjectFilter.Land.withSubtype("Plains"), count = 3, destination = SearchDestination.HAND, reveal = true)
+        effect = Patterns.Library.searchLibrary(filter = GameObjectFilter.Land.withSubtype("Plains"), count = 3, destination = SearchDestination.HAND, reveal = true)
     }
     metadata {
         rarity = Rarity.RARE

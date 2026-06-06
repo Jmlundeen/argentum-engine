@@ -6,7 +6,7 @@ import com.wingedsheep.tooling.coverage.strField
 import kotlinx.serialization.json.JsonObject
 
 /**
- * Whole-card spell shortcuts — multi-action shapes recognised as one named `EffectPatterns.*` rather
+ * Whole-card spell shortcuts — multi-action shapes recognised as one named `Patterns.*` rather
  * than rendered action-by-action. [spellBlock] tries each before falling back to the generic path.
  * A `String?` shortcut yields a one-line `effect =`; a `List<String>?` shortcut yields a whole block.
  */
@@ -17,7 +17,7 @@ internal fun EmitCtx.eachplayerMaydraw(card: JsonObject): String? {
     val mx = Regex(""""DrawUptoNumberCards".*?"args":\s*(\d+)""").find(blob) ?: return null
     val life = Regex(""""GainLifeForEach".*?"args":\s*(\d+)""").find(blob)
     val lpc = if (life != null) ", lifePerCardNotDrawn = ${life.groupValues[1]}" else ""
-    return "EffectPatterns.eachPlayerMayDraw(maxCards = ${mx.groupValues[1]}$lpc)"
+    return "Patterns.Hand.eachPlayerMayDraw(maxCards = ${mx.groupValues[1]}$lpc)"
 }
 
 /** Each player discards any number, then draws that many; you draw 1 (Flux). */
@@ -25,7 +25,7 @@ internal fun EmitCtx.fluxEffect(card: JsonObject): String? {
     val blob = compact(card["Rules"])
     if ("TheNumberOfCardsDiscardedByPlayerThisWay" in blob && "DiscardAnyNumberOfCards" in blob) {
         val bonus = if ("\"DrawACard\"" in blob) 1 else 0
-        return "EffectPatterns.eachPlayerDiscardsDraws(controllerBonusDraw = $bonus)"
+        return "Patterns.Hand.eachPlayerDiscardsDraws(controllerBonusDraw = $bonus)"
     }
     return null
 }
@@ -34,7 +34,7 @@ internal fun EmitCtx.fluxEffect(card: JsonObject): String? {
 internal fun EmitCtx.windsEffect(card: JsonObject): String? {
     val blob = compact(card["Rules"])
     if ("ShuffleHandIntoLibrary" in blob && "NumCardsShuffledIntoLibraryThisWay" in blob) {
-        return "EffectPatterns.wheelEffect(Player.Each)"
+        return "Patterns.Hand.wheelEffect(Player.Each)"
     }
     return null
 }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -28,7 +27,7 @@ val SymbolOfUnsummoning = card("Symbol of Unsummoning") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            MoveToZoneEffect(t, Zone.HAND),
+            Effects.Move(t, Zone.HAND),
             DrawCardsEffect(1)
         )
     }

@@ -67,7 +67,7 @@ internal fun EmitCtx.renderPlayerAction(node: JsonObject, tvar: String?): String
     when (inner.strField("_Action")) {
         "DiscardACard", "DiscardNumberCards", "DiscardAnyNumberOfCards" -> {
             val n = (findInteger(inner["args"]) as? Int) ?: 1
-            return if (ptv != null) "EffectPatterns.discardCards($n, $ptv)" else "EffectPatterns.discardCards($n)"
+            return if (ptv != null) "Patterns.Hand.discardCards($n, $ptv)" else "Patterns.Hand.discardCards($n)"
         }
         "DrawNumberCards", "DrawACard" -> {
             val amt = if (inner.strField("_Action") == "DrawACard") "1" else amount(inner["args"])
@@ -84,7 +84,7 @@ internal fun EmitCtx.renderPlayerAction(node: JsonObject, tvar: String?): String
             return "LoseLifeEffect($amt, $ptv)"
         }
         "DiscardACardAtRandom" -> {
-            return if (ptv != null) "EffectPatterns.discardRandom(1, $ptv)" else "EffectPatterns.discardRandom(1)"
+            return if (ptv != null) "Patterns.Hand.discardRandom(1, $ptv)" else "Patterns.Hand.discardRandom(1)"
         }
         "SkipAllCombatPhasesTheirNextTurn" -> {
             return if (ptv != null) "SkipCombatPhasesEffect($ptv)" else "SkipCombatPhasesEffect()"
@@ -98,8 +98,8 @@ internal fun EmitCtx.renderPlayerAction(node: JsonObject, tvar: String?): String
 
 internal fun EmitCtx.renderEachPlayer(node: JsonObject): String? {
     val blob = compact(node)
-    if (jsonContains(node, "_Players", "Opponent") && "Discard" in blob) return "EffectPatterns.eachOpponentDiscards(1)"  // Noxious Toad
+    if (jsonContains(node, "_Players", "Opponent") && "Discard" in blob) return "Patterns.Hand.eachOpponentDiscards(1)"  // Noxious Toad
     if (jsonContains(node, "_Action", "DrawNumberCards") || jsonContains(node, "_GameNumber", "ValueX"))
-        return "EffectPatterns.eachPlayerDrawsX(includeController = true, includeOpponents = true)"
+        return "Patterns.Hand.eachPlayerDrawsX(includeController = true, includeOpponents = true)"
     return null
 }

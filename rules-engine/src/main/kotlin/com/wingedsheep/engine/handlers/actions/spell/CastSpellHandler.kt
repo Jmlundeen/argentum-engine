@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.actions.spell
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
@@ -2883,7 +2884,7 @@ class CastSpellHandler(
             id = AbilityId.generate(),
             trigger = SdkGameEvent.SpellCastEvent(player = Player.You),
             binding = TriggerBinding.SELF,
-            effect = com.wingedsheep.sdk.dsl.EffectPatterns.scry(amount),
+            effect = com.wingedsheep.sdk.dsl.Patterns.Library.scry(amount),
             activeZone = Zone.STACK,
             descriptionOverride = "Scry $amount"
         )

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.MayEffect
 
@@ -32,7 +32,7 @@ val DreamSeizer = card("Dream Seizer") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = MayEffect(
-            effect = EffectPatterns.blight(1)
+            effect = Patterns.Mechanic.blight(1)
                 .then(Effects.EachOpponentDiscards(1)),
             descriptionOverride = "You may blight 1. If you do, each opponent discards a card."
         )

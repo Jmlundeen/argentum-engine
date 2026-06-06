@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.conditions.Compare
@@ -40,7 +40,7 @@ val KitsaOtterballElite = card("Kitsa, Otterball Elite") {
     // {T}: Draw a card, then discard a card.
     activatedAbility {
         cost = Costs.Tap
-        effect = EffectPatterns.loot()
+        effect = Patterns.Hand.loot()
         description = "{T}: Draw a card, then discard a card."
     }
 

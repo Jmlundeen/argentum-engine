@@ -1,10 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -22,9 +21,9 @@ val WheelAndDeal = card("Wheel and Deal") {
 
     spell {
         val t = target("target", TargetOpponent())
-        effect = CompositeEffect(
+        effect = Effects.Composite(
             listOf(
-                EffectPatterns.discardHand(t),
+                Patterns.Hand.discardHand(t),
                 Effects.DrawCards(7, t),
                 Effects.DrawCards(1)
             )

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -43,7 +43,7 @@ val TimeOfIce = card("Time of Ice") {
     }
 
     sagaChapter(3) {
-        effect = EffectPatterns.returnAllToHand(
+        effect = Patterns.Group.returnAllToHand(
             GroupFilter(baseFilter = GameObjectFilter.Creature.tapped())
         )
     }

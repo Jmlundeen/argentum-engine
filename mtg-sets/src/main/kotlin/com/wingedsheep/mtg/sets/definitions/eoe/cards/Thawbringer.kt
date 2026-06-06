@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -23,13 +23,13 @@ val Thawbringer = card("Thawbringer") {
     // When this creature enters, surveil 1
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.surveil(1)
+        effect = Patterns.Library.surveil(1)
     }
 
     // When this creature dies, surveil 1
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = EffectPatterns.surveil(1)
+        effect = Patterns.Library.surveil(1)
     }
 
     metadata {

@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -24,7 +24,7 @@ val TimidShieldbearer = card("Timid Shieldbearer") {
 
     activatedAbility {
         cost = Costs.Mana("{4}{W}")
-        effect = EffectPatterns.modifyStatsForAll(1, 1, GroupFilter.AllCreaturesYouControl)
+        effect = Patterns.Group.modifyStatsForAll(1, 1, GroupFilter.AllCreaturesYouControl)
         description = "{4}{W}: Creatures you control get +1/+1 until end of turn."
     }
 

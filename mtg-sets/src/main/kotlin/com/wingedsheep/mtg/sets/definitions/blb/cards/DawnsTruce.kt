@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -33,10 +33,10 @@ val DawnsTruce = card("Dawn's Truce") {
     oracleText = "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, they draw a card before its other effects.)\nYou and permanents you control gain hexproof until end of turn. If the gift was promised, permanents you control also gain indestructible until end of turn."
 
     val hexproofEffects = Effects.GrantHexproof(EffectTarget.Controller)
-        .then(EffectPatterns.grantKeywordToAll(Keyword.HEXPROOF, Filters.Group.permanentsYouControl))
+        .then(Patterns.Group.grantKeywordToAll(Keyword.HEXPROOF, Filters.Group.permanentsYouControl))
 
     spell {
-        effect = EffectPatterns.giftSpell(
+        effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — hexproof until end of turn
             Mode.noTarget(
                 hexproofEffects,
@@ -46,7 +46,7 @@ val DawnsTruce = card("Dawn's Truce") {
             Mode.noTarget(
                 DrawCardsEffect(1, EffectTarget.PlayerRef(Player.EachOpponent))
                     .then(hexproofEffects)
-                    .then(EffectPatterns.grantKeywordToAll(Keyword.INDESTRUCTIBLE, Filters.Group.permanentsYouControl))
+                    .then(Patterns.Group.grantKeywordToAll(Keyword.INDESTRUCTIBLE, Filters.Group.permanentsYouControl))
                     .then(Effects.GiftGiven()),
                 "Promise a gift — an opponent draws a card, you and permanents you control gain hexproof until end of turn, permanents you control also gain indestructible until end of turn"
             )

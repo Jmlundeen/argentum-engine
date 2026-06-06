@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
@@ -41,7 +41,7 @@ val VaultguardTrooper = card("Vaultguard Trooper") {
         )
         effect = MayEffect(
             IfYouDoEffect(
-                action = EffectPatterns.discardHand(EffectTarget.Controller),
+                action = Patterns.Hand.discardHand(EffectTarget.Controller),
                 ifYouDo = Effects.DrawCards(2)
             )
         )

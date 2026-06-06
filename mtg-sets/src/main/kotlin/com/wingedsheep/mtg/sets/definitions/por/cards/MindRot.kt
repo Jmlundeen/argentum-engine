@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -22,7 +22,7 @@ val MindRot = card("Mind Rot") {
     typeLine = "Sorcery"
     spell {
         val t = target("target", TargetPlayer())
-        effect = EffectPatterns.discardCards(2, t)
+        effect = Patterns.Hand.discardCards(2, t)
     }
     metadata {
         rarity = Rarity.COMMON

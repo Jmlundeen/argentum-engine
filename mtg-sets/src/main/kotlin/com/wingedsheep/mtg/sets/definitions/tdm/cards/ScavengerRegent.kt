@@ -2,8 +2,8 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Ward—Discard a card is modeled with [KeywordAbility.wardDiscard]. Exude Toxin is an Omen face
  * (declared via the `omen { }` DSL, so on resolution the card shuffles into its owner's library
  * per the Omen reminder text). The board-wide -X/-X is
- * [EffectPatterns.modifyStatsForAll] over every creature without the Dragon subtype, with the
+ * [Patterns.Group.modifyStatsForAll] over every creature without the Dragon subtype, with the
  * amount read from the X paid for the spell ([DynamicAmount.XValue] negated).
  */
 val ScavengerRegent = card("Scavenger Regent") {
@@ -48,7 +48,7 @@ val ScavengerRegent = card("Scavenger Regent") {
         oracleText = "Each non-Dragon creature gets -X/-X until end of turn. " +
             "(Then shuffle this card into its owner's library.)"
         spell {
-            effect = EffectPatterns.modifyStatsForAll(
+            effect = Patterns.Group.modifyStatsForAll(
                 power = DynamicAmount.Multiply(DynamicAmount.XValue, -1),
                 toughness = DynamicAmount.Multiply(DynamicAmount.XValue, -1),
                 filter = GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.DRAGON))

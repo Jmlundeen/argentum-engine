@@ -5,10 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.vis.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
@@ -24,9 +24,9 @@ val NaturalOrder = card("Natural Order") {
     manaCost = "{2}{G}{G}"
     colorIdentity = "G"
     typeLine = "Sorcery"
-    additionalCost(AdditionalCost.SacrificePermanent(GameObjectFilter.Creature.withColor(Color.GREEN)))
+    additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Creature.withColor(Color.GREEN)))
     spell {
-        effect = EffectPatterns.searchLibrary(filter = GameObjectFilter.Creature.withColor(Color.GREEN), destination = SearchDestination.BATTLEFIELD)
+        effect = Patterns.Library.searchLibrary(filter = GameObjectFilter.Creature.withColor(Color.GREEN), destination = SearchDestination.BATTLEFIELD)
     }
     metadata {
         rarity = Rarity.RARE

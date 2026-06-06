@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -22,7 +23,7 @@ val StarfighterPilot = card("Starfighter Pilot") {
 
     triggeredAbility {
         trigger = Triggers.BecomesTapped
-        effect = com.wingedsheep.sdk.dsl.EffectPatterns.surveil(1)
+        effect = com.wingedsheep.sdk.dsl.Patterns.Library.surveil(1)
     }
 
     metadata {

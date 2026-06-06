@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 
 /**
@@ -27,7 +27,7 @@ val SilentSpecter = card("Silent Specter") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = EffectPatterns.eachOpponentDiscards(2)
+        effect = Patterns.Hand.eachOpponentDiscards(2)
     }
 
     morph = "{3}{B}{B}"

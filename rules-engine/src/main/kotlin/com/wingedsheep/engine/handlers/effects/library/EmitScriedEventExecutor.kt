@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.effects.library
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.ScriedEvent
@@ -10,7 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.EmitScriedEventEffect
 import kotlin.reflect.KClass
 
 /**
- * Tail of the [com.wingedsheep.sdk.dsl.LibraryPatterns.scry] composite: emits a
+ * Tail of the [com.wingedsheep.sdk.dsl.Patterns.Library.scry] composite: emits a
  * [ScriedEvent] so "Whenever you scry" triggers (CR 701.18) fire exactly once per
  * scry, after the top/bottom moves have all resolved.
  *
@@ -20,7 +21,7 @@ import kotlin.reflect.KClass
  * zero when the library was empty; the event is still emitted, because CR 701.18d fires
  * "whenever you scry" triggers "even if some or all of those actions were impossible."
  * A literal "scry 0" (CR 701.18b: no scry event occurs) never reaches this executor —
- * [com.wingedsheep.sdk.dsl.LibraryPatterns.scry] omits the tail entirely for N == 0.
+ * [com.wingedsheep.sdk.dsl.Patterns.Library.scry] omits the tail entirely for N == 0.
  */
 class EmitScriedEventExecutor : EffectExecutor<EmitScriedEventEffect> {
 

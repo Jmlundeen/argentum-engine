@@ -2,17 +2,16 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.OptionalCostEffect
@@ -65,7 +64,7 @@ val ScavengersTalent = card("Scavenger's Talent") {
         triggeredAbility {
             trigger = Triggers.YouSacrificeOneOrMore()
             val player = target("target player", Targets.Player)
-            effect = EffectPatterns.mill(2, player)
+            effect = Patterns.Library.mill(2, player)
         }
     }
 
@@ -81,7 +80,7 @@ val ScavengersTalent = card("Scavenger's Talent") {
                     count = 3,
                     excludeSource = true
                 ),
-                ifPaid = CompositeEffect(
+                ifPaid = Effects.Composite(
                     listOf(
                         GatherCardsEffect(
                             source = CardSource.FromZone(

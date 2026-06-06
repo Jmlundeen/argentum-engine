@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent
@@ -37,7 +37,7 @@ val CabalSlaver = card("Cabal Slaver") {
                 ),
                 TriggerBinding.ANY
             )
-        effect = EffectPatterns.discardCards(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
+        effect = Patterns.Hand.discardCards(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 
     metadata {

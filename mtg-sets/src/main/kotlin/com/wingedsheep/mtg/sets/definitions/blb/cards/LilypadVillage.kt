@@ -4,8 +4,8 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivationRestriction
@@ -46,7 +46,7 @@ val LilypadVillage = card("Lilypad Village") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{U}"), Costs.Tap)
-        effect = EffectPatterns.surveil(2)
+        effect = Patterns.Library.surveil(2)
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
                 Exists(

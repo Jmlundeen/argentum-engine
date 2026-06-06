@@ -2,16 +2,15 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.LibraryPatterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
@@ -45,14 +44,14 @@ val StillnessInMotion = card("Stillness in Motion") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = LibraryPatterns.mill(3).then(
+        effect = Patterns.Library.mill(3).then(
             ConditionalEffect(
                 condition = Compare(
                     DynamicAmount.Count(Player.You, Zone.LIBRARY),
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(0)
                 ),
-                effect = CompositeEffect(
+                effect = Effects.Composite(
                     listOf(
                         Effects.Exile(EffectTarget.Self),
                         GatherCardsEffect(

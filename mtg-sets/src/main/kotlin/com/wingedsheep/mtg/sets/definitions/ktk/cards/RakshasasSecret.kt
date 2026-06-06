@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -19,8 +19,8 @@ val RakshasasSecret = card("Rakshasa's Secret") {
 
     spell {
         val t = target("target opponent", TargetOpponent())
-        effect = EffectPatterns.discardCards(2, t)
-            .then(EffectPatterns.mill(2))
+        effect = Patterns.Hand.discardCards(2, t)
+            .then(Patterns.Library.mill(2))
     }
 
     metadata {

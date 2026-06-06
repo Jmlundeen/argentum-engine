@@ -4,8 +4,8 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.EntersTapped
@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * The conditional enters-tapped is the check-land replacement [EntersTapped] gated on
  * controlling an Island or a Swamp (same shape as Isolated Chapel). {T}: Add {G} is a mana
  * ability; the surveil ability is a non-mana activated ability ({3}{G} + tap) composed from
- * the atomic [EffectPatterns.surveil] pipeline. The surveil ability has no timing restriction,
+ * the atomic [Patterns.Library.surveil] pipeline. The surveil ability has no timing restriction,
  * so it can be activated at instant speed.
  */
 val KishlaVillage = card("Kishla Village") {
@@ -58,7 +58,7 @@ val KishlaVillage = card("Kishla Village") {
                 AbilityCost.Tap
             )
         )
-        effect = EffectPatterns.surveil(2)
+        effect = Patterns.Library.surveil(2)
         description = "Surveil 2."
     }
 

@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.ZoneKey
@@ -13,7 +14,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.Deck
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayEffect
@@ -47,7 +47,7 @@ class OmenTest : FunSpec({
         script = CardScript.spell(
             CompositeEffect(
                 listOf(
-                    EffectPatterns.lookAtTopAndReorder(3),
+                    Patterns.Library.lookAtTopAndReorder(3),
                     MayEffect(ShuffleLibraryEffect()),
                     DrawCardsEffect(1)
                 )

@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.scenarios
+import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.support.ScenarioTestBase
@@ -14,7 +15,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
  * "Look at the top four cards of your library. Put two of them into your hand and the rest
  *  into your graveyard."
  *
- * Confirms the EffectPatterns.lookAtTopAndKeep(count = 4, keepCount = 2) pipeline: the player is
+ * Confirms the Patterns.Library.lookAtTopAndKeep(count = 4, keepCount = 2) pipeline: the player is
  * presented with the four top cards, keeps two (→ hand), and the other two go to the graveyard.
  */
 class RakshasasBargainScenarioTest : ScenarioTestBase() {

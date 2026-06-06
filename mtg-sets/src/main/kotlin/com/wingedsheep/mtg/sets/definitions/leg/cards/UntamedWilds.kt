@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.leg.cards
 
-import com.wingedsheep.sdk.dsl.EffectPatterns
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -22,7 +22,7 @@ val UntamedWilds = card("Untamed Wilds") {
     colorIdentity = "G"
     typeLine = "Sorcery"
     spell {
-        effect = EffectPatterns.searchLibrary(filter = GameObjectFilter.BasicLand, destination = SearchDestination.BATTLEFIELD)
+        effect = Patterns.Library.searchLibrary(filter = GameObjectFilter.BasicLand, destination = SearchDestination.BATTLEFIELD)
     }
     metadata {
         rarity = Rarity.UNCOMMON

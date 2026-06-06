@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -32,7 +32,7 @@ val MeekAttack = card("Meek Attack") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
-        effect = EffectPatterns.putFromHand(
+        effect = Patterns.Hand.putFromHand(
             filter = GameObjectFilter.Creature.totalPowerAndToughnessAtMost(5)
         ).then(
             ConditionalOnCollectionEffect(

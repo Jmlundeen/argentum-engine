@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.LibraryPatterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.model.Rarity
  *       double strike until end of turn.
  *
  * Chapters I and II are the standard "look at top three, keep one to hand, bottom the rest in any
- * order" dig — [LibraryPatterns.lookAtTopAndKeep] with the remainder going to the bottom of the
+ * order" dig — [Patterns.Library.lookAtTopAndKeep] with the remainder going to the bottom of the
  * library, ordered by the controller ([CardOrder.ControllerChooses]).
  *
  * Chapter III installs a turn-bounded, event-based delayed triggered ability:
@@ -74,7 +74,7 @@ val RediscoverTheWay = card("Rediscover the Way") {
  * "Look at the top three cards of your library. Put one of them into your hand and the rest on the
  * bottom of your library in any order." A fresh instance backs each of chapters I and II.
  */
-private fun rediscoverDig() = LibraryPatterns.lookAtTopAndKeep(
+private fun rediscoverDig() = Patterns.Library.lookAtTopAndKeep(
     count = DynamicAmount.Fixed(3),
     keepCount = DynamicAmount.Fixed(1),
     keepDestination = CardDestination.ToZone(Zone.HAND),

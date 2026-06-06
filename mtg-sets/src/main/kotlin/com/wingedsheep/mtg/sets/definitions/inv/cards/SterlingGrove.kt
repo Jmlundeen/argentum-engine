@@ -2,8 +2,8 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
@@ -39,7 +39,7 @@ val SterlingGrove = card("Sterling Grove") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
-        effect = EffectPatterns.searchLibrary(
+        effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.Enchantment,
             count = 1,
             destination = SearchDestination.TOP_OF_LIBRARY,

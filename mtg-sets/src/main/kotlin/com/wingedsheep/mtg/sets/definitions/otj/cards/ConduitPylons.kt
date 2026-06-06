@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.dsl.Costs
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.TimingRule
@@ -25,7 +25,7 @@ val ConduitPylons = card("Conduit Pylons") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = EffectPatterns.surveil(1)
+        effect = Patterns.Library.surveil(1)
     }
 
     activatedAbility {

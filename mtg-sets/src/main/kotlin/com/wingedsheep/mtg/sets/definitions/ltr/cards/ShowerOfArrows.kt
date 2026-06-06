@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.EffectPatterns
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
@@ -44,7 +44,7 @@ val ShowerOfArrows = card("Shower of Arrows") {
             )
         )
         val permanent = target("target artifact, enchantment, or creature with flying", TargetObject(filter = targetFilter))
-        effect = Effects.Destroy(permanent).then(EffectPatterns.scry(1))
+        effect = Effects.Destroy(permanent).then(Patterns.Library.scry(1))
     }
 
     metadata {
