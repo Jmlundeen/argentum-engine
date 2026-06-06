@@ -2,7 +2,7 @@
 
 **Set Size:** 261 booster cards (excluding basic lands)
 **Release Date:** August 1, 2025
-**Implemented:** 257 / 261
+**Implemented:** 258 / 261
 ---
 
 - [x] Adagia, Windswept Bastion
@@ -143,7 +143,7 @@
 - [x] Memorial Vault
 - [x] Mental Modulation
 - [x] Mightform Harmonizer
-- [ ] Mm'menon, the Right Hand
+- [x] Mm'menon, the Right Hand
 - [x] Mm'menon, Uthros Exile
 - [x] Molecular Modifier
 - [x] Monoist Circuit-Feeder

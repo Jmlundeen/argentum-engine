@@ -10083,6 +10083,55 @@
     ]
 }
 
+// Mm'menon, the Right Hand
+{
+    "name": "Mm'menon, the Right Hand",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Legendary Creature — Jellyfish Advisor",
+    "oracleText": "Flying\nYou may look at the top card of your library any time.\nYou may cast artifact spells from the top of your library.\nArtifacts you control have \"{T}: Add {U}. Spend this mana only to cast a spell from anywhere other than your hand.\"",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            "LookAtTopOfLibrary",
+            {
+                "type": "CastSpellTypesFromTopOfLibrary",
+                "filter": "artifact"
+            },
+            {
+                "type": "GrantActivatedAbility",
+                "ability": {
+                    "id": "ability_1",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "BLUE",
+                        "restriction": "CastFromNonHandOnly"
+                    },
+                    "isManaAbility": true
+                },
+                "filter": {
+                    "baseFilter": "artifact ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "68",
+        "rarity": "RARE",
+        "artist": "Joshua Raphael",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/82add0a0-e402-4b31-b101-81c0bf332015.jpg?1752946825"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Molecular Modifier
 {
     "name": "Molecular Modifier",
