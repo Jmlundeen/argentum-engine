@@ -168,6 +168,21 @@ internal fun EmitCtx.triggerBlock(rule: JsonObject): List<String>? {
 }
 
 /**
+ * A characteristic-defining `CDA_Power` rule (with its matching `CDA_Toughness`) -> a single
+ * `dynamicStats(...)` line, when both power and toughness are the same dynamic count (the
+ * power-and-toughness-equal-to-the-number-of-X cycle). Differing power/toughness amounts scaffold.
+ */
+internal fun EmitCtx.cdaStatsBlock(card: JsonObject, rule: JsonObject): List<String>? {
+    val toughnessRule = (card["Rules"].asArr ?: JsonArray(emptyList()))
+        .filterIsInstance<JsonObject>().firstOrNull { it.strField("_Rule") == "CDA_Toughness" }
+    if (toughnessRule == null || compact(rule["args"]) != compact(toughnessRule["args"])) {
+        reasons.add("CDA_Power"); return null
+    }
+    val amount = dynamicAmount(rule["args"]) ?: run { reasons.add("CDA_Power"); return null }
+    return listOf("    dynamicStats($amount)")
+}
+
+/**
  * An `AsPermanentEnters` rule -> `replacementEffect(...)` line(s). The rule's second arg is a list of
  * `_ReplacementActionWouldEnter` nodes (enters tapped, choose a creature type as it enters, ...).
  * Any replacement we can't render exactly downgrades the card to SCAFFOLD rather than guess.
