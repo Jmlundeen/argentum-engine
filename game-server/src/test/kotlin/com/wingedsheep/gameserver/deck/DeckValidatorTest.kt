@@ -99,11 +99,11 @@ class DeckValidatorTest : FunSpec({
     }
 
     test("five copies of a non-basic produces TOO_MANY_COPIES") {
-        val deck = mapOf("Bog Imp" to 5, "Mountain" to 35)
+        val deck = mapOf("Test Green Bear" to 5, "Mountain" to 35)
         val result = validator.validate(deck)
         result.valid shouldBe false
         val tooMany = result.errors.single { it.code == "TOO_MANY_COPIES" }
-        tooMany.cardName shouldBe "Bog Imp"
+        tooMany.cardName shouldBe "Test Green Bear"
     }
 
     test("twenty copies of a basic land is fine") {
@@ -165,17 +165,17 @@ class DeckValidatorTest : FunSpec({
     }
 
     test("Commander rejects two copies of a non-basic non-override card") {
-        val deck = mapOf("Bog Imp" to 2, "Mountain" to 98)
+        val deck = mapOf("Test Green Bear" to 2, "Mountain" to 98)
         val result = validator.validate(deck, DeckFormat.COMMANDER)
         result.valid shouldBe false
         val tooMany = result.errors.single { it.code == "TOO_MANY_COPIES" }
-        tooMany.cardName shouldBe "Bog Imp"
+        tooMany.cardName shouldBe "Test Green Bear"
         // Singleton message is more informative than the raw 4-of variant.
         tooMany.message shouldContainString "singleton"
     }
 
     test("non-Commander formats keep the 4-of cap, not singleton") {
-        val deck = mapOf("Bog Imp" to 4, "Mountain" to 56)
+        val deck = mapOf("Test Green Bear" to 4, "Mountain" to 56)
         val result = validator.validate(deck, DeckFormat.MODERN)
         // Modern accepts 4-of so no copy-cap error fires here, even though Commander would reject.
         result.errors.none { it.code == "TOO_MANY_COPIES" } shouldBe true
