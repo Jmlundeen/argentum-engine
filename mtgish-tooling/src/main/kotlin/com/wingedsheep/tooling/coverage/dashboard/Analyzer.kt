@@ -8,6 +8,7 @@ import com.wingedsheep.tooling.coverage.Probe
 import com.wingedsheep.tooling.coverage.Registry
 import com.wingedsheep.tooling.coverage.Scryfall
 import com.wingedsheep.tooling.coverage.emitter.Emitter
+import com.wingedsheep.tooling.coverage.emitter.RenderResult
 import kotlinx.serialization.json.JsonObject
 
 /**
@@ -189,20 +190,28 @@ object Analyzer {
         val implementedIn: Set<String>,
     )
 
-    private val sourceCache = HashMap<String, String?>()
+    private val renderCache = HashMap<String, RenderResult?>()
 
     /**
-     * The emitter's generated `cardDef` DSL for [name] as it would draft it for [setCode] (whole for
-     * AUTOGEN cards, a TODO/STRUCTURE scaffold otherwise). Null when the card has no mtgish IR entry.
+     * The emitter's PARTIAL render of [name] for [setCode]: every part that maps is emitted and each
+     * un-renderable part becomes a located `// TODO(hole)` line, so the result carries a renderable
+     * fraction + the list of holes. This is the dashboard view — "how much of this card could be
+     * implemented, and which parts can't". (The autogen WRITE path stays non-partial: it still declines
+     * a card to a scaffold rather than ship a half-card.) Null when the card has no mtgish IR entry.
      * Memoized so scrolling the code view never re-renders.
      */
-    fun cardSource(setCode: String, name: String): String? = sourceCache.getOrPut("$setCode/$name") {
+    fun cardRender(setCode: String, name: String): RenderResult? = renderCache.getOrPut("$setCode/$name") {
         val card = index()[name] ?: return@getOrPut null
         Emitter.renderCard(
             card, Cards.scryfallCard(setCode, name), effects, keywords,
             pkg = "com.wingedsheep.mtg.sets.generated.${setCode.lowercase()}.cards",
-        ).text
+            partial = true,
+        )
     }
+
+    /** The generated `cardDef` DSL text from the partial render (with `// TODO(hole)` lines in place of
+     *  the parts that don't map yet). Null when the card has no mtgish IR entry. */
+    fun cardSource(setCode: String, name: String): String? = cardRender(setCode, name)?.text
 
     fun cardReport(name: String): CardReport {
         val card = index()[name]
@@ -242,7 +251,7 @@ object Analyzer {
     fun invalidate(code: String) {
         countsCache.remove(code.uppercase())
         detailCache.remove(code.uppercase())
-        sourceCache.clear()
+        renderCache.clear()
         crossCache = null
         index = null
     }

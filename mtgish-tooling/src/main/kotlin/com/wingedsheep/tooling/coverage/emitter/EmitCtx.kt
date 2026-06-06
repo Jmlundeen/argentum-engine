@@ -31,8 +31,24 @@ import kotlinx.serialization.json.put
 /**
  * Result of rendering a whole card: the emitted DSL text, whether it renders WHOLE, and the
  * unrecovered-structure reasons (the SCAFFOLD worklist).
+ *
+ * In partial-render mode ([Emitter.renderCard] `partial = true`) the card no longer bails to a bare
+ * scaffold on the first un-renderable part: the parts that map are emitted and the rest become located
+ * [holes]. [parts] is how many ability-bearing parts were attempted, so [renderableFraction] answers
+ * "how much of this card could be implemented?" and [holes] answers "which parts still can't". In the
+ * default (non-partial) path [holes] is empty and [parts] is 0 — `complete`/`reasons` are unchanged.
  */
-data class RenderResult(val text: String, val complete: Boolean, val reasons: Set<String>)
+data class RenderResult(
+    val text: String,
+    val complete: Boolean,
+    val reasons: Set<String>,
+    val holes: List<String> = emptyList(),
+    val parts: Int = 0,
+) {
+    /** Fraction of attempted parts the emitter rendered (1.0 = whole). Defined as 1.0 when nothing
+     *  ability-bearing was attempted (a vanilla creature is fully renderable). */
+    val renderableFraction: Double get() = if (parts == 0) 1.0 else (parts - holes.size).toDouble() / parts
+}
 
 /**
  * Per-render state for the emitter. Created once per card; threaded implicitly as the receiver of

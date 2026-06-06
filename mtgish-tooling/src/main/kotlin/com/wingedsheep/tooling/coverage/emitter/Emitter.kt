@@ -3,6 +3,7 @@ package com.wingedsheep.tooling.coverage.emitter
 import com.wingedsheep.tooling.coverage.Assign
 import com.wingedsheep.tooling.coverage.Block
 import com.wingedsheep.tooling.coverage.Eval
+import com.wingedsheep.tooling.coverage.HoleLine
 import com.wingedsheep.tooling.coverage.Lit
 import com.wingedsheep.tooling.coverage.RawLine
 import com.wingedsheep.tooling.coverage.Stmt
@@ -34,9 +35,18 @@ import kotlinx.serialization.json.JsonObject
  * (see [EmitCtx]). Imports resolve from a live SDK source scan so they can't rot.
  */
 object Emitter {
+    /**
+     * Render [card] to Argentum cardDef DSL. By default the emitter declines the WHOLE card to a bare
+     * scaffold on the first un-renderable part. With [partial] = true it instead keeps every part that
+     * maps and replaces each un-renderable part with a located `// TODO(hole)` line, so the result
+     * carries a renderable fraction + the list of holes (what the dashboard/TUI shows). The default
+     * (non-partial) path is byte-for-byte unchanged — it is what the autogen write path and the golden
+     * test depend on.
+     */
     fun renderCard(
         card: JsonObject, scryfall: JsonObject?, effects: Set<String>, keywords: Set<String>,
         pkg: String = "com.wingedsheep.mtg.sets.generated.demo.cards",
+        partial: Boolean = false,
     ): RenderResult {
         val ctx = EmitCtx(keywords, scryfall?.strField("oracle_text"))
         val name = card["Name"].asStr() ?: ""
@@ -53,6 +63,22 @@ object Emitter {
         val pre = docCommentLines(card, scryfall)
         val header = "val $ident = card(\"${ktStr(name)}\")"
         val body = mutableListOf<Stmt>()
+
+        // A part the emitter can't render. In the default path this bails the whole card to a scaffold
+        // (returns the [incomplete] result, which the caller `return`s). In [partial] mode it records a
+        // located hole, drops a `// TODO(hole)` line in place, and returns null so the loop continues
+        // with the parts that DO map. [addReason] mirrors the historical `ctx.reasons` mutation at each
+        // site exactly, so the non-partial output stays byte-identical.
+        val holes = mutableListOf<String>()
+        val skipRules = mutableSetOf<JsonObject>()
+        var parts = 0
+        fun gap(holeLabel: String, addReason: String? = null): RenderResult? {
+            addReason?.let { ctx.reasons.add(it) }
+            parts++
+            if (partial) { holes.add(holeLabel); body.add(HoleLine(holeLabel)); return null }
+            return incomplete(ctx, pre, header, body, scryfall, pkg)
+        }
+
         body.add(RawLine("    manaCost = \"${renderMana(card["ManaCost"])}\""))
         colorIdentityDsl(scryfall)?.let { body.add(RawLine("    colorIdentity = \"$it\"")) }
         body.add(RawLine("    typeLine = \"${renderTypeline(card["Typeline"])}\""))
@@ -64,8 +90,9 @@ object Emitter {
         // card's rule order, which matches the hand-authored golden's `keywords(...)` order (e.g.
         // "Trample, haste" stays TRAMPLE, HASTE rather than re-sorting to HASTE, TRAMPLE).
         if (kw.isNotEmpty()) body.add(RawLine("    keywords(${kw.joinToString(", ") { "Keyword.$it" }})"))
-        val cardLevelLines = ctx.cardLevelCastEffectLines(card) ?: return incomplete(ctx, pre, header, body, scryfall, pkg)
-        body.addAll(cardLevelLines.map { RawLine(it) })
+        val cardLevelLines = ctx.cardLevelCastEffectLines(card)
+        if (cardLevelLines == null) gap("CastEffect")?.let { return it }
+        else body.addAll(cardLevelLines.map { RawLine(it) })
 
         // Auras: the pure static-buff shape (EnchantPermanent + PermanentLayerEffect) renders faithfully,
         // but an activated/triggered ability on an Aura references its "enchanted creature" — context the
@@ -81,7 +108,10 @@ object Emitter {
                 // renders rather than scaffolds; every other ability on an Aura still scaffolds.
                 if ((rn == "Activated" || rn == "ActivatedWithModifiers") &&
                     "SharesACreatureTypeWithPermanent" in compact(r)) return@forEach
-                ctx.reasons.add("aura-with-$rn"); return incomplete(ctx, pre, header, body, scryfall, pkg)
+                // In partial mode the offending ability becomes a located hole and is skipped in the
+                // main loop below (so the generic activated/trigger emitter doesn't render it wrongly).
+                gap("aura-with-$rn", addReason = "aura-with-$rn")?.let { return it }
+                skipRules.add(r as JsonObject)
             }
         }
 
@@ -89,13 +119,16 @@ object Emitter {
             "Vigilance", "Reach", "Defender", "Landwalk", "FirstStrike", "Trample", "CastEffect")
         for (rule in (card["Rules"].asArr ?: JsonArray(emptyList()))) {
             if (rule !is JsonObject) continue
+            if (rule in skipRules) continue  // already holed by the aura pre-check (partial mode)
             val rname = rule.strField("_Rule")
             // Every ability builder returns structured statements; the renderer turns the whole card
             // tree into source lines.
             val block: List<Stmt>?
             when {
                 rname == "CastEffect" -> {
-                    if (!ctx.castEffectHandled(rule)) return incomplete(ctx, pre, header, body, scryfall, pkg)
+                    // Already accounted for by the pre-loop cardLevelCastEffectLines pass; this is
+                    // defensive (castEffectHandled is true for every CastEffect that survived it).
+                    if (!ctx.castEffectHandled(rule)) gap("CastEffect")?.let { return it }
                     continue
                 }
                 rname == "SpellActions" -> block = ctx.spellBlock(card)
@@ -111,7 +144,7 @@ object Emitter {
                 rname == "CDA_Power" -> block = ctx.cdaStatsBlock(card, rule)
                 rname == "CDA_Toughness" ->
                     if (jsonContains(card["Rules"], "_Rule", "CDA_Power")) continue  // emitted with CDA_Power
-                    else { ctx.reasons.add("CDA_Toughness"); return incomplete(ctx, pre, header, body, scryfall, pkg) }
+                    else { gap("CDA_Toughness", addReason = "CDA_Toughness")?.let { return it }; continue }
                 rname == "Activated" || rname == "ActivatedWithModifiers" -> block = ctx.activatedBlock(rule)
                 rname == "Cycling" -> block = manaKeywordCost(rule)?.let { listOf(Eval(call("keywordAbility", arg(call("KeywordAbility.cycling", arg("\"$it\"")))))) }
                 rname == "Morph" -> block = manaKeywordCost(rule)?.let { listOf(Assign("morph", Lit("\"$it\""))) }
@@ -124,18 +157,25 @@ object Emitter {
                 // rendered exactly by an explicit case above or scaffold; never silently stamped bare,
                 // which would drop the parameter.
                 rname != null && pascalToUpperSnake(rname) in keywords && rule["args"] == null -> continue
-                else -> { ctx.reasons.add(rname ?: "unknown-rule"); return incomplete(ctx, pre, header, body, scryfall, pkg) }
+                else -> { gap(rname ?: "unknown-rule", addReason = rname ?: "unknown-rule")?.let { return it }; continue }
             }
-            if (block == null) return incomplete(ctx, pre, header, body, scryfall, pkg)
+            if (block == null) { gap(rname ?: "ability")?.let { return it }; continue }
+            parts++
             body.addAll(block)
         }
 
         if (!permanent && !jsonContains(card["Rules"], "_Rule", "SpellActions")) {
-            ctx.reasons.add("no-renderable-effect"); return incomplete(ctx, pre, header, body, scryfall, pkg)
+            gap("no-renderable-effect", addReason = "no-renderable-effect")?.let { return it }
         }
 
         body.addAll(metadataLines(scryfall).map { RawLine(it) })
-        return RenderResult(assemble(pre + renderBlock(Block(header, body)), pkg, complete = true), true, ctx.reasons)
+        // In partial mode the card is "complete" only if no part holed; the non-partial path never
+        // reaches here with holes (gap returned the scaffold), so this stays `true`/empty as before.
+        val complete = holes.isEmpty()
+        return RenderResult(
+            assemble(pre + renderBlock(Block(header, body)), pkg, complete = complete),
+            complete, ctx.reasons, holes = holes, parts = parts,
+        )
     }
 
     /** A keyword-ability whose cost is pure mana (`Cycling {2}`, `Morph {4}{W}`). Returns the rendered

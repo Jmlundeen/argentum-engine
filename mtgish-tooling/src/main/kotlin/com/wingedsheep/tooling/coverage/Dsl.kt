@@ -47,6 +47,14 @@ data class Composite(val parts: List<Dsl>) : Dsl
  *  lets the tree coexist with un-migrated output; such fragments still flow through `wrapLine`/`importsFor`. */
 data class Raw(val text: String) : Dsl
 
+/** A LOCATED GAP — an expression the emitter could not render. Unlike a [null] decline (which bails the
+ *  whole card to a bare scaffold), a [Hole] keeps the parts that DID map and marks this one in place, so
+ *  a partially-rendered card pinpoints exactly what still needs hand-authoring. [reason] is the
+ *  worklist tag (the declined rule/action); [irShape] optionally carries a snippet of the mtgish node.
+ *  Renders to a greppable `/* TODO(hole): … */` comment. Holes appear only in the partial-render path
+ *  ([Emitter.renderCard] `partial = true`); the default emit still declines to a scaffold. */
+data class Hole(val reason: String, val irShape: String? = null) : Dsl
+
 /** A positional (name == null) or named (`name = value`) argument. */
 data class Arg(val value: Dsl, val name: String? = null)
 
@@ -76,6 +84,12 @@ data class Sub(val block: Block) : Stmt
  *  occasional multi-line restriction list a node doesn't model yet. The [Stmt]-level [Raw]. */
 data class RawLine(val text: String) : Stmt
 
+/** A LOCATED GAP at statement level — an ability/rule the emitter could not render. The [Stmt]-level
+ *  [Hole]: it renders as a `// TODO(hole): …` comment line in place of the missing builder block, so a
+ *  partially-rendered card still parses (a comment is valid Kotlin) while naming the part to hand-wire.
+ *  See [Hole] for the partial-render rationale. */
+data class HoleLine(val reason: String, val irShape: String? = null) : Stmt
+
 /** A `header { body }` builder block (an ability, the metadata block, the whole card). */
 data class Block(val header: String, val body: List<Stmt>)
 
@@ -95,6 +109,36 @@ fun renderStmt(stmt: Stmt, indent: String): List<String> = when (stmt) {
     is Eval -> listOf("$indent${render(stmt.value)}")
     is Sub -> renderBlock(stmt.block, indent)
     is RawLine -> listOf(stmt.text)
+    is HoleLine -> listOf("$indent// TODO(hole): ${stmt.reason}" + (stmt.irShape?.let { " — $it" } ?: ""))
+}
+
+// ---------------------------------------------------------------------------
+// Hole accounting — walk a rendered statement tree to surface the located gaps and a renderable %.
+// This is what lets the TUI answer "how much of this card could be implemented, and which parts can't".
+// ---------------------------------------------------------------------------
+
+/** Every [HoleLine]/[Hole] reason in a statement tree, in document (top-to-bottom) order — the located
+ *  gap list a partial render leaves behind. */
+fun holesIn(stmts: List<Stmt>): List<String> {
+    val out = mutableListOf<String>()
+    fun visit(d: Dsl) { when (d) {
+        is Hole -> out.add(d.reason)
+        is Call -> d.args.forEach { visit(it.value) }
+        is Chain -> { visit(d.base); d.links.forEach { l -> l.args.forEach { visit(it.value) } } }
+        is Infix -> d.parts.forEach(::visit)
+        is Composite -> d.parts.forEach(::visit)
+        is Lit, is Raw -> {}
+    } }
+    fun visit(s: Stmt) { when (s) {
+        is HoleLine -> out.add(s.reason)
+        is Sub -> s.block.body.forEach(::visit)
+        is Assign -> visit(s.value)
+        is Local -> visit(s.value)
+        is Eval -> visit(s.value)
+        is RawLine -> {}
+    } }
+    stmts.forEach(::visit)
+    return out
 }
 
 // ---------------------------------------------------------------------------
@@ -131,6 +175,7 @@ fun Dsl.dot(link: Link): Chain =
 fun render(node: Dsl): String = when (node) {
     is Lit -> node.text
     is Raw -> node.text
+    is Hole -> "/* TODO(hole): ${node.reason}" + (node.irShape?.let { " — $it" } ?: "") + " */"
     is Call -> node.callee + "(" + node.args.joinToString(", ") { renderArg(it) } + ")"
     is Chain -> render(node.base) + node.links.joinToString("") { link ->
         "." + link.method + "(" + link.args.joinToString(", ") { renderArg(it) } + ")"
