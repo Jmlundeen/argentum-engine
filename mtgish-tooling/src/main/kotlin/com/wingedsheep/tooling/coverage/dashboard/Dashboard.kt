@@ -284,7 +284,11 @@ object Dashboard {
         add(" ${rep.name}", Ansi.BOLD, Ansi.fg(Ansi.WHITE))
         when (cv?.gen) {
             Analyzer.Gen.WHOLE -> add(" ${impl}auto-gen: WHOLE — generator renders the whole card", Ansi.fg(Ansi.GREEN))
-            Analyzer.Gen.SCAFFOLD -> add(" ${impl}auto-gen: SCAFFOLD — covered, structure needs hand-wiring", Ansi.fg(Ansi.YELLOW))
+            Analyzer.Gen.SCAFFOLD -> {
+                val r = Analyzer.cardRender(code, name)
+                val note = r?.let { " — ${(it.renderableFraction * 100).roundToInt()}% renderable, ${it.holes.size} part${if (it.holes.size == 1) "" else "s"} to hand-wire" } ?: " — covered, structure needs hand-wiring"
+                add(" ${impl}auto-gen: SCAFFOLD$note", Ansi.fg(Ansi.YELLOW))
+            }
             Analyzer.Gen.BLOCKED -> add(" ${impl}auto-gen: BLOCKED — needs engine work", Ansi.fg(Ansi.RED))
             else -> add(" ${impl}not in mtgish IR (name join / Un-set / too new)", Ansi.fg(Ansi.GREY))
         }
@@ -307,6 +311,15 @@ object Dashboard {
                 add("   [$tag] ${m.disc} = ${m.value}", arrayOf(Ansi.fg(Ansi.ORANGE)))
             }
             if (missing.size > 4) add("   +${missing.size - 4} more — tab for full capability list", arrayOf(Ansi.fg(Ansi.DARKGREY)))
+        }
+        // Located holes — the parts the emitter could not render (the `// TODO(hole)` lines below). This
+        // is the per-part "still to implement" list, distinct from the capability gaps above: a card can
+        // have every capability mapped yet still hole an ability whose STRUCTURE the emitter can't recover.
+        val render = Analyzer.cardRender(code, name)
+        if (render != null && render.holes.isNotEmpty()) {
+            add(" ⌗ parts to hand-wire (${render.holes.size}, ${(render.renderableFraction * 100).roundToInt()}% renderable):", arrayOf(Ansi.BOLD, Ansi.fg(Ansi.YELLOW)))
+            for (hole in render.holes.take(4)) add("   • $hole", arrayOf(Ansi.fg(Ansi.YELLOW)))
+            if (render.holes.size > 4) add("   +${render.holes.size - 4} more", arrayOf(Ansi.fg(Ansi.DARKGREY)))
         }
         add(" ── generated cardDef ${"─".repeat(max(0, w - 18))}", arrayOf(Ansi.fg(Ansi.DARKGREY)))
         val src = Analyzer.cardSource(code, name)

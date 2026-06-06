@@ -96,4 +96,30 @@ class DslTest : StringSpec({
             "}",
         )
     }
+
+    "a HoleLine renders as a greppable TODO comment at the block indent" {
+        renderBlock(Block("spell", listOf(HoleLine("Unless")))) shouldBe listOf(
+            "spell {",
+            "    // TODO(hole): Unless",
+            "}",
+        )
+        render(Hole("AggregateBattlefield")) shouldBe "/* TODO(hole): AggregateBattlefield */"
+    }
+
+    "an irShape annotates the hole when present" {
+        renderStmt(HoleLine("Activated", "PayLife"), "") shouldBe listOf("// TODO(hole): Activated — PayLife")
+    }
+
+    "holesIn collects every hole reason in document order, recursing into nested blocks" {
+        val stmts = listOf(
+            Assign("manaCost", Lit("\"{R}\"")),
+            HoleLine("CastEffect"),
+            Sub(Block("spell", listOf(
+                Assign("effect", call("Effects.DrawCards", arg(Hole("amount")))),
+                HoleLine("Unless"),
+            ))),
+            Eval(call("keywordAbility", arg("Keyword.FLYING"))),
+        )
+        holesIn(stmts) shouldBe listOf("CastEffect", "amount", "Unless")
+    }
 })
