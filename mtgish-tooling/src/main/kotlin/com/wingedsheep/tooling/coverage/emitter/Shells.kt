@@ -132,6 +132,9 @@ internal fun keywordLines(card: JsonObject, keywords: Set<String>): Set<String> 
     Mtgish.extractTags(card["Rules"], tags)
     for ((disc, value) in tags.keys) {
         if (value == "Landwalk") continue
+        // Protection always carries a "from X" scope, so it renders as a scoped `keywordAbility(...)`
+        // (see Emitter.protectionScopeDsl), never a bare `keywords(Keyword.PROTECTION)`.
+        if (value == "Protection") continue
         val entry = Bridge.entry(disc, value)
         val auto = pascalToUpperSnake(value)
         if (entry is MappingEntry.Keyword) out.add(entry.tag)
