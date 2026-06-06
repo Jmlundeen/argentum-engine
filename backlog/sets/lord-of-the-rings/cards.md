@@ -165,7 +165,7 @@ starter-deck/special cards and basic lands.
 - [x] Gimli, Counter of Kills
 - [x] Gimli's Axe
 - [x] Gimli's Fury
-- [ ] Glóin, Dwarf Emissary
+- [x] Glóin, Dwarf Emissary
 - [x] Goblin Fireleaper
 - [ ] Grishnákh, Brash Instigator
 - [x] Haradrim Spearmaster

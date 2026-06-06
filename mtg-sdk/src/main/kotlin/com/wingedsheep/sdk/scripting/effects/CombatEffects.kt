@@ -402,6 +402,30 @@ data class MarkMustAttackThisTurnEffect(
 }
 
 /**
+ * Goad a target creature (CR 701.15).
+ *
+ * Until the goader's next turn, the targeted creature is goaded: it attacks each
+ * combat if able and attacks a player other than the goader if able. Multiple
+ * players can goad the same creature — each adds a separate "attack a player other
+ * than that goader" requirement (CR 701.15c). A player goading a creature they've
+ * already goaded does nothing (CR 701.15d). The goaded designation is neither an
+ * ability nor part of the permanent's copiable values (CR 701.15b).
+ *
+ * The goader of record is the controller of this effect at resolution; the engine
+ * captures it via `EffectContext.controllerId`.
+ *
+ * @property target The creature being goaded (typically [EffectTarget.ContextTarget] 0
+ *   when paired with a TargetCreature requirement).
+ */
+@SerialName("Goad")
+@Serializable
+data class GoadEffect(
+    val target: EffectTarget = EffectTarget.ContextTarget(0)
+) : Effect {
+    override val description: String = "Goad ${target.description}"
+}
+
+/**
  * Let a creature attack this turn as though it didn't have defender.
  * Adds a transient marker the attack-restriction rules honor, cleaned up at end of turn.
  *

@@ -2250,6 +2250,30 @@ class ClientStateTransformer(
             )
         }
 
+        // Check for GoadedComponent (CR 701.15). Surfaces the standing combat
+        // requirement on the creature so opposing combat decisions are obvious
+        // without the player having to recall who goaded it.
+        val goaded = state.getEntity(entityId)?.get<GoadedComponent>()
+        if (goaded != null) {
+            val goaderNames = goaded.goaderIds
+                .mapNotNull { state.getEntity(it)?.get<PlayerComponent>()?.name }
+                .ifEmpty { listOf("an opponent") }
+            val goaderList = when (goaderNames.size) {
+                1 -> goaderNames.single()
+                2 -> "${goaderNames[0]} and ${goaderNames[1]}"
+                else -> goaderNames.dropLast(1).joinToString(", ") + ", and " + goaderNames.last()
+            }
+            effects.add(
+                ClientCardEffect(
+                    effectId = "goaded",
+                    name = "Goaded",
+                    description = "This creature attacks each combat if able and attacks " +
+                        "a player other than $goaderList if able",
+                    icon = "must-attack"
+                )
+            )
+        }
+
         // Check for triggered ability condition indicators (intervening-if progress)
         effects.addAll(buildTriggerConditionBadges(state, entityId))
 

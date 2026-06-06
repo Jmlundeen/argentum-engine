@@ -18,6 +18,7 @@ import com.wingedsheep.engine.state.components.battlefield.GraveyardPlayPermissi
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.battlefield.TokenReplacementOfferedThisTurnComponent
 import com.wingedsheep.engine.state.components.combat.CanAttackDespiteDefenderThisTurnComponent
+import com.wingedsheep.engine.state.components.combat.GoadedComponent
 import com.wingedsheep.engine.state.components.combat.MustAttackThisTurnComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackedThisTurnComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent
@@ -179,6 +180,39 @@ class CleanupPhaseManager(
         } else {
             state
         }
+    }
+
+    /**
+     * Expire goaded designations (CR 701.15a) for which [activePlayer] is a goader.
+     * Runs alongside [expireUntilYourNextTurnEffects] so all "until your next turn"
+     * semantics share the same hook (post-untap of the goader's next turn). Removes
+     * [activePlayer] from each [GoadedComponent.goaderIds] set on the battlefield,
+     * dropping the component entirely when the set empties, and emits a
+     * [CreatureNoLongerGoadedEvent] per affected creature.
+     */
+    fun expireGoadedDesignationFor(
+        state: GameState,
+        activePlayer: EntityId
+    ): Pair<GameState, List<GameEvent>> {
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        for (entityId in newState.getBattlefield()) {
+            val goaded = newState.getEntity(entityId)?.get<GoadedComponent>() ?: continue
+            if (activePlayer !in goaded.goaderIds) continue
+            val remaining = goaded.goaderIds - activePlayer
+            newState = newState.updateEntity(entityId) { container ->
+                if (remaining.isEmpty()) container.without<GoadedComponent>()
+                else container.with(GoadedComponent(remaining))
+            }
+            val creatureName = newState.getEntity(entityId)?.get<CardComponent>()?.name ?: "Creature"
+            events += CreatureNoLongerGoadedEvent(
+                creatureId = entityId,
+                creatureName = creatureName,
+                expiredGoaderId = activePlayer,
+                stillGoadedByPlayerIds = remaining
+            )
+        }
+        return newState to events
     }
 
     /**

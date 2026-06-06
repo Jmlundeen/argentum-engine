@@ -127,8 +127,18 @@ leaving case (CR 603.10a last-known-information). Implements CR 603.2d.
 - **Gandalf the White** — ✅ implemented.
 
 ### Gap 5 — Goad
-**Engine change:** Goad effect + goaded combat-forcing state (CR 701.41).
-- **Glóin, Dwarf Emissary** — "{T}, Sacrifice a Treasure: Goad target creature."
+**Engine change:** Goad effect + goaded combat-forcing state (CR 701.15).
+- **Glóin, Dwarf Emissary** — ✅ implemented. `Effects.Goad(target)` / `GoadEffect` adds a
+  `GoadedComponent(goaderIds: Set<EntityId>)` to the target; goader = the effect's controller at
+  resolution. `AttackPhaseManager.declareAttackers` enforces the two CR 701.15b requirements
+  inline (must attack each combat + must attack a player other than each goader if able), and
+  `CleanupPhaseManager.expireGoadedDesignationFor` (called after the untap step of each player's
+  next turn, same hook as `Duration.UntilYourNextTurn` floating effects) drops the active player
+  from every goader set and clears the component when empty — implementing the "until your next
+  turn" duration of CR 701.15a. Set semantics give CR 701.15d
+  same-goader dedup for free, and a goader-list per creature gives CR 701.15c stacking. Surfaced
+  to the client as a `Goaded` `ClientCardEffect` badge listing goader names. Scenario coverage:
+  `GoadEffectTest`.
 
 ### Gap 6 — new counter types (each spans the 5 counter layers)
 **Engine change:** add the counter type across `CounterType`, `StateProjector`, and the three

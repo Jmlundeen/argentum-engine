@@ -315,6 +315,20 @@ object TestCards {
         )
     )
 
+    /**
+     * {R} - Goad target creature (CR 701.15). Test-only sorcery used to drive the
+     * goad mechanic without going through Glóin's activated-ability + Treasure setup.
+     */
+    val GoadSpell = CardDefinition.sorcery(
+        name = "Goad Spell",
+        manaCost = ManaCost.parse("{R}"),
+        oracleText = "Goad target creature.",
+        script = CardScript.spell(
+            effect = com.wingedsheep.sdk.scripting.effects.GoadEffect(EffectTarget.BoundVariable("target")),
+            TargetCreature(id = "target")
+        )
+    )
+
     // =========================================================================
     // Mana Dorks (Creatures with Tap: Add mana abilities)
     // =========================================================================
@@ -700,6 +714,7 @@ object TestCards {
         // Sorceries
         DoomBlade,
         CarefulStudy,
+        GoadSpell,
     )
 
     val all: List<CardDefinition> =

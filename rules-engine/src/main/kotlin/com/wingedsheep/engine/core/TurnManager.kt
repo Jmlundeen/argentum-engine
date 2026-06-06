@@ -465,13 +465,18 @@ class TurnManager(
         // Expire UntilYourNextTurn effects after the untap step completes.
         var postUntapState = cleanupPhaseManager.expireUntilYourNextTurnEffects(untapResult.newState, nextPlayer)
         postUntapState = cleanupPhaseManager.expireAffectedControllersNextUntapEffects(postUntapState, nextPlayer)
+        // CR 701.15a: goaded designation lasts "until the next turn of the
+        // controller of that spell or ability"; same hook as the floating-effect
+        // path above so all "until your next turn" semantics share one site.
+        val (goadCleanedState, goadEvents) = cleanupPhaseManager.expireGoadedDesignationFor(postUntapState, nextPlayer)
+        postUntapState = goadCleanedState
 
         // Advance to upkeep (this sets priority to the active player)
         val advanceResult = advanceStep(postUntapState)
 
         return ExecutionResult.success(
             advanceResult.newState,
-            turnResult.events + untapResult.events + advanceResult.events
+            turnResult.events + untapResult.events + goadEvents + advanceResult.events
         )
     }
 

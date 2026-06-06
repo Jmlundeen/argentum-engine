@@ -1154,6 +1154,8 @@ is PermanentsSacrificedEvent -> {
             is CreatureTypeChangedEvent,
             is BecomesTargetEvent,
             is SpellCopiedEvent,
+            is CreatureGoadedEvent,
+            is CreatureNoLongerGoadedEvent,
             is ClassLevelChangedEvent -> null
 
             is RoomFullyUnlockedEvent -> ClientEvent.RoomFullyUnlocked(

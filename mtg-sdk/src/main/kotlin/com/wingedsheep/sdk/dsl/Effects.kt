@@ -45,6 +45,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantToxicEffect
 import com.wingedsheep.sdk.scripting.effects.CantAttackGroupEffect
 import com.wingedsheep.sdk.scripting.effects.CantAttackEffect
 import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
+import com.wingedsheep.sdk.scripting.effects.GoadEffect
 import com.wingedsheep.sdk.scripting.effects.SetSuspectedEffect
 import com.wingedsheep.sdk.scripting.effects.CantBlockGroupEffect
 import com.wingedsheep.sdk.scripting.effects.CantActivateLoyaltyAbilitiesEffect
@@ -2062,6 +2063,16 @@ object Effects {
      */
     fun CantAttackOrBlock(target: EffectTarget = EffectTarget.ContextTarget(0), duration: Duration = Duration.EndOfTurn): Effect =
         CompositeEffect(listOf(CantAttackEffect(target, duration), CantBlockEffect(target, duration)))
+
+    /**
+     * Goad target creature (CR 701.15). Until the goader's next turn, the creature
+     * attacks each combat if able and attacks a player other than the goader if able.
+     * The goader is recorded as the controller of the effect at resolution; multiple
+     * goaders stack, and a goader re-goading their own already-goaded creature is a
+     * no-op (CR 701.15c-d).
+     */
+    fun Goad(target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
+        GoadEffect(target)
 
     /**
      * Target creature becomes suspected (CR 701.60): atomic composite of the

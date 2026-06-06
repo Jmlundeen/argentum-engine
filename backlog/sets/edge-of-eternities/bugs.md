@@ -7,5 +7,5 @@
 - Rust Harvester, +1/+1 counter is not applied if target is invalid
 - Wedgelight Rammer did not turn to creature
 - Spacecraft can attack 1 turn after being played
-
-- Auxiliary Boosters - equipment not attached
+- Auxiliary Boosters - equipment not auto-attached
+- Glacier Godmaw - Landfall not working

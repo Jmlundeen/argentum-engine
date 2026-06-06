@@ -515,6 +515,20 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   turn as though it didn't have defender. Adds a transient `CanAttackDespiteDefenderThisTurnComponent`
   honored by the defender attack-restriction rule and cleaned up at end of turn. The
   activated/temporary counterpart to the static `CanAttackDespiteDefender` ability (Krotiq Nestguard).
+- `Effects.Goad(target = ContextTarget(0))` (`GoadEffect`) — goad target creature (CR 701.15).
+  Tags the creature with `GoadedComponent(goaderIds: Set<EntityId>)`; the effect's controller at
+  resolution is recorded as the goader. While goaded the creature (a) must attack each combat if able
+  and (b) can't attack any player in `goaderIds` if a non-goader defender is available — both checks
+  live inline in `AttackPhaseManager.declareAttackers` alongside the must-attack-this-turn pass. The
+  goader set deduplicates, so the same player re-goading is a no-op (CR 701.15d); multiple distinct
+  goaders stack (CR 701.15c). After the untap step of each player's turn,
+  `CleanupPhaseManager.expireGoadedDesignationFor` drops that player from every goader set and
+  removes the component when the set is empty — same hook as the `Duration.UntilYourNextTurn`
+  floating-effect path, implementing the "until your next turn" duration (CR 701.15a). Surfaced to
+  the client as the `Goaded` badge on the
+  card (listing goader names) — there is no separate game-log event. Used by **Glóin, Dwarf
+  Emissary**: `Costs.Composite(Costs.Tap, Costs.Sacrifice(Artifact.withSubtype("Treasure"))):
+  Goad(target creature)`.
 - `SkipNextTurnEffect(target)` — target skips their next turn.
 - `Effects.SkipNextDrawStep(target = Controller)` (`SkipNextDrawStepEffect`) — target skips their next draw step. Adds a one-shot `SkipDrawStepComponent` marker consumed by `DrawPhaseManager.performDrawStep` (Elfhame Sanctuary's "you skip your draw step this turn").
 - `HijackNextTurnEffect(target)` — you control target's next turn.

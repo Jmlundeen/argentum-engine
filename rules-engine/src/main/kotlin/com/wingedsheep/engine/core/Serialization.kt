@@ -125,6 +125,8 @@ val engineSerializersModule = SerializersModule {
         subclass(TurnFaceUpEvent::class)
         subclass(TurnedFaceDownEvent::class)
         subclass(TransformedEvent::class)
+        subclass(CreatureGoadedEvent::class)
+        subclass(CreatureNoLongerGoadedEvent::class)
     }
 
     // PendingDecision hierarchy
@@ -392,6 +394,7 @@ val engineSerializersModule = SerializersModule {
         subclass(BlockersDeclaredThisCombatComponent::class)
         subclass(MustAttackPlayerComponent::class)
         subclass(MustAttackThisTurnComponent::class)
+        subclass(GoadedComponent::class)
         subclass(CanAttackDespiteDefenderThisTurnComponent::class)
         subclass(PlayerAttackedThisTurnComponent::class)
         subclass(PlayerAttackersThisTurnComponent::class)

@@ -512,6 +512,35 @@ data class DamageAssignedEvent(
     val assignments: Map<EntityId, Int>  // target -> damage amount
 ) : GameEvent
 
+/**
+ * A creature was goaded (CR 701.15). Emitted whenever a goader is newly added to
+ * the creature's goader set — repeat goads by the same player are silent
+ * (CR 701.15d) so this event fires at most once per (creature, goader) pair.
+ */
+@Serializable
+@SerialName("CreatureGoadedEvent")
+data class CreatureGoadedEvent(
+    val creatureId: EntityId,
+    val creatureName: String,
+    val goaderId: EntityId,
+    val goaderName: String
+) : GameEvent
+
+/**
+ * A creature's goaded designation lapsed (CR 701.15a). Emitted at the start of
+ * each goader's next turn as that player is removed from the creature's goader
+ * set, with [stillGoadedByPlayerIds] listing any goaders still in effect after
+ * the removal. When the set is empty, the [GoadedComponent] has been removed.
+ */
+@Serializable
+@SerialName("CreatureNoLongerGoadedEvent")
+data class CreatureNoLongerGoadedEvent(
+    val creatureId: EntityId,
+    val creatureName: String,
+    val expiredGoaderId: EntityId,
+    val stillGoadedByPlayerIds: Set<EntityId>
+) : GameEvent
+
 // =============================================================================
 // Turn/Phase Events
 // =============================================================================

@@ -24,6 +24,7 @@ class CombatExecutors(
         CantBlockExecutor(),
         RemoveFromCombatExecutor(),
         MarkMustAttackThisTurnExecutor(),
+        GoadExecutor(),
         CanAttackDespiteDefenderThisTurnExecutor(),
         RedirectNextDamageExecutor(),
         RedirectCombatDamageToControllerExecutor(),

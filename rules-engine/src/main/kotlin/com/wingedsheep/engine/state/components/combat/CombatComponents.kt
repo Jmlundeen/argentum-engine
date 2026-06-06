@@ -176,3 +176,26 @@ data object PlayerAttackedThisTurnComponent : Component
 data class PlayerAttackersThisTurnComponent(
     val attackerIds: Set<EntityId>
 ) : Component
+
+/**
+ * The creature carries the "goaded" designation (CR 701.15).
+ *
+ * Each entry in [goaderIds] is a player who has goaded this creature; the designation
+ * lasts until that player's next turn (CR 701.15a) — entries are removed by
+ * [com.wingedsheep.engine.core.CleanupPhaseManager.expireGoadedDesignationFor] after
+ * the untap step of that goader's next turn (same hook as the floating-effect
+ * `Duration.UntilYourNextTurn` path), and the whole component is removed when the set
+ * becomes empty.
+ *
+ * A goaded creature attacks each combat if able (handled by `AttackPhaseManager`'s
+ * mandatory-attacker validation) and must attack a player other than each goader if
+ * able (handled by per-creature defender validation). Multiple goaders compound those
+ * requirements (CR 701.15c); a player re-goading is a no-op via set semantics
+ * (CR 701.15d). The designation is neither an ability nor part of the permanent's
+ * copiable values (CR 701.15b), so it lives entirely as runtime state rather than as
+ * a card-definition static ability.
+ */
+@Serializable
+data class GoadedComponent(
+    val goaderIds: Set<EntityId>
+) : Component
