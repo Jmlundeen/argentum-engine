@@ -439,7 +439,7 @@ function formatDate(iso: string): string {
 
 const styles: Record<string, React.CSSProperties> = {
   pageContainer: {
-    minHeight: '100vh',
+    height: '100vh',
     backgroundColor: '#0a0a12',
     color: '#ccc',
     display: 'flex',
