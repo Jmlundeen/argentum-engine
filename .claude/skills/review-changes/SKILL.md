@@ -80,7 +80,7 @@ For every new SDK type the diff introduces (`Effect`, `StaticAbility`, `Trigger`
    layer/timing semantics not expressible in the AST.
 3. **Parameterized for the next card, not this one?** Constants baked in
    (`bonusPerType=1`, `maxBonus=10`, hardcoded subtype) → the next similar card forces
-   another type. Prefer a small generic primitive + DSL recipe in `EffectPatterns` /
+   another type. Prefer a small generic primitive + DSL recipe in a `*Patterns` object /
    `Conditions` / `Filters`.
 4. **Name matches semantics?** `CreatureTypeCount` that counts all subtypes is a name
    lie — rename and document the gap.

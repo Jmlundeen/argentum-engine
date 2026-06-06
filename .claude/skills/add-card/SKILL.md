@@ -100,7 +100,7 @@ unimplemented one.
 **Always prefer atomic effects over monolithic effects** for reusability.
 
 1. **Read [docs/architecture-principles.md](../../../docs/architecture-principles.md)** — understand the application architecture, design decisions, and how effects/executors/continuations fit together before implementing anything.
-2. **Read [docs/card-sdk-language-reference.md](../../../docs/card-sdk-language-reference.md)** — complete inventory of all DSL facades (`Effects.*`, `Targets.*`, `Triggers.*`, `Filters.*`, `Costs.*`, `Conditions.*`, `DynamicAmount.*`, `EffectPatterns.*`), raw effect types, keywords, static abilities, replacement effects, and more.
+2. **Read [docs/card-sdk-language-reference.md](../../../docs/card-sdk-language-reference.md)** — complete inventory of all DSL facades (`Effects.*`, `Targets.*`, `Triggers.*`, `Filters.*`, `Costs.*`, `Conditions.*`, `DynamicAmount.*`, `Patterns.*`), raw effect types, keywords, static abilities, replacement effects, and more.
 3. **Search existing cards** with similar mechanics: `grep -r "<keyword-or-effect>" mtg-sets/src/main/kotlin/`
 
 ## Step 3: Model the Card
@@ -131,7 +131,7 @@ unimplemented one.
 
 If the card needs effects, keywords, triggers, conditions, or static abilities that don't exist yet:
 
-**4.0 Always try atomic composition first** — Express behavior as `CompositeEffect` of existing effects or `EffectPatterns.*` helper. For library manipulation, use `GatherCards → SelectFromCollection → MoveCollection` pipeline. Only create new effect types when no composition works.
+**4.0 Always try atomic composition first** — Express behavior as `Effects.Composite` of existing effects or a `Patterns.*` recipe. For library manipulation, use `GatherCards → SelectFromCollection → MoveCollection` pipeline. Only create new effect types when no composition works.
 
 **If a new effect type is truly needed:**
 
@@ -510,8 +510,8 @@ If `backlog/sets/{set-name}/cards.md` exists:
 1. **Always fetch from Scryfall first** — Never guess card text or stats
 2. **ALWAYS use set-specific API URL** — `&set=<code>` for correct metadata per printing
 3. **NEVER hallucinate image URIs** — Use exact `image_uris.normal` from API, verified with HEAD request
-4. **Prefer atomic effects** — Compose from GatherCards/SelectFromCollection/MoveCollection via `EffectPatterns.*`
-5. **Check DSL facades first** — `Effects.*`, `Targets.*`, `Triggers.*`, `EffectPatterns.*` before raw types
+4. **Prefer atomic effects** — Compose from GatherCards/SelectFromCollection/MoveCollection via `Patterns.*`
+5. **Check DSL facades first** — `Effects.*`, `Targets.*`, `Triggers.*`, `Patterns.*` before raw types
 6. **Check existing effects** — Most common effects already exist; compose before creating new ones
 7. **Use immutable patterns** — Never modify state in place
 8. **Test new mechanics** — All new effects/keywords/triggers/conditions need scenario tests
