@@ -70,9 +70,11 @@ fun arg(name: String, text: String): Arg = Arg(Lit(text), name)
 fun call(callee: String, vararg args: Arg): Call = Call(callee, args.toList())
 
 /** `base.method(args…)` — a single-link chain. */
-fun Dsl.dot(method: String, vararg args: Arg): Chain =
-    if (this is Chain) Chain(base, links + Link(method, args.toList()))
-    else Chain(this, listOf(Link(method, args.toList())))
+fun Dsl.dot(method: String, vararg args: Arg): Chain = dot(Link(method, args.toList()))
+
+/** Append a pre-built [Link] to this receiver as a chain. */
+fun Dsl.dot(link: Link): Chain =
+    if (this is Chain) Chain(base, links + link) else Chain(this, listOf(link))
 
 // ---------------------------------------------------------------------------
 // Rendering — the single node → pre-wrap source text mapping.

@@ -8,6 +8,7 @@ import com.wingedsheep.tooling.coverage.asInt
 import com.wingedsheep.tooling.coverage.asStr
 import com.wingedsheep.tooling.coverage.call
 import com.wingedsheep.tooling.coverage.compact
+import com.wingedsheep.tooling.coverage.dot
 import com.wingedsheep.tooling.coverage.findInteger
 import com.wingedsheep.tooling.coverage.findRef
 import com.wingedsheep.tooling.coverage.findRefIn
@@ -156,8 +157,8 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
         }
     }
     if (gn == "TheNumberOfCardsOfTypeRevealedFromHandThisWay") {
-        val filter = revealedHandFilterDsl(node["args"]) ?: return null
-        return call("DynamicAmount.Count", arg("Player.TargetOpponent"), arg("Zone.HAND"), arg(Lit(filter)))
+        val filter = revealedHandFilterExpr(node["args"]) ?: return null
+        return call("DynamicAmount.Count", arg("Player.TargetOpponent"), arg("Zone.HAND"), arg(filter))
     }
     if (gn == "Multiply" && node["args"].asArr?.size == 2) {
         val arr = node["args"].asArr!!
@@ -190,8 +191,9 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
         // "for each Goblin/Bird/Elf on the battlefield": a creature subtype, which the land-oriented
         // search filter misses; otherwise fall back to the land/type search filter.
         val subtype = node.firstArgWordTagged("IsCreatureType")
-        val filter = if (subtype != null) "GameObjectFilter.Creature.withSubtype(\"$subtype\")" else landSearchFilterDsl(node)
-        return call("DynamicAmount.AggregateBattlefield", arg(player), arg(Lit(filter)))
+        val filter = if (subtype != null) Lit("GameObjectFilter.Creature").dot("withSubtype", arg("\"$subtype\""))
+                     else landSearchFilterExpr(node)
+        return call("DynamicAmount.AggregateBattlefield", arg(player), arg(filter))
     }
     return null
 }
