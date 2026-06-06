@@ -172,8 +172,8 @@ class TargetValidator {
         xValue: Int? = null
     ): String? {
         val error = when (requirement) {
-            is TargetPlayer -> validatePlayerTarget(state, target, casterId)
-            is TargetOpponent -> validateOpponentTarget(state, target, casterId)
+            is TargetPlayer -> validatePlayerTarget(state, target, requirement, casterId, sourceId)
+            is TargetOpponent -> validateOpponentTarget(state, target, requirement, casterId, sourceId)
             is AnyTarget -> validateAnyTarget(state, target, casterId)
             is TargetCreatureOrPlayer -> validateCreatureOrPlayerTarget(state, target, casterId)
             is TargetOpponentOrPlaneswalker -> validateOpponentOrPlaneswalkerTarget(state, target, casterId)
@@ -399,7 +399,13 @@ class TargetValidator {
         return null
     }
 
-    private fun validatePlayerTarget(state: GameState, target: ChosenTarget, casterId: EntityId): String? {
+    private fun validatePlayerTarget(
+        state: GameState,
+        target: ChosenTarget,
+        requirement: TargetPlayer,
+        casterId: EntityId,
+        sourceId: EntityId?
+    ): String? {
         if (target !is ChosenTarget.Player) {
             return "Target must be a player"
         }
@@ -412,10 +418,21 @@ class TargetValidator {
         if (playerHasHexproofAgainst(state, target.playerId, casterId)) {
             return "Target player has hexproof"
         }
+        // CR 608.2b: a target illegal at resolution is removed. Re-checking the restriction
+        // here covers both cast-time validation and the resolution-time re-validation.
+        if (!PlayerTargetRestriction.isSatisfied(state, requirement.restriction, target.playerId, casterId, sourceId)) {
+            return "Target player does not match: ${requirement.description}"
+        }
         return null
     }
 
-    private fun validateOpponentTarget(state: GameState, target: ChosenTarget, casterId: EntityId): String? {
+    private fun validateOpponentTarget(
+        state: GameState,
+        target: ChosenTarget,
+        requirement: TargetOpponent,
+        casterId: EntityId,
+        sourceId: EntityId?
+    ): String? {
         if (target !is ChosenTarget.Player) {
             return "Target must be a player"
         }
@@ -430,6 +447,9 @@ class TargetValidator {
         }
         if (playerHasHexproof(state, target.playerId)) {
             return "Target player has hexproof"
+        }
+        if (!PlayerTargetRestriction.isSatisfied(state, requirement.restriction, target.playerId, casterId, sourceId)) {
+            return "Target player does not match: ${requirement.description}"
         }
         return null
     }

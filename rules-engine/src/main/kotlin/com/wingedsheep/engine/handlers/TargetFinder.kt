@@ -11,6 +11,7 @@ import com.wingedsheep.engine.state.components.player.PlayerShroudComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
+import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -64,8 +65,8 @@ class TargetFinder(
         triggeringEntityId: EntityId? = null
     ): List<EntityId> {
         return when (requirement) {
-            is TargetPlayer -> findPlayerTargets(state, requirement, controllerId)
-            is TargetOpponent -> findOpponentTargets(state, controllerId)
+            is TargetPlayer -> findPlayerTargets(state, requirement, controllerId, sourceId)
+            is TargetOpponent -> findOpponentTargets(state, requirement, controllerId, sourceId)
             is AnyTarget -> findAnyTargets(state, controllerId, sourceId, targetingSourceType)
             is TargetCreatureOrPlayer -> findCreatureOrPlayerTargets(state, controllerId, sourceId, targetingSourceType)
             is TargetOpponentOrPlaneswalker -> findOpponentOrPlaneswalkerTargets(state, controllerId, sourceId, targetingSourceType)
@@ -91,17 +92,25 @@ class TargetFinder(
     private fun findPlayerTargets(
         state: GameState,
         requirement: TargetPlayer,
-        controllerId: EntityId
+        controllerId: EntityId,
+        sourceId: EntityId?
     ): List<EntityId> {
         return state.turnOrder.filter { playerId ->
             state.hasEntity(playerId) && !playerHasShroud(state, playerId) &&
-                !playerHasHexproofAgainst(state, playerId, controllerId)
+                !playerHasHexproofAgainst(state, playerId, controllerId) &&
+                PlayerTargetRestriction.isSatisfied(state, requirement.restriction, playerId, controllerId, sourceId)
         }
     }
 
-    private fun findOpponentTargets(state: GameState, controllerId: EntityId): List<EntityId> {
+    private fun findOpponentTargets(
+        state: GameState,
+        requirement: TargetOpponent,
+        controllerId: EntityId,
+        sourceId: EntityId?
+    ): List<EntityId> {
         return state.turnOrder.filter { it != controllerId && state.hasEntity(it) && !playerHasShroud(state, it) &&
-            !playerHasHexproof(state, it) }
+            !playerHasHexproof(state, it) &&
+            PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, controllerId, sourceId) }
     }
 
     /**

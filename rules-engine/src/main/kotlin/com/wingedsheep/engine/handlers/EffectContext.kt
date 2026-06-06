@@ -25,6 +25,13 @@ data class EffectContext(
     val sourceId: EntityId?,
     val controllerId: EntityId,
     val opponentId: EntityId?,
+    /**
+     * The player currently under consideration as a target, bound while evaluating a
+     * `TargetPlayer.restriction` / `TargetOpponent.restriction` (CR 115). Resolves
+     * [com.wingedsheep.sdk.scripting.references.Player.Candidate]. Null in every normal
+     * effect-resolution context — there is no candidate once an effect is executing.
+     */
+    val candidatePlayerId: EntityId? = null,
     val targets: List<ChosenTarget> = emptyList(),
     /**
      * The X chosen for an X-cost spell/ability. Also reused by `ChooseNumberThenEffect` to

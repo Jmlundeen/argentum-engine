@@ -6,6 +6,7 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.TargetInfo
 import com.wingedsheep.engine.mechanics.targeting.HexproofSuppression
+import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
@@ -39,9 +40,11 @@ class TargetEnumerationUtils(
     ): List<EntityId> {
         return when (requirement) {
             is TargetPlayer -> state.turnOrder.filter { state.hasEntity(it) && !playerHasShroud(state, it) &&
-                !playerHasHexproofAgainst(state, it, playerId) }
+                !playerHasHexproofAgainst(state, it, playerId) &&
+                PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, playerId, sourceId) }
             is TargetOpponent -> state.turnOrder.filter { it != playerId && state.hasEntity(it) && !playerHasShroud(state, it) &&
-                !playerHasHexproof(state, it) }
+                !playerHasHexproof(state, it) &&
+                PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, playerId, sourceId) }
             is AnyTarget -> {
                 val creatures = findValidPermanentTargets(state, playerId, TargetFilter.Creature, sourceId)
                 val planeswalkers = findValidPermanentTargets(state, playerId, TargetFilter.Planeswalker, sourceId)

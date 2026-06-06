@@ -723,6 +723,34 @@ object Conditions {
     val OpponentLostLifeThisTurn: ConditionInterface =
         trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LIFE_LOST, player = Player.Opponent)
 
+    // =========================================================================
+    // Candidate-player target restrictions (CR 115)
+    // =========================================================================
+    // These read [Player.Candidate] — "the player being considered as a target" — so they only
+    // belong inside `TargetPlayer.restriction` / `TargetOpponent.restriction`. The engine binds
+    // each candidate player to `Player.Candidate` while enumerating and (per CR 608.2b)
+    // re-validating targets. Used in a normal resolution/projection condition slot, the candidate
+    // is unbound and the condition is false.
+
+    /**
+     * Candidate-target restriction: the player being targeted lost life this turn.
+     * Backs "target player who lost life this turn" (Rix Maadi Guildmage).
+     */
+    fun candidateLostLifeThisTurn(): ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LIFE_LOST, player = Player.Candidate)
+
+    /**
+     * Candidate-target restriction: the player being targeted has [n] or less life.
+     * Backs "target player with N or less life". The restriction is re-checked at resolution
+     * (CR 608.2b), so a player who gains above the threshold after being targeted is removed.
+     */
+    fun candidateLifeAtMost(n: Int): ConditionInterface =
+        Compare(
+            DynamicAmount.LifeTotal(Player.Candidate),
+            ComparisonOperator.LTE,
+            DynamicAmount.Fixed(n)
+        )
+
     /**
      * If N or more cards left your graveyard this turn.
      */
