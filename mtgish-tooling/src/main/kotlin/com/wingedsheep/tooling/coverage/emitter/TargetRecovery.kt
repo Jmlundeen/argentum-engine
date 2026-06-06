@@ -15,8 +15,22 @@ import kotlinx.serialization.json.JsonObject
  * to SCAFFOLD rather than emitting a confidently-wrong target.
  */
 internal fun EmitCtx.creatureFilterDsl(filterNode: JsonElement?): String {
-    var suffix = ""
     val blob = compact(filterNode)
+    // Whole-creature shapes whose helpers live on GameObjectFilter (not TargetFilter), or are a named
+    // TargetFilter constant. ONS targets use these in isolation, so render them as the whole filter.
+    if ("IsAttacking" in blob && "IsBlocking" in blob) {
+        // "...with flying" composes onto the attacking-or-blocking base (Venomspout Brackus).
+        return if ("\"Flying\"" in blob) "TargetFilter(GameObjectFilter.Creature.attackingOrBlocking().withKeyword(Keyword.FLYING))"
+        else "TargetFilter.AttackingOrBlockingCreature"
+    }
+    if ("IsFaceDown" in blob) return "TargetFilter(GameObjectFilter.Creature.faceDown())"
+    // "Goblin creature" / "Elf or Soldier creature": one subtype -> withSubtype; several -> an Or of
+    // per-subtype creature filters (matches golden's distributed Or[And[IsCreature, HasSubtype X]…]).
+    val subs = Regex(""""IsCreatureType",\s*"args":\s*"(\w+)"""").findAll(blob).map { it.groupValues[1] }.toList()
+    if (subs.isNotEmpty()) {
+        return "TargetFilter(${subs.joinToString(" or ") { "GameObjectFilter.Creature.withSubtype(\"$it\")" }})"
+    }
+    var suffix = ""
     Regex(""""IsNonColor".*?"_Color":\s*"(\w+)"""").find(blob)?.let {
         suffix += ".notColor(Color.${it.groupValues[1].uppercase()})"
     }
@@ -28,6 +42,9 @@ internal fun EmitCtx.creatureFilterDsl(filterNode: JsonElement?): String {
     }
     if ("IsTapped" in blob) suffix += ".tapped()"
     if ("IsAttacking" in blob) suffix += ".attacking()"
+    Regex(""""PowerIs".*?"LessThanOrEqualTo".*?"Integer",\s*"args":\s*(\d+)""").find(blob)?.let {
+        suffix += ".powerAtMost(${it.groupValues[1]})"
+    }
     return "TargetFilter.Creature$suffix"
 }
 
@@ -134,7 +151,10 @@ internal fun EmitCtx.groupFilterDsl(filterNode: JsonElement?): String? {
     val filtered = gameObjectFilterDsl(filterNode) ?: return null
     val oracle = oracleText?.lowercase() ?: ""
     val args = mutableListOf(filtered)
-    if ("all other" in oracle || "each other" in oracle) args.add("excludeSelf = true")
+    // The IR's `Other(ThisPermanent)` is the authoritative "excludeSelf" signal; the oracle phrasing
+    // ("all other" / "each other" / "other ... creatures") is the fallback for shapes without it.
+    if (jsonContains(filterNode, "_Permanents", "Other") ||
+        "all other" in oracle || "each other" in oracle) args.add("excludeSelf = true")
     return "GroupFilter(${args.joinToString(", ")})"
 }
 
@@ -142,9 +162,13 @@ internal fun EmitCtx.gameObjectFilterDsl(filterNode: JsonElement?): String? {
     val blob = compact(filterNode)
     val types = targetTypes(filterNode)
     val subs = subtypes(filterNode)
+    // Creature subtypes come from IsCreatureType (subtypes() only collects land/card subtypes).
+    val creatureSubs = Regex(""""IsCreatureType",\s*"args":\s*"(\w+)"""").findAll(blob).map { it.groupValues[1] }.toList()
     var filtered = when {
         subs.isNotEmpty() && ("Land" in types || "IsLandType" in blob || "\"Land\"" in blob) ->
             "GameObjectFilter.Land.withSubtype(${subtypeArg(subs[0])})"
+        creatureSubs.isNotEmpty() && ("Creature" in types || "\"Creature\"" in blob) ->
+            "GameObjectFilter.Creature.withSubtype(${subtypeArg(creatureSubs[0])})"
         subs.isNotEmpty() && ("Creature" in types || "\"Creature\"" in blob) ->
             "GameObjectFilter.Creature.withSubtype(${subtypeArg(subs[0])})"
         types == setOf("Creature", "Land") -> "GameObjectFilter.CreatureOrLand"
@@ -173,6 +197,7 @@ internal fun EmitCtx.gameObjectFilterDsl(filterNode: JsonElement?): String? {
         filtered += ".powerAtLeast(${it.groupValues[1]})"
     }
     if ("IsTapped" in blob) filtered += ".tapped()"
+    if ("IsUntapped" in blob) filtered += ".untapped()"
     if ("IsAttacking" in blob) filtered += ".attacking()"
     if ("\"You\"" in blob) filtered += ".youControl()"
     if ("\"Opponent\"" in blob) filtered += ".opponentControls()"
@@ -192,6 +217,9 @@ internal fun EmitCtx.revealedHandFilterDsl(filterNode: JsonElement?): String? {
 
 internal fun EmitCtx.landSearchFilterDsl(filterNode: JsonElement?): String {
     val subs = subtypes(filterNode)
+    // Dual-land fetch ("a Swamp or Mountain card") -> Land + Or[HasSubtype…], i.e. withAnySubtype;
+    // golden factors IsLand out (unlike the distributed creature-subtype form).
+    if (subs.size >= 2) return "GameObjectFilter.Land.withAnySubtype(${subs.joinToString(", ") { "\"$it\"" }})"
     if (subs.isNotEmpty()) return "GameObjectFilter.Land.withSubtype(${subtypeArg(subs[0])})"
     val blob = compact(filterNode)
     val oracle = oracleText?.lowercase() ?: ""

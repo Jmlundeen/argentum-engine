@@ -60,6 +60,7 @@ internal fun EmitCtx.renderAction(node: JsonObject, tvar: String?): String? {
 /** Render a list of mtgish actions to one Effect (Composite if >1). Null if any can't render. */
 internal fun EmitCtx.renderEffectList(actions: List<JsonObject>, tvar: String?): String? {
     echoEffect(actions)?.let { return it }
+    becomeCreatureTypeEffect(actions, tvar)?.let { return it }
     val rendered = mutableListOf<String>()
     for (act in actions) {
         val r = renderAction(act, tvar)
@@ -136,6 +137,11 @@ internal fun EmitCtx.dynamicAmount(node: JsonElement?): String? {
         }
         return null
     }
+    // "...ThisWay" game-numbers count objects this resolution touched (e.g. Volcanic Eruption's
+    // "number of Mountains put into a graveyard this way"), not a current battlefield aggregate — a
+    // resolution-scoped count the AggregateBattlefield heuristic below can't express. Scaffold rather
+    // than misrender it as a battlefield tally. (Recognised "...ThisWay" shapes are handled above.)
+    if (gn != null && "ThisWay" in gn) return null
     if ((gn != null && "NumberOf" in gn) || gn == "TheNumberOfPermanentsOnTheBattlefield") {
         val oracle = oracleText?.lowercase() ?: ""
         if (" hand" in oracle || " in it" in oracle) return null
@@ -147,7 +153,11 @@ internal fun EmitCtx.dynamicAmount(node: JsonElement?): String? {
             jsonContains(node, "_Player", "Opponent") -> "Player.Opponent"
             else -> "Player.You"
         }
-        return "DynamicAmount.AggregateBattlefield($player, ${landSearchFilterDsl(node)})"
+        // "for each Goblin/Bird/Elf on the battlefield": a creature subtype, which the land-oriented
+        // search filter misses; otherwise fall back to the land/type search filter.
+        val subtype = Regex(""""IsCreatureType",\s*"args":\s*"(\w+)"""").find(compact(node))?.groupValues?.get(1)
+        val filter = if (subtype != null) "GameObjectFilter.Creature.withSubtype(\"$subtype\")" else landSearchFilterDsl(node)
+        return "DynamicAmount.AggregateBattlefield($player, $filter)"
     }
     return null
 }
@@ -212,6 +222,23 @@ internal fun EmitCtx.paycostDsl(costNode: JsonElement?): String? {
     }
     if ("Mana" in blob) return "Costs.pay.OwnManaCost"
     return null
+}
+
+/**
+ * [ChooseACreatureType, CreatePermanentLayerEffectUntil{AddCreatureTypeVariable}] -> a single
+ * `BecomeCreatureTypeEffect` ("becomes the creature type of your choice until end of turn"). Only the
+ * bare type-change (no riding +P/T or keyword grant) and only end-of-turn collapse to this effect.
+ */
+internal fun EmitCtx.becomeCreatureTypeEffect(actions: List<JsonObject>, tvar: String?): String? {
+    if (actions.none { it.strField("_Action") == "ChooseACreatureType" }) return null
+    val layer = actions.firstOrNull {
+        it.strField("_Action") in setOf("CreatePermanentLayerEffectUntil", "CreateEachPermanentLayerEffectUntil")
+    } ?: return null
+    if (!jsonContains(layer, "_LayerEffect", "AddCreatureTypeVariable")) return null
+    if (jsonContains(layer, "_LayerEffect", "AdjustPT") || jsonContains(layer, "_LayerEffect", "AddAbility")) return null
+    if (!jsonContains(layer, "_Expiration", "UntilEndOfTurn")) return null  // non-EOT -> SCAFFOLD
+    val target = refTarget(layer["args"], tvar) ?: return null
+    return "BecomeCreatureTypeEffect(target = $target)"
 }
 
 /** [MayCost(cost), Unless(CostWasPaid, [Sacrifice...])] -> PayOrSufferEffect (echo / upkeep cost). */

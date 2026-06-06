@@ -86,6 +86,21 @@ sealed interface Player {
         override val description: String = "that player"
     }
 
+    /**
+     * The player currently being considered as a target (CR 115). Bound by the engine's
+     * target enumerator/validator to each candidate player in turn while evaluating a
+     * [com.wingedsheep.sdk.scripting.targets.TargetPlayer.restriction] /
+     * [com.wingedsheep.sdk.scripting.targets.TargetOpponent.restriction]. It only resolves
+     * inside that restriction-evaluation context (where `EffectContext.candidatePlayerId`
+     * is set) — at effect-execution time there is no candidate, so it resolves to nothing.
+     * Reach it through the `Conditions.candidate*` facade rather than constructing it by hand.
+     */
+    @SerialName("Candidate")
+    @Serializable
+    data object Candidate : Player {
+        override val description: String = "that player"
+    }
+
     /** The player from the trigger context (e.g., player dealt combat damage) */
     @SerialName("TriggeringPlayer")
     @Serializable
@@ -127,6 +142,7 @@ sealed interface Player {
             EachOpponent -> "each opponent's"
             Any -> "a player's"
             is ContextPlayer -> "that player's"
+            Candidate -> "that player's"
             TriggeringPlayer -> "that player's"
             is ControllerOf -> "its controller's"
             is OwnerOf -> "its owner's"

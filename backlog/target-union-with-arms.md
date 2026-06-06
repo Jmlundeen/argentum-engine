@@ -206,10 +206,15 @@ addition for the new `@Serializable` types.
 
 ## 7. Suggested PR breakdown
 
-1. **Player target restriction (prerequisite).** Add `Player.Candidate`; add `restriction: Condition?` to
-   `TargetPlayer`/`TargetOpponent`; thread through `findPlayerTargets`/`findOpponentTargets` +
-   `validatePlayerTarget`; add `Conditions.candidate*` facade. Driving card: a real "target player with N
-   or less life" / "target opponent who controls a creature" card + scenario test.
+1. **Player target restriction (prerequisite).** ✅ **Done.** Added `Player.Candidate` +
+   `EffectContext.candidatePlayerId`; `restriction: Condition?` on `TargetPlayer`/`TargetOpponent`;
+   one `PlayerTargetRestriction.isSatisfied(...)` helper routed through all three target sites
+   (`TargetFinder`, `TargetEnumerationUtils`, and both `TargetValidator` + the resolution-time
+   `StackResolver.validateTargets` for the CR 608.2b re-check); `Conditions.candidateLostLifeThisTurn()`
+   / `candidateLifeAtMost(n)` facade. No real "N or less life" card exists (Scryfall confirms), so the
+   prerequisite is proven by `PlayerTargetRestrictionScenarioTest` with inline cards mirroring Rix Maadi
+   Guildmage's "target player who lost life this turn" ability; real consumers (Rix Maadi Guildmage, the
+   Oath cycle) land when their sets are added.
 2. **`TargetUnion` + `TargetArm`.** Add the SDK types (`@Serializable`, `SerialName`, `TextReplaceable`);
    add enumeration union + validation in `TargetFinder` / `TargetEnumerationUtils` / `TargetValidator`.
    Driving card: a "deal damage to target creature or player" card (and/or the criteria-bearing variant) +

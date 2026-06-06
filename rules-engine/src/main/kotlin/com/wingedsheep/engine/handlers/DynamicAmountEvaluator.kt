@@ -667,6 +667,7 @@ class DynamicAmountEvaluator(
                 val activePlayer = state.activePlayerId ?: return state.turnOrder
                 listOf(activePlayer) + state.turnOrder.filter { it != activePlayer }
             }
+            is Player.Candidate -> listOfNotNull(context.candidatePlayerId)
         }
     }
 

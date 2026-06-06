@@ -381,6 +381,7 @@ class ConditionEvaluator(
             is Player.EachOpponent -> controllerId?.let { c -> state.turnOrder.filter { it != c } } ?: emptyList()
             is Player.Each -> state.turnOrder
             is Player.Any -> state.turnOrder
+            is Player.Candidate -> listOfNotNull((ctx as? Resolution)?.effectContext?.candidatePlayerId)
             else -> controllerId?.let { listOf(it) } ?: emptyList()
         }
 
@@ -506,6 +507,7 @@ class ConditionEvaluator(
                 state.turnOrder.firstOrNull { it != c }
             }
             is Player.TriggeringPlayer -> (ctx as? Resolution)?.effectContext?.triggeringPlayerId
+            is Player.Candidate -> (ctx as? Resolution)?.effectContext?.candidatePlayerId
             else -> null
         }
     }

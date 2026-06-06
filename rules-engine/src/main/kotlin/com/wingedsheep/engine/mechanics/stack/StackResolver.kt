@@ -61,6 +61,7 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.mechanics.targeting.HexproofSuppression
+import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.engine.state.components.battlefield.CantBeTargetedByOpponentAbilitiesComponent
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -2081,8 +2082,18 @@ class StackResolver(
         return targets.filterIndexed { index, target ->
             when (target) {
                 is ChosenTarget.Player -> {
-                    // Player is valid if they exist and haven't lost
-                    state.hasEntity(target.playerId)
+                    // Player is valid if they exist and haven't lost...
+                    if (!state.hasEntity(target.playerId)) return@filterIndexed false
+                    // ...and (CR 608.2b) the player-target restriction still holds. A player who
+                    // gained life above the threshold, or whose "lost life this turn" never
+                    // happened, is removed at resolution.
+                    val requirement = getRequirementForTargetIndex(index, targetRequirements)
+                    val restriction = when (requirement) {
+                        is TargetPlayer -> requirement.restriction
+                        is TargetOpponent -> requirement.restriction
+                        else -> null
+                    }
+                    PlayerTargetRestriction.isSatisfied(state, restriction, target.playerId, controllerId, sourceId)
                 }
 
                 is ChosenTarget.Permanent -> {

@@ -880,6 +880,36 @@ Every `TargetRequirement` carries count semantics (defaults shown):
   `TargetObject(count = 2, optional = true, filter = TargetFilter.CardInGraveyard, sameOwner = true)`
   (Arashin Sunshield).
 
+### Player-target restrictions (`TargetPlayer.restriction` / `TargetOpponent.restriction`)
+
+A `TargetPlayer` / `TargetOpponent` can carry `restriction: Condition?` — a gate each candidate
+player must satisfy to be a legal target ("target player who lost life this turn", "target player
+with 10 or less life"). The restriction is evaluated against each player with
+`Player.Candidate` bound to that player, in all three target paths: legal-target enumeration,
+cast/activation validation, and the CR 608.2b re-check at resolution (a target whose restriction
+stopped holding — e.g. gained life above the threshold — is removed, fizzling a single-target spell).
+
+Author the restriction through the `Conditions.candidate*` facade (never hand-write `Player.Candidate`):
+
+- `Conditions.candidateLostLifeThisTurn()` — the targeted player lost life this turn (Rix Maadi Guildmage).
+- `Conditions.candidateLifeAtMost(n)` — the targeted player has `n` or less life.
+
+Because `Condition` descriptions don't read as English relative clauses, pass `descriptionOverride`
+whenever `restriction` is set:
+
+```kotlin
+target(
+    "target player who lost life this turn",
+    TargetPlayer(
+        restriction = Conditions.candidateLostLifeThisTurn(),
+        descriptionOverride = "target player who lost life this turn",
+    ),
+)
+```
+
+This is the player-arm prerequisite for the planned composable mixed `TargetUnion` (see
+`backlog/target-union-with-arms.md`).
+
 ---
 
 ## 7. Filters & predicates

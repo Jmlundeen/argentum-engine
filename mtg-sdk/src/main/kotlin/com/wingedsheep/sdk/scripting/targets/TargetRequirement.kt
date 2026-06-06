@@ -2,6 +2,7 @@ package com.wingedsheep.sdk.scripting.targets
 
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -52,6 +53,14 @@ sealed interface TargetRequirement : TextReplaceable<TargetRequirement> {
 
 /**
  * Target player (any player).
+ *
+ * [restriction], when non-null, is a [Condition] that each candidate player must satisfy to be a
+ * legal target ("target player who lost life this turn", "target player with 10 or less life").
+ * It is evaluated against each player with [Player.Candidate] bound to that player, both when
+ * enumerating legal targets and — per CR 608.2b — re-checked at resolution, so a target whose
+ * restriction stopped holding is removed. Author it through the `Conditions.candidate*` facade.
+ * Because condition descriptions don't read as English relative clauses, pass
+ * [descriptionOverride] (e.g. "target player who lost life this turn") whenever [restriction] is set.
  */
 @SerialName("TargetPlayer")
 @Serializable
@@ -60,6 +69,7 @@ data class TargetPlayer(
     override val optional: Boolean = false,
     override val unlimited: Boolean = false,
     override val id: String? = null,
+    val restriction: Condition? = null,
     private val descriptionOverride: String? = null
 ) : TargetRequirement {
     override val description: String = descriptionOverride
@@ -68,19 +78,35 @@ data class TargetPlayer(
             count == 1 -> "target player"
             else -> "target $count players"
         }
+
+    override fun applyTextReplacement(replacer: TextReplacer): TargetRequirement {
+        val newRestriction = restriction?.applyTextReplacement(replacer)
+        return if (newRestriction !== restriction) copy(restriction = newRestriction) else this
+    }
 }
 
 /**
  * Target opponent only.
+ *
+ * See [TargetPlayer.restriction] — [restriction] applies the same per-candidate gate, scoped to
+ * opponents of the controller.
  */
 @SerialName("TargetOpponent")
 @Serializable
 data class TargetOpponent(
     override val count: Int = 1,
     override val optional: Boolean = false,
-    override val id: String? = null
+    override val id: String? = null,
+    val restriction: Condition? = null,
+    private val descriptionOverride: String? = null
 ) : TargetRequirement {
-    override val description: String = if (count == 1) "target opponent" else "target $count opponents"
+    override val description: String = descriptionOverride
+        ?: if (count == 1) "target opponent" else "target $count opponents"
+
+    override fun applyTextReplacement(replacer: TextReplacer): TargetRequirement {
+        val newRestriction = restriction?.applyTextReplacement(replacer)
+        return if (newRestriction !== restriction) copy(restriction = newRestriction) else this
+    }
 }
 
 // =============================================================================

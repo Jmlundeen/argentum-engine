@@ -107,13 +107,37 @@ object Fidelity {
     private class SetScore {
         val tiers = mapOf("AUTO" to mutableListOf<String>(), "SCAFFOLD" to mutableListOf(), "MISS" to mutableListOf(), "UNMATCHED" to mutableListOf())
         val missTax = Counter<String>(); val scaffoldReasons = Counter<String>(); val recalls = mutableListOf<Double>()
+        // Per-card detail for `--list`: a MISS card's unmapped caps, a SCAFFOLD card's reasons.
+        val cardDetail = LinkedHashMap<String, List<String>>()
         var code = ""; var total = 0; var matched = 0
         val avgRecall: Double get() = if (recalls.isEmpty()) 0.0 else recalls.sum() / recalls.size * 100
     }
 
-    private fun scoreSet(code: String, effects: Set<String>, keywords: Set<String>): SetScore {
+    /** Capability tiers for one set, vs its committed golden snapshot — null if the set has no snapshot. */
+    data class FidelitySummary(
+        val matched: Int, val auto: Int, val scaffold: Int, val miss: Int, val unmatched: Int, val avgRecall: Double,
+    )
+
+    /**
+     * Safe, dashboard-facing summary: returns null (instead of exiting the process) for sets without a
+     * committed golden snapshot. Pass a preloaded mtgish [idx] to reuse a shared index pass.
+     */
+    fun summarizeOrNull(code: String, effects: Set<String>, keywords: Set<String>, idx: Map<String, JsonObject>? = null): FidelitySummary? {
+        if (!java.io.File(SNAP_DIR, "${code.uppercase()}.json").exists()) return null
+        val s = scoreSet(code, effects, keywords, idx)
+        return FidelitySummary(
+            matched = s.matched,
+            auto = s.tiers["AUTO"]!!.size,
+            scaffold = s.tiers["SCAFFOLD"]!!.size,
+            miss = s.tiers["MISS"]!!.size,
+            unmatched = s.tiers["UNMATCHED"]!!.size,
+            avgRecall = s.avgRecall,
+        )
+    }
+
+    private fun scoreSet(code: String, effects: Set<String>, keywords: Set<String>, idx: Map<String, JsonObject>? = null): SetScore {
         val truth = parseSnapshot(code)
-        val mtgish = Mtgish.loadMtgishIndex(truth.keys)
+        val mtgish = idx ?: Mtgish.loadMtgishIndex(truth.keys)
         val s = SetScore()
         for (name in truth.keys.sorted()) {
             val mt = mtgish[name]
@@ -126,6 +150,8 @@ object Fidelity {
             s.recalls.add(recall)
             missing.forEach { s.missTax.add(it) }
             if (tier == "SCAFFOLD") res.reasons.forEach { s.scaffoldReasons.add(it) }
+            if (tier == "MISS") s.cardDetail[name] = missing.sorted()
+            else if (tier == "SCAFFOLD") s.cardDetail[name] = res.reasons.sorted()
         }
         s.code = code.uppercase()
         s.total = s.tiers.values.sumOf { it.size }
@@ -174,7 +200,11 @@ object Fidelity {
         if (listTier != null) {
             val names = s.tiers[listTier.uppercase()] ?: emptyList()
             println("\n${listTier.uppercase()} (${names.size}):")
-            names.forEach { println("  - $it") }
+            names.forEach { name ->
+                val detail = s.cardDetail[name]
+                if (detail.isNullOrEmpty()) println("  - $name")
+                else println("  - ${name.padEnd(28)} ${detail.joinToString(", ", "[", "]")}")
+            }
         }
         return 0
     }

@@ -8,6 +8,7 @@ It is analysis and generation tooling, not a runtime dependency and not a card l
 Run through `just` from the repo root:
 
 ```bash
+just coverage-dashboard          # interactive TUI over everything below
 just coverage --set POR
 just coverage-fidelity --set POR
 just coverage-verify POR
@@ -15,13 +16,50 @@ just coverage-generate --set TMP
 just coverage-refresh-set POR
 ```
 
-The installed CLI has three subcommands:
+The installed CLI has four subcommands:
 
 ```bash
-mtgish-tooling probe     # coverage: can the SDK/engine express a card?
-mtgish-tooling fidelity  # calibration: does generated output match implemented cards?
-mtgish-tooling autogen   # write generated Kotlin drafts
+mtgish-tooling probe      # coverage: can the SDK/engine express a card?
+mtgish-tooling fidelity   # calibration: does generated output match implemented cards?
+mtgish-tooling autogen    # write generated Kotlin drafts
+mtgish-tooling dashboard  # interactive TUI (probe + autogen + a cross-set capability index)
 ```
+
+## Dashboard (TUI)
+
+`just coverage-dashboard` is a navigable, two-pane terminal UI over the same analysis the CLIs print
+— no flags. It composes the existing per-card primitives (`Probe.analyze`, `Emitter.renderCard`)
+rather than re-implementing coverage logic, and memoizes per-set results so a keypress never recomputes.
+
+- **Title** — corpus totals: implemented / total, and `+N auto-gen ready` (cards the generator can
+  render whole). The figure sums only the sets analyzed so far and grows as you browse; `f` (or
+  launching with `--scan`) analyzes every set up front so it's complete.
+- **Left pane** — every set (implemented ∪ Scryfall-cached) with its full name and release year,
+  sorted newest-first by default (`s` toggles alphabetical), showing `implemented/total` and `gN`
+  auto-gen coverage (cards the generator renders whole, `g?` until that set is analyzed). `/` searches
+  sets by name or code.
+- **Right pane** — the selected set's `implemented / auto-gen / free-to-add / blocked` breakdown.
+  **Auto-gen** spans *all* cards (implemented included) so a 100%-implemented set still shows how much
+  the generator could reproduce; **free-to-add** is the missing-card backlog. Plus the feature
+  leaderboard of engine work ranked by how many blocked cards it would unlock, and (for snapshot sets)
+  the golden-fidelity tiers.
+- **Drill in** (`→`/`enter`) — the set's card list, coloured by the generator's verdict (green WHOLE,
+  yellow SCAFFOLD, red BLOCKED) with a marker for implemented (`✓`) vs new (`+`/`~`/`✗`); a red `✓` is
+  an implemented card the generator *can't* reproduce. Filter with `/`.
+- **Card detail** — two tabs (`tab` to switch): **Kotlin** shows the emitter's generated `cardDef`
+  DSL, syntax-highlighted, above a `⚠ missing mappings` block listing the still-unmapped capabilities;
+  **capabilities** lists every required capability with its verdict + which sets implement the card.
+- **`c`** — the cross-set capability index: every set's leaderboard rolled into one ranking of "what
+  engine work unlocks the most cards everywhere" (computed on demand, with a progress bar).
+- **`f` / `--scan`** — full scan: analyze every set up front (fills all `gN` counts + the global
+  total; also makes `c` instant).
+- Keys: `↑↓`/`jk` move · `→`/`enter` drill in · `←`/`esc` back · `tab` Kotlin/capabilities · `/`
+  search/filter · `s` sort · `f` scan-all · `r` fetch a set from Scryfall · `c` cross-set · `q` quit.
+  Needs an interactive terminal (drives `/dev/tty` via `stty`).
+
+The dashboard adds no runtime dependency — it uses raw ANSI escapes and `stty` raw mode
+(`dashboard/Tui.kt`), keeping the module dependency-light. `dashboard --render` prints static frames
+to stdout (no raw mode) for smoke-testing outside a live terminal.
 
 ## Data Flow
 
@@ -129,6 +167,29 @@ The generator must be conservative:
 - If a target, filter, amount, cost, gate, or choice cannot be rendered exactly, return `null` and scaffold.
 - `coverage-verify` is the regression gate: generated cards must compile and gameplay-tree match calibrated snapshots.
 - When golden snapshots disagree with current Scryfall oracle text, the gate reports `GOLDEN DRIFT SUSPECTED` instead of treating the generated output as wrong.
+
+## ⚠ Creator's note: extra costs & chosen / inherited values
+
+> A warning from the creator about what the engine underneath this tooling does *not* handle cleanly
+> yet — so you don't trust an emitted card in this space without a scenario test, and so you know
+> where help is wanted.
+>
+> The spell-casting / ability-activation path is still **sloppy around extra costs and value
+> selection**. Three things in particular:
+>
+> - **Extra (additional) costs** — costs declared and paid alongside the mana cost.
+> - **Choosing values at cast/activation time** — X, a chosen creature type, a chosen color, etc.
+> - **Inheriting a chosen value into later effects** — e.g. *"When ~ enters, draw X cards"* where `X`
+>   must be the same `X` that was chosen when the creature was cast.
+>
+> Forge models this with a **`declare` directive** for the choices plus some hidden bookkeeping that
+> carries `X` forward; we don't have a clean equivalent. So the emitter should keep returning `null`
+> (→ `SCAFFOLD`) for these shapes rather than guessing, and a "complete render" touching them still
+> needs a scenario test before you trust it.
+>
+> **This is an open area the creator wants to fix and welcomes suggestions on** — a proper
+> declare-the-choices mechanism and a way to thread a cast-time `X`/chosen value into later triggered
+> and resolved effects. If you're touching it, that's the design to aim for.
 
 ## Source Refreshes
 
