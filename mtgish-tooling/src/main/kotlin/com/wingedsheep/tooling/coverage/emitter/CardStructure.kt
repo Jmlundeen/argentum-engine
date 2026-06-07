@@ -599,6 +599,7 @@ internal fun EmitCtx.abilityCostDsl(node: JsonElement?): String? {
         // "{X}{G}{G}" activation cost — args are [symbol-list, the X game number]; render the symbol list
         // (ManaCostX -> "{X}") as the mana cost (Silklash Spider).
         "PayManaX" -> renderMana((obj["args"].asArr)?.getOrNull(0)).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }
+        "DiscardACard" -> "Costs.DiscardCard"  // "Discard a card" (Patchwork Gnomes)
         "DiscardHand" -> "Costs.DiscardHand"  // "Discard your hand" (Slate of Ancestry)
         // "Discard a card at random" — a fixed, no-choice cost (the engine picks): Costs.DiscardAtRandom(1).
         // It carries no value selection / X / inherited choice, so it is safe to render exactly (Canyon Drake).
@@ -664,6 +665,15 @@ private fun EmitCtx.activationRestrictionLines(rule: JsonObject): List<String>? 
             "        )",
         )
     }
+    // "Activate only if you have no cards in hand" (Fool's Tome): an ActivateOnlyIf whose condition is
+    // "you have exactly 0 cards in hand". Match the precise shape (the You player + NumCardsInHandIs ==
+    // Integer 0) so any other hand-count gate or player still scaffolds.
+    if ("ActivateOnlyIf" in blob && "NumCardsInHandIs" in blob &&
+        jsonContains(rule, "_Player", "You") && jsonContains(rule, "_Comparison", "EqualTo") &&
+        emptyHandModifier(rule)
+    ) {
+        return listOf("        restrictions = listOf(ActivationRestriction.OnlyIfCondition(Conditions.EmptyHand))")
+    }
     // "Activate only if it's not your turn" (Ghost Town): the sole modifier is an ActivateOnlyIf whose
     // condition is IsAPlayersTurn over a player Other than you -> ActivationRestriction.OnlyIfCondition(
     // IsNotYourTurn). Match the exact shape so any other ActivateOnlyIf condition still scaffolds.
@@ -694,4 +704,18 @@ private fun EmitCtx.activationRestrictionLines(rule: JsonObject): List<String>? 
     }
     reasons.add("activated-modifiers")
     return null
+}
+
+/** True when the rule's only `_ActivateModifier` is an `ActivateOnlyIf` gating on "you have exactly 0
+ *  cards in hand" — and nothing else. Guards the EmptyHand restriction so a different count (e.g. "no
+ *  more than N") or an extra modifier still scaffolds. */
+private fun EmitCtx.emptyHandModifier(rule: JsonObject): Boolean {
+    val modifiers = (rule["args"].asArr ?: emptyList()).filterIsInstance<JsonObject>()
+        .filter { it.strField("_ActivateModifier") != null }
+    if (modifiers.size != 1) return false
+    val mod = modifiers.single()
+    if (mod.strField("_ActivateModifier") != "ActivateOnlyIf") return false
+    if (!jsonContains(mod, "_Players", "NumCardsInHandIs")) return false
+    // The compared count must be the literal Integer 0 — not X, not another number.
+    return (findInteger(mod.field("args")) as? Int) == 0
 }
