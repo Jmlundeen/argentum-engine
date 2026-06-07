@@ -165,6 +165,52 @@
     ]
 }
 
+// Clergy en-Vec
+{
+    "name": "Clergy en-Vec",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Cleric",
+    "oracleText": "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "PreventDamageShield",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "14",
+        "artist": "Heather Hudson",
+        "flavorText": "\"Faith's shield is hammered out by the blows of unbelievers.\"\n—Oracle en-Vec",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/c/fcb0e068-16d0-4e1c-acad-0a6d34148c5a.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Dauthi Slayer
 {
     "name": "Dauthi Slayer",
@@ -830,6 +876,53 @@
                 "text": "The ability only triggers when one or more creatures attack you. It will not trigger on creatures attacking a planeswalker you control."
             }
         ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Orim, Samite Healer
+{
+    "name": "Orim, Samite Healer",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Legendary Creature — Human Cleric",
+    "oracleText": "{T}: Prevent the next 3 damage that would be dealt to any target this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "PreventDamageShield",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "33",
+        "rarity": "RARE",
+        "artist": "Kaja Foglio",
+        "flavorText": "\"The silkworm spins itself a new existence. So the healer weaves the threads of life.\"\n—Orim, Samite healer",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/7086d077-f083-4870-8b0b-2d34aca49df1.jpg"
     },
     "colorIdentityOverride": [
         "WHITE"

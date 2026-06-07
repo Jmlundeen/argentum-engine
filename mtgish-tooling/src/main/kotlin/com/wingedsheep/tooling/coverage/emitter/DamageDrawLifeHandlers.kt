@@ -8,6 +8,7 @@ import com.wingedsheep.tooling.coverage.asArr
 import com.wingedsheep.tooling.coverage.call
 import com.wingedsheep.tooling.coverage.findInteger
 import com.wingedsheep.tooling.coverage.jsonContains
+import com.wingedsheep.tooling.coverage.objects
 import com.wingedsheep.tooling.coverage.strField
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -136,6 +137,51 @@ internal val damageDrawLifeHandlers: Map<String, ActionHandler> = actionHandlers
         val inner = asReplacementActions(a.getOrNull(1)) ?: return@on null
         val edsl = renderEffectList(inner, tvar) ?: return@on null
         call("Effects.ReplaceNextDraw", arg(edsl))
+    }
+
+    // "{cost}: Prevent the next N damage that would be dealt to <recipient> this turn." (Daru Healer,
+    // Samite Healer, the Circles' "to you" mode, Healing Salve, …) — the damage twin of the draw
+    // replacement above. Only the fixed-amount "prevent that damage" shape maps to PreventNextDamage:
+    //  - the event is the next-AMOUNT-to-recipient form (the next-TIME / by-source / distributed events
+    //    are different prevention shapes we don't render here),
+    //  - the amount is a literal (a cast-time `X` prevention can't be threaded — see the creator's note),
+    //  - the single replacement is PreventThatDamage (redirect / gain-life / instead variants scaffold),
+    //  - the recipient resolves to a target we render exactly.
+    on("CreateFutureReplaceWouldDealDamage") { _, args, tvar ->
+        val a = args.asArr ?: return@on null
+        val event = a.getOrNull(0) as? JsonObject ?: return@on null
+        if (!jsonContains(event, "_FutureReplacableEventWouldDealDamage",
+                "NextAmountOfDamageThatWouldBeDealtThisTurnToRecipient")) return@on null
+        val repl = a.getOrNull(1) as? JsonArray ?: return@on null
+        if (repl.size != 1 ||
+            (repl[0] as? JsonObject)?.strField("_ReplacementActionWouldDealDamage") != "PreventThatDamage")
+            return@on null
+        val amount = findInteger(event) as? Int ?: return@on null  // X / "all" -> SCAFFOLD
+        val target = damagePreventionRecipient(event, tvar) ?: return@on null
+        call("Effects.PreventNextDamage", arg("$amount"), arg(Lit(target)))
+    }
+}
+
+/** Resolve the damage recipient of a `NextAmountOfDamage…ToRecipient` event to an EffectTarget DSL:
+ *  a bound target ref -> the ability's target local [tvar]; "you" -> the controller; this permanent ->
+ *  self. Returns null for recipients we can't render exactly (distributed, host permanent, or a bound
+ *  target ref with no target rendered), so the card scaffolds rather than prevent damage to the wrong
+ *  thing. */
+private fun damagePreventionRecipient(event: JsonObject, tvar: String?): String? {
+    val recip = event.objects().firstOrNull { it.containsKey("_SingleDamageRecipient") } ?: return null
+    return when (recip.strField("_SingleDamageRecipient")) {
+        "Ref_AnyTarget", "Ref_TargetPlayerOrPermanent" -> tvar
+        "Permanent" -> when (recip["args"].strField("_Permanent")) {
+            "Ref_TargetPermanent" -> tvar
+            "ThisPermanent" -> "EffectTarget.Self"
+            else -> null
+        }
+        "Player" -> when (recip["args"].strField("_Player")) {
+            "You" -> "EffectTarget.Controller"
+            "Ref_TargetPlayer" -> tvar
+            else -> null
+        }
+        else -> null  // DistributedAnyTarget, host permanent, …
     }
 }
 
