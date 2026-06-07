@@ -1,0 +1,26 @@
+// Harmonize
+{
+    "name": "Harmonize",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Draw three cards.",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": {
+                "type": "Fixed",
+                "amount": 3
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "rarity": "UNCOMMON",
+        "artist": "Rob Alexander",
+        "flavorText": "\"Life's greatest lessons don't come from focus or concentration. They come from breathing and simply noticing.\"\n—Seton, centaur druid",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/b/4b90dbd0-4672-4c0b-92eb-262ddd11cd32.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}

@@ -1,0 +1,129 @@
+// Fencing Ace
+{
+    "name": "Fencing Ace",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "Double strike (This creature deals both first-strike and regular combat damage.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "DOUBLE_STRIKE"
+    ],
+    "metadata": {
+        "collectorNumber": "11",
+        "rarity": "UNCOMMON",
+        "artist": "David Rapoza",
+        "flavorText": "His prowess gives the guildless hope that they can hold out against tyranny.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/4/a42d3066-f4ec-4d28-83ab-e48141206c72.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Rogue's Passage
+{
+    "name": "Rogue's Passage",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{4}, {T}: Target creature can't be blocked this turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{4}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "CANT_BE_BLOCKED",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "245",
+        "rarity": "UNCOMMON",
+        "artist": "Christine Choi",
+        "flavorText": "Rumors quickly spread among thieves about a labyrinth without walls and a prize beyond all measures of worth.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/4/f416e36a-15cb-43c8-b27f-82f65a95ddef.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
+// Transguild Promenade
+{
+    "name": "Transguild Promenade",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped.\nWhen this land enters, sacrifice it unless you pay {1}.\n{T}: Add one mana of any color.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": "OwnManaCost",
+                    "suffer": "SacrificeSelf"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "249",
+        "artist": "Noah Bradley",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/90ce8115-41fe-44c2-8719-741ba87bcb17.jpg"
+    },
+    "colorIdentityOverride": []
+}

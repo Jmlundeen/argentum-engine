@@ -1,0 +1,77 @@
+// Simic Signet
+{
+    "name": "Simic Signet",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{1}, {T}: Add {G}{U}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{1}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "GREEN"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLUE"
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "166",
+        "artist": "Greg Hildebrandt",
+        "flavorText": "For the Simic Combine, its sigil serves not as an emblem of honor but as a trademark. Its familiar image on any biological commodity attests to superb craftsmanship, ingenious innovation, and higher cost.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/90107d10-e2aa-4cb7-a000-039f0c581b47.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "GREEN"
+    ]
+}
+
+// Simic Sky Swallower
+{
+    "name": "Simic Sky Swallower",
+    "manaCost": "{5}{G}{U}",
+    "typeLine": "Creature — Leviathan",
+    "oracleText": "Flying, trample\nShroud (This creature can't be the target of spells or abilities.)",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING",
+        "TRAMPLE",
+        "SHROUD"
+    ],
+    "metadata": {
+        "collectorNumber": "130",
+        "rarity": "RARE",
+        "artist": "rk post",
+        "flavorText": "\"We've bred out the shortcomings of the species' natural form and replaced them with assets of our own design.\"\n—Momir Vig",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/6/f625b270-f560-402b-b253-51951822ce42.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "GREEN"
+    ]
+}

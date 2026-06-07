@@ -1,0 +1,94 @@
+// Captain's Call
+{
+    "name": "Captain's Call",
+    "manaCost": "{3}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create three 1/1 white Soldier creature tokens.",
+    "script": {
+        "spellEffect": {
+            "type": "CreateToken",
+            "count": {
+                "type": "Fixed",
+                "amount": 3
+            },
+            "power": 1,
+            "toughness": 1,
+            "colors": [
+                "WHITE"
+            ],
+            "creatureTypes": [
+                "Soldier"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "9",
+        "artist": "Greg Staples",
+        "flavorText": "\"Who among you has the courage to face certain death? Who will heed my call?\"\n—Rayel Vanger, Firstblade of Thune",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/9/79258432-ea35-4f2a-9e4a-4abb53f335c6.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Murder
+{
+    "name": "Murder",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target creature.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "101",
+        "artist": "Allen Williams",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/8/c8676f02-cf1e-4d40-a0c5-6e5a97417898.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Sentinel Spider
+{
+    "name": "Sentinel Spider",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Creature — Spider",
+    "oracleText": "Vigilance, reach",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "VIGILANCE",
+        "REACH"
+    ],
+    "metadata": {
+        "collectorNumber": "189",
+        "artist": "Vincent Proce",
+        "flavorText": "\"Your first reaction may be to stand very still and hope she didn't see you. Trust me, she did.\"\n—Endril, Kalonian naturalist",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/f/5f55ff4b-f0e1-498b-982b-e6ec01d30d95.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}

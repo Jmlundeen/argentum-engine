@@ -1,3 +1,63 @@
+// Brazen Freebooter
+{
+    "name": "Brazen Freebooter",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Human Pirate",
+    "oracleText": "When this creature enters, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "95",
+        "artist": "Randy Gallegos",
+        "flavorText": "Finders, keepers.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/e/aeb3d3b6-6805-4476-aea1-a95c31bd21d7.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Goblin Trailblazer
+{
+    "name": "Goblin Trailblazer",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin Pirate",
+    "oracleText": "Menace (This creature can't be blocked except by two or more creatures.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "metadata": {
+        "collectorNumber": "105",
+        "artist": "Josh Hass",
+        "flavorText": "\"Why are we following the goblin? Can he even read that map?\"\n—Daphne Vail, Diremore first mate",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/5/152b2d16-bdf5-4249-9dc1-bb51498aa33b.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Path of Discovery
 {
     "name": "Path of Discovery",

@@ -1,0 +1,54 @@
+// Kodama's Reach
+{
+    "name": "Kodama's Reach",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery — Arcane",
+    "oracleText": "Search your library for up to two basic land cards, reveal those cards, put one onto the battlefield tapped and the other into your hand, then shuffle.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "basicland"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "225",
+        "artist": "Heather Hudson",
+        "flavorText": "\"The land grows only where the kami will it.\"\n—Dosan the Falling Leaf",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/5/85d207ac-0680-47ef-85d9-4323c1321d6f.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}

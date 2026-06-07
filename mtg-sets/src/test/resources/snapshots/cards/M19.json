@@ -1,0 +1,157 @@
+// Angel of the Dawn
+{
+    "name": "Angel of the Dawn",
+    "manaCost": "{4}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nWhen this creature enters, creatures you control get +1/+1 and gain vigilance until end of turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEachInGroup",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "target": "Self"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "VIGILANCE",
+                                "target": "Self"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "artist": "Livia Prima",
+        "flavorText": "She sings for all those who have been silenced.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/4/f4bae0e4-1143-4dc4-afb1-e6b4201ff101.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Meteor Golem
+{
+    "name": "Meteor Golem",
+    "manaCost": "{7}",
+    "typeLine": "Artifact Creature — Golem",
+    "oracleText": "When this creature enters, destroy target nonland permanent an opponent controls.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "nonland permanent"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "241",
+        "rarity": "UNCOMMON",
+        "artist": "Lake Hurwitz",
+        "flavorText": "The impact sent the soldiers scattering—then something came out of the crater.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1bdb0b15-d651-4730-8be9-d0e01145311b.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
+// Trusty Packbeast
+{
+    "name": "Trusty Packbeast",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Beast",
+    "oracleText": "When this creature enters, return target artifact card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "41",
+        "artist": "John Stanko",
+        "flavorText": "\"Margaret has traveled with me to the end of the world and back.\"\n—Hewen Frit, merchant",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/3/8320e35b-15b9-4f98-b9b8-9c951696408b.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

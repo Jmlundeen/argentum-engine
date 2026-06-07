@@ -1,0 +1,78 @@
+// Silverback Shaman
+{
+    "name": "Silverback Shaman",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Creature — Ape Shaman",
+    "oracleText": "Trample\nWhen this creature dies, draw a card.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "195",
+        "artist": "Mathias Kollros",
+        "flavorText": "The apes of Yavimaya draw strength from the spirits of their ancestors.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/e/4e97e62e-4a77-4512-b5fa-400e01517e23.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Squad Captain
+{
+    "name": "Squad Captain",
+    "manaCost": "{4}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "Vigilance (Attacking doesn't cause this creature to tap.)\nThis creature enters with a +1/+1 counter on it for each other creature you control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersWithDynamicCounters",
+                "count": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "creature attacking"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "artist": "Cristi Balanescu",
+        "flavorText": "The strength of the one is the strength of the many.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bd7d6112-ffb2-41d8-98ed-1a7b22841dfd.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

@@ -1,3 +1,56 @@
+// Dispeller's Capsule
+{
+    "name": "Dispeller's Capsule",
+    "manaCost": "{W}",
+    "typeLine": "Artifact",
+    "oracleText": "{2}{W}, {T}, Sacrifice this artifact: Destroy target artifact or enchantment.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{2}{W}"
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact|enchantment"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "artist": "Franz Vohwinkel",
+        "flavorText": "\"I find its symmetry pleasing. It rids our world of offensive refuse while disposing of itself.\"\n—Dolomarus, Proctor of the Clean",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/3/d3cf0771-10d6-427a-b4e5-3e1d4db14667.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Dragon Fodder
 {
     "name": "Dragon Fodder",
@@ -30,5 +83,44 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Elvish Visionary
+{
+    "name": "Elvish Visionary",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elf Shaman",
+    "oracleText": "When this creature enters, draw a card.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "artist": "D. Alexander Gregory",
+        "flavorText": "Before any major undertaking, a Cylian elf seeks the guidance of a visionary to learn the will of the gargantuan ancients.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/a/faccfa5f-4d89-4a86-92d7-36cb5a16c5c9.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }

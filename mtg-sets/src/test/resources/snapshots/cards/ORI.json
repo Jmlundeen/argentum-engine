@@ -1,0 +1,168 @@
+// Eyeblight Assassin
+{
+    "name": "Eyeblight Assassin",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Elf Assassin",
+    "oracleText": "When this creature enters, target creature an opponent controls gets -1/-1 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": -1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": -1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "95",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "\"Boggart blood disgusts me almost as much as the foul creatures themselves.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f8aaaf1-6b21-465d-8450-0718beb9106b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Eyeblight Massacre
+{
+    "name": "Eyeblight Massacre",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Non-Elf creatures get -2/-2 until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature"
+            },
+            "effect": {
+                "type": "ModifyStats",
+                "powerModifier": {
+                    "type": "Fixed",
+                    "amount": -2
+                },
+                "toughnessModifier": {
+                    "type": "Fixed",
+                    "amount": -2
+                },
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "96",
+        "rarity": "UNCOMMON",
+        "artist": "Igor Kieryluk",
+        "flavorText": "\"I've already seen so much evil, so much darkness. Why do you insist on adding more?\"\n—Nissa Revane, to Dwynen",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d73484db-5fd0-4a01-83fd-54748cc21a0f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Gilt-Leaf Winnower
+{
+    "name": "Gilt-Leaf Winnower",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Creature — Elf Warrior",
+    "oracleText": "Menace (This creature can't be blocked except by two or more creatures.)\nWhen this creature enters, you may destroy target non-Elf creature whose power and toughness aren't equal.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "99",
+        "rarity": "RARE",
+        "artist": "Viktor Titov",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/9/c9667cae-6801-434b-9d91-ea1f2bd2449e.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Skyraker Giant
+{
+    "name": "Skyraker Giant",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Giant",
+    "oracleText": "Reach (This creature can block creatures with flying.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "metadata": {
+        "collectorNumber": "162",
+        "rarity": "UNCOMMON",
+        "artist": "Anastasia Ovchinnikova",
+        "flavorText": "She will not be content until hers is the highest head in the sky.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/5/c5f0d87a-8f37-4598-9106-c3545dadf6fd.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

@@ -1,0 +1,50 @@
+// Universal Solvent
+{
+    "name": "Universal Solvent",
+    "manaCost": "{1}",
+    "typeLine": "Artifact",
+    "oracleText": "{7}, {T}, Sacrifice this artifact: Destroy target permanent.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{7}"
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "178",
+        "artist": "Christopher Moeller",
+        "flavorText": "\"A few drops of this, and the trickiest problems simply melt away.\"\n—Thamaz, Weldfast inventor",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/f/2f1b66b2-12b2-497b-a328-b43630c79e73.jpg"
+    },
+    "colorIdentityOverride": []
+}

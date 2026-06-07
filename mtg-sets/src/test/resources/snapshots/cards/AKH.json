@@ -1,3 +1,77 @@
+// Galestrike
+{
+    "name": "Galestrike",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Return target tapped creature to its owner's hand.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature tapped"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "rarity": "UNCOMMON",
+        "artist": "Mike Bierek",
+        "flavorText": "Strong wings make strong winds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/f/6fe6633a-dee9-4840-9a18-ab4a511eb4c4.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Scaled Behemoth
+{
+    "name": "Scaled Behemoth",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Creature — Crocodile",
+    "oracleText": "Hexproof (This creature can't be the target of spells or abilities your opponents control.)",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 7
+    },
+    "keywords": [
+        "HEXPROOF"
+    ],
+    "metadata": {
+        "collectorNumber": "184",
+        "rarity": "UNCOMMON",
+        "artist": "Marco Nelor",
+        "flavorText": "Surviving an encounter with it is proof enough that an initiate is ready for the Trial of Strength.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/c/5c05a60f-660a-42d3-82b3-06984366afb4.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Sheltered Thicket
 {
     "name": "Sheltered Thicket",

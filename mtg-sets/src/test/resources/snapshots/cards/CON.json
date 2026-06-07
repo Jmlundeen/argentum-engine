@@ -1,3 +1,72 @@
+// Armillary Sphere
+{
+    "name": "Armillary Sphere",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{2}, {T}, Sacrifice this artifact: Search your library for up to two basic land cards, reveal them, put them into your hand, then shuffle.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{2}"
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "basicland"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        "ShuffleLibrary"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "134",
+        "artist": "Franz Vohwinkel",
+        "flavorText": "The mysterious purpose of two of the rings had eluded Esper mages—until now.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/0/b06cdd3b-3f8d-4b5e-882b-130b1db750a0.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
 // Exotic Orchard
 {
     "name": "Exotic Orchard",
@@ -63,6 +132,48 @@
         "artist": "Jesper Ejsing",
         "flavorText": "When the aven scouts located the tower in Esper, the Knights of the Reliquary set off on a righteous crusade to recover their lost treasures.",
         "imageUri": "https://cards.scryfall.io/normal/front/c/5/c5c0c1a5-dce7-4c7d-8a5b-0bf93ba68ace.jpg?1562803667"
+    },
+    "colorIdentityOverride": []
+}
+
+// Rupture Spire
+{
+    "name": "Rupture Spire",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped.\nWhen this land enters, sacrifice it unless you pay {1}.\n{T}: Add one mana of any color.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": "OwnManaCost",
+                    "suffer": "SacrificeSelf"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "144",
+        "artist": "Jaime Jones",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/568df642-3ad7-401c-a133-edb56970c3a1.jpg"
     },
     "colorIdentityOverride": []
 }

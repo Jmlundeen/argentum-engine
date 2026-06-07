@@ -1,0 +1,95 @@
+// Expedite
+{
+    "name": "Expedite",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gains haste until end of turn.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "HASTE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "108",
+        "artist": "Kieran Yanner",
+        "flavorText": "\"I run, and thunder follows.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/59c65eb7-4353-45ce-9c2e-1791c2804ccf.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Make a Stand
+{
+    "name": "Make a Stand",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Creatures you control get +1/+0 and gain indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy them.)",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            },
+            "effect": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 0
+                        },
+                        "target": "Self"
+                    },
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "INDESTRUCTIBLE",
+                        "target": "Self"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "26",
+        "rarity": "UNCOMMON",
+        "artist": "Magali Villeneuve",
+        "flavorText": "For a moment they stood tall, all fear forgotten.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/0/30cace63-91ca-493c-b67f-740fbbf06370.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

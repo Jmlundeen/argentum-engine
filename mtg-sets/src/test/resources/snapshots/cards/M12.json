@@ -1,3 +1,56 @@
+// Stingerfling Spider
+{
+    "name": "Stingerfling Spider",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Spider",
+    "oracleText": "Reach\nWhen this creature enters, you may destroy target creature with flying.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 5
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature kw:flying"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "197",
+        "rarity": "UNCOMMON",
+        "artist": "Dave Allsop",
+        "flavorText": "The juiciest prey is that which grows lazy, thinking itself beyond the reach of danger.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3b781626-f4ce-4d00-aa7c-0e07f58f688f.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Warstorm Surge
 {
     "name": "Warstorm Surge",

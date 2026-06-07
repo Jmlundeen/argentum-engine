@@ -1,0 +1,122 @@
+// Court Street Denizen
+{
+    "name": "Court Street Denizen",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "Whenever another white creature you control enters, tap target creature an opponent controls.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature white ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "artist": "Volkan Baǵa",
+        "flavorText": "\"The Boros fight for justice. The Azorius fight for law. I hold the line between, and make sure the people are given both.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/ca6a5cb3-b6e5-4879-83b5-4ad590a5467a.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Ivy Lane Denizen
+{
+    "name": "Ivy Lane Denizen",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Elf Warrior",
+    "oracleText": "Whenever another green creature you control enters, put a +1/+1 counter on target creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature green ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "125",
+        "artist": "Winona Nelson",
+        "flavorText": "\"Skyknight gear? Well, I have drake-skin gauntlets, supple and fireproof. Or a ceratok chestplate that'll stop a crossbow bolt.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/9/b95be874-93c0-4e05-9e5a-fe8f38bcb445.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Ripscale Predator
+{
+    "name": "Ripscale Predator",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Creature — Dinosaur",
+    "oracleText": "Menace (This creature can't be blocked except by two or more creatures.)",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 5
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "metadata": {
+        "collectorNumber": "103",
+        "rarity": "UNCOMMON",
+        "artist": "Volkan Baǵa",
+        "flavorText": "As Ravnica's wilds expanded, even advocates for nature had to confront fiercer natural threats.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3b7d5daf-404d-46e9-b622-e89a1f55e908.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

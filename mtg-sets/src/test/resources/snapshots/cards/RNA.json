@@ -1,3 +1,121 @@
+// Bladebrand
+{
+    "name": "Bladebrand",
+    "manaCost": "{1}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gains deathtouch until end of turn.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "DEATHTOUCH",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "artist": "Winona Nelson",
+        "flavorText": "\"The pain of searing iron and razor edges pales beside the pleasure of performance.\"\n—Judith",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/7/f738545d-5483-45ec-bb31-d62b0fae9ea7.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Growth Spiral
+{
+    "name": "Growth Spiral",
+    "manaCost": "{G}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Draw a card. You may put a land card from your hand onto the battlefield.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand",
+                                    "filter": "land"
+                                },
+                                "storeAs": "put_candidates"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "put_candidates",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "putting"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "putting",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "178",
+        "artist": "Seb McKinnon",
+        "flavorText": "Cyclical and spiral patterns are the specialty of the Gyre Clade, which seeks to revitalize the cycles of nature.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c77a6b1-ef06-4da5-8e86-a5204216cb77.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "GREEN"
+    ]
+}
+
 // Hydroid Krasis
 {
     "name": "Hydroid Krasis",
@@ -64,6 +182,72 @@
     },
     "colorIdentityOverride": [
         "GREEN",
+        "BLUE"
+    ]
+}
+
+// Prying Eyes
+{
+    "name": "Prying Eyes",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Draw four cards, then discard two cards.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 2 cards to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "46",
+        "artist": "Magali Villeneuve",
+        "flavorText": "\"Citizen! Your crime has been recorded. Cease movement and await arrest, or further penalties will be immediately imposed.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/1/11ee2c64-68f1-434b-8092-ae80d6575666.jpg"
+    },
+    "colorIdentityOverride": [
         "BLUE"
     ]
 }

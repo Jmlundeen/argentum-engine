@@ -1,0 +1,48 @@
+// Ironclad Slayer
+{
+    "name": "Ironclad Slayer",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Warrior",
+    "oracleText": "When this creature enters, you may return target Aura or Equipment card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Hand"
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {},
+                        "zone": "Graveyard"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "31",
+        "artist": "Ryan Pancoast",
+        "flavorText": "The best weapon is the one at hand.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d413f69f-fe2d-4049-8640-178af7e927d9.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

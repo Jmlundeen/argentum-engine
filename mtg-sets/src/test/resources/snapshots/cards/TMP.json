@@ -699,3 +699,36 @@
         "GREEN"
     ]
 }
+
+// Winds of Rath
+{
+    "name": "Winds of Rath",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy all creatures that aren't enchanted. They can't be regenerated.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature"
+            },
+            "effect": {
+                "type": "MoveToZone",
+                "target": "Self",
+                "destination": "Graveyard",
+                "byDestruction": true
+            },
+            "noRegenerate": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "52",
+        "rarity": "RARE",
+        "artist": "Drew Tucker",
+        "flavorText": "\"There shall be a vast shout and then a vaster silence.\"\n—Oracle en-Vec",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/6/a6d731b2-0113-4fd5-8b78-1aa1064bb4f5.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

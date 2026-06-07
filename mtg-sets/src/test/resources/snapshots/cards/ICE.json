@@ -115,6 +115,41 @@
     ]
 }
 
+// Fyndhorn Elves
+{
+    "name": "Fyndhorn Elves",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "{T}: Add {G}.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "244",
+        "artist": "Justin Hampton",
+        "flavorText": "\"Living side by side with the Elves for so long leaves me with no doubt that we serve the same goddess.\"\n—Kolbjörn, Elder Druid of the Juniper Order",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3ba95ffa-990a-4013-98b7-5d8c0b34e9c4.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Mountain Goat
 {
     "name": "Mountain Goat",

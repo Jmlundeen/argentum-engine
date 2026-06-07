@@ -42,6 +42,45 @@
     ]
 }
 
+// Revenant
+{
+    "name": "Revenant",
+    "manaCost": "{4}{B}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "Flying\nRevenant's power and toughness are each equal to the number of creature cards in your graveyard.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "creature"
+            }
+        },
+        "toughness": {
+            "type": "Dynamic",
+            "source": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "creature"
+            }
+        }
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "68",
+        "rarity": "RARE",
+        "artist": "Terese Nielsen",
+        "flavorText": "\"Not again.\"\n—Hans",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0da40601-b6a3-47ca-b5b6-8fdbdf81f3d4.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Shock
 {
     "name": "Shock",

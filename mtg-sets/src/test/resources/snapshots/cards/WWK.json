@@ -1,3 +1,73 @@
+// Pilgrim's Eye
+{
+    "name": "Pilgrim's Eye",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Thopter",
+    "oracleText": "Flying\nWhen this creature enters, you may search your library for a basic land card, reveal it, put it into your hand, then shuffle.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "basicland"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        "ShuffleLibrary"
+                    ]
+                },
+                "optional": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "128",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "The kor send their thopter kites to see if the land is in a welcoming mood.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/d/cd2a474b-5eac-4e0d-b65c-5610385f2011.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
 // Raging Ravine
 {
     "name": "Raging Ravine",
