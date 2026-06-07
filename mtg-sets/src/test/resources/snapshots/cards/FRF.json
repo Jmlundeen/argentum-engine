@@ -1,3 +1,57 @@
+// Noxious Dragon
+{
+    "name": "Noxious Dragon",
+    "manaCost": "{4}{B}{B}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhen this creature dies, you may destroy target creature with mana value 3 or less.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature mv<=3"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "77",
+        "rarity": "UNCOMMON",
+        "artist": "Svetlin Velinov",
+        "flavorText": "Dragons of Silumgar's brood begin to digest their prey even before consuming it, letting their caustic breath do much of the work.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/cece7235-604c-49b6-b80f-3229a20b154f.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Outpost Siege
 {
     "name": "Outpost Siege",

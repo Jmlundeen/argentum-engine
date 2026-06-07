@@ -1,0 +1,140 @@
+// Armorcraft Judge
+{
+    "name": "Armorcraft Judge",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Elf Artificer",
+    "oracleText": "When this creature enters, draw a card for each creature you control with a +1/+1 counter on it.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "144",
+        "rarity": "UNCOMMON",
+        "artist": "David Palumbo",
+        "flavorText": "Were she not a judge, she'd win the division herself.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/6/76b54854-c21f-47d3-99b2-72829fc66071.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Filigree Familiar
+{
+    "name": "Filigree Familiar",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Fox",
+    "oracleText": "When this creature enters, you gain 2 life.\nWhen this creature dies, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "212",
+        "rarity": "UNCOMMON",
+        "artist": "Izzy",
+        "flavorText": "\"It's the must-have gift for everyone on your list. Get one for yourself, too!\"\n—Chammi, curio vendor",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/c/9cc9ecfd-6cf0-4488-a14a-afec1bc0d253.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
+// Workshop Assistant
+{
+    "name": "Workshop Assistant",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "When this creature dies, return another target artifact card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "241",
+        "artist": "Victor Adame Minguez",
+        "flavorText": "Sometimes the smallest things make the biggest difference.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/509a1a3a-d9a6-4903-95f6-dae6b330f4ea.jpg"
+    },
+    "colorIdentityOverride": []
+}

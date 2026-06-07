@@ -1,0 +1,121 @@
+// Burnished Hart
+{
+    "name": "Burnished Hart",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Elk",
+    "oracleText": "{3}, Sacrifice this creature: Search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{3}"
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "basicland"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        },
+                        "ShuffleLibrary"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "213",
+        "rarity": "UNCOMMON",
+        "artist": "Yeong-Hao Han",
+        "flavorText": "Forged by divine hands to wander mortal realms.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/7/772cbcba-9efa-4894-9b57-e73fd296333d.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
+// Wild Celebrants
+{
+    "name": "Wild Celebrants",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Creature — Satyr",
+    "oracleText": "When this creature enters, you may destroy target artifact.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "147",
+        "artist": "Igor Kieryluk",
+        "flavorText": "\"You can tell something's really valuable by the sound it makes when you slam your staff into it.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/7/e7ab4e29-44c7-431a-ba11-b2f4f9c75ab1.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}

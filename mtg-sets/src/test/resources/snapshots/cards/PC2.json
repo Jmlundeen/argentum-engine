@@ -1,0 +1,36 @@
+// Maelstrom Wanderer
+{
+    "name": "Maelstrom Wanderer",
+    "manaCost": "{5}{G}{U}{R}",
+    "typeLine": "Legendary Creature — Elemental",
+    "oracleText": "Creatures you control have haste.\nCascade, cascade (When you cast this spell, exile cards from the top of your library until you exile a nonland card that costs less. You may cast it without paying its mana cost. Put the exiled cards on the bottom in a random order. Then do it again.)",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 5
+    },
+    "keywords": [
+        "CASCADE"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "HASTE",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "101",
+        "rarity": "MYTHIC",
+        "artist": "Thomas M. Baxa",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/1/9129baf5-ffa9-4ffb-bcab-19d6a42dbfcc.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED",
+        "GREEN"
+    ]
+}

@@ -1,0 +1,117 @@
+// Kor Cartographer
+{
+    "name": "Kor Cartographer",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Kor Scout",
+    "oracleText": "When this creature enters, you may search your library for a Plains card, put it onto the battlefield tapped, then shuffle.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "land Plains"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        },
+                        "ShuffleLibrary"
+                    ]
+                },
+                "optional": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "artist": "Ryan Pancoast",
+        "flavorText": "Kor have no concept of exploration. They return to homelands forgotten.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/0/6063b7ee-94ae-4a5b-9902-6aa0335af593.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Rampaging Baloths
+{
+    "name": "Rampaging Baloths",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Creature — Beast",
+    "oracleText": "Trample\nLandfall — Whenever a land you control enters, create a 4/4 green Beast creature token.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 4,
+                    "toughness": 4,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Beast"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "178",
+        "rarity": "MYTHIC",
+        "artist": "Steve Prescott",
+        "flavorText": "\"When the land is angry, so are they.\"\n—Nissa Revane",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/66ae703d-b133-4749-9d38-216abe6c6647.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}

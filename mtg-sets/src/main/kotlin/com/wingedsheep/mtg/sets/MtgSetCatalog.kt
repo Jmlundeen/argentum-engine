@@ -25,6 +25,31 @@ import com.wingedsheep.mtg.sets.definitions.tor.TormentSet
 import com.wingedsheep.mtg.sets.definitions.uds.UrzasDestinySet
 import com.wingedsheep.mtg.sets.definitions.ulg.UrzasLegacySet
 import com.wingedsheep.mtg.sets.definitions.cmd.Commander2011Set
+import com.wingedsheep.mtg.sets.definitions.cmr.CommanderLegendsSet
+import com.wingedsheep.mtg.sets.definitions.`5dn`.FifthDawnSet
+import com.wingedsheep.mtg.sets.definitions.aer.AetherRevoltSet
+import com.wingedsheep.mtg.sets.definitions.c14.Commander2014Set
+import com.wingedsheep.mtg.sets.definitions.chk.ChampionsOfKamigawaSet
+import com.wingedsheep.mtg.sets.definitions.csp.ColdsnapSet
+import com.wingedsheep.mtg.sets.definitions.dis.DissensionSet
+import com.wingedsheep.mtg.sets.definitions.emn.EldritchMoonSet
+import com.wingedsheep.mtg.sets.definitions.gtc.GatecrashSet
+import com.wingedsheep.mtg.sets.definitions.isd.InnistradSet
+import com.wingedsheep.mtg.sets.definitions.jou.JourneyIntoNyxSet
+import com.wingedsheep.mtg.sets.definitions.kld.KaladeshSet
+import com.wingedsheep.mtg.sets.definitions.m11.Magic2011Set
+import com.wingedsheep.mtg.sets.definitions.m13.Magic2013Set
+import com.wingedsheep.mtg.sets.definitions.m15.Magic2015Set
+import com.wingedsheep.mtg.sets.definitions.m19.CoreSet2019Set
+import com.wingedsheep.mtg.sets.definitions.m20.CoreSet2020Set
+import com.wingedsheep.mtg.sets.definitions.ogw.OathOfTheGatewatchSet
+import com.wingedsheep.mtg.sets.definitions.ori.MagicOriginsSet
+import com.wingedsheep.mtg.sets.definitions.pc2.Planechase2012Set
+import com.wingedsheep.mtg.sets.definitions.plc.PlanarChaosSet
+import com.wingedsheep.mtg.sets.definitions.rtr.ReturnToRavnicaSet
+import com.wingedsheep.mtg.sets.definitions.shm.ShadowmoorSet
+import com.wingedsheep.mtg.sets.definitions.ths.TherosSet
+import com.wingedsheep.mtg.sets.definitions.zen.ZendikarSet
 import com.wingedsheep.mtg.sets.definitions.con.ConfluxSet
 import com.wingedsheep.mtg.sets.definitions.dft.AetherdriftSet
 import com.wingedsheep.mtg.sets.definitions.dtk.DragonsOfTarkirSet
@@ -151,6 +176,31 @@ object MtgSetCatalog {
         PhyrexiaAllWillBeOneSet,
         BrothersWarSet,
         Commander2011Set,
+        CommanderLegendsSet,
+        FifthDawnSet,
+        AetherRevoltSet,
+        Commander2014Set,
+        ChampionsOfKamigawaSet,
+        ColdsnapSet,
+        DissensionSet,
+        EldritchMoonSet,
+        GatecrashSet,
+        InnistradSet,
+        JourneyIntoNyxSet,
+        KaladeshSet,
+        Magic2011Set,
+        Magic2013Set,
+        Magic2015Set,
+        CoreSet2019Set,
+        CoreSet2020Set,
+        OathOfTheGatewatchSet,
+        MagicOriginsSet,
+        Planechase2012Set,
+        PlanarChaosSet,
+        ReturnToRavnicaSet,
+        ShadowmoorSet,
+        TherosSet,
+        ZendikarSet,
         Commander2015Set,
         TreasureChestSet,
         Commander2017Set,

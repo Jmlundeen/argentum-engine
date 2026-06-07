@@ -1,3 +1,37 @@
+// Raise the Alarm
+{
+    "name": "Raise the Alarm",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Create two 1/1 white Soldier creature tokens.",
+    "script": {
+        "spellEffect": {
+            "type": "CreateToken",
+            "count": {
+                "type": "Fixed",
+                "amount": 2
+            },
+            "power": 1,
+            "toughness": 1,
+            "colors": [
+                "WHITE"
+            ],
+            "creatureTypes": [
+                "Soldier"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "artist": "John Matson",
+        "flavorText": "\"The nim raid our homes without warning. We must defend our homes without hesitation.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/b/4be510c8-fc01-4374-ac04-7968d24480fe.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Talisman of Impulse
 {
     "name": "Talisman of Impulse",

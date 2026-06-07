@@ -1,3 +1,57 @@
+// Dreamstone Hedron
+{
+    "name": "Dreamstone Hedron",
+    "manaCost": "{6}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {C}{C}{C}.\n{3}, {T}, Sacrifice this artifact: Draw three cards.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{3}"
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "216",
+        "rarity": "UNCOMMON",
+        "artist": "Eric Deschamps",
+        "flavorText": "Only the Eldrazi mind thinks in the warped paths required to open the hedrons and tap the power within.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/9/79090d66-19ab-456e-96c0-023c84f4e521.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
 // Evolving Wilds
 {
     "name": "Evolving Wilds",
@@ -61,4 +115,124 @@
         "imageUri": "https://cards.scryfall.io/normal/front/b/c/bc7e0407-fea1-43ef-8580-82271e440bb3.jpg?1562708057"
     },
     "colorIdentityOverride": []
+}
+
+// Prophetic Prism
+{
+    "name": "Prophetic Prism",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, draw a card.\n{1}, {T}: Add one mana of any color.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{1}"
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "222",
+        "artist": "John Avon",
+        "flavorText": "\"The explorer who found it got a bad deal when he sold it. He merely got rich.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/f/cfb90d44-8cb1-4b83-b2f2-92c19d6304fb.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
+// Wildheart Invoker
+{
+    "name": "Wildheart Invoker",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Elf Shaman",
+    "oracleText": "{8}: Target creature gets +5/+5 and gains trample until end of turn. (It can deal excess combat damage to the player or planeswalker it's attacking.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{8}"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 5
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 5
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "TRAMPLE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "213",
+        "artist": "Erica Yang",
+        "flavorText": "\"Life as we know it dangles on the brink of extinction. We must show the strength they would steal from us.\"\n—The Invokers' Tales",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/c/dc8315bf-03af-4f19-92c7-556e486cb099.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
 }

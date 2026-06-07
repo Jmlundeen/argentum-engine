@@ -70,3 +70,97 @@
         "GREEN"
     ]
 }
+
+// Open the Armory
+{
+    "name": "Open the Armory",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for an Aura or Equipment card, reveal it, put it into your hand, then shuffle.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "enchantment Aura"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "32",
+        "rarity": "UNCOMMON",
+        "artist": "Steve Prescott",
+        "flavorText": "\"Once Avacyn returned, I hoped I'd never need these things again. I didn't think I'd be dusting them off to use against angels.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/07dc0c44-908f-40e9-9c6a-e1ef699e6d2e.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Sanitarium Skeleton
+{
+    "name": "Sanitarium Skeleton",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Skeleton",
+    "oracleText": "{2}{B}: Return this card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{2}{B}"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand"
+                },
+                "activateFromZone": "Graveyard"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "133",
+        "artist": "Kev Walker",
+        "flavorText": "His mind was lost long before his flesh.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/26b69045-2b22-4fba-868a-b91c93eb960a.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}

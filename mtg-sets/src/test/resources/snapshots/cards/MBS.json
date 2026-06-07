@@ -1,3 +1,26 @@
+// Lumengrid Gargoyle
+{
+    "name": "Lumengrid Gargoyle",
+    "manaCost": "{6}",
+    "typeLine": "Artifact Creature — Gargoyle",
+    "oracleText": "Flying",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "112",
+        "rarity": "UNCOMMON",
+        "artist": "Randis Albion",
+        "flavorText": "\"Anything that watches without sleep and fights without fear is a valuable ally against the Phyrexians.\"\n—Kara Vrist, Neurok agent",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/5/45350c4b-def2-4b93-ab66-9f32bd426cff.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
 // Spine of Ish Sah
 {
     "name": "Spine of Ish Sah",

@@ -1,0 +1,108 @@
+// Ambush Viper
+{
+    "name": "Ambush Viper",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Snake",
+    "oracleText": "Flash\nDeathtouch",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLASH",
+        "DEATHTOUCH"
+    ],
+    "metadata": {
+        "collectorNumber": "169",
+        "artist": "Alan Pollack",
+        "flavorText": "\"Living creatures seldom impress me. But I like this one.\"\n—Uta Falkenrath",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/c/0c082aa8-bf7f-47f2-baf8-43ad253fd7d7.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Doomed Traveler
+{
+    "name": "Doomed Traveler",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "When this creature dies, create a 1/1 white Spirit creature token with flying.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Spirit"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "11",
+        "artist": "Lars Grant-West",
+        "flavorText": "He vowed he would never rest until he reached his destination. He doesn't know how right he was.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/5/652c3bbb-cac8-47ad-81de-41e954e17a29.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Intangible Virtue
+{
+    "name": "Intangible Virtue",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Creature tokens you control get +1/+1 and have vigilance.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "VIGILANCE",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "rarity": "UNCOMMON",
+        "artist": "Clint Cearley",
+        "flavorText": "In life, they were a motley crew: farmers, lords, cutpurses, priests. In death, they are united in singular, benevolent purpose.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0dd21f5e-d284-4072-87b9-7f0e6140fe60.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

@@ -610,6 +610,40 @@
     ]
 }
 
+// Fire Diamond
+{
+    "name": "Fire Diamond",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "This artifact enters tapped.\n{T}: Add {R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "302",
+        "rarity": "UNCOMMON",
+        "artist": "Richard Thomas",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bcca5bbe-df01-45ea-a6ac-4e3d1cf237c8.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Foratog
 {
     "name": "Foratog",
@@ -658,6 +692,74 @@
         "artist": "Mark Poole",
         "flavorText": "Five hundred years to grow—barely a minute to eat.",
         "imageUri": "https://cards.scryfall.io/normal/front/b/2/b2e1195d-443f-4826-a748-bc6e7e24153a.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Marble Diamond
+{
+    "name": "Marble Diamond",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "This artifact enters tapped.\n{T}: Add {W}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "310",
+        "rarity": "UNCOMMON",
+        "artist": "Jeff Miracola",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/4731eb16-3088-4d4d-80a4-7e39d00c1a87.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Moss Diamond
+{
+    "name": "Moss Diamond",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "This artifact enters tapped.\n{T}: Add {G}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "312",
+        "rarity": "UNCOMMON",
+        "artist": "Donato Giancola",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/7/87cea56a-b64f-452a-8e4b-40363aabb452.jpg"
     },
     "colorIdentityOverride": [
         "GREEN"
@@ -1032,6 +1134,40 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Sky Diamond
+{
+    "name": "Sky Diamond",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "This artifact enters tapped.\n{T}: Add {U}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "319",
+        "rarity": "UNCOMMON",
+        "artist": "D. Alexander Gregory",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/8959aef9-77bb-45a3-939e-324bd59aec89.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

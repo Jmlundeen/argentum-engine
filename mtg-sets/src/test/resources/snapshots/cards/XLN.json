@@ -1,3 +1,37 @@
+// Fiery Cannonade
+{
+    "name": "Fiery Cannonade",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Fiery Cannonade deals 2 damage to each non-Pirate creature.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEachInGroup",
+            "filter": {
+                "baseFilter": "creature"
+            },
+            "effect": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "target": "Self"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "143",
+        "rarity": "UNCOMMON",
+        "artist": "Ben Wootten",
+        "flavorText": "Wary of the ferocious dinosaurs, the Legion of Dusk built up the walls of their fort—just in time for the pirates to burn them down.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/664d21c9-4b6c-4797-845f-7bca79c2b76b.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Gishath, Sun's Avatar
 {
     "name": "Gishath, Sun's Avatar",
@@ -82,6 +116,134 @@
         "RED",
         "GREEN",
         "WHITE"
+    ]
+}
+
+// Makeshift Munitions
+{
+    "name": "Makeshift Munitions",
+    "manaCost": "{1}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "{1}, Sacrifice an artifact or creature: This enchantment deals 1 damage to any target.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{1}"
+                        },
+                        {
+                            "type": "CostSacrifice",
+                            "filter": "creature|artifact"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "rarity": "UNCOMMON",
+        "artist": "Filip Burburan",
+        "flavorText": "\"Grease up a firecannon good and proper with dinosaur-liver oil, and it'll shoot just about anything.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/5/65689442-e679-4844-91a8-f6a39a7c1f9b.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Prosperous Pirates
+{
+    "name": "Prosperous Pirates",
+    "manaCost": "{4}{U}",
+    "typeLine": "Creature — Human Pirate",
+    "oracleText": "When this creature enters, create two Treasure tokens. (They're artifacts with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure",
+                    "count": 2
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "69",
+        "artist": "Josh Hass",
+        "flavorText": "The floating city of High and Dry hasn't yet sunk under the weight of gold, but it's not for want of trying.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4fed2d67-fc51-45e8-825b-fe7565e8a65d.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Sailor of Means
+{
+    "name": "Sailor of Means",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Pirate",
+    "oracleText": "When this creature enters, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "artist": "Ryan Pancoast",
+        "flavorText": "In the Brazen Coalition, the wheels of business are greased with plunder.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/7/67f15157-6017-4b05-8c74-b3f8728d764b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

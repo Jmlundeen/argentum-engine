@@ -1,3 +1,68 @@
+// Encroaching Wastes
+{
+    "name": "Encroaching Wastes",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{4}, {T}, Sacrifice this land: Destroy target nonbasic land.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostMana",
+                            "cost": "{4}"
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "227",
+        "rarity": "UNCOMMON",
+        "artist": "Noah Bradley",
+        "flavorText": "Every world is a work in progress, constantly reshaped by time, disasters, and even the powerful magic of Planeswalkers.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/a/1ad5a84b-ae9b-4ed1-a4de-b91bbf8ed0a5.jpg"
+    },
+    "colorIdentityOverride": []
+}
+
 // Primeval Bounty
 {
     "name": "Primeval Bounty",
@@ -87,6 +152,51 @@
                 "text": "Primeval Bounty's first and second abilities will each resolve before the spell that caused them to trigger. They will resolve even if that spell is countered or otherwise leaves the stack without resolving."
             }
         ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Sporemound
+{
+    "name": "Sporemound",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Creature — Fungus",
+    "oracleText": "Landfall — Whenever a land you control enters, create a 1/1 green Saproling creature token.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Saproling"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "196",
+        "artist": "Svetlin Velinov",
+        "flavorText": "\"If you threaten its territory, it produces spores. Actually, no matter what you do, it produces spores.\"\n—Hadi Kasten, Calla Dale naturalist",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/d/2d256cd0-6fe9-4905-9886-fb1457292db5.jpg"
     },
     "colorIdentityOverride": [
         "GREEN"
