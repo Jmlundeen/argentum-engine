@@ -16,6 +16,9 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     supported("PayMana", "cost: pay mana (universal)")
     supported("SacrificeAPermanent", "cost: sacrifice")
     supported("SacrificeNumberPermanents", "cost: sacrifice N")
+    // "Pay N life" as an activation cost -> Costs.PayLife(n). The emitter renders fixed-integer amounts
+    // (abilityCostDsl); non-integer amounts ({X}, life-total halves, …) are declined -> SCAFFOLD.
+    supported("PayLife", "cost: pay life")
     composed("DiscardACardOfType", "cost: discard filtered")
 
     // Duration-scoped continuous trigger / replacement creators.

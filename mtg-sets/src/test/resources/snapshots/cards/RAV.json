@@ -396,6 +396,51 @@
     ]
 }
 
+// Carrion Howler
+{
+    "name": "Carrion Howler",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Zombie Wolf",
+    "oracleText": "Pay 1 life: This creature gets +2/-1 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostPayLife",
+                    "amount": 1
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": -1
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "UNCOMMON",
+        "artist": "John Zeleznik",
+        "flavorText": "They chase tirelessly after the bone-carts that speed along the streets of the Plague Quarter.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0ff031f4-df27-40de-8615-f3ea225f9830.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Carven Caryatid
 {
     "name": "Carven Caryatid",
