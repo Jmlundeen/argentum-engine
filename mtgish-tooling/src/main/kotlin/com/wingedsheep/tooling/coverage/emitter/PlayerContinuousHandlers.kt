@@ -140,6 +140,13 @@ internal fun EmitCtx.renderPlayerAction(node: JsonObject, tvar: String?): Dsl? {
             val filter = gameObjectFilterExpr(inner["args"]) ?: return null
             return if (ptv != null) call("ForceSacrificeEffect", arg(filter), arg("1"), arg(Lit(ptv))) else null
         }
+        "TakeAnExtraTurn" -> {
+            // "Target player takes an extra turn after this one" (Time Warp). Only the
+            // bound-target-player form renders here — the untargeted "take an extra turn"
+            // (Time Walk) is the standalone `simple("TakeAnExtraTurn", …)` handler, and the
+            // "lose at end step" variant (Last Chance) is the `extraTurnEffect` spell shortcut.
+            return if (ptv != null) call("TakeExtraTurnEffect", arg("target", Lit(ptv))) else null
+        }
     }
     return null
 }
