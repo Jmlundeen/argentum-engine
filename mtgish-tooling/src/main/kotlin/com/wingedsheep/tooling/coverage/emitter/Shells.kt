@@ -18,10 +18,6 @@ import kotlinx.serialization.json.JsonObject
  * Card "shells" — the non-rules scaffolding around a card: mana / typeline / metadata / KDoc, the
  * keyword line, and the final file assembly (imports + header). All Scryfall-sourced, no TODO stubs.
  */
-private val MANA = mapOf(
-    "ManaCostW" to "{W}", "ManaCostU" to "{U}", "ManaCostB" to "{B}", "ManaCostR" to "{R}",
-    "ManaCostG" to "{G}", "ManaCostC" to "{C}", "ManaCostX" to "{X}",
-)
 private val COLOR_LETTERS = listOf("W", "U", "B", "R", "G")
 internal val RARITY_DSL = mapOf(
     "common" to "COMMON", "uncommon" to "UNCOMMON", "rare" to "RARE",
@@ -48,8 +44,14 @@ internal fun renderMana(cost: JsonElement?): String {
     val out = StringBuilder()
     for (s in cost.asArr ?: JsonArray(emptyList())) {
         val sym = s.strField("_ManaSymbol")
-        if (sym == "ManaCostGeneric") out.append("{${s.field("args").asInt() ?: 0}}")
-        else out.append(MANA[sym] ?: "{?}")
+        when {
+            sym == null -> out.append("{?}")
+            sym == "ManaCostGeneric" -> out.append("{${s.field("args").asInt() ?: 0}}")
+            // Every other symbol is `ManaCost` + a code whose characters map 1:1 onto a
+            // slash-separated MTG symbol: W -> {W}, RW -> {R/W} (hybrid), 2W -> {2/W}
+            // (monocolored hybrid), WP -> {W/P} (Phyrexian), GUP -> {G/U/P}, S -> {S}, X -> {X}.
+            else -> out.append("{${sym.removePrefix("ManaCost").toCharArray().joinToString("/")}}")
+        }
     }
     return out.toString()
 }

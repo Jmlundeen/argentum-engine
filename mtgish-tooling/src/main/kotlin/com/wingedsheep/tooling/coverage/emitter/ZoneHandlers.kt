@@ -110,6 +110,9 @@ internal fun EmitCtx.renderSearch(args: JsonElement?): Dsl? {
     // (graveyard) can't be rendered as a single fixed SearchDestination — scaffold rather than silently
     // pick one arm (Dina's Guidance).
     if ("ChooseAnAction" in blob || "PutFoundCardsIntoGraveyard" in blob) return null
+    // "with different names" (Three Dreams) is a group constraint searchLibrary can't enforce — it would
+    // silently let the search grab duplicates. Decline rather than drop the restriction.
+    if ("DifferentNames" in blob) return null
     val dest = when {
         "PutFoundCardsOntoBattlefield" in blob -> "BATTLEFIELD"
         "PutFoundCardsIntoHand" in blob -> "HAND"
@@ -120,9 +123,11 @@ internal fun EmitCtx.renderSearch(args: JsonElement?): Dsl? {
     // search filter can't express.
     val named = Regex(""""NamedCard",\s*"args":\s*"([^"]+)"""").find(blob)?.groupValues?.get(1)
     val searchSubtype = Regex(""""IsCreatureType",\s*"args":\s*"(\w+)"""").find(blob)?.groupValues?.get(1)
+    val enchSubtype = Regex(""""IsEnchantmentType",\s*"args":\s*"(\w+)"""").find(blob)?.groupValues?.get(1)
     val filt = when {
         named != null -> "GameObjectFilter.Any.named(\"$named\")"
         searchSubtype != null -> "GameObjectFilter.Any.withSubtype(\"$searchSubtype\")"  // "an Elf card"
+        enchSubtype != null -> "GameObjectFilter.Enchantment.withSubtype(\"$enchSubtype\")"  // "an Aura card"
         else -> landSearchFilterDsl(args)
     }
     val count = findInteger(args)

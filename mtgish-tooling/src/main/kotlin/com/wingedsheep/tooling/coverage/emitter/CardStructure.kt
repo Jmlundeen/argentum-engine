@@ -288,8 +288,16 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
 
 /** True when a trigger's subject IS this permanent — ThisPermanent present, but NOT merely as the
  *  reference inside an `Other(ThisPermanent)` "another permanent" exclusion clause. */
-private fun isSelf(trig: JsonObject): Boolean =
-    jsonContains(trig, "_Permanent", "ThisPermanent") && !jsonContains(trig, "_Permanents", "Other")
+private fun isSelf(trig: JsonObject): Boolean {
+    // A self-trigger's subject is a *direct* SinglePermanent(ThisPermanent) reference. A `_Permanents`
+    // filter (And / HasAbility / …) that merely mentions ThisPermanent inside a sub-predicate — e.g.
+    // Trophy Hunter's WasDealtDamageByPermanentThisTurn(ThisPermanent), "a creature with flying dealt
+    // damage by THIS dies" — is NOT a self-trigger, so scope the check to the trigger's own subject
+    // rather than a deep search that any nested ThisPermanent reference would satisfy.
+    val subject = trig["args"]
+    return subject.strField("_Permanents") == "SinglePermanent" &&
+        subject.field("args").strField("_Permanent") == "ThisPermanent"
+}
 
 /** True when a trigger's permanent filter is a plain "creature" with no subtype / controller / count
  *  restriction — the only attacks shape we can render as a filterless ANY-binding trigger. */
