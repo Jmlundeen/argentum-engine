@@ -85,6 +85,7 @@ internal fun EmitCtx.renderAction(node: JsonObject, tvar: String?): Dsl? =
 internal fun EmitCtx.renderEffectList(actions: List<JsonObject>, tvar: String?): Dsl? {
     echoEffect(actions)?.let { return it }
     becomeCreatureTypeEffect(actions, tvar)?.let { return it }
+    chooseTypeModifyStatsEffect(actions)?.let { return it }
     chooseCreatureTypeRevealTopEffect(actions)?.let { return it }
     val rendered = mutableListOf<Dsl>()
     for (act in actions) {
@@ -186,8 +187,17 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
     // than misrender it as a battlefield tally. (Recognised "...ThisWay" shapes are handled above.)
     if (gn != null && "ThisWay" in gn) return null
     if ((gn != null && "NumberOf" in gn) || gn == "TheNumberOfPermanentsOnTheBattlefield") {
+        // A "shares a creature type with <it>" relational predicate (Mana Echoes) can't be expressed by
+        // the flat type/subtype/controller filter below — emitting the aggregate without it would silently
+        // over-count, so decline (-> SCAFFOLD) rather than misrender.
+        if ("SharesACreatureTypeWithPermanent" in compact(node)) return null
         val oracle = oracleText?.lowercase() ?: ""
-        if (" hand" in oracle || " in it" in oracle) return null
+        // The hand/"in it" guard catches a generic "NumberOf" count that's really about hand cards. It must
+        // NOT fire for an explicit battlefield count (TheNumberOfPermanentsOnTheBattlefield) — a card may
+        // mention "hand" elsewhere in its text (e.g. Slate of Ancestry's "Discard your hand" cost) while the
+        // count itself is unambiguously a battlefield tally.
+        val battlefieldCount = gn == "TheNumberOfPermanentsOnTheBattlefield"
+        if (!battlefieldCount && (" hand" in oracle || " in it" in oracle)) return null
         val player = when {
             "attacking you" in oracle -> "Player.Opponent"
             "on the battlefield" in oracle -> "Player.Each"
@@ -292,6 +302,31 @@ internal fun EmitCtx.becomeCreatureTypeEffect(actions: List<JsonObject>, tvar: S
     val parts = mutableListOf(arg("target", Lit(target)))
     if (excluded != null) parts.add(arg("excludedTypes", "listOf(\"${ktStr(excluded)}\")"))
     return Call("BecomeCreatureTypeEffect", parts)
+}
+
+/**
+ * [ChooseACreatureType, CreateEachPermanentLayerEffectUntil(creatures of the chosen type get ±X/±X)] ->
+ * a single `Effects.ChooseCreatureTypeModifyStats(...)` (Tribal Unity: "Creatures of the creature type
+ * of your choice get +X/+X until end of turn"). Only the bare ±X/±X over the chosen-type group at
+ * end-of-turn collapses; a riding keyword grant or any other shape declines (null -> SCAFFOLD).
+ */
+internal fun EmitCtx.chooseTypeModifyStatsEffect(actions: List<JsonObject>): Dsl? {
+    if (actions.size != 2) return null
+    if (actions.none { it.strField("_Action") == "ChooseACreatureType" }) return null
+    val layer = actions.firstOrNull { it.strField("_Action") == "CreateEachPermanentLayerEffectUntil" } ?: return null
+    val blob = compact(layer)
+    if ("IsCreatureTypeVariable" !in blob || "TheChosenCreatureType" !in blob) return null
+    if (!jsonContains(layer, "_Expiration", "UntilEndOfTurn")) return null
+    val layerEffects = (layer["args"].asArr)?.getOrNull(1) as? JsonArray ?: return null
+    if (layerEffects.size != 1) return null  // a lone ±X/±X; a riding grant would need grantKeyword
+    val le = layerEffects[0] as? JsonObject ?: return null
+    if (le.strField("_LayerEffect") != "AdjustPTX") return null
+    val a = le["args"].asArr ?: return null
+    if (a.size != 3) return null
+    val amt = dynamicAmountExpr(a[2]) ?: return null
+    val power = adjustModX(a.getOrNull(0), amt) ?: return null
+    val toughness = adjustModX(a.getOrNull(1), amt) ?: return null
+    return Call("Effects.ChooseCreatureTypeModifyStats", listOf(arg(power), arg(toughness)))
 }
 
 /**

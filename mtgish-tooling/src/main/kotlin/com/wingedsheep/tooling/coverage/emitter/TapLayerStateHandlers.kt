@@ -10,7 +10,9 @@ import com.wingedsheep.tooling.coverage.asArr
 import com.wingedsheep.tooling.coverage.asInt
 import com.wingedsheep.tooling.coverage.call
 import com.wingedsheep.tooling.coverage.compact
+import com.wingedsheep.tooling.coverage.dot
 import com.wingedsheep.tooling.coverage.findInteger
+import com.wingedsheep.tooling.coverage.firstArgWordTagged
 import com.wingedsheep.tooling.coverage.jsonContains
 import com.wingedsheep.tooling.coverage.pascalToUpperSnake
 import com.wingedsheep.tooling.coverage.strField
@@ -93,6 +95,20 @@ internal val tapLayerStateHandlers: Map<String, ActionHandler> = actionHandlers 
         renderLayerEffect(node, node.strField("_Action")!!, tvar)
     }
 
+    on("CreatePermanentRuleEffectUntil") { node, _, tvar ->
+        // "target <permanent> can't be blocked this turn" (Crafty Pathmage). Only the single CantBeBlocked
+        // rule at end-of-turn renders, as a CANT_BE_BLOCKED ability-flag grant; anything else scaffolds.
+        val args = node["args"].asArr ?: return@on null
+        val tgt = refTarget(args, tvar) ?: return@on null
+        if (!jsonContains(node, "_Expiration", "UntilEndOfTurn")) return@on null
+        val rules = (args.getOrNull(1) as? JsonArray)?.filterIsInstance<JsonObject>() ?: return@on null
+        if (rules.size != 1) return@on null
+        when (rules[0].strField("_PermanentRule")) {
+            "CantBeBlocked" -> call("GrantKeywordEffect", arg("AbilityFlag.CANT_BE_BLOCKED.name"), arg(Lit(tgt)))
+            else -> null
+        }
+    }
+
     on("CreatePlayerEffectUntil") { node, _, _ ->  // Summer Bloom: may play N additional lands
         val n = findInteger(node)
         if (jsonContains(node, "_PlayerEffect", "MayPlayAdditionalLands") && n is Int) {
@@ -137,6 +153,30 @@ internal fun EmitCtx.renderLayerEffect(node: JsonObject, action: String, tvar: S
                     else call("ModifyStatsEffect", arg("${pt[0].asInt()}"), arg("${pt[1].asInt()}"), arg(Lit(target)), arg(Lit(duration))),
                 )
             }
+            "AdjustPTX" -> {
+                // "+X/+X" / "-X/-X" where X is a dynamic game number (Wirewood Pride: +Elf-count, Feeding
+                // Frenzy: -Zombie-count). The DynamicAmount ModifyStats facade carries no duration, so a
+                // non-default duration scaffolds rather than emit a wrong one.
+                if (duration.isNotEmpty()) return null
+                val a = leObj["args"].asArr
+                if (a == null || a.size != 3) return null
+                val amt = dynamicAmountExpr(a[2]) ?: return null
+                val power = adjustModX(a.getOrNull(0), amt) ?: return null
+                val toughness = adjustModX(a.getOrNull(1), amt) ?: return null
+                inner.add(call("Effects.ModifyStats", arg(power), arg(toughness), arg(Lit(target))))
+            }
+            "AdjustPTForEach" -> {
+                // "+P/+T for each <count>" (Goblin Piledriver +2/+0 per other attacking Goblin). The base
+                // P/T are fixed ints scaled by the dynamic count; only the "other attacking <subtype>" count
+                // renders exactly (see adjustForEachCount), anything else scaffolds.
+                if (duration.isNotEmpty()) return null
+                val a = leObj["args"].asArr
+                if (a == null || a.size != 3) return null
+                val pBase = a.getOrNull(0).asInt() ?: return null
+                val tBase = a.getOrNull(1).asInt() ?: return null
+                val count = adjustForEachCount(a.getOrNull(2)) ?: return null
+                inner.add(call("Effects.ModifyStats", arg(scaleByBase(count, pBase)), arg(scaleByBase(count, tBase)), arg(Lit(target))))
+            }
             "AddAbility" -> {
                 // Only a bare keyword grant renders faithfully; a granted triggered/activated ability or a
                 // parameterized keyword can't be reproduced here, so scaffold instead of dropping it.
@@ -156,6 +196,38 @@ internal fun EmitCtx.renderLayerEffect(node: JsonObject, action: String, tvar: S
         return call("Effects.ForEachInGroup", arg(filter), arg(effect))
     }
     return effect
+}
+
+/** A ±X modifier (`PlusX` / `MinusX`) applied to a dynamic amount: PlusX keeps it; MinusX negates it via
+ *  `Multiply(amt, -1)` (the golden's negated-count idiom — Feeding Frenzy's "-X/-X"). */
+internal fun EmitCtx.adjustModX(modNode: JsonElement?, amt: Dsl): Dsl? =
+    when ((modNode as? JsonObject)?.strField("_ModX")) {
+        "PlusX" -> amt
+        "MinusX" -> call("DynamicAmount.Multiply", arg(amt), arg("-1"))
+        else -> null
+    }
+
+/** A fixed per-each base scaled by a dynamic [count]: 0 -> `Fixed(0)`, 1 -> the bare count, else
+ *  `Multiply(count, base)` (Goblin Piledriver's +2/+0 -> power = Multiply(count, 2), toughness = Fixed(0)). */
+private fun EmitCtx.scaleByBase(count: Dsl, base: Int): Dsl = when (base) {
+    0 -> call("DynamicAmount.Fixed", arg("0"))
+    1 -> count
+    else -> call("DynamicAmount.Multiply", arg(count), arg("$base"))
+}
+
+/** The dynamic count of an `AdjustPTForEach` game number — only the "other attacking <subtype>" shape
+ *  renders exactly: `AggregateBattlefield(You, Creature.withSubtype(X).attacking())`, minus one when the
+ *  filter carries an `Other(self)` clause ("each OTHER attacking …"). Anything else returns null (-> SCAFFOLD). */
+private fun EmitCtx.adjustForEachCount(gn: JsonElement?): Dsl? {
+    val gnObj = gn as? JsonObject ?: return null
+    if (gnObj.strField("_GameNumber") != "TheNumberOfPermanentsOnTheBattlefield") return null
+    val subtype = gnObj.firstArgWordTagged("IsCreatureType") ?: return null
+    val blob = compact(gnObj)
+    if ("IsAttacking" !in blob) return null
+    val filter = Lit("GameObjectFilter.Creature").dot("withSubtype", arg("\"$subtype\"")).dot("attacking")
+    var count: Dsl = call("DynamicAmount.AggregateBattlefield", arg("Player.You"), arg(filter))
+    if ("\"Other\"" in blob) count = call("DynamicAmount.Subtract", arg(count), arg(call("DynamicAmount.Fixed", arg("1"))))
+    return count
 }
 
 /**

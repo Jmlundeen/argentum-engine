@@ -54,6 +54,12 @@ internal object FilterPredicates {
     /** `.powerAtMost(N)` for a `PowerIs <= N` clause, else null. */
     fun powerAtMost(node: JsonElement?): Link? = powerBound(node, "LessThanOrEqualTo")?.let { Link("powerAtMost", listOf(arg("$it"))) }
 
+    /** `.manaValueAtMost(N)` for a `ManaValueIs <= N` clause, else null (Smother's "mana value 3 or less"). */
+    fun manaValueAtMost(node: JsonElement?): Link? = manaValueBound(node, "LessThanOrEqualTo")?.let { Link("manaValueAtMost", listOf(arg("$it"))) }
+
+    /** `.manaValueAtLeast(N)` for a `ManaValueIs >= N` clause, else null. */
+    fun manaValueAtLeast(node: JsonElement?): Link? = manaValueBound(node, "GreaterThanOrEqualTo")?.let { Link("manaValueAtLeast", listOf(arg("$it"))) }
+
     fun tapped(node: JsonElement?): Link? = if (node.hasTag("IsTapped")) Link("tapped") else null
     fun untapped(node: JsonElement?): Link? = if (node.hasTag("IsUntapped")) Link("untapped") else null
     fun attacking(node: JsonElement?): Link? = if (node.hasTag("IsAttacking")) Link("attacking") else null
@@ -71,6 +77,13 @@ internal object FilterPredicates {
      *  scoped to the matching `PowerIs` node so a power range's two bounds stay distinct. */
     private fun powerBound(node: JsonElement?, comparison: String): Int? =
         node.nodesTagged("PowerIs")
+            .firstOrNull { it["args"].strField("_Comparison") == comparison }
+            ?.let { findInteger(it["args"]) as? Int }
+
+    /** The integer bound of a `ManaValueIs` clause whose `args` is `{ _Comparison, args: Integer }`; null for
+     *  a non-integer (e.g. X) bound, leaving the filter unrestricted rather than emitting a wrong number. */
+    private fun manaValueBound(node: JsonElement?, comparison: String): Int? =
+        node.nodesTagged("ManaValueIs")
             .firstOrNull { it["args"].strField("_Comparison") == comparison }
             ?.let { findInteger(it["args"]) as? Int }
 }
@@ -91,6 +104,9 @@ internal fun EmitCtx.creatureFilterExpr(filterNode: JsonElement?): Dsl? {
         "ControlledByAPlayer" !in blob -> null
         "\"Opponent\"" in blob -> Link("opponentControls")
         "\"You\"" in blob -> Link("youControl")
+        // "a creature that player controls" in a combat-damage trigger: the player ~ dealt damage to is an
+        // opponent (your creature dealt them combat damage), so it's that opponent's creature (Skirk Commando).
+        "\"Trigger_ThatPlayer\"" in blob -> Link("opponentControls")
         else -> return null
     }
     val hasController = "ControlledByAPlayer" in blob
@@ -134,6 +150,8 @@ internal fun EmitCtx.creatureFilterExpr(filterNode: JsonElement?): Dsl? {
     FilterPredicates.attacking(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.powerAtMost(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.powerAtLeast(filterNode)?.let { node = node.dot(it) }
+    FilterPredicates.manaValueAtMost(filterNode)?.let { node = node.dot(it) }
+    FilterPredicates.manaValueAtLeast(filterNode)?.let { node = node.dot(it) }
     controller?.let { node = node.dot(it) }
     return node
 }
@@ -301,6 +319,8 @@ internal fun EmitCtx.gameObjectFilterExpr(filterNode: JsonElement?): Dsl? {
     (FilterPredicates.withoutFlying(filterNode) ?: FilterPredicates.withFlying(filterNode))?.let { node = node.dot(it) }
     FilterPredicates.powerAtLeast(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.powerAtMost(filterNode)?.let { node = node.dot(it) }
+    FilterPredicates.manaValueAtMost(filterNode)?.let { node = node.dot(it) }
+    FilterPredicates.manaValueAtLeast(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.tapped(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.untapped(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.attacking(filterNode)?.let { node = node.dot(it) }

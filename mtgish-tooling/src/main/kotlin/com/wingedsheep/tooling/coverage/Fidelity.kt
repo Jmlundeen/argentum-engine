@@ -364,7 +364,10 @@ object Fidelity {
             .associate { (key, value) -> key to normalizeForFidelity(value) })
     }
 
-    private val NON_GAMEPLAY_KEYS = setOf("metadata", "oracleText", "colorIdentityOverride")
+    // `imageUri` is purely cosmetic art (a created token's picture, like a card's), never a rules input —
+    // the same reason `oracleText`/`metadata` are excluded. The emitter doesn't resolve a token's Scryfall
+    // image, so a hand-authored card carrying it would diverge on art alone; ignore it like the others.
+    private val NON_GAMEPLAY_KEYS = setOf("metadata", "oracleText", "colorIdentityOverride", "imageUri")
 
     private fun JsonObject.isAbilityNode(): Boolean {
         return containsKey("effect") && (containsKey("trigger") || containsKey("cost"))

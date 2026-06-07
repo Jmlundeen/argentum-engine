@@ -43,6 +43,24 @@ internal val damageDrawLifeHandlers: Map<String, ActionHandler> = actionHandlers
         call("DealDamageEffect", arg(amt), arg(Lit(tgt)))
     }
 
+    on("SpellDealsDamageCantBePrevented") { _, args, tvar ->
+        // "[This] deals N damage … that can't be prevented" (Pinpoint Avalanche). Same shape as
+        // SpellDealsDamage, with the can't-be-prevented flag set on the DealDamageEffect.
+        val amt = amountExpr(args) ?: dynamicAmountExpr(amountNode(args)) ?: return@on null
+        val tgt = refTargetIn(args, "_DamageRecipient", tvar) ?: return@on null
+        call("DealDamageEffect", arg(amt), arg(Lit(tgt)), arg("cantBePrevented", "true"))
+    }
+
+    on("HavePermanentDealDamage") { _, args, tvar ->
+        // "<permanent> deals N damage to <recipient>" (Skirk Commando, Snapping Thragg, Aether Charge).
+        // The acting permanent is the trigger source; the golden models it as a plain DealDamageEffect to
+        // the recipient (the damage-source attribution isn't carried), so render that and decline anything
+        // we can't resolve to a recipient exactly.
+        val amt = amountExpr(args) ?: dynamicAmountExpr(amountNode(args)) ?: return@on null
+        val tgt = refTargetIn(args, "_DamageRecipient", tvar) ?: return@on null
+        call("DealDamageEffect", arg(amt), arg(Lit(tgt)))
+    }
+
     on("SpellDealsDistributedDamage") { _, args, _ ->
         val total = findInteger(args)
         if (total !is Int) return@on null

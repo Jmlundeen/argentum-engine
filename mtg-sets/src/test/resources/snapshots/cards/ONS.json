@@ -8658,7 +8658,7 @@
     "name": "Information Dealer",
     "manaCost": "{1}{U}",
     "typeLine": "Creature — Human Wizard",
-    "oracleText": "{T}: Look at the top X cards of your library, where X is the number of Wizards you control, then put them back in any order.",
+    "oracleText": "{T}: Look at the top X cards of your library, where X is the number of Wizards on the battlefield, then put them back in any order.",
     "creatureStats": {
         "power": 1,
         "toughness": 1
@@ -8677,7 +8677,7 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "AggregateBattlefield",
-                                    "player": "You",
+                                    "player": "Each",
                                     "filter": "creature Wizard"
                                 }
                             },

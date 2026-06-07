@@ -5,6 +5,7 @@ import com.wingedsheep.tooling.coverage.Composite
 import com.wingedsheep.tooling.coverage.Dsl
 import com.wingedsheep.tooling.coverage.Lit
 import com.wingedsheep.tooling.coverage.Raw
+import com.wingedsheep.tooling.coverage.amountNode
 import com.wingedsheep.tooling.coverage.arg
 import com.wingedsheep.tooling.coverage.asArr
 import com.wingedsheep.tooling.coverage.call
@@ -54,8 +55,23 @@ internal val zoneHandlers: Map<String, ActionHandler> = actionHandlers {
         call("Effects.Move", arg(Lit(tgt)), arg("Zone.HAND"))
     }
 
+    on("GainControlOfPermanentUntil") { _, args, tvar ->
+        // "gain control of <permanent> until end of turn" (Threaten). Only the end-of-turn duration renders;
+        // a permanent gain-control uses a different action, and any other expiration scaffolds.
+        val tgt = refTarget(args, tvar) ?: return@on null
+        if (!jsonContains(args, "_Expiration", "UntilEndOfTurn")) return@on null
+        call("Effects.GainControl", arg(Lit(tgt)), arg("Duration.EndOfTurn"))
+    }
+
     on("SacrificePermanent") { _, args, _ ->  // "sacrifice ~" (Blistering Firecat's end-step sacrifice)
         if (jsonContains(args, "_Permanent", "ThisPermanent")) Lit("SacrificeSelfEffect") else null
+    }
+    on("SacrificeAPermanent") { _, args, _ ->
+        // "sacrifice a <filter>" by the resolving player (Accursed Centaur's ETB "sacrifice a creature").
+        // A player-directed sacrifice ("that player sacrifices …") arrives wrapped in a PlayerAction and is
+        // handled there; the bare effect sacrifices via the controller, so render SacrificeEffect(filter).
+        val filter = gameObjectFilterExpr(args) ?: return@on null
+        call("SacrificeEffect", arg(filter))
     }
 
     on("ShuffleGraveyardCardIntoLibrary") { _, args, tvar ->  // e.g. Alabaster Dragon
@@ -65,6 +81,13 @@ internal val zoneHandlers: Map<String, ActionHandler> = actionHandlers {
 
     on("Surveil") { _, args, _ ->  // "Surveil N" -> the look-top / keep-or-bin pipeline
         (findInteger(args) as? Int)?.let { call("Patterns.Library.surveil", arg("$it")) }
+    }
+
+    on("ReturnGraveyardCardToHand") { _, args, _ ->
+        // "Return this card from your graveyard to your hand" (Gangrenous Goliath's graveyard ability). Only
+        // the self (this graveyard card) form renders; a chosen graveyard-card target scaffolds.
+        if (jsonContains(args, "_GraveyardCard", "ThisGraveyardCard"))
+            call("Effects.Move", arg("EffectTarget.Self"), arg("Zone.HAND")) else null
     }
 
     on("PutACardFromHandOnBattlefield") { _, args, _ ->  // "you may put a [basic land] card from your hand …"
@@ -140,14 +163,17 @@ internal fun EmitCtx.renderSearch(args: JsonElement?): Dsl? {
 }
 
 internal fun EmitCtx.renderLook(node: JsonObject, args: JsonElement?, tvar: String?): Dsl? {
-    val look = findInteger(node) ?: return null
     val blob = compact(node)
     // A conditional look ("...if there is an instant and a sorcery card in your graveyard, instead put
     // two of them...") branches the kept count; the flat lookAtTopAndKeep can't express it (and the
     // keep-count regex below would wrongly read the conditional branch's number), so scaffold.
     if ("IfElse" in blob || "_Condition" in blob) return null
-    if (oracleText?.contains("target", ignoreCase = true) == true) {
-        if (node.strField("_Action") != "LookAtTheTopNumberCardsOfPlayersLibrary" || tvar == null) return null
+    // "look at the top N of TARGET player's library, put one in their graveyard, the rest back" — the
+    // distribute pipeline. Gate it on the player-targeted ACTION, not on the oracle mentioning "target"
+    // (a card may target a spell/creature elsewhere — Discombobulate's "counter target spell").
+    if (node.strField("_Action") == "LookAtTheTopNumberCardsOfPlayersLibrary") {
+        val look = findInteger(node) ?: return null
+        if (tvar == null) return null
         if ("PutAGenericCardIntoGraveyard" !in blob || "PutTheRemainingCardsOnTopOfLibraryInAnyOrder" !in blob) return null
         // The look-and-distribute pipeline keeps its hand-indented multi-line element strings as Raw —
         // a shape no leaf node models yet — inside the multi-line Composite node.
@@ -173,9 +199,16 @@ internal fun EmitCtx.renderLook(node: JsonObject, args: JsonElement?, tvar: Stri
             ),
         ))
     }
+    // "Look at the top N, put some into your hand" — only a fixed look/keep count renders this way.
+    val look = findInteger(node)
     var keep: Int? = null
     for (m in Regex(""""PutNumber\w*IntoHand".*?"args":\s*(\d+)""").findAll(blob)) keep = m.groupValues[1].toInt()
-    if (keep != null) return call("Patterns.Library.lookAtTopAndKeep", arg("count", "$look"), arg("keepCount", "$keep"))
-    if ("PutTheRemainingCardsOnTopOfLibraryInAnyOrder" in blob) return call("Patterns.Library.lookAtTopAndReorder", arg("count", "$look"))
+    if (keep != null && look != null) return call("Patterns.Library.lookAtTopAndKeep", arg("count", "$look"), arg("keepCount", "$keep"))
+    // "Look at the top N, then put them back in any order." N may be fixed (Discombobulate: 4) or a
+    // dynamic count (Information Dealer: number of Wizards you control).
+    if ("PutTheRemainingCardsOnTopOfLibraryInAnyOrder" in blob) {
+        val count = look?.toString() ?: dynamicAmount(amountNode(node)) ?: return null
+        return call("Patterns.Library.lookAtTopAndReorder", arg("count", count))
+    }
     return null
 }

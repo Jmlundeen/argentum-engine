@@ -12,6 +12,7 @@ import com.wingedsheep.tooling.coverage.Sub
 import com.wingedsheep.tooling.coverage.arg
 import com.wingedsheep.tooling.coverage.argWordsTagged
 import com.wingedsheep.tooling.coverage.asArr
+import com.wingedsheep.tooling.coverage.asInt
 import com.wingedsheep.tooling.coverage.asStr
 import com.wingedsheep.tooling.coverage.call
 import com.wingedsheep.tooling.coverage.compact
@@ -336,6 +337,19 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject): List<Stmt>? {
         val dsl: Dsl = when (rep.strField("_ReplacementActionWouldEnter")) {
             "EntersTapped" -> call("EntersTapped")
             "ChooseACreatureType" -> call("EntersWithChoice", arg("ChoiceType.CREATURE_TYPE"))
+            "EntersWithNumberCounters" -> {
+                // "enters with X +1/+1 counters" where X is a dynamic count (Stag Beetle: number of other
+                // creatures — as it enters, self isn't on the battlefield, so the plain count IS "other").
+                // Only the ±1/±1 counter with a recoverable dynamic amount renders; anything else scaffolds.
+                val a = rep["args"].asArr ?: run { reasons.add("AsPermanentEnters"); return null }
+                val counter = a.getOrNull(1) as? JsonObject
+                val pt = counter?.get("args").asArr
+                if (counter?.strField("_CounterType") != "PTCounter" || pt?.getOrNull(0).asInt() != 1 || pt?.getOrNull(1).asInt() != 1) {
+                    reasons.add("AsPermanentEnters"); return null
+                }
+                val amt = dynamicAmountExpr(a.getOrNull(0)) ?: run { reasons.add("AsPermanentEnters"); return null }
+                call("EntersWithDynamicCounters", arg("count", amt))
+            }
             else -> { reasons.add("AsPermanentEnters"); return null }
         }
         stmts.add(Eval(call("replacementEffect", arg(dsl))))
@@ -366,8 +380,21 @@ internal fun EmitCtx.fromAnyZoneBlock(rule: JsonObject): List<Stmt>? {
     return listOf(Sub(Block("triggeredAbility", stmts)))
 }
 
+/**
+ * A `FromGraveyard { Activated { … } }` rule -> the inner activated ability with
+ * `activateFromZone = Zone.GRAVEYARD` ("{cost}, … : Return this card from your graveyard to your hand",
+ * Gangrenous Goliath). Only a plain Activated inner renders; anything else scaffolds.
+ */
+internal fun EmitCtx.fromGraveyardBlock(rule: JsonObject): List<Stmt>? {
+    val inner = rule["args"] as? JsonObject
+    return when (inner?.strField("_Rule")) {
+        "Activated", "ActivatedWithModifiers" -> activatedBlock(inner, activateFromZone = "Zone.GRAVEYARD")
+        else -> { reasons.add("FromGraveyard"); return null }
+    }
+}
+
 /** An Activated / ActivatedWithModifiers rule -> activatedAbility { cost; [target]; effect }. */
-internal fun EmitCtx.activatedBlock(rule: JsonObject): List<Stmt>? {
+internal fun EmitCtx.activatedBlock(rule: JsonObject, activateFromZone: String? = null): List<Stmt>? {
     val args = rule["args"].asArr
     val costNode = args?.firstOrNull() as? JsonObject
     // Recover the exact activation cost. Anything we can't render exactly -> SCAFFOLD (never guess Tap).
@@ -381,6 +408,7 @@ internal fun EmitCtx.activatedBlock(rule: JsonObject): List<Stmt>? {
     activationRestrictionLines(rule)?.let { lines -> lines.forEach { stmts.add(RawLine(it)) } } ?: return null
     if (tvar != null) stmts.add(targetLocal(tnode!!))
     stmts.add(Assign("effect", edsl))
+    if (activateFromZone != null) stmts.add(Assign("activateFromZone", Lit(activateFromZone)))
     // A ReplaceNextDraw effect ("the next time you would draw … instead") prompts on the replaced draw,
     // not at activation — the activated-ability flag the Words cycle's golden carries.
     if (actions.any { it.strField("_Action") == "CreateFutureReplaceWouldDraw" }) stmts.add(Assign("promptOnDraw", Lit("true")))
@@ -405,6 +433,10 @@ internal fun EmitCtx.abilityCostDsl(node: JsonElement?): String? {
             "Costs.Composite(${parts.joinToString(", ")})"
         }
         "PayMana" -> renderMana(obj.field("args")).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }
+        // "{X}{G}{G}" activation cost — args are [symbol-list, the X game number]; render the symbol list
+        // (ManaCostX -> "{X}") as the mana cost (Silklash Spider).
+        "PayManaX" -> renderMana((obj["args"].asArr)?.getOrNull(0)).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }
+        "DiscardHand" -> "Costs.DiscardHand"  // "Discard your hand" (Slate of Ancestry)
         "TapPermanent" ->
             if (obj.field("args").strField("_Permanent") == "ThisPermanent") "Costs.Tap" else null
         "SacrificePermanent" ->

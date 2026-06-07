@@ -2,7 +2,14 @@ package com.wingedsheep.tooling.coverage.bridge
 
 /** Direct one-to-one effects: damage, life, card draw, and the common single-permanent verbs. */
 internal fun BridgeBuilder.damageLifeAndCards() {
-    effects("SpellDealsDamage", "PermanentDealsDamage", tag = "DealDamage")
+    effects(
+        "SpellDealsDamage", "PermanentDealsDamage",
+        // "this spell deals N damage … that can't be prevented" (Pinpoint Avalanche) and "have <permanent>
+        // deal N damage to <recipient>" (Skirk Commando, Snapping Thragg, Aether Charge) — both realise as
+        // a DealDamageEffect, so they carry the same DealDamage capability as the plain spell/permanent forms.
+        "SpellDealsDamageCantBePrevented", "HavePermanentDealDamage",
+        tag = "DealDamage",
+    )
     effect("SpellDealsDistributedDamage", "DividedDamage")
 
     effects("DrawNumberCards", "DrawACard", tag = "DrawCards")
@@ -26,6 +33,9 @@ internal fun BridgeBuilder.damageLifeAndCards() {
     composed("TapEachPermanent", composes = listOf("TapUntap"))
     composed("UntapEachPermanent", composes = listOf("TapUntap"))
 
-    effect("AdjustPT", "ModifyStats")
+    // Plain ±P/T and the two dynamic-amount variants (AdjustPTX uses a ±X modifier over a game number —
+    // Wirewood Pride / Feeding Frenzy / Tribal Unity; AdjustPTForEach scales a fixed base by a count —
+    // Goblin Piledriver / Shaleskin Bruiser) all realise as a ModifyStatsEffect.
+    effects("AdjustPT", "AdjustPTX", "AdjustPTForEach", tag = "ModifyStats")
     effect("AddAbility", "GrantKeyword")
 }

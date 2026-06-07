@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Creature — Human Wizard
  * 1/1
  * {T}: Look at the top X cards of your library, where X is the number of
- * Wizards you control, then put them back in any order.
+ * Wizards on the battlefield, then put them back in any order.
  */
 val InformationDealer = card("Information Dealer") {
     manaCost = "{1}{U}"
@@ -22,13 +22,13 @@ val InformationDealer = card("Information Dealer") {
     typeLine = "Creature — Human Wizard"
     power = 1
     toughness = 1
-    oracleText = "{T}: Look at the top X cards of your library, where X is the number of Wizards you control, then put them back in any order."
+    oracleText = "{T}: Look at the top X cards of your library, where X is the number of Wizards on the battlefield, then put them back in any order."
 
     activatedAbility {
         cost = AbilityCost.Tap
         effect = Patterns.Library.lookAtTopAndReorder(
             DynamicAmount.AggregateBattlefield(
-                Player.You,
+                Player.Each,
                 GameObjectFilter.Creature.withSubtype("Wizard")
             )
         )
