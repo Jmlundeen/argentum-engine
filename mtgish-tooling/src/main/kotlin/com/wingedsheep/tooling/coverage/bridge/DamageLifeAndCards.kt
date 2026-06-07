@@ -17,6 +17,12 @@ internal fun BridgeBuilder.damageLifeAndCards() {
     // "The next time you would draw a card this turn, [do X] instead" (the Onslaught Words cycle); the
     // replacement action's own capability is surfaced via the `_ReplacementActionWouldDraw` discriminator.
     effect("CreateFutureReplaceWouldDraw", "ReplaceNextDrawWith")
+    // "Prevent the next N damage that would be dealt to <recipient> this turn" — the damage twin of the
+    // draw replacement above (Daru Healer, Samite Healer, the Circles' "to you" mode, Healing Salve, …).
+    // The common prevent shape is one PreventDamageEffect; redirect / gain-life / distributed replacement
+    // variants compose further primitives, so this is `composed` (mirrors `CreateReplaceWouldDealDamageUntil`).
+    composed("CreateFutureReplaceWouldDealDamage", "PreventDamageShield (prevent next N damage to recipient)",
+        composes = listOf("PreventDamageShield"))
     composed("GainLifeForEach", "GainLife + DynamicAmount", composes = listOf("GainLife"))
     effect("GainLife", "GainLife")
     effect("LoseLife", "LoseLife")
