@@ -4,6 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -30,7 +31,7 @@ val ElvishSkysweeper = card("Elvish Skysweeper") {
     toughness = 1
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}{G}"), Costs.Sacrifice(GameObjectFilter.Creature))
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target("target", TargetCreature(filter = TargetFilter.Creature.withKeyword(Keyword.FLYING)))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
     metadata {

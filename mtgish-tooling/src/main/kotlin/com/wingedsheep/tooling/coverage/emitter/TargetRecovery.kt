@@ -103,6 +103,13 @@ internal fun EmitCtx.creatureFilterExpr(filterNode: JsonElement?): Dsl? {
             Call("TargetFilter", listOf(arg(Lit("GameObjectFilter.Creature").dot("attackingOrBlocking").dot("withKeyword", arg("Keyword.FLYING")))))
         else Lit("TargetFilter.AttackingOrBlockingCreature")
     }
+    if ("IsBlocking" in blob && "IsAttacking" !in blob) {
+        if (hasController) return null
+        // "...with flying" composes onto the blocking base; bare "blocking creature" uses the constant.
+        return if ("\"Flying\"" in blob)
+            Call("TargetFilter", listOf(arg(Lit("GameObjectFilter.Creature").dot("blocking").dot("withKeyword", arg("Keyword.FLYING")))))
+        else Lit("TargetFilter.BlockingCreature")
+    }
     if ("IsFaceDown" in blob) {
         if (hasController) return null
         return Call("TargetFilter", listOf(arg(Lit("GameObjectFilter.Creature").dot("faceDown"))))
@@ -120,7 +127,9 @@ internal fun EmitCtx.creatureFilterExpr(filterNode: JsonElement?): Dsl? {
     // IsColor/IsNonColor-scoped single-color recovery rather than gameObjectFilterDsl's collect-all.
     filterNode.firstColorOf("IsNonColor")?.let { node = node.dot("notColor", arg("Color.${it.uppercase()}")) }
     filterNode.firstColorOf("IsColor")?.let { node = node.dot("withColor", arg("Color.${it.uppercase()}")) }
-    FilterPredicates.withoutFlying(filterNode)?.let { node = node.dot(it) }
+    // "...with flying" / "...without flying" — withoutFlying first, since a DoesntHaveAbility Flying
+    // clause also satisfies the plain-Flying string check (mirrors gameObjectFilterExpr).
+    (FilterPredicates.withoutFlying(filterNode) ?: FilterPredicates.withFlying(filterNode))?.let { node = node.dot(it) }
     FilterPredicates.tapped(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.attacking(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.powerAtMost(filterNode)?.let { node = node.dot(it) }
@@ -253,6 +262,11 @@ internal fun EmitCtx.gameObjectFilterDsl(filterNode: JsonElement?): String? = ga
 
 internal fun EmitCtx.gameObjectFilterExpr(filterNode: JsonElement?): Dsl? {
     val blob = compact(filterNode)
+    // "shares a color with [the target]" (Radiance) is a group predicate bound to the resolved target's
+    // colors — we can't express it in a static GroupFilter, and silently dropping it would widen the
+    // effect to every creature on the battlefield. Decline so radiance scaffolds rather than emitting a
+    // confidently-wrong mass effect (Cleansing Beam, Surge of Zeal, the Wojek pingers).
+    if ("SharesAColorWithPermanent" in blob) return null
     val types = targetTypes(filterNode)
     val subs = subtypes(filterNode)
     // Creature subtypes come from IsCreatureType (subtypes() only collects land/card subtypes).

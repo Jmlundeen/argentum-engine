@@ -28,7 +28,7 @@ val WarTorchGoblin = card("War-Torch Goblin") {
     toughness = 1
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target("target", TargetCreature(filter = TargetFilter.BlockingCreature))
         effect = DealDamageEffect(2, t)
     }
     metadata {

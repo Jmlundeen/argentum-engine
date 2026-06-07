@@ -550,50 +550,6 @@
     ]
 }
 
-// Cleansing Beam
-{
-    "name": "Cleansing Beam",
-    "manaCost": "{4}{R}",
-    "typeLine": "Instant",
-    "oracleText": "Radiance — Cleansing Beam deals 2 damage to target creature and each other creature that shares a color with it.",
-    "script": {
-        "spellEffect": {
-            "type": "ForEachInGroup",
-            "filter": {
-                "baseFilter": "creature",
-                "excludeSelf": true
-            },
-            "effect": {
-                "type": "DealDamage",
-                "amount": {
-                    "type": "Fixed",
-                    "amount": 2
-                },
-                "target": "Self"
-            }
-        },
-        "targetRequirements": [
-            {
-                "type": "TargetObject",
-                "filter": {
-                    "baseFilter": "creature"
-                },
-                "id": "target"
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "118",
-        "rarity": "UNCOMMON",
-        "artist": "Pat Lee",
-        "flavorText": "\"Justice is toothless without punishment. Righteousness cannot succeed without the suffering of the guilty.\"\n—Razia",
-        "imageUri": "https://cards.scryfall.io/normal/front/6/3/63cbaab6-db0d-40bb-bdf4-aee6543d9f27.jpg"
-    },
-    "colorIdentityOverride": [
-        "RED"
-    ]
-}
-
 // Clinging Darkness
 {
     "name": "Clinging Darkness",
@@ -1214,7 +1170,7 @@
                     {
                         "type": "TargetObject",
                         "filter": {
-                            "baseFilter": "creature"
+                            "baseFilter": "creature kw:flying"
                         },
                         "id": "target"
                     }
@@ -2432,71 +2388,6 @@
     ]
 }
 
-// Rally the Righteous
-{
-    "name": "Rally the Righteous",
-    "manaCost": "{1}{R}{W}",
-    "typeLine": "Instant",
-    "oracleText": "Radiance — Untap target creature and each other creature that shares a color with it. Those creatures get +2/+0 until end of turn.",
-    "script": {
-        "spellEffect": {
-            "type": "Composite",
-            "effects": [
-                {
-                    "type": "ForEachInGroup",
-                    "filter": {
-                        "baseFilter": "creature",
-                        "excludeSelf": true
-                    },
-                    "effect": {
-                        "type": "TapUntap",
-                        "target": "Self",
-                        "tap": false
-                    }
-                },
-                {
-                    "type": "ForEachInGroup",
-                    "filter": {
-                        "baseFilter": "permanent",
-                        "excludeSelf": true
-                    },
-                    "effect": {
-                        "type": "ModifyStats",
-                        "powerModifier": {
-                            "type": "Fixed",
-                            "amount": 2
-                        },
-                        "toughnessModifier": {
-                            "type": "Fixed",
-                            "amount": 0
-                        },
-                        "target": "Self"
-                    }
-                }
-            ]
-        },
-        "targetRequirements": [
-            {
-                "type": "TargetObject",
-                "filter": {
-                    "baseFilter": "creature"
-                },
-                "id": "target"
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "222",
-        "artist": "Dan Murayama Scott",
-        "flavorText": "Yuri took up the ragged Boros banner, and his brethren, inspired by the act, followed him back into the fight.",
-        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9da51b6c-2e27-4b41-8fb0-bd9f6ad47b19.jpg"
-    },
-    "colorIdentityOverride": [
-        "WHITE",
-        "RED"
-    ]
-}
-
 // Recollect
 {
     "name": "Recollect",
@@ -2968,46 +2859,6 @@
     ]
 }
 
-// Surge of Zeal
-{
-    "name": "Surge of Zeal",
-    "manaCost": "{R}",
-    "typeLine": "Instant",
-    "oracleText": "Radiance — Target creature and each other creature that shares a color with it gain haste until end of turn.",
-    "script": {
-        "spellEffect": {
-            "type": "ForEachInGroup",
-            "filter": {
-                "baseFilter": "creature",
-                "excludeSelf": true
-            },
-            "effect": {
-                "type": "GrantKeyword",
-                "keyword": "HASTE",
-                "target": "Self"
-            }
-        },
-        "targetRequirements": [
-            {
-                "type": "TargetObject",
-                "filter": {
-                    "baseFilter": "creature"
-                },
-                "id": "target"
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "146",
-        "artist": "Justin Sweet",
-        "flavorText": "\"If only my poxes were as infectious as their zealotry.\"\n—Savra",
-        "imageUri": "https://cards.scryfall.io/normal/front/b/6/b6c07fa6-b575-46f9-ab39-fb777d4b8acd.jpg"
-    },
-    "colorIdentityOverride": [
-        "RED"
-    ]
-}
-
 // Surveilling Sprite
 {
     "name": "Surveilling Sprite",
@@ -3089,129 +2940,6 @@
     "colorIdentityOverride": [
         "BLUE",
         "BLACK"
-    ]
-}
-
-// Three Dreams
-{
-    "name": "Three Dreams",
-    "manaCost": "{4}{W}",
-    "typeLine": "Sorcery",
-    "oracleText": "Search your library for up to three Aura cards with different names, reveal them, put them into your hand, then shuffle.",
-    "script": {
-        "spellEffect": {
-            "type": "Composite",
-            "effects": [
-                {
-                    "type": "GatherCards",
-                    "source": {
-                        "type": "FromZone",
-                        "zone": "Library"
-                    },
-                    "storeAs": "searchable"
-                },
-                {
-                    "type": "SelectFromCollection",
-                    "from": "searchable",
-                    "selection": {
-                        "type": "ChooseUpTo",
-                        "count": {
-                            "type": "Fixed",
-                            "amount": 3
-                        }
-                    },
-                    "storeSelected": "found"
-                },
-                {
-                    "type": "MoveCollection",
-                    "from": "found",
-                    "destination": {
-                        "type": "ToZone",
-                        "zone": "Hand"
-                    },
-                    "revealed": true
-                },
-                "ShuffleLibrary"
-            ]
-        }
-    },
-    "metadata": {
-        "collectorNumber": "32",
-        "rarity": "RARE",
-        "artist": "Shishizaru",
-        "flavorText": "\"Choose one to heal, one to harm, and one to grant you the prudence to use them.\"\n—Miotri, auratouched mage",
-        "imageUri": "https://cards.scryfall.io/normal/front/1/f/1fb144b8-f2ee-4d35-814d-ceb728b2ab75.jpg"
-    },
-    "colorIdentityOverride": [
-        "WHITE"
-    ]
-}
-
-// Trophy Hunter
-{
-    "name": "Trophy Hunter",
-    "manaCost": "{2}{G}",
-    "typeLine": "Creature — Human Archer",
-    "oracleText": "{1}{G}: This creature deals 1 damage to target creature with flying.\nWhenever a creature with flying dealt damage by this creature this turn dies, put a +1/+1 counter on this creature.",
-    "creatureStats": {
-        "power": 2,
-        "toughness": 3
-    },
-    "script": {
-        "triggeredAbilities": [
-            {
-                "id": "ability_1",
-                "trigger": {
-                    "type": "ZoneChangeEvent",
-                    "from": "Battlefield",
-                    "to": "Graveyard"
-                },
-                "effect": {
-                    "type": "AddCounters",
-                    "counterType": "+1/+1",
-                    "count": 1,
-                    "target": "Self"
-                }
-            }
-        ],
-        "activatedAbilities": [
-            {
-                "id": "ability_2",
-                "cost": {
-                    "type": "CostMana",
-                    "cost": "{1}{G}"
-                },
-                "effect": {
-                    "type": "DealDamage",
-                    "amount": {
-                        "type": "Fixed",
-                        "amount": 1
-                    },
-                    "target": {
-                        "type": "BoundVariable",
-                        "name": "target"
-                    }
-                },
-                "targetRequirements": [
-                    {
-                        "type": "TargetObject",
-                        "filter": {
-                            "baseFilter": "creature"
-                        },
-                        "id": "target"
-                    }
-                ]
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "187",
-        "rarity": "UNCOMMON",
-        "artist": "rk post",
-        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f18d1047-9010-437c-94ab-7a8ad3a0250f.jpg"
-    },
-    "colorIdentityOverride": [
-        "GREEN"
     ]
 }
 
@@ -3669,7 +3397,7 @@
                     {
                         "type": "TargetObject",
                         "filter": {
-                            "baseFilter": "creature"
+                            "baseFilter": "creature blocking"
                         },
                         "id": "target"
                     }
@@ -3707,106 +3435,5 @@
     "colorIdentityOverride": [
         "WHITE",
         "GREEN"
-    ]
-}
-
-// Wojek Embermage
-{
-    "name": "Wojek Embermage",
-    "manaCost": "{3}{R}",
-    "typeLine": "Creature — Human Wizard",
-    "oracleText": "Radiance — {T}: This creature deals 1 damage to target creature and each other creature that shares a color with it.",
-    "creatureStats": {
-        "power": 1,
-        "toughness": 2
-    },
-    "script": {
-        "activatedAbilities": [
-            {
-                "id": "ability_1",
-                "cost": "CostTap",
-                "effect": {
-                    "type": "ForEachInGroup",
-                    "filter": {
-                        "baseFilter": "creature",
-                        "excludeSelf": true
-                    },
-                    "effect": {
-                        "type": "DealDamage",
-                        "amount": {
-                            "type": "Fixed",
-                            "amount": 1
-                        },
-                        "target": "Self"
-                    }
-                },
-                "targetRequirements": [
-                    {
-                        "type": "TargetObject",
-                        "filter": {
-                            "baseFilter": "creature"
-                        },
-                        "id": "target"
-                    }
-                ]
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "152",
-        "rarity": "UNCOMMON",
-        "artist": "Luca Zontini",
-        "flavorText": "\"Your brother's crimes are your crimes. You stood by and lent support, so you too must face judgment.\"",
-        "imageUri": "https://cards.scryfall.io/normal/front/e/1/e1614866-fb0b-47bd-ab26-5c20ff175d10.jpg"
-    },
-    "colorIdentityOverride": [
-        "RED"
-    ]
-}
-
-// Wojek Siren
-{
-    "name": "Wojek Siren",
-    "manaCost": "{W}",
-    "typeLine": "Instant",
-    "oracleText": "Radiance — Target creature and each other creature that shares a color with it get +1/+1 until end of turn.",
-    "script": {
-        "spellEffect": {
-            "type": "ForEachInGroup",
-            "filter": {
-                "baseFilter": "creature",
-                "excludeSelf": true
-            },
-            "effect": {
-                "type": "ModifyStats",
-                "powerModifier": {
-                    "type": "Fixed",
-                    "amount": 1
-                },
-                "toughnessModifier": {
-                    "type": "Fixed",
-                    "amount": 1
-                },
-                "target": "Self"
-            }
-        },
-        "targetRequirements": [
-            {
-                "type": "TargetObject",
-                "filter": {
-                    "baseFilter": "creature"
-                },
-                "id": "target"
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "37",
-        "artist": "Zoltan Boros & Gabor Szikszai",
-        "flavorText": "It is the call to arms, the call to fury, the call to blood.",
-        "imageUri": "https://cards.scryfall.io/normal/front/a/5/a55c0d7d-2325-4d7e-b449-c8fdcf988ec0.jpg"
-    },
-    "colorIdentityOverride": [
-        "WHITE"
     ]
 }
