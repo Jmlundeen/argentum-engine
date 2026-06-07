@@ -124,12 +124,15 @@ class TriggerIndex(
     )
 
     /**
-     * A grant provider paired with the controller of the source permanent.
-     * Needed to evaluate controller predicates like "you control" relative to the source.
+     * A grant provider paired with the controller and entity id of the source permanent.
+     * The controller is needed to evaluate controller predicates like "you control"; the
+     * entity id is needed to honor `GroupFilter.excludeSelf` ("Other creatures you control
+     * have …"), so the granting permanent does not grant the ability to itself.
      */
     data class GrantProviderEntry(
         val grant: GrantTriggeredAbility,
         val sourceControllerId: EntityId,
+        val sourceEntityId: EntityId,
     )
 
     companion object {

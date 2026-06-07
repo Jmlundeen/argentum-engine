@@ -96,7 +96,7 @@ class TriggerDetector(
                 if (ability is GrantTriggeredAbility &&
                     ability.filter.scope is com.wingedsheep.sdk.scripting.filters.unified.Scope.Battlefield
                 ) {
-                    grantProviders.add(TriggerIndex.GrantProviderEntry(ability, sourceControllerId))
+                    grantProviders.add(TriggerIndex.GrantProviderEntry(ability, sourceControllerId, permanentId))
                 }
             }
         }

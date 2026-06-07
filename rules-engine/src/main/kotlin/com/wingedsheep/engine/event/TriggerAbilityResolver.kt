@@ -256,6 +256,11 @@ class TriggerAbilityResolver(
 
         return buildList {
             for (entry in grantProviders) {
+                // "Other creatures you control have …" — the granting permanent must not grant
+                // the ability to itself. The slow path honors excludeSelf; the fast provider
+                // path previously omitted it, so the source double-triggered (e.g. Bria,
+                // Riptide Rogue got prowess twice).
+                if (entry.grant.filter.excludeSelf && entityId == entry.sourceEntityId) continue
                 val filter = entry.grant.filter.baseFilter
                 val matchesAll = filter.cardPredicates.all { predicate ->
                     when (predicate) {
