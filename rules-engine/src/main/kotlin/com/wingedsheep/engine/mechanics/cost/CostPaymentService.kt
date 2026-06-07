@@ -317,12 +317,8 @@ class CostPaymentService(private val services: EngineServices) {
     }
 
     private fun payLife(state: GameState, payerId: EntityId, amount: Int): CostPaymentExecution {
-        val currentLife = life(state, payerId)
-        val newLife = currentLife - amount
-        var newState = state.updateEntity(payerId) { it.with(LifeTotalComponent(newLife)) }
-        newState = DamageUtils.markLifeLostThisTurn(newState, payerId)
-        val events = listOf(LifeChangedEvent(payerId, currentLife, newLife, LifeChangeReason.PAYMENT))
-        return CostPaymentExecution(newState, events, success = true)
+        val (newState, event) = DamageUtils.loseLife(state, payerId, amount, LifeChangeReason.PAYMENT)
+        return CostPaymentExecution(newState, listOfNotNull(event), success = true)
     }
 
     private fun discardSelected(state: GameState, payerId: EntityId, selected: List<EntityId>): CostPaymentExecution {

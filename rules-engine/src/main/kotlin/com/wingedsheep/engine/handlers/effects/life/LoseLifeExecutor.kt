@@ -2,14 +2,12 @@ package com.wingedsheep.engine.handlers.effects.life
 
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
-import com.wingedsheep.engine.core.LifeChangedEvent
 import com.wingedsheep.engine.core.LifeChangeReason
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import kotlin.reflect.KClass
 
@@ -39,14 +37,13 @@ class LoseLifeExecutor(
         val events = mutableListOf<EngineGameEvent>()
 
         for (playerId in playerIds) {
-            val currentLife = newState.getEntity(playerId)?.get<LifeTotalComponent>()?.life ?: continue
-            val modifiedAmount = DamageUtils.applyStaticLifeLossModification(newState, playerId, amount)
-            val newLife = currentLife - modifiedAmount
-            newState = newState.updateEntity(playerId) { container ->
-                container.with(LifeTotalComponent(newLife))
-            }
-            events.add(LifeChangedEvent(playerId, currentLife, newLife, LifeChangeReason.LIFE_LOSS))
-            newState = DamageUtils.markLifeLostThisTurn(newState, playerId)
+            val (updatedState, event) = DamageUtils.loseLife(
+                newState, playerId, amount,
+                reason = LifeChangeReason.LIFE_LOSS,
+                applyLifeLossModification = true,
+            )
+            newState = updatedState
+            if (event != null) events.add(event)
         }
 
         return EffectResult.success(newState, events)

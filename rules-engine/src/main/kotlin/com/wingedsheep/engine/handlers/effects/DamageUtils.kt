@@ -349,6 +349,52 @@ object DamageUtils {
     }
 
     /**
+     * The single shared primitive behind every non-damage life reduction: reduce [playerId]'s
+     * life total by [amount], mark them as having lost life this turn, and emit one
+     * [LifeChangedEvent] tagged with [reason]. Used by the LoseLife *effect* and by every
+     * pay-life *cost* path (`AbilityCost.PayLife`/`PayXLife`, `PayCost.PayLife`).
+     *
+     * Cost vs. effect deliberately stay separate call sites — a cost is checked, atomic, and
+     * can't be responded to, while an effect resolves off the stack — but the actual
+     * life-deduction mutation they both perform is identical and lives here so it isn't
+     * duplicated. The differences are carried by parameters:
+     * - [reason] distinguishes `LIFE_LOSS` (effect) from `PAYMENT` (cost) on the emitted event.
+     * - [applyLifeLossModification] runs the amount through [applyStaticLifeLossModification]
+     *   first (CR 119.3 life-loss replacements such as Bloodletter of Aclazotz). True for the
+     *   LoseLife effect; false for paying life as a cost (a cost payment is not a life-loss
+     *   event those replacements modify).
+     *
+     * (Damage that reduces life routes through [dealDamageToTarget] instead — it has its own
+     * prevention/redirection pipeline — though that path applies the same life-loss
+     * modification step.)
+     *
+     * Returns the updated state paired with the emitted event, or `state to null` when
+     * [playerId] has no life total (no mutation performed) so cost callers can surface a
+     * payment failure.
+     */
+    fun loseLife(
+        state: GameState,
+        playerId: EntityId,
+        amount: Int,
+        reason: LifeChangeReason,
+        applyLifeLossModification: Boolean = false,
+    ): Pair<GameState, LifeChangedEvent?> {
+        val currentLife = state.getEntity(playerId)?.get<LifeTotalComponent>()?.life
+            ?: return state to null
+        val lossAmount = if (applyLifeLossModification) {
+            applyStaticLifeLossModification(state, playerId, amount)
+        } else {
+            amount
+        }
+        val newLife = currentLife - lossAmount
+        var newState = state.updateEntity(playerId) { container ->
+            container.with(LifeTotalComponent(newLife))
+        }
+        newState = markLifeLostThisTurn(newState, playerId)
+        return newState to LifeChangedEvent(playerId, currentLife, newLife, reason)
+    }
+
+    /**
      * Whether [targetId] has not yet had counters put on it this turn — i.e. the placement about
      * to happen is the first this turn. Read *before* [markCounterPlacedOnCreature] sets the
      * marker, to stamp [com.wingedsheep.engine.core.CountersAddedEvent.firstThisTurn] for

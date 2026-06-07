@@ -270,34 +270,18 @@ class CostHandler(
                 CostPaymentResult.success(state, newPool)
             }
             is AbilityCost.PayLife -> {
-                val currentLife = state.getEntity(controllerId)?.get<LifeTotalComponent>()?.life
-                    ?: return CostPaymentResult.failure("Player has no life total")
-                val newLife = currentLife - cost.amount
-                var newState = state.updateEntity(controllerId) { container ->
-                    container.with(LifeTotalComponent(newLife))
-                }
-                newState = DamageUtils.markLifeLostThisTurn(newState, controllerId)
-                CostPaymentResult.success(
-                    newState, manaPool,
-                    events = listOf(LifeChangedEvent(controllerId, currentLife, newLife, LifeChangeReason.PAYMENT))
-                )
+                val (newState, event) = DamageUtils.loseLife(state, controllerId, cost.amount, LifeChangeReason.PAYMENT)
+                if (event == null) return CostPaymentResult.failure("Player has no life total")
+                CostPaymentResult.success(newState, manaPool, events = listOf(event))
             }
             is AbilityCost.PayXLife -> {
                 val amount = choices.xValue
                 if (amount == 0) {
                     CostPaymentResult.success(state, manaPool)
                 } else {
-                    val currentLife = state.getEntity(controllerId)?.get<LifeTotalComponent>()?.life
-                        ?: return CostPaymentResult.failure("Player has no life total")
-                    val newLife = currentLife - amount
-                    var newState = state.updateEntity(controllerId) { container ->
-                        container.with(LifeTotalComponent(newLife))
-                    }
-                    newState = DamageUtils.markLifeLostThisTurn(newState, controllerId)
-                    CostPaymentResult.success(
-                        newState, manaPool,
-                        events = listOf(LifeChangedEvent(controllerId, currentLife, newLife, LifeChangeReason.PAYMENT))
-                    )
+                    val (newState, event) = DamageUtils.loseLife(state, controllerId, amount, LifeChangeReason.PAYMENT)
+                    if (event == null) return CostPaymentResult.failure("Player has no life total")
+                    CostPaymentResult.success(newState, manaPool, events = listOf(event))
                 }
             }
             is AbilityCost.Sacrifice, is AbilityCost.SacrificeChosenCreatureType -> {
