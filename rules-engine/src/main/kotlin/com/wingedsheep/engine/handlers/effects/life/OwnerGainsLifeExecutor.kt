@@ -1,12 +1,9 @@
 package com.wingedsheep.engine.handlers.effects.life
 
 import com.wingedsheep.engine.core.EffectResult
-import com.wingedsheep.engine.core.LifeChangedEvent
-import com.wingedsheep.engine.core.LifeChangeReason
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
-import com.wingedsheep.engine.handlers.effects.LifeGainModifiers
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
@@ -42,31 +39,13 @@ class OwnerGainsLifeExecutor : EffectExecutor<OwnerGainsLifeEffect> {
             ?: targetContainer?.get<CardComponent>()?.ownerId
             ?: return EffectResult.success(state) // Can't determine owner, effect fizzles
 
-        // Get the owner's current life total
-        val currentLife = state.getEntity(ownerId)?.get<LifeTotalComponent>()?.life
-            ?: return EffectResult.error(state, "Owner has no life total")
-
-        // Respect PreventLifeGain replacement effects (e.g. Sunspine Lynx, Sulfuric Vortex)
-        if (DamageUtils.isLifeGainPrevented(state, ownerId)) {
-            return EffectResult.success(state)
+        // Owner must have a life total
+        if (state.getEntity(ownerId)?.get<LifeTotalComponent>()?.life == null) {
+            return EffectResult.error(state, "Owner has no life total")
         }
 
-        // Apply ModifyLifeGain replacements before any life is actually gained
-        // (Alhammarret's Archive, Leyline of Hope).
-        val modifiedAmount = LifeGainModifiers.apply(state, ownerId, effect.amount)
-        if (modifiedAmount <= 0) {
-            return EffectResult.success(state)
-        }
-
-        val newLife = currentLife + modifiedAmount
-        var newState = state.updateEntity(ownerId) { container ->
-            container.with(LifeTotalComponent(newLife))
-        }
-        newState = DamageUtils.markLifeGainedThisTurn(newState, ownerId, modifiedAmount)
-
-        return EffectResult.success(
-            newState,
-            listOf(LifeChangedEvent(ownerId, currentLife, newLife, LifeChangeReason.LIFE_GAIN))
-        )
+        // PreventLifeGain / ModifyLifeGain replacements are applied by the shared primitive.
+        val (newState, event) = DamageUtils.gainLife(state, ownerId, effect.amount)
+        return EffectResult.success(newState, listOfNotNull(event))
     }
 }

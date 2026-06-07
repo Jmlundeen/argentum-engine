@@ -5,7 +5,6 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.handlers.effects.DamageUtils
-import com.wingedsheep.engine.handlers.effects.LifeGainModifiers
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.registry.CardRegistry
@@ -1348,20 +1347,12 @@ internal class CombatDamageManager(
 
         for ((sourceId, totalDamage) in damageBySource) {
             val controllerId = projected.getController(sourceId) ?: continue
-            if (DamageUtils.isLifeGainPrevented(newState, controllerId)) continue
-
-            val currentLife = newState.getEntity(controllerId)?.get<LifeTotalComponent>()?.life ?: continue
-            // Route through the shared replacement pipeline so Alhammarret's Archive,
-            // Leyline of Hope, etc. apply to combat lifelink the same way they do to
-            // noncombat lifelink (DamageUtils) and direct GainLife effects.
-            val modifiedAmount = LifeGainModifiers.apply(newState, controllerId, totalDamage)
-            if (modifiedAmount <= 0) continue
-            val newLife = currentLife + modifiedAmount
-            newState = newState.updateEntity(controllerId) { container ->
-                container.with(LifeTotalComponent(newLife))
-            }
-            newState = DamageUtils.markLifeGainedThisTurn(newState, controllerId, modifiedAmount)
-            lifelinkEvents.add(LifeChangedEvent(controllerId, currentLife, newLife, LifeChangeReason.LIFE_GAIN))
+            // Route through the shared primitive so prevention (Sulfuric Vortex) and the
+            // ModifyLifeGain pipeline (Alhammarret's Archive, Leyline of Hope) apply to combat
+            // lifelink the same way they do to noncombat lifelink and direct GainLife effects.
+            val (gainedState, gainEvent) = DamageUtils.gainLife(newState, controllerId, totalDamage)
+            newState = gainedState
+            if (gainEvent != null) lifelinkEvents.add(gainEvent)
         }
 
         return newState to lifelinkEvents

@@ -282,18 +282,10 @@ object DamageUtils {
             if (projected.hasKeyword(sourceId, Keyword.LIFELINK.name)) {
                 val controllerId = projected.getController(sourceId)
                     ?: newState.getEntity(sourceId)?.get<ControllerComponent>()?.playerId
-                if (controllerId != null && !isLifeGainPrevented(newState, controllerId)) {
-                    val currentLife = newState.getEntity(controllerId)?.get<LifeTotalComponent>()?.life
-                    if (currentLife != null) {
-                        val modifiedAmount = LifeGainModifiers.apply(newState, controllerId, effectiveAmount)
-                        if (modifiedAmount > 0) {
-                            val newLife = currentLife + modifiedAmount
-                            newState = newState.updateEntity(controllerId) { container ->
-                                container.with(LifeTotalComponent(newLife))
-                            }
-                            events.add(LifeChangedEvent(controllerId, currentLife, newLife, LifeChangeReason.LIFE_GAIN))
-                        }
-                    }
+                if (controllerId != null) {
+                    val (gainedState, gainEvent) = gainLife(newState, controllerId, effectiveAmount)
+                    newState = gainedState
+                    if (gainEvent != null) events.add(gainEvent)
                 }
             }
         }
@@ -392,6 +384,50 @@ object DamageUtils {
         }
         newState = markLifeLostThisTurn(newState, playerId)
         return newState to LifeChangedEvent(playerId, currentLife, newLife, reason)
+    }
+
+    /**
+     * The single shared primitive behind every additive life *gain*: increase [playerId]'s
+     * life total by [amount], mark them as having gained life this turn, and emit one
+     * [LifeChangedEvent] tagged `LIFE_GAIN`. The mirror of [loseLife] — used by the GainLife
+     * and OwnerGainsLife effects, both lifelink paths (noncombat [dealDamageToTarget] and
+     * [com.wingedsheep.engine.mechanics.combat.CombatDamageManager]), and the life-gaining
+     * damage shield ([checkPreventFromSourceShield]).
+     *
+     * Unlike life loss, life *gain* can be both prevented and modified before it happens:
+     * - [isLifeGainPrevented] is checked first; a prevented gain performs no mutation
+     *   (CR 119.5 effects like Sulfuric Vortex / Erebos).
+     * - When [applyLifeGainModification] is true the amount is run through
+     *   [LifeGainModifiers] (CR 614 ModifyLifeGain replacements — Alhammarret's Archive,
+     *   Leyline of Hope — applied once per life-gain event). True for normal "gain N life";
+     *   false for the few sites that gain a fixed, already-determined amount the replacement
+     *   pipeline must not touch (the prevent-from-source shield's color-matched gain).
+     *
+     * Returns the updated state paired with the emitted event, or `state to null` when the
+     * gain is prevented, modified to ≤ 0, or [playerId] has no life total (no mutation
+     * performed) so callers can skip the no-op cleanly.
+     */
+    fun gainLife(
+        state: GameState,
+        playerId: EntityId,
+        amount: Int,
+        applyLifeGainModification: Boolean = true,
+    ): Pair<GameState, LifeChangedEvent?> {
+        if (isLifeGainPrevented(state, playerId)) return state to null
+        val gainAmount = if (applyLifeGainModification) {
+            LifeGainModifiers.apply(state, playerId, amount)
+        } else {
+            amount
+        }
+        if (gainAmount <= 0) return state to null
+        val currentLife = state.getEntity(playerId)?.get<LifeTotalComponent>()?.life
+            ?: return state to null
+        val newLife = currentLife + gainAmount
+        var newState = state.updateEntity(playerId) { container ->
+            container.with(LifeTotalComponent(newLife))
+        }
+        newState = markLifeGainedThisTurn(newState, playerId, gainAmount)
+        return newState to LifeChangedEvent(playerId, currentLife, newLife, LifeChangeReason.LIFE_GAIN)
     }
 
     /**
@@ -867,21 +903,10 @@ object DamageUtils {
             return EffectResult.success(state)
         }
 
-        // Life gain goes to the affected player (the protected "you").
-        if (isLifeGainPrevented(state, targetId)) {
-            return EffectResult.success(state)
-        }
-        val currentLife = state.getEntity(targetId)?.get<LifeTotalComponent>()?.life
-            ?: return EffectResult.success(state)
-        val newLife = currentLife + damageAmount
-        var newState = state.updateEntity(targetId) { container ->
-            container.with(LifeTotalComponent(newLife))
-        }
-        newState = markLifeGainedThisTurn(newState, targetId, damageAmount)
-        return EffectResult.success(
-            newState,
-            listOf(LifeChangedEvent(targetId, currentLife, newLife, LifeChangeReason.LIFE_GAIN))
-        )
+        // Life gain goes to the affected player (the protected "you"). The amount is the fixed
+        // prevented damage, so the ModifyLifeGain pipeline must not touch it.
+        val (newState, event) = gainLife(state, targetId, damageAmount, applyLifeGainModification = false)
+        return EffectResult.success(newState, listOfNotNull(event))
     }
 
     /**
