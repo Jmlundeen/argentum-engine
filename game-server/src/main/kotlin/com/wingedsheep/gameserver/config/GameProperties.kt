@@ -19,8 +19,11 @@ data class HandSmootherProperties(
 /**
  * Set enablement is configured by set code (e.g. "EOE", "DOM").
  *
- * - All sets are enabled by default.
- * - Codes in [disabledByDefault] are off unless explicitly enabled in [enabled].
+ * - All sets are enabled by default — every set is selectable in the lobby (not-fully-implemented
+ *   ones ride along as "partial" behind the picker's default-off toggle).
+ * - Codes in [disabledByDefault] are off unless explicitly enabled in [enabled]. Empty by default;
+ *   this is a deliberate admin kill-switch for a set that must be hidden entirely, not a way to
+ *   gate work-in-progress sets (the partial-sets toggle handles those).
  * - Codes in [enabled] override [disabledByDefault].
  *
  * Example application.yml:
@@ -28,11 +31,11 @@ data class HandSmootherProperties(
  * game:
  *   sets:
  *     enabled:
- *       EOE: true
+ *       SOMESET: false
  * ```
  */
 data class SetsProperties(
-    val disabledByDefault: Set<String> = setOf("DOM", "EOE"),
+    val disabledByDefault: Set<String> = emptySet(),
     val enabled: Map<String, Boolean> = emptyMap(),
 ) {
     fun isEnabled(setCode: String): Boolean {
