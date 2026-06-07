@@ -41,9 +41,9 @@ val GlacierGodmaw = card("Glacier Godmaw") {
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.Composite(
                 listOf(
-                    Effects.ModifyStats(+1, +1, EffectTarget.ContextTarget(0)),
-                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.ContextTarget(0)),
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.ContextTarget(0))
+                    Effects.ModifyStats(+1, +1, EffectTarget.Self),
+                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self),
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
                 )
             )
         )
