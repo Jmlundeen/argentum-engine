@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -54,7 +53,7 @@ val TerminalVelocity = card("Terminal Velocity") {
         val ltbDamage = TriggeredAbility.create(
             trigger = ZoneChangeEvent(from = Zone.BATTLEFIELD),
             binding = TriggerBinding.SELF,
-            effect = ForEachInGroupEffect(
+            effect = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures,
                 effect = DealDamageEffect(
                     amount = DynamicAmount.EntityProperty(
