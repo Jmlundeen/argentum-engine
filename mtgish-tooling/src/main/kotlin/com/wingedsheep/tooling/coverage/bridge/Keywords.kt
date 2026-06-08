@@ -16,6 +16,13 @@ internal fun BridgeBuilder.keywords() {
     // `keywordAbility(KeywordAbility.saddle(N))`; this `supported` entry only marks the capability as
     // covered (never blocking) so the probe doesn't report Saddle as a gap.
     supported("Saddle", "keyword ability: Saddle N -> keywordAbility(KeywordAbility.saddle(N)) (CR 702.171)")
+    // Firebending N (CR 702.189, Avatar: The Last Airbender) — a PARAMETERIZED keyword ability (the
+    // N count rides in the rule's args as a nested _GameNumber:Integer, exactly like Saddle). Must be
+    // `supported`, not `keyword`: a bare `keywords(Keyword.FIREBENDING)` would drop the N. The
+    // emitter's `rname == "Firebending"` branch renders `keywordAbility(KeywordAbility.firebending(N))`;
+    // the integer case auto-renders, while "firebending X (X = its power)" carries an XValue node and
+    // the emitter declines it (-> SCAFFOLD). This entry only marks the capability covered.
+    supported("Firebending", "keyword ability: Firebending N -> keywordAbility(KeywordAbility.firebending(N)) (CR 702.189)")
 
     composed("Landwalk", "specific *WALK keywords (SWAMPWALK, FORESTWALK, ...)")
     // Equip is a keyword ability, but the engine has no `Keyword.EQUIP` enum member: `equipAbility(cost)`

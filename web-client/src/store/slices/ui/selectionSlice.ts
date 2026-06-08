@@ -8,6 +8,7 @@ import type {
   XSelectionState,
   BlightVariableSelectionState,
   ConvokeSelectionState,
+  WaterbendSelectionState,
   HarmonizeSelectionState,
   TapForPowerSelectionState,
   DelveSelectionState,
@@ -33,6 +34,7 @@ export interface SelectionSliceState {
   xSelectionState: XSelectionState | null
   blightVariableSelectionState: BlightVariableSelectionState | null
   convokeSelectionState: ConvokeSelectionState | null
+  waterbendSelectionState: WaterbendSelectionState | null
   harmonizeSelectionState: HarmonizeSelectionState | null
   tapForPowerSelectionState: TapForPowerSelectionState | null
   delveSelectionState: DelveSelectionState | null
@@ -54,6 +56,10 @@ export interface SelectionSliceActions {
   toggleConvokeCreature: (entityId: EntityId, name: string, payingColor: string | null) => void
   cancelConvokeSelection: () => void
   confirmConvokeSelection: () => void
+  startWaterbendSelection: (state: WaterbendSelectionState) => void
+  toggleWaterbendPermanent: (entityId: EntityId) => void
+  cancelWaterbendSelection: () => void
+  confirmWaterbendSelection: () => void
   startHarmonizeSelection: (state: HarmonizeSelectionState) => void
   toggleHarmonizeCreature: (entityId: EntityId) => void
   cancelHarmonizeSelection: () => void
@@ -85,6 +91,7 @@ export const createSelectionSlice: SliceCreator<SelectionSlice> = (set, get) => 
   xSelectionState: null,
   blightVariableSelectionState: null,
   convokeSelectionState: null,
+  waterbendSelectionState: null,
   harmonizeSelectionState: null,
   tapForPowerSelectionState: null,
   delveSelectionState: null,
@@ -206,6 +213,42 @@ export const createSelectionSlice: SliceCreator<SelectionSlice> = (set, get) => 
 
     set({ convokeSelectionState: null })
     get().advancePipeline({ type: 'convoke', convokedCreatures })
+  },
+
+  // Waterbend selection actions (Avatar: The Last Airbender). Generic-only — clicking an
+  // eligible artifact/creature toggles whether it is tapped to pay {1} of the cost.
+  startWaterbendSelection: (waterbendSelectionState) => {
+    set({ waterbendSelectionState })
+  },
+
+  toggleWaterbendPermanent: (entityId) => {
+    set((state) => {
+      if (!state.waterbendSelectionState) return state
+      const { selectedPermanents } = state.waterbendSelectionState
+      const newSelected = selectedPermanents.includes(entityId)
+        ? selectedPermanents.filter((id) => id !== entityId)
+        : [...selectedPermanents, entityId]
+      return {
+        waterbendSelectionState: {
+          ...state.waterbendSelectionState,
+          selectedPermanents: newSelected,
+        },
+      }
+    })
+  },
+
+  cancelWaterbendSelection: () => {
+    const { pipelineState, cancelPipeline } = get()
+    if (pipelineState) { cancelPipeline(); return }
+    set({ waterbendSelectionState: null })
+  },
+
+  confirmWaterbendSelection: () => {
+    const { waterbendSelectionState, pipelineState } = get()
+    if (!waterbendSelectionState || !pipelineState) return
+    const waterbendPermanents = [...waterbendSelectionState.selectedPermanents]
+    set({ waterbendSelectionState: null })
+    get().advancePipeline({ type: 'waterbend', waterbendPermanents })
   },
 
   // Harmonize creature-tap selection actions (cast from graveyard via Harmonize). At most

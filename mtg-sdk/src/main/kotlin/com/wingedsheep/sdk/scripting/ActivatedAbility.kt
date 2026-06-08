@@ -29,6 +29,15 @@ data class ActivatedAbility(
     val promptOnDraw: Boolean = false,
     val descriptionOverride: String? = null,
     val hasConvoke: Boolean = false,
+    /**
+     * When true, this ability's mana [cost] is a *waterbend* cost (Avatar: The Last Airbender):
+     * while paying it, the controller may tap untapped artifacts and/or creatures they control,
+     * each paying for {1} of the generic mana in the cost. Generic-only — a tapped permanent never
+     * covers a colored pip. Mirrors [hasConvoke] but the eligible-permanent set is widened to
+     * artifacts and payment is restricted to generic. The number of permanents that may be tapped
+     * is bounded by the generic mana in the cost (CR: "for each generic mana in that cost").
+     */
+    val hasWaterbend: Boolean = false,
     /** When true, prevents auto-pass whenever this ability is available.
      *  Used for abilities that interact with transient game state the player would miss,
      *  such as copying a spell on the stack. */
@@ -78,7 +87,11 @@ data class ActivatedAbility(
         get() = targetRequirements.firstOrNull()
 
     val description: String
-        get() = descriptionOverride ?: "${cost.description}: ${effect.description}"
+        get() = descriptionOverride ?: run {
+            // A waterbend cost renders as "Waterbend {N}" (the keyword action precedes the cost).
+            val costText = if (hasWaterbend) "Waterbend ${cost.description}" else cost.description
+            "$costText: ${effect.description}"
+        }
 
     override fun applyTextReplacement(replacer: TextReplacer): ActivatedAbility {
         val newCost = cost.applyTextReplacement(replacer)

@@ -791,7 +791,17 @@ internal fun EmitCtx.activatedBlock(rule: JsonObject, activateFromZone: String? 
     // through to the single-ability path (and scaffolds there if the Or can't render).
     manaChoiceExpansion(rule, cost, targets, actions, activateFromZone)?.let { return it }
 
-    return activatedAbilityStmts(rule, cost, targets, actions, activateFromZone)
+    return activatedAbilityStmts(rule, cost, targets, actions, activateFromZone, hasWaterbend = containsWaterbendCost(costNode))
+}
+
+/** True when the activation cost is (or composes) a Waterbend cost (Avatar: The Last Airbender). */
+private fun containsWaterbendCost(node: JsonObject?): Boolean {
+    if (node == null) return false
+    return when (node.strField("_Cost")) {
+        "Waterbend" -> true
+        "And" -> (node["args"].asArr ?: return false).any { containsWaterbendCost(it as? JsonObject) }
+        else -> false
+    }
 }
 
 /** Build one `activatedAbility { … }` block from already-recovered cost / target / action pieces. */
@@ -801,10 +811,12 @@ private fun EmitCtx.activatedAbilityStmts(
     targets: List<JsonObject>?,
     actions: List<JsonObject>,
     activateFromZone: String?,
+    hasWaterbend: Boolean = false,
 ): List<Stmt>? {
     val (tnode, tvar) = spellTargetExpr(targets, actions) ?: return null
     val edsl = renderEffectList(actions, tvar) ?: return null
     val stmts = mutableListOf<Stmt>(Assign("cost", Lit(cost)))
+    if (hasWaterbend) stmts.add(Assign("hasWaterbend", Lit("true")))
     activationRestrictionLines(rule)?.let { lines -> lines.forEach { stmts.add(RawLine(it)) } } ?: return null
     if (tvar != null) stmts.add(targetLocal(tnode!!))
     stmts.add(Assign("effect", edsl))
@@ -875,6 +887,11 @@ internal fun EmitCtx.abilityCostDsl(node: JsonElement?): String? {
             "Costs.Composite(${parts.joinToString(", ")})"
         }
         "PayMana" -> renderMana(obj.field("args")).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }
+        // Waterbend {N} (CR, Avatar: The Last Airbender): the cost is a plain mana cost; the
+        // "may tap artifacts/creatures, each {1}" semantics are carried by `hasWaterbend = true`
+        // (set in activatedBlock). Only the fixed-generic shape renders — WaterbendX/WaterbendCustomX
+        // carry an X value and are declined (-> SCAFFOLD) per the no-X-guessing policy.
+        "Waterbend" -> renderMana(obj.field("args")).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }
         // "{X}{G}{G}" activation cost — args are [symbol-list, the X game number]; render the symbol list
         // (ManaCostX -> "{X}") as the mana cost (Silklash Spider).
         "PayManaX" -> renderMana((obj["args"].asArr)?.getOrNull(0)).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }

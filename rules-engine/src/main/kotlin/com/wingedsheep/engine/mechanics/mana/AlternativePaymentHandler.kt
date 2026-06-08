@@ -403,6 +403,86 @@ class AlternativePaymentHandler(
     }
 
     /**
+     * Apply a waterbend payment for an activated ability (Avatar: The Last Airbender).
+     *
+     * Waterbend is "Pay [cost]. For each generic mana in that cost, you may tap an untapped
+     * artifact or creature you control rather than pay that mana." It mirrors convoke but
+     * (a) the eligible-permanent set is widened to artifacts, and (b) every tapped permanent
+     * pays {1} *generic* — there is no colored-pip option. Tapping is bounded by the generic
+     * mana remaining in the cost: once no generic is left, any further selections are ignored
+     * (you can't tap a permanent for no reason).
+     */
+    fun applyWaterbendForAbility(
+        state: GameState,
+        cost: ManaCost,
+        payment: AlternativePaymentChoice,
+        playerId: EntityId
+    ): AlternativePaymentResult {
+        if (payment.waterbendPermanents.isEmpty()) {
+            return AlternativePaymentResult(cost, state, emptyList())
+        }
+        return applyWaterbend(state, cost, payment.waterbendPermanents, playerId)
+    }
+
+    /**
+     * Calculate the reduced cost after a waterbend payment for an activated ability,
+     * without mutating state. Used during validation/affordability.
+     */
+    fun calculateReducedCostForWaterbend(
+        cost: ManaCost,
+        payment: AlternativePaymentChoice
+    ): ManaCost {
+        var reducedCost = cost
+        for (i in 0 until payment.waterbendPermanents.size) {
+            if (reducedCost.genericAmount <= 0) break
+            reducedCost = reduceGenericCost(reducedCost, 1)
+        }
+        return reducedCost
+    }
+
+    /**
+     * Tap the chosen artifacts/creatures, each reducing the generic portion of [cost] by {1}.
+     * Invalid choices (not on battlefield, tapped, not controlled, not an artifact/creature)
+     * are silently ignored — the enumerator and handler validation gate the legal choices.
+     * Reads types/controller from projected state so animated lands and type-changed
+     * permanents are honored (CR battlefield reads).
+     */
+    private fun applyWaterbend(
+        state: GameState,
+        cost: ManaCost,
+        waterbendPermanents: Set<EntityId>,
+        playerId: EntityId
+    ): AlternativePaymentResult {
+        var currentState = state
+        var reducedCost = cost
+        val events = mutableListOf<GameEvent>()
+
+        val battlefieldZone = ZoneKey(playerId, Zone.BATTLEFIELD)
+        // Tapping a permanent for waterbend changes neither type nor controller, so the projection
+        // computed once from the starting state is valid for every eligibility check below.
+        val projected = state.projectedState
+
+        for (permanentId in waterbendPermanents) {
+            // Bound by the generic mana in the cost (CR: "for each generic mana in that cost").
+            if (reducedCost.genericAmount <= 0) break
+            if (permanentId !in currentState.getZone(battlefieldZone)) continue
+            val container = currentState.getEntity(permanentId) ?: continue
+            val cardComponent = container.get<CardComponent>() ?: continue
+
+            // Must be an untapped artifact or creature the player controls.
+            if (!projected.isCreature(permanentId) && !projected.hasType(permanentId, "ARTIFACT")) continue
+            if (container.has<TappedComponent>()) continue
+            if (projected.getController(permanentId) != playerId) continue
+
+            currentState = currentState.updateEntity(permanentId) { c -> c.with(TappedComponent) }
+            events.add(TappedEvent(permanentId, cardComponent.name))
+            reducedCost = reduceGenericCost(reducedCost, 1)
+        }
+
+        return AlternativePaymentResult(reducedCost, currentState, events)
+    }
+
+    /**
      * Does [cardDef] support alternative payment when cast by [playerId] in [state]?
      * Returns true when the card prints DELVE/CONVOKE or a battlefield permanent grants one.
      */

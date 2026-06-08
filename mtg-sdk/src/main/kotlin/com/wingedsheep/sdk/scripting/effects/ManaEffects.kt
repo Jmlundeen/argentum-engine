@@ -34,9 +34,16 @@ data class PayManaCostEffect(val cost: ManaCost) : Effect {
 data class AddManaEffect(
     val color: Color,
     val amount: DynamicAmount = DynamicAmount.Fixed(1),
-    val restriction: ManaRestriction? = null
+    val restriction: ManaRestriction? = null,
+    /**
+     * When this mana leaves the pool. [ManaExpiry.END_OF_TURN] (the default) is ordinary
+     * mana; [ManaExpiry.END_OF_COMBAT] is firebending-style mana that the pool keeps through
+     * combat and discards when combat ends.
+     */
+    val expiry: ManaExpiry = ManaExpiry.END_OF_TURN
 ) : Effect {
-    constructor(color: Color, amount: Int, restriction: ManaRestriction? = null) : this(color, DynamicAmount.Fixed(amount), restriction)
+    constructor(color: Color, amount: Int, restriction: ManaRestriction? = null, expiry: ManaExpiry = ManaExpiry.END_OF_TURN) :
+        this(color, DynamicAmount.Fixed(amount), restriction, expiry)
 
     override val description: String = buildString {
         append(when (val a = amount) {
@@ -44,6 +51,9 @@ data class AddManaEffect(
             else -> "Add {${color.symbol}} for each ${a.description}"
         })
         if (restriction != null) append(". ${restriction.description}")
+        if (expiry == ManaExpiry.END_OF_COMBAT) {
+            append(". Until end of combat, you don't lose this mana as steps and phases end")
+        }
     }
 }
 

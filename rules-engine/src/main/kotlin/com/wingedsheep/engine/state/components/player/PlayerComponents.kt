@@ -4,6 +4,7 @@ import com.wingedsheep.engine.state.Component
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.ManaSpellRider
 import com.wingedsheep.sdk.scripting.events.SourceFilter
@@ -103,11 +104,20 @@ data class ManaPoolComponent(
         color: Color?,
         amount: Int,
         restriction: ManaRestriction,
-        riders: Set<ManaSpellRider> = emptySet()
+        riders: Set<ManaSpellRider> = emptySet(),
+        expiry: ManaExpiry = ManaExpiry.END_OF_TURN
     ): ManaPoolComponent {
-        val entries = (1..amount).map { RestrictedManaEntry(color, restriction, riders) }
+        val entries = (1..amount).map { RestrictedManaEntry(color, restriction, riders, expiry) }
         return copy(restrictedMana = restrictedMana + entries)
     }
+
+    /**
+     * Remove every restricted-mana entry whose expiry matches [expiry]. Used to discard
+     * combat-duration mana ([ManaExpiry.END_OF_COMBAT], firebending) when combat ends,
+     * without disturbing ordinary mana that persists to end of turn.
+     */
+    fun clearExpired(expiry: ManaExpiry): ManaPoolComponent =
+        copy(restrictedMana = restrictedMana.filterNot { it.expiry == expiry })
 
     /**
      * Empty the mana pool.
@@ -121,12 +131,15 @@ data class ManaPoolComponent(
  * @param restriction The restriction on how this mana can be spent.
  * @param riders Side-effects applied to a spell when this mana is spent on it
  *   (e.g. [ManaSpellRider.MakesSpellUncounterable] for Cavern of Souls).
+ * @param expiry When this mana leaves the pool. [ManaExpiry.END_OF_TURN] is ordinary mana;
+ *   [ManaExpiry.END_OF_COMBAT] is firebending-style mana cleared by `CombatManager.endCombat`.
  */
 @Serializable
 data class RestrictedManaEntry(
     val color: Color?,
     val restriction: ManaRestriction,
-    val riders: Set<ManaSpellRider> = emptySet()
+    val riders: Set<ManaSpellRider> = emptySet(),
+    val expiry: ManaExpiry = ManaExpiry.END_OF_TURN
 )
 
 /**

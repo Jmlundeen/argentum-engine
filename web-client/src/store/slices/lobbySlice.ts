@@ -173,6 +173,7 @@ export const createLobbySlice: SliceCreator<LobbySlice> = (set, get) => ({
       combatState: null,
       xSelectionState: null,
       convokeSelectionState: null,
+      waterbendSelectionState: null,
       decisionSelectionState: null,
       damageDistributionState: null,
       hoveredCardId: null,

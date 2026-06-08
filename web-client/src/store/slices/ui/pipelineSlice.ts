@@ -158,6 +158,37 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
       }
     }
 
+    // If waterbend tapped permanents, reduce the generic cost shown to subsequent phases
+    // (each tapped artifact/creature pays {1} generic). Mirrors the convoke block above.
+    if (result.type === 'waterbend') {
+      const originalSymbols = parseManaCostUtil(actionInfo.manaCostString ?? '')
+      const remainingSymbols = [...originalSymbols]
+      for (let i = 0; i < result.waterbendPermanents.length; i++) {
+        const gIdx = remainingSymbols.findIndex((s) => /^\d+$/.test(s))
+        if (gIdx < 0) break
+        const val = parseInt(remainingSymbols[gIdx]!, 10)
+        if (val > 1) remainingSymbols[gIdx] = String(val - 1)
+        else remainingSymbols.splice(gIdx, 1)
+      }
+      const modifiedManaCost = remainingSymbols.map((s) => `{${s}}`).join('')
+      const trimmedPreview: readonly EntityId[] | undefined =
+        actionInfo.autoTapPreview && actionInfo.availableManaSources
+          ? trimAutoTapPreview(actionInfo.autoTapPreview, actionInfo.availableManaSources, remainingSymbols)
+          : actionInfo.autoTapPreview
+      const {
+        hasWaterbend: _,
+        validWaterbendPermanents: _2,
+        autoTapPreview: _3,
+        ...restActionInfo
+      } = actionInfo
+      actionInfo = {
+        ...restActionInfo,
+        manaCostString: modifiedManaCost,
+        ...(trimmedPreview !== undefined ? { autoTapPreview: trimmedPreview } : {}),
+        action: mergedAction,
+      }
+    }
+
     // Note: a harmonize creature-tap reduces the generic the player owes, but we don't
     // rewrite manaCostString here. With auto-tap (default) the manaSource phase is skipped
     // and the server auto-pays the reduced cost (CastSpellHandler applies the tap + the
@@ -237,6 +268,7 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
       xSelectionState: null,
       blightVariableSelectionState: null,
       convokeSelectionState: null,
+      waterbendSelectionState: null,
       harmonizeSelectionState: null,
       delveSelectionState: null,
       manaSelectionState: null,
@@ -253,6 +285,7 @@ function getStoreMethods(get: () => import('../types').GameStore): PipelineStore
     startXSelection: state.startXSelection,
     startBlightVariableSelection: state.startBlightVariableSelection,
     startConvokeSelection: state.startConvokeSelection,
+    startWaterbendSelection: state.startWaterbendSelection,
     startHarmonizeSelection: state.startHarmonizeSelection,
     startDelveSelection: state.startDelveSelection,
     startCounterDistribution: state.startCounterDistribution,

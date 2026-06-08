@@ -165,6 +165,15 @@ object Emitter {
                 // than reading args directly as an Int. Renders `keywordAbility(KeywordAbility.saddle(N))`,
                 // exactly like Crew above; the engine synthesises the Saddle special action from the keyword.
                 rname == "Saddle" -> block = (findInteger(rule["args"]) as? Int)?.let { listOf(Eval(call("keywordAbility", arg(call("KeywordAbility.saddle", arg("$it")))))) }
+                // Firebending N (CR 702.189, Avatar: The Last Airbender) — a numeric keyword ability
+                // whose count rides in a nested `_GameNumber: Integer` (like Saddle). Unlike Saddle,
+                // the engine has no Firebending handler: the behavior (attack -> add N {R} that lasts
+                // until end of combat) lives in the `firebending(n)` CardBuilder helper's triggered
+                // ability, so render the builder call directly (like `station()`), NOT a bare
+                // keywordAbility (which would add the display keyword but drop the mana trigger).
+                // "firebending X (X = its power)" carries an XValue node -> findInteger returns "X" ->
+                // `as? Int` is null -> scaffold, rather than guessing.
+                rname == "Firebending" -> block = (findInteger(rule["args"]) as? Int)?.let { listOf(Eval(call("firebending", arg("$it")))) }
                 // Ward {cost} (CR 702.21) carries a `_Cost` arg. Only the pure-mana shape renders as
                 // `KeywordAbility.Ward(WardCost.Mana("{x}"))`; Ward—Pay life / Ward—Discard / other
                 // costs return null -> scaffold rather than drop the cost. A bare WARD enum keyword

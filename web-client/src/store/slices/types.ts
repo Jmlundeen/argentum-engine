@@ -9,6 +9,7 @@ import type {
   GameAction,
   LegalActionInfo,
   ConvokeCreatureInfo,
+  WaterbendPermanentInfo,
   TapForPowerCreatureInfo,
   DelveCardInfo,
   HarmonizeCreatureInfo,
@@ -332,6 +333,21 @@ export interface ConvokeSelectionState {
 }
 
 /**
+ * Waterbend selection state (Avatar: The Last Airbender). Like Convoke but generic-only —
+ * each tapped artifact/creature pays {1} of the generic cost, with no color choice.
+ */
+export interface WaterbendSelectionState {
+  actionInfo: LegalActionInfo
+  cardName: string
+  /** The cost being paid (the waterbend cost's mana string) */
+  manaCost: string
+  /** Entity ids of permanents selected to tap for waterbend */
+  selectedPermanents: EntityId[]
+  /** All valid artifacts/creatures that can be tapped */
+  validPermanents: readonly WaterbendPermanentInfo[]
+}
+
+/**
  * Harmonize creature-tap selection state when casting a spell from the graveyard via
  * Harmonize. The player may tap at most one creature to reduce the generic portion of the
  * harmonize cost by its power (and {X} is generic, so it reduces the X mana paid). Tapping
@@ -622,6 +638,7 @@ export type PipelinePhase =
   | { type: 'xSelection' }
   | { type: 'delve' }
   | { type: 'convoke' }
+  | { type: 'waterbend' }
   | { type: 'harmonize' }
   | { type: 'manaSource' }
   | { type: 'costPayment' }
@@ -643,6 +660,7 @@ export type PhaseResult =
   | { type: 'xSelection'; xValue: number; isRepeatCount?: boolean }
   | { type: 'delve'; delvedCards: EntityId[]; modifiedManaCost: string }
   | { type: 'convoke'; convokedCreatures: Record<string, { color: string | null }> }
+  | { type: 'waterbend'; waterbendPermanents: EntityId[] }
   | { type: 'harmonize'; harmonizeCreature: EntityId | null; reduction: number }
   | { type: 'manaSource'; selectedSources: EntityId[] }
   | { type: 'costPayment'; costType: string; selectedTargets: EntityId[] }
@@ -816,6 +834,7 @@ export type GameStore = {
   combatState: CombatState | null
   xSelectionState: XSelectionState | null
   convokeSelectionState: ConvokeSelectionState | null
+  waterbendSelectionState: WaterbendSelectionState | null
   tapForPowerSelectionState: TapForPowerSelectionState | null
   delveSelectionState: DelveSelectionState | null
   manaColorSelectionState: ManaColorSelectionState | null
@@ -907,6 +926,10 @@ export type GameStore = {
   toggleConvokeCreature: (entityId: EntityId, name: string, payingColor: string | null) => void
   cancelConvokeSelection: () => void
   confirmConvokeSelection: () => void
+  startWaterbendSelection: (state: WaterbendSelectionState) => void
+  toggleWaterbendPermanent: (entityId: EntityId) => void
+  cancelWaterbendSelection: () => void
+  confirmWaterbendSelection: () => void
   harmonizeSelectionState: HarmonizeSelectionState | null
   startHarmonizeSelection: (state: HarmonizeSelectionState) => void
   toggleHarmonizeCreature: (entityId: EntityId) => void

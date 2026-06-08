@@ -154,6 +154,7 @@ function GameCardImpl({
   const toggleManaSource = useGameStore((state) => state.toggleManaSource)
   const toggleTapForPowerCreature = useGameStore((state) => state.toggleTapForPowerCreature)
   const toggleConvokeCreature = useGameStore((state) => state.toggleConvokeCreature)
+  const toggleWaterbendPermanent = useGameStore((state) => state.toggleWaterbendPermanent)
   const toggleHarmonizeCreature = useGameStore((state) => state.toggleHarmonizeCreature)
   const submitYesNoDecision = useGameStore((state) => state.submitYesNoDecision)
   const isBeheldPulsing = useGameStore((state) => state.beholdPulses.some((p) => p.cardId === card.id))
@@ -307,6 +308,12 @@ function GameCardImpl({
   const isInConvokeMode = convokeSelectionState !== null
   const isValidConvokeCreature = convokeSelectionState?.validCreatures.some((c) => c.entityId === card.id) ?? false
   const isSelectedConvokeCreature = convokeSelectionState?.selectedCreatures.some((c) => c.entityId === card.id) ?? false
+
+  // Waterbend selection checks (generic-only; artifacts + creatures eligible)
+  const waterbendSelectionState = useGameStore((state) => state.waterbendSelectionState)
+  const isInWaterbendMode = waterbendSelectionState !== null
+  const isValidWaterbendPermanent = waterbendSelectionState?.validPermanents.some((p) => p.entityId === card.id) ?? false
+  const isSelectedWaterbendPermanent = waterbendSelectionState?.selectedPermanents.includes(card.id) ?? false
 
   // Harmonize creature-tap selection checks (single creature, optional)
   const harmonizeSelectionState = useGameStore((state) => state.harmonizeSelectionState)
@@ -803,6 +810,12 @@ function GameCardImpl({
       return
     }
 
+    // Handle waterbend selection mode - click to toggle artifact/creature (generic-only)
+    if (isInWaterbendMode && isValidWaterbendPermanent) {
+      toggleWaterbendPermanent(card.id)
+      return
+    }
+
     // Handle harmonize creature-tap mode - click to select/deselect the single creature
     if (isInHarmonizeMode && isValidHarmonizeCreature) {
       toggleHarmonizeCreature(card.id)
@@ -981,6 +994,18 @@ function GameCardImpl({
     // Blue highlight for valid convoke creatures
     borderStyle = `2px solid ${TARGET_COLOR}`
     boxShadow = `0 0 12px ${TARGET_GLOW}, 0 0 24px ${TARGET_SHADOW}`
+  } else if (isSelectedWaterbendPermanent) {
+    // Green highlight for selected waterbend permanents
+    borderStyle = `3px solid ${SELECTED_COLOR}`
+    boxShadow = `0 0 20px ${SELECTED_GLOW}, 0 0 40px ${SELECTED_SHADOW}`
+  } else if (isValidWaterbendPermanent && isHovered) {
+    // Bright blue highlight when hovering over a tappable waterbend permanent
+    borderStyle = `3px solid ${TARGET_COLOR_BRIGHT}`
+    boxShadow = `0 0 20px ${TARGET_GLOW_BRIGHT}, 0 0 40px ${TARGET_GLOW_OUTER}`
+  } else if (isValidWaterbendPermanent) {
+    // Blue highlight for valid waterbend permanents
+    borderStyle = `2px solid ${TARGET_COLOR}`
+    boxShadow = `0 0 12px ${TARGET_GLOW}, 0 0 24px ${TARGET_SHADOW}`
   } else if (isSelectedHarmonizeCreature) {
     // Green highlight for the creature tapped for harmonize
     borderStyle = `3px solid ${SELECTED_COLOR}`
@@ -1072,7 +1097,7 @@ function GameCardImpl({
   }
 
   // Determine cursor
-  const canInteract = interactive || isValidTarget || isValidDecisionTarget || isValidDecisionSelection || isValidAttacker || isValidBlocker || isAttackingInBlockerMode || isValidPlaneswalkerTarget || canDragToPlay || isDistributeTarget || isManaValidSource || isValidTapForPowerCreature || isValidConvokeCreature || isValidHarmonizeCreature
+  const canInteract = interactive || isValidTarget || isValidDecisionTarget || isValidDecisionSelection || isValidAttacker || isValidBlocker || isAttackingInBlockerMode || isValidPlaneswalkerTarget || canDragToPlay || isDistributeTarget || isManaValidSource || isValidTapForPowerCreature || isValidConvokeCreature || isValidWaterbendPermanent || isValidHarmonizeCreature
   const baseCursor = canInteract ? 'pointer' : 'default'
   const cursor = isValidBlocker || isValidAttacker || isSelectedAsAttacker || canDragToPlay ? 'grab' : baseCursor
 

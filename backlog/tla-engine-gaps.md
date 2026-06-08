@@ -54,9 +54,20 @@ What follows are the **genuine gaps** — elements no current SDK primitive expr
 
 The four bending families plus Exhaust gate the bulk of the set. **One of five is done (Earthbend).**
 
-### 1. Waterbend {cost} — ❌ GAP (≈24 cards)
+### 1. Waterbend {cost} — 🟡 PARTIAL (activated abilities done; ≈14 of ≈24 cards)
 
-A convoke-style **alternative cost payment**: *"While paying a waterbend cost, you can tap your
+**Done (activated abilities):** `activatedAbility { cost = Costs.Mana("{N}"); hasWaterbend = true }` is
+fully wired across engine payment (`AlternativePaymentHandler.applyWaterbendForAbility` +
+`AlternativePaymentChoice.waterbendPermanents`), legal actions (`LegalAction.hasWaterbend`/
+`waterbendPermanents`), client tap step (`waterbend` pipeline phase + `WaterbendSelector`), and the
+mtgish bridge/emitter (`Waterbend` cost → `hasWaterbend = true`). Covers the ~14 activated-ability
+waterbend cards (Aang's Iceberg, Flexible Waterbender, Geyser Leaper, "Waterbend {8}: Transform Aang",
+"Waterbend {20}: Take an extra turn", …). **Still open** (reuse the same carrier): spell additional
+cast cost (~6, e.g. Water Whip), in-resolution "may pay a waterbend cost" (Waterbending Lesson),
+Ward — Waterbend, and the X variants (`WaterbendX`/`WaterbendCustomX`, mtgish-blocked for now).
+
+Original analysis (for the spell/ability cost surface still to build) —
+a convoke-style **alternative cost payment**: *"While paying a waterbend cost, you can tap your
 artifacts **and** creatures to help. Each one pays for {1}."* This is **Convoke + Improvise combined**
 (taps both creatures and artifacts). It appears as a cost on **abilities and spells**, e.g.
 "Waterbend {8}: Transform Aang", "Exhaust — Waterbend {20}: Take an extra turn".

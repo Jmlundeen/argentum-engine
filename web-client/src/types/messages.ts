@@ -737,6 +737,10 @@ export interface LegalActionInfo {
   readonly hasConvoke?: boolean
   /** Creatures that can be tapped to help pay for Convoke */
   readonly validConvokeCreatures?: readonly ConvokeCreatureInfo[]
+  /** Whether this ability/spell has a Waterbend cost (Avatar: The Last Airbender) */
+  readonly hasWaterbend?: boolean
+  /** Artifacts/creatures that can be tapped to help pay a Waterbend cost (each pays {1} generic) */
+  readonly validWaterbendPermanents?: readonly WaterbendPermanentInfo[]
   /** Whether this spell has Delve */
   readonly hasDelve?: boolean
   /** Cards in graveyard that can be exiled for Delve */
@@ -803,6 +807,16 @@ export interface ConvokeCreatureInfo {
   readonly name: string
   /** Colors this creature can pay (based on its colors) */
   readonly colors: readonly string[]
+}
+
+/**
+ * Information about an artifact/creature that can be tapped for Waterbend. Generic-only,
+ * so no color is carried. [isCreature] distinguishes creatures from artifacts for UI only.
+ */
+export interface WaterbendPermanentInfo {
+  readonly entityId: EntityId
+  readonly name: string
+  readonly isCreature: boolean
 }
 
 /**

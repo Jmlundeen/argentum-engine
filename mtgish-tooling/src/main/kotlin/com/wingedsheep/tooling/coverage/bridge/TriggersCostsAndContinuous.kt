@@ -46,6 +46,12 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     // "Pay N life" as an activation cost -> Costs.PayLife(n). The emitter renders fixed-integer amounts
     // (abilityCostDsl); non-integer amounts ({X}, life-total halves, …) are declined -> SCAFFOLD.
     supported("PayLife", "cost: pay life")
+    // Waterbend {N} (Avatar: The Last Airbender, CR) — a generic-mana cost where each generic may be
+    // paid by tapping an untapped artifact/creature you control. On activated abilities this maps to
+    // `activatedAbility { cost = Costs.Mana("{N}"); hasWaterbend = true }`. The emitter renders the
+    // fixed-generic shape; the X-carrying variants (WaterbendX / WaterbendCustomX) are left unsupported
+    // -> blocked (the engine doesn't model an X waterbend cost yet).
+    supported("Waterbend", "cost: waterbend {N} (tap artifacts/creatures, each pays {1} generic)")
     composed("DiscardACardOfType", "cost: discard filtered")
 
     // Duration-scoped continuous trigger / replacement creators.

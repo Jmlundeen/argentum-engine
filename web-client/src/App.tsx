@@ -7,6 +7,7 @@ import { RevealedCardsUI } from './components/decisions/RevealedCardsUI'
 import { XCostSelector } from './components/ui/XCostSelector'
 import { BlightVariableSelector } from './components/ui/BlightVariableSelector'
 import { ConvokeSelector } from './components/ui/ConvokeSelector'
+import { WaterbendSelector } from './components/ui/WaterbendSelector'
 import { HarmonizeSelector } from './components/ui/HarmonizeSelector'
 import { TapForPowerSelector } from './components/ui/TapForPowerSelector'
 import { DelveSelector } from './components/ui/DelveSelector'
@@ -295,6 +296,9 @@ export default function App() {
 
       {/* Convoke selection overlay (when casting spells with Convoke) */}
       {showGame && <ConvokeSelector />}
+
+      {/* Waterbend selection overlay (activated abilities with a waterbend cost) */}
+      {showGame && <WaterbendSelector />}
 
       {/* Harmonize creature-tap overlay (when casting from graveyard via Harmonize) */}
       {showGame && <HarmonizeSelector />}

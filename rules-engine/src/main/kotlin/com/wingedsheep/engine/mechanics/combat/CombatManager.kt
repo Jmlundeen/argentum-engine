@@ -4,7 +4,9 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.combat.*
+import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.engine.mechanics.combat.rules.AttackDefenderRule
 import com.wingedsheep.engine.mechanics.combat.rules.AttackRestrictionRule
 import com.wingedsheep.engine.mechanics.combat.rules.BlockEvasionRule
@@ -116,6 +118,17 @@ class CombatManager(
                     .without<RequiresManualDamageAssignmentComponent>()
                     .without<AttackersDeclaredThisCombatComponent>()
                     .without<BlockersDeclaredThisCombatComponent>()
+            }
+        }
+
+        // Discard combat-duration mana (firebending, CR 702.189): "Any of this mana you still
+        // have as combat ends will be lost." Ordinary (end-of-turn) mana is untouched.
+        for (playerId in newState.turnOrder) {
+            val pool = newState.getEntity(playerId)?.get<ManaPoolComponent>() ?: continue
+            if (pool.restrictedMana.any { it.expiry == ManaExpiry.END_OF_COMBAT }) {
+                newState = newState.updateEntity(playerId) { container ->
+                    container.with(pool.clearExpired(ManaExpiry.END_OF_COMBAT))
+                }
             }
         }
 
