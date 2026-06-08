@@ -4294,58 +4294,6 @@
     ]
 }
 
-// Sterling Supplier
-{
-    "name": "Sterling Supplier",
-    "manaCost": "{4}{W}",
-    "typeLine": "Creature — Bird Soldier",
-    "oracleText": "Flying\nWhen this creature enters, put a +1/+1 counter on another target creature you control.",
-    "creatureStats": {
-        "power": 3,
-        "toughness": 4
-    },
-    "keywords": [
-        "FLYING"
-    ],
-    "script": {
-        "triggeredAbilities": [
-            {
-                "id": "ability_1",
-                "trigger": {
-                    "type": "ZoneChangeEvent",
-                    "to": "Battlefield"
-                },
-                "effect": {
-                    "type": "AddCounters",
-                    "counterType": "+1/+1",
-                    "count": 1,
-                    "target": {
-                        "type": "BoundVariable",
-                        "name": "target"
-                    }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "filter": {
-                        "baseFilter": "creature ctrl:you",
-                        "excludeSelf": true
-                    },
-                    "id": "target"
-                }
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "33",
-        "artist": "Camille Alquier",
-        "flavorText": "The Sterling Company can always rely on him to bring the thunder.",
-        "imageUri": "https://cards.scryfall.io/normal/front/b/6/b6000be7-67db-440e-87ba-276df20b803e.jpg"
-    },
-    "colorIdentityOverride": [
-        "WHITE"
-    ]
-}
-
 // Stoic Sphinx
 {
     "name": "Stoic Sphinx",

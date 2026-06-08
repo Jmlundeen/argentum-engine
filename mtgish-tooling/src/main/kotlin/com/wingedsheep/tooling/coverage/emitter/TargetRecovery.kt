@@ -171,6 +171,11 @@ internal fun EmitCtx.creatureFilterExpr(filterNode: JsonElement?): Dsl? {
     // restriction has no faithful filter rendering yet, so drop to SCAFFOLD rather than omit it.
     val nonCardtypes = filterNode.argWordsTagged("IsNonCardtype")
     if (nonCardtypes.any { it != "Artifact" }) return null
+    // "ANOTHER target creature you control" — an `Other(ThisPermanent)` self-exclusion. The TargetFilter
+    // surface built here doesn't compose excludeSelf, so silently dropping it would let the source target
+    // itself (an illegal target). Decline (-> SCAFFOLD) rather than emit a target missing the "another"
+    // restriction (Deserter's Disciple). GroupFilter's excludeSelf path is separate (groupFilterExpr).
+    if (jsonContains(filterNode, "_Permanents", "Other")) return null
     // "target creature you control" / "...an opponent controls" — the controller restriction is a
     // ControlledByAPlayer clause. Preserve it as a `.youControl()` / `.opponentControls()` suffix; never
     // drop it (an unrestricted target would let the spell hit any creature). Only the plain-creature
@@ -246,9 +251,6 @@ internal fun EmitCtx.creatureFilterExpr(filterNode: JsonElement?): Dsl? {
     val keywordLinks = abilityKeywordLinks(filterNode) ?: return null
     keywordLinks.forEach { node = node.dot(it) }
     controller?.let { node = node.dot(it) }
-    // "another target creature ..." — an `Other` clause excludes the source via `.other()` (excludeSelf),
-    // so the spell can't target the permanent whose own ability is choosing it (Sterling Supplier).
-    if (jsonContains(filterNode, "_Permanents", "Other")) node = node.dot("other")
     return node
 }
 
@@ -383,6 +385,10 @@ internal fun EmitCtx.targetExpr(tnode: JsonObject, actionContext: List<JsonObjec
         }
         if (types.isEmpty() && "IsCardtype" !in blob && "IsCreatureType" !in blob && "IsNonCardtype" !in blob &&
             "IsArtifactType" !in blob && "IsLandType" !in blob && "IsEnchantmentType" !in blob) {
+            // "untap ANOTHER target permanent YOU CONTROL" (North Pole Patrol): a bare TargetPermanent would
+            // silently drop the controller (ControlledByAPlayer) and self-exclusion (Other) restrictions,
+            // widening it to any permanent. Decline (-> SCAFFOLD) rather than emit a too-broad target.
+            if ("ControlledByAPlayer" in blob || jsonContains(args, "_Permanents", "Other")) return null
             return Call("TargetPermanent")
         }
         val multiType = mapOf(
@@ -498,10 +504,23 @@ internal fun EmitCtx.gameObjectFilterExpr(filterNode: JsonElement?): Dsl? {
     if ("SharesAColorWithPermanent" in blob) return null
     // "...that was dealt damage this turn" has no GroupFilter helper — decline rather than widen the group.
     if ("WasDealtDamageThisTurn" in blob) return null
+    // "creatures you control WITH +1/+1 counters on them" (Badgermole's trample lord): a
+    // `HasACounterOfType` predicate this flat GroupFilter can't express. Dropping it would widen the
+    // grant to every creature you control, so decline (-> SCAFFOLD) rather than misrender.
+    if ("HasACounterOfType" in blob) return null
+    // An enchantment subtype ("another Shrine you control", "each Shrine") has no rendering on this
+    // surface — widening it to GameObjectFilter.Enchantment/Permanent would silently drop the subtype.
+    // Decline rather than emit a too-broad filter (The Spirit Oasis / Kyoshi Island Plaza Shrine triggers).
+    if (filterNode.argWordsTagged("IsEnchantmentType").isNotEmpty()) return null
     val types = targetTypes(filterNode)
     val subs = subtypes(filterNode)
     // Creature subtypes come from IsCreatureType (subtypes() only collects land/card subtypes).
     val creatureSubs = filterNode.argWordsTagged("IsCreatureType")
+    // "Each land and Ally you control" — a creature subtype unioned with a non-creature cardtype (the
+    // "land" half). The single-creature-subtype branch below would render only the Ally clause and
+    // silently drop the other half, so decline the compound rather than emit half the filter
+    // (Great Divide Guide).
+    if (creatureSubs.isNotEmpty() && (types - "Creature").any { it in setOf("Land", "Artifact", "Enchantment", "Planeswalker") }) return null
     var node: Dsl = when {
         // "outlaw" (IsAnOutlaw): Assassin/Mercenary/Pirate/Rogue/Warlock. Render the outlaw creature group
         // (matches Filters.OutlawCreature) rather than widening to any permanent (Vial Smasher).

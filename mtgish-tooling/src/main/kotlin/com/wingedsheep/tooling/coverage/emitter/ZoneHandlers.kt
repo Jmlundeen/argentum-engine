@@ -172,6 +172,11 @@ internal fun EmitCtx.renderSearch(args: JsonElement?): Dsl? {
     // "with different names" (Three Dreams) is a group constraint searchLibrary can't enforce — it would
     // silently let the search grab duplicates. Decline rather than drop the restriction.
     if ("DifferentNames" in blob) return null
+    // "search for UP TO X cards, where X is the number of …" — a dynamic count this fixed-count search
+    // can't express, and the X definition's own subtype filter (e.g. "number of Shrines you control")
+    // leaks into the search-filter regexes below. Decline rather than emit a wrong filter/count
+    // (Kyoshi Island Plaza).
+    if ("TheNumberOf" in blob) return null
     // "exile them, then create that many tokens" / "any number of cards" (Myr Incubator) aren't modeled by
     // the fixed SearchDestination + single-filter render: there is no EXILE destination, the any-number
     // count isn't a fixed amount, and the CreateTokens payoff would be dropped. Decline -> SCAFFOLD rather
