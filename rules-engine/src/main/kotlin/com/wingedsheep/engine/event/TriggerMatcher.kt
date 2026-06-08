@@ -253,6 +253,13 @@ class TriggerMatcher(
                 event is CommitCrimeEvent &&
                     matchesPlayer(trigger.player, event.playerId, controllerId)
             }
+            is EventPattern.BecomesPlottedEvent -> {
+                // "When this card becomes plotted" triggers fire on a card that is now in exile,
+                // not on the battlefield, so the index-driven main loop never reaches them.
+                // TriggerDetector.detectPlottedCardTriggers handles them directly; returning false
+                // here keeps the regular loop from double-firing or mis-binding them.
+                false
+            }
             is EventPattern.TargetsChosenEvent -> {
                 event is com.wingedsheep.engine.core.TargetsChosenEvent &&
                     matchesPlayer(trigger.player, event.chooserId, controllerId)

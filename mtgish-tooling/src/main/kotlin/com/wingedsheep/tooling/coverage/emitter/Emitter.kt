@@ -165,6 +165,18 @@ object Emitter {
                 // than reading args directly as an Int. Renders `keywordAbility(KeywordAbility.saddle(N))`,
                 // exactly like Crew above; the engine synthesises the Saddle special action from the keyword.
                 rname == "Saddle" -> block = (findInteger(rule["args"]) as? Int)?.let { listOf(Eval(call("keywordAbility", arg(call("KeywordAbility.saddle", arg("$it")))))) }
+                // Ward {cost} (CR 702.21) carries a `_Cost` arg. Only the pure-mana shape renders as
+                // `KeywordAbility.Ward(WardCost.Mana("{x}"))`; Ward—Pay life / Ward—Discard / other
+                // costs return null -> scaffold rather than drop the cost. A bare WARD enum keyword
+                // would lose the cost entirely, so this must never fall through to the keyword case.
+                rname == "Ward" -> block = manaKeywordCost(rule)?.let {
+                    listOf(Eval(call("keywordAbility", arg(call("KeywordAbility.Ward", arg(call("WardCost.Mana", arg("\"$it\""))))))))
+                }
+                // Plot {cost} (CR 718, OTJ) carries a `_Cost: PayMana` arg -> KeywordAbility.plot("{cost}").
+                // Pure-mana only; a non-mana plot cost (none printed) declines -> scaffold.
+                rname == "Plot" -> block = manaKeywordCost(rule)?.let {
+                    listOf(Eval(call("keywordAbility", arg(call("KeywordAbility.plot", arg("\"$it\""))))))
+                }
                 rname == "Equip" -> block = equipAbilityLine(rule)
                 rname == "Protection" -> block = protectionScopeDsl(rule)?.let { listOf(Eval(call("keywordAbility", arg(call("KeywordAbility.Protection", arg(Lit(it))))))) }
                 rname != null && (rname in handledRules || Bridge[rname]?.kind == "keyword") -> continue

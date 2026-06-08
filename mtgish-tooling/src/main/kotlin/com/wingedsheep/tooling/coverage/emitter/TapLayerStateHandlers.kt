@@ -198,12 +198,14 @@ internal fun EmitCtx.renderLayerEffect(node: JsonObject, action: String, tvar: S
     return effect
 }
 
-/** A ±X modifier (`PlusX` / `MinusX`) applied to a dynamic amount: PlusX keeps it; MinusX negates it via
- *  `Multiply(amt, -1)` (the golden's negated-count idiom — Feeding Frenzy's "-X/-X"). */
+/** A ±X modifier (`PlusX` / `MinusX` / `Zero`) applied to a dynamic amount: PlusX keeps it; MinusX
+ *  negates it via `Multiply(amt, -1)` (the golden's negated-count idiom — Feeding Frenzy's "-X/-X");
+ *  Zero is the constant `Fixed(0)` arm of an asymmetric "+X/+0" (Armored Armadillo). */
 internal fun EmitCtx.adjustModX(modNode: JsonElement?, amt: Dsl): Dsl? =
     when ((modNode as? JsonObject)?.strField("_ModX")) {
         "PlusX" -> amt
         "MinusX" -> call("DynamicAmount.Multiply", arg(amt), arg("-1"))
+        "Zero" -> call("DynamicAmount.Fixed", arg("0"))
         else -> null
     }
 

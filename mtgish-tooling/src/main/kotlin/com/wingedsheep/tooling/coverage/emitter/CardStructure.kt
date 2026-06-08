@@ -670,22 +670,30 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject): List<Stmt>? {
 }
 
 /**
- * A `FromAnyZone { TriggerA { WhenAPlayerCyclesACard(You, this) ... } }` rule -> a triggered ability
- * with `trigger = Triggers.YouCycleThis` ("When you cycle this card, [bonus]"). A lone `you may` bonus
- * becomes `optional = true`, mirroring [triggerBlock].
+ * A `FromAnyZone { TriggerA { <trigger>(this) ... } }` rule -> a triggered ability. The two
+ * self-on-this-card shapes recognised:
+ *   - `WhenAPlayerCyclesACard(You, ThisCardInHand)` -> `Triggers.YouCycleThis` ("When you cycle this
+ *     card, [bonus]").
+ *   - `WhenACardBecomesPlotted(ThisCardInHand)` -> `Triggers.BecomesPlotted` ("When this card becomes
+ *     plotted, [bonus]", OTJ Plot / CR 718 — Aloe Alchemist).
+ * A lone `you may` bonus becomes `optional = true`, mirroring [triggerBlock].
  */
 internal fun EmitCtx.fromAnyZoneBlock(rule: JsonObject): List<Stmt>? {
     val inner = rule["args"] as? JsonObject
     if (inner?.strField("_Rule") != "TriggerA" ||
-        !jsonContains(inner, "_Trigger", "WhenAPlayerCyclesACard") ||
         !jsonContains(inner, "_CardInHand", "ThisCardInHand")) { reasons.add("FromAnyZone"); return null }
+    val triggerSpec = when {
+        jsonContains(inner, "_Trigger", "WhenAPlayerCyclesACard") -> "Triggers.YouCycleThis"
+        jsonContains(inner, "_Trigger", "WhenACardBecomesPlotted") -> "Triggers.BecomesPlotted"
+        else -> { reasons.add("FromAnyZone"); return null }
+    }
     val (targets, actions) = extractEnvelope(inner)
     if (actions == null) { reasons.add("FromAnyZone"); return null }
     val (tnode, tvar) = spellTargetExpr(targets, actions) ?: return null
     val mayWrapped = actions.singleOrNull()?.strField("_Action") == "MayAction"
     val effectActions = if (mayWrapped) listOf(innerAction(actions.single()) ?: return null) else actions
     val edsl = renderEffectList(effectActions, tvar) ?: return null
-    val stmts = mutableListOf<Stmt>(Assign("trigger", Lit("Triggers.YouCycleThis")))
+    val stmts = mutableListOf<Stmt>(Assign("trigger", Lit(triggerSpec)))
     if (mayWrapped) stmts.add(Assign("optional", Lit("true")))
     if (tvar != null) stmts.add(targetLocal(tnode!!))
     stmts.add(Assign("effect", edsl))

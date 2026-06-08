@@ -1109,6 +1109,20 @@ object Triggers {
     )
 
     // =========================================================================
+    // Plot Triggers (Outlaws of Thunder Junction)
+    // =========================================================================
+
+    /**
+     * When this card becomes plotted (CR 718). SELF binding — fires for the very card that
+     * was plotted, while it sits face up in exile. Used by Aloe Alchemist: "When this card
+     * becomes plotted, target creature gets +3/+2 and gains trample until end of turn."
+     */
+    val BecomesPlotted: TriggerSpec = TriggerSpec(
+        event = BecomesPlottedEvent,
+        binding = TriggerBinding.SELF
+    )
+
+    // =========================================================================
     // Gift Triggers
     // =========================================================================
 

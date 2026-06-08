@@ -843,6 +843,21 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     }
 
     /**
+     * When this card becomes plotted (Outlaws of Thunder Junction). A Plot card's controller
+     * pays the plot cost and exiles it from hand face up as a special action — the card is then
+     * marked plotted (CR 718). This is a SELF-scoped trigger: it fires only for the very card
+     * that became plotted, while it sits in exile.
+     *
+     * Used by cards like Aloe Alchemist: "When this card becomes plotted, target creature gets
+     * +3/+2 and gains trample until end of turn."
+     */
+    @SerialName("BecomesPlottedEvent")
+    @Serializable
+    data object BecomesPlottedEvent : EventPattern {
+        override val description: String = "this card becomes plotted"
+    }
+
+    /**
      * When a player chooses one or more targets.
      *
      * Fires when [player] casts a spell, activates an ability, or puts a triggered ability

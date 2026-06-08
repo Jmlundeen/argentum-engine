@@ -1,3 +1,173 @@
+// Aloe Alchemist
+{
+    "name": "Aloe Alchemist",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Plant Warlock",
+    "oracleText": "Trample\nWhen this card becomes plotted, target creature gets +3/+2 and gains trample until end of turn.\nPlot {1}{G} (You may pay {1}{G} and exile this card from your hand. Cast it as a sorcery on a later turn without paying its mana cost. Plot only as a sorcery.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "TRAMPLE",
+        "PLOT"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Plot",
+            "cost": "{1}{G}"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "BecomesPlottedEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 3
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "TRAMPLE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "152",
+        "rarity": "UNCOMMON",
+        "artist": "Borja Pindado",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/9/69f2f632-b6cc-4092-acd5-a6b152e90488.jpg?1712355875",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "Plot abilities are written \"Plot [cost],\" which means \"Any time you have priority during your main phase while the stack is empty, you may pay [cost] and exile this card from your hand. It becomes plotted.\""
+            },
+            {
+                "date": "2024-04-12",
+                "text": "Aloe Alchemist's triggered ability triggers when it becomes plotted, not when you cast it from exile. You choose the target as the ability is put onto the stack."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "You can't cast a plotted card on the same turn it became plotted. On any future turn, you may cast that card from exile without paying its mana cost during your main phase while the stack is empty."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Ankle Biter
+{
+    "name": "Ankle Biter",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Snake",
+    "oracleText": "Deathtouch",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "DEATHTOUCH"
+    ],
+    "metadata": {
+        "collectorNumber": "153",
+        "artist": "Monztre",
+        "flavorText": "\"Little tip, newcomer. Give your boots a shake in the morning before you put them on.\"\n—Annie Flash, to Kellan",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/2/424972d6-3b2c-449b-b786-749a77020fa1.jpg?1712355878"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Armored Armadillo
+{
+    "name": "Armored Armadillo",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Armadillo",
+    "oracleText": "Ward {1} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {1}.)\n{3}{W}: This creature gets +X/+0 until end of turn, where X is its toughness.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 4
+    },
+    "keywords": [
+        "WARD"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ward",
+            "cost": {
+                "type": "WardCost.Mana",
+                "manaCost": "{1}"
+            }
+        }
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostMana",
+                    "cost": "{3}{W}"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "EntityProperty",
+                        "entity": "Source",
+                        "numericProperty": "Toughness"
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "{3}{W}: This creature gets +X/+0 until end of turn, where X is its toughness."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "3",
+        "artist": "Leon Tukker",
+        "flavorText": "\"I always wanted to ride a slow cannonball with legs!\"\n—Kellan",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/263232df-69b8-4205-93ad-c724fe57ec11.jpg?1712355235"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Blacksnag Buzzard
 {
     "name": "Blacksnag Buzzard",
@@ -189,6 +359,79 @@
     "colorIdentityOverride": [
         "GREEN",
         "BLUE"
+    ]
+}
+
+// Bridled Bighorn
+{
+    "name": "Bridled Bighorn",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Sheep Mount",
+    "oracleText": "Vigilance\nWhenever this creature attacks while saddled, create a 1/1 white Sheep creature token.\nSaddle 2 (Tap any number of other creatures you control with total power 2 or more: This Mount becomes saddled until end of turn. Saddle only as a sorcery.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "VIGILANCE",
+        "SADDLE"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "SADDLE",
+            "n": 2
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Sheep"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/c/dccb30d0-b491-43be-8aa0-2ee7da86343e.jpg?1712469939"
+                },
+                "triggerCondition": {
+                    "type": "SourceMatches",
+                    "filter": {
+                        "statePredicates": [
+                            "IsSaddled"
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "artist": "Edgar Sánchez Hidalgo",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/a/fa7bf089-fa9b-4ffc-bf84-45cd51c76463.jpg?1712355251",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "A Mount's saddled status lasts until end of turn, but its abilities that care about it being saddled work only while it remains saddled."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "Saddle doesn't change whether the Mount can attack. It's saddled the same way whether or not it attacks."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "You can saddle a Mount even if it's already saddled, but doing so has no additional effect."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 

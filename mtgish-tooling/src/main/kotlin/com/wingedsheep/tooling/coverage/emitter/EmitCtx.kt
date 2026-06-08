@@ -166,6 +166,13 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
         "Trigger_AmountOfDamageDealt" ->
             return call("DynamicAmount.ContextProperty", arg("ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT"))
         "PowerOfTheSacrificedCreature" -> return call("DynamicAmounts.sacrificedPower")
+        // "X is its toughness" / "its power" on THIS permanent (Armored Armadillo's "+X/+0 where X is its
+        // toughness"). Only the ThisPermanent subject maps to the source-relative facade; any other
+        // permanent subject declines (-> scaffold) rather than misattribute the stat.
+        "ToughnessOfPermanent" ->
+            return if (jsonContains(node["args"], "_Permanent", "ThisPermanent")) call("DynamicAmounts.sourceToughness") else null
+        "PowerOfPermanent" ->
+            return if (jsonContains(node["args"], "_Permanent", "ThisPermanent")) call("DynamicAmounts.sourcePower") else null
         "LifeTotalOfPlayer" -> {
             val player = if (jsonContains(node, "_Player", "Opponent")) "Player.Opponent" else "Player.You"
             return call("DynamicAmount.LifeTotal", arg(player))

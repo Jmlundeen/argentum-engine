@@ -4,6 +4,7 @@ import com.wingedsheep.engine.core.ClassLevelChangedEvent
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.AttackersDeclaredEvent
 import com.wingedsheep.engine.core.CardCycledEvent
+import com.wingedsheep.engine.core.CardPlottedEvent
 import com.wingedsheep.engine.core.CardsDiscardedEvent
 import com.wingedsheep.engine.core.CardsDrawnEvent
 import com.wingedsheep.engine.core.ControlChangedEvent
@@ -1044,6 +1045,12 @@ class TriggerDetector(
             detectCyclingCardTriggers(state, event, triggers)
         }
 
+        // Handle "when this card becomes plotted" triggers on the plotted card itself, which
+        // now sits face up in exile rather than on the battlefield (e.g., Aloe Alchemist).
+        if (event is CardPlottedEvent) {
+            detectPlottedCardTriggers(state, event, triggers)
+        }
+
         // Handle damage-received triggers for creatures no longer on the battlefield
         // (e.g., Broodhatch Nantuko dies from combat damage but trigger still fires)
         if (event is DamageDealtEvent && event.targetId !in state.getBattlefield()) {
@@ -1187,6 +1194,39 @@ class TriggerDetector(
 
         for (ability in abilities) {
             if (ability.trigger is EventPattern.CycleEvent) {
+                triggers.add(
+                    PendingTrigger(
+                        ability = ability,
+                        sourceId = entityId,
+                        sourceName = cardComponent.name,
+                        controllerId = event.playerId,
+                        triggerContext = TriggerContext(triggeringPlayerId = event.playerId)
+                    )
+                )
+            }
+        }
+    }
+
+    /**
+     * Detect "when this card becomes plotted" triggers on the plotted card itself (e.g.,
+     * Aloe Alchemist). After the plot special action resolves the card sits face up in exile,
+     * not on the battlefield, so the main index scan never sees it. This mirrors
+     * [detectCyclingCardTriggers]: read the plotted card's own triggered abilities and fire any
+     * that key off [EventPattern.BecomesPlottedEvent].
+     */
+    private fun detectPlottedCardTriggers(
+        state: GameState,
+        event: CardPlottedEvent,
+        triggers: MutableList<PendingTrigger>
+    ) {
+        val entityId = event.cardId
+        val container = state.getEntity(entityId) ?: return
+        val cardComponent = container.get<CardComponent>() ?: return
+
+        val abilities = abilityResolver.getTriggeredAbilities(entityId, cardComponent.cardDefinitionId, state)
+
+        for (ability in abilities) {
+            if (ability.trigger is EventPattern.BecomesPlottedEvent) {
                 triggers.add(
                     PendingTrigger(
                         ability = ability,

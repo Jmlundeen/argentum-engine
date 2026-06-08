@@ -1417,6 +1417,10 @@ Triggers.youCastSpell(
   of Spring); the inline-static cards (Overabundance, Pulse) use the mana statics in §9 instead.
 - `YouCommitCrime` — MKM crime mechanic.
 - `YouGiveAGift` — Gift mechanic.
+- `BecomesPlotted` — OTJ Plot (CR 718) — "when this card becomes plotted". SELF binding; fires for the
+  very card that was plotted while it sits face up in exile (Aloe Alchemist). Detected by
+  `TriggerDetector.detectPlottedCardTriggers` off the plot special action's `CardPlottedEvent`, since
+  the card is never on the battlefield for the index loop to see.
 - `Valiant` — Bloomburrow Valiant trigger.
 - `RoomFullyUnlocked` — Rooms — both doors unlocked.
 - `OnDoorUnlocked` — single Room door unlocked.
