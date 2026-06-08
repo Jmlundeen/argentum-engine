@@ -147,12 +147,13 @@ sealed interface StatePredicate {
      *    that was put there from the battlefield this turn"
      *  - Lobelia Sackville-Baggins (LTR): same predicate on an opponent's graveyard.
      *
-     * Backed by `PutIntoGraveyardFromBattlefieldOnTurnComponent` on the card entity.
-     * The component is stamped by `ZoneTransitionService` whenever a card moves
-     * battlefield → graveyard, and stripped when it leaves the graveyard so a later
-     * arrival from a different zone (mill, exile → graveyard) does not falsely match.
-     * The predicate compares the stamped turn to `state.turnNumber` rather than
-     * relying on cleanup, so it is robust to turn boundaries without a per-turn wipe.
+     * Backed by the `PutIntoGraveyardFromBattlefieldThisTurnMarker` data-object
+     * component on the card entity. The marker is set by `ZoneTransitionService`
+     * whenever a card moves battlefield → graveyard, and stripped when it leaves the
+     * graveyard so a later arrival from a different zone (mill, exile → graveyard)
+     * does not falsely match. The marker carries no turn number — `BeginningPhaseManager`
+     * wipes it from every entity during the untap step of each turn, giving the predicate
+     * MTG-correct per-turn semantics independent of the engine's per-round `state.turnNumber`.
      *
      * Pair with `CardPredicate.IsPermanent` (or any other card-predicate constraint)
      * to express the full Samwise / Lobelia filter.

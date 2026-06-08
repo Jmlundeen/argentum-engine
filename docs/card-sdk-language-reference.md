@@ -1096,12 +1096,16 @@ work for abilities-on-stack (which carry no `CardComponent`).
   branch on whether a target was warp-cast (e.g., Full Bore).
 - `PutIntoGraveyardFromBattlefieldThisTurn` (filter builder
   `putIntoGraveyardFromBattlefieldThisTurn()`) — card currently in a graveyard whose most
-  recent arrival there was from the battlefield during the current turn. Backed by a
-  per-entity `PutIntoGraveyardFromBattlefieldOnTurnComponent` stamped by `ZoneTransitionService`
-  on every battlefield→graveyard move (with the turn number) and stripped when the card leaves
-  the graveyard. Matches iff the stamp equals `state.turnNumber`. Used by Samwise the
-  Stouthearted and Lobelia Sackville-Baggins (LTR) — pair with `GameObjectFilter.Permanent` or
-  `Creature` on a graveyard-zone `TargetFilter`. False in battlefield-projection / untap /
+  recent arrival there was from the battlefield during the current turn. Backed by the
+  per-entity `PutIntoGraveyardFromBattlefieldThisTurnMarker` data-object component, set by
+  `ZoneTransitionService` on every battlefield→graveyard move and stripped when the card
+  leaves the graveyard (so a later mill or exile→graveyard arrival doesn't falsely match).
+  The marker carries no turn number — `BeginningPhaseManager` wipes it from every entity
+  at each turn's untap step, which is what gives the predicate MTG-correct per-turn
+  semantics (the engine's `state.turnNumber` increments per round, not per active player,
+  so a turn-number comparison would be wrong in multiplayer). Used by Samwise the
+  Stouthearted and Lobelia Sackville-Baggins (LTR) — pair with `GameObjectFilter.Permanent`
+  or `Creature` on a graveyard-zone `TargetFilter`. False in battlefield-projection / untap /
   trigger-gating contexts (the marker only lives on graveyard cards).
 
 ### `AffectsFilter` — static-ability target shapes

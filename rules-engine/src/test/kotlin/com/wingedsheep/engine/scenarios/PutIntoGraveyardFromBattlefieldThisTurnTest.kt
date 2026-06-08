@@ -19,11 +19,11 @@ import io.kotest.matchers.shouldBe
  * was put there from the battlefield this turn") and Lobelia Sackville-Baggins
  * (analogous against an opponent's graveyard).
  *
- * The marker is stamped on the card entity by `ZoneTransitionService` whenever it moves
- * battlefield → graveyard, with the current turn number. The predicate compares the
- * stamp to `state.turnNumber`, so the marker doesn't need a per-turn wipe; it must be
- * stripped when the card leaves the graveyard so a later arrival via mill or exile →
- * graveyard doesn't falsely match.
+ * The marker is set on the card entity by `ZoneTransitionService` whenever it moves
+ * battlefield → graveyard, and stripped when it leaves the graveyard so a later arrival
+ * via mill or exile → graveyard doesn't falsely match. It carries no turn number —
+ * `BeginningPhaseManager` wipes it from every entity during the untap step of each turn,
+ * which is what gives the predicate MTG-correct per-turn semantics.
  */
 class PutIntoGraveyardFromBattlefieldThisTurnTest : FunSpec({
 
@@ -153,8 +153,8 @@ class PutIntoGraveyardFromBattlefieldThisTurnTest : FunSpec({
         driver.passPriorityUntil(Step.END, maxPasses = 200)
         driver.bothPass()
         driver.activePlayer shouldBe opponent
-        // New turn → predicate evaluates false even though the marker (now from turn N)
-        // is still on the entity (we don't bother wiping it).
+        // New turn → BeginningPhaseManager wiped the marker during the opponent's
+        // untap step, so the predicate now evaluates false.
         driver.matches(victim) shouldBe false
     }
 })

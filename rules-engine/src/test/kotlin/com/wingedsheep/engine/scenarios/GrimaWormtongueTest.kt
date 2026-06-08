@@ -6,6 +6,8 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.ltr.cards.GrimaWormtongue
+import com.wingedsheep.mtg.sets.definitions.por.cards.PathOfPeace
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
@@ -42,7 +44,7 @@ class GrimaWormtongueTest : FunSpec({
 
     fun createDriver(): GameTestDriver {
         val driver = GameTestDriver()
-        driver.registerCards(TestCards.all + listOf(GrimaWormtongue, LegendaryFodder))
+        driver.registerCards(TestCards.all + listOf(GrimaWormtongue, LegendaryFodder, PathOfPeace))
         return driver
     }
 
@@ -121,5 +123,55 @@ class GrimaWormtongueTest : FunSpec({
         val plusCounters = driver.state.getEntity(army)
             ?.get<CountersComponent>()?.getCount(CounterType.PLUS_ONE_PLUS_ONE) ?: 0
         plusCounters shouldBe 2
+    }
+
+    // Path of Peace ("Destroy target creature. Its owner gains 4 life.") gives us a
+    // controllable life-gain event keyed on the targeted creature's owner. Mirrors the
+    // SunspineLynxPreventLifeGainTest pattern: Grima sits on the opponent's side so the
+    // active player can drive the cast at sorcery speed during their main phase.
+
+    test("static: active player's life gain is prevented while opponent controls Grima") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Plains" to 20, "Swamp" to 20), startingLife = 20)
+        val active = driver.activePlayer!!
+        val opp = driver.getOpponent(active)
+
+        driver.putPermanentOnBattlefield(opp, "Gríma Wormtongue")
+        val grunt = driver.putCreatureOnBattlefield(active, "Grizzly Bears")
+
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val pathId = driver.putCardInHand(active, "Path of Peace")
+        driver.giveMana(active, Color.WHITE)
+        driver.giveColorlessMana(active, 3)
+        driver.castSpell(active, pathId, targets = listOf(grunt))
+        driver.bothPass()
+
+        // Creature destroyed but active is opponent-of-Grima's-controller, so the
+        // "its owner gains 4 life" sub-effect is prevented.
+        driver.findPermanent(active, "Grizzly Bears") shouldBe null
+        driver.getLifeTotal(active) shouldBe 20
+    }
+
+    test("static: Grima's controller can still gain life themselves") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Plains" to 20, "Swamp" to 20), startingLife = 20)
+        val active = driver.activePlayer!!
+
+        driver.putPermanentOnBattlefield(active, "Gríma Wormtongue")
+        val ownGrunt = driver.putCreatureOnBattlefield(active, "Grizzly Bears")
+
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val pathId = driver.putCardInHand(active, "Path of Peace")
+        driver.giveMana(active, Color.WHITE)
+        driver.giveColorlessMana(active, 3)
+        driver.castSpell(active, pathId, targets = listOf(ownGrunt))
+        driver.bothPass()
+
+        // Active is Grima's controller — the "opponents can't gain life" static does
+        // not apply to them, so the +4 life still resolves.
+        driver.findPermanent(active, "Grizzly Bears") shouldBe null
+        driver.getLifeTotal(active) shouldBe 24
     }
 })
