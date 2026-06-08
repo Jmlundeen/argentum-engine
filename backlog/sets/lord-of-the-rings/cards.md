@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards (261 Draft / 30 Extra)
 **Release Date:** June 23, 2023
-**Implemented:** 199 / 291
+**Implemented:** 200 / 291
 Run `scripts/card-status --set LTR` (and `--list --set LTR`) to verify status at any time.
 The split below mirrors that script: **Draft** = Scryfall `booster: true`; **Extra** =
 starter-deck/special cards and basic lands.
@@ -118,7 +118,7 @@ starter-deck/special cards and basic lands.
 - [ ] Gollum's Bite
 - [x] Gorbag of Minas Morgul
 - [x] Gothmog, Morgul Lieutenant
-- [ ] Gríma Wormtongue
+- [x] Gríma Wormtongue
 - [ ] Grond, the Gatebreaker
 - [x] Haunt of the Dead Marshes
 - [x] Isildur's Fateful Strike
