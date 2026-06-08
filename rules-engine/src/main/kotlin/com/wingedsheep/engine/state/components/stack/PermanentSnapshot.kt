@@ -20,6 +20,13 @@ data class PermanentSnapshot(
     val toughness: Int? = null,
     val subtypes: Set<String> = emptySet(),
     /**
+     * Projected supertypes at capture time (e.g. `"LEGENDARY"`, `"BASIC"`, `"SNOW"`, `"WORLD"`).
+     * Used by `SacrificedPermanentWasLegendary` and the analogous future conditions on
+     * supertypes — capturing this in the snapshot lets such conditions read the permanent's
+     * legendary-at-sacrifice status even after it has changed zones.
+     */
+    val supertypes: Set<String> = emptySet(),
+    /**
      * Controller frozen at capture time, NOT at the eventual zone-leave. If control of
      * the permanent shifts after the snapshot is taken (e.g. Threaten resolves while
      * the ability is on the stack) and the permanent then leaves the battlefield, this
@@ -43,6 +50,7 @@ fun capturePermanentSnapshots(
         power = projected.getPower(id),
         toughness = projected.getToughness(id),
         subtypes = projected.getSubtypes(id),
+        supertypes = projected.getSupertypes(id),
         controllerId = projected.getController(id),
     )
 }

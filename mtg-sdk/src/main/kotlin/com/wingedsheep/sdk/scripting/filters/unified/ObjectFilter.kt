@@ -470,6 +470,15 @@ data class GameObjectFilter(
         statePredicates = statePredicates + StatePredicate.EnteredThisTurn
     )
 
+    /**
+     * Must currently be in a graveyard *and* have been put there from the battlefield
+     * during the current turn. Used by LTR's Samwise the Stouthearted / Lobelia
+     * Sackville-Baggins. See [StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn].
+     */
+    fun putIntoGraveyardFromBattlefieldThisTurn() = copy(
+        statePredicates = statePredicates + StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn
+    )
+
     /** Must be saddled (CR 702.171b) */
     fun saddled() = copy(
         statePredicates = statePredicates + StatePredicate.IsSaddled

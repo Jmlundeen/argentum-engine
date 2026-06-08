@@ -9,6 +9,8 @@ import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.stack.PermanentSnapshot
+import com.wingedsheep.engine.state.components.stack.capturePermanentSnapshots
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -66,6 +68,7 @@ class ForceSacrificeExecutor(
 
         var currentState = state
         val allEvents = mutableListOf<GameEvent>()
+        val allSnapshots = mutableListOf<PermanentSnapshot>()
 
         for ((index, playerId) in playerIds.withIndex()) {
             val validPermanents = findValidPermanents(currentState, playerId, filter)
@@ -79,6 +82,7 @@ class ForceSacrificeExecutor(
                 val result = sacrificePermanents(currentState, playerId, validPermanents)
                 currentState = result.state
                 allEvents.addAll(result.events)
+                allSnapshots.addAll(result.updatedSacrificedPermanents)
                 continue
             }
 
@@ -89,10 +93,11 @@ class ForceSacrificeExecutor(
                 validPermanents, minSelections = count, maxSelections = count,
                 remainingPlayers = remainingPlayers, filter = filter, count = count,
                 priorEvents = allEvents
-            )
+            ).copy(updatedSacrificedPermanents = allSnapshots)
         }
 
         return EffectResult.success(currentState, allEvents)
+            .copy(updatedSacrificedPermanents = allSnapshots)
     }
 
     private fun findValidPermanents(
@@ -165,6 +170,16 @@ class ForceSacrificeExecutor(
         var newState = state
         val events = mutableListOf<GameEvent>()
 
+        // Capture P/T/subtype/supertype/controller snapshots BEFORE the zone change so
+        // a follow-up sibling effect can read the sacrificed permanent's characteristics
+        // (Rise of the Witch-king's "if you sacrificed a creature this way…", Nasty End-style
+        // "was legendary?" gates). Mirrors SacrificeExecutor's capture path.
+        val snapshots = if (permanentIds.isNotEmpty()) {
+            capturePermanentSnapshots(permanentIds, newState.projectedState)
+        } else {
+            emptyList()
+        }
+
         if (permanentIds.isNotEmpty()) {
             val permanentNames = permanentIds.map { id ->
                 newState.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
@@ -182,5 +197,6 @@ class ForceSacrificeExecutor(
         }
 
         return EffectResult.success(newState, events)
+            .copy(updatedSacrificedPermanents = snapshots)
     }
 }

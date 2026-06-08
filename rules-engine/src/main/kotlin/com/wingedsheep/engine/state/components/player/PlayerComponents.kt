@@ -562,6 +562,21 @@ data class CreaturesDiedThisTurnComponent(
 ) : Component
 
 /**
+ * Tracks the number of permanents — of any type, token or nontoken — that left the
+ * battlefield this turn while under this player's control. Credited to the last-known
+ * controller at the moment of departure (so a Threaten-style steal-and-sacrifice
+ * counts for the thief, not the original owner). Cleared at end of turn by
+ * CleanupPhaseManager.
+ *
+ * Used by Shortcut to Mushrooms (LTR): "if a permanent you controlled left the
+ * battlefield this turn".
+ */
+@Serializable
+data class PermanentLeftBattlefieldThisTurnComponent(
+    val count: Int = 0
+) : Component
+
+/**
  * Tracks the number of creatures that were exiled from opponents' control this turn.
  * Used by Vren, the Relentless: "create X tokens where X is the number of creatures
  * that were exiled under your opponents' control this turn."

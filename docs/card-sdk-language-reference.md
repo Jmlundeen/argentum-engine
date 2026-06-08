@@ -1094,6 +1094,15 @@ work for abilities-on-stack (which carry no `CardComponent`).
   was cast for its warp cost (CR 702.185). Pair with
   `Conditions.TargetMatchesFilter(GameObjectFilter.Creature.castForWarp(), …)` to
   branch on whether a target was warp-cast (e.g., Full Bore).
+- `PutIntoGraveyardFromBattlefieldThisTurn` (filter builder
+  `putIntoGraveyardFromBattlefieldThisTurn()`) — card currently in a graveyard whose most
+  recent arrival there was from the battlefield during the current turn. Backed by a
+  per-entity `PutIntoGraveyardFromBattlefieldOnTurnComponent` stamped by `ZoneTransitionService`
+  on every battlefield→graveyard move (with the turn number) and stripped when the card leaves
+  the graveyard. Matches iff the stamp equals `state.turnNumber`. Used by Samwise the
+  Stouthearted and Lobelia Sackville-Baggins (LTR) — pair with `GameObjectFilter.Permanent` or
+  `Creature` on a graveyard-zone `TargetFilter`. False in battlefield-projection / untap /
+  trigger-gating contexts (the marker only lives on graveyard cards).
 
 ### `AffectsFilter` — static-ability target shapes
 
@@ -2297,6 +2306,22 @@ default to "you" so card authors don't need to pass it explicitly.
 - `ControlledCreatureDiedThisTurn` — intervening-if "if a creature died **under your control** this
   turn", scoped to the source's controller (reads only that player's `CreaturesDiedThisTurnComponent`).
   Used by Barrensteppe Siege (Mardu). Dual-mode.
+- `YouHadPermanentLeaveBattlefieldThisTurn` — intervening-if "if a permanent you controlled left
+  the battlefield this turn". Per-player, scoped to the source's controller. Counts every permanent
+  type (creatures, lands, artifacts, enchantments, planeswalkers) and includes tokens — broader
+  than `ControlledCreatureDiedThisTurn`. Backed by `PermanentLeftBattlefieldThisTurnComponent`,
+  incremented by `ZoneTransitionService` whenever a permanent leaves the battlefield, credited to
+  its last-known controller. Used by Shortcut to Mushrooms (LTR). Dual-mode.
+- `SacrificedHadSubtype(subtype)` — intervening-if "if an X was sacrificed this way". Reads
+  `EffectContext.sacrificedPermanents` snapshots captured at cost/effect-time (cost-payment or
+  edict-sacrifice both populate the same list). Used by Thallid Omnivore (DOM).
+- `SacrificedWasLegendary` — intervening-if "if the sacrificed creature was legendary". Same
+  snapshot path as `SacrificedHadSubtype`, but reads `supertypes` instead of subtypes. Used by
+  Nasty End and Gríma Wormtongue (LTR).
+- `YouSacrificedThisWay` — intervening-if "if you sacrificed a creature this way". Filters
+  `EffectContext.sacrificedPermanents` for snapshots whose last-known controller is the source's
+  controller — the gate on the personal half of a symmetric edict. Used by Rise of the Witch-king
+  (LTR).
 
 ### Composition
 

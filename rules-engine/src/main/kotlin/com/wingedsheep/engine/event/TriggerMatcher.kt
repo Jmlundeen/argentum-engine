@@ -1161,6 +1161,8 @@ class TriggerMatcher(
             val entity = state.getEntity(entityId) ?: return false
             entity.has<FaceDownComponent>()
         }
+        // Graveyard-zone-only predicate; trigger gating never sees a stamped entity here.
+        is com.wingedsheep.sdk.scripting.predicates.StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
         is com.wingedsheep.sdk.scripting.predicates.StatePredicate.Or ->
             predicate.predicates.any { matchesStatePredicateForTrigger(it, state, entityId) }
         is com.wingedsheep.sdk.scripting.predicates.StatePredicate.And ->

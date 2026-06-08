@@ -638,6 +638,21 @@ object Conditions {
     fun SacrificedHadSubtype(subtype: String): ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.SacrificedPermanentHadSubtype(subtype)
 
+    /**
+     * If at least one permanent sacrificed as part of the cost was legendary at the
+     * moment of sacrifice. Used by LTR cards like Nasty End and Gríma Wormtongue.
+     */
+    val SacrificedWasLegendary: ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.SacrificedPermanentWasLegendary
+
+    /**
+     * If at least one permanent sacrificed "this way" was controlled by the source's
+     * controller at the moment of sacrifice. Used to gate the personal half of a
+     * symmetric edict (Rise of the Witch-king, LTR).
+     */
+    val YouSacrificedThisWay: ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.YouSacrificedPermanentThisWay
+
     // =========================================================================
     // Turn Conditions
     //
@@ -866,6 +881,17 @@ object Conditions {
      */
     val ControlledCreatureDiedThisTurn: ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.ControlledCreatureDiedThisTurnCondition
+
+    /**
+     * Intervening-if: "if a permanent you controlled left the battlefield this turn".
+     * Per-player (scoped to the source's controller), counts every permanent type
+     * including lands and tokens — broader than [CreatureDiedThisTurn]/[ControlledCreatureDiedThisTurn].
+     * Used by Shortcut to Mushrooms (LTR).
+     */
+    val YouHadPermanentLeaveBattlefieldThisTurn: ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.PermanentLeftBattlefieldThisTurn(
+            com.wingedsheep.sdk.scripting.references.Player.You
+        )
 
     /**
      * If this is the Nth time this ability has resolved this turn.

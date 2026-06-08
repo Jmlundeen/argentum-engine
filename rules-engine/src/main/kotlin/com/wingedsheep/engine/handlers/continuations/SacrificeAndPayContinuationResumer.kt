@@ -55,6 +55,17 @@ class SacrificeAndPayContinuationResumer(
         var newState = state
         val events = mutableListOf<GameEvent>()
 
+        // Capture characteristics BEFORE the zone change so sibling effects can read the
+        // sacrificed permanents' supertypes / subtypes / controllers (Rise of the Witch-king
+        // "if you sacrificed a creature this way…" rider).
+        val snapshots = if (selectedPermanents.isNotEmpty()) {
+            com.wingedsheep.engine.state.components.stack.capturePermanentSnapshots(
+                selectedPermanents, newState.projectedState
+            )
+        } else {
+            emptyList()
+        }
+
         if (selectedPermanents.isNotEmpty()) {
             val permanentNames = selectedPermanents.map { id ->
                 newState.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
@@ -71,6 +82,23 @@ class SacrificeAndPayContinuationResumer(
             events.addAll(transitionResult.events)
         }
 
+        // Inject snapshots into the underlying EffectContinuation (if any) so a sibling
+        // effect after this paused sacrifice can read `context.sacrificedPermanents`
+        // (Rise of the Witch-king "if you sacrificed a creature this way…" rider).
+        // Mirrors CreatureTypeChoiceContinuationResumer's "walk the stack and patch the
+        // captured effectContext" pattern.
+        newState = newState.copy(continuationStack = newState.continuationStack.map { frame ->
+            if (frame is EffectContinuation) {
+                frame.copy(
+                    effectContext = frame.effectContext.copy(
+                        sacrificedPermanents = frame.effectContext.sacrificedPermanents + snapshots
+                    )
+                )
+            } else {
+                frame
+            }
+        })
+
         // If there are remaining players (from "each opponent" effects), process them
         if (continuation.remainingPlayers.isNotEmpty() && continuation.filter != null) {
             val executor = ForceSacrificeExecutor()
@@ -78,12 +106,28 @@ class SacrificeAndPayContinuationResumer(
                 newState, continuation.remainingPlayers, continuation.filter,
                 continuation.count, continuation.sourceId
             )
+            val resultStateWithSnaps = if (result.updatedSacrificedPermanents.isNotEmpty()) {
+                result.state.copy(continuationStack = result.state.continuationStack.map { frame ->
+                    if (frame is EffectContinuation) {
+                        frame.copy(
+                            effectContext = frame.effectContext.copy(
+                                sacrificedPermanents = frame.effectContext.sacrificedPermanents +
+                                    result.updatedSacrificedPermanents
+                            )
+                        )
+                    } else {
+                        frame
+                    }
+                })
+            } else {
+                result.state
+            }
             val allEvents = events + result.events
             return if (result.isPaused) {
                 // Another player needs a decision — return paused with combined events
-                ExecutionResult.paused(result.state, result.pendingDecision!!, allEvents)
+                ExecutionResult.paused(resultStateWithSnaps, result.pendingDecision!!, allEvents)
             } else {
-                checkForMore(result.state, allEvents)
+                checkForMore(resultStateWithSnaps, allEvents)
             }
         }
 

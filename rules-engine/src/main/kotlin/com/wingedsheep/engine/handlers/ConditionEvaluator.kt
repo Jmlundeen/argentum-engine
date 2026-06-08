@@ -74,6 +74,8 @@ import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone
 import com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent
 import com.wingedsheep.sdk.scripting.conditions.SacrificedPermanentHadSubtype
+import com.wingedsheep.sdk.scripting.conditions.SacrificedPermanentWasLegendary
+import com.wingedsheep.sdk.scripting.conditions.YouSacrificedPermanentThisWay
 import com.wingedsheep.sdk.scripting.conditions.AnotherPermanentWithSameNameAsTarget
 import com.wingedsheep.sdk.scripting.conditions.TargetMarkedDamageExceedsToughness
 import com.wingedsheep.sdk.scripting.conditions.TargetIsPlayer
@@ -100,6 +102,7 @@ import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer
 import com.wingedsheep.sdk.scripting.conditions.YouChoseOtherCreatureAsRingBearer
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PermanentLeftBattlefieldThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PermanentTypeEnteredBattlefieldThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCommittedCrimeThisTurn
@@ -249,6 +252,8 @@ class ConditionEvaluator(
             is PlayerHasCitysBlessing -> evaluateHasCitysBlessingCtx(state, condition, ctx)
             is PermanentTypeEnteredBattlefieldThisTurn ->
                 evaluatePermanentTypeEnteredBattlefieldThisTurnCtx(state, condition, ctx)
+            is PermanentLeftBattlefieldThisTurn ->
+                evaluatePermanentLeftBattlefieldThisTurnCtx(state, condition, ctx)
 
             // Global facts (no controller/source needed).
             is VoidCondition ->
@@ -307,6 +312,8 @@ class ConditionEvaluator(
                     castChoiceMatches(state.getEntity(sourceId), condition.slot, condition.value)
             }
             is SacrificedPermanentHadSubtype -> ifResolution { evaluateSacrificedPermanentHadSubtype(condition, it) }
+            is SacrificedPermanentWasLegendary -> ifResolution { evaluateSacrificedPermanentWasLegendary(it) }
+            is YouSacrificedPermanentThisWay -> ifResolution { evaluateYouSacrificedPermanentThisWay(it) }
             is TriggeringEntityWasHistoric -> ifResolution { evaluateTriggeringEntityWasHistoric(state, it) }
             is TriggeringEntityWasCast -> ifResolution { evaluateTriggeringEntityWasCast(state, it) }
             is TriggeringEntityEnteredOrWasCastFromGraveyard ->
@@ -622,6 +629,18 @@ class ConditionEvaluator(
         return condition.cardType in tracker.cardTypes
     }
 
+    private fun evaluatePermanentLeftBattlefieldThisTurnCtx(
+        state: GameState,
+        condition: PermanentLeftBattlefieldThisTurn,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val playerId = resolvePlayer(state, condition.player, ctx) ?: return false
+        val count = state.getEntity(playerId)
+            ?.get<com.wingedsheep.engine.state.components.player.PermanentLeftBattlefieldThisTurnComponent>()
+            ?.count ?: 0
+        return count > 0
+    }
+
     private fun evaluateYouControlSource(state: GameState, context: EffectContext): Boolean {
         val sourceId = context.sourceId ?: return false
         val sourceController = state.getEntity(sourceId)?.get<ControllerComponent>()?.playerId ?: return false
@@ -728,6 +747,18 @@ class ConditionEvaluator(
     ): Boolean {
         return context.sacrificedPermanents.any { snapshot ->
             snapshot.subtypes.contains(condition.subtype)
+        }
+    }
+
+    private fun evaluateSacrificedPermanentWasLegendary(context: EffectContext): Boolean {
+        return context.sacrificedPermanents.any { snapshot ->
+            "LEGENDARY" in snapshot.supertypes
+        }
+    }
+
+    private fun evaluateYouSacrificedPermanentThisWay(context: EffectContext): Boolean {
+        return context.sacrificedPermanents.any { snapshot ->
+            snapshot.controllerId == context.controllerId
         }
     }
 

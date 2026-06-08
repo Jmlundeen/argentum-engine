@@ -16,6 +16,7 @@ import com.wingedsheep.engine.state.components.identity.CommanderComponent
 import com.wingedsheep.engine.state.components.identity.CommanderZoneChoiceAskedComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.DoubleFacedComponent
+import com.wingedsheep.engine.state.components.identity.PutIntoGraveyardFromBattlefieldThisTurnMarker
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.MorphDataComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
@@ -24,6 +25,7 @@ import com.wingedsheep.engine.state.components.player.CardsLeftGraveyardThisTurn
 import com.wingedsheep.engine.state.components.player.CreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.NonTokenCreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.OpponentCreaturesExiledThisTurnComponent
+import com.wingedsheep.engine.state.components.player.PermanentLeftBattlefieldThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PlayerDescendedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.SacrificedFoodThisTurnComponent
 import com.wingedsheep.sdk.core.CardType
@@ -404,6 +406,19 @@ object ZoneTransitionService {
             newState = newState.copy(nonlandPermanentLeftBattlefieldThisTurn = true)
         }
 
+        // 8a3. Per-player permanent-LTB tracking (Shortcut to Mushrooms, LTR).
+        // Counts every permanent type — including lands and tokens — leaving the
+        // battlefield this turn under the last-known controller. Credited to the
+        // last-known controller (which defaults to ownerId when no ControllerComponent
+        // is present) so a Threaten-style steal-and-sacrifice counts for the thief.
+        if (leavingBattlefield) {
+            newState = newState.updateEntity(controllerId) { playerContainer ->
+                val existing = playerContainer.get<PermanentLeftBattlefieldThisTurnComponent>()
+                    ?: PermanentLeftBattlefieldThisTurnComponent()
+                playerContainer.with(PermanentLeftBattlefieldThisTurnComponent(existing.count + 1))
+            }
+        }
+
         // 8b. Track creature deaths inline so subsequent effects can see counts
         if (leavingBattlefield && actualDestZone == Zone.GRAVEYARD && cardComponent.typeLine.isCreature) {
             val isToken = container.has<TokenComponent>()
@@ -439,8 +454,25 @@ object ZoneTransitionService {
             }
         }
 
+        // 8b3. Stamp "put into graveyard from battlefield this turn" on the card entity
+        // (Samwise the Stouthearted / Lobelia Sackville-Baggins, LTR). Overwrites any
+        // previous stamp so a card that bounces battlefield→graveyard twice in one turn
+        // still matches; a graveyard arrival via a different path (mill, exile→graveyard)
+        // doesn't trigger this branch, so it can't falsely match.
+        if (leavingBattlefield && actualDestZone == Zone.GRAVEYARD) {
+            newState = newState.updateEntity(entityId) { c ->
+                c.with(PutIntoGraveyardFromBattlefieldThisTurnMarker)
+            }
+        }
+
         // 8c. Track cards leaving the graveyard
         if (fromZone == Zone.GRAVEYARD) {
+            // Strip the "from battlefield this turn" stamp — the card is no longer in a
+            // graveyard, so the predicate must not carry over to a later graveyard
+            // arrival via a different path.
+            newState = newState.updateEntity(entityId) { c ->
+                c.without<PutIntoGraveyardFromBattlefieldThisTurnMarker>()
+            }
             newState = newState.updateEntity(ownerId) { playerContainer ->
                 val existing = playerContainer.get<CardsLeftGraveyardThisTurnComponent>()
                     ?: CardsLeftGraveyardThisTurnComponent()

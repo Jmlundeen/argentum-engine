@@ -2,6 +2,7 @@ package com.wingedsheep.engine.handlers.effects.token
 
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.ZoneChangeEvent
+import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
@@ -33,7 +34,8 @@ import kotlin.reflect.KClass
  */
 class CreatePredefinedTokenExecutor(
     private val cardRegistry: CardRegistry,
-    private val staticAbilityHandler: StaticAbilityHandler? = null
+    private val staticAbilityHandler: StaticAbilityHandler? = null,
+    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
 ) : EffectExecutor<CreatePredefinedTokenEffect> {
 
     override val effectType: KClass<CreatePredefinedTokenEffect> = CreatePredefinedTokenEffect::class
@@ -54,16 +56,23 @@ class CreatePredefinedTokenExecutor(
             context.controllerId
         }
 
+        // Evaluate dynamic count if set (e.g. Lobelia's "X = the exiled card's power"),
+        // otherwise use the fixed count. Coerced to >= 0 — a negative count would be a
+        // bug elsewhere, but clamping defends against odd dynamic-amount edge cases.
+        val tokenCount = effect.dynamicCount?.let { dyn ->
+            amountEvaluator.evaluate(state, dyn, context).coerceAtLeast(0)
+        } ?: effect.count
+
         // Check for token creation replacement effects (e.g., Mirrormind Crown)
         val replacementResult = TokenCreationReplacementHelper.checkReplacement(
-            state, effect, context, effect.count, tokenControllerId, cardRegistry, staticAbilityHandler
+            state, effect, context, tokenCount, tokenControllerId, cardRegistry, staticAbilityHandler
         )
         if (replacementResult != null) return replacementResult
 
         var newState = state
         val createdTokenIds = mutableListOf<EntityId>()
 
-        repeat(effect.count) {
+        repeat(tokenCount) {
             val (tokenId, stateWithId) = newState.newEntity()
             newState = stateWithId
             createdTokenIds.add(tokenId)

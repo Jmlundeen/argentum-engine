@@ -91,3 +91,20 @@ data object RevertCopyAtEndOfTurnComponent : Component
  */
 @Serializable
 data object CantBeCounteredComponent : Component
+
+/**
+ * Marker: this card entered a graveyard *from the battlefield* during the current turn.
+ *
+ * "Current turn" follows MTG turn boundaries — a new turn begins whenever a player starts
+ * their turn (BeginningPhaseManager wipes the marker from every entity at the untap step
+ * of every turn). The marker is set by `ZoneTransitionService` whenever a card moves
+ * battlefield → graveyard, and stripped when the card leaves the graveyard so a later
+ * arrival via a different path (mill, exile → graveyard, hand → graveyard) does not
+ * carry the "from battlefield" claim.
+ *
+ * Backs `StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn` (LTR — Samwise the
+ * Stouthearted's "permanent card in your graveyard that was put there from the
+ * battlefield this turn" and Lobelia Sackville-Baggins's analogous exile target).
+ */
+@Serializable
+data object PutIntoGraveyardFromBattlefieldThisTurnMarker : Component

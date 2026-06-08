@@ -347,3 +347,41 @@ data class SacrificedPermanentHadSubtype(val subtype: String) : Condition {
         return if (newSubtype.value == subtype) this else SacrificedPermanentHadSubtype(newSubtype.value)
     }
 }
+
+/**
+ * Condition: "If the sacrificed permanent was legendary."
+ *
+ * Reads `EffectContext.sacrificedPermanents` (snapshots captured at cost-payment time
+ * or by a same-spell sacrifice effect like a symmetric edict) and matches when at
+ * least one snapshot's projected supertypes contain `LEGENDARY`. Snapshotting the
+ * supertype set at sacrifice time means a "became legendary" continuous effect that
+ * wore off between sacrifice and resolution still counts — the legendary fact is
+ * frozen at the moment of payment.
+ *
+ * Used by LTR's sacrifice-rider cards:
+ *  - Nasty End ("If the sacrificed creature was legendary, draw three cards instead.")
+ *  - Gríma Wormtongue ("If the sacrificed creature was legendary, amass Orcs 2.")
+ */
+@SerialName("SacrificedPermanentWasLegendary")
+@Serializable
+data object SacrificedPermanentWasLegendary : Condition {
+    override val description: String = "if the sacrificed creature was legendary"
+}
+
+/**
+ * Condition: "If you sacrificed a permanent this way."
+ *
+ * Reads `EffectContext.sacrificedPermanents` and matches when at least one snapshot
+ * was controlled by the source's controller at the moment of sacrifice. Used for
+ * symmetric edict riders where each player sacrifices and the controller's branch
+ * has a follow-up effect.
+ *
+ * Used by LTR's Rise of the Witch-king: "Each player sacrifices a creature of their
+ * choice. If you sacrificed a creature this way, you may return another permanent
+ * card from your graveyard to the battlefield."
+ */
+@SerialName("YouSacrificedPermanentThisWay")
+@Serializable
+data object YouSacrificedPermanentThisWay : Condition {
+    override val description: String = "if you sacrificed a creature this way"
+}

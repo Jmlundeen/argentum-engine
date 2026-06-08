@@ -358,6 +358,11 @@ internal class AffectsFilterResolver {
             } ?: emptySet()
             entityId in attackerSet
         }
+        // Graveyard-zone-only predicate (Samwise/Lobelia). Battlefield projection
+        // never sees a card whose stamp would match — every battlefield permanent
+        // has had its from-graveyard marker stripped on battlefield entry — so the
+        // projection answer is unconditionally false here.
+        StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
         StatePredicate.IsFaceDown -> isFaceDown
         StatePredicate.IsFaceUp -> !isFaceDown
         StatePredicate.HasMorphAbility ->

@@ -311,6 +311,35 @@ data object ControlledCreatureDiedThisTurnCondition : Condition {
     override val description: String = "if a creature died under your control this turn"
 }
 
+/**
+ * Intervening-if condition: "if a permanent [player] controlled left the battlefield this turn".
+ *
+ * True when [player]'s `PermanentLeftBattlefieldThisTurnComponent` has count > 0. Counts
+ * permanents of every type (creatures, lands, artifacts, enchantments, planeswalkers) and
+ * includes tokens — anything that went battlefield → anywhere else this turn. Credited to
+ * the *last-known controller* at the moment of departure, so a Threaten-style steal then
+ * sacrifice counts for the thief.
+ *
+ * Broader than [CreatureDiedThisTurnCondition] (creatures only, dying only — not e.g. a
+ * blink) and per-player rather than global. Distinct from the Void global
+ * `nonlandPermanentLeftBattlefieldThisTurn` tracker: this *includes* lands and is scoped
+ * to a single player.
+ *
+ * The `Conditions.YouHadPermanentLeaveBattlefieldThisTurn` DSL constant passes [Player.You],
+ * which the engine resolves to the source's controller in both resolution and static-ability
+ * contexts. Used by Shortcut to Mushrooms (LTR): "At the beginning of your end step, if a
+ * permanent you controlled left the battlefield this turn, put a +1/+1 counter on target
+ * creature you control."
+ */
+@SerialName("PermanentLeftBattlefieldThisTurn")
+@Serializable
+data class PermanentLeftBattlefieldThisTurn(
+    val player: Player = Player.You
+) : Condition {
+    override val description: String =
+        "if a permanent ${player.description} controlled left the battlefield this turn"
+}
+
 // =============================================================================
 // Plot (CR 718, Outlaws of Thunder Junction)
 // =============================================================================

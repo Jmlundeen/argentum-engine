@@ -23,6 +23,7 @@ import com.wingedsheep.engine.state.components.identity.HasMorphAbilityComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.CastRecordComponent
 import com.wingedsheep.engine.state.components.identity.MorphDataComponent
+import com.wingedsheep.engine.state.components.identity.PutIntoGraveyardFromBattlefieldThisTurnMarker
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
@@ -723,6 +724,17 @@ class PredicateEvaluator {
                     ?.get<PlayerAttackersThisTurnComponent>()
                     ?.attackerIds ?: emptySet()
                 entityId in attackerSet
+            }
+
+            // "Put there from the battlefield this turn" filter for graveyard-zone targets
+            // (Samwise the Stouthearted, Lobelia Sackville-Baggins — LTR). Reads the marker
+            // set by ZoneTransitionService on battlefield→graveyard moves. The marker is
+            // stripped when the card leaves the graveyard (so a later mill→graveyard or
+            // exile→graveyard arrival doesn't falsely match) AND at the start of every
+            // turn by BeginningPhaseManager (so the "this turn" window matches MTG's
+            // per-turn semantics, not the engine's per-round turn counter).
+            StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> {
+                container.has<PutIntoGraveyardFromBattlefieldThisTurnMarker>()
             }
 
             // Face-down state

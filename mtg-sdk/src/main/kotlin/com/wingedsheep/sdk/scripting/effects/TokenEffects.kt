@@ -157,13 +157,20 @@ data class CreatePredefinedTokenEffect(
     val tokenType: String,
     val count: Int = 1,
     val controller: EffectTarget? = null,
-    val tapped: Boolean = false
+    val tapped: Boolean = false,
+    /**
+     * If set, the engine evaluates this at resolution time and uses the result as the
+     * token count instead of [count]. Used by Lobelia Sackville-Baggins ("create X
+     * Treasure tokens, where X is the exiled card's power").
+     */
+    val dynamicCount: DynamicAmount? = null
 ) : Effect {
     override val description: String = buildString {
-        append(if (count == 1) "Create a " else "Create $count ")
+        append(if (dynamicCount != null) "Create " else if (count == 1) "Create a " else "Create $count ")
+        if (dynamicCount != null) append("X ")
         if (tapped) append("tapped ")
         append(tokenType)
-        append(if (count == 1) " token" else " tokens")
+        append(if (dynamicCount != null || count != 1) " tokens" else " token")
     }
 }
 

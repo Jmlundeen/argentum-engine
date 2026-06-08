@@ -213,6 +213,19 @@ class BeginningPhaseManager(
             newState = newState.updateEntity(entityId) { it.without<EnteredThisTurnComponent>() }
         }
 
+        // Wipe "put into graveyard from battlefield this turn" markers on every turn
+        // boundary so the predicate (Samwise, Lobelia — LTR) matches only cards that
+        // arrived in a graveyard this turn, not last turn. Scans all entities (the
+        // marker lives on graveyard cards, not battlefield permanents).
+        val stampedThisTurn = newState.entities.filter { (_, container) ->
+            container.has<com.wingedsheep.engine.state.components.identity.PutIntoGraveyardFromBattlefieldThisTurnMarker>()
+        }.keys
+        for (entityId in stampedThisTurn) {
+            newState = newState.updateEntity(entityId) {
+                it.without<com.wingedsheep.engine.state.components.identity.PutIntoGraveyardFromBattlefieldThisTurnMarker>()
+            }
+        }
+
         return ExecutionResult.success(newState, events)
     }
 
@@ -337,6 +350,8 @@ class BeginningPhaseManager(
         predicate: StatePredicate,
         container: ComponentContainer
     ): Boolean = when (predicate) {
+        // Graveyard-only predicate; untap filters never see a card with the marker.
+        StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
         is StatePredicate.HasCounter -> {
             val countersComponent = container.get<CountersComponent>()
             if (countersComponent == null) {
