@@ -10164,7 +10164,8 @@
                                 "source": {
                                     "type": "FromZone",
                                     "zone": "Graveyard",
-                                    "filter": "permanent"
+                                    "filter": "permanent",
+                                    "excludeSacrificedThisWay": true
                                 },
                                 "storeAs": "eligible"
                             },

@@ -36,7 +36,10 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *  - The rider is a `ConditionalEffect` gated on `YouSacrificedThisWay` (LTR Gap 17).
  *  - The reanimation half is the standard Gather → Select(`ChooseUpTo(1)`) → Move
  *    pipeline against the graveyard: the player is offered the eligible permanent cards
- *    in their graveyard and may pick zero or one of them.
+ *    in their graveyard and may pick zero or one of them. The Gather uses
+ *    `excludeSacrificedThisWay = true` so the creature you just sacrificed (now in your
+ *    graveyard) is not a legal "another permanent card" choice — per the CR ruling
+ *    "You cannot return the same permanent card that you sacrificed."
  */
 val RiseOfTheWitchKing = card("Rise of the Witch-king") {
     manaCost = "{2}{B}{G}"
@@ -60,7 +63,12 @@ val RiseOfTheWitchKing = card("Rise of the Witch-king") {
                             source = CardSource.FromZone(
                                 Zone.GRAVEYARD,
                                 Player.You,
-                                GameObjectFilter.Permanent
+                                GameObjectFilter.Permanent,
+                                // "return ANOTHER permanent card" — the creature you just
+                                // sacrificed to this spell sits in your graveyard but is not
+                                // a legal choice (CR ruling: "You cannot return the same
+                                // permanent card that you sacrificed.").
+                                excludeSacrificedThisWay = true
                             ),
                             storeAs = "eligible"
                         ),

@@ -45,15 +45,25 @@ sealed interface CardSource {
      * [Player.EachOpponent]) to gather from every relevant player's copy of the zone at once
      * (e.g. "all creature cards in each player's graveyard"). Single-player references gather
      * from just that player's zone.
+     *
+     * When [excludeSacrificedThisWay] is set, cards whose entity IDs appear in
+     * `EffectContext.sacrificedPermanents` are dropped from the result. This models the
+     * "return **another** permanent card …" wording on edict-then-reanimate spells
+     * (Rise of the Witch-king, LTR), where a player may not return the very permanent they
+     * just sacrificed to the same spell.
      */
     @SerialName("FromZone")
     @Serializable
     data class FromZone(
         val zone: Zone,
         val player: Player = Player.You,
-        val filter: GameObjectFilter = GameObjectFilter.Companion.Any
+        val filter: GameObjectFilter = GameObjectFilter.Companion.Any,
+        val excludeSacrificedThisWay: Boolean = false
     ) : CardSource {
-        override val description: String = "${filter.description} cards in ${player.possessive} ${zone.displayName}"
+        override val description: String = buildString {
+            append("${filter.description} cards in ${player.possessive} ${zone.displayName}")
+            if (excludeSacrificedThisWay) append(" other than one sacrificed this way")
+        }
     }
 
     /**

@@ -27,11 +27,11 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Uses `StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn` (LTR Gap 20) restricted
  * to an opponent's graveyard. The Treasure count reads `Target(0).Power`, which evaluates
- * against the exiled card's base power after it lands in the exile zone (the entity is
- * still queryable for its CardComponent base stats; Rule 400.7 doesn't strip CardComponent
- * on exile, and the targeted entity ID is preserved). Note: per oracle, "X is the exiled
- * card's power" reads the card's power at the moment X is calculated — the card has just
- * moved to exile but its base power is unchanged from its graveyard reading.
+ * against the exiled card's base power after it lands in the exile zone. Although a card
+ * that changes zones becomes a new object (CR 400.7), CR 400.7j lets the later part of the
+ * same effect find the object it became in the public zone it moved to — so the "then
+ * create X Treasures" half can still read the exiled card's power. Its base power is
+ * unchanged from its graveyard reading.
  */
 val LobeliaSackvilleBaggins = card("Lobelia Sackville-Baggins") {
     manaCost = "{2}{B}"

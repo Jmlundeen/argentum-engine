@@ -462,7 +462,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   token (creature or otherwise) with its own abilities — Treasure, Munitions, Cragflame — add a `CardDefinition`
   to `PredefinedTokens.kt` and expose an `Effects.Create<Name>Token()` facade that wraps
   `CreatePredefinedTokenEffect("<Name>", count)`. The predefined-token registry already supports noncreature type
-  lines (e.g. Munitions' `typeLine = "Artifact"`) and embedded triggered abilities.
+  lines (e.g. Munitions' `typeLine = "Artifact"`) and embedded triggered abilities. For a count computed at
+  resolution rather than a fixed integer, pass `dynamicCount = <DynamicAmount>` instead of `count` — the executor
+  evaluates it (coerced to ≥ 0) and creates that many tokens (Lobelia Sackville-Baggins, LTR: "create X Treasure
+  tokens, where X is the exiled card's power", via `DynamicAmount.EntityProperty(Target(0), Power)`).
 - `CreateDynamicToken(dynamicPower, dynamicToughness, colors?, creatureTypes, keywords?, count?, controller?, imageUri?)` —
   tokens whose P/T is computed at resolution (e.g. Pure Reflection's X/X Reflection where X = the cast spell's mana
   value, via `DynamicAmounts.triggeringManaValue()`). `controller` directs who gets the token (e.g.
@@ -2325,7 +2328,9 @@ default to "you" so card authors don't need to pass it explicitly.
 - `YouSacrificedThisWay` — intervening-if "if you sacrificed a creature this way". Filters
   `EffectContext.sacrificedPermanents` for snapshots whose last-known controller is the source's
   controller — the gate on the personal half of a symmetric edict. Used by Rise of the Witch-king
-  (LTR).
+  (LTR). The companion `CardSource.FromZone(..., excludeSacrificedThisWay = true)` drops those same
+  snapshotted entities from a later gather, so "return **another** permanent card …" can't offer the
+  permanent you just sacrificed to the same spell.
 
 ### Composition
 

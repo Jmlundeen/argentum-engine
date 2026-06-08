@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
+import com.wingedsheep.engine.state.components.stack.entityIds
 import kotlin.reflect.KClass
 
 /**
@@ -59,13 +60,22 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
                 val allCards = playerIds.flatMap { playerId ->
                     state.getZone(ZoneKey(playerId, source.zone))
                 }
-                if (source.filter != GameObjectFilter.Any) {
+                val filtered = if (source.filter != GameObjectFilter.Any) {
                     val predicateContext = PredicateContext.fromEffectContext(context)
                     allCards.filter { cardId ->
                         predicateEvaluator.matches(state, state.projectedState, cardId, source.filter, predicateContext)
                     }
                 } else {
                     allCards
+                }
+                // "return another permanent card …": drop anything sacrificed to this same
+                // spell/ability (Rise of the Witch-king, LTR). The sacrificed cards retain
+                // their entity IDs in the graveyard, so the snapshot IDs identify them.
+                if (source.excludeSacrificedThisWay) {
+                    val sacrificedIds = context.sacrificedPermanents.entityIds.toSet()
+                    filtered.filter { it !in sacrificedIds }
+                } else {
+                    filtered
                 }
             }
 
