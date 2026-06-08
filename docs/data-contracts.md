@@ -229,14 +229,21 @@ with `pendingDecision.playerId`; combat declarations with the active/defending s
 
 ### "Share frame as scenario" (replay)
 
-The replay viewer's "Share as scenario" produces an **exact full-state snapshot** link
-(`/scenario?snap=<code>`) that drops you into the precise position — stack, targets, floating
-effects, mana, counters and all trackers, not just the public board. The full (unmasked)
-`GameState` is recorded per frame (`GameReplayRecord.fullStates`; cheap because immutable frames
-structurally share their component objects) and fetched on demand via
-`GET /api/public/replays/{gameId}/frames/{frame}/full-state` — so a normal masked replay view
-never receives hidden info, only an explicit share does. Opening the link decodes the serialized
-state and `POST /api/scenarios/from-state` injects it verbatim into a fresh hotseat session
-(`mode=SELF` default). A snapshot is exact but **not editable** in the card-search builder; the
-builder's own name-based `?s=` share remains for authoring/editing. The engine `GameState` is
-(de)serialized with `persistenceJson` (`allowStructuredMapKeys` — `zones` is keyed by `ZoneKey`).
+The replay viewer reproduces an **exact full-state snapshot** — stack, targets, floating effects,
+mana, counters and all trackers, not just the public board. The full (unmasked) `GameState` is
+recorded per frame (`GameReplayRecord.fullStates`; cheap because immutable frames structurally
+share their component objects) and never surfaced during normal masked viewing. Two entry points:
+
+- **Share as scenario** → copies a *short* link that only references the stored frame:
+  `/scenario?replay=<gameId>&frame=<n>`. Opening it `POST`s to `/api/scenarios/from-replay-frame`
+  (`{gameId, frame, mode?}`), which reads `GameReplayRecord.fullStates[frame]` and injects it into
+  a fresh hotseat session (`mode=SELF` default). The link lives as long as the in-memory replay.
+- **Download** → saves the frame's full state as a JSON file
+  (`GET /api/public/replays/{gameId}/frames/{frame}/full-state`). Reload it locally from the
+  builder's **Load file** button, which `POST`s the file to `/api/scenarios/from-state` (a raw
+  serialized `GameState` body) and jumps in. "Load file" also accepts a **name-based** scenario
+  JSON (like the `manual-scenarios/*.json`), loading it into the editable builder instead.
+
+A snapshot is exact but **not editable** in the card-search builder; the builder's own name-based
+`?s=` share remains for authoring/editing. The engine `GameState` is (de)serialized with
+`persistenceJson` (`allowStructuredMapKeys` — `zones` is keyed by `ZoneKey`).

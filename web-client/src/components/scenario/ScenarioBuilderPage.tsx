@@ -13,9 +13,9 @@ import {
   encodeScenario,
   buildScenarioUrl,
   decodeScenario,
-  decodeSnapshot,
   SCENARIO_SHARE_PARAM,
-  SCENARIO_SNAPSHOT_PARAM,
+  SCENARIO_REPLAY_PARAM,
+  SCENARIO_FRAME_PARAM,
 } from './shareScenario'
 import type {
   ScenarioBattlefieldCard,
@@ -135,45 +135,45 @@ export function ScenarioBuilderPage() {
     }
   }, [])
 
-  // --- exact-snapshot jump-in on load (?snap=<code>) -----------------------
-  // A snapshot link carries a full serialized GameState; inject it server-side and jump
-  // straight into the position (it isn't editable in the builder).
+  // --- exact-snapshot jump-in on load (?replay=<id>&frame=<n>) -------------
+  // A snapshot link references a stored replay frame (kept short); inject it server-side and
+  // jump straight into the exact position (it isn't editable in the builder).
   const snapshotLoadedRef = useRef(false)
   useEffect(() => {
     if (snapshotLoadedRef.current) return
-    const code = searchParams.get(SCENARIO_SNAPSHOT_PARAM)
-    if (!code) return
+    const replay = searchParams.get(SCENARIO_REPLAY_PARAM)
+    const frame = searchParams.get(SCENARIO_FRAME_PARAM)
+    if (!replay || frame == null) return
     snapshotLoadedRef.current = true
     setSnapshotLoading(true)
-    void (async () => {
-      const stateJson = await decodeSnapshot(code)
-      if (!stateJson) {
-        setSnapshotLoading(false)
-        setStatus('Could not read the snapshot link.')
-        return
-      }
-      try {
-        const res = await fetch('/api/scenarios/from-state', {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: stateJson,
-        })
-        if (!res.ok) {
-          setSnapshotLoading(false)
-          setStatus('Failed to load the snapshot.')
-          return
-        }
-        const data = (await res.json()) as ScenarioCreateResponse
-        const human =
-          data.player1.token && data.player1.token !== '(AI)' ? data.player1 : data.player2
-        window.location.href = `/?token=${encodeURIComponent(human.token)}`
-      } catch {
-        setSnapshotLoading(false)
-        setStatus('Failed to load the snapshot.')
-      }
-    })()
+    void jumpInto(
+      fetch('/api/scenarios/from-replay-frame', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameId: replay, frame: Number(frame) }),
+      }),
+    )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
+
+  // Drive a from-state / from-replay-frame response: on success, jump into the new session.
+  const jumpInto = useCallback(async (req: Promise<Response>) => {
+    try {
+      const res = await req
+      if (!res.ok) {
+        setSnapshotLoading(false)
+        setStatus('Failed to load the snapshot.')
+        return
+      }
+      const data = (await res.json()) as ScenarioCreateResponse
+      const human =
+        data.player1.token && data.player1.token !== '(AI)' ? data.player1 : data.player2
+      window.location.href = `/?token=${encodeURIComponent(human.token)}`
+    } catch {
+      setSnapshotLoading(false)
+      setStatus('Failed to load the snapshot.')
+    }
+  }, [])
 
   // --- decode shared scenario on load (?s=<code>) --------------------------
   const sharedLoadedRef = useRef(false)
@@ -279,6 +279,38 @@ export function ScenarioBuilderPage() {
     setJsonOpen(true)
   }, [currentSpec])
 
+  // Load a file: a downloaded full-state snapshot (has `entities`/`zones`) jumps straight in;
+  // a name-based scenario file (like the manual-scenarios JSONs) loads into the editable builder.
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const handleLoadFile = useCallback((file: File) => {
+    void (async () => {
+      const text = await file.text()
+      let parsed: unknown
+      try {
+        parsed = JSON.parse(text)
+      } catch {
+        setStatus('Invalid JSON file.')
+        return
+      }
+      if (parsed && typeof parsed === 'object' && 'entities' in parsed && 'zones' in parsed) {
+        // Full-state snapshot → inject server-side and jump into the exact position.
+        setSnapshotLoading(true)
+        void jumpInto(
+          fetch('/api/scenarios/from-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: text,
+          }),
+        )
+      } else {
+        // Name-based scenario → load into the editable builder.
+        applySpec(parsed as ScenarioSpec)
+        setStatus('Loaded scenario from file.')
+        setErrors([])
+      }
+    })()
+  }, [applySpec, jumpInto])
+
   const handleShare = useCallback(async () => {
     const code = await encodeScenario(currentSpec())
     const url = buildScenarioUrl(window.location.origin, code)
@@ -338,6 +370,18 @@ export function ScenarioBuilderPage() {
         <button style={S.linkBtn} onClick={() => navigate('/')}>← Back</button>
         <h1 style={S.title}>Scenario Builder</h1>
         <div style={{ flex: 1 }} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) handleLoadFile(file)
+            e.target.value = ''
+          }}
+        />
+        <button style={S.ghostBtn} onClick={() => fileInputRef.current?.click()}>Load file</button>
         <button style={S.ghostBtn} onClick={handleShowJson}>View JSON</button>
         <button style={S.ghostBtn} onClick={() => void handleShare()}>Share</button>
         <button style={S.primaryBtn} disabled={starting} onClick={() => void handleStart()}>

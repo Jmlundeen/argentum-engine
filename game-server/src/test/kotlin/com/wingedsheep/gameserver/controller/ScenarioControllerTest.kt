@@ -152,6 +152,14 @@ class ScenarioControllerTest(
         postFromState("{ not a game state }").statusCode() shouldBe 400
     }
 
+    test("from-replay-frame returns 404 for an unknown replay") {
+        val req = HttpRequest.newBuilder(URI.create("http://localhost:$port/api/scenarios/from-replay-frame"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString("""{"gameId":"does-not-exist","frame":0}"""))
+            .build()
+        http.send(req, HttpResponse.BodyHandlers.ofString()).statusCode() shouldBe 404
+    }
+
     test("TWO_PLAYER mode returns two distinct tokens") {
         val response = post(
             """{ "player1": { "lifeTotal": 20 }, "player2": { "lifeTotal": 20 }, "mode": "TWO_PLAYER" }"""

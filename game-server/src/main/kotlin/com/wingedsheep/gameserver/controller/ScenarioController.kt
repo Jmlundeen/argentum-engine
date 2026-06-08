@@ -4,6 +4,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.gameserver.ai.AiGameManager
 import com.wingedsheep.gameserver.persistence.persistenceJson
+import com.wingedsheep.gameserver.replay.GameHistoryRepository
 import com.wingedsheep.gameserver.scenario.ScenarioBuilderService
 import com.wingedsheep.gameserver.scenario.ScenarioMode
 import com.wingedsheep.gameserver.scenario.ScenarioRequest
@@ -37,6 +38,7 @@ class ScenarioController(
     private val aiGameManager: AiGameManager,
     private val scenarioBuilderService: ScenarioBuilderService,
     private val scenarioSessionFactory: ScenarioSessionFactory,
+    private val gameHistoryRepository: GameHistoryRepository,
 ) {
     private val logger = LoggerFactory.getLogger(ScenarioController::class.java)
 
@@ -86,9 +88,10 @@ class ScenarioController(
     }
 
     /**
-     * Create a session by injecting a complete serialized [GameState] (the request body) — the
-     * exact-snapshot path used by "share frame as scenario". `mode` defaults to SELF (hotseat).
+     * Create a session by injecting a complete serialized [GameState] (the request body) — used
+     * to load an exported snapshot *file* for local testing. `mode` defaults to SELF (hotseat).
      * The body is the engine-JSON GameState; player seats/names come from the state itself.
+     * (Sharing uses [createFromReplayFrame] instead, to keep links short.)
      */
     @PostMapping("/from-state")
     fun createFromState(
@@ -112,6 +115,31 @@ class ScenarioController(
             ResponseEntity.ok(scenarioSessionFactory.createSessionFromState(state, mode ?: ScenarioMode.SELF))
         } catch (e: Exception) {
             logger.error("Failed to load snapshot", e)
+            ResponseEntity.badRequest().body(errorBody(listOf("Failed to load snapshot: ${e.message}")))
+        }
+    }
+
+    /**
+     * Jump into a stored replay frame by reference — the short-link share path. Avoids putting
+     * the (large) serialized state in the URL: the server already holds the frame's full state
+     * in [GameHistoryRepository], so the link only carries `gameId` + `frame`.
+     */
+    @PostMapping("/from-replay-frame")
+    fun createFromReplayFrame(
+        @RequestBody request: FromReplayFrameRequest,
+        httpRequest: HttpServletRequest,
+    ): ResponseEntity<Any> {
+        if (isRateLimited(httpRequest.remoteAddr ?: "unknown")) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(errorBody(listOf("Too many scenarios created — please wait a moment and try again.")))
+        }
+        val state = gameHistoryRepository.findById(request.gameId)?.fullStates?.getOrNull(request.frame)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(errorBody(listOf("That replay frame is no longer available.")))
+        return try {
+            ResponseEntity.ok(scenarioSessionFactory.createSessionFromState(state, request.mode ?: ScenarioMode.SELF))
+        } catch (e: Exception) {
+            logger.error("Failed to load replay frame", e)
             ResponseEntity.badRequest().body(errorBody(listOf("Failed to load snapshot: ${e.message}")))
         }
     }
@@ -142,3 +170,10 @@ class ScenarioController(
         private const val MAX_STATE_BYTES = 4_000_000
     }
 }
+
+/** Body for [ScenarioController.createFromReplayFrame]. */
+data class FromReplayFrameRequest(
+    val gameId: String,
+    val frame: Int,
+    val mode: ScenarioMode? = null,
+)

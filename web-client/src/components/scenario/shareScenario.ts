@@ -78,31 +78,22 @@ export function buildScenarioUrl(origin: string, code: string): string {
   return `${origin}/scenario?${SHARE_PARAM}=${code}`
 }
 
-// --- full-state snapshot (exact replay position) -------------------------------------------
-// A snapshot link carries the raw serialized engine GameState (deflated) rather than a
-// name-based ScenarioSpec, so it reproduces the *exact* position (stack, targets, floating
-// effects, mana, …). Loaded via POST /api/scenarios/from-state — not editable in the builder.
+// --- full-state snapshot from a replay frame (exact position) ------------------------------
+// Rather than embed the (large) serialized GameState in the URL, a snapshot link *references*
+// the replay frame the server already holds — keeping the link short. On open the builder POSTs
+// to /api/scenarios/from-replay-frame, which injects the stored state. Reproduces the exact
+// position (stack, targets, floating effects, mana, …); not editable in the builder.
 
-const SNAPSHOT_PARAM = 'snap'
+const REPLAY_PARAM = 'replay'
+const FRAME_PARAM = 'frame'
 
-/** Compress a serialized engine GameState JSON string into a URL-safe code. */
-export async function encodeSnapshot(stateJson: string): Promise<string> {
-  const compressed = await deflate(new TextEncoder().encode(stateJson))
-  return bytesToBase64Url(compressed)
+/** Build a short snapshot URL referencing a replay frame: `<origin>/scenario?replay=<id>&frame=<n>`. */
+export function buildReplayScenarioUrl(origin: string, gameId: string, frame: number): string {
+  return `${origin}/scenario?${REPLAY_PARAM}=${encodeURIComponent(gameId)}&${FRAME_PARAM}=${frame}`
 }
 
-/** Decode a snapshot code back into the serialized GameState JSON string (null if malformed). */
-export async function decodeSnapshot(code: string): Promise<string | null> {
-  try {
-    return new TextDecoder().decode(await inflate(base64UrlToBytes(code)))
-  } catch {
-    return null
-  }
+export {
+  SHARE_PARAM as SCENARIO_SHARE_PARAM,
+  REPLAY_PARAM as SCENARIO_REPLAY_PARAM,
+  FRAME_PARAM as SCENARIO_FRAME_PARAM,
 }
-
-/** Build a snapshot URL that jumps into the exact state on open: `<origin>/scenario?snap=<code>`. */
-export function buildSnapshotUrl(origin: string, code: string): string {
-  return `${origin}/scenario?${SNAPSHOT_PARAM}=${code}`
-}
-
-export { SHARE_PARAM as SCENARIO_SHARE_PARAM, SNAPSHOT_PARAM as SCENARIO_SNAPSHOT_PARAM }

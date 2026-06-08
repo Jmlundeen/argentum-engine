@@ -7,7 +7,7 @@ import { CombatArrows } from '../combat/CombatArrows'
 import type { SpectatingState } from '@/store/slices'
 import type { SpectatorStateUpdate } from '../admin/ReplayViewer'
 import { reconstructSnapshots, type PublicReplayData } from '@/replay/reconstructSnapshots.ts'
-import { encodeSnapshot, buildSnapshotUrl } from '../scenario/shareScenario'
+import { buildReplayScenarioUrl } from '../scenario/shareScenario'
 
 const HEADER_HEIGHT = 55
 
@@ -142,15 +142,8 @@ export function ReplayPage() {
 
   const [scenarioCopied, setScenarioCopied] = useState(false)
   const handleShareAsScenario = async (frame: number) => {
-    // Fetch the frame's full (unmasked) game state so the snapshot reproduces the exact position.
-    const r = await fetch(`/api/public/replays/${gameId}/frames/${frame}/full-state`)
-    if (!r.ok) {
-      setError('Could not load this frame for sharing.')
-      return
-    }
-    const stateJson = await r.text()
-    const code = await encodeSnapshot(stateJson)
-    const url = buildSnapshotUrl(window.location.origin, code)
+    // Short link that references the stored replay frame — no huge serialized state in the URL.
+    const url = buildReplayScenarioUrl(window.location.origin, gameId ?? '', frame)
     try {
       await navigator.clipboard.writeText(url)
       setScenarioCopied(true)
@@ -158,6 +151,24 @@ export function ReplayPage() {
     } catch {
       window.prompt('Copy this scenario link', url)
     }
+  }
+
+  const [downloaded, setDownloaded] = useState(false)
+  const handleDownloadSnapshot = async (frame: number) => {
+    // Download the frame's full game state as a file you can reload locally via the builder.
+    const r = await fetch(`/api/public/replays/${gameId}/frames/${frame}/full-state`)
+    if (!r.ok) {
+      setError('Could not load this frame for download.')
+      return
+    }
+    const blob = new Blob([await r.text()], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `scenario-${gameId}-frame${frame}.json`
+    a.click()
+    URL.revokeObjectURL(a.href)
+    setDownloaded(true)
+    setTimeout(() => setDownloaded(false), 2500)
   }
 
   if (loading) {
@@ -235,9 +246,16 @@ export function ReplayPage() {
           <button
             onClick={() => void handleShareAsScenario(currentStep)}
             style={styles.scenarioButton}
-            title="Copy a link that drops you into this exact position — full board, hands, libraries, stack, targets and mana — to play it out yourself or against the AI."
+            title="Copy a short link that drops you into this exact position — full board, hands, libraries, stack, targets and mana — to play it out yourself or against the AI."
           >
             {scenarioCopied ? 'Copied!' : 'Share as scenario'}
+          </button>
+          <button
+            onClick={() => void handleDownloadSnapshot(currentStep)}
+            style={styles.scenarioButton}
+            title="Download this exact position as a snapshot file you can reload later from the Scenario Builder ('Load snapshot')."
+          >
+            {downloaded ? 'Saved!' : 'Download'}
           </button>
           <button onClick={handleShare} style={styles.shareButton} title="Copy link to clipboard">
             {copied ? 'Copied!' : 'Share'}

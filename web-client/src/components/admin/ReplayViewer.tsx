@@ -5,7 +5,7 @@ import { GameBoard } from '../game/GameBoard'
 import { CombatArrows } from '../combat/CombatArrows'
 import type { SpectatingState } from '@/store/slices'
 import { reconstructSnapshots, type ReplayData } from '@/replay/reconstructSnapshots.ts'
-import { encodeSnapshot, buildSnapshotUrl } from '../scenario/shareScenario'
+import { buildReplayScenarioUrl } from '../scenario/shareScenario'
 
 // ============================================================================
 // Types
@@ -368,11 +368,7 @@ function ReplayView({
 
   const [scenarioCopied, setScenarioCopied] = useState(false)
   const handleShareAsScenario = async () => {
-    const r = await fetch(`/api/public/replays/${snapshot.gameSessionId}/frames/${currentStep}/full-state`)
-    if (!r.ok) return
-    const stateJson = await r.text()
-    const code = await encodeSnapshot(stateJson)
-    const url = buildSnapshotUrl(window.location.origin, code)
+    const url = buildReplayScenarioUrl(window.location.origin, snapshot.gameSessionId, currentStep)
     try {
       await navigator.clipboard.writeText(url)
       setScenarioCopied(true)
@@ -380,6 +376,20 @@ function ReplayView({
     } catch {
       window.prompt('Copy this scenario link', url)
     }
+  }
+
+  const [downloaded, setDownloaded] = useState(false)
+  const handleDownloadSnapshot = async () => {
+    const r = await fetch(`/api/public/replays/${snapshot.gameSessionId}/frames/${currentStep}/full-state`)
+    if (!r.ok) return
+    const blob = new Blob([await r.text()], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `scenario-${snapshot.gameSessionId}-frame${currentStep}.json`
+    a.click()
+    URL.revokeObjectURL(a.href)
+    setDownloaded(true)
+    setTimeout(() => setDownloaded(false), 2500)
   }
 
   return (
@@ -430,9 +440,16 @@ function ReplayView({
           <button
             onClick={() => void handleShareAsScenario()}
             style={styles.scenarioButton}
-            title="Copy a link that drops you into this exact position — full board, hands, libraries, stack, targets and mana — to play it out yourself or against the AI."
+            title="Copy a short link that drops you into this exact position — full board, hands, libraries, stack, targets and mana — to play it out yourself or against the AI."
           >
             {scenarioCopied ? 'Copied!' : 'Share as scenario'}
+          </button>
+          <button
+            onClick={() => void handleDownloadSnapshot()}
+            style={styles.scenarioButton}
+            title="Download this exact position as a snapshot file you can reload later from the Scenario Builder ('Load snapshot')."
+          >
+            {downloaded ? 'Saved!' : 'Download'}
           </button>
         </div>
         <div style={styles.gameBoardContainer}>
