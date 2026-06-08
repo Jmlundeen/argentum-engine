@@ -7,9 +7,7 @@ import { CombatArrows } from '../combat/CombatArrows'
 import type { SpectatingState } from '@/store/slices'
 import type { SpectatorStateUpdate } from '../admin/ReplayViewer'
 import { reconstructSnapshots, type PublicReplayData } from '@/replay/reconstructSnapshots.ts'
-import { frameToScenario } from '../scenario/frameToScenario'
-import { encodeScenario, buildScenarioUrl } from '../scenario/shareScenario'
-import type { ClientGameState } from '@/types/gameState'
+import { encodeSnapshot, buildSnapshotUrl } from '../scenario/shareScenario'
 
 const HEADER_HEIGHT = 55
 
@@ -143,16 +141,16 @@ export function ReplayPage() {
   }
 
   const [scenarioCopied, setScenarioCopied] = useState(false)
-  const handleShareAsScenario = async (snapshot: SpectatorStateUpdate) => {
-    const spec = frameToScenario(
-      snapshot.gameState as ClientGameState,
-      snapshot.player1Id,
-      snapshot.player2Id,
-      snapshot.player1Name ?? 'Player 1',
-      snapshot.player2Name ?? 'Player 2',
-    )
-    const code = await encodeScenario(spec)
-    const url = buildScenarioUrl(window.location.origin, code)
+  const handleShareAsScenario = async (frame: number) => {
+    // Fetch the frame's full (unmasked) game state so the snapshot reproduces the exact position.
+    const r = await fetch(`/api/public/replays/${gameId}/frames/${frame}/full-state`)
+    if (!r.ok) {
+      setError('Could not load this frame for sharing.')
+      return
+    }
+    const stateJson = await r.text()
+    const code = await encodeSnapshot(stateJson)
+    const url = buildSnapshotUrl(window.location.origin, code)
     try {
       await navigator.clipboard.writeText(url)
       setScenarioCopied(true)
@@ -235,9 +233,9 @@ export function ReplayPage() {
             )}
           </div>
           <button
-            onClick={() => void handleShareAsScenario(currentSnapshot)}
+            onClick={() => void handleShareAsScenario(currentStep)}
             style={styles.scenarioButton}
-            title="Copy a Scenario Builder link for this frame's public board (battlefield, graveyards, exiles, life). Hands and library are hidden in replays and start empty."
+            title="Copy a link that drops you into this exact position — full board, hands, libraries, stack, targets and mana — to play it out yourself or against the AI."
           >
             {scenarioCopied ? 'Copied!' : 'Share as scenario'}
           </button>

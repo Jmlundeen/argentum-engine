@@ -5,9 +5,7 @@ import { GameBoard } from '../game/GameBoard'
 import { CombatArrows } from '../combat/CombatArrows'
 import type { SpectatingState } from '@/store/slices'
 import { reconstructSnapshots, type ReplayData } from '@/replay/reconstructSnapshots.ts'
-import { frameToScenario } from '../scenario/frameToScenario'
-import { encodeScenario, buildScenarioUrl } from '../scenario/shareScenario'
-import type { ClientGameState } from '@/types/gameState'
+import { encodeSnapshot, buildSnapshotUrl } from '../scenario/shareScenario'
 
 // ============================================================================
 // Types
@@ -370,15 +368,11 @@ function ReplayView({
 
   const [scenarioCopied, setScenarioCopied] = useState(false)
   const handleShareAsScenario = async () => {
-    const spec = frameToScenario(
-      snapshot.gameState as ClientGameState,
-      snapshot.player1Id,
-      snapshot.player2Id,
-      snapshot.player1Name ?? 'Player 1',
-      snapshot.player2Name ?? 'Player 2',
-    )
-    const code = await encodeScenario(spec)
-    const url = buildScenarioUrl(window.location.origin, code)
+    const r = await fetch(`/api/public/replays/${snapshot.gameSessionId}/frames/${currentStep}/full-state`)
+    if (!r.ok) return
+    const stateJson = await r.text()
+    const code = await encodeSnapshot(stateJson)
+    const url = buildSnapshotUrl(window.location.origin, code)
     try {
       await navigator.clipboard.writeText(url)
       setScenarioCopied(true)
@@ -436,7 +430,7 @@ function ReplayView({
           <button
             onClick={() => void handleShareAsScenario()}
             style={styles.scenarioButton}
-            title="Copy a Scenario Builder link for this frame's public board (battlefield, graveyards, exiles, life). Hands and library are hidden in replays and start empty."
+            title="Copy a link that drops you into this exact position — full board, hands, libraries, stack, targets and mana — to play it out yourself or against the AI."
           >
             {scenarioCopied ? 'Copied!' : 'Share as scenario'}
           </button>

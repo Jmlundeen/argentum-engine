@@ -1,7 +1,9 @@
 package com.wingedsheep.gameserver.controller
 
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.gameserver.ai.AiGameManager
+import com.wingedsheep.gameserver.persistence.persistenceJson
 import com.wingedsheep.gameserver.scenario.ScenarioBuilderService
 import com.wingedsheep.gameserver.scenario.ScenarioMode
 import com.wingedsheep.gameserver.scenario.ScenarioRequest
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.concurrent.ConcurrentHashMap
 
@@ -82,6 +85,37 @@ class ScenarioController(
         }
     }
 
+    /**
+     * Create a session by injecting a complete serialized [GameState] (the request body) — the
+     * exact-snapshot path used by "share frame as scenario". `mode` defaults to SELF (hotseat).
+     * The body is the engine-JSON GameState; player seats/names come from the state itself.
+     */
+    @PostMapping("/from-state")
+    fun createFromState(
+        @RequestBody body: String,
+        @RequestParam(required = false) mode: ScenarioMode?,
+        httpRequest: HttpServletRequest,
+    ): ResponseEntity<Any> {
+        if (isRateLimited(httpRequest.remoteAddr ?: "unknown")) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(errorBody(listOf("Too many scenarios created — please wait a moment and try again.")))
+        }
+        if (body.length > MAX_STATE_BYTES) {
+            return ResponseEntity.badRequest().body(errorBody(listOf("Snapshot is too large.")))
+        }
+        val state = try {
+            persistenceJson.decodeFromString(GameState.serializer(), body)
+        } catch (e: Exception) {
+            return ResponseEntity.badRequest().body(errorBody(listOf("Invalid snapshot: ${e.message}")))
+        }
+        return try {
+            ResponseEntity.ok(scenarioSessionFactory.createSessionFromState(state, mode ?: ScenarioMode.SELF))
+        } catch (e: Exception) {
+            logger.error("Failed to load snapshot", e)
+            ResponseEntity.badRequest().body(errorBody(listOf("Failed to load snapshot: ${e.message}")))
+        }
+    }
+
     /** Card names available for the scenario builder's picker. */
     @GetMapping("/cards")
     fun listCards(): ResponseEntity<List<String>> =
@@ -104,5 +138,7 @@ class ScenarioController(
     companion object {
         private const val WINDOW_MS = 60_000L
         private const val MAX_PER_WINDOW = 20
+        /** Upper bound on an injected snapshot's JSON size (sandbox safety). */
+        private const val MAX_STATE_BYTES = 4_000_000
     }
 }

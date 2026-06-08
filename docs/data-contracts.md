@@ -229,7 +229,14 @@ with `pendingDecision.playerId`; combat declarations with the active/defending s
 
 ### "Share frame as scenario" (replay)
 
-The replay viewer can encode the currently-viewed frame into a Scenario Builder share link
-(`/scenario?s=<code>`). Because replays are *spectator* snapshots, hidden zones (hands, library
-contents) are masked — a frame→scenario captures only the **public** board (battlefield,
-graveyards, exiles, life, phase); hands and library start empty.
+The replay viewer's "Share as scenario" produces an **exact full-state snapshot** link
+(`/scenario?snap=<code>`) that drops you into the precise position — stack, targets, floating
+effects, mana, counters and all trackers, not just the public board. The full (unmasked)
+`GameState` is recorded per frame (`GameReplayRecord.fullStates`; cheap because immutable frames
+structurally share their component objects) and fetched on demand via
+`GET /api/public/replays/{gameId}/frames/{frame}/full-state` — so a normal masked replay view
+never receives hidden info, only an explicit share does. Opening the link decodes the serialized
+state and `POST /api/scenarios/from-state` injects it verbatim into a fresh hotseat session
+(`mode=SELF` default). A snapshot is exact but **not editable** in the card-search builder; the
+builder's own name-based `?s=` share remains for authoring/editing. The engine `GameState` is
+(de)serialized with `persistenceJson` (`allowStructuredMapKeys` — `zones` is keyed by `ZoneKey`).

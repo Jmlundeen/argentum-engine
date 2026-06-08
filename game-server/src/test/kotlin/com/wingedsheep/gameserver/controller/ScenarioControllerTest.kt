@@ -1,8 +1,13 @@
 package com.wingedsheep.gameserver.controller
 
+import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.player.HotseatControlComponent
+import com.wingedsheep.gameserver.persistence.persistenceJson
 import com.wingedsheep.gameserver.repository.GameRepository
+import com.wingedsheep.gameserver.scenario.PlayerConfig
+import com.wingedsheep.gameserver.scenario.ScenarioBuilderService
+import com.wingedsheep.gameserver.scenario.ScenarioRequest
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
@@ -30,6 +35,7 @@ import java.net.http.HttpResponse
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ScenarioControllerTest(
     @Autowired private val gameRepository: GameRepository,
+    @Autowired private val scenarioBuilderService: ScenarioBuilderService,
     @LocalServerPort private val port: Int,
 ) : FunSpec({
 
@@ -39,6 +45,14 @@ class ScenarioControllerTest(
     fun post(body: String): HttpResponse<String> {
         val req = HttpRequest.newBuilder(URI.create("http://localhost:$port/api/scenarios"))
             .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(body))
+            .build()
+        return http.send(req, HttpResponse.BodyHandlers.ofString())
+    }
+
+    fun postFromState(body: String): HttpResponse<String> {
+        val req = HttpRequest.newBuilder(URI.create("http://localhost:$port/api/scenarios/from-state"))
+            .header("Content-Type", "text/plain")
             .POST(HttpRequest.BodyPublishers.ofString(body))
             .build()
         return http.send(req, HttpResponse.BodyHandlers.ofString())
@@ -107,6 +121,35 @@ class ScenarioControllerTest(
         val errors = json.parseToJsonElement(response.body()).jsonObject["errors"]!!.jsonArray
             .map { it.jsonPrimitive.content }
         errors.any { it.contains("Unknown card: Definitely Not A Real Card") } shouldBe true
+    }
+
+    test("from-state injects a full serialized GameState as a hotseat session") {
+        // Build a state, serialize it, and round-trip it through the exact-snapshot endpoint.
+        val build = scenarioBuilderService.buildScenario(
+            ScenarioRequest(
+                player1 = PlayerConfig(lifeTotal = 17, battlefield = listOf()),
+                player2 = PlayerConfig(lifeTotal = 20),
+            )
+        )
+        val stateJson = persistenceJson.encodeToString(GameState.serializer(), build.state)
+
+        val response = postFromState(stateJson)
+        response.statusCode() shouldBe 200
+        val body = json.parseToJsonElement(response.body()).jsonObject
+        body["mode"]!!.jsonPrimitive.content shouldBe "SELF"
+        val sessionId = body["sessionId"]!!.jsonPrimitive.content
+
+        val state = gameRepository.findById(sessionId).shouldNotBeNull().getStateForTesting().shouldNotBeNull()
+        val p1Id = EntityId.of(body["player1"]!!.jsonObject["playerId"]!!.jsonPrimitive.content)
+        for (seat in state.turnOrder) {
+            state.getEntity(seat)?.get<HotseatControlComponent>()?.controllerId shouldBe p1Id
+        }
+        // The injected life total survived the round-trip.
+        state.getEntity(p1Id)?.get<com.wingedsheep.engine.state.components.identity.LifeTotalComponent>()?.life shouldBe 17
+    }
+
+    test("from-state rejects malformed JSON with a 400") {
+        postFromState("{ not a game state }").statusCode() shouldBe 400
     }
 
     test("TWO_PLAYER mode returns two distinct tokens") {

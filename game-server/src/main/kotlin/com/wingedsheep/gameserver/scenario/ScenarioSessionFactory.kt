@@ -2,6 +2,8 @@ package com.wingedsheep.gameserver.scenario
 
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.registry.PrintingRegistry
+import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.identity.PlayerComponent
 import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.gameserver.ai.AiGameManager
 import com.wingedsheep.gameserver.handler.GamePlayHandler
@@ -148,6 +150,60 @@ class ScenarioSessionFactory(
                     mode = mode,
                 )
             }
+        }
+    }
+
+    /**
+     * Create a session by injecting a complete [GameState] verbatim — used by "share frame as
+     * scenario" to reproduce the EXACT replay position (stack, targets, floating effects, mana,
+     * counters, all trackers). Player seats/names are taken from the state's turn order. Supports
+     * hotseat ([ScenarioMode.SELF], default) and [ScenarioMode.TWO_PLAYER].
+     */
+    fun createSessionFromState(state: GameState, mode: ScenarioMode): ScenarioResponse {
+        val p1Id = state.turnOrder.getOrNull(0) ?: error("Snapshot has no players")
+        val p2Id = state.turnOrder.getOrNull(1) ?: error("Snapshot needs two players")
+        val p1Name = state.getEntity(p1Id)?.get<PlayerComponent>()?.name ?: "Player 1"
+        val p2Name = state.getEntity(p2Id)?.get<PlayerComponent>()?.name ?: "Player 2"
+
+        val gameSession = GameSession(
+            cardRegistry = cardRegistry,
+            stateTransformer = stateTransformer,
+            printingRegistry = printingRegistry,
+        )
+        gameSession.injectStateForDevScenario(state)
+        gameRepository.save(gameSession)
+
+        fun preRegister(token: String, playerId: com.wingedsheep.sdk.model.EntityId, name: String) =
+            PlayerIdentity(token = token, playerId = playerId, playerName = name)
+                .apply { currentGameSessionId = gameSession.sessionId }
+                .also { sessionRegistry.preRegisterIdentity(it) }
+
+        return if (mode == ScenarioMode.TWO_PLAYER) {
+            val t1 = newToken()
+            val t2 = newToken()
+            preRegister(t1, p1Id, p1Name)
+            preRegister(t2, p2Id, p2Name)
+            logger.info("Loaded snapshot session ${gameSession.sessionId} (two-player)")
+            ScenarioResponse(
+                sessionId = gameSession.sessionId,
+                player1 = PlayerInfo(p1Name, t1, p1Id.value),
+                player2 = PlayerInfo(p2Name, t2, p2Id.value),
+                message = "Snapshot loaded — share each token with a player.",
+                mode = ScenarioMode.TWO_PLAYER,
+            )
+        } else {
+            // SELF / hotseat (default for snapshots): one connection controls both seats.
+            val token = newToken()
+            preRegister(token, p1Id, p1Name)
+            gameSession.enableHotseat(p1Id)
+            logger.info("Loaded snapshot session ${gameSession.sessionId} (hotseat)")
+            ScenarioResponse(
+                sessionId = gameSession.sessionId,
+                player1 = PlayerInfo(p1Name, token, p1Id.value),
+                player2 = PlayerInfo(p2Name, token, p2Id.value),
+                message = "Snapshot loaded — you control both players.",
+                mode = ScenarioMode.SELF,
+            )
         }
     }
 

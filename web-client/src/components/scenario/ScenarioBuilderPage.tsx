@@ -13,7 +13,9 @@ import {
   encodeScenario,
   buildScenarioUrl,
   decodeScenario,
+  decodeSnapshot,
   SCENARIO_SHARE_PARAM,
+  SCENARIO_SNAPSHOT_PARAM,
 } from './shareScenario'
 import type {
   ScenarioBattlefieldCard,
@@ -115,6 +117,7 @@ export function ScenarioBuilderPage() {
   const [status, setStatus] = useState<string | null>(null)
   const [errors, setErrors] = useState<string[]>([])
   const [starting, setStarting] = useState(false)
+  const [snapshotLoading, setSnapshotLoading] = useState(false)
 
   // --- load catalog --------------------------------------------------------
   useEffect(() => {
@@ -131,6 +134,46 @@ export function ScenarioBuilderPage() {
       cancelled = true
     }
   }, [])
+
+  // --- exact-snapshot jump-in on load (?snap=<code>) -----------------------
+  // A snapshot link carries a full serialized GameState; inject it server-side and jump
+  // straight into the position (it isn't editable in the builder).
+  const snapshotLoadedRef = useRef(false)
+  useEffect(() => {
+    if (snapshotLoadedRef.current) return
+    const code = searchParams.get(SCENARIO_SNAPSHOT_PARAM)
+    if (!code) return
+    snapshotLoadedRef.current = true
+    setSnapshotLoading(true)
+    void (async () => {
+      const stateJson = await decodeSnapshot(code)
+      if (!stateJson) {
+        setSnapshotLoading(false)
+        setStatus('Could not read the snapshot link.')
+        return
+      }
+      try {
+        const res = await fetch('/api/scenarios/from-state', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: stateJson,
+        })
+        if (!res.ok) {
+          setSnapshotLoading(false)
+          setStatus('Failed to load the snapshot.')
+          return
+        }
+        const data = (await res.json()) as ScenarioCreateResponse
+        const human =
+          data.player1.token && data.player1.token !== '(AI)' ? data.player1 : data.player2
+        window.location.href = `/?token=${encodeURIComponent(human.token)}`
+      } catch {
+        setSnapshotLoading(false)
+        setStatus('Failed to load the snapshot.')
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   // --- decode shared scenario on load (?s=<code>) --------------------------
   const sharedLoadedRef = useRef(false)
@@ -282,6 +325,13 @@ export function ScenarioBuilderPage() {
   }, [currentSpec])
 
   // --- render --------------------------------------------------------------
+  if (snapshotLoading) {
+    return (
+      <div style={{ ...S.page, alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: '#e2e8f0', fontSize: 16 }}>Loading snapshot…</div>
+      </div>
+    )
+  }
   return (
     <div style={S.page}>
       <div style={S.topbar}>

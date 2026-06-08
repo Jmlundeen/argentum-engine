@@ -136,6 +136,12 @@ class GameSession(
     private var replayInitialSnapshot: ServerMessage.SpectatorStateUpdate? = null
     private var replayLastSnapshot: ServerMessage.SpectatorStateUpdate? = null
     private val replayDeltas = CopyOnWriteArrayList<SpectatorReplayDelta>()
+    // Full (unmasked) game state per frame — one entry per recorded snapshot, in lockstep with
+    // [replayInitialSnapshot] (frame 0) + [replayDeltas]. Lets "share frame as scenario"
+    // reproduce the EXACT position (stack, targets, floating effects, mana, …). Cheap to retain:
+    // GameState is immutable so frames structurally share their component objects; only the map
+    // spine duplicates. Serialized to JSON only on demand at share time, never during viewing.
+    private val replayFullStates = CopyOnWriteArrayList<GameState>()
     var replayStartedAt: Instant? = null
         private set
 
@@ -1010,7 +1016,11 @@ class GameSession(
             replayDeltas.add(SpectatorReplayDiffCalculator.computeDelta(last, snapshot))
         }
         replayLastSnapshot = snapshot
+        gameState?.let { replayFullStates.add(it) }
     }
+
+    /** Per-frame full game states recorded for this game (index aligns with reconstructed frames). */
+    fun getReplayFullStates(): List<GameState> = replayFullStates.toList()
 
     /**
      * Get the initial replay snapshot (null if no snapshots recorded).
