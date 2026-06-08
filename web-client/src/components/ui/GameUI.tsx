@@ -12,6 +12,7 @@ import { QuickGameLobbyOverlay } from './QuickGameLobbyOverlay'
 import { useDeckLibrary, buildDraftedDeckSave, type SavedDeckEntry } from '@/store/deckLibrary'
 import { DeckPicker } from './DeckPicker'
 import { BanListEditor } from './BanListEditor'
+import { SetPickerModal } from './SetPickerModal'
 import { labelForFormat } from '@/utils/deckLegality'
 import styles from './GameUI.module.css'
 
@@ -700,11 +701,6 @@ function LobbyOverlay({
   const tournamentState = useGameStore((state) => state.tournamentState)
   const [copied, setCopied] = useState(false)
   const [showSetPicker, setShowSetPicker] = useState(false)
-  const [setSearch, setSetSearch] = useState('')
-  // Partially-implemented sets are hidden by default; the host opts into them with this toggle.
-  const [showPartialSets, setShowPartialSets] = useState(false)
-  // Hide thin sets (lots of partial sets have only a handful of cards). Defaults to 50.
-  const [minCards, setMinCards] = useState(50)
 
   // Show tournament standings when tournament is active
   if (tournamentState) {
@@ -752,42 +748,15 @@ function LobbyOverlay({
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // Unified set picker: every set (complete + incomplete) lives behind one searchable modal.
-  // The lobby itself only shows the *selected* sets as compact chips, so its footprint stays small
-  // and stable no matter how many sets exist in total or how many a host picks.
+  // Unified set picker: every set (complete + incomplete) lives behind one searchable modal
+  // (`SetPickerModal`, shared with the Quick Game lobby). The lobby itself only shows the
+  // *selected* sets as compact chips, so its footprint stays small and stable no matter how many
+  // sets exist in total or how many a host picks.
   type AvailableSet = typeof lobbyState.settings.availableSets[number]
   const allSets = lobbyState.settings.availableSets
   const selectedSets = lobbyState.settings.setCodes
     .map((code) => allSets.find((s) => s.code === code))
     .filter((s): s is AvailableSet => s != null)
-
-  // Picker visibility rules (an already-selected set always stays visible so it can be un-ticked):
-  //  - partial sets are hidden unless the host flips the toggle, and
-  //  - sets with fewer than `minCards` implemented cards are pruned (kills the long tail of
-  //    near-empty sets you'd otherwise see once partial sets are shown).
-  const partialSetCount = allSets.filter((s) => s.partial).length
-  const isSetSelected = (s: AvailableSet) => lobbyState.settings.setCodes.includes(s.code)
-  const pickerSets = allSets.filter((s) => {
-    if (isSetSelected(s)) return true
-    if (s.partial && !showPartialSets) return false
-    if ((s.implementedCount ?? 0) < minCards) return false
-    return true
-  })
-
-  // Searchable multi-select inside the modal — match on set name or code, like the deckbuilder picker.
-  const setSearchNeedle = setSearch.trim().toLowerCase()
-  const filteredPickerSets = setSearchNeedle
-    ? pickerSets.filter(
-        (s) =>
-          s.name.toLowerCase().includes(setSearchNeedle) ||
-          s.code.toLowerCase().includes(setSearchNeedle),
-      )
-    : pickerSets
-
-  const closeSetPicker = () => {
-    setShowSetPicker(false)
-    setSetSearch('')
-  }
 
   const toggleSet = (code: string) => {
     const isSelected = lobbyState.settings.setCodes.includes(code)
@@ -795,107 +764,6 @@ function LobbyOverlay({
       ? lobbyState.settings.setCodes.filter((c) => c !== code)
       : [...lobbyState.settings.setCodes, code]
     updateLobbySettings({ setCodes: newCodes })
-  }
-
-  // Format an ISO `YYYY-MM-DD` release date as e.g. "Oct 2002". Parsed manually to avoid timezone shifts.
-  const MONTH_ABBREVS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  const formatReleaseDate = (releaseDate?: string): string | null => {
-    if (!releaseDate) return null
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(releaseDate)
-    if (!match) return null
-    const [, year, month] = match
-    if (!year) return null
-    const monthName = MONTH_ABBREVS[Number(month) - 1]
-    return monthName ? `${monthName} ${year}` : year
-  }
-
-  // Newest-first comparator on ISO `YYYY-MM-DD` keys; sets/blocks with no known release date sort last.
-  const UNKNOWN_RELEASE = ''
-  const releaseSortKey = (releaseDate?: string): string => releaseDate ?? UNKNOWN_RELEASE
-  const byNewestFirst = (a: string, b: string): number => {
-    if (a === UNKNOWN_RELEASE || b === UNKNOWN_RELEASE) {
-      if (a === b) return 0
-      return a === UNKNOWN_RELEASE ? 1 : -1 // unknowns always last
-    }
-    return b.localeCompare(a) // later date first
-  }
-
-  // One toggle row inside the picker modal. Incomplete sets get a "partial" tag so the host knows
-  // those boosters draw from a reduced pool of implemented cards.
-  const renderSetPickerRow = (set: AvailableSet) => {
-    const isSelected = lobbyState.settings.setCodes.includes(set.code)
-    const released = formatReleaseDate(set.releaseDate)
-    return (
-      <button
-        key={set.code}
-        type="button"
-        onClick={() => toggleSet(set.code)}
-        className={`${styles.setPickerRow} ${isSelected ? styles.setPickerRowActive : ''}`}
-      >
-        <span className={styles.setPickerCheck} aria-hidden>{isSelected ? '✓' : ''}</span>
-        <SetIcon code={set.code} className={styles.setPickerIcon} />
-        <span className={styles.setPickerName}>{set.name}</span>
-        {set.partial && <span className={styles.setPartialBadge}>partial</span>}
-        {released && <span className={styles.setReleaseDate}>{released}</span>}
-        {set.implementedCount != null && (
-          <span className={styles.setButtonCardCount}>{set.implementedCount} cards</span>
-        )}
-      </button>
-    )
-  }
-
-  // Order sets newest-first while keeping blocks grouped: each block is a single unit positioned by
-  // its newest set's release date, and each blockless set is its own unit. Units are sorted by date
-  // (newest on top), and sets within a block are sorted newest-first too.
-  const renderGroupedSetRows = (sets: readonly AvailableSet[]) => {
-    const blockOrder: string[] = []
-    const blockSets = new Map<string, AvailableSet[]>()
-    const ungrouped: AvailableSet[] = []
-    for (const set of sets) {
-      if (set.block) {
-        if (!blockSets.has(set.block)) {
-          blockOrder.push(set.block)
-          blockSets.set(set.block, [])
-        }
-        blockSets.get(set.block)!.push(set)
-      } else {
-        ungrouped.push(set)
-      }
-    }
-
-    type Unit =
-      | { kind: 'block'; key: string; label: string; sets: AvailableSet[]; sortKey: string }
-      | { kind: 'set'; key: string; set: AvailableSet; sortKey: string }
-
-    const units: Unit[] = []
-    for (const name of blockOrder) {
-      const blockMembers = blockSets
-        .get(name)!
-        .slice()
-        .sort((a, b) => byNewestFirst(releaseSortKey(a.releaseDate), releaseSortKey(b.releaseDate)))
-      units.push({
-        kind: 'block',
-        key: name,
-        label: `${name} Block`,
-        sets: blockMembers,
-        sortKey: releaseSortKey(blockMembers[0]?.releaseDate), // newest in block, after sort above
-      })
-    }
-    for (const set of ungrouped) {
-      units.push({ kind: 'set', key: set.code, set, sortKey: releaseSortKey(set.releaseDate) })
-    }
-    units.sort((a, b) => byNewestFirst(a.sortKey, b.sortKey))
-
-    return units.map((unit) =>
-      unit.kind === 'block' ? (
-        <div key={`block:${unit.key}`} className={styles.setPickerGroup}>
-          <div className={styles.setPickerGroupLabel}>{unit.label}</div>
-          {unit.sets.map(renderSetPickerRow)}
-        </div>
-      ) : (
-        renderSetPickerRow(unit.set)
-      ),
-    )
   }
 
   return (
@@ -1500,79 +1368,12 @@ function LobbyOverlay({
       </div>
 
       {showSetPicker && (
-        <div className={styles.deckViewerBackdrop} onClick={closeSetPicker}>
-          <div className={styles.deckViewerPanel} style={{ maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.deckViewerHeader}>
-              <h3 className={styles.deckViewerTitle}>Choose sets</h3>
-              <span className={styles.setPickerSelectedCount}>
-                {selectedSets.length} selected
-              </span>
-              <button className={styles.deckViewerClose} onClick={closeSetPicker}>×</button>
-            </div>
-            <div className={styles.deckViewerBody}>
-              <input
-                type="text"
-                className={styles.setPickerSearch}
-                placeholder="Search sets by name or code…"
-                value={setSearch}
-                spellCheck={false}
-                autoComplete="off"
-                autoFocus
-                onChange={(e) => setSetSearch(e.target.value)}
-              />
-              <div className={styles.setPickerFilters}>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={showPartialSets}
-                  className={`${styles.setPickerSwitch} ${showPartialSets ? styles.setPickerSwitchOn : ''}`}
-                  onClick={() => setShowPartialSets((v) => !v)}
-                >
-                  <span className={styles.setPickerSwitchTrack} aria-hidden>
-                    <span className={styles.setPickerSwitchThumb} />
-                  </span>
-                  <span className={styles.setPickerSwitchLabel}>
-                    Show partial sets
-                    {partialSetCount > 0 && (
-                      <span className={styles.setPickerSwitchCount}>{partialSetCount}</span>
-                    )}
-                  </span>
-                </button>
-                <label className={styles.setPickerMinCards}>
-                  <span className={styles.setPickerMinCardsLabel}>Min cards</span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={10}
-                    inputMode="numeric"
-                    className={styles.setPickerMinCardsInput}
-                    value={minCards}
-                    onChange={(e) => setMinCards(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
-                  />
-                </label>
-              </div>
-              <p className={styles.setPickerNote}>
-                Sets tagged <span className={styles.setPartialBadge}>partial</span> aren't fully
-                implemented — their boosters draw from a reduced pool of the cards that exist.
-              </p>
-              <div className={styles.setPickerList}>
-                {filteredPickerSets.length > 0 ? (
-                  renderGroupedSetRows(filteredPickerSets)
-                ) : (
-                  <div className={styles.setPickerEmpty}>
-                    No sets match.{' '}
-                    {!showPartialSets && partialSetCount > 0
-                      ? 'Try enabling partial sets'
-                      : minCards > 0
-                        ? 'Try lowering the minimum card count'
-                        : 'Try a different search'}
-                    .
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <SetPickerModal
+          sets={allSets}
+          selectedCodes={lobbyState.settings.setCodes}
+          onToggleSet={toggleSet}
+          onClose={() => setShowSetPicker(false)}
+        />
       )}
     </div>
   )

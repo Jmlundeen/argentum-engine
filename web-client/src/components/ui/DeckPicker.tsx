@@ -21,6 +21,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PrintingRef } from '@/types'
+import type { AvailableSet } from '@/types/messages'
 import {
   useDeckLibrary,
   mergeCommanderIntoCards,
@@ -37,7 +38,10 @@ import {
   type DeckValidationResult,
 } from './DeckSummary'
 import { parseArenaDeckList } from '../deckbuilder/parseArenaDeck'
+import { SetIcon } from './SetIcon'
+import { SetPickerModal } from './SetPickerModal'
 import styles from './DeckPicker.module.css'
+import lobbyStyles from './GameUI.module.css'
 
 type Tab = 'saved' | 'examples' | 'paste' | 'random'
 
@@ -59,8 +63,8 @@ export interface DeckPickerProps {
   onSetCodeChange?: (setCode: string | null) => void
   /** Initial set code for the Random tab — used to re-hydrate after a reconnect. */
   initialSetCode?: string | null
-  /** Available sets for the Random tab dropdown. Empty list hides the dropdown. */
-  availableSets?: ReadonlyArray<{ code: string; name: string }>
+  /** Available sets for the Random tab set picker. Empty list hides the picker. */
+  availableSets?: ReadonlyArray<AvailableSet>
   disabled?: boolean
   /**
    * Tabs to expose. Defaults to all four. Pass a subset to restrict the picker — e.g. the
@@ -178,6 +182,7 @@ export function DeckPicker({
   const [examples, setExamples] = useState<ExampleDeck[]>([])
   const [validation, setValidation] = useState<ValidationResult | null>(null)
   const [randomSetCode, setRandomSetCode] = useState<string | null>(initialSetCode)
+  const [showSetPicker, setShowSetPicker] = useState(false)
   const validateAbortRef = useRef<AbortController | null>(null)
 
   // Re-hydrate on initial-set-code change (e.g. server-driven on reconnect).
@@ -473,36 +478,56 @@ export function DeckPicker({
 
         {tab === 'random' && (
           <>
-            {availableSets.length > 0 && (
-              <div className={styles.actionsRow}>
-                <label className={styles.helperText} style={{ flex: 1 }}>
-                  Set
-                </label>
-                <select
-                  value={randomSetCode ?? ''}
-                  onChange={(e) => {
-                    const next = e.target.value === '' ? null : e.target.value
-                    setRandomSetCode(next)
-                    onSetCodeChange?.(next)
-                  }}
-                  disabled={disabled}
-                  className={styles.nameInput}
-                  style={{ flex: 2 }}
-                >
-                  <option value="">Random Set</option>
-                  {[...availableSets]
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((set) => (
-                      <option key={set.code} value={set.code}>
-                        {set.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            )}
+            {availableSets.length > 0 && (() => {
+              const selectedSet = randomSetCode
+                ? availableSets.find((s) => s.code === randomSetCode) ?? null
+                : null
+              return (
+                <div className={styles.actionsRow}>
+                  <label className={styles.helperText} style={{ flexShrink: 0 }}>Set</label>
+                  <span
+                    className={`${lobbyStyles.setChip} ${selectedSet?.partial ? lobbyStyles.setChipPartial : ''}`}
+                    title={selectedSet?.name ?? 'A random set is rolled when the game starts'}
+                  >
+                    {selectedSet ? (
+                      <SetIcon code={selectedSet.code} className={lobbyStyles.setChipIcon} />
+                    ) : (
+                      <span className={lobbyStyles.setChipIcon} aria-hidden>🎲</span>
+                    )}
+                    <span className={lobbyStyles.setChipName}>{selectedSet?.name ?? 'Random Set'}</span>
+                  </span>
+                  <button
+                    type="button"
+                    className={lobbyStyles.addSetsButton}
+                    onClick={() => setShowSetPicker(true)}
+                    disabled={disabled}
+                    style={{ marginLeft: 'auto' }}
+                  >
+                    Choose set
+                  </button>
+                </div>
+              )
+            })()}
             <p className={styles.helperText}>
               The server will generate a random sealed pool deck when the game starts.
             </p>
+            {showSetPicker && (
+              <SetPickerModal
+                sets={availableSets}
+                mode="single"
+                selectedCodes={randomSetCode ? [randomSetCode] : []}
+                onToggleSet={(code) => {
+                  setRandomSetCode(code)
+                  onSetCodeChange?.(code)
+                }}
+                onSelectRandom={() => {
+                  setRandomSetCode(null)
+                  onSetCodeChange?.(null)
+                }}
+                onClose={() => setShowSetPicker(false)}
+                title="Choose a set"
+              />
+            )}
           </>
         )}
       </div>
