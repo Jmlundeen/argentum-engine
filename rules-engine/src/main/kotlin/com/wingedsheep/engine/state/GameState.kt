@@ -115,6 +115,14 @@ data class GameState(
     val nonlandPermanentLeftBattlefieldThisTurn: Boolean = false,
 
     /**
+     * Players (by entity id) who have committed a crime this turn (CR 700-level Outlaws of Thunder
+     * Junction rule). Populated wherever a [com.wingedsheep.engine.core.CommitCrimeEvent] is emitted
+     * (spell cast, activated ability, triggered ability), and cleared at every turn boundary. Read by
+     * the `PlayerCommittedCrimeThisTurn` condition (e.g. Seize the Secrets' cost reduction).
+     */
+    val playersWhoCommittedCrimeThisTurn: Set<EntityId> = emptySet(),
+
+    /**
      * Colors of the spell most recently cast this turn (by any player), or null if no spell has
      * been cast yet this turn. Used by Mana Maze's "can't cast a spell that shares a color with
      * the spell most recently cast this turn" restriction. Cleared at the start of each turn.

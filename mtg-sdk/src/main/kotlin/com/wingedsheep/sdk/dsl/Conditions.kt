@@ -31,6 +31,7 @@ import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn as IsNotYourTurnCo
 import com.wingedsheep.sdk.scripting.conditions.IsInPhase as IsInPhaseCondition
 import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PlayerCommittedCrimeThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerHasCitysBlessing
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.Aggregation
@@ -691,6 +692,17 @@ object Conditions {
         fromZone: com.wingedsheep.sdk.core.Zone? = null
     ): ConditionInterface =
         PlayerCastSpellsThisTurn(Player.You, filter, atLeast, fromZone)
+
+    /**
+     * If you've committed a crime this turn (CR Outlaws of Thunder Junction). A crime is committed
+     * when you cast a spell, activate an ability, or put a triggered ability on the stack that
+     * targets an opponent, anything an opponent controls, and/or a card in an opponent's graveyard.
+     *
+     * Turn-scoped tracker — stays true for the rest of the turn once any crime is committed. Used by
+     * Seize the Secrets ("This spell costs {1} less to cast if you've committed a crime this turn").
+     */
+    val YouCommittedCrimeThisTurn: ConditionInterface =
+        PlayerCommittedCrimeThisTurn(Player.You)
 
     /**
      * If this is the first spell you've cast this turn that mana from a Treasure was

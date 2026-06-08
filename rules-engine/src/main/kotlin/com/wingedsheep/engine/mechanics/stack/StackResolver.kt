@@ -309,6 +309,7 @@ class StackResolver(
         // regardless of how many opponent-controlled targets the spell chose.
         if (CrimeDetector.isCrime(newState, casterId, effectiveTargets)) {
             events.add(CommitCrimeEvent(casterId, cardId, eventName))
+            newState = recordCrime(newState, casterId)
         }
 
         // "Whenever a player chooses one or more targets" (Psychic Battle). Emit once per cast
@@ -328,6 +329,15 @@ class StackResolver(
             events
         )
     }
+
+    /**
+     * Record that [playerId] committed a crime this turn (CR Outlaws of Thunder Junction). Folded
+     * in at every [CommitCrimeEvent] emit site so the `PlayerCommittedCrimeThisTurn` condition (e.g.
+     * Seize the Secrets' cost reduction) can read it. Cleared at each turn boundary by `TurnManager`.
+     */
+    private fun recordCrime(state: GameState, playerId: EntityId): GameState =
+        if (playerId in state.playersWhoCommittedCrimeThisTurn) state
+        else state.copy(playersWhoCommittedCrimeThisTurn = state.playersWhoCommittedCrimeThisTurn + playerId)
 
     /**
      * Emit a [BecomesTargetEvent] for a permanent or spell target. Players and other target kinds
@@ -399,6 +409,7 @@ class StackResolver(
 
         if (CrimeDetector.isCrime(newState, ability.controllerId, targets)) {
             events.add(CommitCrimeEvent(ability.controllerId, abilityId, ability.sourceName))
+            newState = recordCrime(newState, ability.controllerId)
         }
 
         if (targets.isNotEmpty()) {
@@ -554,6 +565,7 @@ class StackResolver(
 
         if (CrimeDetector.isCrime(newState, ability.controllerId, targets)) {
             events.add(CommitCrimeEvent(ability.controllerId, abilityId, ability.sourceName))
+            newState = recordCrime(newState, ability.controllerId)
         }
 
         if (targets.isNotEmpty()) {

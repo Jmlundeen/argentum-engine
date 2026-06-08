@@ -23,6 +23,16 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     supported("PlayerPassesFilter", "condition: a player matches a filter (e.g. You HasntCastASpellThisTurn)")
     supported("IsSaddled", "predicate: this permanent is saddled (CR 702.171b)")
     supported("HasntCastASpellThisTurn", "predicate: player hasn't cast a (filtered) spell this turn")
+    // "you've cast another spell this turn" -> Conditions.YouCastSpellsThisTurn(atLeast = 2) at
+    // resolution (the resolving spell is already recorded). The emitter renders the "Other ThisSpell"
+    // shape; a non-You / unfiltered-other mismatch declines -> SCAFFOLD.
+    supported("CastASpellThisTurn", "predicate: player has cast a (filtered) spell this turn (YouCastSpellsThisTurn)")
+    // OTJ crime (CR Outlaws of Thunder Junction) — "you've committed a crime this turn" ->
+    // Conditions.YouCommittedCrimeThisTurn, gating a cost reduction or a resolution-time effect.
+    supported("CommitedACrimeThisTurn", "predicate: player has committed a crime this turn (YouCommittedCrimeThisTurn)")
+    // "if you do" / "if [the cost] was paid" — the IfYouDoEffect linkage after a MayCost(DiscardACard)
+    // loot, rendered by the emitter as MayEffect(IfYouDoEffect(...)). Universal condition vocabulary.
+    supported("CostWasPaid", "condition: the optional cost was paid (IfYouDoEffect linkage)")
     supported("WasCastFromTheirHand", "predicate: spell cast from the player's hand (fromZone = HAND)")
     // Source-relative Mount/Vehicle payoff filter: "a creature that crewed/saddled it this turn"
     // (Giant Beaver) -> GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn().

@@ -102,6 +102,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PermanentTypeEnteredBattlefieldThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PlayerCommittedCrimeThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerHasCitysBlessing
 import com.wingedsheep.sdk.scripting.conditions.CreatureDiedThisTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.ControlledCreatureDiedThisTurnCondition
@@ -241,6 +242,10 @@ class ConditionEvaluator(
             // Player-relative trackers (resolve [Player] against the current context).
             is PlayerAttackedWithCreaturesThisTurn -> evaluateAttackedWithCreaturesCtx(state, condition, ctx)
             is PlayerCastSpellsThisTurn -> evaluateCastSpellsThisTurnCtx(state, condition, ctx)
+            is PlayerCommittedCrimeThisTurn -> {
+                val playerId = resolvePlayer(state, condition.player, ctx)
+                playerId != null && playerId in state.playersWhoCommittedCrimeThisTurn
+            }
             is PlayerHasCitysBlessing -> evaluateHasCitysBlessingCtx(state, condition, ctx)
             is PermanentTypeEnteredBattlefieldThisTurn ->
                 evaluatePermanentTypeEnteredBattlefieldThisTurnCtx(state, condition, ctx)

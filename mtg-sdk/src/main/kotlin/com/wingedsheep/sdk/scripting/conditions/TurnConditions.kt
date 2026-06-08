@@ -159,6 +159,29 @@ data class PlayerCastSpellsThisTurn(
 }
 
 /**
+ * Condition: "If [player] has committed a crime this turn" (CR Outlaws of Thunder Junction —
+ * a player commits a crime as they cast a spell, activate an ability, or put a triggered ability
+ * on the stack that targets one or more opponents, permanents/spells/abilities an opponent controls,
+ * and/or cards in an opponent's graveyard).
+ *
+ * Pure turn-scoped tracker: once a crime is committed it stays true for the rest of the turn, even
+ * if the crime-committing spell/ability is countered or leaves the stack. Crime detection lives in
+ * the engine (`CrimeDetector` at the `CommitCrimeEvent` emit sites); this condition only reads the
+ * recorded set. The `Conditions.YouCommittedCrimeThisTurn` DSL helper passes [Player.You], resolved
+ * to the source's controller in both resolution and projection (cost-reduction) contexts.
+ *
+ * Used for cards like Seize the Secrets ("This spell costs {1} less to cast if you've committed a
+ * crime this turn").
+ */
+@SerialName("PlayerCommittedCrimeThisTurn")
+@Serializable
+data class PlayerCommittedCrimeThisTurn(
+    val player: Player = Player.You
+) : Condition {
+    override val description: String = "if ${player.description} committed a crime this turn"
+}
+
+/**
  * Condition: "if this is the first spell you've cast this turn that mana from a Treasure
  * was spent to cast." Used by Rain of Riches.
  *

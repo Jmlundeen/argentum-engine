@@ -2255,6 +2255,15 @@ default to "you" so card authors don't need to pass it explicitly.
   `TriggeringSpellMatches` half is load-bearing — it stops a later non-matching cast from satisfying
   the count once one matching spell exists. Used by Alania, Divergent Storm (first instant / first
   sorcery / first Otter).
+- `YouCommittedCrimeThisTurn` — Outlaws of Thunder Junction crime gate: true once you've cast a
+  spell, activated an ability, or put a triggered ability on the stack this turn that targets an
+  opponent, anything an opponent controls, and/or a card in an opponent's graveyard. Backed by
+  `PlayerCommittedCrimeThisTurn(Player.You)`, which reads `GameState.playersWhoCommittedCrimeThisTurn`
+  — a turn-scoped set populated at every `CommitCrimeEvent` emit site (crime detection is the engine's
+  `CrimeDetector`) and cleared at each turn boundary. Stays true for the rest of the turn even if the
+  crime-committing spell/ability is countered. Resolves identically in resolution and projection (e.g.
+  cost-reduction) contexts. Pairs with `CostGating.OnlyIf(...)` for "costs {N} less if you've committed
+  a crime this turn" (Seize the Secrets).
 - `YouHaveCitysBlessing` — Ascend gate. Backed by `PlayerHasCitysBlessing(Player.You)`.
 - `IsFirstSpellPaidWithTreasureManaCastThisTurn` — gates a triggered ability to fire only
   on the first spell each turn that mana from a Treasure was spent to cast (Rain of

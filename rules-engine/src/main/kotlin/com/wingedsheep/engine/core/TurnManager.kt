@@ -102,6 +102,7 @@ class TurnManager(
             pendingUncounterableSpells = emptyList(),
             spellWarpedThisTurn = false,
             nonlandPermanentLeftBattlefieldThisTurn = false,
+            playersWhoCommittedCrimeThisTurn = emptySet(),
             lastCastSpellColors = null,
             lastCardDrawnThisTurnByPlayer = emptyMap()
         )

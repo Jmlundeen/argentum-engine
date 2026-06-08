@@ -100,12 +100,18 @@ internal fun EmitCtx.cardLevelCastEffectLines(card: JsonObject): List<String>? {
 }
 
 /**
- * `CastEffect(ReduceCastingCostIf([CostReduceGeneric N], PlayerPassesFilter(You, ControlsA(filter))))`
- * -> a `staticAbility { ability = ModifySpellCost(SelfCast, ReduceGenericBy(FixedIfControlFilter(N,
- * <filter>))) }` block (Cactarantula: "This spell costs {1} less to cast if you control a Desert").
+ * `CastEffect(ReduceCastingCostIf([CostReduceGeneric N], <condition>))` -> a
+ * `staticAbility { ability = ModifySpellCost(SelfCast, …) }` block. Renders only a single bare generic
+ * reduction, and only for the exact conditions we can express faithfully:
  *
- * Renders only the "if you control a [filter]" conditional generic reduction; any other condition or a
- * colored/dynamic reduction declines -> SCAFFOLD rather than widening.
+ *  - `PlayerPassesFilter(You, ControlsA(filter))` ("if you control a [filter]") ->
+ *    `ReduceGenericBy(FixedIfControlFilter(N, <filter>))` (Cactarantula: "costs {1} less if you control
+ *    a Desert").
+ *  - `PlayerPassesFilter(You, CommitedACrimeThisTurn)` ("if you've committed a crime this turn") ->
+ *    `ReduceGeneric(N)` gated by `CostGating.OnlyIf(Conditions.YouCommittedCrimeThisTurn)` (Seize the
+ *    Secrets).
+ *
+ * Any other condition, or a colored/dynamic reduction, declines -> SCAFFOLD rather than widening.
  */
 private fun EmitCtx.costReductionStaticLines(rule: JsonObject): List<String>? {
     val node = rule["args"] as? JsonObject ?: return null
@@ -119,17 +125,28 @@ private fun EmitCtx.costReductionStaticLines(rule: JsonObject): List<String>? {
     if (cond.strField("_Condition") != "PlayerPassesFilter") return null
     val condArgs = cond["args"].asArr ?: return null
     if ((condArgs.getOrNull(0) as? JsonObject)?.strField("_Player") != "You") return null
-    val controls = condArgs.getOrNull(1) as? JsonObject ?: return null
-    if (controls.strField("_Players") != "ControlsA") return null
-    val filter = gameObjectFilterDsl(controls["args"]) ?: return null
-    val ability = call(
-        "ModifySpellCost",
-        arg("target", Lit("SpellCostTarget.SelfCast")),
-        arg("modification", call(
-            "CostModification.ReduceGenericBy",
-            arg(call("CostReductionSource.FixedIfControlFilter", arg("amount", "$amount"), arg("filter", Lit(filter)))),
-        )),
-    )
+    val predicate = condArgs.getOrNull(1) as? JsonObject ?: return null
+
+    val ability = when (predicate.strField("_Players")) {
+        "ControlsA" -> {
+            val filter = gameObjectFilterDsl(predicate["args"]) ?: return null
+            call(
+                "ModifySpellCost",
+                arg("target", Lit("SpellCostTarget.SelfCast")),
+                arg("modification", call(
+                    "CostModification.ReduceGenericBy",
+                    arg(call("CostReductionSource.FixedIfControlFilter", arg("amount", "$amount"), arg("filter", Lit(filter)))),
+                )),
+            )
+        }
+        "CommitedACrimeThisTurn" -> call(
+            "ModifySpellCost",
+            arg("target", Lit("SpellCostTarget.SelfCast")),
+            arg("modification", call("CostModification.ReduceGeneric", arg("$amount"))),
+            arg("gating", call("CostGating.OnlyIf", arg("Conditions.YouCommittedCrimeThisTurn"))),
+        )
+        else -> return null
+    }
     return renderBlock(Block("staticAbility", listOf(Assign("ability", ability))), "    ")
 }
 
@@ -244,7 +261,50 @@ internal fun EmitCtx.ifRuleBlock(rule: JsonObject): List<Stmt>? {
         return listOf(staticAbilityStmt(call("CanAttackDespiteDefender", arg("condition", Lit(condDsl)))))
     }
 
+    // Stoic Sphinx: "This creature has hexproof as long as you haven't cast a spell this turn."
+    //   If(PlayerPassesFilter(You, HasntCastASpellThisTurn(AnySpell)))
+    //     [ PermanentLayerEffect(ThisPermanent, [ AddAbility(<keyword>) ]) ]
+    // -> ConditionalStaticAbility(GrantKeyword(Keyword.X, Filters.Self), Not(YouCastSpellsThisTurn(1))).
+    // Only the SELF "grant a single keyword to this permanent" inner shape renders; any other layer
+    // effect (stat change, multi-keyword, group filter) declines -> SCAFFOLD.
+    if (innerRule.strField("_Rule") == "PermanentLayerEffect" &&
+        jsonContains(innerRule, "_Permanent", "ThisPermanent")
+    ) {
+        val condDsl = youHaventCastASpellConditionDsl(cond) ?: run { reasons.add("If"); return null }
+        val layerEffects = (innerRule["args"].asArr?.getOrNull(1) as? JsonArray)?.filterIsInstance<JsonObject>()
+        val le = layerEffects?.singleOrNull()
+        if (le == null || le.strField("_StaticLayerEffect") != "AddAbility") { reasons.add("If"); return null }
+        // An AddAbility whose granted rule is anything richer than a plain keyword (an activated ability,
+        // landwalk, protection-from-color) isn't a bare keyword grant — decline rather than mis-render.
+        val granted = (le["args"] as? JsonArray)?.singleOrNull() as? JsonObject
+        if (granted?.strField("_Rule") != null && granted.size > 1) { reasons.add("If"); return null }
+        val kw = keywordOf(le) ?: run { reasons.add("If"); return null }
+        return listOf(staticAbilityStmt(call(
+            "ConditionalStaticAbility",
+            arg("ability", call("GrantKeyword", arg("Keyword.$kw"), arg("Filters.Self"))),
+            arg("condition", Lit(condDsl)),
+        )))
+    }
+
     reasons.add("If"); return null
+}
+
+/**
+ * "you haven't cast a spell this turn" (`PlayerPassesFilter(You, HasntCastASpellThisTurn(AnySpell))`)
+ * -> the `Conditions.Not(Conditions.YouCastSpellsThisTurn(1))` DSL string. Only the unfiltered
+ * any-spell, You-scoped shape renders here (the from-hand variant is handled by [interveningIfDsl]);
+ * anything else declines.
+ */
+private fun EmitCtx.youHaventCastASpellConditionDsl(cond: JsonObject?): String? {
+    if (cond == null) return null
+    if (cond.strField("_Condition") == "PlayerPassesFilter" &&
+        jsonContains(cond, "_Player", "You") &&
+        jsonContains(cond, "_Players", "HasntCastASpellThisTurn") &&
+        jsonContains(cond, "_Spells", "AnySpell")
+    ) {
+        return "Conditions.Not(Conditions.YouCastSpellsThisTurn(1))"
+    }
+    return null
 }
 
 internal fun EmitCtx.spellBlock(card: JsonObject): List<Stmt>? {
