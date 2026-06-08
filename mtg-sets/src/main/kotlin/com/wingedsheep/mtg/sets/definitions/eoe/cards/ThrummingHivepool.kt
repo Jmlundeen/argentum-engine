@@ -44,7 +44,8 @@ val ThrummingHivepool = card("Thrumming Hivepool") {
             count = 2,
             power = 1,
             toughness = 1,
-            creatureTypes = setOf("Sliver")
+            creatureTypes = setOf("Sliver"),
+            imageUri = "https://cards.scryfall.io/normal/front/b/f/bf7501ee-783d-49c6-b381-1db056360b40.jpg?1752946465"
         )
     }
 
