@@ -1513,9 +1513,15 @@ class ClientStateTransformer(
                 green = manaPoolComponent.green,
                 colorless = manaPoolComponent.colorless,
                 restrictedMana = manaPoolComponent.restrictedMana.map { entry ->
+                    val expiryNote = if (entry.expiry == com.wingedsheep.sdk.scripting.effects.ManaExpiry.END_OF_COMBAT) {
+                        "This mana lasts until end of combat, then is lost."
+                    } else null
                     ClientRestrictedManaEntry(
                         color = entry.color?.symbol?.toString(),
-                        restrictionDescription = entry.restriction.description
+                        restrictionDescription = listOfNotNull(
+                            entry.restriction.description.ifBlank { null },
+                            expiryNote
+                        ).joinToString(" ")
                     )
                 }
             )

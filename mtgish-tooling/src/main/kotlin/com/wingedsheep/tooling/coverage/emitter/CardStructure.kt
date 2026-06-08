@@ -100,12 +100,18 @@ internal fun EmitCtx.cardLevelCastEffectLines(card: JsonObject): List<String>? {
 }
 
 /**
- * `CastEffect(ReduceCastingCostIf([CostReduceGeneric N], PlayerPassesFilter(You, ControlsA(filter))))`
- * -> a `staticAbility { ability = ModifySpellCost(SelfCast, ReduceGenericBy(FixedIfControlFilter(N,
- * <filter>))) }` block (Cactarantula: "This spell costs {1} less to cast if you control a Desert").
+ * `CastEffect(ReduceCastingCostIf([CostReduceGeneric N], <condition>))` -> a
+ * `staticAbility { ability = ModifySpellCost(SelfCast, …) }` block. Renders only a single bare generic
+ * reduction, and only for the exact conditions we can express faithfully:
  *
- * Renders only the "if you control a [filter]" conditional generic reduction; any other condition or a
- * colored/dynamic reduction declines -> SCAFFOLD rather than widening.
+ *  - `PlayerPassesFilter(You, ControlsA(filter))` ("if you control a [filter]") ->
+ *    `ReduceGenericBy(FixedIfControlFilter(N, <filter>))` (Cactarantula: "costs {1} less if you control
+ *    a Desert").
+ *  - `PlayerPassesFilter(You, CommitedACrimeThisTurn)` ("if you've committed a crime this turn") ->
+ *    `ReduceGeneric(N)` gated by `CostGating.OnlyIf(Conditions.YouCommittedCrimeThisTurn)` (Seize the
+ *    Secrets).
+ *
+ * Any other condition, or a colored/dynamic reduction, declines -> SCAFFOLD rather than widening.
  */
 private fun EmitCtx.costReductionStaticLines(rule: JsonObject): List<String>? {
     val node = rule["args"] as? JsonObject ?: return null
@@ -119,17 +125,28 @@ private fun EmitCtx.costReductionStaticLines(rule: JsonObject): List<String>? {
     if (cond.strField("_Condition") != "PlayerPassesFilter") return null
     val condArgs = cond["args"].asArr ?: return null
     if ((condArgs.getOrNull(0) as? JsonObject)?.strField("_Player") != "You") return null
-    val controls = condArgs.getOrNull(1) as? JsonObject ?: return null
-    if (controls.strField("_Players") != "ControlsA") return null
-    val filter = gameObjectFilterDsl(controls["args"]) ?: return null
-    val ability = call(
-        "ModifySpellCost",
-        arg("target", Lit("SpellCostTarget.SelfCast")),
-        arg("modification", call(
-            "CostModification.ReduceGenericBy",
-            arg(call("CostReductionSource.FixedIfControlFilter", arg("amount", "$amount"), arg("filter", Lit(filter)))),
-        )),
-    )
+    val predicate = condArgs.getOrNull(1) as? JsonObject ?: return null
+
+    val ability = when (predicate.strField("_Players")) {
+        "ControlsA" -> {
+            val filter = gameObjectFilterDsl(predicate["args"]) ?: return null
+            call(
+                "ModifySpellCost",
+                arg("target", Lit("SpellCostTarget.SelfCast")),
+                arg("modification", call(
+                    "CostModification.ReduceGenericBy",
+                    arg(call("CostReductionSource.FixedIfControlFilter", arg("amount", "$amount"), arg("filter", Lit(filter)))),
+                )),
+            )
+        }
+        "CommitedACrimeThisTurn" -> call(
+            "ModifySpellCost",
+            arg("target", Lit("SpellCostTarget.SelfCast")),
+            arg("modification", call("CostModification.ReduceGeneric", arg("$amount"))),
+            arg("gating", call("CostGating.OnlyIf", arg("Conditions.YouCommittedCrimeThisTurn"))),
+        )
+        else -> return null
+    }
     return renderBlock(Block("staticAbility", listOf(Assign("ability", ability))), "    ")
 }
 
@@ -244,7 +261,50 @@ internal fun EmitCtx.ifRuleBlock(rule: JsonObject): List<Stmt>? {
         return listOf(staticAbilityStmt(call("CanAttackDespiteDefender", arg("condition", Lit(condDsl)))))
     }
 
+    // Stoic Sphinx: "This creature has hexproof as long as you haven't cast a spell this turn."
+    //   If(PlayerPassesFilter(You, HasntCastASpellThisTurn(AnySpell)))
+    //     [ PermanentLayerEffect(ThisPermanent, [ AddAbility(<keyword>) ]) ]
+    // -> ConditionalStaticAbility(GrantKeyword(Keyword.X, Filters.Self), Not(YouCastSpellsThisTurn(1))).
+    // Only the SELF "grant a single keyword to this permanent" inner shape renders; any other layer
+    // effect (stat change, multi-keyword, group filter) declines -> SCAFFOLD.
+    if (innerRule.strField("_Rule") == "PermanentLayerEffect" &&
+        jsonContains(innerRule, "_Permanent", "ThisPermanent")
+    ) {
+        val condDsl = youHaventCastASpellConditionDsl(cond) ?: run { reasons.add("If"); return null }
+        val layerEffects = (innerRule["args"].asArr?.getOrNull(1) as? JsonArray)?.filterIsInstance<JsonObject>()
+        val le = layerEffects?.singleOrNull()
+        if (le == null || le.strField("_StaticLayerEffect") != "AddAbility") { reasons.add("If"); return null }
+        // An AddAbility whose granted rule is anything richer than a plain keyword (an activated ability,
+        // landwalk, protection-from-color) isn't a bare keyword grant — decline rather than mis-render.
+        val granted = (le["args"] as? JsonArray)?.singleOrNull() as? JsonObject
+        if (granted?.strField("_Rule") != null && granted.size > 1) { reasons.add("If"); return null }
+        val kw = keywordOf(le) ?: run { reasons.add("If"); return null }
+        return listOf(staticAbilityStmt(call(
+            "ConditionalStaticAbility",
+            arg("ability", call("GrantKeyword", arg("Keyword.$kw"), arg("Filters.Self"))),
+            arg("condition", Lit(condDsl)),
+        )))
+    }
+
     reasons.add("If"); return null
+}
+
+/**
+ * "you haven't cast a spell this turn" (`PlayerPassesFilter(You, HasntCastASpellThisTurn(AnySpell))`)
+ * -> the `Conditions.Not(Conditions.YouCastSpellsThisTurn(1))` DSL string. Only the unfiltered
+ * any-spell, You-scoped shape renders here (the from-hand variant is handled by [interveningIfDsl]);
+ * anything else declines.
+ */
+private fun EmitCtx.youHaventCastASpellConditionDsl(cond: JsonObject?): String? {
+    if (cond == null) return null
+    if (cond.strField("_Condition") == "PlayerPassesFilter" &&
+        jsonContains(cond, "_Player", "You") &&
+        jsonContains(cond, "_Players", "HasntCastASpellThisTurn") &&
+        jsonContains(cond, "_Spells", "AnySpell")
+    ) {
+        return "Conditions.Not(Conditions.YouCastSpellsThisTurn(1))"
+    }
+    return null
 }
 
 internal fun EmitCtx.spellBlock(card: JsonObject): List<Stmt>? {
@@ -731,7 +791,17 @@ internal fun EmitCtx.activatedBlock(rule: JsonObject, activateFromZone: String? 
     // through to the single-ability path (and scaffolds there if the Or can't render).
     manaChoiceExpansion(rule, cost, targets, actions, activateFromZone)?.let { return it }
 
-    return activatedAbilityStmts(rule, cost, targets, actions, activateFromZone)
+    return activatedAbilityStmts(rule, cost, targets, actions, activateFromZone, hasWaterbend = containsWaterbendCost(costNode))
+}
+
+/** True when the activation cost is (or composes) a Waterbend cost (Avatar: The Last Airbender). */
+private fun containsWaterbendCost(node: JsonObject?): Boolean {
+    if (node == null) return false
+    return when (node.strField("_Cost")) {
+        "Waterbend" -> true
+        "And" -> (node["args"].asArr ?: return false).any { containsWaterbendCost(it as? JsonObject) }
+        else -> false
+    }
 }
 
 /** Build one `activatedAbility { … }` block from already-recovered cost / target / action pieces. */
@@ -741,10 +811,12 @@ private fun EmitCtx.activatedAbilityStmts(
     targets: List<JsonObject>?,
     actions: List<JsonObject>,
     activateFromZone: String?,
+    hasWaterbend: Boolean = false,
 ): List<Stmt>? {
     val (tnode, tvar) = spellTargetExpr(targets, actions) ?: return null
     val edsl = renderEffectList(actions, tvar) ?: return null
     val stmts = mutableListOf<Stmt>(Assign("cost", Lit(cost)))
+    if (hasWaterbend) stmts.add(Assign("hasWaterbend", Lit("true")))
     activationRestrictionLines(rule)?.let { lines -> lines.forEach { stmts.add(RawLine(it)) } } ?: return null
     if (tvar != null) stmts.add(targetLocal(tnode!!))
     stmts.add(Assign("effect", edsl))
@@ -815,6 +887,11 @@ internal fun EmitCtx.abilityCostDsl(node: JsonElement?): String? {
             "Costs.Composite(${parts.joinToString(", ")})"
         }
         "PayMana" -> renderMana(obj.field("args")).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }
+        // Waterbend {N} (CR, Avatar: The Last Airbender): the cost is a plain mana cost; the
+        // "may tap artifacts/creatures, each {1}" semantics are carried by `hasWaterbend = true`
+        // (set in activatedBlock). Only the fixed-generic shape renders — WaterbendX/WaterbendCustomX
+        // carry an X value and are declined (-> SCAFFOLD) per the no-X-guessing policy.
+        "Waterbend" -> renderMana(obj.field("args")).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }
         // "{X}{G}{G}" activation cost — args are [symbol-list, the X game number]; render the symbol list
         // (ManaCostX -> "{X}") as the mana cost (Silklash Spider).
         "PayManaX" -> renderMana((obj["args"].asArr)?.getOrNull(0)).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }

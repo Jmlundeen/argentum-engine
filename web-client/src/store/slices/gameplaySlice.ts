@@ -465,6 +465,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
       combatState: null,
       xSelectionState: null,
       convokeSelectionState: null,
+      waterbendSelectionState: null,
       decisionSelectionState: null,
       damageDistributionState: null,
       distributeState: null,

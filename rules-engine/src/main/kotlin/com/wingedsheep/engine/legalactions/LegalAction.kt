@@ -69,6 +69,11 @@ data class LegalAction(
     val delveCards: List<DelveCardData>? = null,
     val minDelveNeeded: Int? = null,
 
+    // Waterbend (Avatar: The Last Airbender) — tap untapped artifacts/creatures you control,
+    // each paying {1} of the generic mana in the cost.
+    val hasWaterbend: Boolean = false,
+    val waterbendPermanents: List<WaterbendPermanentData>? = null,
+
     // Harmonize (cast from graveyard; optionally tap one creature to reduce the generic
     // cost by its power). The client may pick at most one of [harmonizeCreatures].
     val hasHarmonize: Boolean = false,
@@ -200,6 +205,17 @@ data class ConvokeCreatureData(
     val entityId: EntityId,
     val name: String,
     val colors: Set<Color>
+)
+
+/**
+ * Information about an artifact or creature that can be tapped for Waterbend. Generic-only,
+ * so no color is carried (each tapped permanent always pays {1} generic). [isCreature] lets
+ * the client distinguish creatures from artifacts for highlight/labelling only.
+ */
+data class WaterbendPermanentData(
+    val entityId: EntityId,
+    val name: String,
+    val isCreature: Boolean
 )
 
 /**

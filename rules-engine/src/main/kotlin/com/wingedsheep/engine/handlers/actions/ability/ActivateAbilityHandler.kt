@@ -251,12 +251,16 @@ class ActivateAbilityHandler(
         }
 
         // Check cost requirements (using ManaSolver for mana costs to consider untapped sources)
-        // If the ability has convoke and the player provided alternative payment, account for the reduced cost
-        val costAfterConvokeReduction = if (ability.hasConvoke && action.alternativePayment != null && !action.alternativePayment.isEmpty) {
+        // If the ability has convoke or waterbend and the player provided alternative payment,
+        // account for the reduced cost.
+        val costAfterConvokeReduction = if ((ability.hasConvoke || ability.hasWaterbend) && action.alternativePayment != null && !action.alternativePayment.isEmpty) {
             val mc = extractManaCost(effectiveCost) ?: effectiveCost
             if (mc is ManaCost || effectiveCost is AbilityCost.Mana || effectiveCost is AbilityCost.Composite) {
                 val reducedManaCost = extractManaCost(effectiveCost)?.let {
-                    alternativePaymentHandler.calculateReducedCostForAbility(it, action.alternativePayment)
+                    var reduced = it
+                    if (ability.hasConvoke) reduced = alternativePaymentHandler.calculateReducedCostForAbility(reduced, action.alternativePayment)
+                    if (ability.hasWaterbend) reduced = alternativePaymentHandler.calculateReducedCostForWaterbend(reduced, action.alternativePayment)
+                    reduced
                 }
                 if (reducedManaCost != null) {
                     when (effectiveCost) {
@@ -514,6 +518,17 @@ class ActivateAbilityHandler(
             events.addAll(convokeResult.events)
         }
 
+        // Apply waterbend payment for abilities with hasWaterbend (Avatar: The Last Airbender) —
+        // tap untapped artifacts/creatures you control, each paying {1} of the generic cost.
+        if (effectiveManaCost != null && ability.hasWaterbend && action.alternativePayment != null && !action.alternativePayment.isEmpty) {
+            val waterbendResult = alternativePaymentHandler.applyWaterbendForAbility(
+                currentState, effectiveManaCost, action.alternativePayment, action.playerId
+            )
+            effectiveManaCost = waterbendResult.reducedCost
+            currentState = waterbendResult.newState
+            events.addAll(waterbendResult.events)
+        }
+
         val manaCost = effectiveManaCost
         // Only pass xValue to auto-tap when X is in the mana cost itself (not in a non-mana cost like counter removal)
         val manaXValue = if (manaCost?.hasX == true) xValue else 0
@@ -585,8 +600,8 @@ class ActivateAbilityHandler(
         // When convoke was applied, replace the mana portion with the reduced cost.
         val costForPayment = if (action.paymentStrategy is PaymentStrategy.Explicit) {
             stripManaCost(effectiveCost)
-        } else if (ability.hasConvoke && action.alternativePayment != null && !action.alternativePayment.isEmpty && manaCost != null) {
-            // Convoke reduced the mana cost — update the cost structure so payAbilityCost
+        } else if ((ability.hasConvoke || ability.hasWaterbend) && action.alternativePayment != null && !action.alternativePayment.isEmpty && manaCost != null) {
+            // Convoke/waterbend reduced the mana cost — update the cost structure so payAbilityCost
             // deducts the reduced amount from the pool instead of the original full amount
             when (effectiveCost) {
                 is AbilityCost.Mana -> AbilityCost.Mana(manaCost)

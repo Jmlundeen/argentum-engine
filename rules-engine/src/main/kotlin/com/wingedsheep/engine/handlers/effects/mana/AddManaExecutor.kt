@@ -7,6 +7,8 @@ import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
+import com.wingedsheep.sdk.scripting.effects.ManaExpiry
+import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import kotlin.reflect.KClass
 
 /**
@@ -31,15 +33,22 @@ class AddManaExecutor(
 
         var newState = state.updateEntity(context.controllerId) { container ->
             val manaPool = container.get<ManaPoolComponent>() ?: ManaPoolComponent()
-            val updatedPool = if (effect.restriction != null) {
-                manaPool.addRestricted(effect.color, amount, effect.restriction!!)
-            } else {
-                manaPool.add(effect.color, amount)
+            val updatedPool = when {
+                effect.restriction != null ->
+                    manaPool.addRestricted(effect.color, amount, effect.restriction!!, expiry = effect.expiry)
+                effect.expiry != ManaExpiry.END_OF_TURN ->
+                    // Combat-duration (firebending) mana: spendable anywhere, but tagged so the
+                    // pool discards it when combat ends. Stored as an AnySpend restricted entry
+                    // so it flows through the normal spend logic (canPay / pay / solver).
+                    manaPool.addRestricted(effect.color, amount, ManaRestriction.AnySpend, expiry = effect.expiry)
+                else ->
+                    manaPool.add(effect.color, amount)
             }
             container.with(updatedPool)
         }
 
-        if (effect.restriction == null) {
+        // Treasure tagging only applies to ordinary, plain-counter mana (the `add` branch above).
+        if (effect.restriction == null && effect.expiry == ManaExpiry.END_OF_TURN) {
             newState = TreasureManaTracker.tagAddedMana(newState, context.controllerId, context.sourceId, amount)
         }
 

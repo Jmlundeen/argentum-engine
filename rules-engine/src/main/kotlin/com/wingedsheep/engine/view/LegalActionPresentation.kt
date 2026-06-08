@@ -75,6 +75,8 @@ data class LegalActionInfo(
     val additionalCostInfo: AdditionalCostInfo? = null,
     val hasConvoke: Boolean = false,
     val validConvokeCreatures: List<ConvokeCreatureInfo>? = null,
+    val hasWaterbend: Boolean = false,
+    val validWaterbendPermanents: List<WaterbendPermanentInfo>? = null,
     val hasDelve: Boolean = false,
     val validDelveCards: List<DelveCardInfo>? = null,
     val minDelveNeeded: Int? = null,
@@ -135,6 +137,13 @@ data class ConvokeCreatureInfo(
     val entityId: EntityId,
     val name: String,
     val colors: Set<Color>
+)
+
+@Serializable
+data class WaterbendPermanentInfo(
+    val entityId: EntityId,
+    val name: String,
+    val isCreature: Boolean
 )
 
 @Serializable

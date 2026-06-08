@@ -780,6 +780,7 @@ sealed interface KeywordAbility {
         fun fabricate(n: Int): KeywordAbility = Numeric(Keyword.FABRICATE, n)
         fun tribute(n: Int): KeywordAbility = Numeric(Keyword.TRIBUTE, n)
         fun mobilize(n: Int): KeywordAbility = Numeric(Keyword.MOBILIZE, n)
+        fun firebending(n: Int): KeywordAbility = Numeric(Keyword.FIREBENDING, n)
 
         /**
          * Mobilize X — display tag for a Mobilize whose count is dynamic (e.g.

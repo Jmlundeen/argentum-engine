@@ -7,6 +7,7 @@ import com.wingedsheep.engine.legalactions.ConvokeCreatureData
 import com.wingedsheep.engine.legalactions.CounterRemovalCreatureData
 import com.wingedsheep.engine.legalactions.DelveCardData
 import com.wingedsheep.engine.legalactions.HarmonizeCreatureData
+import com.wingedsheep.engine.legalactions.WaterbendPermanentData
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.mechanics.mana.ManaSource
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
@@ -246,6 +247,54 @@ class CostEnumerationUtils(
         val genericRequired = manaCost.genericAmount
         val creaturesForGeneric = convokeCreatures.size - creaturesUsedForColors
         val resourcesForGeneric = availableMana + creaturesForGeneric
+        return resourcesForGeneric >= genericRequired
+    }
+
+    // --- Waterbend ---
+
+    /**
+     * Untapped artifacts/creatures the player controls that may be tapped for a Waterbend cost.
+     * Projected types are used so animated lands / type-changed permanents are honored.
+     */
+    fun findWaterbendPermanents(state: GameState, playerId: EntityId): List<WaterbendPermanentData> {
+        val projected = state.projectedState
+        return projected.getBattlefieldControlledBy(playerId).mapNotNull { entityId ->
+            val container = state.getEntity(entityId) ?: return@mapNotNull null
+            val cardComponent = container.get<CardComponent>() ?: return@mapNotNull null
+            val isCreature = projected.isCreature(entityId)
+            val isArtifact = projected.hasType(entityId, "ARTIFACT")
+            if (!isCreature && !isArtifact) return@mapNotNull null
+            if (container.has<TappedComponent>()) return@mapNotNull null
+            WaterbendPermanentData(entityId, cardComponent.name, isCreature)
+        }
+    }
+
+    /**
+     * Whether [manaCost] is payable with the help of waterbend taps. Each tapped permanent pays
+     * exactly {1} generic, so colored pips must come from mana sources; the generic portion may
+     * be covered by mana sources and/or waterbend permanents. A permanent tapped for waterbend
+     * can't also be a mana source, so any that double as mana sources are excluded from the mana
+     * count.
+     */
+    fun canAffordWithWaterbend(
+        state: GameState,
+        playerId: EntityId,
+        manaCost: ManaCost,
+        waterbendPermanents: List<WaterbendPermanentData>,
+        precomputedSources: List<ManaSource>? = null
+    ): Boolean {
+        val waterbendIds = waterbendPermanents.mapTo(mutableSetOf()) { it.entityId }
+        val sourcesForMana = (precomputedSources ?: manaSolver.findAvailableManaSources(state, playerId))
+            .filter { it.entityId !in waterbendIds }
+        val availableMana = manaSolver.getAvailableManaCount(state, playerId, sourcesForMana)
+
+        // Colored pips can only be paid by mana — waterbend is generic-only.
+        val coloredRequired = manaCost.colorCount.values.sum()
+        if (availableMana < coloredRequired) return false
+
+        val genericRequired = manaCost.genericAmount
+        val manaLeftForGeneric = availableMana - coloredRequired
+        val resourcesForGeneric = manaLeftForGeneric + waterbendPermanents.size
         return resourcesForGeneric >= genericRequired
     }
 

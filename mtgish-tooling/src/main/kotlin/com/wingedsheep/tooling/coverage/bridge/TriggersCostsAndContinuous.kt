@@ -23,6 +23,16 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     supported("PlayerPassesFilter", "condition: a player matches a filter (e.g. You HasntCastASpellThisTurn)")
     supported("IsSaddled", "predicate: this permanent is saddled (CR 702.171b)")
     supported("HasntCastASpellThisTurn", "predicate: player hasn't cast a (filtered) spell this turn")
+    // "you've cast another spell this turn" -> Conditions.YouCastSpellsThisTurn(atLeast = 2) at
+    // resolution (the resolving spell is already recorded). The emitter renders the "Other ThisSpell"
+    // shape; a non-You / unfiltered-other mismatch declines -> SCAFFOLD.
+    supported("CastASpellThisTurn", "predicate: player has cast a (filtered) spell this turn (YouCastSpellsThisTurn)")
+    // OTJ crime (CR Outlaws of Thunder Junction) — "you've committed a crime this turn" ->
+    // Conditions.YouCommittedCrimeThisTurn, gating a cost reduction or a resolution-time effect.
+    supported("CommitedACrimeThisTurn", "predicate: player has committed a crime this turn (YouCommittedCrimeThisTurn)")
+    // "if you do" / "if [the cost] was paid" — the IfYouDoEffect linkage after a MayCost(DiscardACard)
+    // loot, rendered by the emitter as MayEffect(IfYouDoEffect(...)). Universal condition vocabulary.
+    supported("CostWasPaid", "condition: the optional cost was paid (IfYouDoEffect linkage)")
     supported("WasCastFromTheirHand", "predicate: spell cast from the player's hand (fromZone = HAND)")
     // Source-relative Mount/Vehicle payoff filter: "a creature that crewed/saddled it this turn"
     // (Giant Beaver) -> GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn().
@@ -36,6 +46,12 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     // "Pay N life" as an activation cost -> Costs.PayLife(n). The emitter renders fixed-integer amounts
     // (abilityCostDsl); non-integer amounts ({X}, life-total halves, …) are declined -> SCAFFOLD.
     supported("PayLife", "cost: pay life")
+    // Waterbend {N} (Avatar: The Last Airbender, CR) — a generic-mana cost where each generic may be
+    // paid by tapping an untapped artifact/creature you control. On activated abilities this maps to
+    // `activatedAbility { cost = Costs.Mana("{N}"); hasWaterbend = true }`. The emitter renders the
+    // fixed-generic shape; the X-carrying variants (WaterbendX / WaterbendCustomX) are left unsupported
+    // -> blocked (the engine doesn't model an X waterbend cost yet).
+    supported("Waterbend", "cost: waterbend {N} (tap artifacts/creatures, each pays {1} generic)")
     composed("DiscardACardOfType", "cost: discard filtered")
 
     // Duration-scoped continuous trigger / replacement creators.

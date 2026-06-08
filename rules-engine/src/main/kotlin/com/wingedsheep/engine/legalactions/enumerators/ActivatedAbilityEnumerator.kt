@@ -202,13 +202,21 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                     }
                     is AbilityCost.Mana -> {
                         if (!context.manaSolver.canPay(state, playerId, effectiveCost.cost, precomputedSources = context.availableManaSources, spellContext = abilityContext)) {
-                            // If the ability has convoke, check if affordable with convoke creatures
-                            if (ability.hasConvoke) {
-                                val creatures = context.costUtils.findConvokeCreatures(state, playerId)
-                                if (!context.costUtils.canAffordWithConvoke(state, playerId, effectiveCost.cost, creatures, precomputedSources = context.availableManaSources)) {
-                                    costAffordable = false
-                                }
-                            } else {
+                            // If the ability has convoke or waterbend, check if the tap-to-pay
+                            // helpers close the affordability gap.
+                            val affordableViaConvoke = ability.hasConvoke &&
+                                context.costUtils.canAffordWithConvoke(
+                                    state, playerId, effectiveCost.cost,
+                                    context.costUtils.findConvokeCreatures(state, playerId),
+                                    precomputedSources = context.availableManaSources
+                                )
+                            val affordableViaWaterbend = ability.hasWaterbend &&
+                                context.costUtils.canAffordWithWaterbend(
+                                    state, playerId, effectiveCost.cost,
+                                    context.costUtils.findWaterbendPermanents(state, playerId),
+                                    precomputedSources = context.availableManaSources
+                                )
+                            if (!affordableViaConvoke && !affordableViaWaterbend) {
                                 costAffordable = false
                             }
                         }
@@ -304,14 +312,20 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                 }
                                 is AbilityCost.Mana -> {
                                     if (!context.manaSolver.canPay(state, playerId, subCost.cost, excludeSources = excludeFromMana, precomputedSources = context.availableManaSources, spellContext = abilityContext)) {
-                                        // If the ability has convoke, check with convoke creatures
-                                        if (ability.hasConvoke) {
-                                            val creatures = context.costUtils.findConvokeCreatures(state, playerId)
-                                            if (!context.costUtils.canAffordWithConvoke(state, playerId, subCost.cost, creatures, precomputedSources = context.availableManaSources)) {
-                                                costCanBePaid = false
-                                                break
-                                            }
-                                        } else {
+                                        // If the ability has convoke or waterbend, check with the tap-to-pay helpers.
+                                        val affordableViaConvoke = ability.hasConvoke &&
+                                            context.costUtils.canAffordWithConvoke(
+                                                state, playerId, subCost.cost,
+                                                context.costUtils.findConvokeCreatures(state, playerId),
+                                                precomputedSources = context.availableManaSources
+                                            )
+                                        val affordableViaWaterbend = ability.hasWaterbend &&
+                                            context.costUtils.canAffordWithWaterbend(
+                                                state, playerId, subCost.cost,
+                                                context.costUtils.findWaterbendPermanents(state, playerId),
+                                                precomputedSources = context.availableManaSources
+                                            )
+                                        if (!affordableViaConvoke && !affordableViaWaterbend) {
                                             costCanBePaid = false
                                             break
                                         }
@@ -512,6 +526,11 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                     context.costUtils.findConvokeCreatures(state, playerId)
                 } else null
 
+                // Compute waterbend permanent data for abilities with hasWaterbend
+                val abilityWaterbendPermanents = if (ability.hasWaterbend) {
+                    context.costUtils.findWaterbendPermanents(state, playerId)
+                } else null
+
                 // If cost is unaffordable, add as greyed-out option and skip expensive computations
                 if (!costAffordable) {
                     val abilityManaCostString = when (effectiveCost) {
@@ -668,7 +687,9 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                             autoTapPreview = abilityAutoTapPreview,
                             manaCostString = abilityManaCostString,
                             hasConvoke = ability.hasConvoke,
-                            convokeCreatures = abilityConvokeCreatures
+                            convokeCreatures = abilityConvokeCreatures,
+                            hasWaterbend = ability.hasWaterbend,
+                            waterbendPermanents = abilityWaterbendPermanents
                         ))
                     } else if (targetReqs.size == 1 && firstReqInfo.validTargets.size == 1 && firstReqInfo.validTargets.first() == entityId) {
                         // Self-targeting: only valid target is the source itself — auto-select and offer repeat
@@ -684,7 +705,9 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                             maxRepeatableActivations = maxRepeatableActivations,
                             manaCostString = abilityManaCostString,
                             hasConvoke = ability.hasConvoke,
-                            convokeCreatures = abilityConvokeCreatures
+                            convokeCreatures = abilityConvokeCreatures,
+                            hasWaterbend = ability.hasWaterbend,
+                            waterbendPermanents = abilityWaterbendPermanents
                         ))
                     } else {
                         // Only hold priority when the top of the stack is something this
@@ -710,6 +733,8 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                             manaCostString = abilityManaCostString,
                             hasConvoke = ability.hasConvoke,
                             convokeCreatures = abilityConvokeCreatures,
+                            hasWaterbend = ability.hasWaterbend,
+                            waterbendPermanents = abilityWaterbendPermanents,
                             holdPriority = holdPriorityForTopOfStack
                         ))
                     }
@@ -725,7 +750,9 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         maxRepeatableActivations = maxRepeatableActivations,
                         manaCostString = abilityManaCostString,
                         hasConvoke = ability.hasConvoke,
-                        convokeCreatures = abilityConvokeCreatures
+                        convokeCreatures = abilityConvokeCreatures,
+                        hasWaterbend = ability.hasWaterbend,
+                        waterbendPermanents = abilityWaterbendPermanents
                     ))
                 }
             }

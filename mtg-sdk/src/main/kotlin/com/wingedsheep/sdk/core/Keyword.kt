@@ -244,6 +244,20 @@ enum class Keyword(val displayName: String) {
      */
     MOBILIZE("Mobilize"),
 
+    /**
+     * Firebending N (Avatar: The Last Airbender). A numeric keyword ability:
+     * "Whenever this creature attacks, add N {R}. Until end of combat, you don't
+     * lose this mana as steps and phases end."
+     *
+     * Display-only on the keyword; the behavior is the attack-triggered ability
+     * wired by the `firebending(n)` DSL helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder] — an
+     * [com.wingedsheep.sdk.scripting.effects.AddManaEffect] producing red mana with
+     * [com.wingedsheep.sdk.scripting.effects.ManaExpiry.END_OF_COMBAT] so the pool
+     * keeps it through combat and discards it once combat ends.
+     */
+    FIREBENDING("Firebending"),
+
     // ── Ability words (display prefix, no uniform mechanic) ──
     /**
      * Eerie (Duskmourn: House of Horror).

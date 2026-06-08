@@ -13,6 +13,7 @@ import type {
   XSelectionState,
   BlightVariableSelectionState,
   ConvokeSelectionState,
+  WaterbendSelectionState,
   HarmonizeSelectionState,
   DelveSelectionState,
   CounterDistributionState,
@@ -28,6 +29,7 @@ export interface PipelineStoreMethods {
   startXSelection: (state: XSelectionState) => void
   startBlightVariableSelection: (state: BlightVariableSelectionState) => void
   startConvokeSelection: (state: ConvokeSelectionState) => void
+  startWaterbendSelection: (state: WaterbendSelectionState) => void
   startHarmonizeSelection: (state: HarmonizeSelectionState) => void
   startDelveSelection: (state: DelveSelectionState) => void
   startCounterDistribution: (state: CounterDistributionState) => void
@@ -101,6 +103,17 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
     phases.push({ type: 'convoke' })
   }
 
+  // 3a. Waterbend (activated abilities with a waterbend cost — Avatar: The Last Airbender).
+  //     Optional: the player may tap artifacts/creatures to help pay the generic cost.
+  if (
+    (actionInfo.action.type === 'CastSpell' || actionInfo.action.type === 'ActivateAbility') &&
+    actionInfo.hasWaterbend &&
+    actionInfo.validWaterbendPermanents &&
+    actionInfo.validWaterbendPermanents.length > 0
+  ) {
+    phases.push({ type: 'waterbend' })
+  }
+
   // 3b. Harmonize creature-tap (cast from graveyard via Harmonize). Optional: the player
   //     may tap one creature to reduce the generic cost by its power. Runs after xSelection
   //     so the displayed cost reflects the chosen X (which {X} the tap can reduce).
@@ -115,7 +128,7 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
 
   // 4. Mana source selection (skipped when auto-tap is enabled, except for delve/convoke
   //    spells where the player should always confirm land selection after alternative payment)
-  const hasAlternativePaymentPhase = phases.some((p) => p.type === 'delve' || p.type === 'convoke')
+  const hasAlternativePaymentPhase = phases.some((p) => p.type === 'delve' || p.type === 'convoke' || p.type === 'waterbend')
   if (
     actionInfo.availableManaSources && actionInfo.availableManaSources.length > 0 &&
     (hasAlternativePaymentPhase || !options?.autoTapEnabled)
@@ -253,6 +266,20 @@ export function mergeResult(
           alternativePayment: {
             delvedCards: action.alternativePayment?.delvedCards ?? [],
             convokedCreatures: result.convokedCreatures,
+          },
+        }
+      }
+      return action
+    }
+
+    case 'waterbend': {
+      if (action.type === 'CastSpell' || action.type === 'ActivateAbility') {
+        return {
+          ...action,
+          alternativePayment: {
+            delvedCards: action.alternativePayment?.delvedCards ?? [],
+            convokedCreatures: action.alternativePayment?.convokedCreatures ?? {},
+            waterbendPermanents: result.waterbendPermanents,
           },
         }
       }
@@ -495,6 +522,17 @@ export function enterPhase(
         manaCost: actionInfo.manaCostString ?? '',
         selectedCreatures: [],
         validCreatures: actionInfo.validConvokeCreatures!,
+      })
+      break
+    }
+
+    case 'waterbend': {
+      store.startWaterbendSelection({
+        actionInfo,
+        cardName: actionInfo.description.replace('Cast ', '').replace('Activate ', ''),
+        manaCost: actionInfo.manaCostString ?? '',
+        selectedPermanents: [],
+        validPermanents: actionInfo.validWaterbendPermanents!,
       })
       break
     }

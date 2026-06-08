@@ -54,6 +54,8 @@ class LegalActionEnricher(
             additionalCostInfo = action.additionalCostInfo?.toDto(),
             hasConvoke = action.hasConvoke,
             validConvokeCreatures = action.convokeCreatures?.map { it.toDto() },
+            hasWaterbend = action.hasWaterbend,
+            validWaterbendPermanents = action.waterbendPermanents?.map { it.toDto() },
             hasDelve = action.hasDelve,
             validDelveCards = action.delveCards?.map { it.toDto() },
             minDelveNeeded = action.minDelveNeeded,
@@ -64,7 +66,7 @@ class LegalActionEnricher(
             totalDamageToDistribute = action.totalDamageToDistribute,
             minDamagePerTarget = action.minDamagePerTarget,
             autoTapPreview = action.autoTapPreview,
-            availableManaSources = if (action.autoTapPreview != null || action.hasConvoke || action.hasDelve || action.hasHarmonize) manaSourceInfos else null,
+            availableManaSources = if (action.autoTapPreview != null || action.hasConvoke || action.hasWaterbend || action.hasDelve || action.hasHarmonize) manaSourceInfos else null,
             sourceZone = action.sourceZone,
             tapForPower = action.tapForPower,
             tapForPowerRequired = action.tapForPowerRequired,
@@ -156,6 +158,12 @@ class LegalActionEnricher(
         entityId = entityId,
         name = name,
         colors = colors
+    )
+
+    private fun WaterbendPermanentData.toDto() = WaterbendPermanentInfo(
+        entityId = entityId,
+        name = name,
+        isCreature = isCreature
     )
 
     private fun DelveCardData.toDto() = DelveCardInfo(
