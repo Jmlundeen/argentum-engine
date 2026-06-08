@@ -41,6 +41,7 @@ val UthrosPsionicist = card("Uthros Psionicist") {
         rarity = Rarity.UNCOMMON
         collectorNumber = "84"
         artist = "Inkognit"
+        flavorText = "\"Log entry cycle 33,507: Tenuous perception of psionic activity emanating from Uthros's core. Nature: Nonlinguistic, fragmentary. Content: Isolation, apoplexy. It wants free.\"\n—Uthros Combine research notes"
         imageUri = "https://cards.scryfall.io/normal/front/e/2/e23cc5fd-afe4-480c-8858-ed80a082584e.jpg?1752946892"
     }
 }

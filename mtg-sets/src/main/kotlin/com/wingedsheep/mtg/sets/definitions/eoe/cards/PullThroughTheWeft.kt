@@ -92,6 +92,7 @@ val PullThroughTheWeft = card("Pull Through the Weft") {
         rarity = Rarity.UNCOMMON
         collectorNumber = "202"
         artist = "Andrew Mar"
+        flavorText = "\"That which should not have happened is undone, and a new pattern takes its place.\""
         imageUri = "https://cards.scryfall.io/normal/front/a/7/a70d0877-1a1e-436b-bf8c-0ff6df9efc6a.jpg?1752947378"
     }
 }

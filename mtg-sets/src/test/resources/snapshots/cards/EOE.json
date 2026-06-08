@@ -1658,7 +1658,10 @@
         ]
     },
     "metadata": {
-        "collectorNumber": "8"
+        "collectorNumber": "8",
+        "artist": "Bryan Sola",
+        "flavorText": "\"My purpose is my spear. My spear is my life. My life is for the Regent Maximum.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/7/e7f7541a-5910-4f33-8c1d-3507ce3a426e.jpg?1752946584"
     },
     "colorIdentityOverride": [
         "WHITE"
@@ -2456,7 +2459,7 @@
         "collectorNumber": "215",
         "rarity": "RARE",
         "artist": "Chris Rahn",
-        "flavorText": ">Alert: COSMOGOYF\n>Recommended Action: RUN\n—PSS Erix shipboard computer, final transmission",
+        "flavorText": ">Alert: COSMOGOYF\n>Recommended Action: RUN\n—PSS *Erix* shipboard computer, final transmission",
         "imageUri": "https://cards.scryfall.io/normal/front/5/e/5e07d3c6-60a5-44d1-a926-6414be85bd50.jpg?1752947436"
     },
     "colorIdentityOverride": [
@@ -3551,10 +3554,10 @@
         ]
     },
     "metadata": {
-        "collectorNumber": "177†",
+        "collectorNumber": "177",
         "artist": "Néstor Ossandón Leal",
         "flavorText": "\"We will not yield until the Eumidians relinquish our Kavaron Tomorrow.\"\n—Official Kav diplomatic statement",
-        "imageUri": "https://cards.scryfall.io/normal/front/1/4/143e5853-9a31-4c8d-b21d-5ef120eb6952.jpg?1774265280"
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e0a104c5-61fb-4733-97ab-a31a15a49443.jpg?1753096637"
     },
     "colorIdentityOverride": [
         "GREEN"
@@ -7057,7 +7060,8 @@
                     "creatureTypes": [
                         "Human",
                         "Soldier"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/6/3/631c2c16-132d-4607-ab7e-207a6af188e5.jpg?1757686920"
                 }
             }
         ],
@@ -10343,7 +10347,7 @@
         "collectorNumber": "69",
         "rarity": "RARE",
         "artist": "Liiga Smilshkalne",
-        "flavorText": "\"All is the hand that weaves the Fabric of Being. The Fabric of Being is All.\"\n—Drix Codex, line 1",
+        "flavorText": "\"All is the hand that weaves the Fabric of Being. The Fabric of Being is All.\"\n—*Drix Codex*, line 1",
         "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2a56007-5bca-4edf-9cc4-5f77a273636c.jpg?1752946830",
         "rulings": [
             {
@@ -11690,6 +11694,7 @@
         "collectorNumber": "202",
         "rarity": "UNCOMMON",
         "artist": "Andrew Mar",
+        "flavorText": "\"That which should not have happened is undone, and a new pattern takes its place.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/a/7/a70d0877-1a1e-436b-bf8c-0ff6df9efc6a.jpg?1752947378"
     },
     "colorIdentityOverride": [
@@ -12965,6 +12970,7 @@
         "collectorNumber": "226",
         "rarity": "MYTHIC",
         "artist": "Kieran Yanner",
+        "flavorText": "\"The hard way it is.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/b/e/bed64207-9193-4770-8f8f-e3203289d5a6.jpg?1752947484"
     },
     "colorIdentityOverride": [
@@ -17197,6 +17203,7 @@
         "collectorNumber": "210",
         "rarity": "RARE",
         "artist": "Viko Menezes",
+        "flavorText": "For Eumidians, terraforming and evolution are one and the same. They grow as their planet grows, in lockstep coexistence.",
         "imageUri": "https://cards.scryfall.io/normal/front/2/6/26008c7d-5dbe-4da2-b475-4dd307e7bc68.jpg?1752947411"
     },
     "colorIdentityOverride": [
@@ -17257,6 +17264,7 @@
         "collectorNumber": "165",
         "rarity": "UNCOMMON",
         "artist": "Julie Dillon",
+        "flavorText": "Some creatures have adapted to thrive in the unstable chaos of Kavaron That Is.",
         "imageUri": "https://cards.scryfall.io/normal/front/d/b/dbb25585-6048-4a85-828e-675bf0da6508.jpg?1752947221"
     },
     "colorIdentityOverride": [
@@ -17873,6 +17881,7 @@
         "collectorNumber": "240",
         "rarity": "MYTHIC",
         "artist": "Ryan Pancoast",
+        "flavorText": "The future is set. The present remains uncertain.",
         "imageUri": "https://cards.scryfall.io/normal/front/a/4/a451a459-18e0-4c53-a171-3e9da534ebf1.jpg?1752947540",
         "rulings": [
             {
@@ -18186,7 +18195,8 @@
                     "colors": [],
                     "creatureTypes": [
                         "Sliver"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/f/bf7501ee-783d-49c6-b381-1db056360b40.jpg?1752946465"
                 }
             }
         ],
@@ -18211,6 +18221,7 @@
         "collectorNumber": "247",
         "rarity": "RARE",
         "artist": "Rob Rey",
+        "flavorText": "\"I'll never escape this rock, but I fear they will.\"\n—Decrypted log 4.11",
         "imageUri": "https://cards.scryfall.io/normal/front/8/5/85caf659-7b43-462e-a342-34703d46eb57.jpg?1752947564",
         "rulings": [
             {
@@ -18569,6 +18580,7 @@
         "collectorNumber": "84",
         "rarity": "UNCOMMON",
         "artist": "Inkognit",
+        "flavorText": "\"Log entry cycle 33,507: Tenuous perception of psionic activity emanating from Uthros's core. Nature: Nonlinguistic, fragmentary. Content: Isolation, apoplexy. It wants free.\"\n—Uthros Combine research notes",
         "imageUri": "https://cards.scryfall.io/normal/front/e/2/e23cc5fd-afe4-480c-8858-ed80a082584e.jpg?1752946892"
     },
     "colorIdentityOverride": [
@@ -19890,6 +19902,7 @@
         "collectorNumber": "127",
         "rarity": "RARE",
         "artist": "Michal Ivan",
+        "flavorText": "\"They will call you a monster, but I call you worthy.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/c/0/c0838f25-2193-4305-b73a-bf0c0bb4981a.jpg?1752947068"
     },
     "colorIdentityOverride": [

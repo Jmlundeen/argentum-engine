@@ -63,6 +63,7 @@ val TerritorialBruntar = card("Territorial Bruntar") {
         rarity = Rarity.UNCOMMON
         collectorNumber = "165"
         artist = "Julie Dillon"
+        flavorText = "Some creatures have adapted to thrive in the unstable chaos of Kavaron That Is."
         imageUri = "https://cards.scryfall.io/normal/front/d/b/dbb25585-6048-4a85-828e-675bf0da6508.jpg?1752947221"
     }
 }

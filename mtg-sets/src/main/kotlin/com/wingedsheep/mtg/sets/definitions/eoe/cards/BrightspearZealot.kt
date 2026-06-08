@@ -41,5 +41,8 @@ val BrightspearZealot = card("Brightspear Zealot") {
     metadata {
         rarity = Rarity.COMMON
         collectorNumber = "8"
+        artist = "Bryan Sola"
+        flavorText = "\"My purpose is my spear. My spear is my life. My life is for the Regent Maximum.\""
+        imageUri = "https://cards.scryfall.io/normal/front/e/7/e7f7541a-5910-4f33-8c1d-3507ce3a426e.jpg?1752946584"
     }
 }

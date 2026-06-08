@@ -35,7 +35,7 @@ val Cosmogoyf = card("Cosmogoyf") {
         rarity = Rarity.RARE
         collectorNumber = "215"
         artist = "Chris Rahn"
-        flavorText = ">Alert: COSMOGOYF\n>Recommended Action: RUN\n—PSS Erix shipboard computer, final transmission"
+        flavorText = ">Alert: COSMOGOYF\n>Recommended Action: RUN\n—PSS *Erix* shipboard computer, final transmission"
         imageUri = "https://cards.scryfall.io/normal/front/5/e/5e07d3c6-60a5-44d1-a926-6414be85bd50.jpg?1752947436"
     }
 }

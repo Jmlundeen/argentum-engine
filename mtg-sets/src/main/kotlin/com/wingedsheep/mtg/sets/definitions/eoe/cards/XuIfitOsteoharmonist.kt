@@ -49,6 +49,7 @@ val XuIfitOsteoharmonist = card("Xu-Ifit, Osteoharmonist") {
         rarity = Rarity.RARE
         collectorNumber = "127"
         artist = "Michal Ivan"
+        flavorText = "\"They will call you a monster, but I call you worthy.\""
         imageUri = "https://cards.scryfall.io/normal/front/c/0/c0838f25-2193-4305-b73a-bf0c0bb4981a.jpg?1752947068"
     }
 }

@@ -41,6 +41,7 @@ val Terrasymbiosis = card("Terrasymbiosis") {
         rarity = Rarity.RARE
         collectorNumber = "210"
         artist = "Viko Menezes"
+        flavorText = "For Eumidians, terraforming and evolution are one and the same. They grow as their planet grows, in lockstep coexistence."
         imageUri = "https://cards.scryfall.io/normal/front/2/6/26008c7d-5dbe-4da2-b475-4dd307e7bc68.jpg?1752947411"
     }
 }

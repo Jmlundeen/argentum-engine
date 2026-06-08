@@ -42,9 +42,9 @@ val DiplomaticRelations = card("Diplomatic Relations") {
 
     metadata {
         rarity = Rarity.COMMON
-        collectorNumber = "177†"
+        collectorNumber = "177"
         artist = "Néstor Ossandón Leal"
         flavorText = "\"We will not yield until the Eumidians relinquish our Kavaron Tomorrow.\"\n—Official Kav diplomatic statement"
-        imageUri = "https://cards.scryfall.io/normal/front/1/4/143e5853-9a31-4c8d-b21d-5ef120eb6952.jpg?1774265280"
+        imageUri = "https://cards.scryfall.io/normal/front/e/0/e0a104c5-61fb-4733-97ab-a31a15a49443.jpg?1753096637"
     }
 }

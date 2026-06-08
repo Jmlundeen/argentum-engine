@@ -37,7 +37,7 @@ val MoonlitMeditation = card("Moonlit Meditation") {
         collectorNumber = "69"
         artist = "Liiga Smilshkalne"
         flavorText = "\"All is the hand that weaves the Fabric of Being. The Fabric of Being is All.\"\n" +
-            "—Drix Codex, line 1"
+            "—*Drix Codex*, line 1"
         imageUri = "https://cards.scryfall.io/normal/front/f/2/f2a56007-5bca-4edf-9cc4-5f77a273636c.jpg?1752946830"
         ruling("2025-07-25", "The effect of Moonlit Meditation's last ability applies before anything that modifies how those tokens enter the battlefield.")
         ruling("2025-07-25", "The effect of Moonlit Meditation's last ability can apply to any token, not just artifact or creature tokens. For example, you could replace creating a Shard token (a predefined enchantment token) with creating a copy of the enchanted permanent.")

@@ -33,7 +33,8 @@ val HonoredKnightCaptain = card("Honored Knight-Captain") {
             power = 1,
             toughness = 1,
             colors = setOf(Color.WHITE),
-            creatureTypes = setOf("Human", "Soldier")
+            creatureTypes = setOf("Human", "Soldier"),
+            imageUri = "https://cards.scryfall.io/normal/front/6/3/631c2c16-132d-4607-ab7e-207a6af188e5.jpg?1757686920"
         )
     }
 

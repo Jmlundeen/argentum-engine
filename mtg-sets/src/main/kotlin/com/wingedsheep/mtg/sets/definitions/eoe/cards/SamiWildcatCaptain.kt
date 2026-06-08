@@ -46,6 +46,7 @@ val SamiWildcatCaptain = card("Sami, Wildcat Captain") {
         rarity = Rarity.MYTHIC
         collectorNumber = "226"
         artist = "Kieran Yanner"
+        flavorText = "\"The hard way it is.\""
         imageUri = "https://cards.scryfall.io/normal/front/b/e/bed64207-9193-4770-8f8f-e3203289d5a6.jpg?1752947484"
     }
 }

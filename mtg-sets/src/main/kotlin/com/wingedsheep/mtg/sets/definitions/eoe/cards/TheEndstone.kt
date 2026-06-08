@@ -62,6 +62,7 @@ val TheEndstone = card("The Endstone") {
         rarity = Rarity.MYTHIC
         collectorNumber = "240"
         artist = "Ryan Pancoast"
+        flavorText = "The future is set. The present remains uncertain."
         imageUri = "https://cards.scryfall.io/normal/front/a/4/a451a459-18e0-4c53-a171-3e9da534ebf1.jpg?1752947540"
         ruling(
             "2025-07-25",
