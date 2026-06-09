@@ -1505,11 +1505,11 @@ Triggers.youCastSpell(
   the data-side facade. Three orthogonal axes control *whose / which* turn fires the trigger:
   - `fireOnlyOnControllersTurn` — gates on the controller: only matches when the active player
     equals the controller of the delayed trigger's source.
-  - `fireOnPlayer: EffectTarget?` — gates on a *specific* player resolved at scheduling time
-    (defaults to `null` = no player gate). Pass `EffectTarget.PlayerRef(Player.TriggeringPlayer)`
+  - `fireOnPlayer: EffectTarget?` — gates on a specific player resolved at scheduling time
+    (defaults to `null`, meaning no player gate). Pass `EffectTarget.PlayerRef(Player.TriggeringPlayer)`
     to lock the trigger to "the player who triggered me" — useful for "at the beginning of *their*
-    next [step]" templates where the relevant player is the damaged/triggering one, not the
-    source's controller. The resolved player id is also re-exposed to the inner `effect` as
+    next [step]" templates where the relevant player is the damaged/triggering one rather than
+    the source's controller. The resolved player id is also re-exposed to the inner `effect` as
     `triggeringPlayerId` / `triggeringEntityId` when the trigger fires, so `Player.TriggeringPlayer`
     inside the inner effect resolves to the same player. (Nafs Asp's "Whenever this creature deals
     damage to a player, that player loses 1 life at the beginning of their next draw step unless
