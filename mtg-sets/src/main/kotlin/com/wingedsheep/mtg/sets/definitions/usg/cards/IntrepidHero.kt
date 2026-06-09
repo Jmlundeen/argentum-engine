@@ -29,7 +29,7 @@ val IntrepidHero = card("Intrepid Hero") {
     toughness = 1
     activatedAbility {
         cost = Costs.Tap
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature))
+        val t = target("target", TargetCreature(filter = TargetFilter.Creature.powerAtLeast(4)))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
     metadata {
