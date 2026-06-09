@@ -144,6 +144,78 @@ class EquipmentAsCreatureUnattachTest : ScenarioTestBase() {
                     projected.getPower(microsizer) shouldBe 3
                 }
             }
+
+            test("after the Equipment animates and unattaches, combat deals separate (not doubled) damage") {
+                // End-to-end version of the bug as it was reported ("Artifact Equipment
+                // attacks, gives separate damage"). The state-based check above proves the
+                // Equipment unattaches; this plays combat all the way to damage to prove the
+                // observable symptom is gone: Chrome Companion no longer carries Microsizer's
+                // +1/+0, and Microsizer attacks on its own as a 3/3. Bob should take exactly
+                // 2 (Companion) + 3 (Microsizer) = 5, NOT 3 + 3 = 6 (the bug, where the
+                // Equipment both buffed its host AND attacked).
+                val game = scenario()
+                    .withPlayers("Alice", "Bob")
+                    .withCardOnBattlefield(1, "Tezzeret, Cruel Captain")
+                    .withCardOnBattlefield(1, "Chrome Companion", summoningSickness = false)
+                    .withCardOnBattlefield(1, "Atomic Microsizer", summoningSickness = false)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val tezzeret = game.findPermanent("Tezzeret, Cruel Captain")!!
+                val companion = game.findPermanent("Chrome Companion")!!
+                val microsizer = game.findPermanent("Atomic Microsizer")!!
+
+                game.state = game.state.updateEntity(tezzeret) { c ->
+                    c.with(CountersComponent().withAdded(CounterType.LOYALTY, 7))
+                }
+                game.state = game.state
+                    .updateEntity(microsizer) { c -> c.with(AttachedToComponent(companion)) }
+                    .updateEntity(companion) { c ->
+                        val existing = c.get<AttachmentsComponent>()?.attachedIds ?: emptyList()
+                        c.with(AttachmentsComponent(existing + microsizer))
+                    }
+
+                val minus7 = cardRegistry.getCard("Tezzeret, Cruel Captain")!!
+                    .script.activatedAbilities[2]
+                game.execute(
+                    ActivateAbility(
+                        playerId = game.player1Id,
+                        sourceId = tezzeret,
+                        abilityId = minus7.id
+                    )
+                ).error shouldBe null
+                game.resolveStack()
+
+                // Begin combat: the emblem trigger animates Microsizer; the SBA unattaches it.
+                game.passUntilPhase(Phase.COMBAT, Step.BEGIN_COMBAT)
+                game.selectTargets(listOf(microsizer))
+                game.resolveStack()
+
+                withClue("precondition: Microsizer unattached before attackers are declared") {
+                    game.state.getEntity(microsizer)?.has<AttachedToComponent>() shouldBe false
+                }
+
+                // Both attack: the host (now base 2/1) and the standalone 3/3 Microsizer.
+                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                game.declareAttackers(
+                    mapOf("Chrome Companion" to 2, "Atomic Microsizer" to 2)
+                ).error shouldBe null
+
+                game.passUntilPhase(Phase.COMBAT, Step.COMBAT_DAMAGE)
+                game.resolveStack()
+                if (game.state.pendingDecision != null) {
+                    game.submitDefaultCombatDamage()
+                    game.resolveStack()
+                }
+
+                withClue(
+                    "Bob should take 2 (Companion, buff gone) + 3 (Microsizer) = 5, not 6 " +
+                        "(observed life = ${game.getLifeTotal(2)})"
+                ) {
+                    game.getLifeTotal(2) shouldBe 15
+                }
+            }
         }
     }
 }
