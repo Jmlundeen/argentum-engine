@@ -327,7 +327,79 @@ private fun EmitCtx.youHaventCastASpellConditionDsl(cond: JsonObject?): String? 
     return null
 }
 
+/**
+ * The (target list, inner action list) of a mtgish `Targeted` action node, or null if it isn't a
+ * Targeted envelope. Mirrors [extractEnvelope]'s Targeted unpacking for a single known node.
+ */
+private fun targetedArms(node: JsonObject): Pair<List<JsonObject>?, List<JsonObject>>? {
+    if (node.strField("_Actions") != "Targeted") return null
+    val args = node["args"].asArr ?: return null
+    if (args.size < 2) return null
+    val targets = (args[0].asArr)?.filterIsInstance<JsonObject>()
+    val actions = (args[1] as? JsonObject)?.get("args").asArr?.filterIsInstance<JsonObject>() ?: return null
+    return targets to actions
+}
+
+/** A stable capture-flag name derived from a `ControlsA(IsCreatureType X)` condition — "controlledMount"
+ *  for Steer Clear — so the emitted `captureAtCast` / `CapturedAtCast` pair agrees on one name. */
+private fun castCaptureFlagName(cond: JsonObject): String {
+    val sub = Regex(""""IsCreatureType",\s*"args":\s*"(\w+)"""").find(compact(cond))?.groupValues?.get(1)
+    return if (sub != null) "controlled$sub" else "controlledMatchingPermanent"
+}
+
+/**
+ * "As you cast this spell" condition-capture spell (CR 601.2i): mtgish models it as a
+ * `SpellActions { Modal_IfElse(PlayerPassesFilter(You, ControlsA(filter)), <then Targeted>, <else
+ * Targeted>) }`. In this corpus that envelope is *always* an "as you cast this spell" capture (Steer
+ * Clear / Faerie Fencing / Flame Discharge), so it renders to the engine's cast-time capture
+ * (`captureAtCast` + `Conditions.CapturedAtCast`) — NOT a resolution-time `ConditionalEffect` over the
+ * current board, which would resolve the Mount/Faerie/modified test at the wrong time.
+ *
+ * Renders only the shapes we can express exactly: a `You + ControlsA(filter)` condition, one shared
+ * target across both arms, and both arms a renderable effect list. The {X}-valued arms (Faerie
+ * Fencing's -X/-X, Flame Discharge's X damage) decline through the inner [renderEffectList] ->
+ * SCAFFOLD, in step with the engine's still-sloppy cast-time-X handling. Steer Clear's fixed 2/4
+ * damage renders whole.
+ */
+private fun EmitCtx.castTimeCaptureSpell(card: JsonObject): List<Stmt>? {
+    val modal = (card["Rules"].asArr ?: return null).filterIsInstance<JsonObject>()
+        .firstNotNullOfOrNull { rule ->
+            (rule["args"] as? JsonObject)?.takeIf { it.strField("_Actions") == "Modal_IfElse" }
+        } ?: return null
+    val margs = modal["args"].asArr ?: return null
+    if (margs.size < 3) return null
+    val cond = margs[0] as? JsonObject ?: return null
+    val thenArm = margs[1] as? JsonObject ?: return null
+    val elseArm = margs[2] as? JsonObject ?: return null
+
+    // Condition: "you control a [filter]" — declines (-> SCAFFOLD) for anything else.
+    val condDsl = youControlConditionDsl(cond) ?: return null
+    val flag = castCaptureFlagName(cond)
+
+    val (thenTargets, thenActions) = targetedArms(thenArm) ?: return null
+    val (_, elseActions) = targetedArms(elseArm) ?: return null
+    // One shared target (both arms hit the same creature); render it once from the then-arm.
+    val (tnode, tvar) = spellTargetExpr(thenTargets, thenActions) ?: return null
+    if (tvar == null || tnode == null) return null
+    val thenEffect = renderEffectList(thenActions, tvar) ?: return null
+    val elseEffect = renderEffectList(elseActions, tvar) ?: return null
+
+    val stmts = mutableListOf<Stmt>()
+    stmts.add(RawLine("        captureAtCast(\"$flag\", $condDsl)"))
+    stmts.add(targetLocal(tnode))
+    stmts.add(Assign("effect", call(
+        "ConditionalEffect",
+        arg("condition", Lit("Conditions.CapturedAtCast(\"$flag\")")),
+        arg("effect", thenEffect),
+        arg("elseEffect", elseEffect),
+    )))
+    return listOf(Sub(Block("spell", stmts)))
+}
+
 internal fun EmitCtx.spellBlock(card: JsonObject): List<Stmt>? {
+    // "As you cast this spell" cast-time captures arrive as a `Modal_IfElse` envelope; render them
+    // (the cast-time form) before the generic modal guard below scaffolds everything `Modal_*`.
+    castTimeCaptureSpell(card)?.let { return it }
     // Modal spells ("Choose one —", "Choose up to four", …) carry a `Modal_*` envelope whose children
     // are the individual modes. The generic envelope path below would grab only the FIRST mode and
     // silently drop the rest, so scaffold the whole card rather than emit one arm of a modal spell.

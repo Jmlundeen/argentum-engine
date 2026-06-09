@@ -75,6 +75,12 @@ internal fun BridgeBuilder.structuralEnvelopes() {
     envelope("ChooseACreatureType", UNIVERSAL)
     envelope("ChooseAColor", UNIVERSAL)
     envelope("IfElse", UNIVERSAL)
+    // "[Effect]. [Bigger effect] instead if you controlled a [filter] as you cast this spell" — the OTJ
+    // cast-time condition capture (CR 601.2i). Structural: the capability is the nested condition
+    // (PlayerPassesFilter) and the two branch effects, scored on their own. The engine freezes the
+    // condition at cast via `captureAtCast` and reads it with `Conditions.CapturedAtCast`; the emitter's
+    // castTimeCaptureSpell renders the fixed-damage shape (Steer Clear) and scaffolds {X} arms.
+    envelope("Modal_IfElse", "envelope: 'as you cast this spell' cast-time condition capture (CR 601.2i)")
 
     // "As ~ enters the battlefield …" — a replacement-effect wrapper. It carries no capability itself;
     // each nested `_ReplacementActionWouldEnter` (enters tapped, enters with a counter, choose a type, …)

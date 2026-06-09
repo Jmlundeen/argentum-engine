@@ -1168,7 +1168,8 @@ class CardBuilder(private val name: String) {
             selfExileOnResolve = spellBuilder?.exilesOnResolve ?: false,
             selfAlternativeCost = selfAlternativeCost,
             xManaRestriction = spellBuilder?.xManaRestriction ?: emptySet(),
-            mayStartOnBattlefield = mayStartOnBattlefield
+            mayStartOnBattlefield = mayStartOnBattlefield,
+            castTimeCaptures = spellBuilder?.castTimeCaptures ?: emptyList()
         )
 
         // Build metadata
@@ -1325,6 +1326,24 @@ class SpellBuilder {
 
     internal val restrictions: List<CastRestriction>
         get() = castRestrictions.toList()
+
+    // Cast-time condition captures ("as you cast this spell")
+    private val castTimeCaptureList: MutableList<CastTimeCapture> = mutableListOf()
+
+    /**
+     * Capture, *as this spell is cast* (CR 601.2i), whether [condition] holds, storing the answer
+     * under [flag]. The spell's effect reads it back at resolution via
+     * `Conditions.CapturedAtCast(flag)` ([com.wingedsheep.sdk.scripting.conditions.CastTimeFlagSet]),
+     * so the branch reflects the cast-time board even if it has since changed.
+     *
+     * Used for "if you controlled a Mount as you cast this spell" (Steer Clear).
+     */
+    fun captureAtCast(flag: String, condition: Condition) {
+        castTimeCaptureList.add(CastTimeCapture(flag, condition))
+    }
+
+    internal val castTimeCaptures: List<CastTimeCapture>
+        get() = castTimeCaptureList.toList()
 
     /**
      * Declare a named target and get an EffectTarget reference to use in effects.

@@ -247,7 +247,20 @@ data class CardScript(
      *
      * Wired via the `leyline()` DSL helper on [com.wingedsheep.sdk.dsl.CardBuilder].
      */
-    val mayStartOnBattlefield: Boolean = false
+    val mayStartOnBattlefield: Boolean = false,
+
+    /**
+     * "As you cast this spell" condition captures (CR 601.2i). Each is a named condition the engine
+     * evaluates the moment this spell finishes being cast; the names whose condition was true are
+     * frozen onto the spell on the stack and read back at resolution via
+     * [com.wingedsheep.sdk.scripting.conditions.CastTimeFlagSet]. Lets a spell branch on the
+     * cast-time board state rather than the (possibly changed) resolution-time board — e.g. Steer
+     * Clear "deals 4 damage instead if you controlled a Mount as you cast this spell".
+     *
+     * Declared with the `captureAtCast(flag, condition)` DSL on a spell. Empty for the vast
+     * majority of spells.
+     */
+    val castTimeCaptures: List<CastTimeCapture> = emptyList()
 ) {
     /**
      * Whether this card has any scripted behavior.

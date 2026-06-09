@@ -2180,6 +2180,29 @@ class CastSpellHandler(
             action.modeTargetsOrdered
         }
 
+        // Evaluate "as you cast this spell" condition captures (CR 601.2i). The spell has finished
+        // being cast (costs paid) but isn't on the stack yet; freezing the answers now lets the
+        // resolving effect read the cast-time board even if it has since changed (Steer Clear's
+        // "if you controlled a Mount as you cast this spell"). The caster is the controller; the
+        // captured names are carried onto SpellOnStackComponent.castTimeFlags.
+        val castTimeScript = action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.script } ?: cardDef?.script
+        val castTimeCaptures = castTimeScript?.castTimeCaptures.orEmpty()
+        val castTimeFlags: Set<String> = if (castTimeCaptures.isEmpty()) {
+            emptySet()
+        } else {
+            val captureContext = EffectContext(
+                sourceId = action.cardId,
+                controllerId = action.playerId,
+                opponentId = currentState.turnOrder.firstOrNull { it != action.playerId },
+                targets = emptyList(),
+                xValue = 0
+            )
+            castTimeCaptures
+                .filter { conditionEvaluator.evaluate(currentState, it.condition, captureContext) }
+                .map { it.flag }
+                .toSet()
+        }
+
         // Cast the spell
         val castResult = stackResolver.castSpell(
             currentState,
@@ -2213,7 +2236,8 @@ class CastSpellHandler(
             manaSpentColorless = manaSpentEvent?.colorless ?: 0,
             manaSpentOnXByColor = paymentResult.xManaSpentByColor,
             faceIndex = action.faceIndex,
-            paidWithTreasureMana = paymentResult.paidWithTreasureMana
+            paidWithTreasureMana = paymentResult.paidWithTreasureMana,
+            castTimeFlags = castTimeFlags
         )
 
         if (!castResult.isSuccess) {

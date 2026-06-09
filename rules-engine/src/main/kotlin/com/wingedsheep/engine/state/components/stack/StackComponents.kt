@@ -64,7 +64,15 @@ data class SpellOnStackComponent(
      * can attach a [com.wingedsheep.engine.state.components.identity.RoomComponent] with
      * the correct face unlocked. `null` for normal single-face cards.
      */
-    val faceIndex: Int? = null
+    val faceIndex: Int? = null,
+    /**
+     * Names of the "as you cast this spell" condition captures (CR 601.2i) whose condition was true
+     * the moment this spell finished being cast. Frozen here so the resolving effect can branch on
+     * the cast-time board via [com.wingedsheep.sdk.scripting.conditions.CastTimeFlagSet] even after
+     * the board has changed (e.g. Steer Clear's "if you controlled a Mount as you cast this spell").
+     * Declared on the card via the `captureAtCast` DSL.
+     */
+    val castTimeFlags: Set<String> = emptySet()
 ) : Component
 
 /**

@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked as WasKickedCondition
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid as BlightWasPaidCondition
 import com.wingedsheep.sdk.scripting.conditions.CastChoiceMade as CastChoiceMadeCondition
 import com.wingedsheep.sdk.scripting.conditions.CastChoiceIs as CastChoiceIsCondition
+import com.wingedsheep.sdk.scripting.conditions.CastTimeFlagSet as CastTimeFlagSetCondition
 import com.wingedsheep.sdk.scripting.conditions.SourceMatches
 import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer as SourceIsRingBearerCondition
 import com.wingedsheep.sdk.scripting.conditions.YouChoseOtherCreatureAsRingBearer as YouChoseOtherCreatureAsRingBearerCondition
@@ -507,6 +508,15 @@ object Conditions {
      */
     fun CastChoiceIs(slot: com.wingedsheep.sdk.scripting.ChoiceSlot, value: String): ConditionInterface =
         CastChoiceIsCondition(slot, value)
+
+    /**
+     * If the named cast-time capture [flag] was true *as the source spell was cast* (CR 601.2i).
+     * Pairs with the `captureAtCast(flag, condition)` spell DSL: the engine freezes the cast-time
+     * answer onto the spell, and this reads it back at resolution regardless of later board changes.
+     * Used by Steer Clear ("deals 4 damage instead if you controlled a Mount as you cast this spell").
+     */
+    fun CapturedAtCast(flag: String): ConditionInterface =
+        CastTimeFlagSetCondition(flag)
 
     /**
      * If specific colored mana was spent to cast this spell.

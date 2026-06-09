@@ -129,7 +129,8 @@ class StackResolver(
         manaSpentColorless: Int = 0,
         manaSpentOnXByColor: Map<Color, Int> = emptyMap(),
         faceIndex: Int? = null,
-        paidWithTreasureMana: Boolean = false
+        paidWithTreasureMana: Boolean = false,
+        castTimeFlags: Set<String> = emptySet()
     ): ExecutionResult {
         val container = state.getEntity(cardId)
             ?: return ExecutionResult.error(state, "Card not found: $cardId")
@@ -190,7 +191,8 @@ class StackResolver(
                 manaSpentGreen = manaSpentGreen,
                 manaSpentColorless = manaSpentColorless,
                 manaSpentOnXByColor = manaSpentOnXByColor,
-                faceIndex = faceIndex
+                faceIndex = faceIndex,
+                castTimeFlags = castTimeFlags
             ))
             if (effectiveTargets.isNotEmpty()) {
                 updated = updated.with(TargetsComponent(effectiveTargets, effectiveTargetRequirements))

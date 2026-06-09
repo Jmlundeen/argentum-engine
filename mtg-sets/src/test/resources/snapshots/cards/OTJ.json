@@ -4819,6 +4819,90 @@
     ]
 }
 
+// Steer Clear
+{
+    "name": "Steer Clear",
+    "manaCost": "{W}",
+    "typeLine": "Instant",
+    "oracleText": "Steer Clear deals 2 damage to target attacking or blocking creature. Steer Clear deals 4 damage to that creature instead if you controlled a Mount as you cast this spell.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": {
+                    "type": "CastTimeFlagSet",
+                    "flag": "controlledMount"
+                }
+            },
+            "then": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 4
+                },
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "target"
+                }
+            },
+            "otherwise": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "target"
+                }
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "StateOr",
+                                "predicates": [
+                                    "IsAttacking",
+                                    "IsBlocking"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "id": "target"
+            }
+        ],
+        "castTimeCaptures": [
+            {
+                "flag": "controlledMount",
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "creature Mount"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "31",
+        "artist": "Edgar Sánchez Hidalgo",
+        "flavorText": "\"Just because you can saddle a critter, doesn't mean it'll let you ride.\"\n—Annie Flash",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/2/523a4d6e-122b-49b4-bf3d-17d29c0007fb.jpg?1712355352"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Sterling Hound
 {
     "name": "Sterling Hound",
