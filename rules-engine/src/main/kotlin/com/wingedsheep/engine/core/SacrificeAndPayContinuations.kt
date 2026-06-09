@@ -86,7 +86,18 @@ data class PayOrSufferContinuation(
     val targets: List<ChosenTarget> = emptyList(),
     val namedTargets: Map<String, ChosenTarget> = emptyMap(),
     val manaCost: ManaCost? = null,
-    val zone: Zone? = null
+    val zone: Zone? = null,
+    /**
+     * Trigger context from the original PayOrSufferEffect execution, preserved so the
+     * suffer effect can still resolve [com.wingedsheep.sdk.scripting.references.Player.TriggeringPlayer]
+     * after the player explicitly declined to pay (Nafs Asp's "that player loses 1 life
+     * unless they pay {1}"). The auto-suffer path runs synchronously with the original
+     * context; the via-decision path goes through this continuation, so we have to thread
+     * the triggering player through too — otherwise the suffer's target resolves to null
+     * and the effect silently fizzles.
+     */
+    val triggeringEntityId: EntityId? = null,
+    val triggeringPlayerId: EntityId? = null
 ) : ContinuationFrame
 
 /**
@@ -121,7 +132,11 @@ data class PayOrSufferChoiceContinuation(
     val options: List<PayCost>,
     val sufferEffect: Effect,
     val targets: List<ChosenTarget> = emptyList(),
-    val namedTargets: Map<String, ChosenTarget> = emptyMap()
+    val namedTargets: Map<String, ChosenTarget> = emptyMap(),
+    /** Mirror of [PayOrSufferContinuation.triggeringEntityId] for the multi-option path. */
+    val triggeringEntityId: EntityId? = null,
+    /** Mirror of [PayOrSufferContinuation.triggeringPlayerId] for the multi-option path. */
+    val triggeringPlayerId: EntityId? = null
 ) : ContinuationFrame
 
 /**

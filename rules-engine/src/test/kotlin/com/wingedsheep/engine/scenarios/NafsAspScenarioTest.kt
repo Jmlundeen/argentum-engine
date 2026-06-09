@@ -109,6 +109,51 @@ class NafsAspScenarioTest : ScenarioTestBase() {
                 }
             }
 
+            test("damaged player loses 1 life when they CAN pay but decline (regression: trigger context survives the YesNo continuation)") {
+                val builder = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Nafs Asp")
+                    // Untapped Forest on P2 so ManaSolver.canPay({1}) returns true and the
+                    // YesNoDecision is actually presented (rather than the auto-suffer shortcut).
+                    .withCardOnBattlefield(2, "Forest")
+                    .withActivePlayer(1)
+                repeat(5) {
+                    builder.withCardInLibrary(1, "Mountain")
+                    builder.withCardInLibrary(2, "Forest")
+                }
+                val game = builder.build()
+
+                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                game.declareAttackers(mapOf("Nafs Asp" to 2)).error shouldBe null
+                game.passUntilPhase(Phase.COMBAT, Step.END_COMBAT)
+                game.resolveStack()
+
+                val lifeAfterCombat = game.getLifeTotal(2)
+
+                // Advance into P2's draw step. The trigger resolves and presents a YesNo
+                // decision to P2 ("Pay {1} or accept consequence?"). resolveStack stops on
+                // the pending decision rather than auto-answering.
+                game.passUntilPhase(Phase.BEGINNING, Step.DRAW)
+                game.resolveStack()
+
+                withClue("Trigger resolved → P2 sees the pay-or-suffer decision") {
+                    game.hasPendingDecision() shouldBe true
+                }
+
+                // P2 declines to pay {1}. The suffer (LoseLife on the triggering player)
+                // must fire — regression for the bug where the continuation rebuilt
+                // EffectContext without triggeringPlayerId, fizzling the LoseLife.
+                game.answerYesNo(false)
+                game.resolveStack()
+
+                withClue("P2 declined to pay {1}, so the suffer's LoseLife on the triggering player resolves and drops life by 1") {
+                    game.getLifeTotal(2) shouldBe lifeAfterCombat - 1
+                }
+                withClue("Trigger fully consumed; no further bite scheduled") {
+                    game.state.delayedTriggers.size shouldBe 0
+                }
+            }
+
             test("no delayed trigger when Nafs Asp deals no damage to a player this turn") {
                 val builder = scenario()
                     .withPlayers("Player1", "Player2")
