@@ -11026,6 +11026,104 @@
     ]
 }
 
+// Scroll of Isildur
+{
+    "name": "Scroll of Isildur",
+    "manaCost": "{2}{U}",
+    "typeLine": "Enchantment — Saga",
+    "oracleText": "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\nI — Gain control of up to one target artifact for as long as you control this Saga. The Ring tempts you.\nII — Tap up to two target creatures. Put a stun counter on each of them.\nIII — Draw a card for each tapped creature target opponent controls.",
+    "script": {
+        "sagaChapters": [
+            {
+                "chapter": 1,
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GainControl",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "up to one target artifact"
+                            },
+                            "duration": {
+                                "type": "WhileYouControlSource",
+                                "sourceDescription": "Scroll of Isildur"
+                            }
+                        },
+                        "TheRingTemptsYou"
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "artifact"
+                    },
+                    "id": "up to one target artifact"
+                }
+            },
+            {
+                "chapter": 2,
+                "effect": {
+                    "type": "ForEachTarget",
+                    "effects": [
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            }
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "stun",
+                            "count": 1,
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "count": 2,
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "up to two target creatures"
+                }
+            },
+            {
+                "chapter": 3,
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Count",
+                        "player": "TargetOpponent",
+                        "zone": "Battlefield",
+                        "filter": "creature tapped"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "69",
+        "rarity": "RARE",
+        "artist": "Audrey Benjaminsen",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/9/195821f4-ba3d-4412-930f-f3656b319dfd.jpg?1688569264"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Second Breakfast
 {
     "name": "Second Breakfast",
