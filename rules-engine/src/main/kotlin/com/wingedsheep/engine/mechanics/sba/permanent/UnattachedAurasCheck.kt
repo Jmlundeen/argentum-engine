@@ -12,17 +12,16 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 /**
  * 704.5m - An Aura attached to an illegal object/player or not attached goes to graveyard.
  * 704.5n - An Equipment or Fortification attached to an illegal permanent becomes unattached
- *          but remains on the battlefield.
+ *          but remains on the battlefield. This drives two Equipment cases below, both asked
+ *          of the projected state (so layer-4 type-changing effects are seen):
+ *            - The host stops being a creature (an Equipment can only equip a creature, CR
+ *              301.5). E.g. the equipped creature is turned into a land, or an animated
+ *              artifact's "until end of turn" animation wears off while still equipped.
+ *            - The Equipment itself becomes a creature, so it can't legally equip another
+ *              creature unless it has reconfigure (CR 301.5c). E.g. Atomic Microsizer turned
+ *              into a 0/0 Robot artifact creature by Tezzeret, Cruel Captain's emblem.
  * 704.5p - A battle or creature attached to an object or player becomes unattached but
- *          remains on the battlefield. Drives the Equipment-that-became-a-creature case
- *          below: when an Equipment (e.g. Atomic Microsizer) becomes a creature via a
- *          layer-4 type-changing effect (Tezzeret, Cruel Captain's emblem turning an
- *          artifact into a 0/0 Robot artifact creature), the underlying CR 301.5c rule
- *          ("an Equipment that's also a creature can't equip a creature unless it has
- *          reconfigure") makes the attachment illegal, and 704.5p is the SBA that
- *          unattaches it. The "is it a creature?" question is asked of the projected
- *          state, since creatureness here comes from a layer-4 type-changing effect,
- *          not the printed type line.
+ *          remains on the battlefield.
  */
 class UnattachedAurasCheck : StateBasedActionCheck {
     override val name = "704.5m/n/p Unattached Auras"
@@ -71,13 +70,20 @@ class UnattachedAurasCheck : StateBasedActionCheck {
                             c.without<AttachedToComponent>()
                         }
                     }
-                } else if (isEquipment &&
-                    projected.isCreature(entityId) &&
-                    !projected.hasKeyword(entityId, "RECONFIGURE")
+                } else if (
+                    isEquipment && (
+                        // CR 704.5n: the host is no longer a legal permanent for an Equipment.
+                        // An Equipment can only be attached to a creature, so once the host
+                        // stops being a creature (turned into a land, animation wore off, etc.)
+                        // the attachment is illegal and the Equipment unattaches.
+                        !projected.isCreature(attachedTo.targetId) ||
+                        // CR 301.5c / 704.5n: the Equipment itself became a creature, so it
+                        // can't equip a creature unless it has reconfigure.
+                        (projected.isCreature(entityId) &&
+                            !projected.hasKeyword(entityId, "RECONFIGURE"))
+                    )
                 ) {
-                    // CR 704.5p (with 301.5c as the underlying prohibition): an Equipment
-                    // that's also a creature can't equip a creature unless it has
-                    // reconfigure, so the SBA unattaches it. Stays on the battlefield.
+                    // Illegal attachment: the Equipment unattaches but stays on the battlefield.
                     newState = cleanupReverseAttachmentLink(newState, entityId)
                     newState = newState.updateEntity(entityId) { c ->
                         c.without<AttachedToComponent>()
