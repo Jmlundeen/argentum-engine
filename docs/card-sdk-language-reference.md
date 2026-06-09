@@ -1501,10 +1501,19 @@ Triggers.youCastSpell(
 - `DelayedTriggeredAbility` — registered now, fires at a specific future step (Astral Slide).
 - `Effects.GrantTriggeredAbilityEffect` — grant a triggered ability for a duration; `GrantTriggeredAbilityExecutor` uses
   projected state and supports leaves-battlefield-to-zone triggers.
-- `CreateDelayedTriggerEffect(step, effect, fireOnlyOnControllersTurn, timing, …)` —
-  the data-side facade. Two orthogonal axes control *when* the trigger may first fire:
-  - `fireOnlyOnControllersTurn` — gates *whose* turn: only matches when the active player equals
-    the controller.
+- `CreateDelayedTriggerEffect(step, effect, fireOnlyOnControllersTurn, fireOnPlayer, timing, …)` —
+  the data-side facade. Three orthogonal axes control *whose / which* turn fires the trigger:
+  - `fireOnlyOnControllersTurn` — gates on the controller: only matches when the active player
+    equals the controller of the delayed trigger's source.
+  - `fireOnPlayer: EffectTarget?` — gates on a *specific* player resolved at scheduling time
+    (defaults to `null` = no player gate). Pass `EffectTarget.PlayerRef(Player.TriggeringPlayer)`
+    to lock the trigger to "the player who triggered me" — useful for "at the beginning of *their*
+    next [step]" templates where the relevant player is the damaged/triggering one, not the
+    source's controller. The resolved player id is also re-exposed to the inner `effect` as
+    `triggeringPlayerId` / `triggeringEntityId` when the trigger fires, so `Player.TriggeringPlayer`
+    inside the inner effect resolves to the same player. (Nafs Asp's "Whenever this creature deals
+    damage to a player, that player loses 1 life at the beginning of their next draw step unless
+    they pay {1}".) Composes with `fireOnlyOnControllersTurn`: if both are set, both gates apply.
   - `timing: DelayedTriggerTiming` — gates *which* turn is the earliest eligible one:
     - `CURRENT_TURN_OR_LATER` (default) — no turn floor; the next upcoming occurrence of `step`,
       which may be the current turn. (Astral Slide exile-until-end-step.)

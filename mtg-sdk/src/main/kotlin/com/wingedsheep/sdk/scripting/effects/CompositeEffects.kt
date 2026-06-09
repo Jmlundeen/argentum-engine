@@ -553,7 +553,17 @@ data class CreateDelayedTriggerEffect(
      * target is exposed to [effect] as [com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget].
      * Null for non-targeting delayed triggers (the common case).
      */
-    val targetRequirement: TargetRequirement? = null
+    val targetRequirement: TargetRequirement? = null,
+    /**
+     * For step-based delayed triggers: restrict firing to a specific player's matching step
+     * (rather than the controller's, or every player's, turn). Resolved to a concrete player
+     * entity id at scheduling time by [com.wingedsheep.engine.handlers.effects.composite.CreateDelayedTriggerExecutor]
+     * and also exposed as `triggeringPlayerId` / `triggeringEntityId` to [effect] when it
+     * fires, so `EffectTarget.PlayerRef(Player.TriggeringPlayer)` inside [effect] resolves
+     * back to the same player. Used for "at the beginning of their next draw step" effects
+     * (Nafs Asp). Orthogonal to [fireOnlyOnControllersTurn]: if both are set, both gates apply.
+     */
+    val fireOnPlayer: EffectTarget? = null
 ) : Effect {
     override val description: String = when {
         trigger != null -> "create a delayed trigger that fires on ${trigger.event::class.simpleName}"

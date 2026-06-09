@@ -58,5 +58,14 @@ data class DelayedTriggeredAbility(
      * target per firing (e.g. Rediscover the Way chapter III). Null for non-targeting
      * delayed triggers.
      */
-    val targetRequirement: com.wingedsheep.sdk.scripting.targets.TargetRequirement? = null
+    val targetRequirement: com.wingedsheep.sdk.scripting.targets.TargetRequirement? = null,
+    /**
+     * For step-based delayed triggers: if non-null, only fires when this player is the
+     * active player. Also exposed as `triggeringPlayerId` / `triggeringEntityId` on the
+     * synthesised [com.wingedsheep.sdk.scripting.TriggeredAbility]'s trigger context, so
+     * `Player.TriggeringPlayer` inside [effect] resolves back to this same player. Set by
+     * [com.wingedsheep.engine.handlers.effects.composite.CreateDelayedTriggerExecutor] from
+     * [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect.fireOnPlayer].
+     */
+    val fireOnPlayerId: EntityId? = null
 )

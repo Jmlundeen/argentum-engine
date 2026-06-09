@@ -56,6 +56,16 @@ class CreateDelayedTriggerExecutor : EffectExecutor<CreateDelayedTriggerEffect> 
         // entity id so matching later is cheap and doesn't need the original context.
         val watchedEntityId = effect.watchedTarget?.let { context.resolveTarget(it) }
 
+        // For step-based delayed triggers that restrict to a specific player's turn (e.g.
+        // Nafs Asp's "at the beginning of their next draw step"): resolve the player target
+        // now, while the trigger context still knows who it is, and bake the entity id in.
+        // Use resolvePlayerTarget first (the PlayerRef-aware resolver, since fireOnPlayer is
+        // a player by definition), then fall back to the generic resolver for already-baked
+        // SpecificEntity/TriggeringEntity targets.
+        val fireOnPlayerId = effect.fireOnPlayer?.let {
+            context.resolvePlayerTarget(it) ?: context.resolveTarget(it)
+        }
+
         // The earliest turn this delayed trigger may fire, derived from effect.timing:
         //  - NEXT_END_STEP ("at the beginning of your next end step"): fires at the next
         //    upcoming end step on the controller's turn. If we're still before the end step
@@ -89,7 +99,8 @@ class CreateDelayedTriggerExecutor : EffectExecutor<CreateDelayedTriggerEffect> 
             expiry = if (effect.trigger != null) effect.expiry else null,
             fireOnce = effect.trigger != null && effect.fireOnce,
             notBeforeTurn = notBeforeTurn,
-            targetRequirement = effect.targetRequirement
+            targetRequirement = effect.targetRequirement,
+            fireOnPlayerId = fireOnPlayerId
         )
 
         return EffectResult.success(state.addDelayedTrigger(delayedTrigger))

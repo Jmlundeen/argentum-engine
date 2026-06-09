@@ -1,0 +1,137 @@
+package com.wingedsheep.engine.scenarios
+
+import com.wingedsheep.engine.support.ScenarioTestBase
+import com.wingedsheep.sdk.core.Phase
+import com.wingedsheep.sdk.core.Step
+import io.kotest.assertions.withClue
+import io.kotest.matchers.shouldBe
+
+/**
+ * Scenario tests for Nafs Asp's deferred-bite delayed trigger.
+ *
+ * Oracle: "Whenever this creature deals damage to a player, that player loses 1 life
+ * at the beginning of their next draw step unless they pay {1} before that draw step."
+ *
+ * Covers the new [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect.fireOnPlayer]
+ * axis end-to-end: the damaged player is captured at schedule time, the delayed trigger
+ * is gated to fire only on *that* player's draw step (not Nafs Asp's controller's), and
+ * the pay-or-suffer decision is presented to the damaged player.
+ */
+class NafsAspScenarioTest : ScenarioTestBase() {
+
+    init {
+        context("Nafs Asp deferred bite") {
+
+            test("damaged player auto-loses 1 life on their next draw step when they can't pay {1}") {
+                val builder = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Nafs Asp")
+                    .withActivePlayer(1)
+                // Give both players a few library cards so the turn-based draw at their draw
+                // step doesn't bottom them out into a state-based loss before the bite lands.
+                repeat(5) {
+                    builder.withCardInLibrary(1, "Mountain")
+                    builder.withCardInLibrary(2, "Forest")
+                }
+                val game = builder.build()
+
+                val startLife = game.getLifeTotal(2)
+
+                // Combat damage: Nafs Asp swings unblocked into Player2.
+                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                game.declareAttackers(mapOf("Nafs Asp" to 2)).error shouldBe null
+                game.passUntilPhase(Phase.COMBAT, Step.END_COMBAT)
+                game.resolveStack()
+
+                withClue("Combat damage itself drops life by 1 (and only 1)") {
+                    game.getLifeTotal(2) shouldBe startLife - 1
+                }
+
+                withClue("Damage trigger should have scheduled a delayed bite on P2's next draw step") {
+                    game.state.delayedTriggers.size shouldBe 1
+                    game.state.delayedTriggers[0].fireAtStep shouldBe Step.DRAW
+                    game.state.delayedTriggers[0].fireOnPlayerId shouldBe game.player2Id
+                }
+
+                val lifeAfterCombat = game.getLifeTotal(2)
+                val p1LifeBefore = game.getLifeTotal(1)
+
+                // End Player1's turn, advance through cleanup to Player2's draw step.
+                game.passUntilPhase(Phase.BEGINNING, Step.DRAW)
+                game.resolveStack()
+
+                withClue("Player1's life must not move — target is the damaged player, not the controller") {
+                    game.getLifeTotal(1) shouldBe p1LifeBefore
+                }
+                withClue("Player2 has no mana sources, so the delayed trigger's pay-or-suffer auto-suffers") {
+                    game.getLifeTotal(2) shouldBe lifeAfterCombat - 1
+                }
+                withClue("The delayed trigger fires only once") {
+                    game.state.delayedTriggers.size shouldBe 0
+                }
+            }
+
+            test("delayed bite waits for the damaged player's draw step, not their upkeep") {
+                val builder = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Nafs Asp")
+                    .withActivePlayer(1)
+                repeat(5) {
+                    builder.withCardInLibrary(1, "Mountain")
+                    builder.withCardInLibrary(2, "Forest")
+                }
+                val game = builder.build()
+
+                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                game.declareAttackers(mapOf("Nafs Asp" to 2)).error shouldBe null
+                game.passUntilPhase(Phase.COMBAT, Step.END_COMBAT)
+                game.resolveStack()
+
+                val lifeAfterCombat = game.getLifeTotal(2)
+
+                // Stop at P2's UPKEEP — strictly one step before DRAW. The bite must not
+                // land yet (fireAtStep is DRAW, not UPKEEP).
+                game.passUntilPhase(Phase.BEGINNING, Step.UPKEEP)
+                game.resolveStack()
+
+                withClue("Trigger is scheduled for P2's DRAW, not their UPKEEP") {
+                    game.getLifeTotal(2) shouldBe lifeAfterCombat
+                    game.state.delayedTriggers.size shouldBe 1
+                }
+
+                // Advance one more step to DRAW — trigger fires and suffer auto-resolves.
+                game.passUntilPhase(Phase.BEGINNING, Step.DRAW)
+                game.resolveStack()
+
+                withClue("Bite lands on P2's DRAW step") {
+                    game.getLifeTotal(2) shouldBe lifeAfterCombat - 1
+                    game.state.delayedTriggers.size shouldBe 0
+                }
+            }
+
+            test("no delayed trigger when Nafs Asp deals no damage to a player this turn") {
+                val builder = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Nafs Asp")
+                    .withActivePlayer(1)
+                // Give both players a few library cards so the turn-based draw at their draw
+                // step doesn't bottom them out into a state-based loss before the bite lands.
+                repeat(5) {
+                    builder.withCardInLibrary(1, "Mountain")
+                    builder.withCardInLibrary(2, "Forest")
+                }
+                val game = builder.build()
+
+                val startLifeP2 = game.getLifeTotal(2)
+
+                // Don't attack — pass straight through to P2's draw step.
+                game.passUntilPhase(Phase.BEGINNING, Step.DRAW)
+                game.resolveStack()
+
+                withClue("Nafs Asp dealt no damage to a player, so no delayed bite is scheduled") {
+                    game.getLifeTotal(2) shouldBe startLifeP2
+                }
+            }
+        }
+    }
+}
