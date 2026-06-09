@@ -34,6 +34,11 @@ data class DeckBuildRequest(
     val locked: Map<String, Int> = emptyMap(),
     /** Total deck size to reach (40 for limited, higher for commander). */
     val targetSize: Int = 40,
+    /**
+     * The lobby's set code(s), so set-specific engines (e.g. Draftsim) load the right ratings /
+     * removal / archetype tables. Empty for engines that don't need it (the heuristic).
+     */
+    val setCodes: List<String> = emptyList(),
 )
 
 data class DeckBuildResult(

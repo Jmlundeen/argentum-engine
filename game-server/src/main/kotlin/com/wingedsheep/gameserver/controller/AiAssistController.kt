@@ -58,6 +58,8 @@ class AiAssistController(
         val packNumber: Int = 1,
         val pickNumber: Int = 1,
         val picksRequired: Int = 1,
+        /** Set code(s) for set-specific engines; ignored when a known lobby supplies its own. */
+        val setCodes: List<String> = emptyList(),
     )
 
     @PostMapping("/draft/suggest-pick")
@@ -70,6 +72,7 @@ class AiAssistController(
             packNumber = body.packNumber,
             pickNumber = body.pickNumber,
             picksRequired = body.picksRequired.coerceAtLeast(1),
+            setCodes = setCodesFor(body.lobbyId, body.setCodes),
         )
         return advisor.suggestPick(request)
     }
@@ -86,6 +89,8 @@ class AiAssistController(
         /** Cards already in the deck (name → count). Empty = build fresh; non-empty = complete it. */
         val lockedDeck: Map<String, Int> = emptyMap(),
         val targetSize: Int = 40,
+        /** Set code(s) for set-specific engines; ignored when a known lobby supplies its own. */
+        val setCodes: List<String> = emptyList(),
     )
 
     @PostMapping("/deckbuild/auto-build")
@@ -97,6 +102,7 @@ class AiAssistController(
             availableBasics = body.basics.mapNotNull { cardRegistry.getCard(it) },
             locked = body.lockedDeck.filterValues { it > 0 },
             targetSize = body.targetSize.coerceIn(1, 250),
+            setCodes = setCodesFor(body.lobbyId, body.setCodes),
         )
         return advisor.buildDeck(request)
     }
@@ -110,6 +116,12 @@ class AiAssistController(
         if (!lobby.aiAssistEnabled) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "AI assistance is disabled for this tournament")
         }
+    }
+
+    /** Prefer the lobby's authoritative set codes; fall back to the client's list (practice / no lobby). */
+    private fun setCodesFor(lobbyId: String?, fromBody: List<String>): List<String> {
+        val lobby = lobbyId?.takeIf { it.isNotBlank() }?.let { lobbyRepository.findLobbyById(it) }
+        return lobby?.setCodes ?: fromBody
     }
 
     private fun CardDefinition.toCardSummary() = CardSummary(

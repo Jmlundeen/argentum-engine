@@ -166,7 +166,10 @@ Drafting is lower frequency, so standard HTTP JSON is used.
 In-app AI help for the player at the wheel: **Suggest Pick** (draft) and **Auto-build** (deckbuild).
 Stateless w.r.t. the draft/deckbuild flow — the client sends card **names** (it already holds the
 pack/pool) and the server re-resolves them against the card registry. The actual engines live behind
-a pluggable SPI in the `ai` module (`AdvisorCatalog`); only the heuristic engine ships today.
+a pluggable SPI in the `ai` module (`AdvisorCatalog`). Two engines ship: **`heuristic`** (the
+default, effect-tree heuristic) and **`draftsim`** (a port of the Draftsim ratings/archetype model;
+loads per-set ratings/removal/archetype tables, falling back to a rarity ladder for sets it has no
+table for). The client picks the engine via the per-player dropdown; `advisorId` omitted ⇒ default.
 
 **Gating.** When a `lobbyId` is supplied and that tournament has `aiAssistEnabled = false` (a
 `LobbySettings` field, host-toggled), every endpoint below returns **403**. The client also hides the
@@ -181,21 +184,27 @@ Populates the per-player engine dropdowns.
 **Suggest a pick** — `POST /api/draft/suggest-pick`
 
 ```json
-{ "lobbyId": "lob_1", "advisorId": "heuristic", "pack": ["Shivan Dragon", "..."],
-  "pickedSoFar": ["..."], "packNumber": 1, "pickNumber": 3, "picksRequired": 1 }
+{ "lobbyId": "lob_1", "advisorId": "draftsim", "pack": ["Shivan Dragon", "..."],
+  "pickedSoFar": ["..."], "packNumber": 1, "pickNumber": 3, "picksRequired": 1,
+  "setCodes": ["LTR"] }
 ```
 Response: `{ "advisorId", "scores": [{ "cardName", "score": 0-100, "reason" }], "recommended": ["..."] }`.
+`setCodes` lets a set-specific engine (Draftsim) load the right tables; when a known `lobbyId` is
+supplied the server overrides it with the lobby's authoritative set codes (the body value is the
+practice / no-lobby fallback). The heuristic engine ignores it.
 
 **Auto-build / complete a deck** — `POST /api/deckbuild/auto-build`
 
 ```json
-{ "lobbyId": "lob_1", "advisorId": "heuristic", "pool": ["Bear", "Bear", "..."],
+{ "lobbyId": "lob_1", "advisorId": "draftsim", "pool": ["Bear", "Bear", "..."],
   "basics": ["Plains", "Island", "Swamp", "Mountain", "Forest"],
-  "lockedDeck": { "Bear": 2 }, "targetSize": 40 }
+  "lockedDeck": { "Bear": 2 }, "targetSize": 40, "setCodes": ["LTR"] }
 ```
 Response: `{ "advisorId", "deckList": { "<name>": <count> }, "score": <number|null>, "archetype": <string|null> }`.
-`lockedDeck` empty = build fresh; non-empty = keep those cards and only fill the rest. The client
-splits `deckList` into non-land cards + basic-land counts and applies it via the deckbuilder's `setDeck`.
+The client splits `deckList` into non-land cards + basic-land counts and applies it via the
+deckbuilder's `setDeck`. `lockedDeck` empty = build fresh; non-empty = keep those cards and only fill
+the rest (**heuristic** engine). The **draftsim** engine ignores `lockedDeck`/`targetSize` and always
+returns a fresh 40-card limited build (23 nonland + 17 lands), matching the original Auto-Build.
 
 ## 4. Scenario Builder Payload (REST / HTTP)
 

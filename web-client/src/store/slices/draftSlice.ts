@@ -311,6 +311,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
         packNumber: draft.packNumber,
         pickNumber: draft.pickNumber,
         picksRequired: draft.picksPerRound,
+        setCodes: lobbyState?.settings.setCodes ?? [],
       })
       const scores: Record<string, PickScore> = {}
       for (const s of advice.scores) scores[s.cardName] = { score: s.score, reason: s.reason }
@@ -353,6 +354,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
         basics: deckBuildingState.basicLands.map((c) => c.name),
         lockedDeck,
         targetSize,
+        setCodes: lobbyState?.settings.setCodes ?? [],
       })
 
       // Split the built decklist into non-land cards (deck) and basic-land counts (landCounts),

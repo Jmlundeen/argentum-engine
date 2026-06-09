@@ -49,6 +49,8 @@ export interface SuggestPickParams {
   readonly packNumber: number
   readonly pickNumber: number
   readonly picksRequired: number
+  /** Set code(s) for set-specific engines (e.g. Draftsim). */
+  readonly setCodes?: readonly string[]
 }
 
 /** Score every card in the current pack and recommend the best pick(s). */
@@ -73,6 +75,8 @@ export interface AutoBuildParams {
   /** Cards already in the deck (name → count). Empty = build fresh; non-empty = complete it. */
   readonly lockedDeck: Readonly<Record<string, number>>
   readonly targetSize: number
+  /** Set code(s) for set-specific engines (e.g. Draftsim). */
+  readonly setCodes?: readonly string[]
 }
 
 /** Build (or complete) a deck from the pool. */

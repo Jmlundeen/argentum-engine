@@ -12,10 +12,12 @@ object AdvisorCatalog {
 
     val draftAdvisors: List<DraftAdvisor> = listOf(
         HeuristicDraftAdvisor,
+        DraftsimDraftAdvisor,
     )
 
     val deckBuildAdvisors: List<DeckBuildAdvisor> = listOf(
         HeuristicDeckBuildAdvisor,
+        DraftsimDeckBuildAdvisor,
     )
 
     /** The default engine id (first registered) when the client doesn't specify one. */

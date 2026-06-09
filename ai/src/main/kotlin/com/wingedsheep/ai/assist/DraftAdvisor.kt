@@ -30,6 +30,11 @@ data class DraftPickAdviceRequest(
     val pickNumber: Int = 1,
     /** How many cards the player takes this turn (Pick-2 drafts take 2). */
     val picksRequired: Int = 1,
+    /**
+     * The lobby's set code(s), so set-specific engines (e.g. Draftsim) load the right ratings /
+     * removal / archetype tables. Empty for engines that don't need it (the heuristic).
+     */
+    val setCodes: List<String> = emptyList(),
 )
 
 /** A single card's evaluation, surfaced as a badge + tooltip in the draft UI. */
