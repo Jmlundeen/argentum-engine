@@ -424,6 +424,11 @@ sealed interface ServerMessage {
          * UI order. Empty = no exclusions. Ignored by [TournamentFormat.PREMADE_DECKS].
          */
         val bannedCardNames: List<String> = emptyList(),
+        /**
+         * Master switch for in-app AI assistance (draft "Suggest Pick" + deckbuild "Auto-build").
+         * When false the client hides the controls and the server rejects assist requests.
+         */
+        val aiAssistEnabled: Boolean = true,
     )
 
     /**

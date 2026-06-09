@@ -246,6 +246,14 @@ class TournamentLobby(
      * own decks) or on basic lands. Empty = no exclusions.
      */
     var bannedCardNames: Set<String> = emptySet(),
+    /**
+     * Master switch for in-app AI assistance (draft "Suggest Pick" + deckbuild "Auto-build"). When
+     * false, the client hides the controls and the server rejects assist requests that carry this
+     * lobby's id. This is an advisory toggle, not anti-cheat: the gate trusts the client-supplied
+     * lobbyId (consistent with the other REST endpoints), so a modified client could still call the
+     * assist endpoints. Defaults on; a host can switch it off to signal that assistance is unwelcome.
+     */
+    var aiAssistEnabled: Boolean = true,
 ) {
 
     /**
@@ -1426,6 +1434,7 @@ class TournamentLobby(
                 commanderPreset = commanderPreset.name,
                 chaosBoosters = chaosBoosters,
                 bannedCardNames = bannedCardNames.sorted(),
+                aiAssistEnabled = aiAssistEnabled,
             ),
             isHost = isHost(forPlayerId)
         )

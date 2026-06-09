@@ -1242,6 +1242,25 @@ function LobbyOverlay({
                 </button>
               </div>
             </div>
+            <div className={styles.settingsRow}>
+              <span className={styles.settingsLabel} title="Lets players use Suggest Pick and Auto-build during this event">
+                AI assistance
+              </span>
+              <div className={styles.settingsButtons}>
+                <button
+                  onClick={() => updateLobbySettings({ aiAssistEnabled: false })}
+                  className={`${styles.settingsButton} ${!lobbyState.settings.aiAssistEnabled ? styles.settingsButtonActive : ''}`}
+                >
+                  Off
+                </button>
+                <button
+                  onClick={() => updateLobbySettings({ aiAssistEnabled: true })}
+                  className={`${styles.settingsButton} ${lobbyState.settings.aiAssistEnabled ? styles.settingsButtonActive : ''}`}
+                >
+                  On
+                </button>
+              </div>
+            </div>
             {isPremade && (
               <div className={styles.settingsRow}>
                 <span className={styles.settingsLabel}>Deck format</span>

@@ -1,0 +1,145 @@
+{
+  "Beast Within": [
+    "removal",
+    "creature-removal",
+    "artifact-removal",
+    "enchantment-removal",
+    "planeswalker-removal"
+  ],
+  "Captain America, First Avenger": [
+    "removal",
+    "creature-removal",
+    "planeswalker-removal"
+  ],
+  "Chaos Warp": [
+    "removal",
+    "creature-removal",
+    "artifact-removal",
+    "enchantment-removal",
+    "planeswalker-removal"
+  ],
+  "Dark Deed": [
+    "removal",
+    "creature-removal"
+  ],
+  "Elektra, Daughter of the Hand": [
+    "removal",
+    "creature-removal"
+  ],
+  "Extinction Event": [
+    "removal",
+    "creature-removal"
+  ],
+  "Fight to the Death": [
+    "removal",
+    "creature-removal"
+  ],
+  "Final Act": [
+    "removal",
+    "creature-removal",
+    "planeswalker-removal"
+  ],
+  "Final Showdown": [
+    "removal",
+    "creature-removal"
+  ],
+  "Force of Vigor": [
+    "removal",
+    "artifact-removal",
+    "enchantment-removal"
+  ],
+  "Go Nuts!": [
+    "removal",
+    "creature-removal"
+  ],
+  "HULK SMASH!": [
+    "removal",
+    "creature-removal",
+    "artifact-removal"
+  ],
+  "Iron Fist, Living Weapon": [
+    "removal",
+    "creature-removal",
+    "planeswalker-removal"
+  ],
+  "Killmonger, Scourge of Wakanda": [
+    "removal",
+    "creature-removal",
+    "artifact-removal",
+    "enchantment-removal",
+    "planeswalker-removal"
+  ],
+  "M.O.D.O.K.": [
+    "removal",
+    "creature-removal"
+  ],
+  "Massacre Girl": [
+    "removal",
+    "creature-removal"
+  ],
+  "Mjölnir, Hammer of Thor": [
+    "removal",
+    "creature-removal"
+  ],
+  "Murdock's Crusade": [
+    "removal",
+    "creature-removal",
+    "enchantment-removal"
+  ],
+  "No Mercy": [
+    "removal",
+    "creature-removal"
+  ],
+  "Photon Blast Barrage": [
+    "removal",
+    "creature-removal"
+  ],
+  "Ravenous Tyrannosaurus": [
+    "removal",
+    "creature-removal"
+  ],
+  "Secret Invasion": [
+    "removal",
+    "creature-removal"
+  ],
+  "Spider-Woman, Secret Agent": [
+    "removal",
+    "creature-removal"
+  ],
+  "Sundering Growth": [
+    "removal",
+    "artifact-removal",
+    "enchantment-removal"
+  ],
+  "Super-Skrull": [
+    "removal",
+    "creature-removal"
+  ],
+  "Thanos, the Mad Titan": [
+    "removal",
+    "creature-removal"
+  ],
+  "The Coming of Galactus": [
+    "removal",
+    "creature-removal",
+    "artifact-removal",
+    "enchantment-removal",
+    "planeswalker-removal"
+  ],
+  "The Ruinous Wrecking Crew": [
+    "removal"
+  ],
+  "Thor, God of Thunder": [
+    "removal",
+    "creature-removal",
+    "planeswalker-removal"
+  ],
+  "Wolverine, Fierce Fighter": [
+    "removal",
+    "creature-removal"
+  ],
+  "Worlds Within Worlds": [
+    "removal",
+    "creature-removal"
+  ]
+}

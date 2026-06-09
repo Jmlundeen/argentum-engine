@@ -144,7 +144,9 @@ sealed interface ClientMessage {
         val boosterCount: Int = 6,         // Sealed: boosters in pool, Draft: packs per player
         val maxPlayers: Int = 8,
         val pickTimeSeconds: Int = 45,     // Draft only
-        val isPublic: Boolean = false
+        val isPublic: Boolean = false,
+        /** Master switch for in-app AI assistance (Suggest Pick / Auto-build). Defaults on. */
+        val aiAssistEnabled: Boolean = true
     ) : ClientMessage
 
     /**
@@ -254,6 +256,8 @@ sealed interface ClientMessage {
          * full list is sent each time (not a delta); null leaves the current ban list unchanged.
          */
         val bannedCardNames: List<String>? = null,
+        /** Master switch for in-app AI assistance (Suggest Pick / Auto-build). Null = unchanged. */
+        val aiAssistEnabled: Boolean? = null,
     ) : ClientMessage
 
     /**

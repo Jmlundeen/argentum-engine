@@ -403,6 +403,22 @@ export interface DelveSelectionState {
 /**
  * Deck building state during sealed draft.
  */
+/** A single card's AI pick evaluation (keyed by card name in the store's `pickScores`). */
+export interface PickScore {
+  readonly score: number
+  readonly reason: string
+}
+
+/** Summary of the most recent Auto-build, surfaced in the deck builder. */
+export interface AutoBuildSummary {
+  /** Engine that produced the build (e.g. "draftsim", "heuristic"). */
+  readonly advisorId: string
+  /** Deck score (Draftsim: 0–10; heuristic: sum of card ratings), or null if unscored. */
+  readonly score: number | null
+  /** Targeted archetype / colour label, if the engine identifies one. */
+  readonly archetype: string | null
+}
+
 export interface DeckBuildingState {
   phase: 'waiting' | 'building' | 'submitted'
   setCodes: readonly string[]
@@ -772,7 +788,7 @@ export type GameStore = {
   addAiToLobby: () => void
   removeAiFromLobby: (playerId: string) => void
   stopLobby: () => void
-  updateLobbySettings: (settings: { setCodes?: string[]; format?: TournamentFormat; boosterCount?: number; boosterDistribution?: Record<string, number>; maxPlayers?: number; gamesPerMatch?: number; pickTimeSeconds?: number; picksPerRound?: number; isPublic?: boolean; deckFormat?: DeckFormat | '' | null; deckSizeMin?: number; allowDuplicates?: boolean; commanderPreset?: CommanderPreset; chaosBoosters?: boolean; bannedCardNames?: string[] }) => void
+  updateLobbySettings: (settings: { setCodes?: string[]; format?: TournamentFormat; boosterCount?: number; boosterDistribution?: Record<string, number>; maxPlayers?: number; gamesPerMatch?: number; pickTimeSeconds?: number; picksPerRound?: number; isPublic?: boolean; deckFormat?: DeckFormat | '' | null; deckSizeMin?: number; allowDuplicates?: boolean; commanderPreset?: CommanderPreset; chaosBoosters?: boolean; bannedCardNames?: string[]; aiAssistEnabled?: boolean }) => void
   /** Disconnected tournament players: playerId -> info */
   disconnectedPlayers: Record<string, { playerName: string; secondsRemaining: number; disconnectedAt: number }>
   readyForNextRound: () => void
@@ -818,6 +834,25 @@ export type GameStore = {
   winstonTakePile: () => void
   winstonSkipPile: () => void
   gridDraftPick: (selection: string) => void
+  // AI assistance (Suggest Pick / Auto-build)
+  pickScores: Readonly<Record<string, PickScore>> | null
+  recommendedPick: readonly string[]
+  aiAssistBusy: boolean
+  aiAssistError: string | null
+  /** Score/archetype from the most recent Auto-build, or null. */
+  autoBuildResult: AutoBuildSummary | null
+  /** Selected engine for the draft / deckbuild dropdowns; persists across edits and remounts. */
+  draftAdvisorId: string | null
+  deckbuildAdvisorId: string | null
+  setDraftAdvisorId: (advisorId: string | null) => void
+  setDeckbuildAdvisorId: (advisorId: string | null) => void
+  /** Per-card scores for the deck-builder pool (name → score/reason), or null. */
+  deckCardScores: Readonly<Record<string, PickScore>> | null
+  scoreDeckCards: (advisorId?: string) => Promise<void>
+  clearDeckCardScores: () => void
+  suggestPick: (advisorId?: string) => Promise<void>
+  clearPickSuggestion: () => void
+  autoBuildDeck: (advisorId?: string) => Promise<void>
 
   // Pipeline slice
   pipelineState: ActionPipelineState | null

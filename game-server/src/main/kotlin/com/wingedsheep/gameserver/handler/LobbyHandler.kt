@@ -605,6 +605,7 @@ class LobbyHandler(
             // Commander formats enable Chaos boosters by default — 20-card commander packs
             // need to mix sets to give a workable pool when multiple sets are selected.
             chaosBoosters = format.isCommanderFormat,
+            aiAssistEnabled = message.aiAssistEnabled,
         )
         lobby.addPlayer(identity)
         lobbyRepository.saveLobby(lobby)
@@ -1948,6 +1949,8 @@ class LobbyHandler(
         message.bannedCardNames?.let { names ->
             lobby.bannedCardNames = names.map { it.trim() }.filter { it.isNotEmpty() }.toSet()
         }
+
+        message.aiAssistEnabled?.let { lobby.aiAssistEnabled = it }
 
         ctx.broadcastLobbyUpdate(lobby)
         lobbyRepository.saveLobby(lobby)

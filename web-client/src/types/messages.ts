@@ -1098,6 +1098,8 @@ export interface LobbySettings {
   readonly chaosBoosters: boolean
   /** Host ban list — oracle card names excluded from generated boosters (sorted). */
   readonly bannedCardNames: readonly string[]
+  /** Master switch for in-app AI assistance (Suggest Pick / Auto-build). */
+  readonly aiAssistEnabled: boolean
 }
 
 export type TournamentFormat =
@@ -1972,6 +1974,8 @@ export interface UpdateLobbySettingsMessage {
   readonly chaosBoosters?: boolean
   /** Replace the host ban list (full list, not a delta). Omit to leave unchanged. */
   readonly bannedCardNames?: readonly string[]
+  /** Master switch for in-app AI assistance (Suggest Pick / Auto-build). Omit to leave unchanged. */
+  readonly aiAssistEnabled?: boolean
 }
 
 // Tournament Client Messages
@@ -2156,6 +2160,7 @@ export function createUpdateLobbySettingsMessage(
     deckFormat?: DeckFormat | '' | null
     chaosBoosters?: boolean
     bannedCardNames?: readonly string[]
+    aiAssistEnabled?: boolean
   }
 ): UpdateLobbySettingsMessage {
   return { type: 'updateLobbySettings', ...settings }

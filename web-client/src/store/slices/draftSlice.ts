@@ -1,7 +1,7 @@
 /**
  * Draft slice - handles sealed deck building and drafting logic.
  */
-import type { SliceCreator, DeckBuildingState } from './types'
+import type { SliceCreator, DeckBuildingState, PickScore, AutoBuildSummary } from './types'
 import {
   createCreateSealedGameMessage,
   createJoinSealedGameMessage,
@@ -13,10 +13,38 @@ import {
   createGridDraftPickMessage,
 } from '@/types'
 import { trackEvent } from '@/utils/analytics.ts'
+import {
+  suggestPick as apiSuggestPick,
+  autoBuildDeck as apiAutoBuildDeck,
+} from '@/api/aiAssist'
 import { getWebSocket, saveDeckState } from './shared'
+
+export type { PickScore }
 
 export interface DraftSliceState {
   deckBuildingState: DeckBuildingState | null
+  /**
+   * AI "Suggest Pick" results for the current pack: card name → score/reason. Null until the player
+   * asks for a suggestion; cleared by the draft handlers when the pack changes.
+   */
+  pickScores: Readonly<Record<string, PickScore>> | null
+  /** Card names the AI recommends taking this pick (highlighted in the pack grid). */
+  recommendedPick: readonly string[]
+  /** True while a suggest-pick / auto-build request is in flight. */
+  aiAssistBusy: boolean
+  /** Last AI-assist error message (e.g. assistance disabled), or null. */
+  aiAssistError: string | null
+  /** Score/archetype from the most recent Auto-build, or null until one runs. */
+  autoBuildResult: AutoBuildSummary | null
+  /** Engine the player selected in the draft "Suggest Pick" dropdown; persists across edits. */
+  draftAdvisorId: string | null
+  /** Engine the player selected in the deckbuild "Auto-build" dropdown; persists across edits. */
+  deckbuildAdvisorId: string | null
+  /**
+   * Per-card AI scores for the deck builder pool: card name → score/reason. Null until the player
+   * asks for them; persists across edits (re-score to refresh) so the badges stay visible.
+   */
+  deckCardScores: Readonly<Record<string, PickScore>> | null
 }
 
 export interface DraftSliceActions {
@@ -36,6 +64,20 @@ export interface DraftSliceActions {
   winstonTakePile: () => void
   winstonSkipPile: () => void
   gridDraftPick: (selection: string) => void
+  /** Ask the chosen AI engine to score the current pack and recommend the best pick(s). */
+  suggestPick: (advisorId?: string) => Promise<void>
+  /** Clear the current pick suggestion overlay. */
+  clearPickSuggestion: () => void
+  /** Build (empty deck) or complete (partial deck) the deck from the pool with the chosen engine. */
+  autoBuildDeck: (advisorId?: string) => Promise<void>
+  /** Remember the selected draft "Suggest Pick" engine. */
+  setDraftAdvisorId: (advisorId: string | null) => void
+  /** Remember the selected deckbuild "Auto-build" engine. */
+  setDeckbuildAdvisorId: (advisorId: string | null) => void
+  /** Score every card in the deck-builder pool with the chosen engine (deck = colour context). */
+  scoreDeckCards: (advisorId?: string) => Promise<void>
+  /** Hide the deck-builder per-card score badges. */
+  clearDeckCardScores: () => void
 }
 
 export type DraftSlice = DraftSliceState & DraftSliceActions
@@ -43,6 +85,14 @@ export type DraftSlice = DraftSliceState & DraftSliceActions
 export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
   // Initial state
   deckBuildingState: null,
+  pickScores: null,
+  recommendedPick: [],
+  aiAssistBusy: false,
+  aiAssistError: null,
+  autoBuildResult: null,
+  draftAdvisorId: null,
+  deckbuildAdvisorId: null,
+  deckCardScores: null,
 
   // Actions
   createSealedGame: (setCode) => {
@@ -70,6 +120,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
           ...state.deckBuildingState,
           deck: newDeck,
         },
+        autoBuildResult: null,
       }
     })
   },
@@ -90,6 +141,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
           ...state.deckBuildingState,
           deck: newDeck,
         },
+        autoBuildResult: null,
       }
     })
   },
@@ -109,6 +161,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
           deck: [],
           landCounts: emptyLandCounts,
         },
+        autoBuildResult: null,
       }
     })
   },
@@ -128,6 +181,7 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
           ...state.deckBuildingState,
           landCounts: newLandCounts,
         },
+        autoBuildResult: null,
       }
     })
   },
@@ -267,4 +321,144 @@ export const createDraftSlice: SliceCreator<DraftSlice> = (set, get) => ({
     trackEvent('grid_draft_pick', { selection })
     getWebSocket()?.send(createGridDraftPickMessage(selection))
   },
+
+  suggestPick: async (advisorId) => {
+    const { lobbyState } = get()
+    const draft = lobbyState?.draftState
+    if (!draft || draft.currentPack.length === 0) return
+
+    trackEvent('draft_suggest_pick', { advisor: advisorId ?? 'default' })
+    // Remember which pack this request is for; if the pack advances (pick timer fires, or the
+    // player picks) while the request is in flight, a late response must not write the previous
+    // pack's scores onto the new pack.
+    const requestedPack = draft.packNumber
+    const requestedPick = draft.pickNumber
+    set({ aiAssistBusy: true, aiAssistError: null })
+    try {
+      const advice = await apiSuggestPick({
+        lobbyId: lobbyState?.lobbyId ?? null,
+        advisorId: advisorId ?? null,
+        pack: draft.currentPack.map((c) => c.name),
+        pickedSoFar: draft.pickedCards.map((c) => c.name),
+        packNumber: draft.packNumber,
+        pickNumber: draft.pickNumber,
+        picksRequired: draft.picksPerRound,
+        setCodes: lobbyState?.settings.setCodes ?? [],
+      })
+      const current = get().lobbyState?.draftState
+      if (!current || current.packNumber !== requestedPack || current.pickNumber !== requestedPick) {
+        // The pack moved on while we were waiting — drop this stale result, but clear the spinner.
+        set({ aiAssistBusy: false })
+        return
+      }
+      const scores: Record<string, PickScore> = {}
+      for (const s of advice.scores) scores[s.cardName] = { score: s.score, reason: s.reason }
+      set({ pickScores: scores, recommendedPick: advice.recommended, aiAssistBusy: false })
+    } catch (e) {
+      set({
+        aiAssistBusy: false,
+        aiAssistError: e instanceof Error ? e.message : 'Suggestion failed',
+        pickScores: null,
+        recommendedPick: [],
+      })
+    }
+  },
+
+  clearPickSuggestion: () => set({ pickScores: null, recommendedPick: [], aiAssistError: null }),
+
+  autoBuildDeck: async (advisorId) => {
+    const { deckBuildingState, lobbyState } = get()
+    if (!deckBuildingState) return
+
+    trackEvent('deckbuild_auto_build', { advisor: advisorId ?? 'default' })
+    set({ aiAssistBusy: true, aiAssistError: null })
+    try {
+      // Treat the player's current deck (non-land picks + basic lands) as locked, so an empty deck
+      // builds fresh and a partial deck is completed without dropping their existing cards.
+      const lockedDeck: Record<string, number> = {}
+      for (const name of deckBuildingState.deck) lockedDeck[name] = (lockedDeck[name] ?? 0) + 1
+      for (const [land, count] of Object.entries(deckBuildingState.landCounts)) {
+        if (count > 0) lockedDeck[land] = (lockedDeck[land] ?? 0) + count
+      }
+
+      const format = lobbyState?.settings.format
+      const isCommander = format === 'COMMANDER_DRAFT' || format === 'COMMANDER_SEALED'
+      const targetSize = isCommander ? lobbyState?.settings.deckSizeMin ?? 60 : 40
+
+      const result = await apiAutoBuildDeck({
+        lobbyId: lobbyState?.lobbyId ?? null,
+        advisorId: advisorId ?? null,
+        pool: deckBuildingState.cardPool.map((c) => c.name),
+        basics: deckBuildingState.basicLands.map((c) => c.name),
+        lockedDeck,
+        targetSize,
+        setCodes: lobbyState?.settings.setCodes ?? [],
+      })
+
+      // Split the built decklist into non-land cards (deck) and basic-land counts (landCounts),
+      // then apply via setDeck (which re-caps to pool availability and the 4-of rule).
+      const basicNames = new Set(deckBuildingState.basicLands.map((c) => c.name))
+      const newDeck: string[] = []
+      const newLandCounts: Record<string, number> = {}
+      for (const [name, count] of Object.entries(result.deckList)) {
+        if (basicNames.has(name)) {
+          newLandCounts[name] = count
+        } else {
+          for (let i = 0; i < count; i++) newDeck.push(name)
+        }
+      }
+      get().setDeck(newDeck, newLandCounts)
+      set({
+        aiAssistBusy: false,
+        autoBuildResult: {
+          advisorId: result.advisorId,
+          score: result.score,
+          archetype: result.archetype,
+        },
+      })
+    } catch (e) {
+      set({
+        aiAssistBusy: false,
+        aiAssistError: e instanceof Error ? e.message : 'Auto-build failed',
+        autoBuildResult: null,
+      })
+    }
+  },
+
+  setDraftAdvisorId: (advisorId) => set({ draftAdvisorId: advisorId }),
+  setDeckbuildAdvisorId: (advisorId) => set({ deckbuildAdvisorId: advisorId }),
+
+  scoreDeckCards: async (advisorId) => {
+    const { deckBuildingState, lobbyState } = get()
+    if (!deckBuildingState) return
+
+    trackEvent('deckbuild_score_cards', { advisor: advisorId ?? 'default' })
+    set({ aiAssistBusy: true, aiAssistError: null })
+    try {
+      // Score every distinct pool card via the per-card scorer, using the current deck as colour
+      // context (the suggest-pick endpoint returns a score for every card in `pack`).
+      const poolNames = Array.from(new Set(deckBuildingState.cardPool.map((c) => c.name)))
+      const advice = await apiSuggestPick({
+        lobbyId: lobbyState?.lobbyId ?? null,
+        advisorId: advisorId ?? null,
+        pack: poolNames,
+        pickedSoFar: deckBuildingState.deck,
+        packNumber: 1,
+        pickNumber: 1,
+        picksRequired: 1,
+        setCodes: lobbyState?.settings.setCodes ?? [],
+      })
+      const scores: Record<string, PickScore> = {}
+      for (const s of advice.scores) scores[s.cardName] = { score: s.score, reason: s.reason }
+      set({ deckCardScores: scores, aiAssistBusy: false })
+    } catch (e) {
+      set({
+        aiAssistBusy: false,
+        aiAssistError: e instanceof Error ? e.message : 'Scoring failed',
+        deckCardScores: null,
+      })
+    }
+  },
+
+  clearDeckCardScores: () => set({ deckCardScores: null }),
 })

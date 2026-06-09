@@ -1,0 +1,44 @@
+{
+  "_comment": "Manual removal overrides, keyed by set code. Merged on top of the Scryfall-generated <SET>.json files. Use this for cards whose o-tags are missing or wrong (e.g. freshly-previewed cards that haven't been tagged yet).",
+  "SOS": {
+    "Ajani's Response": [
+      "removal",
+      "creature-removal"
+    ],
+    "Burrog Barrage": [
+      "removal",
+      "creature-removal"
+    ],
+    "Chelonian Tackle": [
+      "removal",
+      "creature-removal"
+    ],
+    "Glorious Decay": [
+      "removal",
+      "creature-removal",
+      "artifact-removal"
+    ],
+    "Tome Blast": [
+      "removal",
+      "creature-removal",
+      "planeswalker-removal"
+    ],
+    "Unsubtle Mockery": [
+      "removal",
+      "creature-removal"
+    ],
+    "Vibrant Outburst": [
+      "removal",
+      "creature-removal",
+      "planeswalker-removal"
+    ],
+    "Wander Off": [
+      "removal",
+      "creature-removal"
+    ],
+    "Wilt in the Heat": [
+      "removal",
+      "creature-removal"
+    ]
+  }
+}

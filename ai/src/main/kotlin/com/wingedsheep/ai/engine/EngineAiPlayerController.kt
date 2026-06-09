@@ -119,7 +119,7 @@ class EngineAiPlayerController(
         // If we need more, bottom most expensive spells
         if (toBottom.size < count) {
             val expensive = spells.sortedByDescending { entityId ->
-                parseCmc(cards[entityId]?.manaCost ?: "")
+                LimitedPickScorer.parseCmc(cards[entityId]?.manaCost ?: "")
             }
             for (spell in expensive) {
                 if (toBottom.size >= count) break
@@ -140,19 +140,16 @@ class EngineAiPlayerController(
     // =========================================================================
     // Draft Picking (Heuristic)
     // =========================================================================
+    //
+    // The color-aware per-card scoring lives in the shared [LimitedPickScorer] so the bot and the
+    // human-facing "Suggest Pick" advisor stay in lockstep. This controller only orchestrates which
+    // cards to take.
 
-    /** Colors committed to so far, tracked by counting colored mana symbols in picked cards. */
-    private fun inferColors(pickedSoFar: List<CardSummary>): Map<Char, Int> {
-        val colorCounts = mutableMapOf<Char, Int>()
-        for (card in pickedSoFar) {
-            val cost = card.manaCost ?: continue
-            for (symbol in listOf('W', 'U', 'B', 'R', 'G')) {
-                val count = cost.count { it == symbol }
-                if (count > 0) colorCounts[symbol] = (colorCounts[symbol] ?: 0) + count
-            }
-        }
-        return colorCounts
-    }
+    private fun inferColors(pickedSoFar: List<CardSummary>): Map<Char, Int> =
+        LimitedPickScorer.inferColors(pickedSoFar)
+
+    private fun rateCard(card: CardSummary, colorCommitment: Map<Char, Int>, pickedSoFar: List<CardSummary>): Double =
+        LimitedPickScorer.score(card, colorCommitment, pickedSoFar)
 
     override fun chooseDraftPick(
         pack: List<CardSummary>,
@@ -231,96 +228,4 @@ class EngineAiPlayerController(
         return indices.mapNotNull { if (it < grid.size) grid[it] else null }
     }
 
-    /**
-     * Rate a card for draft picking. Higher = better pick.
-     * Considers rarity, creature stats, removal potential, mana curve, and color fit.
-     */
-    private fun rateCard(card: CardSummary, colorCommitment: Map<Char, Int>, pickedSoFar: List<CardSummary>): Double {
-        var score = 0.0
-
-        // Rarity bonus
-        score += when (card.rarity?.uppercase()) {
-            "MYTHIC" -> 12.0
-            "RARE" -> 10.0
-            "UNCOMMON" -> 6.0
-            "COMMON" -> 3.0
-            else -> 2.0
-        }
-
-        // Creature stats bonus
-        if (card.power != null && card.toughness != null) {
-            val stats = card.power + card.toughness
-            val cmc = parseCmc(card.manaCost ?: "")
-            // Efficient creatures score higher (stats relative to cost)
-            if (cmc > 0) {
-                score += (stats.toDouble() / cmc) * 2.0
-            }
-            score += 1.0 // Creatures are generally good in limited
-        }
-
-        // Removal / interaction bonus (heuristic: check oracle text)
-        val oracle = card.oracleText?.lowercase() ?: ""
-        if (oracle.contains("destroy") || oracle.contains("exile") || oracle.contains("damage") ||
-            oracle.contains("fight") || oracle.contains("-") && oracle.contains("/-")) {
-            score += 3.0
-        }
-
-        // Evasion bonus
-        if (oracle.contains("flying") || oracle.contains("menace") || oracle.contains("trample") ||
-            oracle.contains("unblockable") || oracle.contains("can't be blocked")) {
-            score += 2.0
-        }
-
-        // Card advantage bonus
-        if (oracle.contains("draw") || oracle.contains("create") && oracle.contains("token")) {
-            score += 2.0
-        }
-
-        // Color fit — reward cards that match our committed colors, penalize off-color
-        val cardColors = extractColors(card.manaCost)
-        if (cardColors.isNotEmpty() && colorCommitment.isNotEmpty()) {
-            val topColors = colorCommitment.entries.sortedByDescending { it.value }.take(2).map { it.key }.toSet()
-            val onColor = cardColors.all { it in topColors }
-            val splashable = cardColors.size == 1 && parseCmc(card.manaCost ?: "") >= 4
-            when {
-                onColor -> score += 2.0
-                splashable -> score += 0.5
-                pickedSoFar.size >= 8 -> score -= 3.0  // Penalize off-color after early picks
-                else -> {} // Early picks: don't penalize too much, still exploring
-            }
-        }
-
-        // Mana curve consideration — prefer 2-4 drops in limited
-        val cmc = parseCmc(card.manaCost ?: "")
-        if (cmc in 2..4) score += 1.0
-        if (cmc >= 7) score -= 1.0
-
-        // Lands are generally low priority in draft (you get basics)
-        if (card.typeLine?.contains("Land", ignoreCase = true) == true) {
-            score -= 2.0
-            // But nonbasic dual lands are good
-            if (oracle.contains("add") && (oracle.contains("or") || oracle.contains("any color"))) {
-                score += 4.0
-            }
-        }
-
-        return score
-    }
-
-    private fun extractColors(manaCost: String?): Set<Char> {
-        if (manaCost == null) return emptySet()
-        return setOf('W', 'U', 'B', 'R', 'G').filter { it in manaCost }.toSet()
-    }
-
-    private fun parseCmc(manaCost: String): Int {
-        var cmc = 0
-        val regex = Regex("\\{([^}]+)\\}")
-        for (match in regex.findAll(manaCost)) {
-            val symbol = match.groupValues[1]
-            val numericValue = symbol.toIntOrNull()
-            if (numericValue != null) cmc += numericValue
-            else if (symbol != "X") cmc += 1
-        }
-        return cmc
-    }
 }

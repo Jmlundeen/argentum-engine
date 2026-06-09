@@ -31,7 +31,9 @@ data class PersistentTournamentLobby(
     val winstonSeenCardNames: Map<String, List<String>> = emptyMap(),
     /** Epoch millis when tournament was marked complete, or null if still active */
     val completedAt: Long? = null,
-    val isPublic: Boolean = false
+    val isPublic: Boolean = false,
+    /** Master switch for in-app AI assistance (Suggest Pick / Auto-build). */
+    val aiAssistEnabled: Boolean = true
 )
 
 /**

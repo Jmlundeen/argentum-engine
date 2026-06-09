@@ -8,6 +8,7 @@ import { HoverCardPreview } from '../ui/HoverCardPreview'
 import { useDfcHoverFlip } from '../ui/useDfcHoverFlip'
 import { SetSynergiesButton } from './SetSynergiesOverlay'
 import { RarityBadge } from './RarityBadge'
+import { fetchAdvisors, type AdvisorInfo } from '@/api/aiAssist'
 
 /**
  * Draft Pick overlay for draft mode.
@@ -30,6 +31,10 @@ function DraftPicker({ draftState, settings }: { draftState: DraftState; setting
   const lobbyState = useGameStore((s) => s.lobbyState)
   const playerId = useGameStore((s) => s.playerId)
   const isHost = lobbyState?.isHost ?? false
+
+  // AI "Suggest Pick" state — score badges + recommended-card highlight for the current pack.
+  const pickScores = useGameStore((s) => s.pickScores)
+  const recommendedPick = useGameStore((s) => s.recommendedPick)
 
   // Build ordered player list in pack-passing order with pack counts
   const playerOrder = useMemo(() => {
@@ -239,6 +244,9 @@ function DraftPicker({ draftState, settings }: { draftState: DraftState; setting
             totalPacks={totalPacks}
           />
           <SetSynergiesButton setCodes={settings.setCodes} cardPool={draftState.pickedCards} />
+          {settings.aiAssistEnabled && draftState.currentPack.length > 0 && (
+            <SuggestPickControl />
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -393,6 +401,9 @@ function DraftPicker({ draftState, settings }: { draftState: DraftState; setting
                       onClick={() => handleCardClick(card.name)}
                       onHover={handleHover}
                       responsive={responsive}
+                      score={pickScores?.[card.name]?.score ?? null}
+                      reason={pickScores?.[card.name]?.reason}
+                      isRecommended={recommendedPick.includes(card.name)}
                     />
                   ))
                 })}
@@ -719,6 +730,9 @@ function PackCard({
   onClick,
   onHover,
   responsive,
+  score = null,
+  reason,
+  isRecommended = false,
 }: {
   card: SealedCardInfo
   rarity: 'MYTHIC' | 'RARE' | 'UNCOMMON' | 'COMMON'
@@ -726,6 +740,12 @@ function PackCard({
   onClick: () => void
   onHover: (card: SealedCardInfo | null, e?: React.MouseEvent) => void
   responsive: ReturnType<typeof useResponsive>
+  /** AI pick score 0–100, or null when no suggestion is active. */
+  score?: number | null
+  /** Tooltip justification for the score. */
+  reason?: string | undefined
+  /** True when the AI recommends taking this card this pick. */
+  isRecommended?: boolean
 }) {
   const cardWidth = responsive.isMobile ? 120 : 160
   const cardHeight = Math.round(cardWidth * 1.4)
@@ -738,12 +758,28 @@ function PackCard({
     COMMON: '#555',
   }
 
+  // Score badge color: green (great) → amber → grey (weak).
+  const scoreColor =
+    score == null ? '#555' : score >= 70 ? '#4caf50' : score >= 45 ? '#ff9800' : '#777'
+
+  const border = isSelected
+    ? '3px solid #4caf50'
+    : isRecommended
+      ? '3px solid #ffd700'
+      : '3px solid transparent'
+  const boxShadow = isSelected
+    ? '0 0 20px rgba(76, 175, 80, 0.5)'
+    : isRecommended
+      ? '0 0 18px rgba(255, 215, 0, 0.55)'
+      : '0 4px 12px rgba(0, 0, 0, 0.4)'
+
   return (
     <div
       onClick={onClick}
       onMouseEnter={(e) => onHover(card, e)}
       onMouseMove={(e) => onHover(card, e)}
       onMouseLeave={() => onHover(null)}
+      title={score != null && reason ? `AI score ${score}/100 — ${reason}` : undefined}
       style={{
         position: 'relative',
         width: cardWidth,
@@ -751,10 +787,8 @@ function PackCard({
         borderRadius: 8,
         overflow: 'hidden',
         cursor: 'pointer',
-        border: isSelected ? '3px solid #4caf50' : '3px solid transparent',
-        boxShadow: isSelected
-          ? '0 0 20px rgba(76, 175, 80, 0.5)'
-          : '0 4px 12px rgba(0, 0, 0, 0.4)',
+        border,
+        boxShadow,
         transform: isSelected ? 'scale(1.05)' : 'scale(1)',
         transition: 'all 0.15s',
       }}
@@ -767,7 +801,7 @@ function PackCard({
       onMouseOut={(e) => {
         if (!isSelected) {
           e.currentTarget.style.transform = 'scale(1)'
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)'
+          e.currentTarget.style.boxShadow = boxShadow
         }
       }}
     >
@@ -791,6 +825,43 @@ function PackCard({
           backgroundColor: rarityColors[rarity],
         }}
       />
+      {/* AI score badge (top-left) */}
+      {score != null && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            backgroundColor: scoreColor,
+            color: '#fff',
+            borderRadius: 6,
+            padding: '2px 7px',
+            fontSize: 13,
+            fontWeight: 700,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.5)',
+          }}
+        >
+          {score}
+        </div>
+      )}
+      {/* Best-pick ribbon */}
+      {isRecommended && !isSelected && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 8,
+            left: 8,
+            backgroundColor: 'rgba(255, 215, 0, 0.92)',
+            color: '#000',
+            borderRadius: 6,
+            padding: '2px 7px',
+            fontSize: 11,
+            fontWeight: 700,
+          }}
+        >
+          ⭐ Best
+        </div>
+      )}
       {isSelected && (
         <div
           style={{
@@ -812,6 +883,108 @@ function PackCard({
           ✓
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * Header control for AI "Suggest Pick": an optional engine dropdown (shown when more than one
+ * engine is registered) plus a button that scores the current pack. Only rendered when the
+ * tournament has AI assistance enabled.
+ */
+function SuggestPickControl() {
+  const suggestPick = useGameStore((s) => s.suggestPick)
+  const clearPickSuggestion = useGameStore((s) => s.clearPickSuggestion)
+  const aiAssistBusy = useGameStore((s) => s.aiAssistBusy)
+  const aiAssistError = useGameStore((s) => s.aiAssistError)
+  const hasSuggestion = useGameStore((s) => s.pickScores != null)
+
+  // The selected engine lives in the store so it survives this control remounting on every edit.
+  const advisorId = useGameStore((s) => s.draftAdvisorId)
+  const setAdvisorId = useGameStore((s) => s.setDraftAdvisorId)
+  const [advisors, setAdvisors] = useState<readonly AdvisorInfo[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    fetchAdvisors()
+      .then((r) => {
+        if (cancelled) return
+        setAdvisors(r.draft)
+        // Keep the player's saved choice; only fall back to the default if it's unset or stale.
+        const saved = useGameStore.getState().draftAdvisorId
+        if (saved == null || !r.draft.some((a) => a.id === saved)) {
+          setAdvisorId(r.draft[0]?.id ?? null)
+        }
+      })
+      .catch(() => {
+        // Dropdown stays empty; the button still works using the server's default engine.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [setAdvisorId])
+
+  const buttonStyle: React.CSSProperties = {
+    padding: '6px 14px',
+    fontSize: 14,
+    backgroundColor: '#7e57c2',
+    color: 'white',
+    border: 'none',
+    borderRadius: 6,
+    cursor: aiAssistBusy ? 'wait' : 'pointer',
+    fontWeight: 600,
+    opacity: aiAssistBusy ? 0.7 : 1,
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      {advisors.length > 1 && (
+        <select
+          value={advisorId ?? ''}
+          onChange={(e) => setAdvisorId(e.target.value)}
+          title="AI engine"
+          style={{
+            padding: '6px 8px',
+            fontSize: 13,
+            backgroundColor: '#333',
+            color: '#ddd',
+            border: '1px solid #555',
+            borderRadius: 6,
+          }}
+        >
+          {advisors.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name}
+            </option>
+          ))}
+        </select>
+      )}
+      <button
+        onClick={() => void suggestPick(advisorId ?? undefined)}
+        disabled={aiAssistBusy}
+        title="Score every card in this pack and highlight the best pick"
+        style={buttonStyle}
+      >
+        {aiAssistBusy ? 'Thinking…' : hasSuggestion ? 'Re-suggest' : '✨ Suggest Pick'}
+      </button>
+      {hasSuggestion && !aiAssistBusy && (
+        <button
+          onClick={clearPickSuggestion}
+          title="Hide AI scores"
+          style={{
+            padding: '6px 10px',
+            fontSize: 13,
+            backgroundColor: '#444',
+            color: '#ccc',
+            border: 'none',
+            borderRadius: 6,
+            cursor: 'pointer',
+          }}
+        >
+          Clear
+        </button>
+      )}
+      {aiAssistError && <span style={{ color: '#ff6b6b', fontSize: 12 }}>{aiAssistError}</span>}
     </div>
   )
 }

@@ -13,10 +13,32 @@ import com.wingedsheep.sdk.model.CardDefinition
  * 4. Select the top 23 on-color spells by rating, with mana curve awareness
  * 5. Fill to 40 cards with basic lands split proportionally by mana symbols
  *
+ * When [locked] is non-empty the builder switches to **completion mode**: the locked cards are
+ * treated as already-chosen (always kept, counted toward the 4-of limit) and only the remaining
+ * slots are filled. This powers the deckbuild "Auto-build" button — an empty deck builds fresh, a
+ * partial deck is completed without dropping the player's existing picks.
+ *
  * @param pool The sealed pool (typically 90 cards from 6 boosters)
+ * @param locked Cards already in the deck (name → count). Empty = build fresh (default).
+ * @param targetSize Total deck size to fill to (default 40 for limited).
+ * @param resolveCard Resolves a locked card name that isn't in [pool] (e.g. basic lands) to its
+ *   definition, for color/land classification. Defaults to "unknown" (treated as a colorless spell).
  * @return A deck list as a map of card name to count
  */
-fun buildHeuristicSealedDeck(pool: List<CardDefinition>): Map<String, Int> {
+fun buildHeuristicSealedDeck(
+    pool: List<CardDefinition>,
+    locked: Map<String, Int> = emptyMap(),
+    targetSize: Int = 40,
+    resolveCard: (String) -> CardDefinition? = { null },
+): Map<String, Int> {
+    val sanitizedLocked = locked.filterValues { it > 0 }
+    if (sanitizedLocked.isNotEmpty()) {
+        return completeSealedDeck(pool, sanitizedLocked, targetSize, resolveCard)
+    }
+    return buildFreshSealedDeck(pool, targetSize)
+}
+
+private fun buildFreshSealedDeck(pool: List<CardDefinition>, targetSize: Int): Map<String, Int> {
     val deck = mutableMapOf<String, Int>()
     val ratings = pool.associateWith { LimitedCardRater.rate(it) }
 
@@ -45,11 +67,14 @@ fun buildHeuristicSealedDeck(pool: List<CardDefinition>): Map<String, Int> {
     val selected = mutableListOf<CardDefinition>()
     val remaining = candidates.toMutableList()
 
+    // Spell slots scale with deck size (23 nonland cards in a 40-card limited deck).
+    val spellTarget = (targetSize * 23) / 40
+
     // First pass: grab the best cards by rating, capped at 4 copies per name (sealed rule)
     val picksByName = mutableMapOf<String, Int>()
     val topPicks = mutableListOf<CardDefinition>()
     val iter = remaining.iterator()
-    while (iter.hasNext() && topPicks.size < 23) {
+    while (iter.hasNext() && topPicks.size < spellTarget) {
         val card = iter.next()
         val current = picksByName[card.name] ?: 0
         if (current >= 4) continue
@@ -104,30 +129,114 @@ fun buildHeuristicSealedDeck(pool: List<CardDefinition>): Map<String, Int> {
         deck[land.name] = current + 1
     }
 
-    // Fill to 40 with basic lands split by color
-    val landsNeeded = (40 - deck.values.sum()).coerceAtLeast(0)
+    // Fill to target size with basic lands split by color
+    val landsNeeded = (targetSize - deck.values.sum()).coerceAtLeast(0)
+    addBasicLands(deck, bestColors, landsNeeded) { color -> selected.sumOf { it.manaCost.colorCount[color] ?: 0 } }
 
-    val colorToLand = mapOf(
-        Color.WHITE to "Plains", Color.BLUE to "Island", Color.BLACK to "Swamp",
-        Color.RED to "Mountain", Color.GREEN to "Forest"
-    )
+    return deck
+}
 
-    if (bestColors.size >= 2) {
-        val c1 = bestColors.first()
-        val c2 = bestColors.last()
-        // Count mana symbols to split lands proportionally
-        val c1count = selected.sumOf { card -> card.manaCost.colorCount[c1] ?: 0 }
-        val c2count = selected.sumOf { card -> card.manaCost.colorCount[c2] ?: 0 }
-        val total = (c1count + c2count).coerceAtLeast(1)
-        val l1 = (landsNeeded * c1count / total).coerceAtLeast(1)
-        deck[colorToLand[c1]!!] = (deck[colorToLand[c1]!!] ?: 0) + l1
-        deck[colorToLand[c2]!!] = (deck[colorToLand[c2]!!] ?: 0) + (landsNeeded - l1)
-    } else if (bestColors.size == 1) {
-        val land = colorToLand[bestColors.first()]!!
-        deck[land] = (deck[land] ?: 0) + landsNeeded
-    } else {
-        deck["Forest"] = (deck["Forest"] ?: 0) + landsNeeded
+/**
+ * Completion mode: keep every locked card, then fill the remaining slots with the best on-color
+ * spells from the pool, on-color non-basic lands, and a basic-land mana base — up to [targetSize].
+ */
+private fun completeSealedDeck(
+    pool: List<CardDefinition>,
+    locked: Map<String, Int>,
+    targetSize: Int,
+    resolveCard: (String) -> CardDefinition?,
+): Map<String, Int> {
+    val deck = locked.toMutableMap()
+    val ratings = pool.associateWith { LimitedCardRater.rate(it) }
+    val poolCounts = pool.groupingBy { it.name }.eachCount()
+    val byName = pool.associateBy { it.name }
+    fun defOf(name: String): CardDefinition? = byName[name] ?: resolveCard(name)
+
+    // Bias colors toward what the player has already locked in (so completion stays on-theme),
+    // falling back to the pool's overall color weight if the partial deck has no colored spells yet.
+    val colorScores = mutableMapOf<Color, Double>()
+    for ((name, count) in deck) {
+        val def = defOf(name) ?: continue
+        if (def.typeLine.isLand) continue
+        for (color in def.colors) colorScores[color] = (colorScores[color] ?: 0.0) + count
+    }
+    if (colorScores.isEmpty()) {
+        for (card in pool.filter { !it.typeLine.isLand }) {
+            val rating = ratings[card] ?: 0.0
+            for (color in card.colors) colorScores[color] = (colorScores[color] ?: 0.0) + rating
+        }
+    }
+    val bestColors = colorScores.entries.sortedByDescending { it.value }.take(2).map { it.key }.toSet()
+
+    val spellTarget = (targetSize * 23) / 40
+    fun total() = deck.values.sum()
+    fun nonLandCount() = deck.entries.sumOf { (n, c) -> if (defOf(n)?.typeLine?.isLand == true) 0 else c }
+
+    // Fill spell slots with the best on-color (or colorless) candidates not already maxed out.
+    val candidates = pool
+        .filter { !it.typeLine.isLand && (it.colors.isEmpty() || it.colors.all { c -> c in bestColors }) }
+        .sortedByDescending { ratings[it] ?: 0.0 }
+    for (card in candidates) {
+        if (nonLandCount() >= spellTarget || total() >= targetSize) break
+        val have = deck[card.name] ?: 0
+        val available = poolCounts[card.name] ?: 0
+        if (have >= minOf(4, available)) continue
+        deck[card.name] = have + 1
+    }
+
+    // On-color non-basic lands from the pool.
+    for (land in pool.filter { it.typeLine.isLand && !it.typeLine.isBasicLand }) {
+        if (total() >= targetSize) break
+        val have = deck[land.name] ?: 0
+        val available = poolCounts[land.name] ?: 0
+        if (have >= minOf(4, available)) continue
+        deck[land.name] = have + 1
+    }
+
+    // Basic-land mana base for the rest, split by the deck's actual colored mana symbols.
+    val landsNeeded = (targetSize - total()).coerceAtLeast(0)
+    addBasicLands(deck, bestColors, landsNeeded) { color ->
+        deck.entries.sumOf { (n, c) ->
+            val def = defOf(n) ?: return@sumOf 0
+            if (def.typeLine.isLand) 0 else (def.manaCost.colorCount[color] ?: 0) * c
+        }
     }
 
     return deck
+}
+
+private val COLOR_TO_LAND = mapOf(
+    Color.WHITE to "Plains", Color.BLUE to "Island", Color.BLACK to "Swamp",
+    Color.RED to "Mountain", Color.GREEN to "Forest"
+)
+
+/**
+ * Add [landsNeeded] basic lands to [deck], split between [bestColors] proportionally to each color's
+ * mana-symbol weight (from [symbolCount]). Mono-color dumps all into one type; colorless falls back
+ * to Forest. No-op when no lands are needed.
+ */
+private fun addBasicLands(
+    deck: MutableMap<String, Int>,
+    bestColors: Set<Color>,
+    landsNeeded: Int,
+    symbolCount: (Color) -> Int,
+) {
+    if (landsNeeded <= 0) return
+    when {
+        bestColors.size >= 2 -> {
+            val c1 = bestColors.first()
+            val c2 = bestColors.last()
+            val c1count = symbolCount(c1)
+            val c2count = symbolCount(c2)
+            val total = (c1count + c2count).coerceAtLeast(1)
+            val l1 = (landsNeeded * c1count / total).coerceIn(1, landsNeeded)
+            deck[COLOR_TO_LAND[c1]!!] = (deck[COLOR_TO_LAND[c1]!!] ?: 0) + l1
+            deck[COLOR_TO_LAND[c2]!!] = (deck[COLOR_TO_LAND[c2]!!] ?: 0) + (landsNeeded - l1)
+        }
+        bestColors.size == 1 -> {
+            val land = COLOR_TO_LAND[bestColors.first()]!!
+            deck[land] = (deck[land] ?: 0) + landsNeeded
+        }
+        else -> deck["Forest"] = (deck["Forest"] ?: 0) + landsNeeded
+    }
 }
