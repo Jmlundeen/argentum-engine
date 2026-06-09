@@ -384,6 +384,8 @@ class TriggerMatcher(
             is EventPattern.OneOrMoreDealCombatDamageToPlayerEvent -> false
             // Leave battlefield without dying batch triggers are handled by detectLeaveBattlefieldWithoutDyingBatchTriggers
             is EventPattern.LeaveBattlefieldWithoutDyingEvent -> false
+            // Creatures-you-control-die batch triggers are handled by detectCreaturesDiedBatchTriggers
+            is EventPattern.CreaturesYouControlDiedEvent -> false
             // Enter battlefield batch triggers are handled by detectPermanentsEnteredBatchTriggers
             is EventPattern.PermanentsEnteredEvent -> false
             is EventPattern.CountersPlacedEvent -> {

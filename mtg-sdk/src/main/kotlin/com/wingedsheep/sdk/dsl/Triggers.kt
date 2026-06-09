@@ -1320,6 +1320,31 @@ object Triggers {
     )
 
     // =========================================================================
+    // Death Batch Triggers
+    // =========================================================================
+
+    /**
+     * Whenever one or more [other] creatures you control die.
+     * Batching trigger — fires at most once per event batch, regardless of how many
+     * creatures died simultaneously. This is the correct shape for "one or more
+     * creatures died" payoffs: a per-creature [YourCreatureDies] trigger over-counts
+     * on board wipes (one firing per creature), while this fires exactly once.
+     *
+     * Set [excludeSelf] for the "one or more *other* creatures you control die" wording —
+     * the source's own death is excluded from the batch.
+     *
+     * Example: "Whenever one or more other creatures you control die, put a +1/+1 counter on this creature."
+     * → OneOrMoreCreaturesYouControlDie(excludeSelf = true)   (Vengeful Townsfolk)
+     */
+    fun OneOrMoreCreaturesYouControlDie(
+        filter: GameObjectFilter = GameObjectFilter.Creature,
+        excludeSelf: Boolean = false
+    ): TriggerSpec = TriggerSpec(
+        event = CreaturesYouControlDiedEvent(filter = filter, excludeSelf = excludeSelf),
+        binding = TriggerBinding.ANY
+    )
+
+    // =========================================================================
     // Enter Battlefield Batch Triggers
     // =========================================================================
 

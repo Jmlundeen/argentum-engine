@@ -562,6 +562,20 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         if (jsonContains(trig, "_Trigger", mtTrigger) && isSelf(trig)) return dsl
     }
 
+    // Non-self "a creature you control dies" deliberately declines -> SCAFFOLD, and the boundary is
+    // worth stating because it is tempting to "fix": the modern once-per-batch "whenever one or more
+    // other creatures you control die" (Vengeful Townsfolk) and the per-creature "whenever another
+    // creature you control dies" (Unruly Mob, Rot Shambler, Catacomb Sifter, Pitiless Plunderer, …)
+    // flatten to the *identical* mtgish node — WhenACreatureOrPlaneswalkerDies over
+    // And(Other(ThisPermanent), IsCardtype Creature, ControlledByAPlayer You). The IR carries no
+    // "one or more" quantifier, so the two can't be told apart here, yet they behave differently (a
+    // board wipe fires the batch trigger once but the per-each trigger once per creature). Rendering
+    // either way would mis-author the ~55 per-each cards that share this node, so we decline. The
+    // engine supports both shapes (Triggers.OneOrMoreCreaturesYouControlDie /
+    // Triggers.YourCreatureDies) and the bridge still scores these cards coverable — choosing between
+    // them is a human call (the add-card scenario test is the real gate).
+    if (jsonContains(trig, "_Trigger", "WhenACreatureOrPlaneswalkerDies") && !isSelf(trig)) return null
+
     // "Whenever ~ deals damage" / "Whenever ~ is dealt damage" (SELF) — paired with a "that much"
     // gain/lose-life or token effect.
     if (jsonContains(trig, "_Trigger", "WhenAPermanentDealsDamage") && isSelf(trig))

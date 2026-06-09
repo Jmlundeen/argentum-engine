@@ -5437,6 +5437,45 @@
     ]
 }
 
+// Vengeful Townsfolk
+{
+    "name": "Vengeful Townsfolk",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Citizen",
+    "oracleText": "Whenever one or more other creatures you control die, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "CreaturesYouControlDiedEvent",
+                    "excludeSelf": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "artist": "Irina Nordsol",
+        "flavorText": "\"The Sterling Company says they protect us, but where are they when the Hellspurs burn half the town? Counting their vaults!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/d/2df404af-571a-4867-83f5-bb4163b433ff.jpg?1712355378"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Vial Smasher, Gleeful Grenadier
 {
     "name": "Vial Smasher, Gleeful Grenadier",

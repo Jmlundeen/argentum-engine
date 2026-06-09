@@ -1419,6 +1419,50 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     }
 
     // =========================================================================
+    // Death Batch Triggers
+    // =========================================================================
+
+    /**
+     * Whenever one or more creatures you control die.
+     *
+     * "Die" means a creature is put into a graveyard from the battlefield (CR 700.4).
+     * This is a **batching trigger** — it fires at most once per event batch, regardless
+     * of how many matching creatures died simultaneously. A board wipe that destroys
+     * several of your creatures at once fires this once, not once per creature — the key
+     * difference from the per-creature [ZoneChangeEvent] death shape (one event each),
+     * which over-counts on mass removal.
+     *
+     * [excludeSelf] models the "other" in "one or more *other* creatures you control die":
+     * the trigger's own source death does not count toward the batch.
+     *
+     * Detection is handled specially by TriggerDetector: after processing individual events,
+     * it groups battlefield→graveyard zone changes by each creature's last-known controller,
+     * checks the creature filter, and fires the trigger at most once per qualifying controller.
+     *
+     * Examples:
+     * - "Whenever one or more other creatures you control die, put a +1/+1 counter on this creature."
+     *   → CreaturesYouControlDiedEvent(excludeSelf = true)   (Vengeful Townsfolk)
+     */
+    @SerialName("CreaturesYouControlDiedEvent")
+    @Serializable
+    data class CreaturesYouControlDiedEvent(
+        val filter: GameObjectFilter = GameObjectFilter.Companion.Creature,
+        val excludeSelf: Boolean = false
+    ) : EventPattern {
+        override val description: String = buildString {
+            append("one or more ")
+            if (excludeSelf) append("other ")
+            append(describeObjectForEvent(filter))
+            append(" you control die")
+        }
+
+        override fun applyTextReplacement(replacer: TextReplacer): EventPattern {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+    }
+
+    // =========================================================================
     // Enter Battlefield Batch Triggers
     // =========================================================================
 

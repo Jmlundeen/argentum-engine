@@ -1153,7 +1153,15 @@ for any other (filter, binding, to/excludeTo) combination.
 - `LeavesBattlefield` — SELF, any destination.
 - `Dies` — SELF, battlefield → graveyard.
 - `AnyCreatureDies` — ANY binding, filter = `Creature`.
-- `YourCreatureDies` — ANY binding, filter = `Creature.youControl()`.
+- `YourCreatureDies` — ANY binding, filter = `Creature.youControl()`. **Per-creature**: fires
+  once for *each* matching death, so a board wipe fires it once per creature. Use this for
+  "whenever another creature you control dies, …" (Unruly Mob, Rot Shambler, Pitiless Plunderer).
+- `OneOrMoreCreaturesYouControlDie(filter = Creature, excludeSelf = false)` — **batched** death
+  trigger: fires **at most once per event batch** regardless of how many matching creatures died
+  simultaneously. This is the correct shape for "whenever one or more [other] creatures you control
+  die, …" (Vengeful Townsfolk) — a per-creature `YourCreatureDies` would over-count on mass removal.
+  Set `excludeSelf = true` for the "*other* creatures" wording (the source's own death is excluded).
+  Detected specially by `TriggerDetector` (grouped by each dying creature's last-known controller).
 - `PutIntoGraveyardFromBattlefield` — SELF, same event shape as `Dies`; rename
   clarifies non-creature intent (artifact / enchantment going to yard).
 - `leavesBattlefield(filter, to?, excludeTo?, binding)` — factory. `to = GRAVEYARD`

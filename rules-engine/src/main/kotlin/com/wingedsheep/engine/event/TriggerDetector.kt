@@ -233,6 +233,13 @@ class TriggerDetector(
         // non-graveyard zones and fires the trigger at most once per observer.
         detectLeaveBattlefieldWithoutDyingBatchTriggers(state, events, triggers, index)
 
+        // Detect "whenever one or more [other] creatures you control die" batching triggers
+        // (e.g., Vengeful Townsfolk). Groups battlefield→graveyard zone changes by each dying
+        // creature's last-known controller and fires the trigger at most once per controller —
+        // so a board wipe that kills several of a player's creatures fires the trigger once,
+        // not once per creature (the over-counting a per-creature death trigger would suffer).
+        detectCreaturesDiedBatchTriggers(state, events, triggers, index)
+
         // Detect "whenever one or more [filtered] permanents you control enter the battlefield"
         // batching triggers (e.g., Builder's Talent). Groups zone changes to battlefield
         // and fires the trigger at most once per observer.
@@ -1685,6 +1692,87 @@ class TriggerDetector(
                                 info.cardComponent.typeLine.isCreature
                             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtype ->
                                 info.cardComponent.typeLine.hasSubtype(predicate.subtype)
+                            else -> true
+                        }
+                    }
+                }
+
+                if (hasMatch) {
+                    triggers.add(
+                        PendingTrigger(
+                            ability = ability,
+                            sourceId = entry.entityId,
+                            sourceName = entry.cardComponent.name,
+                            controllerId = controllerId,
+                            triggerContext = TriggerContext()
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Detect "whenever one or more [other] creatures you control die" batching triggers
+     * (e.g., Vengeful Townsfolk).
+     *
+     * Groups battlefield→graveyard zone changes by each dying creature's last-known controller
+     * and fires the trigger at most once per qualifying controller, regardless of how many
+     * creatures died simultaneously. This is the once-per-batch shape a per-creature death
+     * trigger (one [ZoneChangeEvent] each) cannot express — a board wipe killing five of a
+     * player's creatures fires this once, not five times.
+     *
+     * Controller is read from [ZoneChangeEvent.lastKnownController] (falling back to owner),
+     * since the creature has already left the battlefield. The creature's type line comes from
+     * [ZoneChangeEvent.lastKnownTypeLine] so it survives the 704.5s token cleanup that can remove
+     * a dead token from the graveyard in the same pass.
+     */
+    private fun detectCreaturesDiedBatchTriggers(
+        state: GameState,
+        events: List<EngineGameEvent>,
+        triggers: MutableList<PendingTrigger>,
+        index: TriggerIndex
+    ) {
+        if (index.getEntitiesForCategory(TriggerCategory.CREATURES_DIED_BATCH).isEmpty()) return
+
+        // Collect creature deaths (battlefield → graveyard), grouped by last-known controller.
+        data class DeathInfo(val entityId: EntityId, val typeLine: com.wingedsheep.sdk.core.TypeLine?)
+        val deathsByController = mutableMapOf<EntityId, MutableList<DeathInfo>>()
+        for (event in events) {
+            if (event !is ZoneChangeEvent) continue
+            if (event.fromZone != Zone.BATTLEFIELD || event.toZone != Zone.GRAVEYARD) continue
+            val typeLine = event.lastKnownTypeLine
+                ?: state.getEntity(event.entityId)?.get<CardComponent>()?.typeLine
+            if (typeLine?.isCreature != true) continue
+            val controllerId = event.lastKnownController ?: event.ownerId
+            deathsByController.getOrPut(controllerId) { mutableListOf() }
+                .add(DeathInfo(event.entityId, typeLine))
+        }
+        if (deathsByController.isEmpty()) return
+
+        for (entry in index.getEntitiesForCategory(TriggerCategory.CREATURES_DIED_BATCH)) {
+            for (ability in entry.abilities) {
+                val trigger = ability.trigger
+                if (trigger !is EventPattern.CreaturesYouControlDiedEvent) continue
+
+                val controllerId = entry.controllerId
+                val controllerDeaths = deathsByController[controllerId] ?: continue
+
+                // "one or more *other* creatures you control die" excludes the source's own death.
+                val relevantDeaths = if (trigger.excludeSelf) {
+                    controllerDeaths.filter { it.entityId != entry.entityId }
+                } else {
+                    controllerDeaths
+                }
+                if (relevantDeaths.isEmpty()) continue
+
+                val hasMatch = relevantDeaths.any { info ->
+                    trigger.filter.cardPredicates.all { predicate ->
+                        when (predicate) {
+                            is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsCreature ->
+                                info.typeLine?.isCreature == true
+                            is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtype ->
+                                info.typeLine?.hasSubtype(predicate.subtype) == true
                             else -> true
                         }
                     }
