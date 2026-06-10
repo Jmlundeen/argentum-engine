@@ -2639,6 +2639,55 @@
         "imageUri": "https://cards.scryfall.io/normal/front/8/8/88d36c32-d6f9-46e4-9cc8-08e6c0ff05d2.jpg?1769006413"
     }
 }
+// Leonardo, Big Brother
+{
+    "name": "Leonardo, Big Brother",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Mutant Ninja Turtle",
+    "oracleText": "Sneak {W} (You may cast this spell for {W} if you also return an unblocked attacker you control to hand during the declare blockers step. He enters tapped and attacking.)\nLeonardo gets +1/+0 for each other creature you control.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "SNEAK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Sneak",
+            "cost": "{W}"
+        }
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "creature",
+                    "excludeSelf": true
+                },
+                "toughnessBonus": {
+                    "type": "Fixed",
+                    "amount": 0
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "14",
+        "artist": "InHyuk Lee",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/8/e802838f-cc8c-4313-8c3b-32a6a7248e64.jpg?1771502512"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
 // Lessons from Life
 {
     "name": "Lessons from Life",

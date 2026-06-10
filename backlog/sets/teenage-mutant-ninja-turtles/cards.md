@@ -78,7 +78,7 @@
 - [ ] Leader's Talent
 - [ ] Leatherhead, Swamp Stalker
 - [ ] Leonardo's Technique
-- [ ] Leonardo, Big Brother
+- [x] Leonardo, Big Brother
 - [ ] Leonardo, Cutting Edge
 - [ ] Leonardo, Leader in Blue
 - [ ] Leonardo, Sewer Samurai
