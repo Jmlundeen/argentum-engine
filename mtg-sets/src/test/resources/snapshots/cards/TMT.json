@@ -64,6 +64,7 @@
         "WHITE"
     ]
 }
+
 // Agent Bishop, Man in Black
 {
     "name": "Agent Bishop, Man in Black",
@@ -120,6 +121,7 @@
         "WHITE"
     ]
 }
+
 // Anchovy & Banana Pizza
 {
     "name": "Anchovy & Banana Pizza",
@@ -186,6 +188,7 @@
         "BLACK"
     ]
 }
+
 // April O'Neil, Kunoichi Trainee
 {
     "name": "April O'Neil, Kunoichi Trainee",
@@ -281,6 +284,7 @@
         "WHITE"
     ]
 }
+
 // April, Reporter of the Weird
 {
     "name": "April, Reporter of the Weird",
@@ -361,6 +365,7 @@
         "BLUE"
     ]
 }
+
 // Armaggon, Future Shark
 {
     "name": "Armaggon, Future Shark",
@@ -419,6 +424,7 @@
         "BLACK"
     ]
 }
+
 // Baxter Stockman
 {
     "name": "Baxter Stockman",
@@ -514,6 +520,7 @@
         "RED"
     ]
 }
+
 // Bebop, Warthog Warrior
 {
     "name": "Bebop, Warthog Warrior",
@@ -562,6 +569,7 @@
         "BLACK"
     ]
 }
+
 // Bespoke Bō
 {
     "name": "Bespoke Bō",
@@ -644,6 +652,7 @@
         "BLUE"
     ]
 }
+
 // Bot Bashing Time
 {
     "name": "Bot Bashing Time",
@@ -694,6 +703,7 @@
         "RED"
     ]
 }
+
 // Brilliance Unleashed
 {
     "name": "Brilliance Unleashed",
@@ -798,6 +808,7 @@
         "RED"
     ]
 }
+
 // Buzz Bots
 {
     "name": "Buzz Bots",
@@ -841,6 +852,7 @@
         "BLUE"
     ]
 }
+
 // Casey Jones, Jury-Rig Justiciar
 {
     "name": "Casey Jones, Jury-Rig Justiciar",
@@ -927,6 +939,7 @@
         "RED"
     ]
 }
+
 // Casey Jones, Vigilante
 {
     "name": "Casey Jones, Vigilante",
@@ -1013,6 +1026,7 @@
         "RED"
     ]
 }
+
 // Cowabunga!
 {
     "name": "Cowabunga!",
@@ -1100,6 +1114,7 @@
         "GREEN"
     ]
 }
+
 // Death in the Family
 {
     "name": "Death in the Family",
@@ -1136,6 +1151,7 @@
         "BLACK"
     ]
 }
+
 // Dimension X
 {
     "name": "Dimension X",
@@ -1196,6 +1212,7 @@
         "WHITE"
     ]
 }
+
 // Dimensional Exile
 {
     "name": "Dimensional Exile",
@@ -1270,6 +1287,7 @@
         "WHITE"
     ]
 }
+
 // Donatello's Technique
 {
     "name": "Donatello's Technique",
@@ -1305,6 +1323,7 @@
         "BLUE"
     ]
 }
+
 // Donatello, Gadget Master
 {
     "name": "Donatello, Gadget Master",
@@ -1360,6 +1379,7 @@
         "BLUE"
     ]
 }
+
 // Donatello, Turtle Techie
 {
     "name": "Donatello, Turtle Techie",
@@ -1404,6 +1424,7 @@
         "BLUE"
     ]
 }
+
 // Donatello, Way with Machines
 {
     "name": "Donatello, Way with Machines",
@@ -1448,6 +1469,7 @@
         "BLUE"
     ]
 }
+
 // Dream Beavers
 {
     "name": "Dream Beavers",
@@ -1557,6 +1579,7 @@
         "BLACK"
     ]
 }
+
 // EPF Point Squad
 {
     "name": "EPF Point Squad",
@@ -1598,6 +1621,7 @@
         "WHITE"
     ]
 }
+
 // East Wind Avatar
 {
     "name": "East Wind Avatar",
@@ -1648,6 +1672,7 @@
         "WHITE"
     ]
 }
+
 // Featherbrained Filcher
 {
     "name": "Featherbrained Filcher",
@@ -1687,6 +1712,7 @@
         "WHITE"
     ]
 }
+
 // Foot Elite
 {
     "name": "Foot Elite",
@@ -1752,6 +1778,7 @@
         "BLACK"
     ]
 }
+
 // Foot Headquarters
 {
     "name": "Foot Headquarters",
@@ -1812,6 +1839,7 @@
         "BLACK"
     ]
 }
+
 // Foot Ninjas
 {
     "name": "Foot Ninjas",
@@ -1859,6 +1887,7 @@
         "BLACK"
     ]
 }
+
 // Frog Butler
 {
     "name": "Frog Butler",
@@ -1905,6 +1934,7 @@
         "GREEN"
     ]
 }
+
 // Guac & Marshmallow Pizza
 {
     "name": "Guac & Marshmallow Pizza",
@@ -1993,6 +2023,7 @@
         "GREEN"
     ]
 }
+
 // Hamato Guardian Stance
 {
     "name": "Hamato Guardian Stance",
@@ -2099,6 +2130,7 @@
         "WHITE"
     ]
 }
+
 // Hard-Won Jitte
 {
     "name": "Hard-Won Jitte",
@@ -2151,6 +2183,7 @@
         "RED"
     ]
 }
+
 // Henchbots
 {
     "name": "Henchbots",
@@ -2220,6 +2253,7 @@
         "imageUri": "https://cards.scryfall.io/normal/front/d/7/d77aa46e-fa57-4427-b0a3-0a957dc994dc.jpg?1771502803"
     }
 }
+
 // High-Flying Ace
 {
     "name": "High-Flying Ace",
@@ -2280,6 +2314,7 @@
         "WHITE"
     ]
 }
+
 // Ice Cream Kitty
 {
     "name": "Ice Cream Kitty",
@@ -2351,6 +2386,7 @@
         "GREEN"
     ]
 }
+
 // Illegitimate Business
 {
     "name": "Illegitimate Business",
@@ -2411,6 +2447,7 @@
         "GREEN"
     ]
 }
+
 // Improvised Arsenal
 {
     "name": "Improvised Arsenal",
@@ -2483,6 +2520,7 @@
         "RED"
     ]
 }
+
 // Jennika's Technique
 {
     "name": "Jennika's Technique",
@@ -2525,6 +2563,7 @@
         "RED"
     ]
 }
+
 // Jennika, Bad Apple Big Sister
 {
     "name": "Jennika, Bad Apple Big Sister",
@@ -2583,6 +2622,7 @@
         "WHITE"
     ]
 }
+
 // Karai's Technique
 {
     "name": "Karai's Technique",
@@ -2672,6 +2712,7 @@
         "BLACK"
     ]
 }
+
 // Krang, Master Mind
 {
     "name": "Krang, Master Mind",
@@ -2765,6 +2806,7 @@
         "BLUE"
     ]
 }
+
 // Krang, Utrom Warlord
 {
     "name": "Krang, Utrom Warlord",
@@ -2825,6 +2867,7 @@
         "imageUri": "https://cards.scryfall.io/normal/front/8/8/88d36c32-d6f9-46e4-9cc8-08e6c0ff05d2.jpg?1769006413"
     }
 }
+
 // Leonardo, Big Brother
 {
     "name": "Leonardo, Big Brother",
@@ -2874,6 +2917,7 @@
         "WHITE"
     ]
 }
+
 // Leonardo, Cutting Edge
 {
     "name": "Leonardo, Cutting Edge",
@@ -2919,6 +2963,7 @@
         "WHITE"
     ]
 }
+
 // Leonardo, Leader in Blue
 {
     "name": "Leonardo, Leader in Blue",
@@ -2993,6 +3038,7 @@
         "WHITE"
     ]
 }
+
 // Lessons from Life
 {
     "name": "Lessons from Life",
@@ -3060,6 +3106,7 @@
         "BLUE"
     ]
 }
+
 // Make Your Move
 {
     "name": "Make Your Move",
@@ -3096,6 +3143,7 @@
         "WHITE"
     ]
 }
+
 // Manhole Missile
 {
     "name": "Manhole Missile",
@@ -3186,6 +3234,7 @@
         "RED"
     ]
 }
+
 // Mechanized Ninja Cavalry
 {
     "name": "Mechanized Ninja Cavalry",
@@ -3229,6 +3278,7 @@
         "WHITE"
     ]
 }
+
 // Metalhead
 {
     "name": "Metalhead",
@@ -3319,6 +3369,7 @@
         "RED"
     ]
 }
+
 // Mighty Mutanimals
 {
     "name": "Mighty Mutanimals",
@@ -3389,6 +3440,7 @@
         "WHITE"
     ]
 }
+
 // Mikey & Leo, Chaos & Order
 {
     "name": "Mikey & Leo, Chaos & Order",
@@ -3432,6 +3484,7 @@
         "WHITE"
     ]
 }
+
 // Mona Lisa, Science Geek
 {
     "name": "Mona Lisa, Science Geek",
@@ -3474,6 +3527,7 @@
         "GREEN"
     ]
 }
+
 // Mouser Attack!
 {
     "name": "Mouser Attack!",
@@ -3551,6 +3605,7 @@
         "RED"
     ]
 }
+
 // Mouser Foundry
 {
     "name": "Mouser Foundry",
@@ -3642,6 +3697,7 @@
         "RED"
     ]
 }
+
 // Mouser Mark III
 {
     "name": "Mouser Mark III",
@@ -3683,6 +3739,7 @@
         "RED"
     ]
 }
+
 // Mutant Town
 {
     "name": "Mutant Town",
@@ -3744,6 +3801,7 @@
         "BLUE"
     ]
 }
+
 // Mutant Town Musicians
 {
     "name": "Mutant Town Musicians",
@@ -3793,6 +3851,7 @@
         "RED"
     ]
 }
+
 // New Generation's Technique
 {
     "name": "New Generation's Technique",
@@ -3857,6 +3916,7 @@
         "GREEN"
     ]
 }
+
 // Nobody
 {
     "name": "Nobody",
@@ -3962,6 +4022,7 @@
         "RED"
     ]
 }
+
 // Null Group Biological Assets
 {
     "name": "Null Group Biological Assets",
@@ -4047,6 +4108,7 @@
         "RED"
     ]
 }
+
 // Old Hob, Alleycat Blues
 {
     "name": "Old Hob, Alleycat Blues",
@@ -4141,6 +4203,7 @@
         "WHITE"
     ]
 }
+
 // Omni-Cheese Pizza
 {
     "name": "Omni-Cheese Pizza",
@@ -4212,6 +4275,7 @@
         "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2c8397c-2014-4a43-9ed7-41795880011f.jpg?1771587071"
     }
 }
+
 // Oroku Saki, Shredder Rising
 {
     "name": "Oroku Saki, Shredder Rising",
@@ -4272,6 +4336,7 @@
         "BLACK"
     ]
 }
+
 // Pain 101
 {
     "name": "Pain 101",
@@ -4335,6 +4400,7 @@
         "BLACK"
     ]
 }
+
 // Primordial Pachyderm
 {
     "name": "Primordial Pachyderm",
@@ -4377,6 +4443,7 @@
         "GREEN"
     ]
 }
+
 // Punk Frogs
 {
     "name": "Punk Frogs",
@@ -4410,6 +4477,7 @@
         "BLUE"
     ]
 }
+
 // Quintessential Katana
 {
     "name": "Quintessential Katana",
@@ -4506,6 +4574,7 @@
         "WHITE"
     ]
 }
+
 // Ragamuffin Raptor
 {
     "name": "Ragamuffin Raptor",
@@ -4554,6 +4623,7 @@
         "GREEN"
     ]
 }
+
 // Raph & Leo, Sibling Rivals
 {
     "name": "Raph & Leo, Sibling Rivals",
@@ -4613,6 +4683,7 @@
         "WHITE"
     ]
 }
+
 // Raph & Mikey, Troublemakers
 {
     "name": "Raph & Mikey, Troublemakers",
@@ -4691,6 +4762,7 @@
         "GREEN"
     ]
 }
+
 // Raphael, Tough Turtle
 {
     "name": "Raphael, Tough Turtle",
@@ -4740,6 +4812,7 @@
         "RED"
     ]
 }
+
 // Raphael, the Nightwatcher
 {
     "name": "Raphael, the Nightwatcher",
@@ -4781,6 +4854,7 @@
         "RED"
     ]
 }
+
 // Ravenous Robots
 {
     "name": "Ravenous Robots",
@@ -4855,6 +4929,7 @@
         "RED"
     ]
 }
+
 // Renet, Temporal Apprentice
 {
     "name": "Renet, Temporal Apprentice",
@@ -4910,6 +4985,7 @@
         "BLUE"
     ]
 }
+
 // Rock Soldiers
 {
     "name": "Rock Soldiers",
@@ -4966,6 +5042,7 @@
         "RED"
     ]
 }
+
 // Rocksteady, Crash Courser
 {
     "name": "Rocksteady, Crash Courser",
@@ -5015,6 +5092,7 @@
         "GREEN"
     ]
 }
+
 // Sally Pride, Lioness Leader
 {
     "name": "Sally Pride, Lioness Leader",
@@ -5084,6 +5162,7 @@
         "WHITE"
     ]
 }
+
 // Savanti Romero, Time's Exile
 {
     "name": "Savanti Romero, Time's Exile",
@@ -5154,6 +5233,7 @@
         "BLACK"
     ]
 }
+
 // Saved by the Shell
 {
     "name": "Saved by the Shell",
@@ -5234,6 +5314,7 @@
         "GREEN"
     ]
 }
+
 // Shredder's Armor
 {
     "name": "Shredder's Armor",
@@ -5320,6 +5401,7 @@
         "BLACK"
     ]
 }
+
 // Shredder's Revenge
 {
     "name": "Shredder's Revenge",
@@ -5432,6 +5514,7 @@
         "BLACK"
     ]
 }
+
 // Shredder's Technique
 {
     "name": "Shredder's Technique",
@@ -5509,6 +5592,7 @@
         "BLACK"
     ]
 }
+
 // Shredder, Unrelenting
 {
     "name": "Shredder, Unrelenting",
@@ -5586,6 +5670,7 @@
         "BLACK"
     ]
 }
+
 // Skateboard
 {
     "name": "Skateboard",
@@ -5663,6 +5748,7 @@
         "imageUri": "https://cards.scryfall.io/normal/front/d/e/deadb6d8-3eea-4261-a07c-8536df89e85c.jpg?1771502813"
     }
 }
+
 // Slash, Reptile Rampager
 {
     "name": "Slash, Reptile Rampager",
@@ -5725,6 +5811,7 @@
         "RED"
     ]
 }
+
 // South Wind Avatar
 {
     "name": "South Wind Avatar",
@@ -5788,6 +5875,7 @@
         "BLACK"
     ]
 }
+
 // Spicy Oatmeal Pizza
 {
     "name": "Spicy Oatmeal Pizza",
@@ -5867,6 +5955,7 @@
         "RED"
     ]
 }
+
 // Splinter's Technique
 {
     "name": "Splinter's Technique",
@@ -5929,6 +6018,7 @@
         "BLACK"
     ]
 }
+
 // Splinter, Hamato Yoshi
 {
     "name": "Splinter, Hamato Yoshi",
@@ -5972,6 +6062,7 @@
         "BLACK"
     ]
 }
+
 // Splinter, Radical Rat
 {
     "name": "Splinter, Radical Rat",
@@ -6031,6 +6122,7 @@
         "BLUE"
     ]
 }
+
 // Squirrelanoids
 {
     "name": "Squirrelanoids",
@@ -6054,6 +6146,7 @@
         "BLACK"
     ]
 }
+
 // Stockman, Mad Fly-entist
 {
     "name": "Stockman, Mad Fly-entist",
@@ -6149,6 +6242,7 @@
         "BLUE"
     ]
 }
+
 // Stomped by the Foot
 {
     "name": "Stomped by the Foot",
@@ -6222,6 +6316,7 @@
         "BLACK"
     ]
 }
+
 // Super Shredder
 {
     "name": "Super Shredder",
@@ -6266,6 +6361,7 @@
         "BLACK"
     ]
 }
+
 // TCRI Building
 {
     "name": "TCRI Building",
@@ -6326,6 +6422,7 @@
         "RED"
     ]
 }
+
 // Tainted Treats
 {
     "name": "Tainted Treats",
@@ -6392,6 +6489,7 @@
         "GREEN"
     ]
 }
+
 // Tenderize
 {
     "name": "Tenderize",
@@ -6442,6 +6540,7 @@
         "GREEN"
     ]
 }
+
 // The Last Ronin's Technique
 {
     "name": "The Last Ronin's Technique",
@@ -6515,6 +6614,7 @@
         "WHITE"
     ]
 }
+
 // Transdimensional Bovine
 {
     "name": "Transdimensional Bovine",
@@ -6556,6 +6656,7 @@
         "GREEN"
     ]
 }
+
 // Triceraton Commander
 {
     "name": "Triceraton Commander",
@@ -6638,6 +6739,7 @@
         "WHITE"
     ]
 }
+
 // Tunnel Rats
 {
     "name": "Tunnel Rats",
@@ -6676,6 +6778,7 @@
         "BLACK"
     ]
 }
+
 // Turncoat Kunoichi
 {
     "name": "Turncoat Kunoichi",
@@ -6772,6 +6875,7 @@
         "BLACK"
     ]
 }
+
 // Turtle Blimp
 {
     "name": "Turtle Blimp",
@@ -6823,6 +6927,7 @@
         "imageUri": "https://cards.scryfall.io/normal/front/6/e/6e118fc5-b0ae-4592-8292-d611856ae203.jpg?1771587078"
     }
 }
+
 // Turtle Power!
 {
     "name": "Turtle Power!",
@@ -6855,6 +6960,7 @@
         "GREEN"
     ]
 }
+
 // Uneasy Alliance
 {
     "name": "Uneasy Alliance",
@@ -6933,6 +7039,7 @@
         "WHITE"
     ]
 }
+
 // Utrom Scientists
 {
     "name": "Utrom Scientists",
@@ -6993,6 +7100,7 @@
         "BLUE"
     ]
 }
+
 // Weather Maker
 {
     "name": "Weather Maker",
@@ -7088,6 +7196,7 @@
         "imageUri": "https://cards.scryfall.io/normal/front/a/a/aaba62c1-760b-491b-8047-869bb1d3f67e.jpg?1769006491"
     }
 }
+
 // Wingnut, Bat on the Belfry
 {
     "name": "Wingnut, Bat on the Belfry",
@@ -7176,6 +7285,7 @@
         "RED"
     ]
 }
+
 // Zog, Triceraton Castaway
 {
     "name": "Zog, Triceraton Castaway",
