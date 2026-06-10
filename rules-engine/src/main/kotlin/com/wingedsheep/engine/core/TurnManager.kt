@@ -104,7 +104,8 @@ class TurnManager(
             nonlandPermanentLeftBattlefieldThisTurn = false,
             playersWhoCommittedCrimeThisTurn = emptySet(),
             lastCastSpellColors = null,
-            lastCardDrawnThisTurnByPlayer = emptyMap()
+            lastCardDrawnThisTurnByPlayer = emptyMap(),
+            drawStepStartDrawCountByPlayer = emptyMap()
         )
 
         // Reset cards-drawn-this-turn count for ALL players (not just active player)

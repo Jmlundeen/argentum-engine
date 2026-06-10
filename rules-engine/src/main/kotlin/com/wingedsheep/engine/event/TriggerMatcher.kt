@@ -447,6 +447,46 @@ class TriggerMatcher(
     }
 
     /**
+     * How many times a [EventPattern.DrawEvent] trigger fires for one aggregate
+     * [CardsDrawnEvent] (CR 121.2 — each drawn card is an individual draw, so the trigger fires
+     * once per card). Returns 0 when the drawing player doesn't match the trigger's player scope.
+     *
+     * When [EventPattern.DrawEvent.exceptFirstInDrawStep] is set, the first card the drawing
+     * player draws in their *own* draw step (CR 504.1) is exempt and subtracted from the count.
+     * That exempt card is the one drawn when the player's cards-drawn-this-turn count equals the
+     * draw-step-start snapshot ([GameState.drawStepStartDrawCountByPlayer]); it's contained in this
+     * batch iff `countBefore <= snapshot < countAfter`. Used by Orcish Bowmasters.
+     *
+     * [state] is the POST-execution state, so [CardsDrawnThisTurnComponent] already includes every
+     * draw of the whole event batch. When one execution emitted several [CardsDrawnEvent]s for the
+     * same player ("Draw a card" twice in one resolution), [samePlayerDrawsLaterInBatch] backs the
+     * component count off to this event's own boundary so the exemption lands on the right card.
+     */
+    fun drawTriggerFiringCount(
+        trigger: EventPattern.DrawEvent,
+        event: CardsDrawnEvent,
+        controllerId: EntityId,
+        state: GameState,
+        samePlayerDrawsLaterInBatch: Int = 0
+    ): Int {
+        if (!matchesPlayer(trigger.player, event.playerId, controllerId)) return 0
+        val total = event.count
+        if (!trigger.exceptFirstInDrawStep || total == 0) return total
+
+        val drawer = event.playerId
+        // Exemption only applies in the drawing player's own draw step.
+        val inOwnDrawStep = state.activePlayerId == drawer && state.step == Step.DRAW
+        if (!inOwnDrawStep) return total
+
+        val countAfter = (state.getEntity(drawer)?.get<CardsDrawnThisTurnComponent>()?.count ?: 0) -
+            samePlayerDrawsLaterInBatch
+        val countBefore = countAfter - total
+        val snapshot = state.drawStepStartDrawCountByPlayer[drawer] ?: 0
+        val exemptInBatch = if (countBefore <= snapshot && snapshot < countAfter) 1 else 0
+        return total - exemptInBatch
+    }
+
+    /**
      * "Whenever you create a token" (Mirkwood Bats). A token is *created* when it enters the
      * battlefield from nowhere — its [ZoneChangeEvent] has `fromZone == null`. A token that's a
      * copy of a permanent spell enters from [Zone.STACK] instead and is explicitly **not** created

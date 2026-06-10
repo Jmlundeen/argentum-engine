@@ -205,18 +205,29 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     // =========================================================================
 
     /**
-     * When a player draws a card.
+     * When a player draws a card. Fires once per individual card drawn (CR 121.2),
+     * even when several cards are drawn by one effect.
      *
      * Examples:
      * - "you would draw a card" → DrawEvent(player = Player.You)
      * - "an opponent would draw" → DrawEvent(player = Player.Opponent)
+     *
+     * When [exceptFirstInDrawStep] is set, the first card the drawing player draws in
+     * each of their own draw steps (CR 504.1's turn-based draw, normally) does **not**
+     * fire the trigger — every other draw they make does. This is the Orcish Bowmasters
+     * clause "except the first card they draw in each of their draw steps".
      */
     @SerialName("DrawEvent")
     @Serializable
     data class DrawEvent(
-        val player: Player = Player.You
+        val player: Player = Player.You,
+        val exceptFirstInDrawStep: Boolean = false
     ) : EventPattern {
-        override val description: String = "${player.description} would draw a card"
+        override val description: String = buildString {
+            append(player.description)
+            append(" would draw a card")
+            if (exceptFirstInDrawStep) append(" (except the first each draw step)")
+        }
     }
 
     /**
