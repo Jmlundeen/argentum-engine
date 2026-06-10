@@ -154,7 +154,7 @@
 - [x] Shredder's Armor
 - [x] Shredder's Revenge
 - [ ] Shredder's Technique
-- [ ] Shredder, Unrelenting
+- [x] Shredder, Unrelenting
 - [x] Skateboard
 - [x] Slash, Reptile Rampager
 - [ ] Slithering Cryptid
