@@ -25,8 +25,9 @@ import io.kotest.matchers.string.shouldNotContain
  *
  * Root cause: when a *targeted* triggered ability's continuation was resumed into its on-stack
  * component ([com.wingedsheep.engine.handlers.continuations.EffectAndTriggerContinuationResumer]),
- * the captured `lastKnownPower`/`lastKnownToughness` (CR 603.10 / 608.2g — the dead source's
- * power "as it last existed on the battlefield") were dropped. With no LKI on the component:
+ * the captured `lastKnownPower`/`lastKnownToughness` (CR 608.2h / 113.7a — an effect that needs
+ * info from a source no longer in its zone uses the source's last known information; 603.10 makes
+ * the dies trigger itself look back in time) were dropped. With no LKI on the component:
  *  - execution (source-id = the dead card) still fell back to the card's *printed* base power, so
  *    an un-pumped creature dealt the right number by luck — but a buffed creature would deal its
  *    base power, ignoring counters/pumps;
