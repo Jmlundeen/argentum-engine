@@ -1326,7 +1326,16 @@ in the repo today):
 
 ### Cards & draws
 
-- `YouDraw` — when you draw a card.
+- `YouDraw` — when you draw a card. Fires once per individual card drawn (CR 121.2), so a
+  single "draw N" effect triggers it N times.
+- `OpponentDraws` — when an opponent draws a card (once per card; the `Player.Opponent` analogue
+  of `YouDraw`).
+- `OpponentDrawsExceptFirstEachDrawStep` — whenever an opponent draws a card **except** the first
+  card they draw in each of their own draw steps (CR 504.1's turn-based draw is exempt; every
+  other draw — additional draw-step draws and all draws outside the draw step — fires once per
+  card). Backed by `DrawEvent(exceptFirstInDrawStep = true)` plus a per-player draw-step-start
+  snapshot (`GameState.drawStepStartDrawCountByPlayer`) that identifies the one exempt card. Used
+  by Orcish Bowmasters / A-Orcish Bowmasters.
 - `NthCardDrawn(n, player?)` — fires when the drawing player draws their Nth card each turn
   (CR 121.2). Draw analogue of `NthSpellCast`; backed by `CardsDrawnThisTurnComponent` (reset
   per turn). Fires exactly once per crossing — a single multi-card draw that spans the

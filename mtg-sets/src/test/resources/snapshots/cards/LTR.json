@@ -1,3 +1,64 @@
+// A-Orcish Bowmasters
+{
+    "name": "A-Orcish Bowmasters",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Orc Archer",
+    "oracleText": "Flash\nWhenever an opponent draws a card except the first one they draw in each of their draw steps, Orcish Bowmasters deals 1 damage to any target. Then amass Orcs 1. (To amass Orcs 1, put a +1/+1 counter on an Army you control. It's also an Orc. If you don't control an Army, create a 0/0 black Orc Army creature token first.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "DrawEvent",
+                    "player": "Opponent",
+                    "exceptFirstInDrawStep": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        },
+                        {
+                            "type": "Amass",
+                            "subtype": "Orc"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "A-103",
+        "rarity": "RARE",
+        "artist": "Maxim Kostin",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/f/ff7c57ab-f07d-4653-9451-42821cb431c0.jpg?1730837116"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Andúril, Flame of the West
 {
     "name": "Andúril, Flame of the West",
@@ -9685,6 +9746,98 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Orcish Bowmasters
+{
+    "name": "Orcish Bowmasters",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Orc Archer",
+    "oracleText": "Flash\nWhen this creature enters and whenever an opponent draws a card except the first one they draw in each of their draw steps, this creature deals 1 damage to any target. Then amass Orcs 1. (To amass Orcs 1, put a +1/+1 counter on an Army you control. It's also an Orc. If you don't control an Army, create a 0/0 black Orc Army creature token first.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        },
+                        {
+                            "type": "Amass",
+                            "subtype": "Orc"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "target"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "DrawEvent",
+                    "player": "Opponent",
+                    "exceptFirstInDrawStep": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        },
+                        {
+                            "type": "Amass",
+                            "subtype": "Orc"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "103",
+        "rarity": "RARE",
+        "artist": "Maxim Kostin",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c024bae-5631-4e20-ac69-df392ac9e109.jpg?1745319944"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 

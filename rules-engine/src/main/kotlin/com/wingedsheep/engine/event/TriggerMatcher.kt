@@ -442,6 +442,39 @@ class TriggerMatcher(
         }
     }
 
+    /**
+     * How many times a [EventPattern.DrawEvent] trigger fires for one aggregate
+     * [CardsDrawnEvent] (CR 121.2 — each drawn card is an individual draw, so the trigger fires
+     * once per card). Returns 0 when the drawing player doesn't match the trigger's player scope.
+     *
+     * When [EventPattern.DrawEvent.exceptFirstInDrawStep] is set, the first card the drawing
+     * player draws in their *own* draw step (CR 504.1) is exempt and subtracted from the count.
+     * That exempt card is the one drawn when the player's cards-drawn-this-turn count equals the
+     * draw-step-start snapshot ([GameState.drawStepStartDrawCountByPlayer]); it's contained in this
+     * batch iff `countBefore <= snapshot < countAfter`. Used by Orcish Bowmasters.
+     */
+    fun drawTriggerFiringCount(
+        trigger: EventPattern.DrawEvent,
+        event: CardsDrawnEvent,
+        controllerId: EntityId,
+        state: GameState
+    ): Int {
+        if (!matchesPlayer(trigger.player, event.playerId, controllerId)) return 0
+        val total = event.count
+        if (!trigger.exceptFirstInDrawStep || total == 0) return total
+
+        val drawer = event.playerId
+        // Exemption only applies in the drawing player's own draw step.
+        val inOwnDrawStep = state.activePlayerId == drawer && state.step == Step.DRAW
+        if (!inOwnDrawStep) return total
+
+        val countAfter = state.getEntity(drawer)?.get<CardsDrawnThisTurnComponent>()?.count ?: 0
+        val countBefore = countAfter - total
+        val snapshot = state.drawStepStartDrawCountByPlayer[drawer] ?: 0
+        val exemptInBatch = if (countBefore <= snapshot && snapshot < countAfter) 1 else 0
+        return total - exemptInBatch
+    }
+
     fun matchesZoneChangeTrigger(
         trigger: EventPattern.ZoneChangeEvent,
         binding: TriggerBinding,

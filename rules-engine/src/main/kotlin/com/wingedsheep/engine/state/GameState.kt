@@ -139,6 +139,17 @@ data class GameState(
     val lastCardDrawnThisTurnByPlayer: Map<EntityId, EntityId> = emptyMap(),
 
     /**
+     * Per-player snapshot of [com.wingedsheep.engine.state.components.player.CardsDrawnThisTurnComponent]'s
+     * count captured at the start of that player's most recent draw step (set by
+     * [com.wingedsheep.engine.core.DrawPhaseManager.performDrawStep]). Used to identify the
+     * *first* card a player draws in their own draw step (CR 504.1) — the card exempted by the
+     * "except the first card they draw in each of their draw steps" clause (Orcish Bowmasters).
+     * A draw in this draw step is the exempt one iff the player's cards-drawn-this-turn count
+     * just before it equals this snapshot. Cleared at every turn boundary.
+     */
+    val drawStepStartDrawCountByPlayer: Map<EntityId, Int> = emptyMap(),
+
+    /**
      * Game-mode configuration the engine reads for format-dependent behaviour (commander damage
      * threshold, command-zone redirect, etc.). Defaults to [Format.Standard] so existing
      * persisted states / tests need no migration.

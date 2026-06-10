@@ -10,11 +10,18 @@ Verify status anytime with: `scripts/card-status --set LTR` (and `--list --set L
 
 ## Status
 
-Draft cards at **181/261**. Every remaining unchecked card in `cards.md` (excluding the five
-basic lands, which `basicLandsFallback` covers) needs at least one new engine primitive — see
+Draft cards at **192/261** (Extra **17/28**); whole set **209/291** — verify with
+`scripts/card-status --set LTR`. Every remaining unchecked card in `cards.md` (excluding the five
+basic lands, which `basicLandsFallback` covers) still needs at least one new engine primitive — see
 the "Engine gaps blocking the remaining cards" section below. Each card is listed under the
 primitive it is waiting on, with the exact blocking clause. Stop and open a dedicated PR per
 gap rather than approximating.
+
+> **Foundational mechanics now LANDED** (no longer blockers): the Ring temptation mechanic,
+> Amass/Army tokens, Food/Treasure tokens, the `WheneverYouScry` trigger, the LTR counter types
+> (hope/verse/influence/burden/stun), Goad, and the Gap 17/19/20 condition primitives. The
+> remaining tail is blocked on the specific gaps below; see `missing-effects.md` for the
+> per-card family map and the "what unblocks the most cards" ranking.
 
 Two cards have residual blockers that don't share a clean reusable gap with anything else;
 they're listed here so they don't get lost:
@@ -103,8 +110,9 @@ steal no longer silently restores the designation when control reverts at end of
 - **Faramir, Field Commander** — ✅ implemented.
 - **Aragorn, Company Leader** — still blocked on Gap 7 (keyword counters).
 - **Gandalf, Friend of the Shire** — still blocked on Gap 4 (cast-as-flash for sorcery spells).
-- **Galadriel of Lothlórien** — Ring-tempt half composes via this condition; second ability still
-  needs a "Whenever you scry" trigger + "reveal top; if land, put onto battlefield tapped".
+- **Galadriel of Lothlórien** — Ring-tempt half composes via this condition; the `WheneverYouScry`
+  trigger has since LANDED, so the only residual blocker is "reveal top; if land, put onto
+  battlefield tapped" (the Reveal-from-top-with-conditional-placement gap).
 
 ### Gap 4 — "cast [filter] spells as though they had flash" permission
 **Status:** LANDED as `Effects.GrantFlashToSpells(target, spellFilter, duration)` plus
@@ -160,7 +168,7 @@ blocked are gated on *other* gaps — they need Gap 6 plus what's noted inline:
   `DynamicAmount.ManaValueSumOfCollection(name)` for "lose life equal to the total mana value of
   those cards" over the just-milled pile.
 - **The One Ring** — burden counter type ready; still needs Gap 8 (protection-from-everything).
-- **Scroll of Isildur** — stun counter type ready; still needs Gap 37 (Saga gain-control-for-duration).
+- **Scroll of Isildur** — ✅ implemented (stun counter + Gap 37 `Duration.WhileYouControlSource`).
 
 ### Gap 7 — keyword counters + "choose a kind of counter"
 **Engine change:** first-strike/vigilance/deathtouch/lifelink counters wired through the
@@ -363,11 +371,11 @@ turn," "dealt combat damage to you this turn," and "least power."
   least power among creatures they control."
 
 ### Gap 37 — gain control for a "for as long as you control this" duration
-**Engine change:** a control-change duration tied to continued control of the source.
-- **Rangers of Ithilien** — "gain control of up to one target creature with lesser power for as
-  long as you control this creature." (Ring tempts half composable).
-- **Scroll of Isildur** — "Gain control of up to one target artifact for as long as you control
-  this Saga." (also stun counter, Gap 6).
+**Status:** LANDED as `Duration.WhileYouControlSource` (a self-ending Threaten tied to continued
+control of the source, distinct from `WhileSourceOnBattlefield`).
+- **Scroll of Isildur** — ✅ implemented (Chapter I uses `Duration.WhileYouControlSource`).
+- **Rangers of Ithilien** — duration primitive ready; residual blocker is the "creature with
+  lesser power" target filter (Power-comparison-filters gap). Ring tempts half composable.
 
 ### Gap 39 — grant "can't be blocked by more than one creature" as a floating effect
 **Engine change:** wire `AbilityFlag.CANT_BE_BLOCKED_BY_MORE_THAN_ONE` (already defined in
@@ -388,8 +396,8 @@ that try to grant the restriction silently no-op.
 - **Bewitching Leechcraft** — grant the enchanted creature a custom untap-replacement ability.
 - **Radagast the Brown** — look at top X (= creature's mana value), reveal a creature not
   sharing a type with one you control.
-- **Long List of the Ents** — Saga that *notes creature types* and buffs the next cast of that
-  type.
+- **Long List of the Ents** — ✅ implemented (Saga that *notes creature types* and buffs the next
+  cast of that type).
 - **Peregrin Took** — token-creation replacement ("those tokens plus an additional Food").
 - **Phial of Galadriel** — draw-replacement (draw two if hand empty) + life-gain doubling.
 - **Tom Bombadil** — "4+ lore counters among Sagas → hexproof and indestructible" + a
@@ -403,13 +411,18 @@ that try to grant the restriction silently no-op.
 - **Boromir, Warden of the Tower** — "if no mana was spent to cast it, counter that spell."
 - **Call of the Ring** — "Whenever you choose a creature as your Ring-bearer …" trigger.
 - **Glorious Gale** — counter creature spell + "if it was a legendary spell" conditional.
-- **There and Back Again** — Saga producing **Smaug**, a named token with its own death trigger.
+- **There and Back Again** — ✅ implemented (Saga producing **Smaug**, a named token with its own
+  death trigger).
 - **Hew the Entwood** — sacrifice any number of lands, reveal X, put artifact/land cards in play.
 - **Ringsight** — tutor for a card that "shares a color with a legendary creature you control."
 - **One Ring to Rule Them All** — Saga; mill = your Ring-bearer's power (Gap 12-style dynamic).
 - **The Ring Goes South** — reveal until X lands, X = legendary creatures you control.
-- **Orcish Bowmasters** — "whenever an opponent draws a card except the first … in their draw
-  step" trigger.
+- **Orcish Bowmasters** — ✅ implemented (and **A-Orcish Bowmasters**, the Alchemy rebalance).
+  Landed `Triggers.OpponentDrawsExceptFirstEachDrawStep` (`DrawEvent(exceptFirstInDrawStep = true)`
+  + a per-player `GameState.drawStepStartDrawCountByPlayer` draw-step-start snapshot that exempts
+  the CR 504.1 turn-based draw); fires once per other card drawn (CR 121.2). The printed card folds
+  enters + opponent-draws into one ability (modeled as two siblings sharing deal-1-then-amass-Orcs-1);
+  the A- rebalance drops the enters half.
 - **Sauron's Ransom** — opponent separates your top four into hidden face-down/face-up piles.
 - **Flame of Anor** — see Gap 9/10 (conditional modal count).
 - **Sméagol, Helpful Guide** — reveal-until-land put under your control (the end-step Ring-tempt

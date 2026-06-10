@@ -40,9 +40,20 @@ class DrawPhaseManager(
      * Perform the draw step (active player draws a card).
      * Skips the draw on the first turn for the first player (standard rule).
      */
-    fun performDrawStep(state: GameState): ExecutionResult {
-        val activePlayer = state.activePlayerId
-            ?: return ExecutionResult.error(state, "No active player")
+    fun performDrawStep(stateIn: GameState): ExecutionResult {
+        val activePlayer = stateIn.activePlayerId
+            ?: return ExecutionResult.error(stateIn, "No active player")
+
+        // Snapshot the active player's cards-drawn-this-turn count as the draw step begins,
+        // before the turn-based draw (CR 504.1). The first card drawn from here on is "the first
+        // card they draw in this draw step" — the one exempted by Orcish Bowmasters. Captured for
+        // every draw-step entry (including the skip/first-turn paths below) so a later in-step draw
+        // is still identified correctly. See GameState.drawStepStartDrawCountByPlayer.
+        val drawnSoFar = stateIn.getEntity(activePlayer)
+            ?.get<com.wingedsheep.engine.state.components.player.CardsDrawnThisTurnComponent>()?.count ?: 0
+        val state = stateIn.copy(
+            drawStepStartDrawCountByPlayer = stateIn.drawStepStartDrawCountByPlayer + (activePlayer to drawnSoFar)
+        )
 
         val isFirstTurnFirstPlayer = state.turnNumber == 1 && activePlayer == state.turnOrder.first()
         if (isFirstTurnFirstPlayer) {

@@ -922,12 +922,16 @@ class TriggerDetector(
                             }
                         }
                     }
-                    // For "whenever you draw a card" (DrawEvent), drawing N cards via a single
-                    // effect creates N separate trigger firings — one per card drawn (CR 121.2 +
-                    // 603.2). The engine emits a single aggregate CardsDrawnEvent, so expand it
-                    // to `event.count` triggers here.
+                    // For "whenever [a player] draws a card" (DrawEvent), drawing N cards via a
+                    // single effect creates N separate trigger firings — one per card drawn
+                    // (CR 121.2 + 603.2). The engine emits a single aggregate CardsDrawnEvent, so
+                    // expand it here. `exceptFirstInDrawStep` (Orcish Bowmasters) subtracts the one
+                    // card exempted by CR 504.1 — the matcher computes the final firing count.
                     else if (ability.trigger is EventPattern.DrawEvent && event is CardsDrawnEvent) {
-                        repeat(event.count) {
+                        val firings = matcher.drawTriggerFiringCount(
+                            ability.trigger as EventPattern.DrawEvent, event, controllerId, state
+                        )
+                        repeat(firings) {
                             triggers.add(
                                 PendingTrigger(
                                     ability = ability,

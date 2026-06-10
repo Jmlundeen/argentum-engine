@@ -658,6 +658,24 @@ object Triggers {
     )
 
     /**
+     * Whenever an opponent draws a card. Fires once per card an opponent draws (CR 121.2).
+     */
+    val OpponentDraws: TriggerSpec = TriggerSpec(
+        event = DrawEvent(Player.Opponent),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
+     * Whenever an opponent draws a card, **except** the first card they draw in each of
+     * their draw steps (CR 504.1's turn-based draw). Fires once per non-exempt card.
+     * Orcish Bowmasters / A-Orcish Bowmasters.
+     */
+    val OpponentDrawsExceptFirstEachDrawStep: TriggerSpec = TriggerSpec(
+        event = DrawEvent(Player.Opponent, exceptFirstInDrawStep = true),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * Whenever you reveal a creature card from the first draw of a turn.
      * Used with RevealFirstDrawEachTurn static ability (Primitive Etchings).
      */
