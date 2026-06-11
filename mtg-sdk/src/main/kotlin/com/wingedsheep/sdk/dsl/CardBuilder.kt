@@ -928,6 +928,7 @@ class CardBuilder(private val name: String) {
                     TargetCreature(filter = TargetFilter.CreatureYouControl, id = "creature you control")
                 ),
                 isManaAbility = false,
+                isEquipAbility = true,
                 timing = TimingRule.SorcerySpeed,
                 genericCostReduction = genericCostReduction,
             )

@@ -31,6 +31,8 @@ import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.ControlEnchantedPermanent
+import com.wingedsheep.sdk.scripting.EquipAbilitiesAtInstantSpeed
+import com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn
 import com.wingedsheep.sdk.scripting.SetEnchantedLandType
 import com.wingedsheep.sdk.scripting.SetEnchantedLandTypeFromChosen
 import com.wingedsheep.sdk.scripting.GrantKeywordByCounter
@@ -687,6 +689,10 @@ class StaticAbilityHandler(
             is MayCastWithoutPayingManaCost,
             is MayPlayLandsFromGraveyard,
             is MayPlayPermanentsFromGraveyard,
+            // Equip-timing/cost permissions (consulted by CastPermissionUtils /
+            // ActivatedAbilityEnumerator / ActivateAbilityHandler, not continuous effects):
+            is EquipAbilitiesAtInstantSpeed,
+            is FreeFirstEquipEachTurn,
             is PlayFromTopOfLibrary,
             is PlayLandsAndCastFilteredFromTopOfLibrary,
             is PlayersCantCastSpells,

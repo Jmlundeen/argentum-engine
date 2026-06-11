@@ -182,8 +182,11 @@ class ActivateAbilityHandler(
         }
         // Apply ability-specific generic cost reduction (e.g., The Dominion Bracelet's
         // "{X} less, where X is this creature's power"). Per Scryfall ruling, the reduced
-        // cost is locked in here, before costs are paid.
-        val effectiveCost = applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId, action.targets)
+        // cost is locked in here, before costs are paid. Then apply Forge Anew's free-first-equip.
+        val effectiveCost = applyFreeFirstEquip(
+            applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId, action.targets),
+            ability, state, action.playerId
+        )
         val effectiveTargetReqs = if (textReplacement != null) {
             ability.targetRequirements.map { it.applyTextReplacement(textReplacement) }
         } else {
@@ -214,9 +217,13 @@ class ActivateAbilityHandler(
             }
         }
 
-        // Check timing for sorcery-speed abilities ("Activate only as a sorcery")
+        // Check timing for sorcery-speed abilities ("Activate only as a sorcery").
+        // Equip abilities are exempt while the controller has an active instant-speed-equip
+        // permission (Forge Anew, Leonin Shikari) — CR 702.6e timing lifted. Mirror of the
+        // ActivatedAbilityEnumerator gate so the validate() path agrees with what's offered.
         if (ability.timing == TimingRule.SorcerySpeed && !ability.isPlaneswalkerAbility) {
-            if (!turnManager.canPlaySorcerySpeed(state, action.playerId)) {
+            val instantSpeedEquip = ability.isEquipAbility && canEquipAtInstantSpeedGrant(state, action.playerId)
+            if (!instantSpeedEquip && !turnManager.canPlaySorcerySpeed(state, action.playerId)) {
                 return "This ability can only be activated as a sorcery"
             }
         }
@@ -373,8 +380,12 @@ class ActivateAbilityHandler(
             ability.cost
         }
         // Apply ability-specific generic cost reduction (e.g., The Dominion Bracelet's
-        // "{X} less, where X is this creature's power"). Locked in before payment.
-        val effectiveCost = applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId, action.targets)
+        // "{X} less, where X is this creature's power"). Locked in before payment. Then apply
+        // Forge Anew's free-first-equip discount (zeroes the first equip's cost each turn).
+        val effectiveCost = applyFreeFirstEquip(
+            applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId, action.targets),
+            ability, state, action.playerId
+        )
 
         // -------------------------------------------------------------------
         // TapXPermanents two-step UI flow (legal-actions submission path).
@@ -743,6 +754,15 @@ class ActivateAbilityHandler(
                     val tracker = c.get<AbilityActivatedThisTurnComponent>() ?: AbilityActivatedThisTurnComponent()
                     c.with(tracker.withLoyaltyActivated())
                 }
+            }
+        }
+
+        // Track equip activations this turn (Forge Anew's free-first-equip keys off count == 0).
+        if (ability.isEquipAbility) {
+            currentState = currentState.updateEntity(action.playerId) { c ->
+                val tracker = c.get<com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent>()
+                    ?: com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent()
+                c.with(tracker.copy(count = tracker.count + 1))
             }
         }
 
@@ -1407,6 +1427,80 @@ class ActivateAbilityHandler(
                 val prevent = ability as? PreventActivatedAbilities ?: continue
                 if (predicateEvaluator.matches(state, projected, sourceId, prevent.filter, context)) {
                     return true
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * Zero the mana cost of [cost] when [ability] is an equip ability, the player has an active
+     * [com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn] grant, and this is their first equip
+     * this turn (`EquipActivationsThisTurnComponent.count == 0`). Mirror of
+     * `ActivatedAbilityEnumerator.applyFreeFirstEquip` so the enumerated/displayed cost and the
+     * paid cost agree. "Pay {0} rather than pay the equip cost" zeroes the whole cost, including
+     * any colored pips.
+     */
+    private fun applyFreeFirstEquip(
+        cost: AbilityCost,
+        ability: ActivatedAbility,
+        state: GameState,
+        playerId: EntityId
+    ): AbilityCost {
+        if (!ability.isEquipAbility) return cost
+        val activations = state.getEntity(playerId)
+            ?.get<com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent>()?.count ?: 0
+        if (activations > 0) return cost
+        if (!hasFreeFirstEquipGrant(state, playerId)) return cost
+        return when (cost) {
+            is AbilityCost.Mana -> AbilityCost.Mana(com.wingedsheep.sdk.core.ManaCost.ZERO)
+            is AbilityCost.Composite -> AbilityCost.Composite(cost.costs.map {
+                if (it is AbilityCost.Mana) AbilityCost.Mana(com.wingedsheep.sdk.core.ManaCost.ZERO) else it
+            })
+            else -> cost
+        }
+    }
+
+    /**
+     * Inline scan for an active [com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn] grant
+     * controlled by [playerId]. Mirror of `CastPermissionUtils.hasFreeFirstEquip`.
+     */
+    private fun hasFreeFirstEquipGrant(state: GameState, playerId: EntityId): Boolean =
+        hasActiveEquipPermissionGrant(state, playerId) { it is com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn }
+
+    /**
+     * Inline scan for an active [com.wingedsheep.sdk.scripting.EquipAbilitiesAtInstantSpeed] grant
+     * controlled by [playerId]. Mirror of `CastPermissionUtils.canEquipAtInstantSpeed`.
+     */
+    private fun canEquipAtInstantSpeedGrant(state: GameState, playerId: EntityId): Boolean =
+        hasActiveEquipPermissionGrant(state, playerId) { it is com.wingedsheep.sdk.scripting.EquipAbilitiesAtInstantSpeed }
+
+    /**
+     * Scan [playerId]'s battlefield for a static ability matching [predicate], unwrapping a
+     * [ConditionalStaticAbility] and evaluating its condition against the granting permanent.
+     * The handler doesn't carry `CastPermissionUtils`, so it inlines the same scan.
+     */
+    private fun hasActiveEquipPermissionGrant(
+        state: GameState,
+        playerId: EntityId,
+        predicate: (com.wingedsheep.sdk.scripting.StaticAbility) -> Boolean
+    ): Boolean {
+        for (entityId in state.getBattlefield(playerId)) {
+            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
+            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val classLevel = state.getEntity(entityId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent>()?.currentLevel
+            for (ability in cardDef.script.effectiveStaticAbilities(classLevel)) {
+                when (ability) {
+                    is com.wingedsheep.sdk.scripting.ConditionalStaticAbility -> {
+                        if (!predicate(ability.ability)) continue
+                        val opponentId = state.turnOrder.firstOrNull { it != playerId }
+                        val ctx = com.wingedsheep.engine.handlers.EffectContext(
+                            sourceId = entityId, controllerId = playerId, opponentId = opponentId
+                        )
+                        if (conditionEvaluator.evaluate(state, ability.condition, ctx)) return true
+                    }
+                    else -> if (predicate(ability)) return true
                 }
             }
         }

@@ -508,6 +508,17 @@ data class CardsDrawnThisTurnComponent(
 ) : Component
 
 /**
+ * Number of equip abilities this player has activated during the current turn. Reset to 0 at
+ * turn start by TurnManager. Read by Forge Anew's [com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn]
+ * to know whether the next equip is the "first equip this turn" (count == 0) that may be paid for
+ * with {0}.
+ */
+@Serializable
+data class EquipActivationsThisTurnComponent(
+    val count: Int = 0
+) : Component
+
+/**
  * Tracks the total damage dealt to a player during the current turn.
  * Includes both combat and non-combat damage. Prevented damage is not counted.
  * Cleared at end of turn by TurnManager.

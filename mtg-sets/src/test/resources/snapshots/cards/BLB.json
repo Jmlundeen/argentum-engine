@@ -17152,7 +17152,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -18020,7 +18021,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -19091,7 +19093,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [

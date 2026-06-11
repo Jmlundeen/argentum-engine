@@ -813,8 +813,16 @@ class DynamicAmountEvaluator(
                 countersComponent.getCount(resolveCounterType(property.counterType))
             }
 
-            is EntityNumericProperty.AttachmentCount ->
-                state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds?.size ?: 0
+            is EntityNumericProperty.AttachmentCount -> {
+                val attachedIds = state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds ?: emptyList()
+                when (property.kind) {
+                    com.wingedsheep.sdk.scripting.values.AttachmentKind.ANY -> attachedIds.size
+                    com.wingedsheep.sdk.scripting.values.AttachmentKind.EQUIPMENT ->
+                        attachedIds.count { state.getEntity(it)?.get<CardComponent>()?.typeLine?.isEquipment == true }
+                    com.wingedsheep.sdk.scripting.values.AttachmentKind.AURA ->
+                        attachedIds.count { state.getEntity(it)?.get<CardComponent>()?.typeLine?.isAura == true }
+                }
+            }
 
             is EntityNumericProperty.BlockerCount ->
                 state.getEntity(entityId)

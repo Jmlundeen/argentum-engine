@@ -110,8 +110,12 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             val textReplacement = container.get<TextReplacementComponent>()
 
             for (ability in nonManaAbilities) {
-                // Sorcery-speed abilities: skip during non-main phases / opponent's turn
-                if (ability.timing == TimingRule.SorcerySpeed && !context.canPlaySorcerySpeed) continue
+                // Sorcery-speed abilities: skip during non-main phases / opponent's turn.
+                // Equip abilities are exempt while the controller has an active instant-speed-equip
+                // permission (Forge Anew "During your turn …", Leonin Shikari) — CR 702.6e timing lifted.
+                if (ability.timing == TimingRule.SorcerySpeed && !context.canPlaySorcerySpeed &&
+                    !(ability.isEquipAbility && context.castPermissionUtils.canEquipAtInstantSpeed(state, playerId))
+                ) continue
 
                 // Planeswalker loyalty abilities: sorcery speed + once per turn + loyalty cost check
                 if (ability.isPlaneswalkerAbility) {
@@ -139,8 +143,12 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                 }
                 // Apply ability-specific generic cost reduction so payability is checked against
                 // the locked-in cost (e.g., The Dominion Bracelet — "{X} less, where X is this
-                // creature's power").
-                val effectiveCost = applyAbilityGenericCostReduction(rawCost, ability, state, entityId, playerId, context)
+                // creature's power"). Then apply Forge Anew's free-first-equip discount, so the
+                // displayed cost and affordability reflect the {0} the player will actually pay.
+                val effectiveCost = applyFreeFirstEquip(
+                    applyAbilityGenericCostReduction(rawCost, ability, state, entityId, playerId, context),
+                    ability, state, playerId, context
+                )
 
                 // Description shown to the player. When the ability has a generic cost reduction
                 // that's currently active, rebuild the prefix from [effectiveCost] so the menu
@@ -1079,6 +1087,33 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
      * auto-tap mode pays that exact per-target cost. The reduction only ever lowers the cost, so a
      * best-case preview never causes the client to under-tap for the chosen target in auto-tap mode.
      */
+    /**
+     * Zero the mana cost of an equip ability for its controller's first equip each turn while a
+     * [com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn] grant (Forge Anew) is active. Mirror
+     * of `ActivateAbilityHandler.applyFreeFirstEquip` so the offered/displayed cost matches what's
+     * paid. "Pay {0} rather than pay the equip cost" zeroes the whole cost, including colored pips.
+     */
+    private fun applyFreeFirstEquip(
+        cost: AbilityCost,
+        ability: ActivatedAbility,
+        state: com.wingedsheep.engine.state.GameState,
+        playerId: EntityId,
+        context: EnumerationContext
+    ): AbilityCost {
+        if (!ability.isEquipAbility) return cost
+        val activations = state.getEntity(playerId)
+            ?.get<com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent>()?.count ?: 0
+        if (activations > 0) return cost
+        if (!context.castPermissionUtils.hasFreeFirstEquip(state, playerId)) return cost
+        return when (cost) {
+            is AbilityCost.Mana -> AbilityCost.Mana(com.wingedsheep.sdk.core.ManaCost.ZERO)
+            is AbilityCost.Composite -> AbilityCost.Composite(cost.costs.map {
+                if (it is AbilityCost.Mana) AbilityCost.Mana(com.wingedsheep.sdk.core.ManaCost.ZERO) else it
+            })
+            else -> cost
+        }
+    }
+
     private fun applyAbilityGenericCostReduction(
         cost: AbilityCost,
         ability: ActivatedAbility,

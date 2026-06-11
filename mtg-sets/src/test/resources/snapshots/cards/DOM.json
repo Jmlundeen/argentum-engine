@@ -4058,7 +4058,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -5577,7 +5578,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ]
     },
@@ -6436,7 +6438,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -10561,7 +10564,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "replacementEffects": [
@@ -10676,7 +10680,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -11196,7 +11201,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [

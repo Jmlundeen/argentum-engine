@@ -22,6 +22,8 @@ import com.wingedsheep.sdk.scripting.CastRestriction
 import com.wingedsheep.sdk.scripting.CastSpellTypesFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.EquipAbilitiesAtInstantSpeed
+import com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn
 import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
 import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
 import com.wingedsheep.sdk.scripting.MayPlayPermanentsFromGraveyard
@@ -408,6 +410,56 @@ class CastPermissionUtils(
                             return true
                         }
                     }
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * True when [playerId] controls a permanent granting [EquipAbilitiesAtInstantSpeed]
+     * (Forge Anew, Leonin Shikari) whose condition — if wrapped in [ConditionalStaticAbility]
+     * (Forge Anew's "During your turn") — currently holds. Equip is otherwise sorcery-speed.
+     */
+    fun canEquipAtInstantSpeed(state: GameState, playerId: EntityId): Boolean =
+        hasActiveEquipPermission(state, playerId) { it is EquipAbilitiesAtInstantSpeed }
+
+    /**
+     * True when [playerId] controls a permanent granting [FreeFirstEquipEachTurn] whose
+     * condition (if any) currently holds. The caller still gates the discount on
+     * `EquipActivationsThisTurnComponent.count == 0` so only the turn's *first* equip is free.
+     */
+    fun hasFreeFirstEquip(state: GameState, playerId: EntityId): Boolean =
+        hasActiveEquipPermission(state, playerId) { it is FreeFirstEquipEachTurn }
+
+    /**
+     * Scan [playerId]'s battlefield for a static ability matching [predicate], unwrapping a
+     * [ConditionalStaticAbility] and evaluating its condition against the granting permanent.
+     * Mirrors the permission-scan shape used by [hasGraveyardPlayPermissionForType].
+     */
+    private fun hasActiveEquipPermission(
+        state: GameState,
+        playerId: EntityId,
+        predicate: (com.wingedsheep.sdk.scripting.StaticAbility) -> Boolean
+    ): Boolean {
+        for (entityId in state.getBattlefield(playerId)) {
+            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
+            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val classLevel = state.getEntity(entityId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent>()?.currentLevel
+            for (ability in cardDef.script.effectiveStaticAbilities(classLevel)) {
+                when (ability) {
+                    is com.wingedsheep.sdk.scripting.ConditionalStaticAbility -> {
+                        if (!predicate(ability.ability)) continue
+                        val opponentId = state.turnOrder.firstOrNull { it != playerId }
+                        val context = com.wingedsheep.engine.handlers.EffectContext(
+                            sourceId = entityId,
+                            controllerId = playerId,
+                            opponentId = opponentId
+                        )
+                        if (conditionEvaluator.evaluate(state, ability.condition, context)) return true
+                    }
+                    else -> if (predicate(ability)) return true
                 }
             }
         }
