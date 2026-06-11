@@ -444,6 +444,14 @@ object Effects {
     ): Effect = GroupPatterns.destroyAllAndAttachedPipeline(filter, noRegenerate)
 
     /**
+     * Destroy the creature with the least power among all creatures on the battlefield. On a tie
+     * for least power the controller chooses which one (CR — Drop of Honey).
+     */
+    fun DestroyLeastPowerCreature(
+        noRegenerate: Boolean = false
+    ): Effect = GroupPatterns.destroyLeastPowerCreature(noRegenerate)
+
+    /**
      * Destroy all creatures sharing a creature type with the sacrificed creature.
      * Requires a creature sacrificed as additional cost.
      */

@@ -324,6 +324,11 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   save the ID list for follow-up. `excludeTriggering = true` spares the triggering entity, for "destroy all
   *other* … with it" triggers (Spreading Plague).
 - `DestroyAllAndAttached(filter, noRegenerate?)` — also destroys auras/equipment on the matching permanents.
+- `DestroyLeastPowerCreature(noRegenerate?)` — destroy the creature with the least power among **all**
+  creatures on the battlefield (global, both players). On a tie for least power the controller chooses which
+  one dies (Drop of Honey). Backed by the `GameObjectFilter.Creature.hasLeastPowerAmongAllCreatures()` filter
+  (`StatePredicate.HasLeastPowerAmongAllCreatures`) gathered, then a `ChooseExactly(1)` selection that
+  auto-resolves when the minimum is unique.
 - `DestroyAllEquipmentOnTarget(target)` — wreck the gear attached to a creature.
 - `Exile(target)` — exile target.
 - `ExileAndGrantOwnerPlayPermission(target, until?)` — exile + owner may play it (Garth-style).
@@ -2257,6 +2262,9 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
   filtered-count generalization of `ControlCreaturesAtLeast`/`ControlLandsAtLeast`; e.g.
   `YouControlAtLeast(3, GameObjectFilter.Creature.attacking())` for Stormbeacon Blade).
 - `ControlCreature` — you control any creature.
+- `NoCreaturesOnBattlefield` — there are no creatures anywhere on the battlefield (global, either player;
+  `Exists(Player.Each, …, negate = true)`). Used by Drop of Honey's "when there are no creatures on the
+  battlefield, sacrifice this enchantment" state trigger.
 - `ControlMoreCreatures` — you control more creatures than each opponent.
 - `OpponentControlsCreature` — at least one opponent has a creature.
 - `OpponentControlsMoreCreatures` — an opponent outpaces you.
