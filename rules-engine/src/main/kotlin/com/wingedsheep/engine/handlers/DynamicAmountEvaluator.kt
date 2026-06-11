@@ -17,10 +17,12 @@ import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.identity.PlayerComponent
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CharacteristicValue
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.values.Aggregation
+import com.wingedsheep.sdk.scripting.values.AttachmentKind
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -815,12 +817,19 @@ class DynamicAmountEvaluator(
 
             is EntityNumericProperty.AttachmentCount -> {
                 val attachedIds = state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds ?: emptyList()
+                // Attachments live on the battlefield, so narrow by *projected* subtype (a continuous
+                // effect can turn a permanent into/out of an Equipment or Aura), falling back to the
+                // printed subtypes when projection is empty.
+                val projection = resolveProjection(state, explicitProjected)
+                fun hasAttachmentSubtype(id: EntityId, subtype: Subtype): Boolean {
+                    val projected = projection.getSubtypes(id)
+                    if (projected.isNotEmpty()) return projected.any { it.equals(subtype.value, ignoreCase = true) }
+                    return state.getEntity(id)?.get<CardComponent>()?.typeLine?.hasSubtype(subtype) == true
+                }
                 when (property.kind) {
-                    com.wingedsheep.sdk.scripting.values.AttachmentKind.ANY -> attachedIds.size
-                    com.wingedsheep.sdk.scripting.values.AttachmentKind.EQUIPMENT ->
-                        attachedIds.count { state.getEntity(it)?.get<CardComponent>()?.typeLine?.isEquipment == true }
-                    com.wingedsheep.sdk.scripting.values.AttachmentKind.AURA ->
-                        attachedIds.count { state.getEntity(it)?.get<CardComponent>()?.typeLine?.isAura == true }
+                    AttachmentKind.ANY -> attachedIds.size
+                    AttachmentKind.EQUIPMENT -> attachedIds.count { hasAttachmentSubtype(it, Subtype.EQUIPMENT) }
+                    AttachmentKind.AURA -> attachedIds.count { hasAttachmentSubtype(it, Subtype.AURA) }
                 }
             }
 
