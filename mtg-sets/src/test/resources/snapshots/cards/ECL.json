@@ -7135,11 +7135,18 @@
                 "id": "ability_1",
                 "cost": "CostTap",
                 "effect": {
-                    "type": "AddManaOfChoice",
-                    "amount": {
+                    "type": "AddDynamicMana",
+                    "amountSource": {
                         "type": "Fixed",
                         "amount": 2
                     },
+                    "allowedColors": [
+                        "WHITE",
+                        "BLUE",
+                        "BLACK",
+                        "RED",
+                        "GREEN"
+                    ],
                     "restriction": {
                         "type": "SubtypeSpellsOrAbilitiesOnly",
                         "subtype": "Elemental"

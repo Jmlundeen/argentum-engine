@@ -835,12 +835,12 @@ class ActivateAbilityHandler(
                         decisionId = "mana-ability-cost-triggers-${java.util.UUID.randomUUID()}",
                         remainingTriggers = deferred
                     )
-                    val stack = effectResult.state.continuationStack
-                    val newStack = if (stack.isNotEmpty()) {
-                        stack.dropLast(1) + pending + stack.last()
-                    } else {
-                        listOf(pending)
-                    }
+                    // Insert at the BOTTOM of the continuation stack so the cost trigger is put on
+                    // the stack only after the whole mana ability finishes resolving — including a
+                    // multi-step "any combination of colors" effect that pauses once per mana. The
+                    // stack here holds only frames pushed by this activation's effect, so bottom
+                    // insertion can't jump ahead of unrelated work.
+                    val newStack = listOf(pending) + effectResult.state.continuationStack
                     return ExecutionResult.paused(
                         effectResult.state.copy(continuationStack = newStack),
                         effectResult.pendingDecision!!,

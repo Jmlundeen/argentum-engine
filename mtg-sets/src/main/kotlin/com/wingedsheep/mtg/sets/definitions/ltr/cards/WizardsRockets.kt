@@ -31,7 +31,7 @@ val WizardsRockets = card("Wizard's Rockets") {
     // {X}, {T}, Sacrifice this artifact: Add X mana in any combination of colors.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap, Costs.SacrificeSelf)
-        effect = Effects.AddAnyColorMana(DynamicAmount.XValue)
+        effect = Effects.AddManaInAnyCombination(DynamicAmount.XValue)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

@@ -25,7 +25,7 @@ val Flamebraider = card("Flamebraider") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddAnyColorMana(
+        effect = Effects.AddManaInAnyCombination(
             amount = 2,
             restriction = ManaRestriction.SubtypeSpellsOrAbilitiesOnly("Elemental")
         )

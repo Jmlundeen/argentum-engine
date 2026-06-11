@@ -20004,11 +20004,18 @@
                     ]
                 },
                 "effect": {
-                    "type": "AddManaOfChoice",
-                    "amount": {
+                    "type": "AddDynamicMana",
+                    "amountSource": {
                         "type": "Fixed",
                         "amount": 2
-                    }
+                    },
+                    "allowedColors": [
+                        "WHITE",
+                        "BLUE",
+                        "BLACK",
+                        "RED",
+                        "GREEN"
+                    ]
                 },
                 "isManaAbility": true
             },
