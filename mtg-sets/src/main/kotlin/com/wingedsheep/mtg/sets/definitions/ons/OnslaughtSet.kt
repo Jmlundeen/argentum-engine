@@ -27,7 +27,7 @@ object OnslaughtSet : MtgSet {
     }
 
     override val basicLands: List<CardDefinition> by lazy {
-        CardDiscovery.findBasicLandsIn(CARDS_PACKAGE).map { it.copy(setCode = code) }
+        CardDiscovery.findBasicLandsIn(CARDS_PACKAGE, code)
     }
 
     private const val CARDS_PACKAGE = "com.wingedsheep.mtg.sets.definitions.ons.cards"

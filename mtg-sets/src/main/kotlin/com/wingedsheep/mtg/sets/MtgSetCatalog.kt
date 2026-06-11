@@ -1,256 +1,34 @@
 package com.wingedsheep.mtg.sets
 
-import com.wingedsheep.mtg.sets.definitions.akh.AmonkhetSet
-import com.wingedsheep.mtg.sets.definitions.ala.ShardsOfAlaraSet
-import com.wingedsheep.mtg.sets.definitions.arn.ArabianNightsSet
-import com.wingedsheep.mtg.sets.definitions.avr.AvacynRestoredSet
-import com.wingedsheep.mtg.sets.definitions.bfz.BattleForZendikarSet
-import com.wingedsheep.mtg.sets.definitions.big.TheBigScoreSet
-import com.wingedsheep.mtg.sets.definitions.blb.BloomburrowSet
-import com.wingedsheep.mtg.sets.definitions.blc.BloomburrowCommanderSet
-import com.wingedsheep.mtg.sets.definitions.bro.BrothersWarSet
-import com.wingedsheep.mtg.sets.definitions.c15.Commander2015Set
-import com.wingedsheep.mtg.sets.definitions.c17.Commander2017Set
-import com.wingedsheep.mtg.sets.definitions.`8ed`.EighthEditionSet
-import com.wingedsheep.mtg.sets.definitions.apc.ApocalypseSet
-import com.wingedsheep.mtg.sets.definitions.atq.AntiquitiesSet
-import com.wingedsheep.mtg.sets.definitions.mmq.MercadianMasquesSet
-import com.wingedsheep.mtg.sets.definitions.nem.NemesisSet
-import com.wingedsheep.mtg.sets.definitions.pcy.ProphecySet
-import com.wingedsheep.mtg.sets.definitions.pls.PlaneshiftSet
-import com.wingedsheep.mtg.sets.definitions.ptk.PortalThreeKingdomsSet
-import com.wingedsheep.mtg.sets.definitions.s99.Starter1999Set
-import com.wingedsheep.mtg.sets.definitions.sth.StrongholdSet
-import com.wingedsheep.mtg.sets.definitions.tor.TormentSet
-import com.wingedsheep.mtg.sets.definitions.uds.UrzasDestinySet
-import com.wingedsheep.mtg.sets.definitions.ulg.UrzasLegacySet
-import com.wingedsheep.mtg.sets.definitions.cmd.Commander2011Set
-import com.wingedsheep.mtg.sets.definitions.cmr.CommanderLegendsSet
-import com.wingedsheep.mtg.sets.definitions.`5dn`.FifthDawnSet
-import com.wingedsheep.mtg.sets.definitions.aer.AetherRevoltSet
-import com.wingedsheep.mtg.sets.definitions.c14.Commander2014Set
-import com.wingedsheep.mtg.sets.definitions.chk.ChampionsOfKamigawaSet
-import com.wingedsheep.mtg.sets.definitions.csp.ColdsnapSet
-import com.wingedsheep.mtg.sets.definitions.dis.DissensionSet
-import com.wingedsheep.mtg.sets.definitions.emn.EldritchMoonSet
-import com.wingedsheep.mtg.sets.definitions.gtc.GatecrashSet
-import com.wingedsheep.mtg.sets.definitions.isd.InnistradSet
-import com.wingedsheep.mtg.sets.definitions.jou.JourneyIntoNyxSet
-import com.wingedsheep.mtg.sets.definitions.kld.KaladeshSet
-import com.wingedsheep.mtg.sets.definitions.m11.Magic2011Set
-import com.wingedsheep.mtg.sets.definitions.m13.Magic2013Set
-import com.wingedsheep.mtg.sets.definitions.m15.Magic2015Set
-import com.wingedsheep.mtg.sets.definitions.m19.CoreSet2019Set
-import com.wingedsheep.mtg.sets.definitions.m20.CoreSet2020Set
-import com.wingedsheep.mtg.sets.definitions.ogw.OathOfTheGatewatchSet
-import com.wingedsheep.mtg.sets.definitions.ori.MagicOriginsSet
-import com.wingedsheep.mtg.sets.definitions.pc2.Planechase2012Set
-import com.wingedsheep.mtg.sets.definitions.plc.PlanarChaosSet
-import com.wingedsheep.mtg.sets.definitions.rtr.ReturnToRavnicaSet
-import com.wingedsheep.mtg.sets.definitions.shm.ShadowmoorSet
-import com.wingedsheep.mtg.sets.definitions.ths.TherosSet
-import com.wingedsheep.mtg.sets.definitions.zen.ZendikarSet
-import com.wingedsheep.mtg.sets.definitions.con.ConfluxSet
-import com.wingedsheep.mtg.sets.definitions.dft.AetherdriftSet
-import com.wingedsheep.mtg.sets.definitions.dtk.DragonsOfTarkirSet
-import com.wingedsheep.mtg.sets.definitions.dom.DominariaSet
-import com.wingedsheep.mtg.sets.definitions.dmu.DominariaUnitedSet
-import com.wingedsheep.mtg.sets.definitions.dsk.DuskmournSet
-import com.wingedsheep.mtg.sets.definitions.gpt.GuildpactSet
-import com.wingedsheep.mtg.sets.definitions.m10.Magic2010Set
-import com.wingedsheep.mtg.sets.definitions.m12.Magic2012Set
-import com.wingedsheep.mtg.sets.definitions.m14.Magic2014Set
-import com.wingedsheep.mtg.sets.definitions.m21.CoreSet2021Set
-import com.wingedsheep.mtg.sets.definitions.ody.OdysseySet
-import com.wingedsheep.mtg.sets.definitions.tsp.TimeSpiralSet
-import com.wingedsheep.mtg.sets.definitions.eoe.EdgeOfEternitiesSet
-import com.wingedsheep.mtg.sets.definitions.exo.ExodusSet
-import com.wingedsheep.mtg.sets.definitions.fdn.FoundationsSet
-import com.wingedsheep.mtg.sets.definitions.frf.FateReforgedSet
-import com.wingedsheep.mtg.sets.definitions.fin.FinalFantasySet
-import com.wingedsheep.mtg.sets.definitions.inr.InnistradRemasteredSet
-import com.wingedsheep.mtg.sets.definitions.inv.InvasionSet
-import com.wingedsheep.mtg.sets.definitions.jud.JudgmentSet
-import com.wingedsheep.mtg.sets.definitions.mid.InnistradMidnightHuntSet
-import com.wingedsheep.mtg.sets.definitions.vow.InnistradCrimsonVowSet
-import com.wingedsheep.mtg.sets.definitions.khm.KaldheimSet
-import com.wingedsheep.mtg.sets.definitions.ktk.KhansOfTarkirSet
-import com.wingedsheep.mtg.sets.definitions.lea.AlphaSet
-import com.wingedsheep.mtg.sets.definitions.leg.LegendsSet
-import com.wingedsheep.mtg.sets.definitions.lgn.LegionsSet
-import com.wingedsheep.mtg.sets.definitions.lrw.LorwynSet
-import com.wingedsheep.mtg.sets.definitions.ecl.LorwynEclipsedSet
-import com.wingedsheep.mtg.sets.definitions.lci.LostCavernsOfIxalanSet
-import com.wingedsheep.mtg.sets.definitions.ltr.LordOfTheRingsSet
-import com.wingedsheep.mtg.sets.definitions.mbs.MirrodinBesiegedSet
-import com.wingedsheep.mtg.sets.definitions.mir.MirageSet
-import com.wingedsheep.mtg.sets.definitions.mrd.MirrodinSet
-import com.wingedsheep.mtg.sets.definitions.mkm.MurdersAtKarlovManorSet
-import com.wingedsheep.mtg.sets.definitions.mom.MarchOfTheMachineSet
-import com.wingedsheep.mtg.sets.definitions.ncc.NewCapennaCommanderSet
-import com.wingedsheep.mtg.sets.definitions.one.PhyrexiaAllWillBeOneSet
-import com.wingedsheep.mtg.sets.definitions.ons.OnslaughtSet
-import com.wingedsheep.mtg.sets.definitions.p02.PortalSecondAgeSet
-import com.wingedsheep.mtg.sets.definitions.por.PortalSet
-import com.wingedsheep.mtg.sets.definitions.pz2.TreasureChestSet
-import com.wingedsheep.mtg.sets.definitions.rix.RivalsOfIxalanSet
-import com.wingedsheep.mtg.sets.definitions.rav.RavnicaCityOfGuildsSet
-import com.wingedsheep.mtg.sets.definitions.rna.RavnicaAllegianceSet
-import com.wingedsheep.mtg.sets.definitions.xln.IxalanSet
-import com.wingedsheep.mtg.sets.definitions.roe.RiseOfTheEldraziSet
-import com.wingedsheep.mtg.sets.definitions.scg.ScourgeSet
-import com.wingedsheep.mtg.sets.definitions.soi.ShadowsOverInnistradSet
-import com.wingedsheep.mtg.sets.definitions.stx.StrixhavenSchoolOfMagesSet
-import com.wingedsheep.mtg.sets.definitions.sos.SecretsOfStrixhavenSet
-import com.wingedsheep.mtg.sets.definitions.tmp.TempestSet
-import com.wingedsheep.mtg.sets.definitions.usg.UrzasSagaSet
-import com.wingedsheep.mtg.sets.definitions.vis.VisionsSet
-import com.wingedsheep.mtg.sets.definitions.wth.WeatherlightSet
-import com.wingedsheep.mtg.sets.definitions.otj.OutlawsOfThunderJunctionSet
-import com.wingedsheep.mtg.sets.definitions.spm.SpiderManSet
-import com.wingedsheep.mtg.sets.definitions.tdm.TarkirDragonstormSet
-import com.wingedsheep.mtg.sets.definitions.tla.AvatarTheLastAirbenderSet
-import com.wingedsheep.mtg.sets.definitions.tmt.TeenageMutantNinjaTurtlesSet
-import com.wingedsheep.mtg.sets.definitions.war.WarOfTheSparkSet
-import com.wingedsheep.mtg.sets.definitions.woe.WildsOfEldrainSet
-import com.wingedsheep.mtg.sets.definitions.wwk.WorldwakeSet
-import com.wingedsheep.mtg.sets.definitions.drk.TheDarkSet
-import com.wingedsheep.mtg.sets.definitions.hml.HomelandsSet
-import com.wingedsheep.mtg.sets.definitions.all.AlliancesSet
-import com.wingedsheep.mtg.sets.definitions.ice.IceAgeSet
+import com.wingedsheep.mtg.sets.discovery.CardDiscovery
 import com.wingedsheep.sdk.model.MtgSet
 
 /**
  * Single source of truth for all known MTG sets.
  *
- * Adding a new set: implement [MtgSet] and append the object to [all].
- * The game-server, gym, and tests discover sets through this catalog —
- * no other registration is required.
+ * The catalog is auto-discovered: every [MtgSet] `object` declared anywhere under
+ * [DEFINITIONS_PACKAGE] is found on the classpath via [CardDiscovery.findSets]. Adding a new set
+ * is therefore just implementing [MtgSet] in its `definitions/<set>/` package — no import block to
+ * extend and no list to append to (the two places that used to be easy to forget). Sets are
+ * ordered chronologically by [MtgSet.releaseDate] (sets without a date sort last), then by [code]
+ * for a stable, deterministic order regardless of classpath scan order.
+ *
+ * The game-server, gym, and tests discover sets through this catalog — no other registration
+ * is required.
  */
 object MtgSetCatalog {
 
-    val all: List<MtgSet> = listOf(
-        AlphaSet,
-        EighthEditionSet,
-        AntiquitiesSet,
-        StrongholdSet,
-        UrzasLegacySet,
-        UrzasDestinySet,
-        MercadianMasquesSet,
-        NemesisSet,
-        ProphecySet,
-        PlaneshiftSet,
-        ApocalypseSet,
-        TormentSet,
-        PortalThreeKingdomsSet,
-        Starter1999Set,
-        ArabianNightsSet,
-        LegendsSet,
-        TheDarkSet,
-        IceAgeSet,
-        HomelandsSet,
-        AlliancesSet,
-        PortalSet,
-        PortalSecondAgeSet,
-        MirageSet,
-        VisionsSet,
-        WeatherlightSet,
-        TempestSet,
-        ExodusSet,
-        UrzasSagaSet,
-        InvasionSet,
-        LorwynSet,
-        KaldheimSet,
-        OnslaughtSet,
-        ScourgeSet,
-        LegionsSet,
-        KhansOfTarkirSet,
-        FateReforgedSet,
-        DragonsOfTarkirSet,
-        MirrodinSet,
-        MirrodinBesiegedSet,
-        RiseOfTheEldraziSet,
-        AvacynRestoredSet,
-        DominariaSet,
-        DominariaUnitedSet,
-        PhyrexiaAllWillBeOneSet,
-        BrothersWarSet,
-        Commander2011Set,
-        CommanderLegendsSet,
-        FifthDawnSet,
-        AetherRevoltSet,
-        Commander2014Set,
-        ChampionsOfKamigawaSet,
-        ColdsnapSet,
-        DissensionSet,
-        EldritchMoonSet,
-        GatecrashSet,
-        InnistradSet,
-        JourneyIntoNyxSet,
-        KaladeshSet,
-        Magic2011Set,
-        Magic2013Set,
-        Magic2015Set,
-        CoreSet2019Set,
-        CoreSet2020Set,
-        OathOfTheGatewatchSet,
-        MagicOriginsSet,
-        Planechase2012Set,
-        PlanarChaosSet,
-        ReturnToRavnicaSet,
-        ShadowmoorSet,
-        TherosSet,
-        ZendikarSet,
-        Commander2015Set,
-        TreasureChestSet,
-        Commander2017Set,
-        InnistradRemasteredSet,
-        InnistradMidnightHuntSet,
-        InnistradCrimsonVowSet,
-        MarchOfTheMachineSet,
-        NewCapennaCommanderSet,
-        MurdersAtKarlovManorSet,
-        WildsOfEldrainSet,
-        IxalanSet,
-        RivalsOfIxalanSet,
-        LostCavernsOfIxalanSet,
-        BloomburrowSet,
-        BloomburrowCommanderSet,
-        FoundationsSet,
-        FinalFantasySet,
-        DuskmournSet,
-        AetherdriftSet,
-        EdgeOfEternitiesSet,
-        LorwynEclipsedSet,
-        OutlawsOfThunderJunctionSet,
-        TheBigScoreSet,
-        SpiderManSet,
-        TarkirDragonstormSet,
-        AvatarTheLastAirbenderSet,
-        TeenageMutantNinjaTurtlesSet,
-        WarOfTheSparkSet,
-        RavnicaCityOfGuildsSet,
-        RavnicaAllegianceSet,
-        OdysseySet,
-        JudgmentSet,
-        GuildpactSet,
-        TimeSpiralSet,
-        ConfluxSet,
-        ShardsOfAlaraSet,
-        Magic2010Set,
-        Magic2012Set,
-        Magic2014Set,
-        CoreSet2021Set,
-        BattleForZendikarSet,
-        AmonkhetSet,
-        ShadowsOverInnistradSet,
-        WorldwakeSet,
-        LordOfTheRingsSet,
-        StrixhavenSchoolOfMagesSet,
-        SecretsOfStrixhavenSet,
-    )
+    private const val DEFINITIONS_PACKAGE = "com.wingedsheep.mtg.sets.definitions"
 
-    private val byCode: Map<String, MtgSet> = all.associateBy { it.code }
+    /** Sorts after any real ISO `YYYY-MM-DD` release date, so undated sets land at the end. */
+    private const val UNKNOWN_DATE_SENTINEL = "9999-99-99"
+
+    val all: List<MtgSet> by lazy {
+        CardDiscovery.findSets(DEFINITIONS_PACKAGE)
+            .sortedWith(compareBy({ it.releaseDate ?: UNKNOWN_DATE_SENTINEL }, { it.code }))
+    }
+
+    private val byCode: Map<String, MtgSet> by lazy { all.associateBy { it.code } }
 
     fun byCode(code: String): MtgSet? = byCode[code]
 

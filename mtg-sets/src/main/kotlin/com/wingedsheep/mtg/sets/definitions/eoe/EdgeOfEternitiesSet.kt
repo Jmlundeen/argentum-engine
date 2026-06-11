@@ -24,7 +24,7 @@ object EdgeOfEternitiesSet : MtgSet {
     }
 
     override val basicLands: List<CardDefinition> by lazy {
-        CardDiscovery.findBasicLandsIn(CARDS_PACKAGE).map { it.copy(setCode = code) }
+        CardDiscovery.findBasicLandsIn(CARDS_PACKAGE, code)
     }
 
     override val printings: List<Printing> by lazy {

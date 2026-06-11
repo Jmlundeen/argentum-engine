@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.discovery
 
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.model.MtgSet
 import com.wingedsheep.sdk.model.Printing
 import io.github.classgraph.ClassGraph
 import java.lang.reflect.Modifier
@@ -27,10 +28,16 @@ import java.util.concurrent.ConcurrentHashMap
  * `val FooBasicLands = listOf(...)` are skipped automatically because their field type
  * is `List<CardDefinition>`, not `CardDefinition`.
  *
- * `setCode` is **not** stamped here. Today, `cards` are stamped centrally at registry-load
- * time (`GameBeansConfig.stamp(...)`), and `basicLands` are stamped by each set via
- * `.copy(setCode = code)`. Discovery preserves both behaviors — call sites stamp as they
- * do today. Printings already carry their own `setCode` so no stamping is needed.
+ * `cards` are stamped with their `setCode` centrally at registry-load time
+ * (`GameBeansConfig.stamp(...)`), so [findIn] returns them unstamped. `basicLands`, on the
+ * other hand, are consumed directly off `MtgSet.basicLands` by the booster/sealed/random-deck
+ * paths (which never go through the card registry and key land identifiers on `setCode`), so
+ * they must carry their `setCode` at the source: use the [findBasicLandsIn] overload that takes
+ * a `setCode` to stamp them in one place instead of each set repeating `.copy(setCode = code)`.
+ * Printings already carry their own `setCode` so no stamping is needed.
+ *
+ * [findSets] discovers the set objects themselves the same way, so `MtgSetCatalog` no longer has
+ * to hand-maintain an import block plus a parallel list — both of which were easy to forget.
  */
 object CardDiscovery {
 
@@ -48,8 +55,41 @@ object CardDiscovery {
     fun findBasicLandsIn(packageName: String): List<CardDefinition> =
         cache.getOrPut(packageName) { scan(packageName) }.basicLands
 
+    /**
+     * Like [findBasicLandsIn], but stamps each variant with [setCode]. This is the single place
+     * basic lands get their set identity — sets call this instead of repeating
+     * `.copy(setCode = code)`, so the stamp can't drift between sets and consumers that read
+     * `MtgSet.basicLands` directly (booster/sealed/random-deck) always see a set-stamped land.
+     */
+    fun findBasicLandsIn(packageName: String, setCode: String): List<CardDefinition> =
+        findBasicLandsIn(packageName).map { it.copy(setCode = setCode) }
+
     fun findPrintingsIn(packageName: String): List<Printing> =
         cache.getOrPut(packageName) { scan(packageName) }.printings
+
+    /**
+     * Auto-discovers every [MtgSet] implementation under [packageName] (recursively), so the
+     * set catalog is a view over the classpath instead of a hand-maintained import block + list.
+     *
+     * Every set is declared as a Kotlin `object`, which compiles to a class carrying a public
+     * static `INSTANCE` field — that's the singleton we read. Non-object implementations (none
+     * today) are skipped: they have no `INSTANCE`, and a set with no stable singleton has no
+     * place in the catalog. Ordering is non-deterministic here; callers sort.
+     */
+    fun findSets(packageName: String): List<MtgSet> =
+        ClassGraph()
+            .acceptPackages(packageName)
+            .enableClassInfo()
+            .scan()
+            .use { scanResult ->
+                scanResult.getClassesImplementing(MtgSet::class.java.name)
+                    .filter { !it.isInterface && !it.isAbstract }
+                    .mapNotNull { classInfo ->
+                        val cls = runCatching { classInfo.loadClass() }.getOrNull()
+                            ?: return@mapNotNull null
+                        runCatching { cls.getField("INSTANCE").get(null) as? MtgSet }.getOrNull()
+                    }
+            }
 
     private fun scan(packageName: String): ScannedPackage {
         val cards = mutableListOf<CardDefinition>()

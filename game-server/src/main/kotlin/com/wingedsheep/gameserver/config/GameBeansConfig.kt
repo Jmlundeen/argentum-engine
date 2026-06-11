@@ -34,6 +34,17 @@ class GameBeansConfig(
         // cards from all sets, even those gated out of sealed/draft via game.sets.disabled-by-default.
         // Booster/sealed/draft generation still respects the active-set filter via boosterGenerator.
         for (set in MtgSetCatalog.all) {
+            // A set that contributes nothing has almost always shipped hollow because its
+            // CARDS_PACKAGE constant has a typo — discovery scans the wrong package and silently
+            // returns empty. Turn that worst-case silent failure into a named, immediate error.
+            // (All-reprint sets like Eighth Edition legitimately have no own `cards`, so reprints
+            // and basic lands count too.)
+            check(
+                set.cards.isNotEmpty() || set.printings.isNotEmpty() || set.basicLands.isNotEmpty(),
+            ) {
+                "Set ${set.code} (${set.displayName}) loaded no cards, printings, or basic lands — " +
+                    "typo in its CARDS_PACKAGE?"
+            }
             register(set.cards.stamp(set).withLegalities())
             register(set.basicLands.withLegalities())
             set.basicLandsFallback?.let { register(it.basicLands.withLegalities()) }
