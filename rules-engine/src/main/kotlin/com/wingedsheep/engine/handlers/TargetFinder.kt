@@ -10,6 +10,7 @@ import com.wingedsheep.engine.state.components.player.PlayerHexproofComponent
 import com.wingedsheep.engine.state.components.player.PlayerShroudComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.sdk.core.Keyword
@@ -398,7 +399,12 @@ class TargetFinder(
         val filter = requirement.filter
         val predicateContext = PredicateContext(controllerId = controllerId)
         return state.stack.filter { spellId ->
-            predicateEvaluator.matches(state, state.projectedState, spellId, filter.baseFilter, predicateContext)
+            // "Target spell" only matches actual spells — never triggered/activated abilities
+            // on the stack. The base filter is `Any` (zone = STACK), which would otherwise pass
+            // ability entities too, offering an illegal cast that TargetValidator then rejects
+            // ("Target must be a spell on the stack") — see CR 115.4.
+            state.getEntity(spellId)?.has<SpellOnStackComponent>() == true &&
+                predicateEvaluator.matches(state, state.projectedState, spellId, filter.baseFilter, predicateContext)
         }
     }
 
