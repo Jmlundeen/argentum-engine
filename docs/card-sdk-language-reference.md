@@ -510,10 +510,12 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `AddDynamicMana(amount, allowedColors, restriction?)` — split X across a fixed color set, distinct from `AddManaOfChoice` because it distributes the full X total across multiple colors rather than producing X copies of one chosen color.
 - `AddManaInAnyCombination(amount, allowedColors?, restriction?)` — "Add N mana in any combination of colors" (Wizard's Rockets, Thornvault Forager, Interdimensional Web Watch). Sugar for `AddDynamicMana`; `allowedColors` defaults to all five. The controller colors **each** pip independently at resolution (3+ colors → pip-by-pip color choice; 2 colors → one "how much of the first" prompt; ≤0 → no mana, no prompt), so the result can mix colors — distinct from `AddAnyColorMana`, where all N share one color.
 - `AddOneManaOfEachColorAmong(filter)` — one mana of *each* color found among matching permanents (Bloom Tender shape).
-- `PayDynamicMana(amount, payer?)` — pay a dynamically-computed amount of **generic** mana at resolution; the
+- `PayDynamicMana(amount, payer?, color?)` — pay a dynamically-computed amount of mana at resolution; the
   dynamic, payer-parametric twin of the flat `PayManaCostEffect`. `amount` is a [DynamicAmount](#dynamicamount)
   evaluated at resolution (0 pays nothing and succeeds); `payer` is a `Player` reference defaulting to the
-  controller (`Player.You`). This is the building block for **"pay {N} for each X"** templating — pair it with a
+  controller (`Player.You`). `color` defaults to null (pay `amount` **generic** mana); set it to a `Color` to pay
+  `amount` copies of that **colored** symbol instead — `color = Color.GREEN` → `{G}{G}…`, for "pay {G} for each
+  wind counter" (Cyclone). Affordability and the prompt label honor the color. This is the building block for **"pay {N} for each X"** templating — pair it with a
   pipeline selection and read the selection size via `DynamicAmount.Multiply(DynamicAmount.VariableReference("<collection>_count"), N)`
   — and for **"that player pays"** on each-player triggers (`payer = Player.TriggeringPlayer`, the only effect that
   charges a player other than the ability's controller). Affordability is recognized by `Gate.MayPay`, so wrapping

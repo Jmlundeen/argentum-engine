@@ -48,7 +48,8 @@ enum class CounterType {
     VERSE,
     INFLUENCE,
     BURDEN,
-    LOOT
+    LOOT,
+    WIND
 }
 
 /**
@@ -133,6 +134,12 @@ object Counters {
      * activation cost to draw).
      */
     const val LOOT = "loot"
+
+    /**
+     * Wind counter (ARN — Cyclone). Passive counter accumulated each upkeep; the card reads the
+     * count to scale its pay-or-sacrifice cost and the damage it deals. No inherent rule.
+     */
+    const val WIND = "wind"
 
     /**
      * Wildcard sentinel for triggers/events that fire on counters of *any* type, e.g.
