@@ -150,15 +150,17 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                     ability, state, playerId, context
                 )
 
-                // Description shown to the player. When the ability has a generic cost reduction
-                // that's currently active, rebuild the prefix from [effectiveCost] so the menu
-                // reflects what the player will actually pay (e.g., Starport Security drops from
-                // "{3}{W}, {T}: ..." to "{1}{W}, {T}: ..." once a +1/+1-counter creature is in
-                // play). Otherwise fall through to [ability.description], which honours any
-                // descriptionOverride the card defined.
+                // Description shown to the player. When the effective cost differs from the printed
+                // cost — a generic cost reduction (Starport Security "{3}{W}…" → "{1}{W}…"), or a
+                // free-first-equip discount (Forge Anew dropping an equip to {0}) — rebuild the
+                // prefix from [effectiveCost] so the menu reflects what the player will actually pay.
+                // Cards with an explicit descriptionOverride keep it (we can't safely splice a cost
+                // into custom text).
                 val displayDescription =
-                    if (ability.genericCostReduction != null && effectiveCost != rawCost) {
-                        "${effectiveCost.description}: ${ability.effect.description}"
+                    if (effectiveCost != rawCost && ability.descriptionOverride == null) {
+                        // A cost reduced all the way to zero renders as an empty string; show "{0}"
+                        // so a free (e.g. Forge-Anew-discounted) equip reads as free, not blank.
+                        "${effectiveCost.description.ifEmpty { "{0}" }}: ${ability.effect.description}"
                     } else {
                         ability.description
                     }
@@ -610,7 +612,11 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         .filterIsInstance<AbilityCost.Mana>().firstOrNull()?.cost
                     else -> null
                 }
-                val abilityManaCostString = abilityManaCost?.toString()
+                // A mana cost reduced all the way to {0} (e.g. Forge Anew's free first equip)
+                // renders as an empty string; surface "{0}" so the client shows it as free rather
+                // than falling back to the card's printed mana cost (ActionMenu's
+                // `manaCostString || cardInfo.manaCost`).
+                val abilityManaCostString = abilityManaCost?.toString()?.ifEmpty { "{0}" }
                 val abilityHasXInManaCost = abilityManaCost?.hasX == true
 
                 // Reuse the early checks for X-variable costs

@@ -101,6 +101,29 @@ class ForgeAnewScenarioTest : FunSpec({
         equipOffered() shouldBe true
     }
 
+    test("a free first equip is listed as {0}, not the Equipment's printed mana cost") {
+        val driver = createDriver()
+        val you = driver.activePlayer!!
+        driver.putCreatureOnBattlefield(you, "Centaur Courser")
+        val sword = driver.putPermanentOnBattlefield(you, "Loxodon Warhammer") // printed/equip cost {3}
+        driver.putPermanentOnBattlefield(you, "Forge Anew")
+
+        val services = com.wingedsheep.engine.core.EngineServices(driver.cardRegistry)
+        val enumerator = com.wingedsheep.engine.legalactions.LegalActionEnumerator(
+            services.cardRegistry, services.manaSolver, services.costCalculator,
+            services.predicateEvaluator, services.conditionEvaluator, services.turnManager
+        )
+        val pid = driver.state.priorityPlayerId!!
+        val equip = enumerator.enumerate(driver.state, pid).first {
+            val a = it.action
+            a is ActivateAbility && a.sourceId == sword
+        }
+        // The first equip each turn is free — it must read as {0}, not blank (which the client
+        // would render as the Equipment's printed {3} via `manaCostString || cardInfo.manaCost`).
+        equip.manaCostString shouldBe "{0}"
+        equip.description.startsWith("{0}:") shouldBe true
+    }
+
     test("grants instant-speed equip during your turn (equip in combat)") {
         val driver = createDriver()
         val you = driver.activePlayer!!
