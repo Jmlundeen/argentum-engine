@@ -81,7 +81,7 @@ class WizardsRocketsScenarioTest : ScenarioTestBase() {
                 }
             }
 
-            test("paying X=2 adds two mana and still draws a card") {
+            test("paying X=2 lets each mana be colored independently (true combination)") {
                 val game = scenario()
                     .withPlayers("Player1", "Player2")
                     .withCardOnBattlefield(1, "Wizard's Rockets", tapped = false, summoningSickness = false)
@@ -105,20 +105,56 @@ class WizardsRocketsScenarioTest : ScenarioTestBase() {
                     activation.error shouldBe null
                 }
 
-                // Choose the color for the X mana produced.
-                if (game.hasPendingDecision()) {
-                    game.submitDecision(ColorChosenResponse(game.getPendingDecision()!!.id, Color.RED))
+                // "Any combination of colors" prompts once per mana — colour the first RED and
+                // the second BLUE to prove they're chosen independently (not one colour ×2).
+                val colors = listOf(Color.RED, Color.BLUE)
+                var i = 0
+                while (game.hasPendingDecision()) {
+                    val color = colors.getOrElse(i++) { Color.RED }
+                    game.submitDecision(ColorChosenResponse(game.getPendingDecision()!!.id, color))
                 }
 
                 val pool = game.state.getEntity(game.player1Id)?.get<ManaPoolComponent>()
-                withClue("Wizard's Rockets should add X=2 mana of the chosen color") {
-                    pool?.red shouldBe 2
+                withClue("X=2 should add one RED and one BLUE (a true colour combination)") {
+                    pool?.red shouldBe 1
+                    pool?.blue shouldBe 1
                 }
 
                 game.resolveStack()
 
                 withClue("The sacrifice's draw trigger still fires when X mana is produced") {
                     game.handSize(1) shouldBe 1
+                }
+            }
+
+            test("X=2 may also be taken as two of the same colour") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Wizard's Rockets", tapped = false, summoningSickness = false)
+                    .withLandsOnBattlefield(1, "Mountain", 2)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val rockets = game.findPermanent("Wizard's Rockets")!!
+                val activation = game.execute(
+                    ActivateAbility(
+                        playerId = game.player1Id,
+                        sourceId = rockets,
+                        abilityId = manaAbilityId,
+                        xValue = 2
+                    )
+                )
+                withClue("Activating with X=2 should succeed: ${activation.error}") {
+                    activation.error shouldBe null
+                }
+                while (game.hasPendingDecision()) {
+                    game.submitDecision(ColorChosenResponse(game.getPendingDecision()!!.id, Color.GREEN))
+                }
+
+                val pool = game.state.getEntity(game.player1Id)?.get<ManaPoolComponent>()
+                withClue("Both mana coloured green → two green") {
+                    pool?.green shouldBe 2
                 }
             }
         }

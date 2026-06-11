@@ -14678,8 +14678,15 @@
                     ]
                 },
                 "effect": {
-                    "type": "AddManaOfChoice",
-                    "amount": "XValue"
+                    "type": "AddDynamicMana",
+                    "amountSource": "XValue",
+                    "allowedColors": [
+                        "WHITE",
+                        "BLUE",
+                        "BLACK",
+                        "RED",
+                        "GREEN"
+                    ]
                 },
                 "timing": "ManaAbility",
                 "isManaAbility": true

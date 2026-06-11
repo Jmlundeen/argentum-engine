@@ -38,7 +38,7 @@ val ThornvaultForager = card("Thornvault Forager") {
     // {T}, Forage: Add two mana in any combination of colors
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.Forage())
-        effect = Effects.AddAnyColorMana(2)
+        effect = Effects.AddManaInAnyCombination(2)
         manaAbility = true
     }
 
