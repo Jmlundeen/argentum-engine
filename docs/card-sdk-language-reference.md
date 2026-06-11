@@ -281,7 +281,12 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 - `DrawCards(count, target?)` — draw N (default: controller).
 - `DrawUpTo(max, target)` — draw up to N (player picks 0–N).
-- `DrawRevealDiscardUnless(filter, target?)` — draw a card, reveal it, and discard it unless it matches `filter` (e.g. Sindbad: "draw a card and reveal it; if it isn't a land card, discard it"). Matches the drawn card in hand against `filter`.
+- "Draw a card and reveal it; if it isn't a [type], discard it" (Sindbad) is a pipeline composition, not
+  an effect type: `GatherCards(TopOfLibrary(1), "toDraw")` → `DrawCards(1)` →
+  `FilterCollection("toDraw", InZone(HAND), "drawn")` (skips the branch when the draw was replaced or the
+  library was empty) → `RevealCollection("drawn", revealToSelf = false)` →
+  `FilterCollection(MatchesFilter(Land), storeNonMatching = "notLand")` →
+  `MoveCollection("notLand" → graveyard, moveType = Discard)`.
 - `Discard(count, target)` — controller-of-target chooses; mandatory.
 - `EachOpponentDiscards(count)` — each opponent discards N.
 - `EachPlayerReturnPermanentToHand()` — each player bounces a permanent.
@@ -601,7 +606,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   default only fires if the resolving player controls it; set `sacrificedByItsController = true` for
   "[that creature]'s controller sacrifices it" (e.g. The Ring's Ring-bearer ability).
 - `ForceSacrificeEffect(target, count)` — edict; target sacrifices N creatures.
-- `ForceReturnOwnPermanentEffect(target)` — target bounces one of their own.
+- "Return a permanent you control [to its owner's hand]" is a pipeline composition, not an effect type:
+  `GatherCards(BattlefieldMatching(filter, Player.You, excludeSelf?))` →
+  `SelectFromCollection(ChooseExactly(1), useTargetingUI = true)` → `MoveCollection(→ HAND)` (the
+  battlefield→hand move routes each card to its owner's hand). See Mistbreath Elder.
 
 ### Stack manipulation
 
@@ -757,6 +765,23 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   there (and use them whenever the inference is wrong). Wrap with `MayEffect` for the optional
   "You may [action]. If you do, [effect]" shape.
 - `ReflexiveTriggerEffect(action, reflexive, optional)` — same shape but the reflexive effect goes on the stack.
+- **Branching on gathered properties** — "reveal/look, if it's a [type] do X, otherwise Y" needs no
+  bespoke effect type; it is the partition + collection-gate composition:
+  1. **Partition:** `FilterCollection(from, CollectionFilter.MatchesFilter(filter), storeMatching,
+     storeNonMatching)` splits a gathered collection by any `GameObjectFilter` — deterministic, no
+     player decision, no continuation.
+  2. **Branch:** gate follow-up effects on the partition with
+     `GatedEffect(Gate.WhenCondition(CollectionContainsMatch(name, filter?)))` (or `Not(...)` /
+     `ConditionalOnCollectionEffect(name, ifNotEmpty, ifEmpty?, minSize?)`). Gate conditions are
+     evaluated against the live `EffectContext`, so they see pipeline collections — **including
+     collections written before an earlier pause** (a `SelectFromCollection` decision); the resumed
+     pipeline context carries them.
+  3. Effects that consume an empty collection (`MoveCollection`, `SelectFromCollection`,
+     `AddCountersToCollection`) are silent no-ops, so the "nothing matched" leg often needs no gate
+     at all — just move the (possibly empty) partition.
+  Worked examples: `Patterns.Mechanic.explore()` (CR 701.44), Sindbad ("draw and reveal; if it isn't
+  a land, discard it"), Cache Grab (Food gated on `CollectionContainsMatch("selected", Squirrel)`
+  after a selection pause).
 
 ### Modal & choice
 
@@ -839,6 +864,13 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
   creatures they control and puts N +1/+1 counters on it. Non-targeting; no-op with no creatures. Composes
   Gather → `FilterCollection(CollectionFilter.LeastToughness)` → `SelectFromCollection(ChooseExactly 1)` →
   `AddCountersToCollection(+1/+1)`. Toughness is read from projected state for the least-toughness comparison.
+- `explore(explorer?)` — Explore (CR 701.44): reveal the top card of your library; a land goes to your
+  hand, otherwise the exploring permanent (default `EffectTarget.Self`) gets a +1/+1 counter and you may
+  put the revealed card into your graveyard. Pure pipeline composition: Gather (revealed) →
+  `FilterCollection(MatchesFilter(Land))` partition → `MoveCollection(land → hand)` →
+  `GatedEffect(WhenCondition(Not(CollectionContainsMatch("explored", Land))))` over counter + optional
+  graveyard move. The gate is "no land revealed" (not "a nonland was revealed") so an empty library still
+  yields the counter, per CR 701.44a/b.
 - `forage(afterEffect?)` — Forage cost; choose card-from-hand to play.
 - `loot(draw?, discard?)` — "draw N, discard M" loop.
 - `rummage(count?)` — discard then draw.

@@ -2845,8 +2845,60 @@
                 "id": "ability_1",
                 "cost": "CostTap",
                 "effect": {
-                    "type": "DrawRevealDiscardUnless",
-                    "filter": "land"
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "toDraw"
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "toDraw",
+                            "filter": {
+                                "type": "InZone",
+                                "zone": "Hand"
+                            },
+                            "storeMatching": "drawn"
+                        },
+                        {
+                            "type": "RevealCollection",
+                            "from": "drawn",
+                            "revealToSelf": false
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "drawn",
+                            "filter": {
+                                "type": "MatchesFilter",
+                                "filter": "land"
+                            },
+                            "storeMatching": "keptLand",
+                            "storeNonMatching": "notLand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "notLand",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
+                        }
+                    ]
                 }
             }
         ]

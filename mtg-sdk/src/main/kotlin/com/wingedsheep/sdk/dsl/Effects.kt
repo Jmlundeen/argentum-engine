@@ -65,7 +65,6 @@ import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.effects.GrantDamageBonusEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.DrawRevealDiscardUnlessEffect
 import com.wingedsheep.sdk.scripting.effects.EachPlayerReturnsPermanentToHandEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
@@ -73,7 +72,6 @@ import com.wingedsheep.sdk.scripting.effects.GrantPlayWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.GrantFreeCastTargetFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.FightEffect
 import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
-import com.wingedsheep.sdk.scripting.effects.ForceReturnOwnPermanentEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.effects.ExchangeControlEffect
 import com.wingedsheep.sdk.scripting.effects.ExchangeLifeAndPowerEffect
@@ -337,15 +335,6 @@ object Effects {
      */
     fun DrawUpTo(maxCards: Int, target: EffectTarget = EffectTarget.Controller): Effect =
         DrawUpToEffect(maxCards, target)
-
-    /**
-     * Draw a card, reveal it, and discard it unless it matches [filter].
-     * Models "Draw a card and reveal it. If it isn't a [type], discard it." (Sindbad).
-     */
-    fun DrawRevealDiscardUnless(
-        filter: GameObjectFilter,
-        target: EffectTarget = EffectTarget.Controller
-    ): Effect = DrawRevealDiscardUnlessEffect(filter, target)
 
     /**
      * Draw X cards, then for each card drawn, discard a card unless you sacrifice a permanent.
@@ -2032,13 +2021,6 @@ object Effects {
      */
     fun SacrificeTarget(target: EffectTarget): Effect =
         SacrificeTargetEffect(target)
-
-    /**
-     * Force return own permanent to hand. Controller selects a permanent they control
-     * matching the filter and returns it to hand.
-     */
-    fun ForceReturnOwnPermanent(filter: GameObjectFilter, excludeSource: Boolean = false): Effect =
-        ForceReturnOwnPermanentEffect(filter, excludeSource)
 
     // =========================================================================
     // Reveal Effects
