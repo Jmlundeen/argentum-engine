@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.values.Aggregation
+import com.wingedsheep.sdk.scripting.values.AttachmentKind
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -354,7 +355,14 @@ object DynamicAmounts {
         DynamicAmount.EntityProperty(EntityReference.Target(index), EntityNumericProperty.CounterCount(type))
 
     fun attachmentsOnSelf(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.AttachmentCount)
+        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.AttachmentCount())
+
+    /** Number of Equipment attached to the source (Shagrat, Loot Bearer's amass amount). */
+    fun equipmentAttachedToSelf(): DynamicAmount =
+        DynamicAmount.EntityProperty(
+            EntityReference.Source,
+            EntityNumericProperty.AttachmentCount(AttachmentKind.EQUIPMENT)
+        )
 
     fun numberOfBlockers(): DynamicAmount =
         DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.BlockerCount)

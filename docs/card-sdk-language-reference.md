@@ -1939,6 +1939,18 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
 - `MayPlayLandsFromGraveyard` — play lands from your graveyard (no per-turn cap). (Icetill Explorer)
 - `MayPlayPermanentsFromGraveyard` — Muldrotha: play a land + cast one permanent spell of each
   permanent type from your graveyard each turn (per-type-per-turn cap).
+- `EquipAbilitiesAtInstantSpeed` — the controller may activate equip abilities any time they could
+  cast an instant (CR 702.6e timing lifted). Wrap in a `ConditionalStaticAbility` (the
+  `staticAbility { condition = …; ability = EquipAbilitiesAtInstantSpeed }` DSL form) for a gated
+  grant — Forge Anew uses `condition = Conditions.IsYourTurn` for its "During your turn …" clause;
+  a bare grant (Leonin Shikari) applies unconditionally. Consulted by `CastPermissionUtils
+  .canEquipAtInstantSpeed` (enumerator) and `ActivateAbilityHandler.validate` (submit path), both
+  keyed on `ActivatedAbility.isEquipAbility`.
+- `FreeFirstEquipEachTurn` — the controller may pay {0} rather than the equip cost of the **first**
+  equip ability they activate during each of their turns (Forge Anew). The engine zeroes the whole
+  cost (colored pips included) of the turn's first equip while the per-player
+  `EquipActivationsThisTurnComponent.count == 0`, and increments that counter on every equip
+  activation (reset at turn start by `TurnManager`).
 - `MayCastFromGraveyard(filter, lifeCost = 0, duringYourTurnOnly = false)` — cast spells matching
   `filter` from your graveyard following normal timing, optionally paying `lifeCost` life. Free for
   Yawgmoth's Agenda (`MayCastFromGraveyard(Nonland)`); `lifeCost = 1, duringYourTurnOnly = true` for
@@ -2211,7 +2223,9 @@ composite abilities).
   resolve against the picked target. Backed by `ActivatedAbility.genericCostReduction`: the
   `ActivateAbilityHandler` locks the per-target reduction in before paying; the legal-action
   enumerator gates affordability on the cheapest reachable cost (largest reduction over the
-  currently-legal targets) since the target isn't chosen until activation.
+  currently-legal targets) since the target isn't chosen until activation. The synthesized ability
+  carries `ActivatedAbility.isEquipAbility = true`, which the engine keys off for the equip-timing
+  and free-first-equip permissions below.
 - `Fortify(cost)` — Aura-like attach cost on lands.
 
 ```kotlin
@@ -2684,6 +2698,20 @@ than the source permanent itself — for an Aura, `EntityReference.Source` is th
   thread state. When read in a **triggered ability** and the attached creature has already left the
   battlefield by resolution (e.g. removed in response to the aura's ETB trigger), it falls back to the
   creature's last-known power — captured when the trigger fired — per CR 608.2g, rather than 0.
+
+### Attachment-count shortcuts (`DynamicAmounts.*` facades)
+
+For "X = the number of [things] attached to this permanent":
+
+- `DynamicAmounts.attachmentsOnSelf()` — every Aura/Equipment/Fortification attached to the source
+  (Champion of the Flame, Valduk). Desugars to `EntityProperty(Source, AttachmentCount())`
+  (`AttachmentKind.ANY`).
+- `DynamicAmounts.equipmentAttachedToSelf()` — only the Equipment attached to the source (Shagrat,
+  Loot Bearer: "amass Orcs X, where X is the number of Equipment attached to Shagrat"). Desugars to
+  `EntityProperty(Source, AttachmentCount(AttachmentKind.EQUIPMENT))`.
+
+`AttachmentCount(kind)` takes an `AttachmentKind` (`ANY` / `EQUIPMENT` / `AURA`); the evaluator
+counts the source's `attachedIds` whose card type matches the kind.
 
 ### Just-amassed Army (`EntityReference.AmassedArmy`)
 

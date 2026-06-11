@@ -2924,7 +2924,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -4358,6 +4359,7 @@
                     }
                 ],
                 "timing": "SorcerySpeed",
+                "isEquipAbility": true,
                 "genericCostReduction": {
                     "type": "EntityProperty",
                     "entity": "Target",
@@ -15601,7 +15603,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [

@@ -145,7 +145,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -1014,7 +1015,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -2533,7 +2535,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -4530,6 +4533,58 @@
     ]
 }
 
+// Forge Anew
+{
+    "name": "Forge Anew",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, return target Equipment card from your graveyard to the battlefield.\nDuring your turn, you may activate equip abilities any time you could cast an instant.\nYou may pay {0} rather than pay the equip cost of the first equip ability you activate during each of your turns.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "Equipment card in your graveyard"
+                    },
+                    "destination": "Battlefield"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact Equipment own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "Equipment card in your graveyard"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": "EquipAbilitiesAtInstantSpeed",
+                "condition": "IsYourTurn"
+            },
+            "FreeFirstEquipEachTurn"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "17",
+        "rarity": "RARE",
+        "artist": "Craig J Spearing",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/56274b88-6e3f-4538-bb0c-eb5e52a58ef3.jpg?1686967804"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Friendly Rivalry
 {
     "name": "Friendly Rivalry",
@@ -4622,6 +4677,86 @@
     ]
 }
 
+// Frodo, Determined Hero
+{
+    "name": "Frodo, Determined Hero",
+    "manaCost": "{1}{W}",
+    "typeLine": "Legendary Creature — Halfling Warrior",
+    "oracleText": "Whenever Frodo enters or attacks, you may attach target Equipment you control with mana value 2 or 3 to Frodo.\nDuring your turn, prevent all damage that would be dealt to Frodo.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AttachTargetEquipmentToCreature",
+                    "equipmentTarget": {
+                        "type": "BoundVariable",
+                        "name": "Equipment you control with mana value 2 or 3"
+                    },
+                    "creatureTarget": "Self"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "artifact Equipment mv>=2 mv<=3 ctrl:you"
+                    },
+                    "id": "Equipment you control with mana value 2 or 3"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "AttachTargetEquipmentToCreature",
+                    "equipmentTarget": {
+                        "type": "BoundVariable",
+                        "name": "Equipment you control with mana value 2 or 3"
+                    },
+                    "creatureTarget": "Self"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "artifact Equipment mv>=2 mv<=3 ctrl:you"
+                    },
+                    "id": "Equipment you control with mana value 2 or 3"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "PreventDamage",
+                "restrictions": [
+                    "IsYourTurn"
+                ],
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "recipient": "RecipientSelf"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "289",
+        "rarity": "RARE",
+        "artist": "Magali Villeneuve",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/3/83d1b37c-a8c6-4690-8701-3395397711e7.jpg?1687424782"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Galadhrim Bow
 {
     "name": "Galadhrim Bow",
@@ -4691,7 +4826,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -5326,7 +5462,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -8894,7 +9031,8 @@
                         "id": "creature you control"
                     }
                 ],
-                "timing": "SorcerySpeed"
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
             }
         ],
         "staticAbilities": [
@@ -11666,6 +11804,69 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Shagrat, Loot Bearer
+{
+    "name": "Shagrat, Loot Bearer",
+    "manaCost": "{2}{B}{R}",
+    "typeLine": "Legendary Creature — Orc Soldier",
+    "oracleText": "Whenever Shagrat attacks, attach up to one target Equipment to it. Then amass Orcs X, where X is the number of Equipment attached to Shagrat. (Control of the Equipment doesn't change. To amass Orcs X, put X +1/+1 counters on an Army you control. It's also an Orc. If you don't control an Army, create a 0/0 black Orc Army creature token first.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AttachTargetEquipmentToCreature",
+                            "equipmentTarget": {
+                                "type": "BoundVariable",
+                                "name": "Equipment"
+                            },
+                            "creatureTarget": "Self"
+                        },
+                        {
+                            "type": "Amass",
+                            "amount": {
+                                "type": "EntityProperty",
+                                "entity": "Source",
+                                "numericProperty": {
+                                    "type": "AttachmentCount",
+                                    "kind": "EQUIPMENT"
+                                }
+                            },
+                            "subtype": "Orc"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "artifact Equipment"
+                    },
+                    "id": "Equipment"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "228",
+        "rarity": "RARE",
+        "artist": "Tatiana Veryayskaya",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/0731f64a-15da-4814-82e9-3a42e1657f36.jpg?1686970039"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
     ]
 }
 

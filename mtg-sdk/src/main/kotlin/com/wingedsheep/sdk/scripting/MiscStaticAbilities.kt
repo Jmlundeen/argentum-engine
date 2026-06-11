@@ -668,3 +668,30 @@ data class NoncombatDamageBonus(
     override val description: String =
         "If a source you control would deal noncombat damage to an opponent or a permanent an opponent controls, it deals that much damage plus $bonusAmount instead"
 }
+
+/**
+ * The controller may activate equip abilities any time they could cast an instant
+ * (instant-speed equip). Equip is normally sorcery-speed (CR 702.6e); this lifts the
+ * timing restriction for the controller's equip activations.
+ *
+ * Wrap in [ConditionalStaticAbility] for a gated grant — Forge Anew uses
+ * `ConditionalStaticAbility(IsYourTurn, EquipAbilitiesAtInstantSpeed)` for its
+ * "During your turn, …" clause. Leonin Shikari-style unconditional grants use it bare.
+ */
+@SerialName("EquipAbilitiesAtInstantSpeed")
+@Serializable
+data object EquipAbilitiesAtInstantSpeed : StaticAbility {
+    override val description: String = "You may activate equip abilities any time you could cast an instant"
+}
+
+/**
+ * The controller may pay {0} rather than the equip cost of the first equip ability they
+ * activate during each of their turns (Forge Anew). The engine zeroes the mana cost of the
+ * controller's first equip activation each turn while this is active and tracks the count via
+ * the per-turn `EquipActivationsThisTurnComponent`.
+ */
+@SerialName("FreeFirstEquipEachTurn")
+@Serializable
+data object FreeFirstEquipEachTurn : StaticAbility {
+    override val description: String = "You may pay {0} rather than pay the equip cost of the first equip ability you activate during each of your turns"
+}

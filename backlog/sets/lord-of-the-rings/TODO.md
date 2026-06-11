@@ -23,16 +23,16 @@ gap rather than approximating.
 > remaining tail is blocked on the specific gaps below; see `missing-effects.md` for the
 > per-card family map and the "what unblocks the most cards" ranking.
 
-Two cards have residual blockers that don't share a clean reusable gap with anything else;
-they're listed here so they don't get lost:
+One card has a residual blocker that doesn't share a clean reusable gap with anything else;
+it's listed here so it doesn't get lost:
 
 - **Grishnákh, Brash Instigator** — needs pipeline state threaded into target-predicate
   filters (its "with power ≤ the amassed Army's power" filter resolves the reference to
   `null` during targeting today).
-- **Shagrat, Loot Bearer** — `AttachTargetEquipmentToCreatureEffect` exists and
-  `DynamicAmounts.attachmentsOnSelf()` reads the attachment count, but the count is
-  *all attachments* (Equipment + Auras + Fortifications) — Shagrat's "X = the number of
-  Equipment attached" needs an Equipment-filtered AttachmentCount to be rules-faithful.
+
+- **Shagrat, Loot Bearer** — ✅ implemented. Landed `DynamicAmounts.equipmentAttachedToSelf()`
+  (Equipment-only attachment count, `EntityNumericProperty.AttachmentCount(AttachmentKind.EQUIPMENT)`)
+  so the amass X counts only Equipment attached to Shagrat.
 
 ## Data sources — do NOT hit the network
 
@@ -312,12 +312,15 @@ toughness rather than its power.
   toughness rather than its power." (Food half composable).
 
 ### Gap 28 — equip-ability timing / cost modification
-**Engine change:** "activate equip abilities at instant speed," equip-cost reduction, and a
-"first equip each turn costs {0}" replacement.
-- **Forge Anew** — instant-speed equip + free first equip (return-Equipment-from-GY half
-  composable).
-- **Éowyn, Lady of Rohan** — "Equip abilities you activate cost {1} less to activate." (plus a
-  begin-combat modal first strike/vigilance with an equipped-creature branch).
+**Status:** PARTIALLY LANDED. The `EquipAbilitiesAtInstantSpeed` and `FreeFirstEquipEachTurn`
+static abilities (keyed off `ActivatedAbility.isEquipAbility`, consulted by the enumerator +
+`ActivateAbilityHandler`) cover instant-speed equip and "first equip each turn costs {0}". Generic
+equip-cost reduction (Éowyn's "{1} less") is still a gap.
+- **Forge Anew** — ✅ implemented (instant-speed equip + free first equip + the
+  return-Equipment-from-GY ETB).
+- **Éowyn, Lady of Rohan** — "Equip abilities you activate cost {1} less to activate" still needs
+  generic equip-cost reduction (plus a begin-combat modal first strike/vigilance with an
+  equipped-creature branch).
 
 ### Gap 29 — conditional keyword from combat opponent's subtype
 **Engine change:** a static granting a keyword conditioned on what is blocking/blocked-by.
@@ -433,6 +436,7 @@ that try to grant the restriction silently no-op.
 - **Riders of the Mark** (Extra) — Affinity for Humans (composable) + end-step "if it attacked,
   return it to hand and create tokens equal to its toughness."
 - **Fires of Mount Doom** (Extra) — impulse-exile-and-play + destroy attached Equipment + damage.
-- **Frodo, Determined Hero** (Extra) — attach Equipment of MV 2–3 on enter/attack + "prevent all
-  damage to Frodo during your turn."
+- **Frodo, Determined Hero** (Extra) — ✅ implemented (no engine change). Composes
+  `AttachTargetEquipmentToCreature` with an MV-2-or-3 optional target on enters/attacks + a
+  `PreventDamage` replacement scoped to self (`RecipientFilter.Self`) gated to your turn (`IsYourTurn`).
 - **Gollum, Scheming Guide** (Extra) — opponent guesses whether your top card is land/nonland.

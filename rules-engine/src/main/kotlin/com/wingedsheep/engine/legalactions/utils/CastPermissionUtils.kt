@@ -13,15 +13,21 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.player.CantCastSpellsComponent
+import com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent
 import com.wingedsheep.engine.state.components.player.FlashGrantsThisTurnComponent
+import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.AbilityId
+import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.CantCastSpellsSharingColorWithLastCast
 import com.wingedsheep.sdk.scripting.CastRestriction
 import com.wingedsheep.sdk.scripting.CastSpellTypesFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.EquipAbilitiesAtInstantSpeed
+import com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn
 import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
 import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
 import com.wingedsheep.sdk.scripting.MayPlayPermanentsFromGraveyard
@@ -408,6 +414,82 @@ class CastPermissionUtils(
                             return true
                         }
                     }
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * True when [playerId] controls a permanent granting [EquipAbilitiesAtInstantSpeed]
+     * (Forge Anew, Leonin Shikari) whose condition — if wrapped in [ConditionalStaticAbility]
+     * (Forge Anew's "During your turn") — currently holds. Equip is otherwise sorcery-speed.
+     */
+    fun canEquipAtInstantSpeed(state: GameState, playerId: EntityId): Boolean =
+        hasActiveEquipPermission(state, playerId) { it is EquipAbilitiesAtInstantSpeed }
+
+    /**
+     * True when [playerId] controls a permanent granting [FreeFirstEquipEachTurn] whose
+     * condition (if any) currently holds. The caller still gates the discount on
+     * `EquipActivationsThisTurnComponent.count == 0` so only the turn's *first* equip is free.
+     */
+    fun hasFreeFirstEquip(state: GameState, playerId: EntityId): Boolean =
+        hasActiveEquipPermission(state, playerId) { it is FreeFirstEquipEachTurn }
+
+    /**
+     * Zero the mana cost of [cost] when [ability] is an equip ability, [playerId] has an active
+     * [FreeFirstEquipEachTurn] grant (Forge Anew), and this is their first equip this turn
+     * (`EquipActivationsThisTurnComponent.count == 0`). Shared by the enumerator (offered/displayed
+     * cost) and [ActivateAbilityHandler] (paid cost) so the two always agree. "Pay {0} rather than
+     * pay the equip cost" zeroes the whole cost, including any colored pips.
+     */
+    fun applyFreeFirstEquipDiscount(
+        cost: AbilityCost,
+        ability: ActivatedAbility,
+        state: GameState,
+        playerId: EntityId
+    ): AbilityCost {
+        if (!ability.isEquipAbility) return cost
+        val activations = state.getEntity(playerId)?.get<EquipActivationsThisTurnComponent>()?.count ?: 0
+        if (activations > 0) return cost
+        if (!hasFreeFirstEquip(state, playerId)) return cost
+        return when (cost) {
+            is AbilityCost.Mana -> AbilityCost.Mana(ManaCost.ZERO)
+            is AbilityCost.Composite -> AbilityCost.Composite(cost.costs.map {
+                if (it is AbilityCost.Mana) AbilityCost.Mana(ManaCost.ZERO) else it
+            })
+            else -> cost
+        }
+    }
+
+    /**
+     * Scan [playerId]'s battlefield for a static ability matching [predicate], unwrapping a
+     * [ConditionalStaticAbility] and evaluating its condition against the granting permanent.
+     * Mirrors the permission-scan shape used by [hasGraveyardPlayPermissionForType].
+     */
+    private fun hasActiveEquipPermission(
+        state: GameState,
+        playerId: EntityId,
+        predicate: (com.wingedsheep.sdk.scripting.StaticAbility) -> Boolean
+    ): Boolean {
+        for (entityId in state.getBattlefield(playerId)) {
+            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
+            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val classLevel = state.getEntity(entityId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent>()?.currentLevel
+            for (ability in cardDef.script.effectiveStaticAbilities(classLevel)) {
+                when (ability) {
+                    is com.wingedsheep.sdk.scripting.ConditionalStaticAbility -> {
+                        if (!predicate(ability.ability)) continue
+                        val opponentId = state.turnOrder.firstOrNull { it != playerId }
+                        val context = com.wingedsheep.engine.handlers.EffectContext(
+                            sourceId = entityId,
+                            controllerId = playerId,
+                            opponentId = opponentId
+                        )
+                        if (conditionEvaluator.evaluate(state, ability.condition, context)) return true
+                    }
+                    else -> if (predicate(ability)) return true
                 }
             }
         }

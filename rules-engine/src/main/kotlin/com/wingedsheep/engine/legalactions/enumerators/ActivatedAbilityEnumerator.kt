@@ -110,8 +110,12 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             val textReplacement = container.get<TextReplacementComponent>()
 
             for (ability in nonManaAbilities) {
-                // Sorcery-speed abilities: skip during non-main phases / opponent's turn
-                if (ability.timing == TimingRule.SorcerySpeed && !context.canPlaySorcerySpeed) continue
+                // Sorcery-speed abilities: skip during non-main phases / opponent's turn.
+                // Equip abilities are exempt while the controller has an active instant-speed-equip
+                // permission (Forge Anew "During your turn …", Leonin Shikari) — CR 702.6e timing lifted.
+                if (ability.timing == TimingRule.SorcerySpeed && !context.canPlaySorcerySpeed &&
+                    !(ability.isEquipAbility && context.castPermissionUtils.canEquipAtInstantSpeed(state, playerId))
+                ) continue
 
                 // Planeswalker loyalty abilities: sorcery speed + once per turn + loyalty cost check
                 if (ability.isPlaneswalkerAbility) {
@@ -139,18 +143,24 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                 }
                 // Apply ability-specific generic cost reduction so payability is checked against
                 // the locked-in cost (e.g., The Dominion Bracelet — "{X} less, where X is this
-                // creature's power").
-                val effectiveCost = applyAbilityGenericCostReduction(rawCost, ability, state, entityId, playerId, context)
+                // creature's power"). Then apply Forge Anew's free-first-equip discount, so the
+                // displayed cost and affordability reflect the {0} the player will actually pay.
+                val effectiveCost = context.castPermissionUtils.applyFreeFirstEquipDiscount(
+                    applyAbilityGenericCostReduction(rawCost, ability, state, entityId, playerId, context),
+                    ability, state, playerId
+                )
 
-                // Description shown to the player. When the ability has a generic cost reduction
-                // that's currently active, rebuild the prefix from [effectiveCost] so the menu
-                // reflects what the player will actually pay (e.g., Starport Security drops from
-                // "{3}{W}, {T}: ..." to "{1}{W}, {T}: ..." once a +1/+1-counter creature is in
-                // play). Otherwise fall through to [ability.description], which honours any
-                // descriptionOverride the card defined.
+                // Description shown to the player. When the effective cost differs from the printed
+                // cost — a generic cost reduction (Starport Security "{3}{W}…" → "{1}{W}…"), or a
+                // free-first-equip discount (Forge Anew dropping an equip to {0}) — rebuild the
+                // prefix from [effectiveCost] so the menu reflects what the player will actually pay.
+                // Cards with an explicit descriptionOverride keep it (we can't safely splice a cost
+                // into custom text).
                 val displayDescription =
-                    if (ability.genericCostReduction != null && effectiveCost != rawCost) {
-                        "${effectiveCost.description}: ${ability.effect.description}"
+                    if (effectiveCost != rawCost && ability.descriptionOverride == null) {
+                        // A cost reduced all the way to zero renders as an empty string; show "{0}"
+                        // so a free (e.g. Forge-Anew-discounted) equip reads as free, not blank.
+                        "${effectiveCost.description.ifEmpty { "{0}" }}: ${ability.effect.description}"
                     } else {
                         ability.description
                     }
@@ -602,7 +612,11 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         .filterIsInstance<AbilityCost.Mana>().firstOrNull()?.cost
                     else -> null
                 }
-                val abilityManaCostString = abilityManaCost?.toString()
+                // A mana cost reduced all the way to {0} (e.g. Forge Anew's free first equip)
+                // renders as an empty string; surface "{0}" so the client shows it as free rather
+                // than falling back to the card's printed mana cost (ActionMenu's
+                // `manaCostString || cardInfo.manaCost`).
+                val abilityManaCostString = abilityManaCost?.toString()?.ifEmpty { "{0}" }
                 val abilityHasXInManaCost = abilityManaCost?.hasX == true
 
                 // Reuse the early checks for X-variable costs

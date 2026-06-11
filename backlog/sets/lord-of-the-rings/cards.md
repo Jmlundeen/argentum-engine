@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards (261 Draft / 30 Extra)
 **Release Date:** June 23, 2023
-**Implemented:** 209 / 291
+**Implemented:** 212 / 291
 Run `scripts/card-status --set LTR` (and `--list --set LTR`) to verify status at any time.
 The split below mirrors that script: **Draft** = Scryfall `booster: true`; **Extra** =
 starter-deck/special cards and basic lands.
@@ -41,7 +41,7 @@ starter-deck/special cards and basic lands.
 - [x] Faramir, Field Commander
 - [x] Flowering of the White Tree
 - [x] Fog on the Barrow-Downs
-- [ ] Forge Anew
+- [x] Forge Anew
 - [ ] Frodo, Sauron's Bane
 - [x] Gandalf the White
 - [x] Hobbit's Sting
@@ -267,7 +267,7 @@ starter-deck/special cards and basic lands.
 - [ ] Sauron's Ransom
 - [x] Shadow Summoning
 - [ ] Shadowfax, Lord of Horses
-- [ ] Shagrat, Loot Bearer
+- [x] Shagrat, Loot Bearer
 - [ ] Sharkey, Tyrant of the Shire
 - [ ] Shelob, Child of Ungoliant
 - [ ] Sméagol, Helpful Guide
@@ -347,7 +347,7 @@ starter-deck/special cards and basic lands.
 
 ### White
 
-- [ ] Frodo, Determined Hero
+- [x] Frodo, Determined Hero
 - [x] Gandalf, White Rider
 - [x] Knight of the Keep
 

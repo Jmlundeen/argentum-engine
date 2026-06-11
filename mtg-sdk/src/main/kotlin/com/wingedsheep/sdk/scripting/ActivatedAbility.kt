@@ -25,6 +25,13 @@ data class ActivatedAbility(
     val restrictions: List<ActivationRestriction> = emptyList(),
     val isManaAbility: Boolean = false,
     val isPlaneswalkerAbility: Boolean = false,
+    /**
+     * True for the equip ability synthesized by [com.wingedsheep.sdk.dsl.CardBuilder.equipAbility].
+     * Lets the engine recognise equip activations for permissions that key off them — e.g.
+     * "you may activate equip abilities any time you could cast an instant" (instant-speed equip)
+     * and "the first equip ability you activate each turn costs {0}" (Forge Anew).
+     */
+    val isEquipAbility: Boolean = false,
     val activateFromZone: Zone = Zone.BATTLEFIELD,
     val promptOnDraw: Boolean = false,
     val descriptionOverride: String? = null,

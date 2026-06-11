@@ -56,10 +56,21 @@ sealed interface EntityNumericProperty {
         override val description: String = "the number of ${counterType.description} counters"
     }
 
+    /**
+     * The number of permanents attached to this entity, optionally narrowed to a single
+     * [AttachmentKind]. [AttachmentKind.ANY] (the default) counts every attachment — Auras,
+     * Equipment, and Fortifications alike — matching the historical behaviour;
+     * [AttachmentKind.EQUIPMENT] / [AttachmentKind.AURA] count only that kind (Shagrat, Loot
+     * Bearer: "X is the number of Equipment attached to Shagrat").
+     */
     @SerialName("AttachmentCount")
     @Serializable
-    data object AttachmentCount : EntityNumericProperty {
-        override val description: String = "the number of Auras and Equipment attached"
+    data class AttachmentCount(val kind: AttachmentKind = AttachmentKind.ANY) : EntityNumericProperty {
+        override val description: String = when (kind) {
+            AttachmentKind.ANY -> "the number of Auras and Equipment attached"
+            AttachmentKind.EQUIPMENT -> "the number of Equipment attached"
+            AttachmentKind.AURA -> "the number of Auras attached"
+        }
     }
 
     @SerialName("BlockerCount")
@@ -98,3 +109,11 @@ sealed interface EntityNumericProperty {
         override val description: String = "the number of its colors"
     }
 }
+
+/**
+ * Which kind of attachment [EntityNumericProperty.AttachmentCount] counts. The set is the
+ * small closed family of MTG attachment types; [ANY] preserves the original
+ * "all attachments" semantics.
+ */
+@Serializable
+enum class AttachmentKind { ANY, EQUIPMENT, AURA }
