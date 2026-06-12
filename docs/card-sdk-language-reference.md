@@ -305,7 +305,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `EachPlayerReturnPermanentToHand()` — each player bounces a permanent.
 - `EachPlayerDrawsForDamageDealtToSource()` — each player draws equal to damage source took this turn.
 - `ReadTheRunes()` — draw N, then discard N (or sacrifice permanents).
-- `ReplaceNextDraw(effect)` — replaces controller's next draw with the given effect.
+- `ReplaceNextDraw(effect)` — replaces controller's next draw this turn with the given effect (a one-shot
+  floating shield, consumed before the replacement runs so an inner `DrawCards` doesn't re-trigger it). The
+  activation-time `{X}` is captured onto the shield, so the replacement effect can read `DynamicAmount.XValue`
+  when it fires at draw time (Aladdin's Lamp: "look at the top X cards … then draw a card").
 
 ### Destruction & exile
 
@@ -325,6 +328,18 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   save the ID list for follow-up. `excludeTriggering = true` spares the triggering entity, for "destroy all
   *other* … with it" triggers (Spreading Plague).
 - `DestroyAllAndAttached(filter, noRegenerate?)` — also destroys auras/equipment on the matching permanents.
+- `DestroyLeastPowerCreature(noRegenerate?)` — destroy the creature with the least power among **all**
+  creatures on the battlefield (global, both players). On a tie for least power the controller chooses which
+  one dies (Drop of Honey). Backed by the `GameObjectFilter.Creature.hasLeastPowerAmongAllCreatures()` filter
+  (`StatePredicate.HasLeastPowerAmongAllCreatures`) gathered, then a `ChooseExactly(1)` selection that
+  auto-resolves when the minimum is unique.
+- `DestroyCreaturesBlockingOrBlockedBySource(noRegenerate?)` — destroy the creatures blocking, or blocked by,
+  the effect's source (CR 509 combat pairing), using the pairing **last known when the source left the
+  battlefield**. For "when ~ dies, destroy all creatures blocking or blocked by it" (Abu Ja'far): the live
+  combat cross-references are already torn down by the time a dies trigger resolves, so the pairing is read
+  from the leaves-battlefield snapshot (`ZoneChangeEvent.lastKnownBlockingOrBlockedByIds` →
+  `EffectContext.triggerLastKnownBlockingOrBlockedByIds`) via `CardSource.LastKnownCombatPairedWithSource`,
+  restricted to creatures still on the battlefield.
 - `DestroyAllEquipmentOnTarget(target)` — wreck the gear attached to a creature.
 - `Exile(target)` — exile target.
 - `ExileAndGrantOwnerPlayPermission(target, until?)` — exile + owner may play it (Garth-style).
@@ -762,8 +777,28 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `CompositeEffect(effects)` — run effects in order. Card definitions use the facade
   `Effects.Composite(e1, e2, ...)` (vararg) or `Effects.Composite(effects, stopOnError?,
   descriptionOverride?, descriptionAmounts?)` (list + render options).
-- `ForEachInGroupEffect(filter, effect, …)` — apply `effect` to every entity matching a group
-  filter; facade `Effects.ForEachInGroup(filter, effect, noRegenerate?, simultaneous?)`.
+- `ForEachEffect(space, body)` — the **single compiled iteration effect**: run `body` once per item
+  of a sealed `IterationSpace`. Five lowering facades keep the pre-unification authoring names
+  (same precedent as `IfYouDoEffect` → `GatedEffect`); use the one matching the iteration source:
+  - `ForEachTargetEffect(effects)` → `IterationSpace.Targets` — per chosen target; the body sees
+    only the current target as `ContextTarget(0)`, fresh `storedCollections` (Kaboom!).
+  - `ForEachPlayerEffect(players, effects)` → `IterationSpace.Players(players)` — per matching
+    player; `controllerId` rebound so `Player.You` is the current player, `opponentId` recomputed,
+    fresh `storedCollections` (Winds of Change, Bend or Break).
+  - `ForEachInCollectionEffect(collection, effect)` → `IterationSpace.Collection(name)` — per
+    entity of a named pipeline collection; `pipeline.iterationTarget` bound so `EffectTarget.Self`
+    is the current entity; outer collections preserved (Fight or Flight).
+  - `ForEachInGroupEffect(filter, effect, noRegenerate?)` / facade
+    `Effects.ForEachInGroup(...)` → `IterationSpace.Group(filter, noRegenerate)` — per battlefield
+    permanent matching a group filter; same `iterationTarget` binding as Collection.
+  - `ForEachColorOfEffect(source, effect)` / facade `Effects.ForEachColorOf(...)` →
+    `IterationSpace.ColorsOf(source)` — per color of an entity, WUBRG order, bound via the
+    chosen-color channel (see the choice section).
+
+  Every space snapshots its items before the first iteration (entities destroyed mid-loop stay in
+  the list) and every space is **pause-safe**: a body that pauses for a decision resumes the
+  remaining iterations via the shared `ForEachContinuation`. Multi-effect bodies lower to a
+  `CompositeEffect`.
 - `ConditionalEffect(condition, ifTrue, ifFalse?)` / `Branch(...)` — conditional branch. Facade
   preserved for existing cards; it now **lowers to `GatedEffect(Gate.WhenCondition(condition), then =
   ifTrue, otherwise = ifFalse)`** (compiled form is `Gated`, not a distinct `Conditional` type). It is
@@ -823,6 +858,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 ## 5. Effect patterns (`Patterns.Library.*` / `Patterns.Hand.*` / `Patterns.Group.*` / `Patterns.Exile.*` / `Patterns.CreatureType.*` / `Patterns.Mechanic.*`)
 
 Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` shapes and similar).
+Named entries here are for named MTG mechanics and shapes with a demonstrated second user — a
+one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5.5) instead.
 
 **Library search & reveal**
 
@@ -905,6 +942,99 @@ Composed pipelines (`GatherCards → SelectFromCollection → MoveCollection` sh
 - `modifyStatsForAll(power, toughness, filter, duration?)` — give every match +X/+Y (`Int` or `DynamicAmount`).
 - `doublePowerAndToughnessForAll(filter, duration?)` — double each match's power and toughness. Resolves to a fixed +P/+T modification read per-entity from projected state via `DynamicAmount.EntityProperty(EntityReference.IterationEntity, …)`, so the bonus locks in at resolution (no re-doubling) and negative power doubles correctly. Roar of Endless Song, Unnatural Growth.
 - `grantKeywordToAll(keyword, filter, duration?)` / `removeKeywordFromAll(...)`; `tapAll(filter)` / `untapGroup(filter?)`; `dealDamageToAll(amount, filter)`; `destroyAll(filter, noRegenerate?)`; `gainControlOfGroup(filter?, duration?)`.
+
+---
+
+## 5.5 Inline pipelines (`Effects.Pipeline { }`)
+
+The facade-respecting way to compose a **one-off** Gather → Select → Move pipeline inside a card
+file (see `backlog/inline-pipeline-dsl.md`). Named `Patterns.*` entries are for named MTG mechanics
+and shapes with a demonstrated second user; one-off pipelines go inline via the builder instead of
+hand-threading string slot keys between raw step constructors.
+
+Each builder verb serializes to the existing pipeline step `Effect` — the result is the exact same
+`CompositeEffect` tree the raw constructors produce (zero engine change, zero JSON-contract change).
+Steps return **typed slot handles**; the only way to obtain a handle is from a step that produced
+it, so a read-without-write (the `CardLinter` dangling-slot error class) cannot be expressed.
+
+```kotlin
+effect = Effects.Pipeline {
+    val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(7)))
+    val (kept, rest) = chooseExactlySplit(2, from = looked)
+    toHand(kept)
+    toGraveyard(rest)
+}
+```
+
+**Slot handles** (one per `EffectContext` namespace, mirroring `CardLinter.Space`):
+
+| Handle | Backing store | Produced by | Consumed by |
+|---|---|---|---|
+| `CollectionSlot` | `storedCollections` | `gather`, `chooseExactly`, `filter`, `captureControllers`, `moveTracked`, … | `move`, `reveal`, the select/filter verbs, `forEachCaptured` |
+| `NumberSlot` | `storedNumbers` | `storeNumber`, `forEachCaptured`'s block param | `.amount` → `DynamicAmount.VariableReference` |
+| `ChosenSlot` | `chosenValues` | `storeCardName`, `chooseOption`, `noteCreatureType` | `GameObjectFilter.namedFromVariable(slot)` |
+| `SubtypeGroupsSlot` | `storedSubtypeGroups` | `gatherSubtypes` | subtype-matching filters |
+
+**Keys are auto-generated deterministically** — `"<verb><stepIndex>"` per builder instance
+(`gathered0`, `selected1`, `matching3`), so renaming a Kotlin `val` never churns the serialized
+JSON, while reordering steps changes keys (the tree changed anyway). Every producing step takes an
+optional `name = "..."` override: use it for readable goldens on gnarly cards and for **churn-free
+migration** of existing inline cards (keep the old hand-written keys → byte-identical JSON,
+untouched snapshot goldens; `inv/cards/Lobotomy.kt` is the worked example). Duplicate explicit
+names, empty pipelines, and empty branch blocks fail at card-load with `require`.
+
+**Step vocabulary** (one verb per existing step type — the vocabulary grows with step types, never
+with cards):
+
+| Builder verb | Serializes to |
+|---|---|
+| `gather(source)` / `gather(filter, player?, …)` (battlefield shorthand) | `GatherCardsEffect` |
+| `gatherUntilMatch(filter, …)` → `(match, revealed)` | `GatherUntilMatchEffect` |
+| `chooseExactly(n, from)` / `chooseUpTo` / `chooseAnyNumber` / `chooseRandom` / `selectAll` (+ `…Split` variants returning `(selected, remainder)`) | `SelectFromCollectionEffect` |
+| `filter(from, filter)` / `filterSplit(…)` → `(matching, rest)` | `FilterCollectionEffect` |
+| `move(from, destination, …)` / `moveTracked(…)` / sugar `destroy`, `sacrifice`, `exile`, `toHand`, `toGraveyard`, `toLibraryTop`, `toLibraryBottom` | `MoveCollectionEffect` |
+| `reveal(from, …)` | `RevealCollectionEffect` |
+| `captureControllers(from)` | `CaptureControllersEffect` |
+| `forEachCaptured(collection, original, controllers) { count -> … }` | `ForEachCapturedControllerEffect` |
+| `gatherSubtypes(from)` | `GatherSubtypesEffect` |
+| `storeCardName(from)` | `StoreCardNameEffect` |
+| `storeNumber(amount)` | `StoreNumberEffect` |
+| `chooseOption(optionType, …)` / `noteCreatureType(…)` | `ChooseOptionEffect` / `NoteCreatureTypeEffect` |
+| `choosePile(a, b, chooser?, …)` → `(chosen, other)` | `ChoosePileEffect` |
+| `selectTarget(requirement)` (resolution-time choice — never printed "target") | `SelectTargetEffect` |
+| `ifNotEmpty(slot, filter?, minSize?) { … } orElse { … }` | `ConditionalOnCollectionEffect` |
+| `whenMatches(slot, filter)` (returns a `Condition`, adds no step) | `CollectionContainsMatch` |
+| `run(effect)` | any other `Effect`, verbatim |
+
+`run(...)` keeps the builder open: non-pipeline effects (a `ShuffleLibraryEffect`, a damage effect)
+interleave without the builder needing a verb for everything. Optional secondary outputs
+(`storeRemainder`, `storeNonMatching`, `storeMovedAs`) are only serialized when the card actually
+requests the handle (`chooseExactlySplit`, `filterSplit`, `moveTracked`), keeping emitted JSON free
+of never-read writes.
+
+**Branch scoping** matches the engine's `EffectContext`: handles from the outer scope are visible
+inside `ifNotEmpty` / `forEachCaptured` blocks by plain lexical capture (branches don't start fresh
+scopes; nested *abilities* do). Branch bodies with one step stay bare; multiple steps wrap in a
+nested `CompositeEffect`. Nested scopes share the key counter, so auto-keys never collide.
+
+```kotlin
+// Branch-on-gathered (the PR #618 idiom):
+effect = Effects.Pipeline {
+    val drawn = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+    reveal(drawn)
+    ifNotEmpty(drawn, filter = GameObjectFilter.Creature) {
+        toHand(drawn)
+    } orElse {
+        toGraveyard(drawn)
+    }
+}
+```
+
+A card needing a genuinely **new step semantic** (a new capture kind, a new decision shape) still
+adds the `Effect` + executor first (`add-feature`); the builder only composes the existing
+vocabulary. The JSON/custom-card authoring path is unchanged — raw step types stay `@Serializable`
+with string keys, and `CardLinter` remains the backstop for that path and for anything the builder
+can't statically prevent (cross-trigger flows, `Self`-vs-`ContextTarget` inside `ForEach`).
 
 ---
 
@@ -2277,6 +2407,9 @@ keywordAbilities(KeywordAbility.Protection(Color.BLUE), KeywordAbility.Annihilat
   filtered-count generalization of `ControlCreaturesAtLeast`/`ControlLandsAtLeast`; e.g.
   `YouControlAtLeast(3, GameObjectFilter.Creature.attacking())` for Stormbeacon Blade).
 - `ControlCreature` — you control any creature.
+- `NoCreaturesOnBattlefield` — there are no creatures anywhere on the battlefield (global, either player;
+  `Exists(Player.Each, …, negate = true)`). Used by Drop of Honey's "when there are no creatures on the
+  battlefield, sacrifice this enchantment" state trigger.
 - `ControlMoreCreatures` — you control more creatures than each opponent.
 - `OpponentControlsCreature` — at least one opponent has a creature.
 - `OpponentControlsMoreCreatures` — an opponent outpaces you.
@@ -3158,7 +3291,9 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
   `GatherCards(ChosenTargets) → CaptureControllers → MoveCollection(Destroy, storeMovedAs) → ForEachCapturedController`
   shape.
 - `ForEachInCollectionEffect(collection, effect)` — run `effect` once per entity in a named pipeline collection
-  (snapshotted at resolution), with `pipeline.iterationTarget` set to that entity. Collection-based sibling of
+  (snapshotted at resolution), with `pipeline.iterationTarget` set to that entity. Lowers to
+  `ForEachEffect(IterationSpace.Collection(...))` — see the unified ForEach entry under "Sequencing &
+  conditional". Collection-based sibling of
   `ForEachInGroupEffect` (which iterates a battlefield filter): use it to apply a per-entity effect to a *chosen*
   set rather than a re-evaluated filter. Pair with a single-target effect on `EffectTarget.Self` — e.g.
   `ForEachInCollection(nonChosenPile, Effects.CantAttack(EffectTarget.Self))` gives each creature in a chosen pile
@@ -3369,6 +3504,7 @@ the linter).
 | Card DSL           | `mtg-sdk/src/main/kotlin/.../dsl/CardBuilder.kt`                |
 | Effects            | `mtg-sdk/src/main/kotlin/.../dsl/Effects.kt`                    |
 | Effect patterns    | `mtg-sdk/src/main/kotlin/.../dsl/{Library,Hand,Group,Exile,CreatureType,Misc}Patterns.kt` |
+| Inline pipelines   | `mtg-sdk/src/main/kotlin/.../dsl/PipelineBuilder.kt`            |
 | Triggers           | `mtg-sdk/src/main/kotlin/.../dsl/Triggers.kt`                   |
 | Costs              | `mtg-sdk/src/main/kotlin/.../dsl/Costs.kt`                      |
 | Conditions         | `mtg-sdk/src/main/kotlin/.../dsl/Conditions.kt`                 |

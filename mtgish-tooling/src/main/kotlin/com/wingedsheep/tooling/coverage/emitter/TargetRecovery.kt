@@ -583,12 +583,17 @@ internal fun EmitCtx.gameObjectFilterExpr(filterNode: JsonElement?): Dsl? {
     FilterPredicates.untapped(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.attacking(filterNode)?.let { node = node.dot(it) }
     FilterPredicates.nontoken(filterNode)?.let { node = node.dot(it) }
-    if ("\"You\"" in blob) node = node.dot("youControl")
-    if ("\"Opponent\"" in blob) node = node.dot("opponentControls")
+    // The `.youControl()`/`.opponentControls()` suffix is a *controller* predicate — only a
+    // `ControlledByAPlayer` clause carries it. A bare `"You"` elsewhere in the blob (e.g. a graveyard
+    // count's `InAPlayersGraveyard(You)` ownership clause, whose player scope is carried separately by
+    // the enclosing DynamicAmount.Count) must NOT be misread as control of a battlefield permanent.
+    val hasControllerClause = "ControlledByAPlayer" in blob
+    if (hasControllerClause && "\"You\"" in blob) node = node.dot("youControl")
+    if (hasControllerClause && "\"Opponent\"" in blob) node = node.dot("opponentControls")
     // A ControlledByAPlayer clause naming a player we can't render (e.g. Ref_TargetPlayer — "creatures
     // target opponent controls") must decline rather than silently widen to every creature on the
     // battlefield (Neutralize the Guards).
-    if ("ControlledByAPlayer" in blob && "\"You\"" !in blob && "\"Opponent\"" !in blob) return null
+    if (hasControllerClause && "\"You\"" !in blob && "\"Opponent\"" !in blob) return null
     return node
 }
 
@@ -617,7 +622,37 @@ internal fun EmitCtx.revealedHandFilterExpr(filterNode: JsonElement?): Dsl? {
 
 internal fun EmitCtx.landSearchFilterDsl(filterNode: JsonElement?): String = render(landSearchFilterExpr(filterNode))
 
+/**
+ * The "basic land card and/or <subtype> card" union (Map the Frontier, Silver Deputy) rendered as
+ * `GameObjectFilter.BasicLand or GameObjectFilter.Land.withSubtype("<subtype>")`, or null when the
+ * filter isn't that exact union. The mtgish shape is an `Or` with a basic-land arm
+ * (`And[IsSupertype "Basic", IsCardtype "Land"]`) and a land-subtype arm (`IsLandType "<subtype>"`).
+ * Returning the faithful union (instead of either single arm) keeps the search from silently dropping
+ * "basic land" or narrowing to the subtype only.
+ */
+private fun basicLandOrSubtypeUnion(filterNode: JsonElement?): Dsl? {
+    // Must be an Or whose arms include a basic-land supertype clause.
+    if (filterNode.nodesTagged("Or").isEmpty()) return null
+    val hasBasic = filterNode.argWordsTagged("IsSupertype").any { it == "Basic" } &&
+        filterNode.argWordsTagged("IsCardtype").any { it == "Land" }
+    if (!hasBasic) return null
+    val landSubtype = filterNode.firstArgStringTagged("IsLandType") ?: return null
+    return Infix(
+        "or",
+        listOf(
+            Lit("GameObjectFilter.BasicLand"),
+            Lit("GameObjectFilter.Land").dot("withSubtype", arg(subtypeArg(landSubtype))),
+        ),
+        parenthesized = false,
+    )
+}
+
 internal fun EmitCtx.landSearchFilterExpr(filterNode: JsonElement?): Dsl {
+    // "basic land card and/or <subtype> card" (Map the Frontier, Silver Deputy): an Or unioning the
+    // basic-land supertype (And[IsSupertype Basic, IsCardtype Land]) with a land subtype (IsLandType).
+    // Render the faithful union `BasicLand or Land.withSubtype("<subtype>")` rather than collapsing to
+    // either arm (the bare `subs` branch below would silently drop "basic land" and Desert-only it).
+    basicLandOrSubtypeUnion(filterNode)?.let { return it }
     val subs = subtypes(filterNode)
     // Dual-land fetch ("a Swamp or Mountain card") -> Land + Or[HasSubtype…], i.e. withAnySubtype;
     // golden factors IsLand out (unlike the distributed creature-subtype form).

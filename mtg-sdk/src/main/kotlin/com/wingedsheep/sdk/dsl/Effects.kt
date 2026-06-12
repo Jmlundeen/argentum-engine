@@ -444,6 +444,24 @@ object Effects {
     ): Effect = GroupPatterns.destroyAllAndAttachedPipeline(filter, noRegenerate)
 
     /**
+     * Destroy the creature with the least power among all creatures on the battlefield. On a tie
+     * for least power the controller chooses which one (CR — Drop of Honey).
+     */
+    fun DestroyLeastPowerCreature(
+        noRegenerate: Boolean = false
+    ): Effect = GroupPatterns.destroyLeastPowerCreature(noRegenerate)
+
+    /**
+     * Destroy all creatures blocking or blocked by the effect's source (CR 509), using the
+     * combat pairing last known when the source left the battlefield. Intended for a dies
+     * trigger (Abu Ja'far) — the live combat cross-references are already gone by resolution, so
+     * the pairing is read from the leaves-battlefield snapshot.
+     */
+    fun DestroyCreaturesBlockingOrBlockedBySource(
+        noRegenerate: Boolean = false
+    ): Effect = GroupPatterns.destroyCombatPairedWithSourcePipeline(noRegenerate)
+
+    /**
      * Destroy all creatures sharing a creature type with the sacrificed creature.
      * Requires a creature sacrificed as additional cost.
      */
@@ -1685,6 +1703,32 @@ object Effects {
     ): Effect = CompositeEffect(effects, stopOnError, descriptionOverride, descriptionAmounts)
 
     /**
+     * Compose an inline Gather → Select → Move pipeline with typed slot handles —
+     * the facade-respecting replacement for hand-threading string slot keys between
+     * raw pipeline step constructors. Serializes to the exact [CompositeEffect] tree
+     * the steps would produce by hand; see [PipelineBuilder] for the step vocabulary.
+     *
+     * ```kotlin
+     * effect = Effects.Pipeline {
+     *     val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(7)))
+     *     val (kept, rest) = chooseExactlySplit(2, from = looked)
+     *     toHand(kept)
+     *     toGraveyard(rest)
+     * }
+     * ```
+     *
+     * @param stopOnError when true, abort the remaining steps if one fails.
+     * @param descriptionOverride render a single hand-written sentence instead of joining steps.
+     * @param descriptionAmounts dynamic values interpolated into `{0}`, `{1}`, … of [descriptionOverride] at runtime.
+     */
+    fun Pipeline(
+        stopOnError: Boolean = false,
+        descriptionOverride: String? = null,
+        descriptionAmounts: List<DynamicAmount> = emptyList(),
+        block: PipelineBuilder.() -> Unit
+    ): Effect = PipelineBuilder.build(stopOnError, descriptionOverride, descriptionAmounts, block)
+
+    /**
      * Move [target] to [destination] zone — the foundational single-target zone-change effect.
      *
      * Prefer the named shortcuts ([Destroy], [Exile], [ReturnToHand], [PutOnTopOfLibrary],
@@ -1718,15 +1762,15 @@ object Effects {
      * Apply [effect] to every entity matching [filter] (Rule: "each", "all"). Within the inner
      * effect, [EffectTarget.Self] resolves to the current iteration entity.
      *
+     * The group is snapshotted before any iteration applies.
+     *
      * @param noRegenerate affected entities cannot be regenerated.
-     * @param simultaneous snapshot the group before applying (default true).
      */
     fun ForEachInGroup(
         filter: GroupFilter,
         effect: Effect,
-        noRegenerate: Boolean = false,
-        simultaneous: Boolean = true
-    ): Effect = ForEachInGroupEffect(filter, effect, noRegenerate, simultaneous)
+        noRegenerate: Boolean = false
+    ): Effect = ForEachInGroupEffect(filter, effect, noRegenerate)
 
     /**
      * Copy a card referenced by [source] into the pipeline collection [storeAs] (Rule 707.12).
