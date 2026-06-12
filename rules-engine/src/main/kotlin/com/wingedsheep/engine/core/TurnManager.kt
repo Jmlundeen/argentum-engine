@@ -296,10 +296,8 @@ class TurnManager(
                     }
                     newState = newState.copy(
                         step = Step.POSTCOMBAT_MAIN,
-                        phase = Phase.POSTCOMBAT_MAIN,
-                        priorityPlayerId = activePlayer,
-                        priorityPassedBy = emptySet()
-                    )
+                        phase = Phase.POSTCOMBAT_MAIN
+                    ).withPriority(activePlayer)
                     events.add(PhaseChangedEvent(Phase.POSTCOMBAT_MAIN))
                     events.add(StepChangedEvent(Step.POSTCOMBAT_MAIN))
                     return ExecutionResult.success(newState, events)
