@@ -147,15 +147,16 @@ excluded.
 
 > **One cost vocabulary (`CostAtom`).** The payable things shared across cost *contexts* — mana, life,
 > sacrifice, discard, exile-from-zone, tap, return-to-hand, reveal — are defined **once** in the
-> `CostAtom` sealed hierarchy (`scripting/costs/CostAtom.kt`). The context wrappers carry them: a
-> `PayCost.Atom(atom)` and an `AdditionalCost.Atom(atom)` each hold one `CostAtom`, leaving only their
-> genuinely context-specific members on the wrapper (`PayCost.OwnManaCost` / `PayCost.Choice`;
-> `AdditionalCost`'s Behold / Blight / Forage / ChooseEntity / per-target life / variable exile). The
-> `Costs.*` facades below are unchanged — they construct the right `…Atom(CostAtom.X(…))` for you, so
-> card authoring is identical. A *new* payable thing is one `CostAtom` variant + one engine payment
-> branch, available in every context. (`AbilityCost` — the activated-ability cost hierarchy — is the
-> next wrapper slated to fold onto `CostAtom`; until then its `Costs.*` top-level members are still its
-> own subtypes.)
+> `CostAtom` sealed hierarchy (`scripting/costs/CostAtom.kt`). All three context wrappers carry them via
+> an `Atom(atom)` member: `PayCost.Atom`, `AdditionalCost.Atom`, and `AbilityCost.Atom` each hold one
+> `CostAtom`, leaving only their genuinely context-specific members on the wrapper
+> (`PayCost.OwnManaCost` / `PayCost.Choice`; `AdditionalCost`'s Behold / Blight / Forage / ChooseEntity
+> / per-target life / variable exile; `AbilityCost`'s `Free`, `Tap`/`Untap`, the X-variable costs
+> (`PayXLife`, `ExileXFromGraveyard`, `TapXPermanents`), the self-referential `SacrificeSelf` /
+> `ExileSelf` / `ExileGrantingPermanent`, counter-removal, `Loyalty`, `Composite`, and named mechanics
+> `Forage` / `Blight` / `Craft`). The `Costs.*` facades below are unchanged — they construct the right
+> `…Atom(CostAtom.X(…))` for you, so card authoring is identical. A *new* payable thing is one
+> `CostAtom` variant + one engine payment branch, available in every context.
 
 - `Costs.Free` — costs nothing (`{0}`).
 - `Costs.Tap` — `{T}`; tap this permanent.
@@ -466,14 +467,14 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   `CombatManager.endCombat`. See [ManaExpiry](#manaexpiry).
 - `AddColorlessMana(amount, restriction?)` — add colorless.
 - `AddManaOfChoice(colorSet, amount?, restriction?, riders?)` — **unified primitive.** Add N mana of one color the controller picks from a resolved [ManaColorSet](#manacolorset). All "any-color from a constrained pool" cards (any color, commander identity, among permanents, lands could produce, source-chosen color) are expressed as this effect plus a different `ManaColorSet`. `riders` is a `Set<ManaSpellRider>` consumed when the mana pays for a spell (e.g. Path of Ancestry tags its mana with `ScryOnSharedTypeWithCommander`); when riders are set without a `restriction`, the engine stores the entries under `ManaRestriction.AnySpend` to preserve the rider through the pool.
-- `AddAnyColorMana(amount?, restriction?)` — sugar for `AddManaOfChoice(ManaColorSet.AnyColor, amount)`.
+- `AddAnyColorMana(amount?, restriction?)` — sugar for `AddManaOfChoice(ManaColorSet.AnyColor, amount)`. "Add N mana of any **one** color" (Gilded Lotus): one chosen color, N of it. For "any **combination** of colors" use `AddManaInAnyCombination`.
 - `AddManaOfChosenColor(amount?)` — sugar for `AddManaOfChoice(ManaColorSet.SourceChosenColor, amount)`.
 - `AddManaOfColorAmong(filter)` — sugar for `AddManaOfChoice(ManaColorSet.AmongPermanents(filter))`.
 - `AddManaOfColorLandsCouldProduce(scope)` — sugar for `AddManaOfChoice(ManaColorSet.LandsCouldProduce(scope))`. Fellwar Stone / Exotic Orchard / Reflecting Pool shape.
 - `AddManaOfColorInCommanderColorIdentity()` — sugar for `AddManaOfChoice(ManaColorSet.CommanderIdentity)`. Arcane Signet / Command Tower shape.
 - `AddAnyColorManaSpendOnChosenType(typeName)` — mana that can only pay for a specific card type (kept separate because it derives a runtime [ManaRestriction] from the source's chosen subtype).
 - `AddDynamicMana(amount, allowedColors, restriction?)` — split X across a fixed color set, distinct from `AddManaOfChoice` because it distributes the full X total across multiple colors rather than producing X copies of one chosen color.
-- `AddManaInAnyCombination(colors, amount)` — split N across colors (alias for `AddDynamicMana`).
+- `AddManaInAnyCombination(amount, allowedColors?, restriction?)` — "Add N mana in any combination of colors" (Wizard's Rockets, Thornvault Forager, Interdimensional Web Watch). Sugar for `AddDynamicMana`; `allowedColors` defaults to all five. The controller colors **each** pip independently at resolution (3+ colors → pip-by-pip color choice; 2 colors → one "how much of the first" prompt; ≤0 → no mana, no prompt), so the result can mix colors — distinct from `AddAnyColorMana`, where all N share one color.
 - `AddOneManaOfEachColorAmong(filter)` — one mana of *each* color found among matching permanents (Bloom Tender shape).
 - `PayDynamicMana(amount, payer?)` — pay a dynamically-computed amount of **generic** mana at resolution; the
   dynamic, payer-parametric twin of the flat `PayManaCostEffect`. `amount` is a [DynamicAmount](#dynamicamount)
@@ -3310,6 +3311,43 @@ Card authors rarely reference these directly; they are created/updated by the ma
   timestamp.
 - Server is authoritative; never compute legal actions in the client. Every state change emits a `GameEvent` so triggers
   and animations can react.
+
+## 21. Structural lint (`CardLinter`)
+
+Every registered card is structurally validated at build time: `CardValidator.validate` runs
+`CardLinter` (mtg-sdk `serialization/CardLinter.kt`), and the corpus-wide gate is
+`CardLintTest` in mtg-sets (beside `CardDefinitionSnapshotTest`). The linter walks the card's
+serialized JSON tree, so every container — composites, gates, modes, granted abilities, class
+levels, saga chapters, faces — is covered automatically. What it checks:
+
+- **Pipeline dataflow** — every read of a named pipeline variable (`MoveCollection.from`,
+  `CardSource.FromVariable`, `VariableReference`, `CollectionContainsMatch`, `chosenSubtypeKey`,
+  …) must have a writer (`storeAs` / `storeSelected` / `storeMatching` / `StoreNumber` /
+  `ChooseOption` / a cast-time additional cost, …) in the same resolution scope. A read written
+  *nowhere* on the card is an **error** (typo → silent no-op); read-before-write and
+  cross-resolution reads are warnings, as are stores nothing reads. A collection write `x`
+  also satisfies the numeric read `x_count`.
+- **Target bindings per owning ability** — `ContextTarget(i)` must fit the owning ability's
+  flattened target slots (a `count = 2` requirement spans two indices); `BoundVariable(name)`
+  must match a requirement `id` (indexed form `id[i]` allowed). Modes inherit the card-level
+  requirements unless they declare their own; `ReflexiveTriggerEffect.reflexiveEffect` resolves
+  against `reflexiveTargetRequirements`; `CreateDelayedTriggerEffect.effect` against its
+  `targetRequirement`; granted/token abilities against their own requirements only.
+- **Choice slots** — a `ChoiceSlot` read (`CastChoiceMade`, `DynamicAmount.CastChoice`,
+  `HasChosenColor`, `SourceChosenModeIs`, …) needs a declarer on the card (`EntersWithChoice`,
+  kicker, blight, sneak, `ChooseColorThen`/`ChooseColorForTarget`); `SourceChosenModeIs` ids
+  must match a declared `modeOptions` id.
+- **Registry hygiene** — a string field whose name follows the dataflow conventions (`store*`,
+  `from`, `collectionName`, `variableName`, …) on a node type the linter doesn't know is itself
+  an error: **when you add an SDK type that reads or writes a named pipeline variable, classify
+  it in `CardLinter.dataflowFields` in the same change** (and name the field conventionally so
+  the hygiene net sees it).
+
+Intentional exceptions go in `mtg-sets/src/test/resources/lint-allowlist.txt`
+(`ErrorType|Card Name`, stale entries fail). Inside `ForEachInGroup` / `ForEachInCollection`,
+address the iterated entity with `EffectTarget.Self` — `ContextTarget(0)` reads the cast-time
+target list, which is unrelated to the iteration (this exact bug shipped on a real card before
+the linter).
 
 ---
 

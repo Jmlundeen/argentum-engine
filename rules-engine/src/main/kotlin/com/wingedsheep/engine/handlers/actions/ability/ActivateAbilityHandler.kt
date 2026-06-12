@@ -48,6 +48,8 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.scripting.AbilityCost
+import com.wingedsheep.sdk.scripting.costs.CostAtom
+import com.wingedsheep.sdk.scripting.costs.manaCostOrNull
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.ActivationRestriction
@@ -263,7 +265,7 @@ class ActivateAbilityHandler(
         // account for the reduced cost.
         val costAfterConvokeReduction = if ((ability.hasConvoke || ability.hasWaterbend) && action.alternativePayment != null && !action.alternativePayment.isEmpty) {
             val mc = extractManaCost(effectiveCost) ?: effectiveCost
-            if (mc is ManaCost || effectiveCost is AbilityCost.Mana || effectiveCost is AbilityCost.Composite) {
+            if (mc is ManaCost || effectiveCost.manaCostOrNull != null || effectiveCost is AbilityCost.Composite) {
                 val reducedManaCost = extractManaCost(effectiveCost)?.let {
                     var reduced = it
                     if (ability.hasConvoke) reduced = alternativePaymentHandler.calculateReducedCostForAbility(reduced, action.alternativePayment)
@@ -272,9 +274,9 @@ class ActivateAbilityHandler(
                 }
                 if (reducedManaCost != null) {
                     when (effectiveCost) {
-                        is AbilityCost.Mana -> AbilityCost.Mana(reducedManaCost)
+                        is AbilityCost.Atom -> AbilityCost.Atom(CostAtom.Mana(reducedManaCost))
                         is AbilityCost.Composite -> AbilityCost.Composite(effectiveCost.costs.map { subCost ->
-                            if (subCost is AbilityCost.Mana) AbilityCost.Mana(reducedManaCost) else subCost
+                            if (subCost.manaCostOrNull != null) AbilityCost.Atom(CostAtom.Mana(reducedManaCost)) else subCost
                         })
                         else -> effectiveCost
                     }
@@ -295,8 +297,11 @@ class ActivateAbilityHandler(
                         "Cannot pay loyalty cost"
                     }
                 }
-                is AbilityCost.Mana -> "Not enough mana to activate this ability"
-                is AbilityCost.PayLife -> "Not enough life to activate this ability"
+                is AbilityCost.Atom -> when (effectiveCost.atom) {
+                    is CostAtom.Mana -> "Not enough mana to activate this ability"
+                    is CostAtom.PayLife -> "Not enough life to activate this ability"
+                    else -> "Cannot pay ability cost"
+                }
                 else -> "Cannot pay ability cost"
             }
         }
@@ -616,9 +621,9 @@ class ActivateAbilityHandler(
             // Convoke/waterbend reduced the mana cost — update the cost structure so payAbilityCost
             // deducts the reduced amount from the pool instead of the original full amount
             when (effectiveCost) {
-                is AbilityCost.Mana -> AbilityCost.Mana(manaCost)
+                is AbilityCost.Atom -> AbilityCost.Atom(CostAtom.Mana(manaCost))
                 is AbilityCost.Composite -> AbilityCost.Composite(effectiveCost.costs.map { subCost ->
-                    if (subCost is AbilityCost.Mana) AbilityCost.Mana(manaCost) else subCost
+                    if (subCost.manaCostOrNull != null) AbilityCost.Atom(CostAtom.Mana(manaCost)) else subCost
                 })
                 else -> effectiveCost
             }
@@ -646,6 +651,14 @@ class ActivateAbilityHandler(
 
         // Collect events from cost payment (e.g., sacrifice events)
         events.addAll(costResult.events)
+
+        // Cost-payment events drive triggered abilities (e.g., a mana ability whose cost
+        // sacrifices the source — Wizard's Rockets: "{X}, {T}, Sacrifice this artifact: ..."
+        // — fires its dies/leaves-the-battlefield trigger). The mana-ability path resolves off
+        // the stack and returns early, so capture these now to detect triggers before returning.
+        // Scoped to cost-payment events so mana-production events keep their existing inline
+        // handling (resolveAdditionalManaOnSourceTap etc.).
+        val costPaymentEvents = costResult.events
 
         // Deduct X mana from the pool. ManaPool.pay() skips X symbols ("handled by caller"),
         // so we must explicitly spend the X portion here (same pattern as CastSpellHandler.autoPay).
@@ -800,11 +813,42 @@ class ActivateAbilityHandler(
                 controllerId = action.playerId,
                 opponentId = opponentId,
                 targets = action.targets,
-                xValue = null,
+                // Thread the chosen X so X-based mana abilities produce the right amount
+                // ("{X}, {T}, Sacrifice this: Add X mana..." — Wizard's Rockets). Without
+                // this, DynamicAmount.XValue resolves to 0 and the ability adds no mana.
+                xValue = action.xValue,
                 manaColorChoice = action.manaColorChoice
             )
 
             val effectResult = effectExecutorRegistry.execute(currentState, finalEffect, context).toExecutionResult()
+            if (effectResult.isPaused) {
+                // The mana ability's effect paused for a decision (e.g. choosing colors for
+                // "add X mana in any combination of colors"). Any triggered ability that fired
+                // from the cost payment (e.g. the source's dies trigger when sacrificed —
+                // Wizard's Rockets: "When this artifact is put into a graveyard..., draw a card")
+                // must survive that pause. Queue it as a PendingTriggersContinuation beneath the
+                // in-flight decision so it's put on the stack once the ability finishes resolving
+                // (mirrors PassPriorityHandler / SubmitDecisionHandler mid-resolution handling).
+                val deferred = triggerDetector.detectTriggers(effectResult.state, costPaymentEvents)
+                if (deferred.isNotEmpty()) {
+                    val pending = com.wingedsheep.engine.core.PendingTriggersContinuation(
+                        decisionId = "mana-ability-cost-triggers-${java.util.UUID.randomUUID()}",
+                        remainingTriggers = deferred
+                    )
+                    // Insert at the BOTTOM of the continuation stack so the cost trigger is put on
+                    // the stack only after the whole mana ability finishes resolving — including a
+                    // multi-step "any combination of colors" effect that pauses once per mana. The
+                    // stack here holds only frames pushed by this activation's effect, so bottom
+                    // insertion can't jump ahead of unrelated work.
+                    val newStack = listOf(pending) + effectResult.state.continuationStack
+                    return ExecutionResult.paused(
+                        effectResult.state.copy(continuationStack = newStack),
+                        effectResult.pendingDecision!!,
+                        events + effectResult.events
+                    )
+                }
+                return effectResult
+            }
             if (!effectResult.isSuccess) {
                 return effectResult
             }
@@ -983,7 +1027,29 @@ class ActivateAbilityHandler(
             // fixed/mirror bonuses above these need a per-tap color choice, so this may pause for a
             // color decision (resuming via ChooseAnyColorTapBonusContinuation).
             val anyColorBonuses = tappedForManaBonusResolver.collect(currentState, action.sourceId, action.playerId)
-            return tappedForManaBonusResolver.drive(currentState, anyColorBonuses, allManaEvents)
+            val bonusResult = tappedForManaBonusResolver.drive(currentState, anyColorBonuses, allManaEvents)
+            if (bonusResult.isPaused) return bonusResult
+
+            // Detect and queue any triggered abilities from the cost payment — e.g. the
+            // dies/leaves-the-battlefield trigger of a source sacrificed to pay a mana ability.
+            // Such triggered abilities still use the stack even though the mana ability itself
+            // resolves off it (mirrors the non-mana path below).
+            val costTriggers = triggerDetector.detectTriggers(bonusResult.newState, costPaymentEvents)
+            if (costTriggers.isNotEmpty()) {
+                val triggerResult = triggerProcessor.processTriggers(bonusResult.newState, costTriggers)
+                if (triggerResult.isPaused) {
+                    return ExecutionResult.paused(
+                        triggerResult.state.withPriority(action.playerId),
+                        triggerResult.pendingDecision!!,
+                        bonusResult.events + triggerResult.events
+                    )
+                }
+                return ExecutionResult.success(
+                    triggerResult.newState.withPriority(action.playerId),
+                    bonusResult.events + triggerResult.events
+                )
+            }
+            return bonusResult
         }
 
         // Non-mana abilities go on the stack
@@ -1125,15 +1191,18 @@ class ActivateAbilityHandler(
             restrictedMana = poolComponent.restrictedMana,
         )
         return when (cost) {
-            is AbilityCost.Mana -> manaSolver.canPay(state, playerId, cost.cost, spellContext = abilityContext)
+            is AbilityCost.Atom -> {
+                val mana = cost.manaCostOrNull
+                if (mana != null) manaSolver.canPay(state, playerId, mana, spellContext = abilityContext)
+                else costHandler.canPayAbilityCost(state, cost, sourceId, playerId, manaPool, abilityContext)
+            }
             is AbilityCost.Composite -> {
                 // If composite cost includes Tap, the source itself can't also be used as a mana source
                 val excludeSources = if (hasTapCost(cost)) setOf(sourceId) else emptySet()
                 cost.costs.all { subCost ->
-                    when (subCost) {
-                        is AbilityCost.Mana -> manaSolver.canPay(state, playerId, subCost.cost, excludeSources = excludeSources, spellContext = abilityContext)
-                        else -> costHandler.canPayAbilityCost(state, subCost, sourceId, playerId, manaPool, abilityContext)
-                    }
+                    val subMana = subCost.manaCostOrNull
+                    if (subMana != null) manaSolver.canPay(state, playerId, subMana, excludeSources = excludeSources, spellContext = abilityContext)
+                    else costHandler.canPayAbilityCost(state, subCost, sourceId, playerId, manaPool, abilityContext)
                 }
             }
             else -> costHandler.canPayAbilityCost(state, cost, sourceId, playerId, manaPool, abilityContext)
@@ -1180,13 +1249,15 @@ class ActivateAbilityHandler(
     }
 
     private fun reduceGenericInCost(cost: AbilityCost, amount: Int): AbilityCost = when (cost) {
-        is AbilityCost.Mana -> AbilityCost.Mana(cost.cost.reduceGeneric(amount))
+        is AbilityCost.Atom -> cost.manaCostOrNull
+            ?.let { AbilityCost.Atom(CostAtom.Mana(it.reduceGeneric(amount))) } ?: cost
         is AbilityCost.Composite -> {
             var applied = false
             AbilityCost.Composite(cost.costs.map { sub ->
-                if (!applied && sub is AbilityCost.Mana) {
+                val subMana = sub.manaCostOrNull
+                if (!applied && subMana != null) {
                     applied = true
-                    AbilityCost.Mana(sub.cost.reduceGeneric(amount))
+                    AbilityCost.Atom(CostAtom.Mana(subMana.reduceGeneric(amount)))
                 } else sub
             })
         }
@@ -1197,8 +1268,8 @@ class ActivateAbilityHandler(
      * Extract the ManaCost from an ability cost, if present.
      */
     private fun extractManaCost(cost: AbilityCost): ManaCost? = when (cost) {
-        is AbilityCost.Mana -> cost.cost
-        is AbilityCost.Composite -> cost.costs.filterIsInstance<AbilityCost.Mana>().firstOrNull()?.cost
+        is AbilityCost.Atom -> cost.manaCostOrNull
+        is AbilityCost.Composite -> cost.costs.firstNotNullOfOrNull { it.manaCostOrNull }
         else -> null
     }
 
@@ -1316,9 +1387,9 @@ class ActivateAbilityHandler(
      * tapped the required sources, so the mana pool deduction should be skipped.
      */
     private fun stripManaCost(cost: AbilityCost): AbilityCost = when (cost) {
-        is AbilityCost.Mana -> AbilityCost.Free
+        is AbilityCost.Atom -> if (cost.manaCostOrNull != null) AbilityCost.Free else cost
         is AbilityCost.Composite -> {
-            val nonManaCosts = cost.costs.filter { it !is AbilityCost.Mana }
+            val nonManaCosts = cost.costs.filter { it.manaCostOrNull == null }
             when (nonManaCosts.size) {
                 0 -> AbilityCost.Free
                 1 -> nonManaCosts.single()
@@ -1768,7 +1839,7 @@ class ActivateAbilityHandler(
         val levelAbility = cardDef.classLevels.find { it.level == targetLevel } ?: return null
         return ActivatedAbility(
             id = AbilityId.classLevelUp(targetLevel),
-            cost = AbilityCost.Mana(levelAbility.cost),
+            cost = AbilityCost.Atom(CostAtom.Mana(levelAbility.cost)),
             effect = LevelUpClassEffect(targetLevel),
             timing = TimingRule.SorcerySpeed,
             descriptionOverride = "Level up to level $targetLevel"
@@ -1902,14 +1973,16 @@ class ActivateAbilityHandler(
     }
 
     /**
-     * Pull the [AbilityCost.ExileFromGraveyard] sub-cost out of an ability cost (top-level or
+     * Pull the graveyard-exile [CostAtom.ExileFrom] sub-cost out of an ability cost (top-level or
      * inside a [AbilityCost.Composite]), or null if none. Used by the legal-actions submission
      * path to detect that an activation needs to pause for a card-selection decision when the
      * player has more matching graveyard cards than the cost requires.
      */
-    private fun extractExileFromGraveyardCost(cost: AbilityCost): AbilityCost.ExileFromGraveyard? = when (cost) {
-        is AbilityCost.ExileFromGraveyard -> cost
-        is AbilityCost.Composite -> cost.costs.filterIsInstance<AbilityCost.ExileFromGraveyard>().firstOrNull()
+    private fun extractExileFromGraveyardCost(cost: AbilityCost): CostAtom.ExileFrom? = when (cost) {
+        is AbilityCost.Atom -> (cost.atom as? CostAtom.ExileFrom)?.takeIf { it.zone == Zone.GRAVEYARD }
+        is AbilityCost.Composite -> cost.costs.firstNotNullOfOrNull {
+            ((it as? AbilityCost.Atom)?.atom as? CostAtom.ExileFrom)?.takeIf { ex -> ex.zone == Zone.GRAVEYARD }
+        }
         else -> null
     }
 }

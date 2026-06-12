@@ -48,7 +48,18 @@ and several items below are "apply that pattern to another contract."
 These are cheap, card-migration-free, and they're what makes every collapse in §3 safe. Highest ROI
 in the document.
 
-### 1.1 Card linter — grow `CardValidator` into structural validation — [HIGH]
+### 1.1 Card linter — grow `CardValidator` into structural validation — [HIGH] — ✅ DONE
+
+> Landed as `CardLinter` (mtg-sdk) + corpus gate `CardLintTest` (mtg-sets) with a burn-downable
+> `lint-allowlist.txt`. Took the stale-proof JSON-tree route; abilities are detected structurally
+> (no `type` discriminator + `effect` + trigger/cost/target member), and two registry-hygiene
+> checks keep the dataflow vocabulary honest (the executor-coverage pattern). Checks: pipeline
+> reads have in-scope writers (typo = error, cross-resolution = warning), orphan stores,
+> `ContextTarget`/`BoundVariable` per owning ability (count-expanded slots; modes, reflexive
+> triggers, delayed triggers, granted abilities all scoped), `ChoiceSlot` reads vs declarations,
+> `SourceChosenModeIs` mode ids. First corpus run: 48 errors → triaged to **one real shipped bug**
+> (Atmospheric Greenhouse's ETB was a silent no-op — `ContextTarget(0)` inside `ForEachInGroup`),
+> the rest were linter/registry gaps, fixed; corpus is now 0-error with 13 review-level warnings.
 
 **Problem.** `CardValidator` checks creature stats, target-index bounds, aura/equipment consistency,
 planeswalker loyalty — and nothing else. Not validated: pipeline variable references
@@ -215,7 +226,13 @@ Family-specific notes:
 - **Review rule, enforced in `add-feature`:** a new `Effect` subtype must include one sentence in
   the PR description proving it cannot be a parameter of an existing family.
 
-### 3.2 One cost language — [HIGH]
+### 3.2 One cost language — [HIGH] — ✅ DONE
+
+> Landed across multiple PRs: `CostAtom` extracted for `PayCost` + `AdditionalCost` (commit
+> 87b71bf2e), then `AbilityCost` folded onto `AbilityCost.Atom(CostAtom)` (this PR). All three cost
+> contexts now carry one shared `CostAtom` vocabulary; the `Costs.*` facades are unchanged.
+> Counter-removal, X-variable, and named-mechanic costs stay as context-specific wrapper members by
+> design.
 
 **Problem.** Three parallel cost hierarchies — `AbilityCost`, `AdditionalCost` (591 lines),
 `PayCost` — share ~70% of their constructors. Each new payable thing (Blight, waterbend fodder, …)

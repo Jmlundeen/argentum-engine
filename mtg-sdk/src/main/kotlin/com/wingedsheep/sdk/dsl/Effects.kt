@@ -1130,7 +1130,11 @@ object Effects {
         restriction: ManaRestriction? = null,
     ): Effect = AddManaOfChoiceEffect(colorSet, amount, restriction)
 
-    /** Add one mana of any color — the original "any-color" shape, kept for readability. */
+    /**
+     * Add N mana of any *one* color ("Add three mana of any one color" — Gilded Lotus):
+     * the player picks a single color and gets [amount] of it. For "any **combination** of
+     * colors" (each mana independently colored), use [AddManaInAnyCombination] instead.
+     */
     fun AddAnyColorMana(amount: Int = 1, restriction: ManaRestriction? = null): Effect =
         AddManaOfChoiceEffect(ManaColorSet.AnyColor, DynamicAmount.Fixed(amount), restriction)
 
