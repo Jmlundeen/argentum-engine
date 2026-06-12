@@ -990,6 +990,9 @@ private fun EmitCtx.activatedAbilityStmts(
     activationRestrictionLines(rule)?.let { lines -> lines.forEach { stmts.add(RawLine(it)) } } ?: return null
     if (tvar != null) stmts.add(targetLocal(tnode!!))
     stmts.add(Assign("effect", edsl))
+    // "Activate only as a sorcery." (Silver Deputy) -> sorcery-speed timing. The modifier is filtered out
+    // of the restriction lines above (it's a timing rule, not an ActivationRestriction).
+    if (hasSorcerySpeedModifier(rule)) stmts.add(Assign("timing", Lit("TimingRule.SorcerySpeed")))
     if (activateFromZone != null) stmts.add(Assign("activateFromZone", Lit(activateFromZone)))
     // A ReplaceNextDraw effect ("the next time you would draw … instead") prompts on the replaced draw,
     // not at activation — the activated-ability flag the Words cycle's golden carries.
@@ -1120,8 +1123,24 @@ private fun creatureTypeIn(node: JsonElement?): String? {
     return null
 }
 
+/** True iff the activated rule carries an `ActivateOnlyAsASorcery` modifier ("Activate only as a
+ *  sorcery." — rendered as `timing = TimingRule.SorcerySpeed`, not an ActivationRestriction). */
+private fun activatedModifiers(rule: JsonObject): List<JsonObject> =
+    (rule["args"].asArr ?: emptyList()).filterIsInstance<JsonObject>()
+        .filter { it.strField("_ActivateModifier") != null }
+
+private fun hasSorcerySpeedModifier(rule: JsonObject): Boolean =
+    activatedModifiers(rule).any { it.strField("_ActivateModifier") == "ActivateOnlyAsASorcery" }
+
 private fun EmitCtx.activationRestrictionLines(rule: JsonObject): List<String>? {
     if (rule.strField("_Rule") != "ActivatedWithModifiers") return emptyList()
+    // ActivateOnlyAsASorcery is a timing rule, not an ActivationRestriction — it's emitted as
+    // `timing = TimingRule.SorcerySpeed` elsewhere. Drop it here so an ability whose ONLY modifier is
+    // sorcery-speed needs no `restrictions =` line (Silver Deputy); a real restriction alongside it
+    // still flows through the matchers below.
+    val nonTimingModifiers = activatedModifiers(rule)
+        .filter { it.strField("_ActivateModifier") != "ActivateOnlyAsASorcery" }
+    if (nonTimingModifiers.isEmpty()) return emptyList()
     val blob = compact(rule)
     if ("ActivateOnlyIf" in blob && "IsTheirTurn" in blob && "IsBeforeAttackersDeclared" in blob) {
         return listOf(

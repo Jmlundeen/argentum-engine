@@ -189,6 +189,13 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
             val player = spellsCastThisTurnPlayer(playerNode) ?: return null
             return call("DynamicAmount.SpellsCastThisTurn", arg(player), arg(filter))
         }
+        // "twice the number of …" (Pillage the Bog) — a unary doubling wrapper. Render the inner amount
+        // multiplied by 2; decline if the inner amount doesn't render exactly rather than dropping the
+        // doubling.
+        "Twice" -> {
+            val inner = dynamicAmountExpr(node["args"]) ?: return null
+            return call("DynamicAmount.Multiply", arg(inner), arg("2"))
+        }
         "HalfRoundedUp", "HalfRoundedDown" -> {
             val inner = dynamicAmountExpr(node["args"]) ?: return null
             val roundup = if (gn == "HalfRoundedUp") "true" else "false"

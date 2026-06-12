@@ -92,7 +92,12 @@ internal fun EmitCtx.createTokenDsl(spec: JsonObject, count: Int = 1): Dsl? {
             if (tokenActivatedAbilities.isNotEmpty()) {
                 parts.add(arg("activatedAbilities", Call("listOf", tokenActivatedAbilities.map { arg(it) })))
             }
-            if (count != 1) parts.add(arg("count", "$count"))
+            // `Effects.CreateToken`'s `count` is an `Int`; the raw `CreateTokenEffect` constructor's
+            // `count` is a `DynamicAmount`, so wrap it when emitting the constructor form.
+            if (count != 1) {
+                val countArg = if (ctor == "CreateTokenEffect") "DynamicAmount.Fixed($count)" else "$count"
+                parts.add(arg("count", countArg))
+            }
             return Call(ctor, parts)
         }
     }

@@ -224,10 +224,6 @@ internal fun EmitCtx.renderSearch(args: JsonElement?): Dsl? {
     // count isn't a fixed amount, and the CreateTokens payoff would be dropped. Decline -> SCAFFOLD rather
     // than emit a wrong hand-search that silently loses the token clause.
     if ("ExileFoundCards" in blob || "CreateTokens" in blob || "FindAnyNumberOfCardsOfType" in blob) return null
-    // "basic land card and/or Desert card" (Map the Frontier): an Or unioning the basic-land supertype with
-    // a land subtype. landSearchFilter renders only the subtype arm, silently dropping "basic land" — so
-    // decline rather than narrow the search to Deserts only.
-    if ("\"Basic\"" in blob && "IsLandType" in blob) return null
     val dest = when {
         "PutFoundCardsOntoBattlefield" in blob -> "BATTLEFIELD"
         "PutFoundCardsIntoHand" in blob -> "HAND"
@@ -358,6 +354,24 @@ internal fun EmitCtx.renderLook(node: JsonObject, args: JsonElement?, tvar: Stri
                     "            )",
             ),
         ))
+    }
+    // "Look at the top X cards ... Put one of them into your hand and the rest on the bottom of your
+    // library in a random order." (Pillage the Bog). One generic card kept to hand, the remainder
+    // bottomed at random — and the look count may be dynamic ("twice the number of lands you control").
+    // The flat keepCount=1 lookAtTopAndKeep with hand/bottom/random destinations renders this exactly.
+    if ("PutAGenericCardIntoHand" in blob &&
+        "PutTheRemainingCardsOnTheBottomOfLibraryInARandomOrder" in blob
+    ) {
+        val count = findInteger(node)?.toString()?.let { "DynamicAmount.Fixed($it)" }
+            ?: dynamicAmount(amountNode(node)) ?: return null
+        return call(
+            "Patterns.Library.lookAtTopAndKeep",
+            arg("count", count),
+            arg("keepCount", "DynamicAmount.Fixed(1)"),
+            arg("keepDestination", "CardDestination.ToZone(Zone.HAND)"),
+            arg("restDestination", "CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom)"),
+            arg("restOrder", "CardOrder.Random"),
+        )
     }
     // "Look at the top N, put some into your hand" — only a fixed look/keep count renders this way.
     val look = findInteger(node)
