@@ -1121,7 +1121,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "AggregateBattlefield",
-                                        "player": "Opponent",
+                                        "player": "EachOpponent",
                                         "filter": "land"
                                     },
                                     "operator": "GT",
@@ -1150,7 +1150,7 @@
                                     "operator": "LT",
                                     "right": {
                                         "type": "LifeTotal",
-                                        "player": "Opponent"
+                                        "player": "EachOpponent"
                                     }
                                 }
                             },
@@ -1170,7 +1170,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "AggregateBattlefield",
-                                        "player": "Opponent",
+                                        "player": "EachOpponent",
                                         "filter": "creature"
                                     },
                                     "operator": "GT",
@@ -1206,7 +1206,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "Count",
-                                        "player": "Opponent",
+                                        "player": "EachOpponent",
                                         "zone": "Hand"
                                     },
                                     "operator": "GT",
@@ -3195,7 +3195,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "TurnTracking",
-                        "player": "Opponent",
+                        "player": "EachOpponent",
                         "tracker": "LIFE_LOST"
                     },
                     "operator": "GTE",
@@ -6714,7 +6714,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "TurnTracking",
-                        "player": "Opponent",
+                        "player": "EachOpponent",
                         "tracker": "LIFE_LOST"
                     },
                     "operator": "GTE",
@@ -6810,7 +6810,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "TurnTracking",
-                        "player": "Opponent",
+                        "player": "EachOpponent",
                         "tracker": "LIFE_LOST"
                     },
                     "operator": "GTE",
@@ -7245,7 +7245,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "TurnTracking",
-                        "player": "Opponent",
+                        "player": "EachOpponent",
                         "tracker": "LIFE_LOST"
                     },
                     "operator": "GTE",
@@ -8755,7 +8755,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "TurnTracking",
-                                        "player": "Opponent",
+                                        "player": "EachOpponent",
                                         "tracker": "LIFE_LOST"
                                     },
                                     "operator": "GTE",
@@ -9532,7 +9532,7 @@
                                 "imageUri": "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109",
                                 "controller": {
                                     "type": "PlayerRef",
-                                    "player": "EachOpponent"
+                                    "player": "AnOpponent"
                                 },
                                 "tapped": true
                             },
@@ -11190,7 +11190,7 @@
                                 "imageUri": "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109",
                                 "controller": {
                                     "type": "PlayerRef",
-                                    "player": "EachOpponent"
+                                    "player": "AnOpponent"
                                 },
                                 "tapped": true
                             },
@@ -12107,7 +12107,7 @@
                                 "imageUri": "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109",
                                 "controller": {
                                     "type": "PlayerRef",
-                                    "player": "EachOpponent"
+                                    "player": "AnOpponent"
                                 },
                                 "tapped": true
                             },
@@ -13452,7 +13452,7 @@
                                 "imageUri": "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109",
                                 "controller": {
                                     "type": "PlayerRef",
-                                    "player": "EachOpponent"
+                                    "player": "AnOpponent"
                                 },
                                 "tapped": true
                             },
@@ -16055,7 +16055,7 @@
                                 "imageUri": "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109",
                                 "controller": {
                                     "type": "PlayerRef",
-                                    "player": "EachOpponent"
+                                    "player": "AnOpponent"
                                 },
                                 "tapped": true
                             },
@@ -18199,7 +18199,7 @@
                                         "imageUri": "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109",
                                         "controller": {
                                             "type": "PlayerRef",
-                                            "player": "EachOpponent"
+                                            "player": "AnOpponent"
                                         },
                                         "tapped": true
                                     },
@@ -20258,7 +20258,7 @@
                             "type": "Compare",
                             "left": {
                                 "type": "TurnTracking",
-                                "player": "Opponent",
+                                "player": "EachOpponent",
                                 "tracker": "LIFE_LOST"
                             },
                             "operator": "GTE",

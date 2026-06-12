@@ -189,11 +189,19 @@ object DynamicAmounts {
         DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature)
 
     // =========================================================================
+    // Hand counting
+    // =========================================================================
+
+    /** The number of cards in your hand (e.g. Stingerback Terror's "-1/-1 for each card in your hand"). */
+    fun cardsInYourHand(): DynamicAmount =
+        DynamicAmount.Count(Player.You, Zone.HAND)
+
+    // =========================================================================
     // Opponent-relative counting
     // =========================================================================
 
     fun creaturesAttackingYou(multiplier: Int = 1): DynamicAmount {
-        val base = battlefield(Player.Opponent, GameObjectFilter.Creature.attacking()).count()
+        val base = battlefield(Player.EachOpponent, GameObjectFilter.Creature.attacking()).count()
         return if (multiplier == 1) base else DynamicAmount.Multiply(base, multiplier)
     }
 
