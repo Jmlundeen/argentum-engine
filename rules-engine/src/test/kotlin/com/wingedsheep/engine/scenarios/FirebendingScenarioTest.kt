@@ -7,6 +7,7 @@ import com.wingedsheep.mtg.sets.definitions.tla.cards.FireSages
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.firebending
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction

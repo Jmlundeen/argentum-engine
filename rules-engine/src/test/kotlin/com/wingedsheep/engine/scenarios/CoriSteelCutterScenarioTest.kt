@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.dsl.flurry
 
 /**
  * Scenario tests for Cori-Steel Cutter (TDM #103, {1}{R} Artifact — Equipment).

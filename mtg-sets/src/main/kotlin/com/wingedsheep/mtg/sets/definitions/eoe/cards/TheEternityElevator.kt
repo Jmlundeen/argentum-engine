@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * The Eternity Elevator

@@ -146,13 +146,6 @@ class BasicLandBuilder(private val landType: String) {
 @DslMarker
 annotation class CardDsl
 
-/**
- * Scryfall art for the 1/1 red Warrior token created by Mobilize (Tarkir: Dragonstorm).
- * Every Mobilize card produces this identical token, so the image is shared here rather
- * than duplicated per card.
- */
-private const val MOBILIZE_WARRIOR_TOKEN_IMAGE =
-    "https://cards.scryfall.io/normal/front/7/e/7edc0515-a130-45a7-aa09-0e23bba41587.jpg?1742506712"
 
 @CardDsl
 class CardBuilder(private val name: String) {
@@ -300,31 +293,23 @@ class CardBuilder(private val name: String) {
      */
     var mayStartOnBattlefield: Boolean = false
 
-    /**
-     * Leyline mechanic (Future Sight / M11 / M20 / Duskmourn cycles). "If this card is in
-     * your opening hand, you may begin the game with it on the battlefield." The engine
-     * resolves all Leyline choices after mulligans and bottoming complete, walking each
-     * player in turn order starting with the active player.
-     *
-     * Display-only at the SDK level; the engine reads [CardScript.mayStartOnBattlefield]
-     * to drive the per-card yes/no prompt during the leyline phase.
-     */
-    fun leyline() {
-        mayStartOnBattlefield = true
-    }
+    // The `leyline()` helper now lives in `dsl/mechanics/LeylineDsl.kt`; it sets this flag.
 
     // =========================================================================
     // Internal State
     // =========================================================================
 
-    private var keywordSet: MutableSet<Keyword> = mutableSetOf()
+    // These five collections are `internal` (not `private`) so that set-mechanic DSL helpers
+    // living in `dsl/mechanics/` can compose abilities onto the builder as extension functions
+    // (see §2.2 of the June 2026 SDK plan). Everything else stays private.
+    internal var keywordSet: MutableSet<Keyword> = mutableSetOf()
     private var flagSet: MutableSet<AbilityFlag> = mutableSetOf()
-    private var keywordAbilityList: MutableList<KeywordAbility> = mutableListOf()
+    internal var keywordAbilityList: MutableList<KeywordAbility> = mutableListOf()
     private var spellBuilder: SpellBuilder? = null
-    private val triggeredAbilities: MutableList<TriggeredAbility> = mutableListOf()
+    internal val triggeredAbilities: MutableList<TriggeredAbility> = mutableListOf()
     private val stateTriggeredAbilities: MutableList<StateTriggeredAbility> = mutableListOf()
-    private val activatedAbilities: MutableList<ActivatedAbility> = mutableListOf()
-    private val staticAbilities: MutableList<StaticAbility> = mutableListOf()
+    internal val activatedAbilities: MutableList<ActivatedAbility> = mutableListOf()
+    internal val staticAbilities: MutableList<StaticAbility> = mutableListOf()
     private val additionalCosts: MutableList<AdditionalCost> = mutableListOf()
     private val replacementEffects: MutableList<ReplacementEffect> = mutableListOf()
     private val classLevelsList: MutableList<ClassLevelAbility> = mutableListOf()
@@ -372,45 +357,6 @@ class CardBuilder(private val name: String) {
     }
 
     /**
-     * Add Flurry (Tarkir: Dragonstorm, Jeskai) — keyword tag + a "second spell each turn"
-     * triggered ability.
-     *
-     * "Flurry — Whenever you cast your second spell each turn, [effect]." The [Keyword.FLURRY]
-     * tag is display-only (the engine has no dedicated Flurry handler); the behavior lives
-     * entirely in the triggered ability wired here on the [Triggers.NthSpellCast] (n=2, you)
-     * event, which the [com.wingedsheep.sdk.scripting.EventPattern.NthSpellCastEvent] matcher
-     * already fires when its controller casts their second spell of the turn.
-     *
-     * Author the effect/target/optional inside the block exactly like [triggeredAbility]
-     * (the [TriggeredAbilityBuilder.trigger] is ignored — it is always forced to the
-     * second-spell trigger). This helper composes the rendered reminder text as
-     * "Flurry — Whenever you cast your second spell each turn, <effect>." A custom
-     * [TriggeredAbilityBuilder.description] replaces only the `<effect>` portion, keeping
-     * the "Flurry — Whenever you cast your second spell each turn," prefix.
-     */
-    fun flurry(init: TriggeredAbilityBuilder.() -> Unit) {
-        keywordSet.add(Keyword.FLURRY)
-        val builder = TriggeredAbilityBuilder()
-        builder.init()
-        builder.trigger = Triggers.NthSpellCast(2, Player.You)
-        val ability = builder.build()
-        val effectText = (builder.description ?: buildString {
-            if (ability.optional) append("you may ")
-            ability.targetRequirement?.let { append(it.description); append(" ") }
-            append(ability.effect.description.replaceFirstChar { it.lowercase() })
-            ability.elseEffect?.let {
-                append(". If you don't, ")
-                append(it.description.replaceFirstChar { c -> c.lowercase() })
-            }
-        }).trimEnd().trimEnd('.')
-        triggeredAbilities.add(
-            ability.copy(
-                descriptionOverride = "Flurry — Whenever you cast your second spell each turn, $effectText."
-            )
-        )
-    }
-
-    /**
      * Add Rampage N (CR 702.23) — keyword ability + triggered ability.
      *
      * "Whenever this creature becomes blocked, it gets +N/+N until end of turn for each
@@ -439,345 +385,8 @@ class CardBuilder(private val name: String) {
         )
     }
 
-    /**
-     * Add Mobilize N (Tarkir: Dragonstorm) — keyword ability + triggered ability.
-     *
-     * "Whenever this creature attacks, create N tapped and attacking 1/1 red Warrior
-     * creature tokens. Sacrifice those tokens at the beginning of the next end step."
-     *
-     * The keyword ability is display-only (no separate Mobilize handler exists); the
-     * behavior lives entirely in the attack-triggered ability wired here. The tokens
-     * enter tapped and attacking via [CreateTokenEffect.tapped]/[CreateTokenEffect.attacking],
-     * and their end-of-turn sacrifice is scheduled via [CreateTokenEffect.sacrificeAtStep]
-     * (the sacrifice sibling of `exileAtStep`), which the executor turns into one delayed
-     * [com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect] per created token.
-     */
-    fun mobilize(n: Int) {
-        keywordAbilityList.add(KeywordAbility.mobilize(n))
-        val tokenWord = if (n == 1) "token" else "tokens"
-        val pronoun = if (n == 1) "it" else "those tokens"
-        val article = if (n == 1) "a" else "$n"
-        triggeredAbilities.add(
-            TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
-                effect = CreateTokenEffect(
-                    count = DynamicAmount.Fixed(n),
-                    power = 1,
-                    toughness = 1,
-                    colors = setOf(Color.RED),
-                    creatureTypes = setOf("Warrior"),
-                    imageUri = MOBILIZE_WARRIOR_TOKEN_IMAGE,
-                    tapped = true,
-                    attacking = true,
-                    sacrificeAtStep = Step.END
-                ),
-                descriptionOverride = "Whenever this creature attacks, create $article tapped " +
-                    "and attacking 1/1 red Warrior creature $tokenWord. Sacrifice $pronoun at the " +
-                    "beginning of the next end step."
-            )
-        )
-    }
-
-    /**
-     * Add Firebending N (Avatar: The Last Airbender, CR 702.189) — keyword ability +
-     * triggered ability.
-     *
-     * "Whenever this creature attacks, add N {R}. Until end of combat, you don't lose this
-     * mana as steps and phases end." The keyword ability is display-only (no separate
-     * Firebending handler exists); the behavior lives entirely in the attack-triggered
-     * ability wired here — an [AddManaEffect] producing N red mana with
-     * [ManaExpiry.END_OF_COMBAT], which the pool keeps through combat and discards once
-     * combat ends. It is an ordinary triggered ability (not a mana ability): it uses the
-     * stack and can be responded to.
-     */
-    fun firebending(n: Int) {
-        keywordAbilityList.add(KeywordAbility.firebending(n))
-        triggeredAbilities.add(
-            TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
-                effect = AddManaEffect(Color.RED, n, expiry = ManaExpiry.END_OF_COMBAT),
-                descriptionOverride = "Whenever this creature attacks, add ${"{R}".repeat(n)}. " +
-                    "Until end of combat, you don't lose this mana as steps and phases end."
-            )
-        )
-    }
-
-    /**
-     * Add Sneak [cost] (Teenage Mutant Ninja Turtles, CR 702.190).
-     *
-     * "Any time you could cast an instant during your declare blockers step, you may cast
-     * this spell by paying [cost] and returning an unblocked creature you control to its
-     * owner's hand rather than paying this spell's mana cost. [A permanent spell] enters
-     * tapped and attacking."
-     *
-     * Display-only at the DSL layer — all behavior lives in the engine's alternative-cost
-     * pipeline, which keys off the [KeywordAbility.Sneak] entry in `cardDef.keywordAbilities`:
-     * the legal-action enumerator surfaces the cast only during the active player's declare
-     * blockers step while they control an unblocked attacker, the cast handler charges the
-     * sneak mana plus returns the chosen unblocked attacker to hand, and a resolving permanent
-     * spell enters tapped and attacking the same defender (CR 702.190b). The "sneak cost was
-     * paid" fact is readable via [com.wingedsheep.sdk.dsl.Conditions.SneakCostWasPaid].
-     */
-    fun sneak(cost: String) {
-        keywordAbilityList.add(KeywordAbility.sneak(cost))
-    }
-
-    /**
-     * Add Mobilize X (Tarkir: Dragonstorm) — keyword ability + triggered ability where
-     * the token count is a [DynamicAmount] resolved on attack rather than a fixed integer.
-     *
-     * "Whenever this creature attacks, create X tapped and attacking 1/1 red Warrior
-     * creature tokens. Sacrifice those tokens at the beginning of the next end step."
-     *
-     * Used by Avenger of the Fallen ("Mobilize X, where X is the number of creature cards
-     * in your graveyard"). [label] is the placeholder rendered after "Mobilize" in the
-     * keyword list (defaults to "X"); [amountDescription] is the natural-language phrase
-     * describing the count, woven into the triggered-ability reminder text. The tokens
-     * enter tapped and attacking and are sacrificed at the next end step, identical to the
-     * fixed-count [mobilize] helper.
-     */
-    fun mobilize(amount: DynamicAmount, amountDescription: String, label: String = "X") {
-        keywordAbilityList.add(KeywordAbility.mobilizeVariable(label))
-        triggeredAbilities.add(
-            TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
-                effect = CreateTokenEffect(
-                    count = amount,
-                    power = 1,
-                    toughness = 1,
-                    colors = setOf(Color.RED),
-                    creatureTypes = setOf("Warrior"),
-                    imageUri = MOBILIZE_WARRIOR_TOKEN_IMAGE,
-                    tapped = true,
-                    attacking = true,
-                    sacrificeAtStep = Step.END
-                ),
-                descriptionOverride = "Whenever this creature attacks, create $amountDescription " +
-                    "tapped and attacking 1/1 red Warrior creature tokens. Sacrifice those tokens " +
-                    "at the beginning of the next end step."
-            )
-        )
-    }
-
-    /**
-     * Add Decayed (CR 702.147, Innistrad: Midnight Hunt) — keyword + static ability
-     * + triggered ability.
-     *
-     * "This creature can't block, and when it attacks, sacrifice it at end of combat."
-     *
-     * The keyword is display-only (no separate Decayed handler exists); the behavior is
-     * composed here from existing primitives: a [CantBlock] static ability on the source
-     * for "can't block", plus an attack-triggered [CreateDelayedTriggerEffect] scheduled
-     * for [Step.END_COMBAT] that sacrifices the source (mirroring Mardu Blazebringer's
-     * "sacrifice it at end of combat" wiring).
-     */
-    fun decayed() {
-        keywordSet.add(Keyword.DECAYED)
-        staticAbilities.add(CantBlock(GroupFilter.source()))
-        triggeredAbilities.add(
-            TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
-                effect = CreateDelayedTriggerEffect(
-                    step = Step.END_COMBAT,
-                    effect = Effects.SacrificeTarget(EffectTarget.Self)
-                ),
-                descriptionOverride = "Decayed (This creature can't block, and when it " +
-                    "attacks, sacrifice it at end of combat.)"
-            )
-        )
-    }
-
-    /**
-     * Add the Vivid ability-word tag for display and attach an ETB triggered ability
-     * whose effect scales with the number of distinct colors among permanents you
-     * control (Lorwyn Eclipsed, effect-scaling half).
-     *
-     * The factory receives a [DynamicAmount] representing that colour count so the
-     * effect composes with it naturally, e.g.:
-     *
-     * ```kotlin
-     * vividEtb { colors ->
-     *     CompositeEffect(listOf(
-     *         GatherUntilMatchEffect(filter = GameObjectFilter.Permanent, count = colors, ...),
-     *         ...
-     *     ))
-     * }
-     * ```
-     *
-     * This is a DSL convenience — it emits an ordinary [TriggeredAbility] and a
-     * [Keyword.VIVID] tag, so the resulting [CardDefinition] serializes/deserializes
-     * exactly like a hand-written equivalent.
-     */
-    fun vividEtb(effectFactory: (DynamicAmount) -> Effect) {
-        keywordSet.add(Keyword.VIVID)
-        triggeredAbilities.add(
-            TriggeredAbility.create(
-                trigger = Triggers.EntersBattlefield.event,
-                binding = Triggers.EntersBattlefield.binding,
-                effect = effectFactory(DynamicAmounts.colorsAmongPermanents())
-            )
-        )
-    }
-
-    /**
-     * Add the Vivid ability-word tag for display and the "This spell costs {1} less
-     * to cast for each colour among permanents you control" cost reduction
-     * (Lorwyn Eclipsed, cost-reduction half).
-     *
-     * Like [vividEtb], this emits normal serializable data — a [Keyword.VIVID] tag
-     * plus a [ModifySpellCost] self-cast static ability sourced from
-     * [CostReductionSource.ColorsAmongPermanentsYouControl].
-     */
-    fun vividCostReduction() {
-        keywordSet.add(Keyword.VIVID)
-        staticAbilities.add(
-            ModifySpellCost(
-                target = SpellCostTarget.SelfCast,
-                modification = CostModification.ReduceGenericBy(
-                    CostReductionSource.ColorsAmongPermanentsYouControl,
-                ),
-            ),
-        )
-    }
-
-    /**
-     * Add Impending N—[cost] (CR 702.175, Duskmourn: House of Horror).
-     *
-     * "If you cast this spell for its impending cost, it enters with N time counters and
-     * isn't a creature until the last is removed. At the beginning of your end step, remove
-     * a time counter from it."
-     *
-     * Wires the full keyword from one call:
-     *  - the [KeywordAbility.Impending] alternative cost (display text + cast enumeration),
-     *  - a conditional "isn't a creature while it has a time counter" type-removing static
-     *    ability ([RemoveCardType] gated by [Conditions.SourceHasCounter]), and
-     *  - a "remove a time counter at the beginning of your end step" triggered ability,
-     *    gated by the same intervening-if so it stops once the counters are gone.
-     *
-     * The engine places [time] TIME counters on the permanent when a spell cast for its
-     * impending cost resolves (see the cast/resolve path); these wirings then count it down
-     * and keep it a non-creature enchantment until the last counter is removed. Casting the
-     * card for its normal mana cost adds no time counters, so neither wiring ever fires and
-     * it behaves as an ordinary enchantment creature.
-     */
-    fun impending(time: Int, cost: String) {
-        keywordAbilityList.add(KeywordAbility.Impending(time, ManaCost.parse(cost)))
-        // CR 702.176a gates both the "isn't a creature" static and the end-step removal
-        // trigger on "impending cost was paid AND has a time counter". The counter check
-        // alone is insufficient: any future effect that places time counters on a normally-
-        // cast permanent (proliferate-on-counters, ability-granted time counters, etc.)
-        // would otherwise turn it into a non-creature.
-        val impendingActive = AllConditions(listOf(
-            SourceCastForImpending,
-            Conditions.SourceHasCounter(
-                com.wingedsheep.sdk.scripting.events.CounterTypeFilter.Named(Counters.TIME)
-            )
-        ))
-        staticAbilities.add(
-            ConditionalStaticAbility(
-                ability = RemoveCardType("CREATURE", GroupFilter.source()),
-                condition = impendingActive
-            )
-        )
-        triggeredAbilities.add(
-            TriggeredAbility.create(
-                trigger = Triggers.YourEndStep.event,
-                binding = Triggers.YourEndStep.binding,
-                effect = Effects.RemoveCounters(Counters.TIME, 1, EffectTarget.Self),
-                triggerCondition = impendingActive,
-                descriptionOverride = "At the beginning of your end step, remove a time counter from this permanent."
-            )
-        )
-    }
-
-    /**
-     * Add Renew (Tarkir: Dragonstorm, Sultai clan keyword).
-     *
-     * "Renew — [cost], Exile this card from your graveyard: [effect]. Activate only as a sorcery."
-     *
-     * Renew is a graveyard-activated ability. This helper composes it from existing primitives —
-     * no new engine subsystem is involved:
-     *  - the cost is the given mana [cost] plus [AbilityCost.ExileSelf] (the card exiles itself
-     *    from the graveyard as part of the cost),
-     *  - `activateFromZone = Zone.GRAVEYARD` so the engine's GraveyardAbilityEnumerator surfaces it
-     *    while the card sits in the graveyard, and
-     *  - `timing = TimingRule.SorcerySpeed` to enforce "Activate only as a sorcery".
-     *
-     * The [init] lambda configures the effect (and any targets) exactly like [activatedAbility];
-     * its `cost`, `timing`, and `activateFromZone` fields are ignored — those are fixed by Renew.
-     *
-     * ```kotlin
-     * renew("{2}{G}") {
-     *     effect = Effects.PutCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target("creature", Targets.Creature))
-     * }
-     * ```
-     */
-    fun renew(cost: String, init: ActivatedAbilityBuilder.() -> Unit) {
-        val builder = ActivatedAbilityBuilder().apply(init)
-        val renewEffect = requireNotNull(builder.effect) { "renew requires an effect" }
-        activatedAbilities.add(
-            ActivatedAbility(
-                cost = AbilityCost.Composite(listOf(AbilityCost.Atom(CostAtom.Mana(ManaCost.parse(cost))), AbilityCost.ExileSelf)),
-                effect = renewEffect,
-                targetRequirements = builder.targetRequirements,
-                timing = TimingRule.SorcerySpeed,
-                restrictions = builder.restrictions,
-                activateFromZone = Zone.GRAVEYARD,
-                descriptionOverride = "Renew — $cost, Exile this card from your graveyard: " +
-                    "${renewEffect.description} Activate only as a sorcery."
-            )
-        )
-        keywordSet.add(Keyword.RENEW)
-    }
-
-    /**
-     * Craft with [filter] — [cost] (CR 702.167, The Lost Caverns of Ixalan).
-     *
-     * "[Cost], Exile this permanent, Exile [filter] from among permanents you control and/or
-     * [filter] cards from your graveyard: Return this card to the battlefield transformed under
-     * its owner's control. Activate only as a sorcery."
-     *
-     * Composed from existing primitives — no special handling at the DSL layer:
-     *  - cost = [AbilityCost.Mana] ⊕ [AbilityCost.Craft] (the latter handles both the self-exile
-     *    and the materials-exile in one atomic cost shape, recording the exiled materials on
-     *    the source so the back face's CDA can read them).
-     *  - effect = [com.wingedsheep.sdk.scripting.effects.ReturnSelfFromExileTransformedEffect].
-     *  - `timing = TimingRule.SorcerySpeed` enforces "Activate only as a sorcery".
-     *
-     * Marks the front face with the [Keyword.CRAFT] tag for client display.
-     *
-     * ```kotlin
-     * craft(filter = Filters.Dinosaur, cost = "{4}{R}")
-     * ```
-     *
-     * @param filter The material filter (the [filter] in "Craft with [filter]").
-     * @param cost The mana portion of the craft cost.
-     * @param materialDescription Optional override for the filter's name in the rendered cost
-     *   description — e.g. "one or more Dinosaurs". Defaults to the filter's own description.
-     */
-    fun craft(
-        filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
-        cost: String,
-        materialDescription: String? = null
-    ) {
-        val materials = materialDescription ?: "one or more ${filter.description}s"
-        activatedAbilities.add(
-            ActivatedAbility(
-                cost = AbilityCost.Composite(
-                    listOf(AbilityCost.Atom(CostAtom.Mana(ManaCost.parse(cost))), AbilityCost.Craft(filter))
-                ),
-                effect = com.wingedsheep.sdk.scripting.effects.ReturnSelfFromExileTransformedEffect,
-                targetRequirements = emptyList(),
-                timing = TimingRule.SorcerySpeed,
-                descriptionOverride = "Craft with $materials — $cost"
-            )
-        )
-        keywordSet.add(Keyword.CRAFT)
-    }
+    // The set-mechanic helpers mobilize / firebending / sneak / decayed / vivid* / impending /
+    // renew / craft now live as CardBuilder extensions in `dsl/mechanics/` (SDK plan §2.2).
 
     /**
      * Add a parameterized keyword ability.
@@ -853,49 +462,7 @@ class CardBuilder(private val name: String) {
         activatedAbilities.add(builder.build())
     }
 
-    /**
-     * Add the Station keyword ability (CR 702.184a): "Tap another untapped creature you control:
-     * Put a number of charge counters on this permanent equal to the tapped creature's power.
-     * Activate only as a sorcery."
-     *
-     * This ability is fully fixed by the rules — every station card (Spacecraft and Planet alike)
-     * has exactly this one, so the helper takes no arguments. The charge amount is
-     * [DynamicAmount.StationCharge], which carries the CR 702.184c characteristic-substitution
-     * (Tapestry Warden's toughness-for-power) without leaking it onto unrelated power reads.
-     *
-     * What the card gains at each charge threshold (the `{N+}` station symbols, CR 721.2a) is
-     * *not* part of this helper — author those as `staticAbility { }` rows (Spacecraft granting
-     * keywords / a creature type) or threshold-gated activated abilities, each gated on
-     * [Conditions.SourceCounterCountAtLeast] with [Counters.CHARGE], because the payload differs
-     * per card.
-     *
-     * Example (Wedgelight Rammer):
-     * ```
-     * station()
-     * staticAbility {
-     *     condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
-     *     ability = GrantCardType("CREATURE", GroupFilter.source())
-     * }
-     * ```
-     */
-    fun station() {
-        activatedAbilities.add(
-            ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = AbilityCost.Atom(CostAtom.TapPermanents(
-                    count = 1,
-                    filter = GameObjectFilter.Creature,
-                    excludeSelf = true
-                )),
-                effect = Effects.AddDynamicCounters(
-                    counterType = Counters.CHARGE,
-                    amount = DynamicAmount.StationCharge,
-                    target = EffectTarget.Self
-                ),
-                timing = TimingRule.SorcerySpeed
-            )
-        )
-    }
+    // The `station()` helper now lives in `dsl/mechanics/StationDsl.kt`.
 
     // =========================================================================
     // Static Abilities

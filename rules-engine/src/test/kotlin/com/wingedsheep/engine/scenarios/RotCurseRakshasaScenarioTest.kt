@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.dsl.decayed
 
 /**
  * Scenario tests for Rot-Curse Rakshasa (TDM #87) — {1}{B} Demon, 5/5.

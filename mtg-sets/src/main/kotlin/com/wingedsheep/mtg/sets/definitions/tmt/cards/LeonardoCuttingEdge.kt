@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget

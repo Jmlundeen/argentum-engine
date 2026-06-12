@@ -5,6 +5,7 @@ import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.decayed
 import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.CardDefinition
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.dsl.mobilize
 
 /**
  * Scenario test for Avenger of the Fallen (TDM #73) — {2}{B} Human Warrior, 2/4.

@@ -152,7 +152,18 @@ forces a bespoke effect type. This is the #1 generator of new one-off effects go
    move). Keep what's genuinely atomic (`MarkExileOnDeathEffect` is a replacement marker). Each
    deletion is a small PR with a snapshot diff.
 
-### 2.2 Get set-specific mechanics off the core `CardBuilder` — [HIGH]
+### 2.2 Get set-specific mechanics off the core `CardBuilder` — [HIGH] — ✅ DONE
+
+> Landed: the 12 set-mechanic helpers (`leyline`, `flurry`, `mobilize` ×2, `firebending`, `sneak`,
+> `decayed`, `vividEtb`, `vividCostReduction`, `impending`, `renew`, `craft`, `station`) moved off
+> `CardBuilder` into one-file-per-mechanic `CardBuilder` extensions under `mtg-sdk/.../dsl/mechanics/`,
+> bodies verbatim. They stay in package `com.wingedsheep.sdk.dsl` (call syntax unchanged); the five
+> builder collections they compose onto were widened `private` → `internal`. Evergreen `prowess()` /
+> `rampage(n)` stay on the core builder. Call sites only needed the matching `import
+> com.wingedsheep.sdk.dsl.<mechanic>` — one mechanical sweep across the corpus (~99 files). Behavior is
+> byte-identical: `CardDefinitionSnapshotTest` passes with no re-bless. `StationDslTest` moved to
+> `dsl/mechanics/`. Reference doc §11 gains the placement rule. The mtgish emitter renders these as
+> source-text strings and is unaffected (it has no SDK dependency).
 
 **Problem.** `CardBuilder` has accumulated 12+ mechanic-specific methods (`leyline()`, `flurry()`,
 `mobilize()`, `firebending()`, `station()`, …) on the core class (`CardBuilder.kt:311-860`) —

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * Galvanizing Sawship

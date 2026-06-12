@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.mobilize
 
 /**
  * Venerated Stormsinger — Tarkir: Dragonstorm #97

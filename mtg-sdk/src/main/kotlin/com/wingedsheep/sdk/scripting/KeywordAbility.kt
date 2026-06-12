@@ -10,6 +10,10 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import com.wingedsheep.sdk.dsl.firebending
+import com.wingedsheep.sdk.dsl.impending
+import com.wingedsheep.sdk.dsl.mobilize
+import com.wingedsheep.sdk.dsl.sneak
 
 /**
  * Represents a keyword ability, which may be simple (Flying) or parameterized (Ward {2}).

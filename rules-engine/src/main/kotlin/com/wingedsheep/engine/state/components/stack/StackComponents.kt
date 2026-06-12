@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import com.wingedsheep.sdk.dsl.sneak
 
 /**
  * Marks an entity as a spell on the stack.

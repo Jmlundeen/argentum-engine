@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * The Seriema

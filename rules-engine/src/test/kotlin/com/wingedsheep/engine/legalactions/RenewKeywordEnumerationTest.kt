@@ -7,6 +7,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.renew
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize

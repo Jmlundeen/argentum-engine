@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.firebending
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter

@@ -8,6 +8,7 @@ import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tdm.cards.ShockBrigade
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mobilize
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec

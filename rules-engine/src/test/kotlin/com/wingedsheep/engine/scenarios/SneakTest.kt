@@ -24,6 +24,7 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import io.kotest.matchers.nulls.shouldBeNull
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid

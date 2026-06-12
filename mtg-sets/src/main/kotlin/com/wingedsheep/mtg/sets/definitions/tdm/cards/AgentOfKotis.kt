@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.renew
 import com.wingedsheep.sdk.model.Rarity
 
 /**

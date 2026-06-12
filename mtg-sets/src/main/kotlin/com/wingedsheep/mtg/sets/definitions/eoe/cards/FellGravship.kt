@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * Fell Gravship

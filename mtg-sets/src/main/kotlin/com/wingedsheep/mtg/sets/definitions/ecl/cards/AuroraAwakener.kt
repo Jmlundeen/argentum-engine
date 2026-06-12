@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.vividEtb
 
 /**
  * Aurora Awakener

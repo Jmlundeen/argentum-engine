@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * Specimen Freighter

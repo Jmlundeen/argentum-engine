@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import com.wingedsheep.sdk.dsl.craft
 
 /**
  * An activated ability is an ability that a player can activate by paying a cost.

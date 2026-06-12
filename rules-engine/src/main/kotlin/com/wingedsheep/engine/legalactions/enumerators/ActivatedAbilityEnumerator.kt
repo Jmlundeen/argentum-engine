@@ -45,6 +45,7 @@ import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
 import com.wingedsheep.sdk.scripting.effects.SetCreatureSubtypesEffect
 import com.wingedsheep.engine.legalactions.ConvokeCreatureData
 import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
+import com.wingedsheep.sdk.dsl.craft
 
 /**
  * Enumerates non-mana activated abilities on battlefield permanents.

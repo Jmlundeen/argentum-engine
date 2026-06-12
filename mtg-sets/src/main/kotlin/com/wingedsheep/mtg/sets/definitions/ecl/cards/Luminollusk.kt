@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.vividEtb
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget

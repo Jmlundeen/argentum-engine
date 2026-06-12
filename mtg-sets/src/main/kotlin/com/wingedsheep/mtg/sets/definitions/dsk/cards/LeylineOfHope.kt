@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.leyline
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.EventPattern

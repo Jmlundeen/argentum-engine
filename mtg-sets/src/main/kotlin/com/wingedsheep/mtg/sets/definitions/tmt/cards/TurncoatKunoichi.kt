@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect

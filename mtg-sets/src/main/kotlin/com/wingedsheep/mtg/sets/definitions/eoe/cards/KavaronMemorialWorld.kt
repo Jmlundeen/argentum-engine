@@ -20,6 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * Kavaron, Memorial World

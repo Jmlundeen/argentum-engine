@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * Evendo, Waking Haven

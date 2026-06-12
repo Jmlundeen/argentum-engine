@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.dsl.renew
 
 /**
  * Scenario test for Kheru Goldkeeper (TDM #199) — {1}{B}{G}{U} Dragon, 3/3, Flying.

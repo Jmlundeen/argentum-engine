@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import kotlinx.serialization.Serializable
+import com.wingedsheep.sdk.dsl.leyline
 
 // Type alias for clarity - replacement effects are in the scripting package
 

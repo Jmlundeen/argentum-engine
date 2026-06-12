@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * Infinite Guideline Station

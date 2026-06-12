@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * Adagia, Windswept Bastion

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mobilize
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn

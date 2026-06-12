@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.flurry
 import com.wingedsheep.sdk.model.Rarity
 
 /**

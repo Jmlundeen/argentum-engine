@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.impending
 
 /**
  * Overlord of the Balemurk

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import com.wingedsheep.sdk.dsl.station
 
 // Note: Player, Zone, and GameObjectFilter are in the same package (com.wingedsheep.sdk.scripting)
 

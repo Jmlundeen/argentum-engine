@@ -2196,6 +2196,16 @@ activatedAbility {
 
 ## 11. Keywords
 
+> **Where set-mechanic helpers live.** The `card { … }` keyword helpers below for *set-specific*
+> mechanics — `leyline()`, `flurry { }`, `mobilize(…)`, `firebending(n)`, `sneak(cost)`, `decayed()`,
+> `vividEtb { }` / `vividCostReduction()`, `impending(time, cost)`, `renew(cost) { }`,
+> `craft(filter, cost)`, `station()` — are `CardBuilder` **extension functions** in
+> `mtg-sdk/.../dsl/mechanics/` (one file per mechanic), not methods on the core `CardBuilder`. They
+> stay in package `com.wingedsheep.sdk.dsl`, so the call syntax is unchanged, but a card file that
+> uses one needs the matching import (e.g. `import com.wingedsheep.sdk.dsl.station`). Evergreen /
+> multi-set parameterized keywords (`prowess()`, `rampage(n)`, `keywordAbility(…)`) remain on the core
+> builder. New set mechanics get an extension file in `dsl/mechanics/`.
+
 **`Keyword` enum (display-level)**
 
 Flying, Menace, Intimidate, Fear, Shadow, Horsemanship, all basic landwalks (Plainswalk … Forestwalk), Desertwalk

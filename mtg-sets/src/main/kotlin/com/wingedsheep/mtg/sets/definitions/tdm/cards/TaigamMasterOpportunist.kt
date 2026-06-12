@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.flurry
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CounterDestination
 import com.wingedsheep.sdk.scripting.effects.CounterEffect

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.station
 
 /**
  * Susur Secundi, Void Altar

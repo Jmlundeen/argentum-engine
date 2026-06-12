@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.renew
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersAsCopy

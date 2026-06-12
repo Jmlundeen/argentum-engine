@@ -1,6 +1,12 @@
 package com.wingedsheep.sdk.core
 
 import kotlinx.serialization.Serializable
+import com.wingedsheep.sdk.dsl.decayed
+import com.wingedsheep.sdk.dsl.firebending
+import com.wingedsheep.sdk.dsl.impending
+import com.wingedsheep.sdk.dsl.mobilize
+import com.wingedsheep.sdk.dsl.renew
+import com.wingedsheep.sdk.dsl.sneak
 
 @Serializable
 enum class Keyword(val displayName: String) {

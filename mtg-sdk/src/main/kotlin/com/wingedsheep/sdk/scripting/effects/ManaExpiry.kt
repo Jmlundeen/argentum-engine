@@ -1,6 +1,7 @@
 package com.wingedsheep.sdk.scripting.effects
 
 import kotlinx.serialization.Serializable
+import com.wingedsheep.sdk.dsl.firebending
 
 /**
  * When mana produced by an effect leaves its owner's pool.

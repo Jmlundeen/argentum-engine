@@ -6,6 +6,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.vividCostReduction
+import com.wingedsheep.sdk.dsl.vividEtb
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.scripting.*
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect

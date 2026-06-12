@@ -43,6 +43,7 @@ import com.wingedsheep.sdk.scripting.*
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.dsl.decayed
 
 /**
  * Detects triggered abilities that should fire based on game events.
