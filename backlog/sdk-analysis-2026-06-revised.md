@@ -171,7 +171,7 @@ own "set-specific mechanics live in set-specific files" rule.
 4. End state: `CardBuilder.kt` shrinks toward the universal blocks, and "where do I add my
    mechanic's sugar" has a one-word answer.
 
-### 2.3 Condition hierarchy: stop the one-off accumulation — [MED] — ✅ DONE
+### 2.3 Condition hierarchy: stop the one-off accumulation — [MED] — ✅ DONE (PR #649)
 
 > Landed as `EntityMatches(entity: EffectTarget, filter)` (mtg-sdk) — the four near-clones
 > (`SourceMatches`, `EnchantedPermanentMatches`, `TargetMatchesFilter`,
