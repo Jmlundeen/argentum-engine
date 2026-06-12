@@ -68,6 +68,15 @@ data class RenderResult(
  */
 class EmitCtx(val keywords: Set<String>, val oracleText: String? = null) {
     val reasons: MutableSet<String> = mutableSetOf()
+
+    /**
+     * Named bound-target locals for a MULTI-target spell, indexed by the mtgish 1-based target ordinal:
+     * `targetVars[0]` is the var for `Ref_TargetPermanent1`, `[1]` for `Ref_TargetPermanent2`, … Empty
+     * for the single-target common case (which threads one `tvar` string through the handlers). Set only
+     * by the multi-target spell path so [refTargetFromRef] can resolve a suffixed `Ref_TargetPermanentN`
+     * to the right local; cleared otherwise.
+     */
+    var targetVars: List<String> = emptyList()
 }
 
 internal val SELF_REFS = setOf(
@@ -167,6 +176,19 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
         "Trigger_AmountOfDamageDealt" ->
             return call("DynamicAmount.ContextProperty", arg("ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT"))
         "PowerOfTheSacrificedCreature" -> return call("DynamicAmounts.sacrificedPower")
+        // "the number of [filter] cards in your graveyard" (Rise of the Varmints' Varmint count). The
+        // count's args are a `_CardsInGraveyard` filter — typically `And(IsCardtype Creature,
+        // InAPlayersGraveyard(You))`. Render as a resolution-time `DynamicAmount.Count` over the You
+        // graveyard with the recovered filter. Only the You-scoped graveyard renders; any other player
+        // scope (an opponent's graveyard, "each player's") declines -> SCAFFOLD rather than miscount.
+        "TheNumberOfGraveyardCards" -> {
+            if (!jsonContains(node["args"], "_Player", "You")) return null
+            val filter = gameObjectFilterDsl(node["args"]) ?: "GameObjectFilter.Any"
+            return call(
+                "DynamicAmount.Count",
+                arg("Player.You"), arg("Zone.GRAVEYARD"), arg(Lit(filter)),
+            )
+        }
         // "X is its toughness" / "its power" on THIS permanent (Armored Armadillo's "+X/+0 where X is its
         // toughness"). Only the ThisPermanent subject maps to the source-relative facade; any other
         // permanent subject declines (-> scaffold) rather than misattribute the stat.
@@ -308,6 +330,14 @@ internal fun EmitCtx.refTargetIn(args: JsonElement?, markerKey: String, tvar: St
 }
 
 private fun EmitCtx.refTargetFromRef(ref: String?, tvar: String?): String? {
+    // A suffixed multi-target ref (Ref_TargetPermanent1 / Ref_TargetPermanent2 / …) indexes the named
+    // per-target locals set up by the multi-target spell path. The ordinal is 1-based in the IR.
+    if (ref != null && targetVars.isNotEmpty()) {
+        Regex("^Ref_TargetPermanent(\\d+)$").matchEntire(ref)?.let { m ->
+            val idx = m.groupValues[1].toInt() - 1
+            return targetVars.getOrNull(idx)
+        }
+    }
     if (ref in setOf("Ref_TargetPermanent", "Ref_TargetPlayer", "Ref_TargetGraveyardCard")) return tvar
     if (ref in SELF_REFS) return "EffectTarget.Self"
     // "that player" in a trigger ("the player ~ dealt combat damage to") -> the triggering player.
@@ -326,6 +356,25 @@ internal fun EmitCtx.keywordOf(node: JsonElement?): String? {
         if (kw in keywords) return kw
     }
     return null
+}
+
+/**
+ * A resolution-time condition node (inside an `IfElse` / `If` action) -> a `Conditions.*` DSL string,
+ * or null (-> SCAFFOLD) for any shape we can't express exactly. Only the shapes our calibrated cards
+ * need render; declining beats widening.
+ *
+ *  - `PlayerPassesFilter(You, ControlsA(<filter>))` ("if you control a <filter>") ->
+ *    `Conditions.YouControl(<filter>)` (Take the Fall: "if you control an outlaw" -> the outlaw group).
+ */
+internal fun EmitCtx.actionConditionDsl(cond: JsonObject?): String? {
+    if (cond == null) return null
+    if (cond.strField("_Condition") != "PlayerPassesFilter") return null
+    val args = cond["args"].asArr ?: return null
+    if ((args.getOrNull(0) as? JsonObject)?.strField("_Player") != "You") return null
+    val controls = args.getOrNull(1) as? JsonObject ?: return null
+    if (controls.strField("_Players") != "ControlsA") return null
+    val filter = gameObjectFilterDsl(controls["args"]) ?: return null
+    return render(call("Conditions.YouControl", arg(Lit(filter))))
 }
 
 /** The nested _Action node inside an envelope action (PlayerAction / MayAction). */

@@ -37,7 +37,9 @@ class ReplaceNextDrawWithExecutor : EffectExecutor<ReplaceNextDrawWithEffect> {
             targets = context.targets,
             namedTargets = context.pipeline.namedTargets,
             sourceId = context.sourceId,
-            sourceName = sourceName
+            sourceName = sourceName,
+            // Capture the activation-time {X} so the replacement effect can read it at draw time.
+            xValue = context.xValue
         )
 
         val newState = state.addFloatingEffect(

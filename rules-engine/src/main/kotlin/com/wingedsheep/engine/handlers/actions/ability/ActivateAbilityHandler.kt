@@ -1300,15 +1300,28 @@ class ActivateAbilityHandler(
         val partialResult = pool.payPartial(cost, abilityContext)
         val remainingCost = partialResult.remainingCost
 
-        // If floating pool covers everything (and no X to pay), no tapping needed.
+        // The floating pool also pays toward the {X} portion before any sources are tapped —
+        // sharing the same coverage rule as CastPaymentProcessor.autoPay (ManaPool.xCoveragePlan).
+        // Without this, an {X} ability whose X is solved purely by tapping sources reports "Not
+        // enough mana" even when the pool already holds enough (e.g. Aladdin's Lamp activated with
+        // X=4 while 4 mana float in the pool). We only reduce how much X the solver must tap for
+        // here; the actual pool spend for X happens later in `payAbilityCost`.
+        val xSymbolCount = cost.xCount.coerceAtLeast(1)
+        var xToTap = xValue * xSymbolCount
+        if (xToTap > 0) {
+            xToTap -= partialResult.newPool.xCoveragePlan(xToTap, xManaRestriction).size
+        }
+
+        // If floating pool covers everything (and no X left to tap for), no tapping needed.
         // Return the original pool unchanged — `payAbilityCost` performs the actual deduction.
-        if (remainingCost.isEmpty() && xValue == 0) {
+        if (remainingCost.isEmpty() && xToTap == 0) {
             return AutoTapResult(state, pool, emptyList())
         }
 
-        // Tap sources for the remaining cost (xValue is treated as additional generic mana,
-        // or restricted to xManaRestriction colors for "spend only [colors] on X" abilities)
-        val solution = manaSolver.solve(state, playerId, remainingCost, xValue, excludeSources = excludeSources, spellContext = abilityContext, xManaRestriction = xManaRestriction)
+        // Tap sources for the remaining cost (xToTap is the X mana the floating pool couldn't
+        // cover, treated as additional generic mana — or restricted to xManaRestriction colors
+        // for "spend only [colors] on X" abilities)
+        val solution = manaSolver.solve(state, playerId, remainingCost, xToTap, excludeSources = excludeSources, spellContext = abilityContext, xManaRestriction = xManaRestriction)
             ?: return null
 
         var currentState = state

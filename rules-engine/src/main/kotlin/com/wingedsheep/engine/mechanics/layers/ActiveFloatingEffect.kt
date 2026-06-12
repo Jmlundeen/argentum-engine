@@ -347,7 +347,13 @@ sealed interface SerializableModification {
         val targets: List<ChosenTarget> = emptyList(),
         val namedTargets: Map<String, ChosenTarget> = emptyMap(),
         val sourceId: EntityId? = null,
-        val sourceName: String? = null
+        val sourceName: String? = null,
+        /**
+         * The {X} chosen when the replacement was set up, captured so the replacement effect can
+         * still read `DynamicAmount.XValue` at draw time — the original activation context is gone
+         * by then (Aladdin's Lamp: "look at the top X cards"). Null when no X was involved.
+         */
+        val xValue: Int? = null
     ) : SerializableModification
 
     /**
