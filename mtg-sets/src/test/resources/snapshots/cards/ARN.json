@@ -1284,7 +1284,8 @@
                         {
                             "type": "Not",
                             "condition": {
-                                "type": "SourceMatches",
+                                "type": "EntityMatches",
+                                "entity": "Self",
                                 "filter": {
                                     "statePredicates": [
                                         "AttackedThisTurn"
@@ -1295,7 +1296,8 @@
                         {
                             "type": "Not",
                             "condition": {
-                                "type": "SourceMatches",
+                                "type": "EntityMatches",
+                                "entity": "Self",
                                 "filter": {
                                     "statePredicates": [
                                         "EnteredThisTurn"
@@ -1542,7 +1544,8 @@
                     }
                 },
                 "condition": {
-                    "type": "SourceMatches",
+                    "type": "EntityMatches",
+                    "entity": "Self",
                     "filter": "untapped"
                 }
             }
