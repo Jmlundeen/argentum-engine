@@ -22,6 +22,11 @@ import type { Step, PriorityModeValue } from '@/types'
 import { trackEvent } from '@/utils/analytics.ts'
 import { getWebSocket } from './shared'
 
+/** How long an error toast stays up before auto-dismissing. */
+const ERROR_AUTO_DISMISS_MS = 5000
+/** Pending auto-dismiss timer for the global error toast (module-scoped: one toast at a time). */
+let errorDismissTimer: ReturnType<typeof setTimeout> | null = null
+
 export interface GameplaySliceState {
   gameState: ClientGameState | null
   legalActions: readonly LegalActionInfo[]
@@ -79,6 +84,12 @@ export interface GameplaySliceActions {
   requestUndo: () => void
   toggleAutoTap: () => void
   returnToMenu: () => void
+  /**
+   * Surface a global error toast. Auto-dismisses after a few seconds (a fresh error
+   * resets the timer). Route every error through this — setting `lastError` directly
+   * skips the auto-dismiss, leaving the toast stuck on routes where no component owns a timer.
+   */
+  setError: (error: ErrorState) => void
   clearError: () => void
   consumeEvent: () => ClientEvent | undefined
 }
@@ -542,7 +553,20 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
     })
   },
 
+  setError: (error: ErrorState) => {
+    if (errorDismissTimer !== null) clearTimeout(errorDismissTimer)
+    set({ lastError: error })
+    errorDismissTimer = setTimeout(() => {
+      errorDismissTimer = null
+      set({ lastError: null })
+    }, ERROR_AUTO_DISMISS_MS)
+  },
+
   clearError: () => {
+    if (errorDismissTimer !== null) {
+      clearTimeout(errorDismissTimer)
+      errorDismissTimer = null
+    }
     set({ lastError: null })
   },
 

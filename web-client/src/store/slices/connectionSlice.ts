@@ -112,12 +112,10 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
         }
       },
       onError: () => {
-        set({
-          lastError: {
-            code: ErrorCode.INTERNAL_ERROR,
-            message: 'WebSocket connection error',
-            timestamp: Date.now(),
-          },
+        get().setError({
+          code: ErrorCode.INTERNAL_ERROR,
+          message: 'WebSocket connection error',
+          timestamp: Date.now(),
         })
       },
     })

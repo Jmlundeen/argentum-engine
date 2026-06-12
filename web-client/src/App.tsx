@@ -391,11 +391,9 @@ function GameOverlay() {
   const returnToMenu = useGameStore((state) => state.returnToMenu)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    if (!lastError) return
-    const timer = setTimeout(clearError, 5000)
-    return () => clearTimeout(timer)
-  }, [lastError, clearError])
+  // Auto-dismiss is handled centrally in the store (setError schedules clearError), so it
+  // works on every route — not just where this overlay happens to be mounted. The × button
+  // below dismisses early.
 
   if (gameOverState) {
     // Use custom message if provided, otherwise fall back to standard reason

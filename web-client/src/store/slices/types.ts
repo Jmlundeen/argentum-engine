@@ -794,6 +794,7 @@ export type GameStore = {
   cyclePriorityMode: () => void
   toggleStopOverride: (step: Step, isMyTurn: boolean) => void
   returnToMenu: () => void
+  setError: (error: ErrorState) => void
   clearError: () => void
   consumeEvent: () => ClientEvent | undefined
 

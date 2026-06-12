@@ -580,12 +580,10 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
       // already been torn down. The GameOver message handles the real cleanup; no user
       // action is required and showing a toast here is confusing.
       if (msg.code === 'GAME_NOT_FOUND' && msg.message === 'Not in a game') return
-      set({
-        lastError: {
-          code: msg.code,
-          message: msg.message,
-          timestamp: Date.now(),
-        },
+      get().setError({
+        code: msg.code,
+        message: msg.message,
+        timestamp: Date.now(),
       })
     },
   }
