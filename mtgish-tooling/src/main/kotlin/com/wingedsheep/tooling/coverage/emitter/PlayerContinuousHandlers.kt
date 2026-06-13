@@ -145,6 +145,15 @@ internal fun EmitCtx.renderPlayerAction(node: JsonObject, tvar: String?): Dsl? {
         val spec = createTokens?.get("args").asArr?.firstOrNull() as? JsonObject ?: return null
         return createTokenDsl(spec, controller = "EffectTarget.TargetController")
     }
+    // "that creature's controller loses N life" — ControllerOfPermanent(Ref_TargetPermanent) + LoseLife
+    // (Foolish Fate's Infusion drain). Like the controller-creates-tokens shape above, the destroyed
+    // permanent's controller resolves at resolution time via EffectTarget.TargetController. Only a fixed
+    // life amount renders; a derived/X amount declines -> SCAFFOLD.
+    if (jsonContains(node, "_Player", "ControllerOfPermanent") && jsonContains(node, "_Action", "LoseLife")) {
+        val loseLife = (args as? JsonArray)?.firstOrNull { it is JsonObject && it.containsKey("_Action") } as? JsonObject
+        val amt = amount(loseLife?.get("args")) ?: return null
+        return call("LoseLifeEffect", arg(Lit(amt)), arg("EffectTarget.TargetController"))
+    }
     val inner = innerAction(node) ?: return null
     val ptv = refTarget(args, tvar)  // the player the action applies to
     when (inner.strField("_Action")) {

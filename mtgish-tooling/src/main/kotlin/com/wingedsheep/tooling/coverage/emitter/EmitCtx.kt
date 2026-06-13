@@ -212,8 +212,13 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
         // permanent subject declines (-> scaffold) rather than misattribute the stat.
         "ToughnessOfPermanent" ->
             return if (jsonContains(node["args"], "_Permanent", "ThisPermanent")) call("DynamicAmounts.sourceToughness") else null
-        "PowerOfPermanent" ->
-            return if (jsonContains(node["args"], "_Permanent", "ThisPermanent")) call("DynamicAmounts.sourcePower") else null
+        "PowerOfPermanent" -> {
+            if (jsonContains(node["args"], "_Permanent", "ThisPermanent")) return call("DynamicAmounts.sourcePower")
+            // "equal to its power" where "it" is a bound target (Burrog Barrage's "deals damage equal to
+            // its power" — the buffed target creature). Resolve the ref to its declaration-order index.
+            val idx = targetFlatIndexForRef(findRef(node["args"]))
+            return if (idx != null) call("DynamicAmounts.targetPower", arg("$idx")) else null
+        }
         // "the greatest power among creatures you control" (Tumbleweed Rising's X/X token). The args are a
         // permanent filter — only the exact "creatures you control" (And(IsCardtype Creature,
         // ControlledByAPlayer You)) shape maps to the battlefield MAX-power facade; any other filter (a
@@ -368,12 +373,23 @@ internal fun EmitCtx.refTarget(args: JsonElement?, tvar: String?): String? {
     return refTargetFromRef(ref, tvar)
 }
 
+/** The flat declaration-order index of a bound-target ref (its position in [targetVars]) — the index
+ *  `DynamicAmounts.targetPower(n)` / `EffectTarget.ContextTarget(n)` use. Returns null for a ref that
+ *  isn't a bound target (-> the caller scaffolds). In a single-target spell the only target is index 0. */
+internal fun EmitCtx.targetFlatIndexForRef(ref: String?): Int? {
+    if (ref == null) return null
+    val resolved = refTargetFromRef(ref, targetVars.firstOrNull()) ?: return null
+    if (targetVars.isEmpty()) return 0  // single-target spell: the lone bound target is index 0
+    val idx = targetVars.indexOf(resolved)
+    return if (idx >= 0) idx else null
+}
+
 /** Resolve the ref under a marked subtree, such as `_DamageRecipient`, to an EffectTarget DSL. */
 internal fun EmitCtx.refTargetIn(args: JsonElement?, markerKey: String, tvar: String?): String? {
     return refTargetFromRef(findRefIn(args, markerKey), tvar)
 }
 
-private fun EmitCtx.refTargetFromRef(ref: String?, tvar: String?): String? {
+internal fun EmitCtx.refTargetFromRef(ref: String?, tvar: String?): String? {
     // A suffixed multi-target ref (Ref_TargetPermanent1 / Ref_TargetPermanent2 / …) indexes the
     // per-KIND ordered list of target locals (1-based). The IR ordinal counts only targets of that
     // kind, so it must not index the flat target list — that would skew when an earlier slot is a
@@ -386,7 +402,12 @@ private fun EmitCtx.refTargetFromRef(ref: String?, tvar: String?): String? {
         }
     }
     if (ref in setOf("Ref_TargetPermanent", "Ref_TargetPlayer", "Ref_TargetGraveyardCard")) {
-        return if (targetVars.isNotEmpty()) targetRefVars[ref] else tvar
+        if (targetVars.isEmpty()) return tvar
+        // Multi-target spell: an unsuffixed ref resolves to the single target of its kind. When the IR
+        // mixes an unsuffixed ref with suffixed siblings of the SAME kind (Burrog Barrage's +1/+0 on
+        // `Ref_TargetPermanent` alongside the damage's `Ref_TargetPermanent1`/`2`), the unsuffixed ref
+        // means the first target of that kind. A genuinely ambiguous case (no first-of-kind) declines.
+        return targetRefVars[ref] ?: targetRefVarsByKind[ref]?.firstOrNull()
     }
     if (ref in SELF_REFS) return "EffectTarget.Self"
     // "that player" in a trigger ("the player ~ dealt combat damage to") -> the triggering player.
@@ -422,13 +443,20 @@ internal fun EmitCtx.keywordOf(node: JsonElement?): String? {
  */
 internal fun EmitCtx.actionConditionDsl(cond: JsonObject?): String? {
     if (cond == null) return null
-    if (cond.strField("_Condition") != "PlayerPassesFilter") return null
-    val args = cond["args"].asArr ?: return null
-    if ((args.getOrNull(0) as? JsonObject)?.strField("_Player") != "You") return null
-    val controls = args.getOrNull(1) as? JsonObject ?: return null
-    if (controls.strField("_Players") != "ControlsA") return null
-    val filter = gameObjectFilterDsl(controls["args"]) ?: return null
-    return render(call("Conditions.YouControl", arg(Lit(filter))))
+    if (cond.strField("_Condition") == "PlayerPassesFilter") {
+        val args = cond["args"].asArr
+        if (args != null && (args.getOrNull(0) as? JsonObject)?.strField("_Player") == "You") {
+            val controls = args.getOrNull(1) as? JsonObject
+            if (controls?.strField("_Players") == "ControlsA") {
+                val filter = gameObjectFilterDsl(controls["args"])
+                if (filter != null) return render(call("Conditions.YouControl", arg(Lit(filter))))
+            }
+        }
+    }
+    // Other resolution-time intervening-if shapes ("if you gained life this turn", "if you've cast
+    // another instant or sorcery this turn", …) reuse the shared condition renderer; declining beats
+    // widening. These power the resolution-time `on("If")` action handler.
+    return interveningIfDsl(cond)
 }
 
 /** The nested _Action node inside an envelope action (PlayerAction / MayAction). */
