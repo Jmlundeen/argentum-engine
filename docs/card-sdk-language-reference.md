@@ -1451,6 +1451,12 @@ for any other (filter, binding, to/excludeTo) combination.
   die, …" (Vengeful Townsfolk) — a per-creature `YourCreatureDies` would over-count on mass removal.
   Set `excludeSelf = true` for the "*other* creatures" wording (the source's own death is excluded).
   Detected specially by `TriggerDetector` (grouped by each dying creature's last-known controller).
+  Rule 603.10 "look back in time": if the source itself dies in the *same* batch as another
+  qualifying creature, it still sees that death and fires (recovered from its last-known card
+  definition, since it has already left the battlefield). For `excludeSelf = true` payoffs that
+  target the source (Vengeful Townsfolk's own +1/+1) this is a harmless no-op, but a *non-self*
+  payoff — draw a card, make a token, gain life — correctly still resolves on a board wipe that
+  also kills the source.
 - `PutIntoGraveyardFromBattlefield` — SELF, same event shape as `Dies`; rename
   clarifies non-creature intent (artifact / enchantment going to yard).
 - `leavesBattlefield(filter, to?, excludeTo?, binding)` — factory. `to = GRAVEYARD`
