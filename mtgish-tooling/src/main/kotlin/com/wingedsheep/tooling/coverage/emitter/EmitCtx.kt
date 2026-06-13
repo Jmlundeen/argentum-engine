@@ -319,6 +319,16 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
         val countBlob = compact(node)
         if ("IsArtifactType" in countBlob) return null
         if (("IsTapped" in countBlob && "tapped creature" !in oracle) || "IsUntapped" in countBlob) return null
+        //   IsNamed — "the number of creatures named ~ on the battlefield" (Plague Rats): the search
+        //     filter can't express a name predicate and would silently widen to every creature.
+        if ("IsNamed" in countBlob) return null
+        //   IsNonCreatureType — "non-Wall creatures you control" (Keldon Warlord): a negated creature-type
+        //     exclusion the search filter drops, over-counting. Decline rather than miscount.
+        if ("IsNonCreatureType" in countBlob) return null
+        //   Trigger_ThatPlayer controller — "...Swamps they control" in a per-player upkeep (Karma): the
+        //     count scopes to the triggering player, but an aggregate has no triggering-player scope here,
+        //     so the resolver below would wrongly tally the source controller's (You) permanents.
+        if (jsonContains(node, "_Player", "Trigger_ThatPlayer")) return null
         // The hand/"in it" guard catches a generic "NumberOf" count that's really about hand cards. It must
         // NOT fire for an explicit battlefield count (TheNumberOfPermanentsOnTheBattlefield) — a card may
         // mention "hand" elsewhere in its text (e.g. Slate of Ancestry's "Discard your hand" cost) while the
@@ -500,7 +510,15 @@ internal fun EmitCtx.paycostDsl(costNode: JsonElement?): String? {
         }
         return if (filter == null) "Costs.pay.Discard()" else "Costs.pay.Discard(filter = $filter)"
     }
-    if ("Mana" in blob) return "Costs.pay.OwnManaCost"
+    if ("Mana" in blob) {
+        // A specific printed mana cost — an explicit `_ManaSymbol` list, e.g. Drifting Djinn's
+        // "...unless you pay {1}{U}" or Phantasmal Forces' {U} — is NOT the permanent's own mana cost,
+        // so OwnManaCost mis-charges it. There is no audited rendering for an arbitrary alternative mana
+        // payment in this gate, so decline (-> SCAFFOLD) rather than emit the wrong cost. A genuine
+        // "pay its mana cost" carries no mana symbols and still renders as OwnManaCost.
+        if ("_ManaSymbol" in blob) return null
+        return "Costs.pay.OwnManaCost"
+    }
     return null
 }
 
