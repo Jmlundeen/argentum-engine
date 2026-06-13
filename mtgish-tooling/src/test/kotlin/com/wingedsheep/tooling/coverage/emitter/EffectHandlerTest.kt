@@ -84,4 +84,45 @@ class EffectHandlerTest : StringSpec({
             "t",
         ).shouldBeNull()
     }
+
+    // --- PutExiledCardOntoBattlefield (the return half of the exile-then-return blink) -------------
+
+    "the bare under-owner's-control return renders a plain Move to the battlefield" {
+        layer(
+            """{"_Action":"PutExiledCardOntoBattlefield","args":[{"_CardInExile":"TheCardExiledThisWay"},""" +
+                """[{"_EnterFlag":"EntersUnderOwnersControl"}]]}""",
+            "t",
+        ) shouldBe "Effects.Move(t, Zone.BATTLEFIELD)"
+    }
+
+    "a return with a +1/+1 counter renders the Move then a chained AddCountersEffect (Daydream)" {
+        // The returned card isn't a permanent until it's back on the battlefield, so the counter is a
+        // chained AddCountersEffect after the Move, not an enters-with replacement.
+        layer(
+            """{"_Action":"PutExiledCardOntoBattlefield","args":[{"_CardInExile":"TheCardExiledThisWay"},""" +
+                """[{"_EnterFlag":"EntersUnderOwnersControl"},""" +
+                """{"_EnterFlag":"EntersWithACounter","args":{"_CounterType":"PTCounter","args":[1,1]}}]]}""",
+            "t",
+        ) shouldBe "Effects.Composite(\n" +
+            "            Effects.Move(t, Zone.BATTLEFIELD),\n" +
+            "            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)\n" +
+            "        )"
+    }
+
+    "a return with a non-±1/±1 counter kind declines (-> SCAFFOLD) rather than guess the counter" {
+        layer(
+            """{"_Action":"PutExiledCardOntoBattlefield","args":[{"_CardInExile":"TheCardExiledThisWay"},""" +
+                """[{"_EnterFlag":"EntersUnderOwnersControl"},""" +
+                """{"_EnterFlag":"EntersWithACounter","args":{"_CounterType":"PTCounter","args":[2,2]}}]]}""",
+            "t",
+        ).shouldBeNull()
+    }
+
+    "a return entering tapped still declines (the tapped flag would be silently dropped)" {
+        layer(
+            """{"_Action":"PutExiledCardOntoBattlefield","args":[{"_CardInExile":"TheCardExiledThisWay"},""" +
+                """[{"_EnterFlag":"EntersUnderOwnersControl"},{"_EnterFlag":"EntersTapped"}]]}""",
+            "t",
+        ).shouldBeNull()
+    }
 })

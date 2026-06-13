@@ -16,6 +16,7 @@ import com.wingedsheep.tooling.coverage.compact
 import com.wingedsheep.tooling.coverage.field
 import com.wingedsheep.tooling.coverage.findInteger
 import com.wingedsheep.tooling.coverage.jsonContains
+import com.wingedsheep.tooling.coverage.nodesTagged
 import com.wingedsheep.tooling.coverage.strField
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -82,12 +83,24 @@ internal val zoneHandlers: Map<String, ActionHandler> = actionHandlers {
         if (!jsonContains(node, "_CardInExile", "TheCardExiledThisWay")) return@on null
         val flagBlob = compact(node)
         if ("EntersUnderPlayersControl" in flagBlob || "EntersUnderYourControl" in flagBlob) return@on null
-        // We render only the bare "return under its owner's control". Any extra enter flag — a +1/+1
-        // counter (Daydream), entering tapped, etc. — would be silently dropped, producing a
-        // confidently-wrong card, so decline (-> SCAFFOLD) when one is present.
-        if ("EntersWithACounter" in flagBlob || "EntersWithNumberCounters" in flagBlob ||
-            "EntersTapped" in flagBlob) return@on null
-        call("Effects.Move", arg(Lit(tvar)), arg("Zone.BATTLEFIELD"))
+        // Under-owner's-control return. We render the bare return and the one extra enter flag we can
+        // express faithfully: a single fixed ±1/±1 counter on the returned card (Daydream's "with a
+        // +1/+1 counter on it"). A returned card isn't a permanent until it's back on the battlefield,
+        // so the counter is a chained AddCountersEffect after the Move (matching the hand-authored card),
+        // not an enters-with replacement. Any other extra flag — a dynamic/derived counter count,
+        // entering tapped, a non-±1/±1 counter kind — would be silently dropped, so decline -> SCAFFOLD.
+        if ("EntersWithNumberCounters" in flagBlob || "EntersTapped" in flagBlob) return@on null
+        val move = call("Effects.Move", arg(Lit(tvar)), arg("Zone.BATTLEFIELD"))
+        if ("EntersWithACounter" !in flagBlob) return@on move
+        // Pull the EntersWithACounter flag's counter node and render it (counterTypeDsl declines any
+        // non-±1/±1 PTCounter / unnamed kind, downgrading the card to SCAFFOLD rather than guessing).
+        val counterNode = node.nodesTagged("EntersWithACounter")
+            .firstOrNull()?.get("args") ?: return@on null
+        val counter = counterTypeDsl(counterNode) ?: return@on null
+        Composite(listOf(
+            move,
+            call("AddCountersEffect", arg("counterType", counter), arg("count", "1"), arg("target", Lit(tvar))),
+        ))
     }
 
     // "...at the beginning of the next end step" delayed trigger (the return half of exile-then-return).

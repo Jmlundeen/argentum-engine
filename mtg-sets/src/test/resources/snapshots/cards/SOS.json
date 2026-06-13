@@ -931,6 +931,73 @@
     ]
 }
 
+// Daydream
+{
+    "name": "Daydream",
+    "manaCost": "{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Exile target creature you control, then return that card to the battlefield under its owner's control with a +1/+1 counter on it.\nFlashback {2}{W} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{2}{W}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    },
+                    "destination": "Exile"
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    },
+                    "destination": "Battlefield"
+                },
+                {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "creature you control"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "9",
+        "rarity": "UNCOMMON",
+        "artist": "Nia Kovalevski",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/2/e2b16cb2-b8b2-45df-9695-3c16e9d89e28.jpg?1775936973"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Dig Site Inventory
 {
     "name": "Dig Site Inventory",
@@ -3340,6 +3407,123 @@
     ]
 }
 
+// Muse Seeker
+{
+    "name": "Muse Seeker",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Elf Wizard",
+    "oracleText": "Opus — Whenever you cast an instant or sorcery spell, draw a card. Then discard a card unless five or more mana was spent to cast that spell.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsInstant",
+                                    "IsSorcery"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 5
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "otherwise": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Hand"
+                                        },
+                                        "storeAs": "hand"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "hand",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "discarded",
+                                        "prompt": "Choose 1 card to discard"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "discarded",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Discard"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "Opus — Whenever you cast an instant or sorcery spell, draw a card. Then discard a card unless five or more mana was spent to cast that spell."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "60",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "\"Failure can be a reason to quit or fuel for inspiration. The choice is always yours.\"\n—Veyran, dean of perfection",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/1/71cb4a6b-b500-4b28-bcdb-ec4188242f39.jpg?1775937328"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Muse's Encouragement
 {
     "name": "Muse's Encouragement",
@@ -3989,6 +4173,59 @@
     "colorIdentityOverride": [
         "BLUE",
         "RED"
+    ]
+}
+
+// Procrastinate
+{
+    "name": "Procrastinate",
+    "manaCost": "{X}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Tap target creature. Put twice X stun counters on it. (If a permanent with a stun counter would become untapped, remove one from it instead.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature"
+                    }
+                },
+                {
+                    "type": "AddDynamicCounters",
+                    "counterType": "stun",
+                    "amount": {
+                        "type": "Multiply",
+                        "amount": "XValue",
+                        "multiplier": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "artist": "Elizabeth Peiró",
+        "flavorText": "\"None of these projects are due until end of semester. I've still got a whole week to finish them!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/e/1edb449d-620f-4e21-9d76-2c840635eb9d.jpg?1775937356"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -5863,6 +6100,100 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Wild Hypothesis
+{
+    "name": "Wild Hypothesis",
+    "manaCost": "{X}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create a 0/0 green and blue Fractal creature token. Put X +1/+1 counters on it.\nSurveil 2. (Look at the top two cards of your library, then put any number of them into your graveyard and the rest on top of your library in any order.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CreateToken",
+                    "power": 0,
+                    "toughness": 0,
+                    "colors": [
+                        "GREEN",
+                        "BLUE"
+                    ],
+                    "creatureTypes": [
+                        "Fractal"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
+                },
+                {
+                    "type": "AddDynamicCounters",
+                    "counterType": "+1/+1",
+                    "amount": "XValue",
+                    "target": {
+                        "type": "PipelineTarget",
+                        "collectionName": "createdTokens"
+                    }
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeAs": "surveiled"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "surveiled",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "toGraveyard",
+                            "storeRemainder": "toTop",
+                            "selectedLabel": "Put in graveyard",
+                            "remainderLabel": "Put on top"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "toGraveyard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "toTop",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Top"
+                            },
+                            "order": "ControllerChooses"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "167",
+        "artist": "Lie Setiawan",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/4/04fdfabc-c247-4384-a5bb-f49035f8aae0.jpg?1775938142"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
