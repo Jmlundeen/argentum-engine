@@ -182,6 +182,54 @@ Drafting is lower frequency, so standard HTTP JSON is used.
   }
 }
 
+## 3a. Set Catalog & Coverage (REST / HTTP)
+
+Set-level metadata for the deckbuilder, pickers, and the **Set Completion** view. Low frequency,
+plain HTTP JSON.
+
+**List sets** — `GET /api/sets` → `[{ "code", "name", "releaseDate" }]` (every catalogued set).
+**Booster-ready** — `GET /api/sets/booster-ready` → `[{ "setCode", "setName", "implementedCount", "incomplete" }]`
+(subset draftable for sealed/draft).
+
+**Set coverage** — `GET /api/sets/coverage` → per-set card-implementation coverage, newest release
+first. Powers the Set Completion grid (`/set-completion`). The headline `percent` is over the
+**booster (draft)** cards only — a set reads 100% once every boosterable card is implemented; the
+completionist extras are reported separately.
+
+```json
+[
+  { "code": "BLB", "name": "Bloomburrow", "releaseDate": "2024-08-02", "setType": "expansion",
+    "block": null, "implemented": 261, "total": 261, "extraImplemented": 18, "extraTotal": 18,
+    "percent": 100.0 }
+]
+```
+
+**Set detail** — `GET /api/sets/{code}/coverage` → one set's full canonical card list, split into
+`draft` / `extra`, each card marked. 404 if the code isn't a catalogued set with baked totals. Drives
+the click-through detail view.
+
+```json
+{ "code": "BLB", "name": "Bloomburrow", "releaseDate": "2024-08-02", "block": null,
+  "implemented": 261, "total": 261, "extraImplemented": 18, "extraTotal": 18, "percent": 100.0,
+  "draft": [{ "name": "Agate Assault", "implemented": true,
+              "imageUri": "https://cards.scryfall.io/normal/front/…jpg" }, ...],
+  "extra": [{ "name": "...", "implemented": false, "imageUri": "…" }, ...] }
+```
+
+The denominator (canonical booster + extra front-face card names) isn't knowable at runtime — it
+lives only in the local Scryfall cache. `scripts/gen-set-totals` bakes those canonical cards, split
+into `draft` (Scryfall `booster: true`) and `extra`, each `{ name, img }` (direct CDN art URL), into
+the committed `game-server/.../resources/coverage/set-totals.json` resource (same partitioning as
+`scripts/card-status`, so the numbers match the mtgish coverage TUI). Baking the art URL lets the
+detail view render set-specific images for *missing* cards too, without hammering the rate-limited
+Scryfall name-lookup API. At request time `SetCoverageService` joins that static denominator with the
+*live* card catalog: `implemented` is the count of a set's canonical names we've actually authored
+(`card` + `basicLand` + reprint `Printing` rows, front-faces) — an intersection, so it can never
+exceed the canonical count. A set with no booster (Commander / supplemental, every card
+`booster: false`) uses the whole set as the main pool, so its headline isn't a useless 0/0. Re-run
+`scripts/gen-set-totals` (after `scripts/card-status --refresh`) to refresh totals for new/spoiler
+sets.
+
 ## 3b. AI Assistance Payload (REST / HTTP)
 
 In-app AI help for the player at the wheel: **Suggest Pick** (draft) and **Auto-build** (deckbuild).
