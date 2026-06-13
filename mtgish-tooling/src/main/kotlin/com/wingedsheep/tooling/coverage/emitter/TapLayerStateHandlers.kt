@@ -231,8 +231,8 @@ internal fun counterTypeDsl(counterNode: JsonElement?): String? {
         // projection. Only the ones we can name render; anything else scaffolds.
         "FlyingCounter" -> "Counters.FLYING"
         // Stun counter (CR 122.1d): a built-in replacement ("if a permanent with a stun counter would
-        // become untapped, remove one instead"), engine-wired via `untapOrConsumeStun`. Adding one is a
-        // plain AddCounters(Counters.STUN, …) (Rapier Wit's "put a stun counter on it").
+        // become untapped, instead remove a stun counter from it"), engine-wired via `untapOrConsumeStun`.
+        // Adding one is a plain AddCounters(Counters.STUN, …) (Rapier Wit, Fractal Mascot).
         "StunCounter" -> "Counters.STUN"
         else -> null
     }
