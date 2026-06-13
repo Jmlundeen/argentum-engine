@@ -5498,6 +5498,92 @@
     ]
 }
 
+// Metamorphic Blast
+{
+    "name": "Metamorphic Blast",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Spree (Choose one or more additional costs.)\n+ {1} — Until end of turn, target creature becomes a white Rabbit with base power and toughness 0/1.\n+ {3} — Target player draws two cards.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "BecomeCreature",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "power": 0,
+                        "toughness": 1,
+                        "creatureTypes": [
+                            "Rabbit"
+                        ],
+                        "colors": [
+                            "WHITE"
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            }
+                        }
+                    ],
+                    "description": "+ {1} — Until end of turn, target creature becomes a white Rabbit with base power and toughness 0/1.",
+                    "additionalManaCost": "{1}"
+                },
+                {
+                    "effect": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    },
+                    "targetRequirements": [
+                        "TargetPlayer"
+                    ],
+                    "description": "+ {3} — Target player draws two cards.",
+                    "additionalManaCost": "{3}"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1
+        }
+    },
+    "metadata": {
+        "collectorNumber": "57",
+        "rarity": "UNCOMMON",
+        "artist": "Michal Ivan",
+        "flavorText": "Rundo's craving for revenge was replaced by a craving for vegetables.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bd38d922-cfc1-43a8-82d8-5de441c71076.jpg?1712860596",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "You must choose at least one of the listed modes and pay its associated additional cost in order to cast a spell with spree."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "You choose the modes as you cast the spell with spree. Once modes are chosen, they can't be changed."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "You can't choose the same mode more than once."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Mine Raider
 {
     "name": "Mine Raider",
@@ -9990,6 +10076,72 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Trick Shot
+{
+    "name": "Trick Shot",
+    "manaCost": "{4}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Trick Shot deals 6 damage to target creature and 2 damage to up to one other target creature token.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 6
+                    },
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "creature"
+            },
+            {
+                "type": "TargetOther",
+                "baseRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature token"
+                    }
+                },
+                "id": "tokenCreature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "artist": "Brian Valeza",
+        "flavorText": "\"Cowerin' behind your buddy ain't gonna help, ya yellow-bellied lowlife.\"\n—Tyron, Slickshot duelist",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/d/cd3c2d02-67ca-4858-9b7a-3cfe8a08356c.jpg?1712355870"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
