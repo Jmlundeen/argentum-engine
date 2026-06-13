@@ -501,6 +501,86 @@
     ]
 }
 
+// Blood Hustler
+{
+    "name": "Blood Hustler",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Vampire Rogue",
+    "oracleText": "Whenever you commit a crime, put a +1/+1 counter on this creature. This ability triggers only once each turn. (Targeting opponents, anything they control, and/or cards in their graveyards is a crime.)\n{3}{B}: Target opponent loses 1 life and you gain 1 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "CommitCrimeEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "oncePerTurn": true,
+                "descriptionOverride": "Whenever you commit a crime, put a +1/+1 counter on this creature. This ability triggers only once each turn."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}{B}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target"
+                    }
+                ],
+                "descriptionOverride": "{3}{B}: Target opponent loses 1 life and you gain 1 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "rarity": "UNCOMMON",
+        "artist": "Anna Pavleeva",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/0/1016a750-2a18-4443-a600-957eb4026d3a.jpg?1712355556"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Blooming Marsh
 {
     "name": "Blooming Marsh",
@@ -852,6 +932,88 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Brimstone Roundup
+{
+    "name": "Brimstone Roundup",
+    "manaCost": "{1}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever you cast your second spell each turn, create a 1/1 red Mercenary creature token with \"{T}: Target creature you control gets +1/+0 until end of turn. Activate only as a sorcery.\"\nPlot {2}{R} (You may pay {2}{R} and exile this card from your hand. Cast it as a sorcery on a later turn without paying its mana cost. Plot only as a sorcery.)",
+    "keywords": [
+        "PLOT"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Plot",
+            "cost": "{2}{R}"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "NthSpellCastEvent",
+                    "nthSpell": 2,
+                    "player": "You"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Mercenary"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/5/f/5f04607f-eed2-462e-897f-82e41e5f7049.jpg?1712316319",
+                    "activatedAbilities": [
+                        {
+                            "id": "ability_2",
+                            "cost": "CostTap",
+                            "effect": {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                }
+                            ],
+                            "timing": "SorcerySpeed"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever you cast your second spell each turn, create a 1/1 red Mercenary creature token with \"{T}: Target creature you control gets +1/+0 until end of turn. Activate only as a sorcery.\""
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "115",
+        "rarity": "UNCOMMON",
+        "artist": "Milivoj Ćeran",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bd13011e-a4fc-4107-988f-60cfc851ecd3.jpg?1712355715"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -3456,6 +3618,116 @@
         "artist": "Caio Monteiro",
         "flavorText": "The last fool who called him \"cowboy\" earned a free ride to the bottom of Blacksnag Bog.",
         "imageUri": "https://cards.scryfall.io/normal/front/3/b/3b99db5b-cd13-4e69-98b7-753e72c781f8.jpg?1712355767",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "A card, spell, or permanent is an outlaw if it has the Assassin, Mercenary, Pirate, Rogue, or Warlock creature type. It doesn't matter if it has more than one of those creature types; as long as it has at least one, it's an outlaw."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Hellspur Posse Boss
+{
+    "name": "Hellspur Posse Boss",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Lizard Rogue",
+    "oracleText": "Other outlaws you control have haste. (Assassins, Mercenaries, Pirates, Rogues, and Warlocks are outlaws.)\nWhen this creature enters, create two 1/1 red Mercenary creature tokens with \"{T}: Target creature you control gets +1/+0 until end of turn. Activate only as a sorcery.\"",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Mercenary"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/5/f/5f04607f-eed2-462e-897f-82e41e5f7049.jpg?1712316319",
+                    "activatedAbilities": [
+                        {
+                            "id": "ability_2",
+                            "cost": "CostTap",
+                            "effect": {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                }
+                            ],
+                            "timing": "SorcerySpeed"
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, create two 1/1 red Mercenary creature tokens with \"{T}: Target creature you control gets +1/+0 until end of turn. Activate only as a sorcery.\""
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "HASTE",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "HasAnyOfSubtypes",
+                                "subtypes": [
+                                    "Assassin",
+                                    "Mercenary",
+                                    "Pirate",
+                                    "Rogue",
+                                    "Warlock"
+                                ]
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "128",
+        "rarity": "RARE",
+        "artist": "Artur Nakhodkin",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/f/5f348c7e-7d72-40f1-a65f-ee7ff4b09412.jpg?1712355772",
         "rulings": [
             {
                 "date": "2024-04-12",
