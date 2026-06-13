@@ -2901,6 +2901,57 @@
     ]
 }
 
+// Hardbristle Bandit
+{
+    "name": "Hardbristle Bandit",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Plant Rogue",
+    "oracleText": "{T}: Add one mana of any color.\nWhenever you commit a crime, untap this creature. This ability triggers only once each turn. (Targeting opponents, anything they control, and/or cards in their graveyards is a crime.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "CommitCrimeEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "TapUntap",
+                    "target": "Self",
+                    "tap": false
+                },
+                "oncePerTurn": true,
+                "descriptionOverride": "Whenever you commit a crime, untap this creature. This ability triggers only once each turn."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "168",
+        "artist": "Francis Tneh",
+        "flavorText": "Visitors to the town of Hardbristle found the locals to be quite prickly.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cbe544fb-93b7-4640-b886-cb0b3e437357.jpg",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "A player commits a crime as they cast a spell, activate an ability, or put a triggered ability on the stack that targets at least one opponent, at least one permanent, spell, or ability an opponent controls, and/or at least one card in an opponent's graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Harrier Strix
 {
     "name": "Harrier Strix",
@@ -4724,6 +4775,49 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Overzealous Muscle
+{
+    "name": "Overzealous Muscle",
+    "manaCost": "{4}{B}",
+    "typeLine": "Creature — Ogre Mercenary",
+    "oracleText": "Whenever you commit a crime during your turn, this creature gains indestructible until end of turn. (Targeting opponents, anything they control, and/or cards in their graveyards is a crime. Damage and effects that say \"destroy\" don't destroy a creature with indestructible.)",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "CommitCrimeEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "INDESTRUCTIBLE",
+                    "target": "Self"
+                },
+                "triggerCondition": "IsYourTurn",
+                "descriptionOverride": "Whenever you commit a crime during your turn, this creature gains indestructible until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "97",
+        "artist": "Sam White",
+        "flavorText": "Not everyone can be a pickpocket.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce57d977-e9c5-4ed1-915f-cdc90a54f8f8.jpg",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "A player commits a crime as they cast a spell, activate an ability, or put a triggered ability on the stack that targets at least one opponent, at least one permanent, spell, or ability an opponent controls, and/or at least one card in an opponent's graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
