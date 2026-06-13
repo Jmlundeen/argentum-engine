@@ -4351,6 +4351,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
@@ -4377,7 +4378,7 @@ val GryffsBoon = card("Gryff's Boon") {
     activatedAbility {
         cost = Costs.Mana("{3}{W}")
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = Effects.Move(t, Zone.BATTLEFIELD)
+        effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
         timing = TimingRule.SorcerySpeed
         activateFromZone = Zone.GRAVEYARD
     }
