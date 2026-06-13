@@ -2,6 +2,8 @@ package com.wingedsheep.tooling.coverage.emitter
 
 import com.wingedsheep.tooling.coverage.Assign
 import com.wingedsheep.tooling.coverage.Block
+import com.wingedsheep.tooling.coverage.Arg
+import com.wingedsheep.tooling.coverage.Call
 import com.wingedsheep.tooling.coverage.Dsl
 import com.wingedsheep.tooling.coverage.Eval
 import com.wingedsheep.tooling.coverage.Lit
@@ -92,8 +94,14 @@ private fun EmitCtx.multiTargetLocals(targets: List<JsonObject>, actions: List<J
     val stmts = mutableListOf<Stmt>()
     val vars = mutableListOf<String>()
     val refsByKind = mutableMapOf<String, MutableList<String>>()
+    // The mtgish IR sometimes drops the "up to one/N target" optionality on a multi-target spell's later
+    // target (Burrog Barrage's "up to one target creature an opponent controls" arrives as a plain
+    // mandatory TargetPermanent). The oracle text is authoritative, so recover per-target optionality
+    // from the ordered "target …" clauses there and inject `optional = true` when the IR omitted it.
+    val optionalByOrdinal = oracleOptionalTargetOrdinals(targets.size)
     targets.forEachIndexed { i, t ->
-        val node = targetExpr(t, actions) ?: run { reasons.add("target:${t.strField("_Target")}"); return null }
+        var node = targetExpr(t, actions) ?: run { reasons.add("target:${t.strField("_Target")}"); return null }
+        if (optionalByOrdinal.getOrNull(i) == true) node = node.withOptionalArg()
         val varName = "t${i + 1}"
         stmts.add(targetLocalNamed(varName, varName, node))
         vars.add(varName)
@@ -103,6 +111,31 @@ private fun EmitCtx.multiTargetLocals(targets: List<JsonObject>, actions: List<J
         if (refVars.size == 1) ref to refVars.single() else null
     }.toMap()
     return MultiTargetLocals(stmts, vars, refVars, refsByKind.mapValues { it.value.toList() })
+}
+
+/**
+ * For a spell whose IR declares [targetCount] targets in oracle order, returns a per-ordinal flag of
+ * which are "up to one/N target …" (optional). Reads the oracle text — the IR occasionally drops the
+ * "up to" qualifier on a later target (Burrog Barrage). Each ordered "(up to one|up to N )?target …"
+ * mention maps to one declared target in order; only the explicit "up to" ones are optional. If the
+ * count of "target" mentions doesn't line up with [targetCount], returns all-false (no over-claiming
+ * optionality — better a mandatory mismatch caught by the gate than a silently wrong optional flag).
+ */
+/** Add `optional = true` to a `Target…(…)` Call (idempotent). Non-Call nodes (or ones already carrying
+ *  the flag) are returned unchanged — recovering optionality only ever ADDS the flag, never overrides. */
+private fun Dsl.withOptionalArg(): Dsl = when {
+    this is Call && this.args.none { it.name == "optional" } ->
+        this.copy(args = this.args + Arg(Lit("true"), "optional"))
+    else -> this
+}
+
+private fun EmitCtx.oracleOptionalTargetOrdinals(targetCount: Int): List<Boolean> {
+    val text = oracleText?.lowercase() ?: return List(targetCount) { false }
+    // Match each "target" mention, capturing an immediately-preceding "up to <word/number> " qualifier.
+    val mentions = Regex("""(up to (?:one|two|three|four|\d+)\s+)?target\b""")
+        .findAll(text).map { it.groupValues[1].isNotBlank() }.toList()
+    if (mentions.size != targetCount) return List(targetCount) { false }
+    return mentions
 }
 
 private fun refKindForTarget(target: JsonObject): String? = when (target.strField("_Target")) {
@@ -125,6 +158,7 @@ internal fun EmitCtx.castEffectHandled(rule: JsonObject): Boolean {
         "CantBeCastUnless" -> castRestrictionLines(listOf(rule)) != null
         "AdditionalCastingCost" -> additionalCostLine(rule) != null
         "ReduceCastingCostIf" -> costReductionStaticLines(rule) != null
+        "ReduceCastingCostIfItTargetsASpell" -> targetSpellCostReductionLines(rule) != null
         else -> false
     }
 }
@@ -137,9 +171,72 @@ internal fun EmitCtx.cardLevelCastEffectLines(card: JsonObject): List<String>? {
         if (line != null) { lines.add(line); continue }
         val reduction = costReductionStaticLines(rule)
         if (reduction != null) { lines.addAll(reduction); continue }
+        val targetReduction = targetSpellCostReductionLines(rule)
+        if (targetReduction != null) { lines.addAll(targetReduction); continue }
         if (!castEffectHandled(rule)) return null
     }
     return lines
+}
+
+/**
+ * `CastEffect(ReduceCastingCostIfItTargetsASpell([<cost symbols>], <spell filter>))` -> one
+ * `staticAbility { ability = ModifySpellCost(SelfCast, …) }` per cost symbol, each gated on the spell
+ * targeting an object matching the filter. Brush Off ("This spell costs {1}{U} less to cast if it
+ * targets an instant or sorcery spell"):
+ *  - `{1}` -> `ReduceGenericBy(FixedIfAnyTargetMatches(1, <filter>))`.
+ *  - `{U}` -> `ReduceColoredIfAnyTargetMatches("{U}", <filter>)`.
+ *
+ * Only the instant-or-sorcery spell filter renders today (the only target-gated colored reduction in
+ * the corpus); any other spell filter, or a cost symbol we don't model (generic-per-unit, life, …),
+ * declines -> SCAFFOLD rather than emit a wrong gate.
+ */
+private fun EmitCtx.targetSpellCostReductionLines(rule: JsonObject): List<String>? {
+    val node = rule["args"] as? JsonObject ?: return null
+    if (node.strField("_CastEffect") != "ReduceCastingCostIfItTargetsASpell") return null
+    val args = node["args"].asArr ?: return null
+    val symbols = (args.getOrNull(0) as? JsonArray)?.filterIsInstance<JsonObject>() ?: return null
+    if (symbols.isEmpty()) return null
+    val spellFilter = args.getOrNull(1) as? JsonObject ?: return null
+    // Only the "instant or sorcery spell" filter (Or(IsCardtype Instant, IsCardtype Sorcery)) is modeled.
+    val filterDsl = if (spellFilter.strField("_Spells") == "Or") {
+        val blob = compact(spellFilter)
+        if (blob.contains("\"Instant\"") && blob.contains("\"Sorcery\"") && "IsCreatureType" !in blob) {
+            "GameObjectFilter.InstantOrSorcery"
+        } else return null
+    } else return null
+
+    val abilities = symbols.map { sym ->
+        when (sym.strField("_CostReductionSymbol")) {
+            "CostReduceGeneric" -> {
+                val amount = sym["args"].asInt() ?: return null
+                call(
+                    "ModifySpellCost",
+                    arg("target", Lit("SpellCostTarget.SelfCast")),
+                    arg("modification", call(
+                        "CostModification.ReduceGenericBy",
+                        arg(call(
+                            "CostReductionSource.FixedIfAnyTargetMatches",
+                            arg("amount", "$amount"), arg("filter", Lit(filterDsl)),
+                        )),
+                    )),
+                )
+            }
+            // A single colored pip (CostReduceW/U/B/R/G) -> the colored target-gated reduction.
+            "CostReduceW", "CostReduceU", "CostReduceB", "CostReduceR", "CostReduceG" -> {
+                val pip = sym.strField("_CostReductionSymbol")!!.removePrefix("CostReduce")
+                call(
+                    "ModifySpellCost",
+                    arg("target", Lit("SpellCostTarget.SelfCast")),
+                    arg("modification", call(
+                        "CostModification.ReduceColoredIfAnyTargetMatches",
+                        arg("symbols", Lit("\"{$pip}\"")), arg("filter", Lit(filterDsl)),
+                    )),
+                )
+            }
+            else -> return null
+        }
+    }
+    return abilities.flatMap { renderBlock(Block("staticAbility", listOf(Assign("ability", it))), "    ") }
 }
 
 /**
@@ -798,7 +895,7 @@ private fun EmitCtx.liftInterveningIfAction(actions: List<JsonObject>): Pair<Str
  *  - `PlayerPassesFilter(You, ControlsA(<filter>))` ("you control a <filter>") ->
  *    `Conditions.YouControl(<filter>)` (Beastbond Outcaster's "a creature with power 4 or greater").
  */
-private fun EmitCtx.interveningIfDsl(cond: JsonObject?): String? {
+internal fun EmitCtx.interveningIfDsl(cond: JsonObject?): String? {
     if (cond == null) return null
     // Top-level And -> Conditions.All(arm, arm, ...); every arm must render or the whole declines.
     if (cond.strField("_Condition") == "And") {
@@ -838,12 +935,47 @@ private fun EmitCtx.singleInterveningIfDsl(cond: JsonObject): String? {
             filter.field("args").asStr() == "Creature"
         return if (bareCreature) "Conditions.CreatureDiedThisTurn" else null
     }
+    // "if you gained life this turn" — PlayerPassesFilter(You, GainedLifeThisTurn) (Foolish Fate's
+    // Infusion clause). No count/amount sub-clause, so the bare "you gained life this turn" maps to
+    // Conditions.YouGainedLifeThisTurn.
+    if (cond.strField("_Condition") == "PlayerPassesFilter" &&
+        jsonContains(cond, "_Player", "You") &&
+        jsonContains(cond, "_Players", "GainedLifeThisTurn")
+    ) {
+        return "Conditions.YouGainedLifeThisTurn"
+    }
+    // "if you've cast another instant or sorcery spell this turn" — PlayerPassesFilter(You,
+    // CastASpellThisTurn(And(Other(ThisSpell), Or(IsCardtype Instant, IsCardtype Sorcery)))) (Burrog
+    // Barrage). The Other(ThisSpell) self-exclusion means "another", and this spell is itself an
+    // instant/sorcery, so "another instant or sorcery" = "two or more instant/sorcery spells this turn"
+    // -> Conditions.YouCastSpellsThisTurn(2, GameObjectFilter.InstantOrSorcery). Only the exact
+    // Other(ThisSpell) + instant-or-sorcery shape renders; anything else declines -> SCAFFOLD.
+    youCastAnotherInstantOrSorceryDsl(cond)?.let { return it }
     // "you control another outlaw" — ControlsA over And(Other(ThatEnteringPermanent), IsAnOutlaw). The
     // entering permanent is itself an outlaw, so this is exactly "two or more outlaws you control".
     youControlAnotherOutlawDsl(cond)?.let { return it }
     // "you control a <filter>" — reuse the static-gate renderer (PlayerPassesFilter(You, ControlsA(filter))).
     youControlConditionDsl(cond)?.let { return it }
     return null
+}
+
+/** `PlayerPassesFilter(You, CastASpellThisTurn(And(Other(ThisSpell), Or(IsCardtype Instant, IsCardtype
+ *  Sorcery))))` ("you've cast another instant or sorcery spell this turn") ->
+ *  `Conditions.YouCastSpellsThisTurn(2, GameObjectFilter.InstantOrSorcery)`, else null. The
+ *  Other(ThisSpell) self-exclusion plus this spell itself being an instant/sorcery is what makes
+ *  "another instant or sorcery" equal "two or more instant/sorcery spells cast this turn" — the spell
+ *  on the stack is already counted in the cast tracker when it resolves (Burrog Barrage). */
+private fun EmitCtx.youCastAnotherInstantOrSorceryDsl(cond: JsonObject): String? {
+    if (cond.strField("_Condition") != "PlayerPassesFilter") return null
+    val args = cond["args"].asArr ?: return null
+    if ((args.getOrNull(0) as? JsonObject)?.strField("_Player") != "You") return null
+    val cast = args.getOrNull(1) as? JsonObject ?: return null
+    if (cast.strField("_Players") != "CastASpellThisTurn") return null
+    val blob = compact(cast)
+    // Must be the "another" (Other ThisSpell) self-exclusion over an instant-or-sorcery filter.
+    if ("\"Other\"" !in blob || "ThisSpell" !in blob) return null
+    if (!(blob.contains("\"Instant\"") && blob.contains("\"Sorcery\""))) return null
+    return "Conditions.YouCastSpellsThisTurn(2, GameObjectFilter.InstantOrSorcery)"
 }
 
 /** The "<counter> counter" name for a `HasNoCountersOfType(<CounterType>)` node, mapped to the engine's

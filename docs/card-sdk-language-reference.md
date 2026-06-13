@@ -2047,7 +2047,16 @@ staticAbility {
 - `target: SpellCostTarget` — `SelfCast`, `YouCast(filter)`, `AnyCaster(filter)`,
   `OpponentsCastTargeting(GroupFilter)`, `FaceDownYouCast`, `MorphActivation`.
 - `modification: CostModification` — `ReduceGeneric(amount)`, `ReduceGenericBy(source)`,
-  `ReduceColored(symbols)`, `ReduceColoredPerUnit(symbols, source)`, `IncreaseGeneric(amount)`,
+  `ReduceColored(symbols)`, `ReduceColoredPerUnit(symbols, source)`,
+  `ReduceColoredIfAnyTargetMatches(symbols, filter)` (target-gated **colored** reduction — the
+  colored analogue of the `FixedIfAnyTargetMatches` reduction source, which only reduces generic;
+  removes the given colored pips if the spell targets a matching object. Brush Off's "costs
+  {1}{U} less if it targets an instant or sorcery spell" pairs `ReduceColoredIfAnyTargetMatches("{U}",
+  InstantOrSorcery)` for the `{U}` with `ReduceGenericBy(FixedIfAnyTargetMatches(1, InstantOrSorcery))`
+  for the `{1}`, both gated on the same filter so they apply together. Like the generic gated
+  reduction, affordability enumeration only optimistically discounts when a matching *battlefield*
+  permanent exists; a stack-spell target reduction shows at full cost during enumeration and locks
+  in once targets are announced), `IncreaseGeneric(amount)`,
   `IncreaseColored(symbols)` (colored tax — adds colored pips, e.g. the Invasion Leeches'
   "White spells you cast cost {W} more"), `IncreaseGenericPerOtherSpellThisTurn(amountPerSpell)`,
   `IncreaseGenericIfAnyTargetMatches(amount, filter)` (target-gated tax — "{N} more if it targets
