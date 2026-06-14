@@ -27,6 +27,8 @@ export interface SetCoverage {
   readonly extraTotal: number
   /** `implemented / total * 100` (booster cards), one decimal; `0` when `total` is `0`. */
   readonly percent: number
+  /** Whether the set is currently legal in the Standard format (derived from per-card legality). */
+  readonly inStandard: boolean
 }
 
 /**
