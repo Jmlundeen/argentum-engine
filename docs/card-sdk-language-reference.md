@@ -1192,8 +1192,10 @@ Every `TargetRequirement` carries count semantics (defaults shown):
 - `unlimited = false` — when `true`, **"any number of target ..."** — no upper cap. The practical
   maximum is the number of legal targets, which the engine sends to the client; validation imposes
   no limit and the minimum is 0. Use this instead of a large placeholder `count` (Phyrexian Purge,
-  Kaboom, Weaver of Lies). For "**X** target creatures" use `dynamicMaxCount = DynamicAmount.XValue`
-  instead — that clamps the count to the chosen X.
+  Kaboom, Weaver of Lies). Available on `TargetObject` / `TargetCreature(...)` / `TargetPlayer` and
+  on `TargetOpponent` — `TargetOpponent(unlimited = true)` is "any number of target opponents"
+  (Hollow Marauder); pair with `ForEachTargetEffect` to apply a per-opponent body. For "**X** target
+  creatures" use `dynamicMaxCount = DynamicAmount.XValue` instead — that clamps the count to the chosen X.
 - `dynamicMaxCount: DynamicAmount?` — evaluated when the spell/ability hits the stack; the resolved
   value becomes the max ("up to X target creatures", X = board state or chosen X).
 - `sameController = false` — on `TargetObject` / `TargetCreature(...)`; when `true` and the requirement
@@ -1913,6 +1915,13 @@ Triggers.youCastSpell(
     Deflecting Palm). Only `DealsDamageEvent` (scoped on the damage source) and `ZoneChangeEvent`
     (scoped on the moving entity) use this; the spec's `GameObjectFilter` is *not* applied — the
     watched entity is the whole scope.
+  - **Recipient-scoped** — set `watchedRecipient` to bind a `DealsDamageEvent` trigger to the damaged
+    *recipient* (rather than the source): "whenever a creature you control deals combat damage to
+    **that player** this turn, …" (Great Train Heist's Treasure-on-hit mode). The target is resolved at
+    creation time (e.g. `EffectTarget.ContextTarget(0)` for a just-chosen target opponent), so the
+    trigger fires only for hits to that specific player. The `TriggerSpec`'s `recipient` / `sourceFilter`
+    still apply on top (use `RecipientFilter.AnyPlayer` + `sourceFilter = Creature.youControl()`).
+    Orthogonal to `watchedTarget` (source scope) — set at most one.
   - **Filter-scoped** — leave `watchedTarget` null and let the `TriggerSpec`'s `GameObjectFilter` +
     `TriggerBinding` describe the group, exactly like a battlefield-resident trigger. Use this for
     "whenever a creature you control enters this turn, …" (Thunder of Unity chapters II/III):

@@ -16,7 +16,7 @@ import {
 import styles from './SetCompletionPage.module.css'
 
 type SortKey = 'newest' | 'percent' | 'implemented' | 'name'
-type Filter = 'all' | 'inProgress' | 'complete'
+type Filter = 'all' | 'standard' | 'inProgress' | 'complete'
 
 const SORT_LABELS: Record<SortKey, string> = {
   newest: 'Newest',
@@ -27,6 +27,7 @@ const SORT_LABELS: Record<SortKey, string> = {
 
 const FILTER_LABELS: Record<Filter, string> = {
   all: 'All',
+  standard: 'Standard',
   inProgress: 'In progress',
   complete: 'Complete',
 }
@@ -102,6 +103,7 @@ export function SetCompletionPage() {
     if (!sets) return []
     const q = query.trim().toLowerCase()
     const filtered = sets.filter((s) => {
+      if (filter === 'standard' && !s.inStandard) return false
       if (filter === 'complete' && s.percent < 100) return false
       if (filter === 'inProgress' && (s.percent >= 100 || s.implemented === 0)) return false
       if (!q) return true
@@ -270,6 +272,11 @@ function SetCard({ set, onOpen }: { set: SetCoverage; onOpen: () => void }) {
             <span className={styles.codeBadge}>{set.code}</span>
             <span>{year(set.releaseDate)}</span>
             {set.block && <span className={styles.block}>{set.block}</span>}
+            {set.inStandard && (
+              <span className={styles.standardBadge} title="Currently legal in Standard">
+                Standard
+              </span>
+            )}
           </span>
         </div>
         <span className={styles.percent}>{fmtPct(set.percent)}%</span>

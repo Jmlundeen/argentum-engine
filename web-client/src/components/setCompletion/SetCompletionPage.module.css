@@ -301,6 +301,17 @@
 .block {
   font-style: italic;
 }
+.standardBadge {
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-success-light);
+  background: color-mix(in srgb, var(--color-success-light) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success-light) 40%, transparent);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
 .percent {
   font-size: var(--font-lg);
   font-weight: var(--font-weight-bold);

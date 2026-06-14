@@ -65,6 +65,9 @@ internal fun manaProduceDsl(node: JsonElement?): Dsl? =
         null -> null
         "ManaProduceC" -> call("Effects.AddColorlessMana", arg("1"))
         "AnyManaColor" -> call("Effects.AddManaOfChoice")
+        // "{T}: Add one mana of the chosen color." — pairs with an `EntersWithChoice(ChoiceType.COLOR)`
+        // replacement (Mirage Mesa, Uncharted Haven). The chosen color was fixed when the land entered.
+        "ManaOfTheChosenColor" -> call("Effects.AddManaOfChosenColor")
         "And" -> manaAndDsl(node)  // {B}{B}{B} (Dark Ritual), {C}{C}{C} (Basalt Monolith), …
         else -> MANA_PRODUCE_COLOR[produce]?.let { call("Effects.AddMana", arg(it)) }
     }
@@ -79,6 +82,13 @@ private fun manaUseModifierRestriction(modifiers: List<JsonElement>): String? {
     val modifier = modifiers.singleOrNull() as? JsonObject ?: return null
     if (modifier.strField("_ManaUseModifier") != "CanOnlySpendOnSpells") return null
     val spells = modifier["args"] as? JsonObject ?: return null
+
+    // "Spend this mana only to cast a Mount spell" (Bucolic Ranch): a BARE single subtype check, not
+    // wrapped in an Or. Map the one subtype straight to SubtypeSpellsOnly(setOf("Mount")).
+    subtypeOfSpellsCheck(spells)?.let { subtype ->
+        return "ManaRestriction.SubtypeSpellsOnly(setOf(\"$subtype\"))"
+    }
+
     if (spells.strField("_Spells") != "Or") return null
     val branches = spells["args"] as? JsonArray ?: return null
     val cardtypes = branches.mapNotNull { b ->
@@ -91,15 +101,23 @@ private fun manaUseModifierRestriction(modifiers: List<JsonElement>): String? {
     // carries any of those subtypes. Decline if any branch is a non-subtype check rather than drop it.
     val subtypes = branches.map { b ->
         val obj = b as? JsonObject ?: return null
-        when (obj.strField("_Spells")) {
-            "IsCreatureType", "IsArtifactType", "IsEnchantmentType", "IsLandType" ->
-                (obj["args"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: return null
-            else -> return null
-        }
+        subtypeOfSpellsCheck(obj) ?: return null
     }
     if (subtypes.isEmpty()) return null
     return "ManaRestriction.SubtypeSpellsOnly(setOf(${subtypes.joinToString(", ") { "\"$it\"" }}))"
 }
+
+/**
+ * A single `IsCreatureType`/`IsArtifactType`/`IsEnchantmentType`/`IsLandType` spells check carrying a
+ * bare string subtype -> that subtype name, else null. `SubtypeSpellsOnly` matches a spell whose type
+ * line carries the subtype regardless of card type, so all four type-scoped checks map the same way.
+ */
+private fun subtypeOfSpellsCheck(node: JsonObject): String? =
+    when (node.strField("_Spells")) {
+        "IsCreatureType", "IsArtifactType", "IsEnchantmentType", "IsLandType" ->
+            (node["args"] as? kotlinx.serialization.json.JsonPrimitive)?.content
+        else -> null
+    }
 
 /**
  * `{_ManaProduce}` + a recovered restriction token -> the matching restricted mana Effect. Mirrors
