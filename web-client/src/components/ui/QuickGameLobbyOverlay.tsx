@@ -97,8 +97,6 @@ export function QuickGameLobbyOverlay() {
   const host = lobby.players.find((p) => !p.isAi)
   const isHost = host?.playerId === lobby.youPlayerId
   const isMomir = lobby.momirBasic ?? false
-  // Momir Basic has no deckbuilding; the host's chosen set scopes the shared creature pool.
-  const poolSetCode = host?.setCode ?? null
 
   const copyLobbyId = () => {
     navigator.clipboard.writeText(lobby.lobbyId)
@@ -192,67 +190,13 @@ export function QuickGameLobbyOverlay() {
                 </button>
               </div>
             </div>
-            {isMomir ? (
-              <MomirPoolRow
-                availableSets={availableSets}
-                poolSetCode={poolSetCode}
-                isHost={isHost}
-                onChange={setSetCode}
-              />
-            ) : (
-              <div className={styles.settingsRow}>
-                <span className={styles.settingsLabel}>Format</span>
-                <select
-                  value={lobby.format ?? ''}
-                  onChange={(e) => {
-                    if (!isHost) return
-                    const v = e.target.value
-                    setFormat(v ? (v as DeckFormat) : null)
-                  }}
-                  disabled={!isHost}
-                  title={isHost ? 'Restrict decks to a constructed format. None = no restriction.' : 'Only the host can change the format'}
-                  className={styles.settingsButton}
-                  style={{ minWidth: 140 }}
-                >
-                  <option value="">No restriction</option>
-                  {FORMAT_OPTIONS.map((f) => (
-                    <option key={f.value} value={f.value}>{f.label}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <FormatRow isMomir={isMomir} format={lobby.format ?? null} isHost={isHost} onChange={setFormat} />
           </div>
         )}
 
         {lobby.vsAi && (
           <div className={styles.settingsPanel}>
-            {isMomir ? (
-              <MomirPoolRow
-                availableSets={availableSets}
-                poolSetCode={poolSetCode}
-                isHost={isHost}
-                onChange={setSetCode}
-              />
-            ) : (
-              <div className={styles.settingsRow}>
-                <span className={styles.settingsLabel}>Format</span>
-                <select
-                  value={lobby.format ?? ''}
-                  onChange={(e) => {
-                    const v = e.target.value
-                    setFormat(v ? (v as DeckFormat) : null)
-                  }}
-                  title="Restrict decks to a constructed format. None = no restriction."
-                  className={styles.settingsButton}
-                  style={{ minWidth: 140 }}
-                >
-                  <option value="">No restriction</option>
-                  {FORMAT_OPTIONS.map((f) => (
-                    <option key={f.value} value={f.value}>{f.label}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <FormatRow isMomir={isMomir} format={lobby.format ?? null} isHost={isHost} onChange={setFormat} />
           </div>
         )}
 
@@ -315,41 +259,52 @@ export function QuickGameLobbyOverlay() {
   )
 }
 
+/** Sentinel dropdown value for the Momir Basic custom format (not a real {@link DeckFormat}). */
+const MOMIR_FORMAT_VALUE = 'MOMIR'
+
 /**
- * Set selector that scopes the Momir Basic creature pool. Only the host controls it — both players
- * share one pool (the server resolves it from the host's set), so the opponent sees it read-only.
- * "Random set" (empty value) lets the server roll a set at game start.
+ * Lobby format selector. Constructed deck-formats restrict submitted decks; the "Custom formats"
+ * group holds non-deckbuilding modes — currently just Momir Basic, which flips the lobby into the
+ * Vanguard format (fixed 60 basics, avatar in the command zone, creatures rolled from all sets).
+ * Host-only; the opponent sees it read-only.
  */
-function MomirPoolRow({
-  availableSets,
-  poolSetCode,
+function FormatRow({
+  isMomir,
+  format,
   isHost,
   onChange,
 }: {
-  availableSets: readonly { code: string; name: string }[]
-  poolSetCode: string | null
+  isMomir: boolean
+  format: DeckFormat | null
   isHost: boolean
-  onChange: (setCode: string | null) => void
+  onChange: (format: DeckFormat | null, momirBasic: boolean) => void
 }) {
+  const value = isMomir ? MOMIR_FORMAT_VALUE : (format ?? '')
   return (
     <div className={styles.settingsRow}>
-      <span className={styles.settingsLabel}>Creature pool</span>
+      <span className={styles.settingsLabel}>Format</span>
       <select
-        value={poolSetCode ?? ''}
+        value={value}
         onChange={(e) => {
           if (!isHost) return
           const v = e.target.value
-          onChange(v ? v : null)
+          if (v === MOMIR_FORMAT_VALUE) onChange(null, true)
+          else onChange(v ? (v as DeckFormat) : null, false)
         }}
         disabled={!isHost}
-        title={isHost ? 'The set whose creatures the avatar can flip. Random = the server picks one.' : 'Only the host can change the creature pool'}
+        title={isHost ? 'Restrict decks to a constructed format, or pick a custom format. None = no restriction.' : 'Only the host can change the format'}
         className={styles.settingsButton}
         style={{ minWidth: 160 }}
       >
-        <option value="">Random set</option>
-        {availableSets.map((s) => (
-          <option key={s.code} value={s.code}>{s.name}</option>
-        ))}
+        <option value="">No restriction</option>
+        <optgroup label="Custom formats">
+          <option value={MOMIR_FORMAT_VALUE}>Momir Basic</option>
+        </optgroup>
+        <optgroup label="Constructed">
+          {FORMAT_OPTIONS.map((f) => (
+            <option key={f.value} value={f.value}>{f.label}</option>
+          ))}
+        </optgroup>
       </select>
     </div>
   )

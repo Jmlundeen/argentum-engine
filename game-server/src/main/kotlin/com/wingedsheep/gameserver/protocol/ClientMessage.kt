@@ -505,8 +505,15 @@ sealed interface ClientMessage {
     /**
      * Set the deck-format restriction for the lobby (host-only). Null = no restriction.
      * Re-validates every player's submitted deck and un-readies anyone who becomes invalid.
+     *
+     * [momirBasic] is the "Momir Basic" entry in the same dropdown (its Custom-formats group):
+     * when true the lobby switches to deckbuilding-free Vanguard mode and [format] is ignored
+     * (forced null server-side); the two are mutually exclusive.
      */
     @Serializable
     @SerialName("setQuickGameLobbyFormat")
-    data class SetQuickGameLobbyFormat(val format: com.wingedsheep.sdk.core.DeckFormat?) : ClientMessage
+    data class SetQuickGameLobbyFormat(
+        val format: com.wingedsheep.sdk.core.DeckFormat?,
+        val momirBasic: Boolean = false,
+    ) : ClientMessage
 }

@@ -7,12 +7,11 @@ import com.wingedsheep.sdk.core.Format
  * Server-side setup helpers for the Momir Basic Vanguard format ([Format.MomirBasic]).
  *
  * Momir Basic has no deckbuilding: every seat plays the same fixed 60 basic lands and starts with
- * the avatar in the command zone. The only per-match input is which sets scope the random-creature
- * pool. This object is the **set-scope seam** the backlog (Phase 2) describes: it translates the
- * lobby's selected set codes into the pre-sorted [Format.MomirBasic.eligibleCreatureNames] the
- * engine treats as opaque, replay-stable data. Keeping the computation here (game-server, which
- * already owns the [MtgSetCatalog] → `CardRegistry` wiring) keeps the engine a pure function of
- * `GameState`.
+ * the avatar in the command zone. There is no per-match configuration — the random-creature pool is
+ * every creature across all sets. This object translates the catalog into the pre-sorted
+ * [Format.MomirBasic.eligibleCreatureNames] the engine treats as opaque, replay-stable data.
+ * Keeping the computation here (game-server, which already owns the [MtgSetCatalog] → `CardRegistry`
+ * wiring) keeps the engine a pure function of `GameState`.
  */
 object MomirBasicSetup {
 
@@ -47,7 +46,14 @@ object MomirBasicSetup {
             .distinct()
             .sorted()
 
-    /** Build a [Format.MomirBasic] whose pool is scoped to [setCodes]. */
-    fun format(setCodes: Collection<String>): Format.MomirBasic =
-        Format.MomirBasic(eligibleCreatureNames = creaturePool(setCodes))
+    /**
+     * The full Momir pool: every creature card name across every known set, de-duplicated and
+     * sorted (same replay-stability contract as [creaturePool]). This is what the format uses —
+     * Momir Basic flips creatures from the entire card base, not a per-lobby set scope.
+     */
+    fun allCreaturePool(): List<String> = creaturePool(MtgSetCatalog.all.map { it.code })
+
+    /** Build a [Format.MomirBasic] whose pool is every creature across all sets. */
+    fun format(): Format.MomirBasic =
+        Format.MomirBasic(eligibleCreatureNames = allCreaturePool())
 }

@@ -2609,6 +2609,8 @@ export interface SetQuickGameLobbyPublicMessage {
 export interface SetQuickGameLobbyFormatMessage {
   readonly type: 'setQuickGameLobbyFormat'
   readonly format: DeckFormat | null
+  /** True selects the Momir Basic custom format (mutually exclusive with `format`). */
+  readonly momirBasic?: boolean
 }
 
 export function createCreateQuickGameLobbyMessage(
@@ -2656,8 +2658,11 @@ export function createSetQuickGameLobbySetCodeMessage(setCode: string | null): S
 export function createSetQuickGameLobbyPublicMessage(isPublic: boolean): SetQuickGameLobbyPublicMessage {
   return { type: 'setQuickGameLobbyPublic', isPublic }
 }
-export function createSetQuickGameLobbyFormatMessage(format: DeckFormat | null): SetQuickGameLobbyFormatMessage {
-  return { type: 'setQuickGameLobbyFormat', format }
+export function createSetQuickGameLobbyFormatMessage(
+  format: DeckFormat | null,
+  momirBasic?: boolean,
+): SetQuickGameLobbyFormatMessage {
+  return { type: 'setQuickGameLobbyFormat', format, ...(momirBasic ? { momirBasic } : {}) }
 }
 
 export function isQuickGameLobbyStateMessage(msg: ServerMessage): msg is QuickGameLobbyStateMessage {

@@ -873,7 +873,7 @@ export type GameStore = {
   setQuickGameLobbyReady: (ready: boolean) => void
   setQuickGameLobbySetCode: (setCode: string | null) => void
   setQuickGameLobbyPublic: (isPublic: boolean) => void
-  setQuickGameLobbyFormat: (format: DeckFormat | null) => void
+  setQuickGameLobbyFormat: (format: DeckFormat | null, momirBasic?: boolean) => void
 
   // Draft slice
   deckBuildingState: DeckBuildingState | null

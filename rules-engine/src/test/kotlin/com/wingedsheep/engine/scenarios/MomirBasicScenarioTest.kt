@@ -48,7 +48,7 @@ class MomirBasicScenarioTest : ScenarioTestBase() {
     }
 
     init {
-        test("avatar ability is offered at sorcery speed with X affordability = mana / 3") {
+        test("avatar ability is offered at sorcery speed with X affordability = available mana") {
             val game = scenario()
                 .withPlayers()
                 .withFormat(Format.MomirBasic(eligibleCreatureNames = listOf("Savannah Lions")))
@@ -64,8 +64,8 @@ class MomirBasicScenarioTest : ScenarioTestBase() {
             }
             action.shouldNotBeNull()
             action.hasXCost.shouldBeTrue()
-            // {X}{X}{X} with 6 available mana ⇒ X up to 2 (3 mana per point of X).
-            action.maxAffordableX shouldBe 2
+            // {X} with 6 available mana ⇒ X up to 6 (1 mana per point of X).
+            action.maxAffordableX shouldBe 6
         }
 
         test("activating with X=1 creates a token copy of a mana-value-1 creature") {
