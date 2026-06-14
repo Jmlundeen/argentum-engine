@@ -385,8 +385,13 @@ class ClientStateTransformer(
             // affected player sees of their own hand. Spectators never gain visibility.
             // A non-spectator viewer also sees an opponent's hand while they control a
             // permanent that makes their opponents play with hands revealed (Seer's Vision).
+            // In Two-Headed Giant (CR 810.2b) teammates share strategy openly, so a player
+            // always sees their teammate's hand; [teammatesOf] is empty in non-team games, so
+            // this clause is inert for 2-player / Free-for-All. (Library stays hidden — teams
+            // share life and turns, not card knowledge of each other's library order.)
             Zone.HAND -> debugMode || zoneKey.ownerId == viewingPlayerId ||
                 (!isSpectator && state.actorFor(zoneKey.ownerId) == viewingPlayerId) ||
+                (!isSpectator && state.teammatesOf(viewingPlayerId).contains(zoneKey.ownerId)) ||
                 (!isSpectator && zoneKey.ownerId != viewingPlayerId &&
                     revealsOpponentHandsTo(state, viewingPlayerId))
             Zone.BATTLEFIELD,
