@@ -11,6 +11,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.scripting.effects.GainControlEffect
 import kotlin.reflect.KClass
 
@@ -38,6 +39,14 @@ class GainControlExecutor : EffectExecutor<GainControlEffect> {
 
         val cardComponent = targetContainer.get<CardComponent>()
             ?: return EffectResult.error(state, "Target is not a card")
+
+        // "Other players can't gain control of it" (Guardian Beast): a different player can't take
+        // control. The controller keeping control of their own permanent is a no-op anyway.
+        if (state.projectedState.hasKeyword(targetId, AbilityFlag.CANT_GAIN_CONTROL) &&
+            state.projectedState.getController(targetId) != context.controllerId
+        ) {
+            return EffectResult.success(state)
+        }
 
         val newControllerId = context.controllerId
 

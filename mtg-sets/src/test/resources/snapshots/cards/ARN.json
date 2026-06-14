@@ -1706,6 +1706,103 @@
     ]
 }
 
+// Guardian Beast
+{
+    "name": "Guardian Beast",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Beast",
+    "oracleText": "As long as this creature is untapped, noncreature artifacts you control can't be enchanted, they have indestructible, and other players can't gain control of them. This effect doesn't remove Auras already attached to those artifacts.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "INDESTRUCTIBLE",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsArtifact",
+                                {
+                                    "type": "Not",
+                                    "predicate": "IsCreature"
+                                }
+                            ],
+                            "controllerPredicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "condition": {
+                    "type": "EntityMatches",
+                    "entity": "Self",
+                    "filter": "untapped"
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "CANT_BE_ENCHANTED",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsArtifact",
+                                {
+                                    "type": "Not",
+                                    "predicate": "IsCreature"
+                                }
+                            ],
+                            "controllerPredicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "condition": {
+                    "type": "EntityMatches",
+                    "entity": "Self",
+                    "filter": "untapped"
+                }
+            },
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "CANT_GAIN_CONTROL",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsArtifact",
+                                {
+                                    "type": "Not",
+                                    "predicate": "IsCreature"
+                                }
+                            ],
+                            "controllerPredicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "condition": {
+                    "type": "EntityMatches",
+                    "entity": "Self",
+                    "filter": "untapped"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "26",
+        "rarity": "RARE",
+        "artist": "Ken Meyer, Jr.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/9941f83b-2903-4eab-ac6d-5313e3978fa3.jpg?1562923479"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Hasran Ogress
 {
     "name": "Hasran Ogress",
