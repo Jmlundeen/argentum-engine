@@ -213,6 +213,7 @@ internal fun EmitCtx.castEffectHandled(rule: JsonObject): Boolean {
         "AdditionalCastingCost" -> additionalCostLine(rule) != null
         "ReduceCastingCostIf" -> costReductionStaticLines(rule) != null
         "ReduceCastingCostIfItTargetsASpell" -> targetSpellCostReductionLines(rule) != null
+        "ReduceCastingCostIfItTargetsAPermanent" -> targetPermanentCostReductionLines(rule) != null
         "MayCastAsThoughItHadFlashForAdditionalCost" -> flashKickerLine(rule) != null
         else -> false
     }
@@ -245,6 +246,8 @@ internal fun EmitCtx.cardLevelCastEffectLines(card: JsonObject): List<String>? {
         if (reduction != null) { lines.addAll(reduction); continue }
         val targetReduction = targetSpellCostReductionLines(rule)
         if (targetReduction != null) { lines.addAll(targetReduction); continue }
+        val targetPermReduction = targetPermanentCostReductionLines(rule)
+        if (targetPermReduction != null) { lines.addAll(targetPermReduction); continue }
         val flash = flashKickerLine(rule)
         if (flash != null) { lines.add(flash); continue }
         if (!castEffectHandled(rule)) return null
@@ -311,6 +314,42 @@ private fun EmitCtx.targetSpellCostReductionLines(rule: JsonObject): List<String
         }
     }
     return abilities.flatMap { renderBlock(Block("staticAbility", listOf(Assign("ability", it))), "    ") }
+}
+
+/**
+ * `CastEffect(ReduceCastingCostIfItTargetsAPermanent([CostReduceGeneric N], <permanent filter>))` -> a
+ * `staticAbility { ability = ModifySpellCost(SelfCast, ReduceGenericBy(FixedIfAnyTargetMatches(N,
+ * <filter>))) }` block. This Town Ain't Big Enough ("This spell costs {3} less to cast if it targets a
+ * permanent you control").
+ *
+ * Renders only a single bare generic reduction over a recoverable permanent filter (the controller
+ * "you control" clause is preserved as `.youControl()`). A colored/multi-symbol reduction, or an
+ * unrenderable filter, declines -> SCAFFOLD rather than misrender the gate.
+ */
+private fun EmitCtx.targetPermanentCostReductionLines(rule: JsonObject): List<String>? {
+    val node = rule["args"] as? JsonObject ?: return null
+    if (node.strField("_CastEffect") != "ReduceCastingCostIfItTargetsAPermanent") return null
+    val args = node["args"].asArr ?: return null
+    val symbols = (args.getOrNull(0) as? JsonArray)?.filterIsInstance<JsonObject>() ?: return null
+    if (symbols.size != 1 || symbols[0].strField("_CostReductionSymbol") != "CostReduceGeneric") return null
+    val amount = symbols[0]["args"].asInt() ?: return null
+    val filterNode = args.getOrNull(1) as? JsonObject ?: return null
+    // gameObjectFilterDsl already preserves the "you control" / "an opponent controls" controller clause
+    // (e.g. ControlledByAPlayer(You) -> GameObjectFilter.Permanent.youControl()); an unrenderable filter
+    // declines -> SCAFFOLD.
+    val filterDsl = gameObjectFilterDsl(filterNode) ?: return null
+    val ability = call(
+        "ModifySpellCost",
+        arg("target", Lit("SpellCostTarget.SelfCast")),
+        arg("modification", call(
+            "CostModification.ReduceGenericBy",
+            arg(call(
+                "CostReductionSource.FixedIfAnyTargetMatches",
+                arg("amount", "$amount"), arg("filter", Lit(filterDsl)),
+            )),
+        )),
+    )
+    return renderBlock(Block("staticAbility", listOf(Assign("ability", ability))), "    ")
 }
 
 /**
@@ -1404,6 +1443,20 @@ private fun EmitCtx.singleInterveningIfDsl(cond: JsonObject): String? {
         jsonContains(cond, "_Spells", "WasCastFromTheirHand")
     ) {
         return "Conditions.Not(Conditions.YouCastSpellsThisTurn(1, fromZone = Zone.HAND))"
+    }
+    // "if it's tapped" — PermanentPassesFilter(Ref_TargetPermanent, IsTapped) over the bound target
+    // (Shackle Slinger's "If it's tapped, put a stun counter on it. Otherwise, tap it."). The subject
+    // must be the ability's first targeted permanent and the filter a bare IsTapped (no other clause);
+    // maps to Conditions.TargetIsTapped(). Any other subject/filter declines -> SCAFFOLD.
+    if (cond.strField("_Condition") == "PermanentPassesFilter") {
+        val condArgs = cond["args"].asArr
+        val subject = (condArgs?.getOrNull(0) as? JsonObject)?.strField("_Permanent")
+        val filt = condArgs?.getOrNull(1) as? JsonObject
+        if ((subject == "Ref_TargetPermanent" || subject == "Ref_TargetPermanent1") &&
+            filt?.strField("_Permanents") == "IsTapped" && filt.size == 1
+        ) {
+            return "Conditions.TargetIsTapped()"
+        }
     }
     // "this creature doesn't have a <counter> counter on it" — PermanentPassesFilter(ThisPermanent,
     // HasNoCountersOfType(<counter>)). Only the keyword/named counters we can name render; the source

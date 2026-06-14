@@ -82,6 +82,8 @@ import com.wingedsheep.sdk.scripting.conditions.YouSacrificedPermanentThisWay
 import com.wingedsheep.sdk.scripting.conditions.AnotherPermanentWithSameNameAsTarget
 import com.wingedsheep.sdk.scripting.conditions.TargetMarkedDamageExceedsToughness
 import com.wingedsheep.sdk.scripting.conditions.TargetIsPlayer
+import com.wingedsheep.sdk.scripting.conditions.TargetIsTapped
+import com.wingedsheep.sdk.scripting.conditions.TargetIsSource
 import com.wingedsheep.sdk.scripting.conditions.TargetSharesMostCommonColor
 import com.wingedsheep.sdk.scripting.conditions.ColorIsMostCommon
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
@@ -348,6 +350,8 @@ class ConditionEvaluator(
                 ifResolution { evaluateTriggeringEntityWasNotPutByThisSource(state, it) }
             is TriggeringSpellHasSingleTarget -> ifResolution { evaluateTriggeringSpellHasSingleTarget(state, it) }
             is TargetIsPlayer -> ifResolution { evaluateTargetIsPlayer(condition, it) }
+            is TargetIsTapped -> ifResolution { evaluateTargetIsTapped(state, condition, it) }
+            is TargetIsSource -> ifResolution { evaluateTargetIsSource(condition, it) }
             is TargetMarkedDamageExceedsToughness ->
                 ifResolution { evaluateTargetMarkedDamageExceedsToughness(state, condition, it) }
             is TargetSharesMostCommonColor -> ifResolution { evaluateTargetSharesMostCommonColor(state, condition, it) }
@@ -981,6 +985,40 @@ class ConditionEvaluator(
      * `Targets.Creature` + Composite they can't fire, but they keep this condition safe
      * if a future caller wraps it in a longer chain that crosses SBA or re-targets.
      */
+    /**
+     * "If the target is tapped": resolve the context target to a battlefield permanent and read its
+     * [TappedComponent]. Non-permanent targets and permanents no longer on the battlefield return
+     * false. Used by Shackle Slinger to branch between stunning a tapped target and tapping an
+     * untapped one.
+     */
+    private fun evaluateTargetIsTapped(
+        state: GameState,
+        condition: TargetIsTapped,
+        context: EffectContext
+    ): Boolean {
+        val target = context.positionalTarget(condition.targetIndex) ?: return false
+        val entityId = (target as? com.wingedsheep.engine.state.components.stack.ChosenTarget.Permanent)
+            ?.entityId ?: return false
+        if (entityId !in state.getBattlefield()) return false
+        return state.getEntity(entityId)?.has<TappedComponent>() == true
+    }
+
+    /**
+     * "If the target is this permanent (the source)": resolve the context target and compare its
+     * entity id to the ability's source. Non-permanent targets and a missing source return false.
+     * Wrapped in `Not` by Arid Archway to express "another" (a returned land that isn't itself).
+     */
+    private fun evaluateTargetIsSource(
+        condition: TargetIsSource,
+        context: EffectContext
+    ): Boolean {
+        val sourceId = context.sourceId ?: return false
+        val target = context.positionalTarget(condition.targetIndex) ?: return false
+        val entityId = (target as? com.wingedsheep.engine.state.components.stack.ChosenTarget.Permanent)
+            ?.entityId ?: return false
+        return entityId == sourceId
+    }
+
     private fun evaluateTargetMarkedDamageExceedsToughness(
         state: GameState,
         condition: TargetMarkedDamageExceedsToughness,

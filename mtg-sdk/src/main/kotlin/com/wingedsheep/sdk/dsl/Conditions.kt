@@ -298,6 +298,22 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.TargetIsPlayer(targetIndex)
 
     /**
+     * If the context target at [targetIndex] is a tapped battlefield permanent. Branch on a
+     * target's tapped state at resolution — e.g. Shackle Slinger's "If it's tapped, put a stun
+     * counter on it. Otherwise, tap it."
+     */
+    fun TargetIsTapped(targetIndex: Int = 0): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.TargetIsTapped(targetIndex)
+
+    /**
+     * If the context target at [targetIndex] is this permanent (the ability's source). Wrap in
+     * [Not] for "another"/"a different permanent" wordings — e.g. Arid Archway's "If another
+     * Desert was returned this way".
+     */
+    fun TargetIsSource(targetIndex: Int = 0): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.TargetIsSource(targetIndex)
+
+    /**
      * If the target shares a color with the most common color among all permanents
      * (or a color tied for most common). Used by Tsabo's Assassin.
      */

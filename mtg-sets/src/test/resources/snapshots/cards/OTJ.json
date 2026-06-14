@@ -517,6 +517,150 @@
     ]
 }
 
+// Arid Archway
+{
+    "name": "Arid Archway",
+    "manaCost": "",
+    "typeLine": "Land — Desert",
+    "oracleText": "This land enters tapped.\nWhen this land enters, return a land you control to its owner's hand. If another Desert was returned this way, surveil 1. (Look at the top card of your library. You may put it into your graveyard.)\n{T}: Add {C}{C}.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "All",
+                            "conditions": [
+                                {
+                                    "type": "EntityMatches",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
+                                    "filter": "land Desert"
+                                },
+                                {
+                                    "type": "Not",
+                                    "condition": "TargetIsSource"
+                                }
+                            ]
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "a land you control"
+                                },
+                                "destination": "Hand"
+                            },
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "TopOfLibrary",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeAs": "surveiled"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "surveiled",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "toGraveyard",
+                                        "storeRemainder": "toTop",
+                                        "selectedLabel": "Put in graveyard",
+                                        "remainderLabel": "Put on top"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "toGraveyard",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        }
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "toTop",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Library",
+                                            "placement": "Top"
+                                        },
+                                        "order": "ControllerChooses"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "otherwise": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "a land you control"
+                        },
+                        "destination": "Hand"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "land ctrl:you"
+                    },
+                    "id": "a land you control"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "252",
+        "rarity": "UNCOMMON",
+        "artist": "Raymond Bonilla",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/f/3f8c8fa2-12ab-4f6a-9f7a-2bc69e9ba024.jpg?1713223021"
+    },
+    "colorIdentityOverride": []
+}
+
 // Armored Armadillo
 {
     "name": "Armored Armadillo",
@@ -12930,6 +13074,71 @@
     ]
 }
 
+// Shackle Slinger
+{
+    "name": "Shackle Slinger",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "Whenever you cast your second spell each turn, choose target creature an opponent controls. If it's tapped, put a stun counter on it. Otherwise, tap it. (If a permanent with a stun counter would become untapped, remove one from it instead.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "NthSpellCastEvent",
+                    "nthSpell": 2,
+                    "player": "You"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": "TargetIsTapped"
+                    },
+                    "then": {
+                        "type": "AddCounters",
+                        "counterType": "stun",
+                        "count": 1,
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target"
+                        }
+                    },
+                    "otherwise": {
+                        "type": "TapUntap",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target"
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "65",
+        "rarity": "UNCOMMON",
+        "artist": "Josh Hass",
+        "flavorText": "Even when he missed the wrists, a pair of thundercuffs to the head got the job done.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e6cfe383-e483-47e7-99d1-991a06b089bc.jpg?1712355493"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Shepherd of the Clouds
 {
     "name": "Shepherd of the Clouds",
@@ -14868,6 +15077,63 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// This Town Ain't Big Enough
+{
+    "name": "This Town Ain't Big Enough",
+    "manaCost": "{4}{U}",
+    "typeLine": "Instant",
+    "oracleText": "This spell costs {3} less to cast if it targets a permanent you control.\nReturn up to two target nonland permanents to their owners' hands.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": "IterationSpace.Targets",
+            "body": {
+                "type": "MoveToZone",
+                "target": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
+                "destination": "Hand"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 2,
+                "optional": true,
+                "filter": {
+                    "baseFilter": "nonland permanent"
+                },
+                "id": "target"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "FixedIfAnyTargetMatches",
+                        "amount": 3,
+                        "filter": "permanent ctrl:you"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "74",
+        "rarity": "UNCOMMON",
+        "artist": "Andrew Mar",
+        "flavorText": "\"All that fancy footwork, and you can't even dodge one silly little rope? Cryin' shame, that is.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/b/bb206e27-da4d-4abe-9d8c-6d18c5f2f52a.jpg?1752091373"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

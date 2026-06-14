@@ -2660,6 +2660,15 @@ answer it and would silently return `false`.
   the dedicated check for "any target" effects with a player-only follow-up. Used by Sonic Shrieker
   ("If a player is dealt damage this way, they discard a card"); pair with
   `EffectTarget.ContextTarget(index)` to make that same player the subject of the follow-up.
+- `TargetIsTapped(targetIndex = 0)` — the context target resolves to a tapped battlefield permanent.
+  Non-permanent targets and permanents no longer on the battlefield return false. Branch on a target's
+  tapped state at resolution via `ConditionalEffect` — used by Shackle Slinger ("If it's tapped, put a
+  stun counter on it. Otherwise, tap it.").
+- `TargetIsSource(targetIndex = 0)` — the context target resolves to the ability's own source
+  permanent. Wrap in `Conditions.Not(...)` for "another"/"a different permanent" wordings — used by
+  Arid Archway ("If another Desert was returned this way, surveil 1": `All(TargetMatchesFilter(Desert
+  land), Not(TargetIsSource()))` checks the chosen land *before* the bounce, so returning the Archway
+  itself doesn't count).
 - `IfTargetTookExcessDamage(targetIndex = 0)` — true post-damage when the target creature's marked
   damage strictly exceeds its (projected) toughness. Chain after `Effects.DealDamage` in a composite
   so the marked-damage update applies before the condition reads it. Used by Orbital Plunge ("If

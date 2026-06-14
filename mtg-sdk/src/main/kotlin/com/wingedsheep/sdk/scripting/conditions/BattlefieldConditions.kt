@@ -172,6 +172,40 @@ data class TargetIsPlayer(
 }
 
 /**
+ * Condition: "if [target] is tapped".
+ *
+ * Resolves the context target at [targetIndex] to a battlefield permanent and returns true when it
+ * is currently tapped. Non-permanent targets and permanents that have left the battlefield return
+ * false defensively. Pairs with a [com.wingedsheep.sdk.scripting.effects.ConditionalEffect] to branch
+ * on a target's tapped state at resolution time — e.g. Shackle Slinger's "choose target creature an
+ * opponent controls. If it's tapped, put a stun counter on it. Otherwise, tap it."
+ */
+@SerialName("TargetIsTapped")
+@Serializable
+data class TargetIsTapped(
+    val targetIndex: Int = 0
+) : Condition {
+    override val description: String = "if it's tapped"
+}
+
+/**
+ * Condition: "if [target] is this permanent (the source)".
+ *
+ * True when the context target at [targetIndex] resolves to the same entity as the ability's
+ * source. Wrap in [com.wingedsheep.sdk.dsl.Conditions.Not] for "if it's a different permanent" /
+ * "another" wordings — e.g. Arid Archway's "If another Desert was returned this way" pairs
+ * `Not(TargetIsSource())` with a Desert-land filter check so returning the Archway itself doesn't
+ * count. Non-permanent targets return false.
+ */
+@SerialName("TargetIsSource")
+@Serializable
+data class TargetIsSource(
+    val targetIndex: Int = 0
+) : Condition {
+    override val description: String = "if it's this permanent"
+}
+
+/**
  * Condition: "if excess damage was dealt this way" — true when the target creature's
  * marked damage now strictly exceeds its (projected) toughness.
  *
