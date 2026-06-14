@@ -176,6 +176,32 @@ internal fun EmitCtx.staticLordBlock(rule: JsonObject, condition: String? = null
 private fun EmitCtx.scaffoldLord(): List<Stmt>? { reasons.add("EachPermanentLayerEffect"); return null }
 
 /**
+ * An `AbilitiesTriggerAnAdditionalTime` rule -> `staticAbility { ability = AdditionalSourceTriggers(
+ * sourceFilter = <filter>, excludeSelf = true) }`. Models "If a triggered ability of a [filter] you
+ * control triggers, that ability triggers an additional time" (Annie Joins Up's legendary-creature
+ * doubler, Twinflame Travelers' Elemental doubler — CR 603.2d).
+ *
+ * The affected ability set is `AbilityOfAPermanent` whose permanent matches a [gameObjectFilterExpr]
+ * filter (e.g. `And[IsSupertype Legendary, IsCardtype Creature, ControlledByAPlayer You]` ->
+ * `GameObjectFilter.Creature.legendary().youControl()`). `excludeSelf = true` matches both the SDK
+ * default and the "another …" wording; the filter renderer declines (-> SCAFFOLD) on any restriction it
+ * can't render exactly, so no constraint is silently dropped.
+ */
+internal fun EmitCtx.additionalSourceTriggersBlock(rule: JsonObject): List<Stmt>? {
+    val abilitySet = rule["args"] as? JsonObject ?: run { reasons.add("AbilitiesTriggerAnAdditionalTime"); return null }
+    // Only the "a triggered ability of a permanent (matching a filter)" shape renders.
+    if (abilitySet.strField("_Abilities") != "AbilityOfAPermanent") { reasons.add("AbilitiesTriggerAnAdditionalTime"); return null }
+    val filterNode = abilitySet["args"]
+    val filterDsl = gameObjectFilterExpr(filterNode) ?: run { reasons.add("AbilitiesTriggerAnAdditionalTime"); return null }
+    val ability = call(
+        "AdditionalSourceTriggers",
+        arg("sourceFilter", filterDsl),
+        arg("excludeSelf", "true"),
+    )
+    return listOf(staticAbilityStmt(ability))
+}
+
+/**
  * A self-buff `PermanentLayerEffect(ThisPermanent, [AdjustPTForEach])` -> one
  * `staticAbility { ability = GrantDynamicStatsEffect(filter = GroupFilter.source(), powerBonus = …,
  * toughnessBonus = …) }`. `AdjustPTForEach`'s args are `[powerMult, toughnessMult, countNode]`:

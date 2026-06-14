@@ -3644,7 +3644,7 @@ val Excavator = card("Excavator") {
     colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "{T}, Sacrifice a basic land: Target creature gains landwalk of each of the land types of the sacrificed land until end of turn. (It can't be blocked as long as defending player controls a land of any of those types.)"
-    // STRUCTURE needs human wiring: CreatePermanentLayerEffectUntil
+    // STRUCTURE needs human wiring: activated-cost
     metadata {
         rarity = Rarity.UNCOMMON
         collectorNumber = "287"

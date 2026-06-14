@@ -87,4 +87,9 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     composed("CreatePreventDamageUntil", "PreventDamageShield (duration-scoped prevention)", composes = listOf("PreventDamageShield"))
     composed("CreateTriggerUntil", "CreateGlobalTriggeredAbility (duration)", composes = listOf("CreateGlobalTriggeredAbility"))
     composed("CreateFutureTrigger", "CreateDelayedTrigger", composes = listOf("CreateDelayedTrigger"))
+
+    // "If a triggered ability of a [filter] you control triggers, that ability triggers an additional
+    // time" (Annie Joins Up, Twinflame Travelers — CR 603.2d). A static doubler over a filtered group;
+    // emitter renders staticAbility { ability = AdditionalSourceTriggers(sourceFilter = …) }.
+    effect("AbilitiesTriggerAnAdditionalTime", "AdditionalSourceTriggers")
 }

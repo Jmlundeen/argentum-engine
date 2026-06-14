@@ -175,6 +175,7 @@ object Emitter {
                 rname == "AsPermanentEnters" -> block = ctx.asEntersBlock(rule)
                 rname == "ReplaceAPlayerWouldCreateTokens" -> block = ctx.replaceTokenCreationBlock(card, rule)
                 rname == "EachPermanentLayerEffect" -> block = ctx.staticLordBlock(rule)
+                rname == "AbilitiesTriggerAnAdditionalTime" -> block = ctx.additionalSourceTriggersBlock(rule)
                 rname == "FromAnyZone" -> block = ctx.fromAnyZoneBlock(rule)
                 rname == "FromGraveyard" -> block = ctx.fromGraveyardBlock(rule)
                 rname == "FromHand" -> block = ctx.fromHandBlock(rule)

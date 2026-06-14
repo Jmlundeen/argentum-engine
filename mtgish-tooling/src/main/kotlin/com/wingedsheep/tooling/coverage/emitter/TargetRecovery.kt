@@ -434,6 +434,46 @@ internal fun EmitCtx.targetExpr(tnode: JsonObject, actionContext: List<JsonObjec
             if (ttype == "UptoNumberTargetPermanents" || isUpToOne) parts.add(0, arg("optional", "true"))
             return Call("TargetCreature", parts)
         }
+        // "target creature or planeswalker[, an opponent controls]" (Annie Joins Up's ETB damage):
+        // an Or unioning the two cardtypes Creature and Planeswalker, optionally narrowed by a
+        // controller clause. TargetCreatureOrPlaneswalker carries no filter field, so the controller
+        // restriction is rendered as TargetObject(filter = TargetFilter(
+        // GameObjectFilter.CreatureOrPlaneswalker[.youControl()/.opponentControls()])). Only the bare
+        // two-cardtype Or (optionally one You/Opponent controller clause, no count, subtype, or other
+        // predicate) renders; anything else declines (-> SCAFFOLD) rather than dropping a restriction.
+        run {
+            if (types != setOf("Creature", "Planeswalker")) return@run
+            if (hasCreatureSubtype || "IsNonCardtype" in blob || "IsNonCreatureType" in blob ||
+                jsonContains(args, "_Permanents", "Other")) return@run
+            // Only the union arms (Creature/Planeswalker) and an optional ControlledByAPlayer clause
+            // may be present; any other restrictive predicate must decline.
+            val extras = listOf(
+                "IsTapped", "IsUntapped", "IsAttacking", "IsBlocking", "PowerIs", "ToughnessIs",
+                "ManaValueIs", "IsColor", "IsNonColor", "HasAbility", "DoesntHaveAbility", "IsNonToken",
+                "IsToken", "IsSupertype", "IsArtifactType", "ManaValueAtMost", "ManaValueAtLeast",
+            )
+            if (extras.any { it in blob }) return@run
+            val controller: Link? = when {
+                "ControlledByAPlayer" !in blob -> null
+                "\"You\"" in blob -> Link("youControl")
+                "\"Opponent\"" in blob -> Link("opponentControls")
+                else -> return null
+            }
+            if (controller == null) {
+                // No controller restriction — the named TargetCreatureOrPlaneswalker is exact.
+                val parts = listOfNotNull(
+                    if (ttype in setOf("NumberTargetPermanents", "UptoNumberTargetPermanents") && countInt is Int) arg("count", "$countInt") else null,
+                    if (ttype == "UptoNumberTargetPermanents" || isUpToOne) arg("optional", "true") else null,
+                )
+                return Call("TargetCreatureOrPlaneswalker", parts)
+            }
+            var g: Dsl = Lit("GameObjectFilter.CreatureOrPlaneswalker").dot(controller.method)
+            val filt = Call("TargetFilter", listOf(arg(g)))
+            val parts = mutableListOf(arg("filter", filt))
+            if (ttype in setOf("NumberTargetPermanents", "UptoNumberTargetPermanents") && countInt is Int) parts.add(0, arg("count", "$countInt"))
+            if (ttype == "UptoNumberTargetPermanents" || isUpToOne) parts.add(0, arg("optional", "true"))
+            return Call("TargetObject", parts)
+        }
         // "target Spirit or enchantment" (Urgent Exorcism): an Or unioning a creature subtype with a
         // single non-creature cardtype. The single-type branch below would render the cardtype arm
         // alone, silently dropping the subtype arm — render the faithful union instead. Only the bare
@@ -912,6 +952,16 @@ internal fun EmitCtx.gameObjectFilterExpr(filterNode: JsonElement?): Dsl? {
                 node.dot("targetPlayerControls", arg("EffectTarget.ContextTarget(0)"))
             else -> return null
         }
+    }
+    // A supertype restriction (IsSupertype) — only "Legendary" renders here, via `.legendary()`
+    // (e.g. Annie Joins Up's "legendary creature you control" trigger doubler). The basic-land
+    // supertype is handled by its own land-subtype branch and never reaches this surface. Any other
+    // supertype (Snow, World, …) has no GroupFilter rendering, so decline (-> SCAFFOLD) rather than
+    // silently dropping the restriction and widening the group.
+    val supertypes = filterNode.argWordsTagged("IsSupertype")
+    if (supertypes.isNotEmpty()) {
+        if (supertypes == listOf("Legendary")) node = node.dot("legendary")
+        else return null
     }
     return node
 }

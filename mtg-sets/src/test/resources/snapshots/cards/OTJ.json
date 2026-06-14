@@ -236,6 +236,67 @@
     ]
 }
 
+// Annie Joins Up
+{
+    "name": "Annie Joins Up",
+    "manaCost": "{1}{R}{G}{W}",
+    "typeLine": "Legendary Enchantment",
+    "oracleText": "When Annie Joins Up enters, it deals 5 damage to target creature or planeswalker an opponent controls.\nIf a triggered ability of a legendary creature you control triggers, that ability triggers an additional time.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature or planeswalker an opponent controls"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature|planeswalker ctrl:opponent"
+                    },
+                    "id": "target creature or planeswalker an opponent controls"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "AdditionalSourceTriggers",
+                "sourceFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        "IsLegendary"
+                    ],
+                    "controllerPredicate": "ControlledByYou"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "191",
+        "rarity": "RARE",
+        "artist": "Wylie Beckert",
+        "flavorText": "One last job, then she could retire in peace.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/6/1624a5f4-f5bc-47c9-85de-c5520ee234ce.jpg?1712356038"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Another Round
 {
     "name": "Another Round",
@@ -824,6 +885,147 @@
     ]
 }
 
+// Binding Negotiation
+{
+    "name": "Binding Negotiation",
+    "manaCost": "{1}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target opponent reveals their hand. You may choose a nonland card from it. If you do, they discard it. Otherwise, you may put a face-up exiled card they own into their graveyard.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "RevealHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target opponent"
+                    }
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "storeAs": "opponentHand"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "opponentHand",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "nonland",
+                    "storeSelected": "toDiscard",
+                    "prompt": "You may choose a nonland card for them to discard",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "toDiscard",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "moveType": "Discard"
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Not",
+                            "condition": {
+                                "type": "CollectionContainsMatch",
+                                "collection": "toDiscard"
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Exile",
+                                    "player": {
+                                        "type": "ContextPlayer",
+                                        "index": 0
+                                    },
+                                    "filter": {
+                                        "statePredicates": [
+                                            "IsFaceUp"
+                                        ]
+                                    }
+                                },
+                                "storeAs": "theirExile"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "theirExile",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "toBin",
+                                "prompt": "You may put a face-up exiled card they own into their graveyard",
+                                "showAllCards": true,
+                                "alwaysPrompt": true
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "toBin",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard",
+                                    "player": {
+                                        "type": "ContextPlayer",
+                                        "index": 0
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetOpponent",
+                "id": "target opponent"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "78",
+        "rarity": "UNCOMMON",
+        "artist": "Caroline Gariba",
+        "flavorText": "\"The tighter I bind them, the looser their tongues become.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/c/1c4c26b9-981f-47cf-b0f4-769e788d9537.jpg?1712355546"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Blacksnag Buzzard
 {
     "name": "Blacksnag Buzzard",
@@ -1029,6 +1231,103 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Boneyard Desecrator
+{
+    "name": "Boneyard Desecrator",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Zombie Mercenary",
+    "oracleText": "Menace\n{1}{B}, Sacrifice another creature: Put a +1/+1 counter on this creature. If an outlaw was sacrificed this way, create a Treasure token. (Assassins, Mercenaries, Pirates, Rogues, and Warlocks are outlaws.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature",
+                                "excludeSelf": true
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Any",
+                                    "conditions": [
+                                        {
+                                            "type": "SacrificedPermanentHadSubtype",
+                                            "subtype": "Assassin"
+                                        },
+                                        {
+                                            "type": "SacrificedPermanentHadSubtype",
+                                            "subtype": "Mercenary"
+                                        },
+                                        {
+                                            "type": "SacrificedPermanentHadSubtype",
+                                            "subtype": "Pirate"
+                                        },
+                                        {
+                                            "type": "SacrificedPermanentHadSubtype",
+                                            "subtype": "Rogue"
+                                        },
+                                        {
+                                            "type": "SacrificedPermanentHadSubtype",
+                                            "subtype": "Warlock"
+                                        }
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "type": "CreatePredefinedToken",
+                                "tokenType": "Treasure"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "81",
+        "artist": "Maxime Minard",
+        "flavorText": "It's never too late to start an afterlife of crime.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d43981b1-60c8-4896-8885-b07e73b99b30.jpg?1712355558"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
