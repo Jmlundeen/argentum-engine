@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.scripting.AbilityId
+import com.wingedsheep.sdk.scripting.AbilityIdentity
 import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -54,9 +55,13 @@ class AutoPassManagerTest : FunSpec({
         stackItemType: StackItemType = StackItemType.ABILITY,
         blockersHaveBeenDeclared: Boolean = false,
         defendingPlayerId: EntityId? = null,
-        hasAttackers: Boolean = false
+        hasAttackers: Boolean = false,
+        stackAbilityIdentity: com.wingedsheep.sdk.scripting.AbilityIdentity? = null,
+        priorityPlayerYieldsToStack: Boolean = false
     ): GameState {
         val state = mockk<GameState>(relaxed = true)
+        // Persistent-yield lookup (backlog §C): default off so existing cases are unaffected.
+        every { state.isYieldingTo(any(), any()) } returns priorityPlayerYieldsToStack
         every { state.priorityPlayerId } returns priorityPlayerId
         every { state.activePlayerId } returns activePlayerId
         every { state.step } returns step
@@ -100,7 +105,8 @@ class AutoPassManagerTest : FunSpec({
                         sourceId = EntityId.generate(),
                         sourceName = "Test Ability",
                         controllerId = controllerId,
-                        effect = mockk(relaxed = true)
+                        effect = mockk(relaxed = true),
+                        abilityIdentity = stackAbilityIdentity
                     )
                     every { stackEntity.get<com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent>() } returns abilityComponent
                     every { stackEntity.get<com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent>() } returns null
@@ -1134,6 +1140,36 @@ class AutoPassManagerTest : FunSpec({
             val state = createMockState(player1, player2, Step.PRECOMBAT_MAIN)
             // With opponent-turn override on BEGIN_COMBAT → stops there, but uses neutral "Pass" on opponent's turn
             autoPassManager.getNextStopPoint(state, player1, false, opponentTurnStops = setOf(Step.BEGIN_COMBAT)) shouldBe "Pass"
+        }
+    }
+
+    context("Persistent yields (backlog §C)") {
+        test("auto-pass on an opponent's ability the player has yielded to") {
+            val state = createMockState(
+                priorityPlayerId = player1,
+                activePlayerId = player2,
+                step = Step.PRECOMBAT_MAIN,
+                stackEmpty = false,
+                stackControllerId = player2,
+                stackItemType = StackItemType.ABILITY,
+                stackAbilityIdentity = AbilityIdentity("Yielded Card", AbilityId("y")),
+                priorityPlayerYieldsToStack = true
+            )
+            autoPassManager.shouldAutoPass(state, player1, listOf(passPriorityAction(player1))) shouldBe true
+        }
+
+        test("without a yield, an opponent's ability on the stack still stops") {
+            val state = createMockState(
+                priorityPlayerId = player1,
+                activePlayerId = player2,
+                step = Step.PRECOMBAT_MAIN,
+                stackEmpty = false,
+                stackControllerId = player2,
+                stackItemType = StackItemType.ABILITY,
+                stackAbilityIdentity = AbilityIdentity("Yielded Card", AbilityId("y")),
+                priorityPlayerYieldsToStack = false
+            )
+            autoPassManager.shouldAutoPass(state, player1, listOf(passPriorityAction(player1))) shouldBe false
         }
     }
 })

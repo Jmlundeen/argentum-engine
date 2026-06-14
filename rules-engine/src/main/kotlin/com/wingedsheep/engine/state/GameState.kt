@@ -21,6 +21,7 @@ import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.model.GameRng
+import com.wingedsheep.sdk.scripting.AbilityIdentity
 import kotlinx.serialization.Serializable
 
 /**
@@ -212,6 +213,17 @@ data class GameState(
      * byte-identical replays/parity. Live IDs look like `e0`, `e1`, … See [EntityId].
      */
     val nextEntityId: Long = 0L,
+
+    /**
+     * Per-player persistent "yield" preferences keyed by [com.wingedsheep.sdk.scripting.AbilityIdentity]
+     * (MTGO right-click yields — see `backlog/stack-collapse-and-batch-decisions.md` §C). Lives on
+     * [GameState] (not the server session) so it survives serialization, replays deterministically,
+     * and is naturally per-player-maskable. The `untilEndOfTurn` slice is cleared at every cleanup
+     * step (CR 514); `wholeGame` / `autoAnswer` persist for the whole game. Read by
+     * [com.wingedsheep.gameserver.priority.AutoPassManager] (auto-pass) and the may-question paths
+     * (auto-answer). Empty entries are pruned, so an absent key means "no yields".
+     */
+    val yieldsByPlayer: Map<EntityId, PlayerYields> = emptyMap(),
 ) {
     /**
      * Cached projection of the game state with all continuous effects (Rule 613) applied.
@@ -260,6 +272,65 @@ data class GameState(
     fun updateEntity(id: EntityId, update: (ComponentContainer) -> ComponentContainer): GameState {
         val existing = entities[id] ?: ComponentContainer.EMPTY
         return withEntity(id, update(existing))
+    }
+
+    // =========================================================================
+    // Persistent Yields (MTGO right-click yields — backlog §C)
+    // =========================================================================
+
+    /** [playerId]'s yield preferences, or [PlayerYields.EMPTY] if none. */
+    fun yieldsFor(playerId: EntityId): PlayerYields = yieldsByPlayer[playerId] ?: PlayerYields.EMPTY
+
+    /** True when [playerId] has asked to auto-pass priority on [identity]'s stack objects. */
+    fun isYieldingTo(playerId: EntityId, identity: AbilityIdentity): Boolean =
+        yieldsFor(playerId).isYieldingTo(identity)
+
+    /**
+     * [playerId]'s remembered may-question answer for [identity] (`true`/`false`), or null if the
+     * player hasn't set an auto-answer for this ability.
+     */
+    fun autoAnswerFor(playerId: EntityId, identity: AbilityIdentity): Boolean? =
+        yieldsFor(playerId).answerFor(identity)
+
+    /** Replace [playerId]'s yields, pruning the entry entirely when it becomes empty. */
+    private fun withYields(playerId: EntityId, yields: PlayerYields): GameState =
+        copy(yieldsByPlayer = if (yields.isEmpty) yieldsByPlayer - playerId else yieldsByPlayer + (playerId to yields))
+
+    /** Apply a [YieldKind] for [playerId] against [identity] (returns new state). */
+    fun withYield(playerId: EntityId, identity: AbilityIdentity, kind: YieldKind): GameState {
+        val current = yieldsFor(playerId)
+        val updated = when (kind) {
+            YieldKind.YIELD_UNTIL_END_OF_TURN -> current.copy(untilEndOfTurn = current.untilEndOfTurn + identity)
+            YieldKind.YIELD_WHOLE_GAME -> current.copy(wholeGame = current.wholeGame + identity)
+            YieldKind.ALWAYS_ANSWER_YES -> current.copy(autoAnswer = current.autoAnswer + (identity to true))
+            YieldKind.ALWAYS_ANSWER_NO -> current.copy(autoAnswer = current.autoAnswer + (identity to false))
+        }
+        return withYields(playerId, updated)
+    }
+
+    /** Remove every yield [playerId] holds against [identity] (revoke), returning new state. */
+    fun withoutYield(playerId: EntityId, identity: AbilityIdentity): GameState {
+        val current = yieldsFor(playerId)
+        return withYields(
+            playerId,
+            current.copy(
+                untilEndOfTurn = current.untilEndOfTurn - identity,
+                wholeGame = current.wholeGame - identity,
+                autoAnswer = current.autoAnswer - identity,
+            ),
+        )
+    }
+
+    /** Drop all of [playerId]'s yields (the "clear yields" control). */
+    fun withoutYields(playerId: EntityId): GameState = copy(yieldsByPlayer = yieldsByPlayer - playerId)
+
+    /** Clear every player's [PlayerYields.untilEndOfTurn] slice (turn-boundary cleanup, CR 514). */
+    fun clearUntilEndOfTurnYields(): GameState {
+        if (yieldsByPlayer.isEmpty()) return this
+        val cleared = yieldsByPlayer
+            .mapValues { (_, y) -> y.copy(untilEndOfTurn = emptySet()) }
+            .filterValues { !it.isEmpty }
+        return copy(yieldsByPlayer = cleared)
     }
 
     // =========================================================================

@@ -820,6 +820,36 @@ class GameSession(
     }
 
     // =========================================================================
+    // Persistent Yields (MTGO right-click yields — backlog §C)
+    // =========================================================================
+    //
+    // Yields live on the immutable GameState (not a session-side map), so the pure engine can
+    // consult auto-answers during resolution and they replay deterministically. Mutations are pure
+    // GameState transforms applied under the state lock.
+
+    /** Set a persistent yield for [playerId] against [identity]. */
+    fun setAbilityYield(
+        playerId: EntityId,
+        identity: com.wingedsheep.sdk.scripting.AbilityIdentity,
+        kind: com.wingedsheep.engine.state.YieldKind
+    ) = synchronized(stateLock) {
+        gameState = gameState?.withYield(playerId, identity, kind)
+    }
+
+    /** Revoke every yield [playerId] holds against [identity]. */
+    fun clearAbilityYield(
+        playerId: EntityId,
+        identity: com.wingedsheep.sdk.scripting.AbilityIdentity
+    ) = synchronized(stateLock) {
+        gameState = gameState?.withoutYield(playerId, identity)
+    }
+
+    /** Drop all of [playerId]'s yields. */
+    fun clearAllYields(playerId: EntityId) = synchronized(stateLock) {
+        gameState = gameState?.withoutYields(playerId)
+    }
+
+    // =========================================================================
     // Auto-Pass Management
     // =========================================================================
 

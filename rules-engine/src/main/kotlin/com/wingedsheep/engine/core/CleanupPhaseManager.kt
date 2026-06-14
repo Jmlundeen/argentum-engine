@@ -346,6 +346,11 @@ class CleanupPhaseManager(
         }
         newState = newState.copy(floatingEffects = remainingEffects)
 
+        // 1a. Expire "yield until end of turn" preferences (backlog §C). Whole-game yields and
+        // auto-answers persist; only the per-turn auto-pass opt-in is cleared here at cleanup
+        // (CR 514), keeping the lifecycle replay-deterministic alongside the other end-of-turn resets.
+        newState = newState.clearUntilEndOfTurnYields()
+
         // 1b. Expire temporary counter-placement modifiers (GrantCounterPlacementModifierEffect,
         // e.g. Prairie Dog) whose duration ends at end of turn / end of combat. Longer durations
         // (UntilYourNextTurn, Permanent, …) are kept and handled by their own expiry path.

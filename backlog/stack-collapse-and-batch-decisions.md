@@ -1,11 +1,20 @@
 # Stack collapse + batch decisions — taming high-volume stacks
 
-_Drafted 2026-06-14. Status: C.2 (the shared `AbilityIdentity` key, PR #720) and **B (batch
-may-question, PR #725)** implemented; A (visual collapse) and C (persistent yields) still
-spec-only. Covers three independent but related features — **A. visual stack collapse**
-(client-only), **B. batch decision answering** (engine + client), **C. persistent per-ability
-yields** (engine + server + client). A is shippable on its own; B and C share an "ability identity
-key" and a yes/no batch path, and C builds on B's machinery._
+_Drafted 2026-06-14. Status: **all phases implemented** — **A (visual collapse, commit
+`5c9274641`)**, C.2 (the shared `AbilityIdentity` key, PR #720), **B (batch may-question, PR #725)**,
+and **C (persistent per-ability yields)**. Covers three independent but related features — **A.
+visual stack collapse** (client-only), **B. batch decision answering** (engine + client), **C.
+persistent per-ability yields** (engine + server + client). A is shippable on its own; B and C share
+an "ability identity key" and a yes/no batch path, and C builds on B's machinery._
+
+_C as built: `PlayerYields` (until-end-of-turn / whole-game auto-pass sets + a yes/no `autoAnswer`
+map, keyed by `AbilityIdentity`) lives on `GameState.yieldsByPlayer` (immutable, serialized, masked
+per-player, `untilEndOfTurn` cleared at cleanup, CR 514). Auto-answer is consulted in the
+`GatedEffectExecutor` `Gate.MayDecide` path and `TriggerProcessor`'s may-with-targets path (scoped to
+the pure may-question — never a pay/target/modal choice, §C.6) and emits a subtle
+`AbilityAutoAnsweredEvent`. Auto-pass is an extra pass reason in `AutoPassManager` keyed on the
+top-of-stack ability identity. Client: a right-click context menu on stack abilities, an "Active
+yields" panel (revoke + clear-all), and log surfacing._
 
 ## 0. The problem
 

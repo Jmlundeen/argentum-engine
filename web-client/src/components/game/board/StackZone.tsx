@@ -4,13 +4,14 @@ import { useGameStore } from '@/store/gameStore.ts'
 import { useStackCards, selectGameState } from '@/store/selectors.ts'
 import { seatColor } from '@/styles/seatColors'
 import type { EntityId } from '@/types'
-import type { ClientCard } from '@/types/gameState'
+import type { ClientAbilityIdentity, ClientCard } from '@/types/gameState'
 import { getCardImageUrl } from '@/utils/cardImages.ts'
 import { ActiveEffectBadges } from '../card/CardOverlays'
 import { AbilityText } from '../../ui/ManaSymbols'
 import { useResponsiveContext, handleImageError } from './shared'
 import { styles } from './styles'
 import { groupStackCards, type StackGroup } from './stackGrouping'
+import { YieldContextMenu } from './YieldContextMenu'
 
 /**
  * Stack display - shows spells/abilities waiting to resolve.
@@ -34,6 +35,13 @@ export function StackDisplay() {
   const gameState = useGameStore((state) => state.gameState)
   // Which collapsible piles the player has manually expanded (by groupId = first member's id).
   const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<EntityId>>(() => new Set())
+  // Right-click yield menu (MTGO-style persistent yields — backlog §C), anchored to a stack ability.
+  const [yieldMenu, setYieldMenu] = useState<{ identity: ClientAbilityIdentity; sourceName: string; x: number; y: number } | null>(null)
+  const openYieldMenu = (card: ClientCard, e: React.MouseEvent) => {
+    if (!card.abilityIdentity) return
+    e.preventDefault()
+    setYieldMenu({ identity: card.abilityIdentity, sourceName: card.name, x: e.clientX, y: e.clientY })
+  }
   const toggleGroup = (groupId: EntityId) =>
     setExpandedGroups((prev) => {
       const next = new Set(prev)
@@ -163,6 +171,7 @@ export function StackDisplay() {
           ...highlight,
         }}
         onClick={opts.onClick ?? (() => handleStackItemClick(card.id))}
+        onContextMenu={(e) => openYieldMenu(card, e)}
         onMouseEnter={(e) => hoverCard(card.id, { x: e.clientX, y: e.clientY })}
         onMouseLeave={() => hoverCard(null)}
       >
@@ -352,6 +361,7 @@ export function StackDisplay() {
   }
 
   return (
+    <>
     <div style={{
       position: 'fixed',
       left: responsive.isMobile ? 12 : 120,
@@ -570,5 +580,17 @@ export function StackDisplay() {
       )
     })()}
     </div>
+    {yieldMenu && (
+      <YieldContextMenu
+        identity={yieldMenu.identity}
+        sourceName={yieldMenu.sourceName}
+        position={{ x: yieldMenu.x, y: yieldMenu.y }}
+        existing={gameState?.activeYields?.find(
+          (y) => y.cardDefinitionId === yieldMenu.identity.cardDefinitionId && y.abilityId === yieldMenu.identity.abilityId,
+        )}
+        onClose={() => setYieldMenu(null)}
+      />
+    )}
+    </>
   )
 }

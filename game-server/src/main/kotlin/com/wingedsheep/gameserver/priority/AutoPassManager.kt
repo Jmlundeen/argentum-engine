@@ -142,7 +142,24 @@ class AutoPassManager {
                 logger.debug("AUTO-PASS: Own spell/ability on top of stack")
                 return true
             } else {
-                // Opponent's item on top
+                // Opponent's item on top.
+                // Persistent yield (backlog §C): the player explicitly asked to stop being stopped
+                // by this ability, so auto-pass even though it's an opponent's object — an opt-in
+                // per-ability override of the usual "stop on opponent's stack item" rule. A
+                // holdPriority action (a response the player deliberately lined up) still wins, and
+                // this is one more pass reason layered on top of the meaningful-action filter, not
+                // a replacement for it.
+                val topContainer = state.getEntity(topOfStack)
+                val yieldedIdentity = topContainer?.get<TriggeredAbilityOnStackComponent>()?.abilityIdentity
+                    ?: topContainer?.get<ActivatedAbilityOnStackComponent>()?.abilityIdentity
+                if (yieldedIdentity != null &&
+                    state.isYieldingTo(playerId, yieldedIdentity) &&
+                    meaningfulActions.none { it.holdPriority }
+                ) {
+                    logger.debug("AUTO-PASS: Yielded to opponent's ability $yieldedIdentity")
+                    return true
+                }
+
                 // In Stops mode: always stop on opponent's stack items (regardless of type)
                 if (stopsMode) {
                     logger.debug("STOP (Stops mode): Opponent's spell/ability on stack")

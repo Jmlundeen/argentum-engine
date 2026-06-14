@@ -1667,6 +1667,9 @@ export type ClientMessage =
   | SetFullControlMessage
   | SetPriorityModeMessage
   | SetStopOverridesMessage
+  | SetAbilityYieldMessage
+  | ClearAbilityYieldMessage
+  | ClearAllYieldsMessage
   // Undo
   | RequestUndoMessage
   // Resync
@@ -2154,6 +2157,38 @@ export interface SetStopOverridesMessage {
 }
 
 /**
+ * A persistent per-ability yield kind (MTGO right-click yields). Serialized as the engine
+ * YieldKind enum name.
+ */
+export type YieldKind =
+  | 'YIELD_UNTIL_END_OF_TURN'
+  | 'YIELD_WHOLE_GAME'
+  | 'ALWAYS_ANSWER_YES'
+  | 'ALWAYS_ANSWER_NO'
+
+/**
+ * Set a persistent yield on an ability, keyed by its AbilityIdentity (cardDefinitionId + abilityId).
+ */
+export interface SetAbilityYieldMessage {
+  readonly type: 'setAbilityYield'
+  readonly cardDefinitionId: string
+  readonly abilityId: string
+  readonly kind: YieldKind
+}
+
+/** Revoke every yield held against one ability. */
+export interface ClearAbilityYieldMessage {
+  readonly type: 'clearAbilityYield'
+  readonly cardDefinitionId: string
+  readonly abilityId: string
+}
+
+/** Clear all of the player's yields. */
+export interface ClearAllYieldsMessage {
+  readonly type: 'clearAllYields'
+}
+
+/**
  * Request to undo the last non-respondable action.
  */
 export interface RequestUndoMessage {
@@ -2319,6 +2354,25 @@ export function createSetPriorityModeMessage(mode: PriorityModeValue): SetPriori
 
 export function createSetStopOverridesMessage(myTurnStops: readonly string[], opponentTurnStops: readonly string[]): SetStopOverridesMessage {
   return { type: 'setStopOverrides', myTurnStops, opponentTurnStops }
+}
+
+export function createSetAbilityYieldMessage(
+  cardDefinitionId: string,
+  abilityId: string,
+  kind: YieldKind,
+): SetAbilityYieldMessage {
+  return { type: 'setAbilityYield', cardDefinitionId, abilityId, kind }
+}
+
+export function createClearAbilityYieldMessage(
+  cardDefinitionId: string,
+  abilityId: string,
+): ClearAbilityYieldMessage {
+  return { type: 'clearAbilityYield', cardDefinitionId, abilityId }
+}
+
+export function createClearAllYieldsMessage(): ClearAllYieldsMessage {
+  return { type: 'clearAllYields' }
 }
 
 export function createRequestUndoMessage(): RequestUndoMessage {

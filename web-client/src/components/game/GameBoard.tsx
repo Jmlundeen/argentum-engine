@@ -13,6 +13,7 @@ import { CombatArrows } from '../combat/CombatArrows'
 import { TargetingArrows } from '../targeting/TargetingArrows'
 import { DraggedCardOverlay } from './DraggedCardOverlay'
 import { GameLog } from './GameLog'
+import { ActiveYieldsPanel } from './ActiveYieldsPanel'
 import { DrawAnimations } from '../animations/DrawAnimations'
 import { DamageAnimations } from '../animations/DamageAnimations'
 import { RevealAnimations } from '../animations/RevealAnimations'
@@ -1301,6 +1302,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           horizontal space the hand has, and the expanded panel is unusable at
           that size anyway. */}
       {!spectatorMode && !responsive.isMobile && <GameLog />}
+      {!spectatorMode && <ActiveYieldsPanel />}
 
       {/* Draw animations */}
       <DrawAnimations />

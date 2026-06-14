@@ -90,6 +90,9 @@ class GameWebSocketHandler(
                 is ClientMessage.SetFullControl,
                 is ClientMessage.SetPriorityMode,
                 is ClientMessage.SetStopOverrides,
+                is ClientMessage.SetAbilityYield,
+                is ClientMessage.ClearAbilityYield,
+                is ClientMessage.ClearAllYields,
                 is ClientMessage.RequestUndo,
                 is ClientMessage.RequestResync -> gamePlayHandler.handle(session, clientMessage)
 

@@ -118,6 +118,23 @@ class GatedEffectExecutor(
             ?.let { TargetResolutionUtils.resolvePlayerTarget(it, context, state) }
             ?: context.controllerId
 
+        // Persistent auto-answer yield (backlog §C): if the decision-maker has remembered a yes/no
+        // for this ability, resolve the "you may" question without prompting and run the matching
+        // branch. Scoped to Gate.MayDecide — the pure may-question — never a cost/pay gate, so a
+        // yield can never spend mana or make a resource decision on the player's behalf (§C.6).
+        if (gate is Gate.MayDecide) {
+            val identity = context.abilityIdentity
+            val auto = identity?.let { state.autoAnswerFor(playerId, it) }
+            if (auto != null) {
+                val sourceName = context.sourceId
+                    ?.let { state.getEntity(it)?.get<CardComponent>()?.name } ?: "ability"
+                val note = AbilityAutoAnsweredEvent(context.sourceId ?: playerId, sourceName, playerId, auto)
+                val branch = if (auto) effect.then else effect.otherwise
+                val result = branch?.let { effectExecutor(state, it, context) } ?: EffectResult.success(state)
+                return result.copy(events = listOf(note) + result.events)
+            }
+        }
+
         // Gate.MayPay: don't offer an impossible "yes" — fall straight through to `otherwise`.
         if (gate is Gate.MayPay && !canAfford(state, playerId, gate.cost, context)) {
             return effect.otherwise

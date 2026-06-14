@@ -381,6 +381,32 @@ sealed interface ClientMessage {
     ) : ClientMessage
 
     /**
+     * Set a persistent per-ability yield (MTGO right-click yields — backlog §C). Keyed by the
+     * ability's [com.wingedsheep.sdk.scripting.AbilityIdentity] ([cardDefinitionId] + [abilityId]),
+     * so it applies to every current and future copy/instance of that card ability.
+     */
+    @Serializable
+    @SerialName("setAbilityYield")
+    data class SetAbilityYield(
+        val cardDefinitionId: String,
+        val abilityId: String,
+        val kind: com.wingedsheep.engine.state.YieldKind
+    ) : ClientMessage
+
+    /** Revoke every yield (auto-pass + auto-answer) the player holds against one ability. */
+    @Serializable
+    @SerialName("clearAbilityYield")
+    data class ClearAbilityYield(
+        val cardDefinitionId: String,
+        val abilityId: String
+    ) : ClientMessage
+
+    /** Clear all of the player's yields (the "Clear yields" control; MTGO `5`). */
+    @Serializable
+    @SerialName("clearAllYields")
+    data object ClearAllYields : ClientMessage
+
+    /**
      * Request to undo the last non-respondable action (e.g., play land, declare attackers).
      */
     @Serializable

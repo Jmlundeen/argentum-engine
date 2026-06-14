@@ -25,6 +25,14 @@ data class EffectContext(
     val sourceId: EntityId?,
     val controllerId: EntityId,
     /**
+     * Definition-scoped identity of the triggered/activated ability currently resolving, copied
+     * from its stack component (see [com.wingedsheep.sdk.scripting.AbilityIdentity]). Lets a
+     * resolution-time may-question consult the controller's persistent auto-answer yields without
+     * re-deriving the key. Null for spell resolution and synthesized sources with no card
+     * definition (backlog §C).
+     */
+    val abilityIdentity: com.wingedsheep.sdk.scripting.AbilityIdentity? = null,
+    /**
      * The player currently under consideration as a target, bound while evaluating a
      * `TargetPlayer.restriction` / `TargetOpponent.restriction` (CR 115). Resolves
      * [com.wingedsheep.sdk.scripting.references.Player.Candidate]. Null in every normal

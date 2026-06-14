@@ -279,6 +279,9 @@ class ClientStateTransformer(
             }
         }
 
+        // Persistent yields are private to each player: only ever surface the viewer's own.
+        val activeYields = if (isSpectator) emptyList() else buildClientYields(state.yieldsFor(viewingPlayerId))
+
         return ClientGameState(
             viewingPlayerId = viewingPlayerId,
             cards = cards,
@@ -295,8 +298,28 @@ class ClientStateTransformer(
             voidActive = state.nonlandPermanentLeftBattlefieldThisTurn || state.spellWarpedThisTurn,
             youAreHijacking = youAreHijacking,
             youAreHijackedBy = youAreHijackedBy,
-            hotseat = hotseat
+            hotseat = hotseat,
+            activeYields = activeYields
         )
+    }
+
+    /**
+     * Flatten a player's [com.wingedsheep.engine.state.PlayerYields] into one [ClientYield] per
+     * ability identity, merging the auto-pass scopes and the auto-answer into a single display row.
+     * The display name is the card name carried in the definition id (`"Name#SET-123"` → `"Name"`).
+     */
+    private fun buildClientYields(yields: com.wingedsheep.engine.state.PlayerYields): List<ClientYield> {
+        val identities = yields.untilEndOfTurn + yields.wholeGame + yields.autoAnswer.keys
+        return identities.map { id ->
+            ClientYield(
+                cardDefinitionId = id.cardDefinitionId,
+                abilityId = id.abilityId.value,
+                displayName = id.cardDefinitionId.substringBefore("#"),
+                untilEndOfTurn = id in yields.untilEndOfTurn,
+                wholeGame = id in yields.wholeGame,
+                autoAnswer = yields.autoAnswer[id]
+            )
+        }
     }
 
     /**
@@ -515,7 +538,10 @@ class ClientStateTransformer(
                 isFaceDown = false,
                 targets = targets,
                 imageUri = sourceCard?.imageUri ?: cardDef?.metadata?.imageUri,
-                chosenX = activatedAbility.xValue
+                chosenX = activatedAbility.xValue,
+                abilityIdentity = activatedAbility.abilityIdentity?.let {
+                    ClientAbilityIdentity(it.cardDefinitionId, it.abilityId.value)
+                }
             )
         }
 
@@ -602,6 +628,9 @@ class ClientStateTransformer(
                 imageUri = sourceCard?.imageUri ?: cardDef?.metadata?.imageUri,
                 sourceZone = sourceZone,
                 chosenX = triggeredAbility.xValue,
+                abilityIdentity = triggeredAbility.abilityIdentity?.let {
+                    ClientAbilityIdentity(it.cardDefinitionId, it.abilityId.value)
+                },
                 copyIndex = triggeredAbility.copyIndex,
                 copyTotal = triggeredAbility.copyTotal,
                 chosenModeDescriptions = triggeredModeDescriptions,

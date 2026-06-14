@@ -129,6 +129,30 @@ Sent when the user interacts with the UI.
 }
 ```
 
+### B2. Persistent Yields (Client -> Server)
+
+MTGO-style per-ability yields (backlog §C). Keyed by the ability's **AbilityIdentity**
+(`cardDefinitionId` + `abilityId`), so a preference set once follows every current and future
+copy/instance of that card ability. The server applies the change to the immutable `GameState`
+(`yieldsByPlayer`), so it survives serialization and replays deterministically.
+
+```json
+{ "type": "setAbilityYield", "cardDefinitionId": "Soul Warden#ALA-25", "abilityId": "ability_42",
+  "kind": "ALWAYS_ANSWER_YES" }
+```
+
+`kind` ∈ `YIELD_UNTIL_END_OF_TURN` (auto-pass priority on this ability's stack objects until end of
+turn), `YIELD_WHOLE_GAME` (same, rest of game), `ALWAYS_ANSWER_YES` / `ALWAYS_ANSWER_NO`
+(auto-resolve the ability's optional "you may" may-question). Revoke with
+`{ "type": "clearAbilityYield", "cardDefinitionId": …, "abilityId": … }` or clear everything with
+`{ "type": "clearAllYields" }`.
+
+The viewer's own yields come back in the state update as `activeYields` (masked — a player never sees
+another player's yields), each `{ cardDefinitionId, abilityId, displayName, untilEndOfTurn,
+wholeGame, autoAnswer }`. A triggered/activated ability on the stack carries its `abilityIdentity`
+in its `ClientCard`, so the stack-item context menu can target it. When a yield auto-answers a
+may-question, the server emits an `abilityAutoAnswered` log event (shown only to the controller).
+
 ### C. Connection Liveness (Client <-> Server)
 
 `{"type": "ping"}` (client) is always answered with `{"type": "pong"}` (server), regardless of

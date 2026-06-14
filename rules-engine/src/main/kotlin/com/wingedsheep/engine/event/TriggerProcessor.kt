@@ -209,6 +209,19 @@ class TriggerProcessor(
         // The gated "may" effect's own text is the prompt (GatedEffect.description renders
         // "You may …" for a Gate.MayDecide).
         val sourceName = trigger.sourceName
+        val abilityIdentity = state.abilityIdentityOf(trigger.sourceId, ability.id)
+
+        // Persistent auto-answer yield (backlog §C): a remembered yes/no for this ability resolves
+        // the may-question without prompting. "Yes" still proceeds to per-instance target selection
+        // (only the yes/no is batched, never the targeting — §C.6); "no" skips the trigger.
+        abilityIdentity?.let { state.autoAnswerFor(trigger.controllerId, it) }?.let { auto ->
+            val note = AbilityAutoAnsweredEvent(trigger.sourceId, sourceName, trigger.controllerId, auto)
+            if (!auto) return ExecutionResult.success(state, listOf(note))
+            val innerEffect = ability.effect.asMayDecide()!!.then
+            val unwrappedTrigger = trigger.copy(ability = ability.copy(effect = innerEffect))
+            val result = processTargetedTrigger(state, unwrappedTrigger, targetRequirement)
+            return result.copy(events = listOf(note) + result.events)
+        }
 
         // Create yes/no decision
         val decisionResult = decisionHandler.createYesNoDecision(
@@ -218,7 +231,7 @@ class TriggerProcessor(
             sourceName = sourceName,
             prompt = ability.effect.description,
             phase = DecisionPhase.RESOLUTION,
-            abilityIdentity = state.abilityIdentityOf(trigger.sourceId, ability.id)
+            abilityIdentity = abilityIdentity
         )
 
         if (!decisionResult.isPaused || decisionResult.pendingDecision == null) {

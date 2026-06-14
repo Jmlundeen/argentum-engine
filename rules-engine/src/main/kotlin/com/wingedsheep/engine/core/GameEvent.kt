@@ -442,6 +442,21 @@ data class AbilityFizzledEvent(
 ) : GameEvent
 
 /**
+ * An optional ("you may") ability's may-question was resolved automatically from the controller's
+ * persistent auto-answer yield instead of prompting (MTGO "Always yes/no" — backlog §C). Emitted so
+ * the controller sees in the log that the system acted for them; it carries no rules effect of its
+ * own (the chosen branch's own events follow when [answer] is true).
+ */
+@Serializable
+@SerialName("AbilityAutoAnsweredEvent")
+data class AbilityAutoAnsweredEvent(
+    val sourceId: EntityId,
+    val sourceName: String,
+    val controllerId: EntityId,
+    val answer: Boolean
+) : GameEvent
+
+/**
  * A player committed a crime (CR Outlaws of Thunder Junction). Emitted at the same time
  * as [SpellCastEvent], [AbilityActivatedEvent], or [AbilityTriggeredEvent] when at least
  * one initial target is an opponent, a permanent/spell/ability an opponent controls, or

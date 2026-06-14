@@ -242,6 +242,21 @@ sealed interface ClientEvent {
         }
     ) : ClientEvent
 
+    /**
+     * A "you may" may-question was auto-resolved from the viewer's persistent yield (backlog §C).
+     * Surfaced subtly in the log so the player knows the system acted for them.
+     */
+    @Serializable
+    @SerialName("abilityAutoAnswered")
+    data class AbilityAutoAnswered(
+        val sourceId: EntityId,
+        val sourceName: String,
+        val answer: Boolean,
+        override val description: String =
+            if (answer) "Auto-answered Yes to $sourceName (yield)"
+            else "Auto-answered No to $sourceName (yield)"
+    ) : ClientEvent
+
     // =========================================================================
     // State Change Events
     // =========================================================================
@@ -894,6 +909,17 @@ object ClientEventTransformer {
                 controllerId = event.controllerId,
                 isYours = event.controllerId == viewingPlayerId
             )
+
+            // Only the controller (whose yield acted) sees the auto-answer note; it's their own
+            // private preference, so opponents get nothing.
+            is AbilityAutoAnsweredEvent ->
+                if (event.controllerId == viewingPlayerId) {
+                    ClientEvent.AbilityAutoAnswered(
+                        sourceId = event.sourceId,
+                        sourceName = event.sourceName,
+                        answer = event.answer
+                    )
+                } else null
 
             is TappedEvent -> ClientEvent.PermanentTapped(
                 permanentId = event.entityId,

@@ -1879,6 +1879,7 @@ class StackResolver(
         val context = EffectContext(
             sourceId = abilityComponent.sourceId,
             controllerId = abilityComponent.controllerId,
+            abilityIdentity = abilityComponent.abilityIdentity,
             targets = resolvedTargets2,
             triggerDamageAmount = abilityComponent.triggerDamageAmount,
             triggerCounterCount = abilityComponent.triggerCounterCount,
@@ -1974,6 +1975,7 @@ class StackResolver(
         val context = EffectContext(
             sourceId = abilityComponent.sourceId,
             controllerId = abilityComponent.controllerId,
+            abilityIdentity = abilityComponent.abilityIdentity,
             targets = activatedTargets,
             sacrificedPermanents = abilityComponent.sacrificedPermanents,
             xValue = abilityComponent.xValue,

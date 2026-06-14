@@ -15,10 +15,13 @@ import {
   createSetFullControlMessage,
   createSetPriorityModeMessage,
   createSetStopOverridesMessage,
+  createSetAbilityYieldMessage,
+  createClearAbilityYieldMessage,
+  createClearAllYieldsMessage,
   createRequestUndoMessage,
 
 } from '@/types'
-import type { Step, PriorityModeValue } from '@/types'
+import type { Step, PriorityModeValue, YieldKind } from '@/types'
 import { trackEvent } from '@/utils/analytics.ts'
 import { getWebSocket } from './shared'
 
@@ -81,6 +84,9 @@ export interface GameplaySliceActions {
   setFullControl: (enabled: boolean) => void
   cyclePriorityMode: () => void
   toggleStopOverride: (step: Step, isMyTurn: boolean) => void
+  setAbilityYield: (cardDefinitionId: string, abilityId: string, kind: YieldKind) => void
+  clearAbilityYield: (cardDefinitionId: string, abilityId: string) => void
+  clearAllYields: () => void
   requestUndo: () => void
   toggleAutoTap: () => void
   returnToMenu: () => void
@@ -506,6 +512,21 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
     getWebSocket()?.send(createSetStopOverridesMessage(newOverrides.myTurnStops, newOverrides.opponentTurnStops))
     // Persist to localStorage
     localStorage.setItem('argentum-stop-overrides', JSON.stringify(newOverrides))
+  },
+
+  // Persistent per-ability yields (MTGO right-click yields — backlog §C). The server owns the
+  // authoritative yield state (on GameState); these just dispatch intent and the next state update
+  // reflects it in gameState.activeYields.
+  setAbilityYield: (cardDefinitionId, abilityId, kind) => {
+    getWebSocket()?.send(createSetAbilityYieldMessage(cardDefinitionId, abilityId, kind))
+  },
+
+  clearAbilityYield: (cardDefinitionId, abilityId) => {
+    getWebSocket()?.send(createClearAbilityYieldMessage(cardDefinitionId, abilityId))
+  },
+
+  clearAllYields: () => {
+    getWebSocket()?.send(createClearAllYieldsMessage())
   },
 
   returnToMenu: () => {

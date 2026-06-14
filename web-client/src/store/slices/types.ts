@@ -34,6 +34,7 @@ import type {
   AvailableSet,
   QuickGameLobbyStateMessage,
   DeckFormat,
+  YieldKind,
 } from '@/types'
 import type { ConnectionStatus } from '@/network/websocket.ts'
 import type { CounterRemovalCreatureInfo, SpectatorCombatState, SpectatorDecisionStatus } from '@/types/messages.ts'
@@ -827,6 +828,9 @@ export type GameStore = {
   setFullControl: (enabled: boolean) => void
   cyclePriorityMode: () => void
   toggleStopOverride: (step: Step, isMyTurn: boolean) => void
+  setAbilityYield: (cardDefinitionId: string, abilityId: string, kind: YieldKind) => void
+  clearAbilityYield: (cardDefinitionId: string, abilityId: string) => void
+  clearAllYields: () => void
   returnToMenu: () => void
   setError: (error: ErrorState) => void
   clearError: () => void

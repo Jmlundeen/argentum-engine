@@ -88,6 +88,9 @@ class GamePlayHandler(
             is ClientMessage.SetFullControl -> handleSetFullControl(session, message)
             is ClientMessage.SetPriorityMode -> handleSetPriorityMode(session, message)
             is ClientMessage.SetStopOverrides -> handleSetStopOverrides(session, message)
+            is ClientMessage.SetAbilityYield -> handleSetAbilityYield(session, message)
+            is ClientMessage.ClearAbilityYield -> handleClearAbilityYield(session, message)
+            is ClientMessage.ClearAllYields -> handleClearAllYields(session)
             is ClientMessage.RequestUndo -> handleRequestUndo(session)
 
             is ClientMessage.RequestResync -> handleRequestResync(session)
@@ -899,6 +902,53 @@ class GamePlayHandler(
         logger.info("Player ${playerSession.playerName} set stop overrides: myTurn=${message.myTurnStops}, opponentTurn=${message.opponentTurnStops}")
 
         // Broadcast state update so the UI reflects the change (and next stop point updates)
+        broadcastStateUpdate(gameSession, emptyList())
+    }
+
+    private fun handleSetAbilityYield(session: WebSocketSession, message: ClientMessage.SetAbilityYield) {
+        val playerSession = sessionRegistry.getPlayerSession(session.id)
+        if (playerSession == null) {
+            sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected")
+            return
+        }
+        val gameSession = getGameSession(session, playerSession) ?: return
+
+        val identity = com.wingedsheep.sdk.scripting.AbilityIdentity(
+            message.cardDefinitionId,
+            com.wingedsheep.sdk.scripting.AbilityId(message.abilityId)
+        )
+        gameSession.setAbilityYield(playerSession.playerId, identity, message.kind)
+        logger.info("Player ${playerSession.playerName} set yield ${message.kind} on $identity")
+
+        // Re-broadcast (drives the auto-pass loop in case the yield now lets the game advance).
+        broadcastStateUpdate(gameSession, emptyList())
+    }
+
+    private fun handleClearAbilityYield(session: WebSocketSession, message: ClientMessage.ClearAbilityYield) {
+        val playerSession = sessionRegistry.getPlayerSession(session.id)
+        if (playerSession == null) {
+            sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected")
+            return
+        }
+        val gameSession = getGameSession(session, playerSession) ?: return
+
+        val identity = com.wingedsheep.sdk.scripting.AbilityIdentity(
+            message.cardDefinitionId,
+            com.wingedsheep.sdk.scripting.AbilityId(message.abilityId)
+        )
+        gameSession.clearAbilityYield(playerSession.playerId, identity)
+        broadcastStateUpdate(gameSession, emptyList())
+    }
+
+    private fun handleClearAllYields(session: WebSocketSession) {
+        val playerSession = sessionRegistry.getPlayerSession(session.id)
+        if (playerSession == null) {
+            sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected")
+            return
+        }
+        val gameSession = getGameSession(session, playerSession) ?: return
+
+        gameSession.clearAllYields(playerSession.playerId)
         broadcastStateUpdate(gameSession, emptyList())
     }
 

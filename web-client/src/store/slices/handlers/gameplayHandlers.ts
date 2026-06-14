@@ -60,6 +60,7 @@ function getEventLogType(eventType: string): 'action' | 'turn' | 'combat' | 'sys
     case 'creatureAttacked':
     case 'creatureBlocked': return 'combat'
     case 'abilityFizzled':
+    case 'abilityAutoAnswered':
     case 'gameEnded':
     case 'playerLost': return 'system'
     default: return 'action'

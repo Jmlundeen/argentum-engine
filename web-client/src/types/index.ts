@@ -300,6 +300,10 @@ export type {
   SetFullControlMessage,
   SetPriorityModeMessage,
   SetStopOverridesMessage,
+  SetAbilityYieldMessage,
+  ClearAbilityYieldMessage,
+  ClearAllYieldsMessage,
+  YieldKind,
   StopOverrideInfo,
   PriorityModeValue,
   // Quick Game Lobby types
@@ -408,6 +412,9 @@ export {
   createSetFullControlMessage,
   createSetPriorityModeMessage,
   createSetStopOverridesMessage,
+  createSetAbilityYieldMessage,
+  createClearAbilityYieldMessage,
+  createClearAllYieldsMessage,
   createRequestUndoMessage,
   createRequestResyncMessage,
   // Quick Game Lobby factories & guards
