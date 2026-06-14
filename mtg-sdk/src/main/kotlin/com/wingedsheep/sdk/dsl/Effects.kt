@@ -2688,6 +2688,11 @@ object Effects {
      * Pass [duration] = [Duration.EndOfTurn] for "until end of turn" copies that revert at
      * cleanup, and [excludeTarget] = true for "each **other** … becomes a copy of that …"
      * wordings where the copy source keeps its own identity (Naga Fleshcrafter's renew).
+     *
+     * Pass [affected] (another [EffectTarget], e.g. a second `ContextTarget`) for the
+     * single-permanent "target permanent A becomes a copy of target permanent B" shape
+     * (Fleeting Reflection) — then only that one resolved permanent becomes a copy of [target],
+     * and [filter] / [excludeTarget] are ignored.
      */
     fun EachPermanentBecomesCopyOfTarget(
         target: EffectTarget = EffectTarget.ContextTarget(0),
@@ -2696,7 +2701,8 @@ object Effects {
         ),
         duration: Duration = Duration.Permanent,
         excludeTarget: Boolean = false,
-    ): Effect = EachPermanentBecomesCopyOfTargetEffect(target, filter, duration, excludeTarget)
+        affected: EffectTarget? = null,
+    ): Effect = EachPermanentBecomesCopyOfTargetEffect(target, filter, duration, excludeTarget, affected)
 
     // =========================================================================
     // Pipeline Targeting

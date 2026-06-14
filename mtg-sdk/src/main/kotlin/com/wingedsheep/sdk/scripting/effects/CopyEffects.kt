@@ -27,6 +27,12 @@ import kotlinx.serialization.Serializable
  *   permanents that become copies — for "each **other** creature you control becomes a copy of
  *   that creature" wordings, where the target keeps its own identity (and any counter just placed
  *   on it).
+ * @property affected When non-null, the set of permanents that become copies is exactly the single
+ *   permanent this [EffectTarget] resolves to (e.g. another `ContextTarget`), rather than a
+ *   battlefield scan of [filter]. This models "target permanent A becomes a copy of target
+ *   permanent B" (Fleeting Reflection: "target creature you control … becomes a copy of up to one
+ *   other target creature"). When set, [filter] / [excludeTarget] are ignored. If the [affected]
+ *   target resolves to nothing the effect is a no-op.
  */
 @SerialName("EachPermanentBecomesCopyOfTarget")
 @Serializable
@@ -37,10 +43,16 @@ data class EachPermanentBecomesCopyOfTargetEffect(
     ),
     val duration: Duration = Duration.Permanent,
     val excludeTarget: Boolean = false,
+    val affected: EffectTarget? = null,
 ) : Effect {
     override val description: String =
-        "Each ${if (excludeTarget) "other " else ""}${filter.baseFilter.description} becomes a copy of ${target.description}" +
-            if (duration == Duration.EndOfTurn) " until end of turn" else ""
+        if (affected != null) {
+            "${affected.description} becomes a copy of ${target.description}" +
+                if (duration == Duration.EndOfTurn) " until end of turn" else ""
+        } else {
+            "Each ${if (excludeTarget) "other " else ""}${filter.baseFilter.description} becomes a copy of ${target.description}" +
+                if (duration == Duration.EndOfTurn) " until end of turn" else ""
+        }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newFilter = filter.applyTextReplacement(replacer)
