@@ -1314,6 +1314,8 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
 - `.withColor(c)` / `.withAnyColor(c…)` / `.notColor(c)` — fixed-color predicates (`CardPredicate.HasColor`/`NotColor`).
 - `.nonartifact()` — appends `CardPredicate.IsNonartifact` ("nonartifact creature", the Terror template);
   the type-negation analogue of `.notColor(c)` / `.notSubtype(s)`.
+- `.notCreature()` — appends `CardPredicate.Not(CardPredicate.IsCreature)` ("noncreature artifact",
+  e.g. `GameObjectFilter.Artifact.notCreature().youControl()` — Guardian Beast).
 - `.withChosenColor()` — `CardPredicate.HasChosenColor`: matches the color chosen during the current
   effect's resolution (read from `EffectContext.chosenColor`, set by `Effects.ChooseColorThen`). Use with
   `AggregateBattlefield(Player.Each, …)` for "for each permanent of that color" (Coalition Dragon cycle).
@@ -2065,6 +2067,14 @@ staticAbility {
   `AbilityFlag.CANT_BE_SACRIFICED` flag, honored by the sacrifice executor — a sacrifice that can't
   happen simply no-ops). Wrap in `ConditionalStaticAbility` for time-restricted forms, e.g. Zurgo,
   Thunder's Decree: `ConditionalStaticAbility(CantBeSacrificed(GroupFilter(Token.youControl().withSubtype("Warrior"))), IsInStep(listOf(Step.END)))`.
+- `GrantKeyword(AbilityFlag.CANT_BE_ENCHANTED.name, filter)` — matching permanents can't be enchanted
+  (CR 303.4): an Aura can't legally target them. Honored in `TargetValidator` at Aura-cast/activation
+  target legality (only the targeting step — effects that move/attach an Aura without targeting are not
+  covered). (Guardian Beast)
+- `GrantKeyword(AbilityFlag.CANT_GAIN_CONTROL.name, filter)` — other players can't gain control of
+  matching permanents. Honored in the control-change executors (`GainControl`, `GainControlByMost`,
+  `ExchangeControl` — an exchange where either side can't be gained control of fails entirely); the
+  controller keeping their own permanent is an unaffected no-op. (Guardian Beast)
 - `CantBlockCreaturesWithGreaterPower(filter = source())` — blocker-side evasion (Spitfire Handler): this
   creature can't block creatures whose projected power exceeds its own.
 - `CantBeBlockedByCreaturesWithLessPower(filter = source())` — attacker-side dual (Formation Breaker): this

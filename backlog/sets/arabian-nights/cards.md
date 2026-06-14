@@ -2,7 +2,7 @@
 
 **Set Size:** 78 cards
 **Release Date:** December 17, 1993
-**Implemented:** 70 / 78
+**Implemented:** 73 / 78
 | Color | Count |
 |-------|-------|
 | White | 11 |
@@ -40,7 +40,7 @@
 - [x] Cuombajj Witches
 - [x] El-Hajjâj
 - [x] Erg Raiders
-- [ ] Guardian Beast
+- [x] Guardian Beast
 - [x] Hasran Ogress
 - [x] Junún Efreet
 - [x] Juzám Djinn
@@ -55,7 +55,7 @@
 - [x] Desert Nomads
 - [x] Hurr Jackal
 - [x] Kird Ape
-- [ ] Magnetic Mountain
+- [x] Magnetic Mountain
 - [x] Mijae Djinn
 - [x] Rukh Egg
 - [x] Ydwen Efreet
@@ -65,7 +65,7 @@
 - [x] Erhnam Djinn
 - [x] Ghazbán Ogre
 - [x] Ifh-Bíff Efreet
-- [ ] Metamorphosis
+- [x] Metamorphosis
 - [x] Nafs Asp
 - [x] Sandstorm
 - [x] Singing Tree

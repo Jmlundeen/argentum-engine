@@ -208,6 +208,11 @@ data class GameObjectFilter(
         cardPredicates = cardPredicates + CardPredicate.IsNonartifact
     )
 
+    /** Exclude creatures ("noncreature artifact", e.g. Guardian Beast). */
+    fun notCreature() = copy(
+        cardPredicates = cardPredicates + CardPredicate.Not(CardPredicate.IsCreature)
+    )
+
     /**
      * Restrict to spells/abilities on the stack that target at least one object matching
      * [subfilter]. Used for "an instant or sorcery spell that targets a creature" (Repartee —
