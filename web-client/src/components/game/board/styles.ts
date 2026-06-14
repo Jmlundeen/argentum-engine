@@ -1632,6 +1632,7 @@ const passiveCounterPalette: Record<string, CounterBadgePalette> = {
   INFLUENCE: { bg: 'rgba(40, 20, 60, 0.95)', border: 'rgba(180, 130, 220, 0.6)', color: '#c898e0' },
   BURDEN: { bg: 'rgba(60, 25, 15, 0.95)', border: 'rgba(220, 160, 60, 0.7)', color: '#e8b860', glow: 'rgba(220, 160, 60, 0.6)' },
   LOOT: { bg: 'rgba(70, 55, 15, 0.95)', border: 'rgba(230, 200, 90, 0.7)', color: '#e8cf68', glow: 'rgba(230, 200, 90, 0.55)' },
+  WIND: { bg: 'rgba(20, 60, 55, 0.95)', border: 'rgba(120, 220, 200, 0.6)', color: '#9ce0d0' },
 }
 
 const fallbackCounterPalette: CounterBadgePalette = { bg: 'rgba(40, 40, 40, 0.95)', border: 'rgba(180, 180, 180, 0.6)', color: '#e0e0e0' }

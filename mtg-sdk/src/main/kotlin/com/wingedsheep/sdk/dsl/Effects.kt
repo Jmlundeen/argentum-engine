@@ -1189,9 +1189,10 @@ object Effects {
      */
     fun PayDynamicMana(
         amount: DynamicAmount,
-        payer: Player = Player.You
+        payer: Player = Player.You,
+        color: com.wingedsheep.sdk.core.Color? = null
     ): Effect =
-        com.wingedsheep.sdk.scripting.effects.PayDynamicManaCostEffect(amount, payer)
+        com.wingedsheep.sdk.scripting.effects.PayDynamicManaCostEffect(amount, payer, color)
 
     /**
      * Add mana of a color the player chooses from a [ManaColorSet] resolved at resolution

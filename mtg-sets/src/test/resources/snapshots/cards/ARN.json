@@ -755,6 +755,119 @@
     ]
 }
 
+// Cyclone
+{
+    "name": "Cyclone",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of your upkeep, put a wind counter on this enchantment, then sacrifice this enchantment unless you pay {G} for each wind counter on it. If you pay, this enchantment deals damage equal to the number of wind counters on it to each creature and each player.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "wind",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.MayPay",
+                                "cost": {
+                                    "type": "PayDynamicManaCost",
+                                    "amount": {
+                                        "type": "EntityProperty",
+                                        "entity": "Source",
+                                        "numericProperty": {
+                                            "type": "CounterCount",
+                                            "counterType": {
+                                                "type": "Named",
+                                                "name": "wind"
+                                            }
+                                        }
+                                    },
+                                    "color": "GREEN"
+                                }
+                            },
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "ForEach",
+                                        "space": {
+                                            "type": "IterationSpace.Group",
+                                            "filter": {
+                                                "baseFilter": "creature"
+                                            }
+                                        },
+                                        "body": {
+                                            "type": "DealDamage",
+                                            "amount": {
+                                                "type": "EntityProperty",
+                                                "entity": "Source",
+                                                "numericProperty": {
+                                                    "type": "CounterCount",
+                                                    "counterType": {
+                                                        "type": "Named",
+                                                        "name": "wind"
+                                                    }
+                                                }
+                                            },
+                                            "target": "Self"
+                                        }
+                                    },
+                                    {
+                                        "type": "DealDamage",
+                                        "amount": {
+                                            "type": "EntityProperty",
+                                            "entity": "Source",
+                                            "numericProperty": {
+                                                "type": "CounterCount",
+                                                "counterType": {
+                                                    "type": "Named",
+                                                    "name": "wind"
+                                                }
+                                            }
+                                        },
+                                        "target": {
+                                            "type": "PlayerRef",
+                                            "player": "Each"
+                                        }
+                                    }
+                                ]
+                            },
+                            "otherwise": {
+                                "type": "SacrificeTarget",
+                                "target": "Self"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "At the beginning of your upkeep, put a wind counter on this enchantment, then sacrifice this enchantment unless you pay {G} for each wind counter on it. If you pay, this enchantment deals damage equal to the number of wind counters on it to each creature and each player."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f11684d6-5b74-47a7-a2d0-256c9e437aa6.jpg?1562940349"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Dancing Scimitar
 {
     "name": "Dancing Scimitar",

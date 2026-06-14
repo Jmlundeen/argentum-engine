@@ -350,8 +350,11 @@ class GatedEffectExecutor(
         when (cost) {
             is PayManaCostEffect -> "Pay ${cost.cost}"
             is PayDynamicManaCostEffect -> {
-                val amount = dynamicAmountEvaluator.evaluate(state, cost.amount, context)
-                "Pay {$amount}"
+                // Match the `amount <= 0` short-circuit that `execute()` and `canAfford()` apply
+                // before building a ManaCost: a non-positive amount pays nothing, and guarding here
+                // also avoids `"{G}".repeat(negative)` throwing from inside label rendering.
+                val amount = dynamicAmountEvaluator.evaluate(state, cost.amount, context).coerceAtLeast(0)
+                "Pay ${PayDynamicManaCostExecutor.dynamicManaCost(amount, cost.color)}"
             }
             else -> null
         }
@@ -367,7 +370,9 @@ class GatedEffectExecutor(
                 val payerId = TargetResolutionUtils
                     .resolvePlayerTarget(EffectTarget.PlayerRef(cost.payer), context, state)
                     ?: playerId
-                amount <= 0 || manaSolver.canPay(state, payerId, ManaCost.parse("{$amount}"))
+                amount <= 0 || manaSolver.canPay(
+                    state, payerId, PayDynamicManaCostExecutor.dynamicManaCost(amount, cost.color)
+                )
             }
             is PayLifeEffect -> {
                 val life = state.getEntity(playerId)?.get<LifeTotalComponent>()?.life ?: 0

@@ -2,7 +2,7 @@
 
 **Set Size:** 78 cards
 **Release Date:** December 17, 1993
-**Implemented:** 67 / 78
+**Implemented:** 69 / 78
 | Color | Count |
 |-------|-------|
 | White | 11 |
@@ -59,7 +59,7 @@
 - [x] Mijae Djinn
 - [x] Rukh Egg
 - [x] Ydwen Efreet
-- [ ] Cyclone
+- [x] Cyclone
 - [x] Desert Twister
 - [x] Drop of Honey
 - [x] Erhnam Djinn
