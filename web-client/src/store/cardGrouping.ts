@@ -168,14 +168,28 @@ export function visibleStackDepth(count: number): number {
  * capped separately (MAX_VISUAL_STACK_DEPTH / CardStack), not here, so callers
  * that need every member (action handling via cardIds, footprint stats) still see
  * the full group.
+ *
+ * [splitOutIds] forces specific permanents to render on their own (a singleton
+ * group keyed by id) even if otherwise identical to their twins. This is how a
+ * permanent that is the *target* of a stack object — or the triggering source, or
+ * a mid-cast selected target — keeps a `data-card-id` DOM anchor: targeting arrows
+ * resolve to that element, and a member hidden behind the render cap would make
+ * its arrow silently drop. It mirrors why attackers/blockers already split out
+ * (they drive distinct arrows). The set is small (a handful of chosen targets), so
+ * it doesn't re-explode a horde.
  */
-export function groupCards(cards: readonly ClientCard[]): readonly GroupedCard[] {
+export function groupCards(
+  cards: readonly ClientCard[],
+  splitOutIds?: ReadonlySet<EntityId>,
+): readonly GroupedCard[] {
   if (cards.length === 0) return []
 
   const groups = new Map<string, { cards: ClientCard[]; cardIds: EntityId[] }>()
 
   for (const card of cards) {
-    const key = computeCardGroupKey(card)
+    // A split-out permanent must render individually so its arrow can anchor —
+    // a unique key guarantees it never merges with a twin.
+    const key = splitOutIds?.has(card.id) ? `solo:${card.id}` : computeCardGroupKey(card)
     const existing = groups.get(key)
     if (existing) {
       existing.cards.push(card)

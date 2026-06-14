@@ -204,6 +204,14 @@ chosen mode, class level, badges, …) are already client state.
   action and lives in `GroupedCard.cardIds`; only the *rendering* is capped. The
   members hidden behind the cap are identical, so targeting/sacrificing "one of
   them" via a rendered layer is equivalent.
+- **Targets split out** — `groupCards(cards, splitOutIds)` forces a permanent that
+  is a chosen target / triggering source of a stack object (or a mid-cast selected
+  target — `useSplitOutTargetIds`) to render on its own card, so its
+  `data-card-id` anchor exists for `TargetingArrows`. Without this, a targeted token
+  hidden behind the cap would silently drop its arrow. This mirrors why attackers /
+  blockers already split out of a group (they too drive distinct arrows). Eligible-
+  but-unchosen targets stay collapsed — identical tokens are interchangeable, so
+  clicking the representative picks one.
 
 Deliberate non-goals (see the backlog): the wire still carries one DTO per entity
 (`StateDelta` already sends only changed cards, so steady-state traffic is fine),

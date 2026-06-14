@@ -101,6 +101,27 @@ describe('groupCards — token quantity aggregation (display layer)', () => {
   it('handles an empty battlefield', () => {
     expect(groupCards([])).toEqual([])
   })
+
+  it('splits a targeted member out of its group so its arrow can anchor', () => {
+    const groups = groupCards(
+      [token({ id: 't1' }), token({ id: 't2' }), token({ id: 'targeted' }), token({ id: 't4' })],
+      new Set([entityId('targeted')]),
+    )
+    // The three untouched twins still collapse; the targeted one stands alone.
+    expect(groups).toHaveLength(2)
+    const solo = groups.find((g) => g.cardIds.includes(entityId('targeted')))!
+    expect(solo.count).toBe(1)
+    expect(groups.find((g) => g.cardIds.includes(entityId('t1')))!.count).toBe(3)
+  })
+
+  it('splits two identical targeted members into separate singletons', () => {
+    const groups = groupCards(
+      [token({ id: 'a' }), token({ id: 'b' })],
+      new Set([entityId('a'), entityId('b')]),
+    )
+    expect(groups).toHaveLength(2)
+    expect(groups.every((g) => g.count === 1)).toBe(true)
+  })
 })
 
 describe('visibleStackDepth', () => {

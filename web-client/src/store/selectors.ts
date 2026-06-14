@@ -552,6 +552,37 @@ export function useStackCards(): readonly ClientCard[] {
   }, [gameState])
 }
 
+const EMPTY_ID_SET: ReadonlySet<EntityId> = Object.freeze(new Set<EntityId>())
+
+/**
+ * Permanents that must render on their own card (not collapsed into a stack) so a
+ * targeting arrow can anchor to their `data-card-id` DOM node — see
+ * `groupCards(cards, splitOutIds)`. These are the chosen targets and triggering
+ * sources of objects on the stack, plus any target already picked in an in-progress
+ * cast. The set is tiny, so splitting them out doesn't re-explode a horde of tokens.
+ *
+ * Eligible-but-unchosen targets are deliberately NOT included: identical tokens are
+ * interchangeable, so the player can click the collapsed stack's representative to
+ * pick one. Only a *committed* target needs its specific arrow to resolve.
+ */
+export function useSplitOutTargetIds(): ReadonlySet<EntityId> {
+  const stackCards = useStackCards()
+  const targetingState = useGameStore(selectTargetingState)
+  return useMemo(() => {
+    const selected = targetingState?.selectedTargets
+    if (stackCards.length === 0 && (!selected || selected.length === 0)) return EMPTY_ID_SET
+    const ids = new Set<EntityId>()
+    for (const card of stackCards) {
+      for (const t of card.targets) {
+        if (t.type === 'Permanent') ids.add(t.entityId)
+      }
+      if (card.triggeringEntityId) ids.add(card.triggeringEntityId)
+    }
+    if (selected) for (const id of selected) ids.add(id)
+    return ids
+  }, [stackCards, targetingState])
+}
+
 /**
  * Hook to check if a card is a valid target for current targeting.
  */
