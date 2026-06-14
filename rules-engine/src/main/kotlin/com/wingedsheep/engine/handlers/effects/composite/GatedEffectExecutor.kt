@@ -350,7 +350,10 @@ class GatedEffectExecutor(
         when (cost) {
             is PayManaCostEffect -> "Pay ${cost.cost}"
             is PayDynamicManaCostEffect -> {
-                val amount = dynamicAmountEvaluator.evaluate(state, cost.amount, context)
+                // Match the `amount <= 0` short-circuit that `execute()` and `canAfford()` apply
+                // before building a ManaCost: a non-positive amount pays nothing, and guarding here
+                // also avoids `"{G}".repeat(negative)` throwing from inside label rendering.
+                val amount = dynamicAmountEvaluator.evaluate(state, cost.amount, context).coerceAtLeast(0)
                 "Pay ${PayDynamicManaCostExecutor.dynamicManaCost(amount, cost.color)}"
             }
             else -> null
