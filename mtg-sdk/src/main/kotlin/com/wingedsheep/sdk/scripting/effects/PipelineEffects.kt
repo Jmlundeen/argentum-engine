@@ -543,7 +543,7 @@ data class CaptureControllersEffect(
     val from: String,
     val storeAs: String
 ) : Effect {
-    override val description: String = "Capture the controllers of the $from cards"
+    override val description: String = "Capture the controllers of those cards"
 }
 
 /**
@@ -589,7 +589,7 @@ data class ForEachCapturedControllerEffect(
     val effects: List<Effect>
 ) : Effect {
     override val description: String = buildString {
-        append("For each player who controlled at least one of the $collection cards, ")
+        append("For each player who controlled at least one of those cards, ")
         append(effects.joinToString(". ") { it.description.replaceFirstChar { c -> c.lowercase() } })
     }
 
@@ -622,7 +622,7 @@ data class GatherSubtypesEffect(
     val from: String,
     val storeAs: String
 ) : Effect {
-    override val description: String = "gather subtypes of the $from entities"
+    override val description: String = "gather subtypes of those cards"
 }
 
 /**
@@ -685,7 +685,7 @@ data class RevealCollectionEffect(
     val fromZone: com.wingedsheep.sdk.core.Zone? = null,
     val toZone: com.wingedsheep.sdk.core.Zone? = null
 ) : Effect {
-    override val description: String = "Reveal the $from cards"
+    override val description: String = "Reveal those cards"
 }
 
 /**
@@ -748,7 +748,7 @@ data class SelectFromCollectionEffect(
     override val description: String = buildString {
         if (chooser == Chooser.Opponent) append("An opponent ")
         append(selection.description.replaceFirstChar { it.uppercase() })
-        append(" from the $from cards")
+        append(" of those cards")
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
@@ -863,8 +863,10 @@ data class MoveCollectionEffect(
     val markEnteredViaSourceAbility: Boolean = false
 ) : Effect {
     override val description: String = buildString {
-        if (revealed) append("Reveal and put") else append("Put")
-        append(" the $from cards ")
+        if (revealed) append("Reveal and put ") else append("Put ")
+        append("those cards ")
+        // `from` is an internal pipeline-collection key — never surface it to players.
+        append(if ((destination as? CardDestination.ToZone)?.zone == Zone.BATTLEFIELD) "onto " else "into ")
         append(destination.description)
     }
 }
@@ -1059,7 +1061,7 @@ data class GrantMayPlayFromExileEffect(
     val landEntersTapped: Boolean = false
 ) : Effect {
     override val description: String = buildString {
-        append("${expiry.description.replaceFirstChar { it.uppercase() }}, you may play the $from cards from exile")
+        append("${expiry.description.replaceFirstChar { it.uppercase() }}, you may play those cards from exile")
         if (condition != null) {
             append(" ")
             append(condition.description)
@@ -1101,11 +1103,11 @@ data class ConditionalOnCollectionEffect(
     override val description: String = buildString {
         val restrict = if (filter == GameObjectFilter.Companion.Any) "" else " ${filter.description}"
         if (minSize <= 1) {
-            append("If $collection contains a$restrict card, ")
+            append("If those cards include a$restrict card, ")
         } else if (countDistinctCardTypes) {
-            append("If $collection covers at least $minSize card types, ")
+            append("If those cards cover at least $minSize card types, ")
         } else {
-            append("If $collection has at least $minSize$restrict cards, ")
+            append("If those cards include at least $minSize$restrict cards, ")
         }
         append(ifNotEmpty.description.replaceFirstChar { it.lowercase() })
         if (ifEmpty != null) {
@@ -1138,7 +1140,7 @@ data class GrantPlayWithoutPayingCostEffect(
     val from: String
 ) : Effect {
     override val description: String =
-        "Until end of turn, you may play the $from cards without paying their mana costs"
+        "Until end of turn, you may play those cards without paying their mana costs"
 }
 
 /**
@@ -1160,7 +1162,7 @@ data class GrantPlayWithAdditionalCostEffect(
     val additionalCost: AdditionalCost
 ) : Effect {
     override val description: String =
-        "Until end of turn, casting the $from cards requires: ${additionalCost.description}"
+        "Until end of turn, casting those cards requires: ${additionalCost.description}"
 }
 
 /**
@@ -1184,7 +1186,7 @@ data class GrantPlayWithCostIncreaseEffect(
     val amount: Int
 ) : Effect {
     override val description: String =
-        "Each spell cast from $from costs {$amount} more to cast"
+        "Each of those spells costs {$amount} more to cast"
 }
 
 /**
@@ -1368,7 +1370,7 @@ data class FilterCollectionEffect(
     val storeMatching: String,
     val storeNonMatching: String? = null
 ) : Effect {
-    override val description: String = "Filter $from collection"
+    override val description: String = "Filter those cards"
 }
 
 /**
@@ -1387,7 +1389,7 @@ data class StoreNumberEffect(
     val name: String,
     val amount: DynamicAmount
 ) : Effect {
-    override val description: String = "Store ${amount.description} as $name"
+    override val description: String = "Note ${amount.description}"
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newAmount = amount.applyTextReplacement(replacer)
         return if (newAmount !== amount) copy(amount = newAmount) else this
@@ -1414,5 +1416,5 @@ data class StoreCardNameEffect(
     val from: String,
     val storeAs: String = "chosenCardName"
 ) : Effect {
-    override val description: String = "Note the name of the $from card"
+    override val description: String = "Note the name of that card"
 }

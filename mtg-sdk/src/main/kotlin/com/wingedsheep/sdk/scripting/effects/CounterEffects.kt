@@ -148,7 +148,7 @@ data class AddCountersToCollectionEffect(
     val count: Int = 1
 ) : Effect {
     override val description: String =
-        "Put $count $counterType counter${if (count != 1) "s" else ""} on each permanent in $collectionName"
+        "Put $count $counterType counter${if (count != 1) "s" else ""} on each of those permanents"
 }
 
 /**

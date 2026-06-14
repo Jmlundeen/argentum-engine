@@ -33,7 +33,7 @@ data class TapUntapCollectionEffect(
     val collectionName: String,
     val tap: Boolean = true
 ) : Effect {
-    override val description: String = "${if (tap) "Tap" else "Untap"} each permanent in $collectionName"
+    override val description: String = "${if (tap) "Tap" else "Untap"} each of those permanents"
 }
 
 /**
