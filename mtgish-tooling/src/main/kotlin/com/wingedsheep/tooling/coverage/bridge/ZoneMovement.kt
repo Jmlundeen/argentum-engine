@@ -36,6 +36,11 @@ internal fun BridgeBuilder.zoneMovement() {
     composed("PutTopOfLibraryInGraveyard", "look-top pipeline -> MoveCollection (library->graveyard)", composes = listOf("MoveCollection", "MoveToZone"))
 
     composed("PutPermanentIntoItsOwnersHand", "bounce: MoveToZone / Gather-Select-MoveCollection pipeline", composes = listOf("MoveToZone"))
+    // "Return a <filter> you control to its owner's hand" — the controller CHOOSES the permanent (not a
+    // target); expressible as a self-bounce target constrained to the chooser's own permanents (the Karoo
+    // bounce-land idiom, Arid Archway). Capability only — the emitter scaffolds the "another Desert was
+    // returned this way" follow-up (see ZoneHandlers' `If` decline), so this is SCAFFOLD-tier in practice.
+    composed("PutAPermanentIntoItsOwnersHand", "chosen bounce: self-bounce target over the chooser's permanents -> MoveToZone", composes = listOf("MoveToZone"))
     composed("PutEachPermanentIntoItsOwnersHand", "EachPlayerReturnsPermanentToHand", composes = listOf("MoveCollection", "MoveToZone"))
     // "Return any number of [filter] to their owner's hand" (Rambling Possum) — Gather -> ChooseAnyNumber
     // -> MoveCollection (battlefield->hand routes to owner).
