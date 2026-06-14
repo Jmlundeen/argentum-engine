@@ -11604,7 +11604,7 @@
                         }
                     ]
                 },
-                "descriptionOverride": "Flurry — Whenever you cast your second spell each turn, put 1 +1/+1 counter on this creature. Look at the top 1 cards of your library. Choose up to 1 from the scried cards. Put the toBottom cards a library (bottom). Put the toTop cards a library (top)."
+                "descriptionOverride": "Flurry — Whenever you cast your second spell each turn, put 1 +1/+1 counter on this creature. Look at the top 1 cards of your library. Choose up to 1 of those cards. Put those cards into a library (bottom). Put those cards into a library (top)."
             }
         ]
     },

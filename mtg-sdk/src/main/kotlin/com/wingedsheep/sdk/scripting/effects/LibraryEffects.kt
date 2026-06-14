@@ -177,7 +177,7 @@ data class CastFromCollectionWithoutPayingCostEffect(
     val from: String,
 ) : Effect {
     override val description: String =
-        "Cast the $from card without paying its mana cost"
+        "Cast that card without paying its mana cost"
 }
 
 /**
@@ -208,7 +208,7 @@ data class CastAnyNumberFromCollectionWithoutPayingCostEffect(
     val from: String,
 ) : Effect {
     override val description: String =
-        "Cast any number of the $from cards without paying their mana costs"
+        "Cast any number of those cards without paying their mana costs"
 }
 
 @SerialName("Cascade")

@@ -24,7 +24,7 @@ data class CollectionContainsMatch(
     val collection: String,
     val filter: GameObjectFilter = GameObjectFilter.Any
 ) : Condition {
-    override val description: String = "if the $collection cards contain a ${filter.description}"
+    override val description: String = "if those cards contain a ${filter.description}"
     override fun applyTextReplacement(replacer: TextReplacer): Condition {
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this

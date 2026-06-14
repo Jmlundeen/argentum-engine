@@ -389,7 +389,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("StoredCardManaValue")
     @Serializable
     data class StoredCardManaValue(val collectionName: String) : DynamicAmount {
-        override val description: String = "the mana value of the $collectionName card"
+        override val description: String = "the mana value of that card"
     }
 
     /**

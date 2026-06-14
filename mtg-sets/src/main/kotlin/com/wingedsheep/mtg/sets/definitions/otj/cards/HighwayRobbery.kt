@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -20,8 +21,14 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * [ModalEffect] (the proven "choose up to one"/"you may" shape — Hullbreaker Horror). Declining
  * the modal is the "you may" no. Each mode gates its "draw two cards" payoff on the chosen cost
  * actually happening via [Effects.IfYouDo] (so picking "discard a card" with an empty hand, or
- * "sacrifice a land" with no lands, does not draw). Plot is the standard [KeywordAbility.plot]
- * exile-and-cast-later mechanic.
+ * "sacrifice a land" with no lands, does not draw).
+ *
+ * Both cost halves are gather → select → move pipelines so [Effects.IfYouDo]'s default
+ * `SuccessCriterion.Auto` can infer "did it happen" from the terminal zone move: discard moves the
+ * chosen card to the graveyard, and sacrifice gathers the controller's lands, lets them pick one,
+ * and moves it to the graveyard as a real [MoveType.Sacrifice]. With no lands to sacrifice the
+ * select stores nothing, the move is empty, and Auto reports no success — so no draw. Plot is the
+ * standard [KeywordAbility.plot] exile-and-cast-later mechanic.
  */
 val HighwayRobbery = card("Highway Robbery") {
     manaCost = "{1}{R}"
@@ -43,7 +50,16 @@ val HighwayRobbery = card("Highway Robbery") {
                 ),
                 Mode(
                     effect = Effects.IfYouDo(
-                        action = Effects.Sacrifice(GameObjectFilter.Land, count = 1, target = EffectTarget.Controller),
+                        action = Effects.Pipeline {
+                            val lands = gather(GameObjectFilter.Land, player = Player.You)
+                            val chosen = chooseExactly(
+                                1,
+                                from = lands,
+                                useTargetingUI = true,
+                                prompt = "Choose a land to sacrifice"
+                            )
+                            sacrifice(chosen)
+                        },
                         ifYouDo = Effects.DrawCards(2)
                     ),
                     description = "Sacrifice a land, then draw two cards"
