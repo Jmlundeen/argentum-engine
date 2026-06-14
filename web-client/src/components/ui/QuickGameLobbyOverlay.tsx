@@ -190,13 +190,13 @@ export function QuickGameLobbyOverlay() {
                 </button>
               </div>
             </div>
-            <FormatRow isMomir={isMomir} format={lobby.format ?? null} isHost={isHost} onChange={setFormat} />
+            <FormatSelector isMomir={isMomir} format={lobby.format ?? null} isHost={isHost} onChange={setFormat} />
           </div>
         )}
 
         {lobby.vsAi && (
           <div className={styles.settingsPanel}>
-            <FormatRow isMomir={isMomir} format={lobby.format ?? null} isHost={isHost} onChange={setFormat} />
+            <FormatSelector isMomir={isMomir} format={lobby.format ?? null} isHost={isHost} onChange={setFormat} />
           </div>
         )}
 
@@ -259,16 +259,40 @@ export function QuickGameLobbyOverlay() {
   )
 }
 
-/** Sentinel dropdown value for the Momir Basic custom format (not a real {@link DeckFormat}). */
+/** Sentinel key for the Momir Basic custom format (not a real {@link DeckFormat}). */
 const MOMIR_FORMAT_VALUE = 'MOMIR'
 
 /**
- * Lobby format selector. Constructed deck-formats restrict submitted decks; the "Custom formats"
- * group holds non-deckbuilding modes — currently just Momir Basic, which flips the lobby into the
- * Vanguard format (fixed 60 basics, avatar in the command zone, creatures rolled from all sets).
- * Host-only; the opponent sees it read-only.
+ * Non-deckbuilding game modes, surfaced as their own elevated section (see {@link CustomFormatSection})
+ * rather than buried among constructed formats in the dropdown. Currently just Momir Basic — fixed
+ * 60-basic decks, the avatar in the command zone, creatures rolled from every set.
+ *
+ * NOTE: the lobby's format channel is `(format, momirBasic)` where `momirBasic` is Momir-specific.
+ * Adding a second custom mode here means widening that contract (e.g. a custom-format key) so this
+ * section can tell the modes apart — today the toggle simply maps to the `momirBasic` flag.
  */
-function FormatRow({
+const CUSTOM_FORMATS: ReadonlyArray<{ key: string; name: string; desc: string; icon: string }> = [
+  {
+    key: MOMIR_FORMAT_VALUE,
+    name: 'Momir Basic',
+    desc: 'No deckbuilding — everyone runs 60 basics. Discard a card and pay {X} to flip a random creature with mana value X.',
+    icon: momirVigUrl,
+  },
+]
+
+/**
+ * Lobby format picker — a single either/or choice, not two stacked settings.
+ *
+ * The top row restricts submitted decks to a *constructed* format ("No restriction" = anything);
+ * below an explicit "or" divider, the *custom* (non-deckbuilding) modes appear as selectable cards.
+ * The two are mutually exclusive server-side, so we make that visible: while a custom mode is
+ * active the constructed dropdown is disabled (and reads "No restriction", since the server clears
+ * `format`), and selecting a constructed format leaves every custom card unselected. Exactly one
+ * side is ever live. Toggle a custom card off to return to no restriction and re-enable the dropdown.
+ *
+ * Host-only; the opponent sees both halves read-only.
+ */
+function FormatSelector({
   isMomir,
   format,
   isHost,
@@ -279,33 +303,76 @@ function FormatRow({
   isHost: boolean
   onChange: (format: DeckFormat | null, momirBasic: boolean) => void
 }) {
-  const value = isMomir ? MOMIR_FORMAT_VALUE : (format ?? '')
+  const dropdownValue = isMomir ? '' : (format ?? '')
+  const dropdownDisabled = !isHost || isMomir
   return (
-    <div className={styles.settingsRow}>
-      <span className={styles.settingsLabel}>Format</span>
-      <select
-        value={value}
-        onChange={(e) => {
-          if (!isHost) return
-          const v = e.target.value
-          if (v === MOMIR_FORMAT_VALUE) onChange(null, true)
-          else onChange(v ? (v as DeckFormat) : null, false)
-        }}
-        disabled={!isHost}
-        title={isHost ? 'Restrict decks to a constructed format, or pick a custom format. None = no restriction.' : 'Only the host can change the format'}
-        className={styles.settingsButton}
-        style={{ minWidth: 160 }}
-      >
-        <option value="">No restriction</option>
-        <optgroup label="Custom formats">
-          <option value={MOMIR_FORMAT_VALUE}>Momir Basic</option>
-        </optgroup>
-        <optgroup label="Constructed">
-          {FORMAT_OPTIONS.map((f) => (
-            <option key={f.value} value={f.value}>{f.label}</option>
-          ))}
-        </optgroup>
-      </select>
+    <div className={styles.formatSelector}>
+      <div className={styles.formatSelectorTop}>
+        <span className={styles.settingsLabel}>Format</span>
+        <select
+          value={dropdownValue}
+          onChange={(e) => {
+            if (!isHost) return
+            const v = e.target.value
+            onChange(v ? (v as DeckFormat) : null, false)
+          }}
+          disabled={dropdownDisabled}
+          title={
+            isMomir
+              ? 'A custom format is active — turn it off below to restrict by a constructed format.'
+              : isHost
+                ? 'Restrict submitted decks to a constructed format. None = no restriction.'
+                : 'Only the host can change the format'
+          }
+          className={`${styles.settingsButton} ${isMomir ? styles.formatDropdownInactive : ''}`}
+          style={{ minWidth: 160 }}
+        >
+          <option value="">No restriction</option>
+          <optgroup label="Constructed">
+            {FORMAT_OPTIONS.map((f) => (
+              <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </optgroup>
+        </select>
+      </div>
+
+      <div className={styles.formatOrDivider}>or pick a custom format</div>
+
+      <div className={styles.customFormatCards}>
+        {CUSTOM_FORMATS.map((cf) => {
+          // With a single Momir-only contract, "active" == the Momir flag.
+          const active = cf.key === MOMIR_FORMAT_VALUE && isMomir
+          return (
+            <button
+              key={cf.key}
+              type="button"
+              disabled={!isHost}
+              aria-pressed={active}
+              onClick={() => {
+                if (!isHost) return
+                // Toggle: re-clicking the active mode drops back to no restriction.
+                onChange(null, !active)
+              }}
+              className={`${styles.customFormatCard} ${active ? styles.customFormatCardActive : ''}`}
+              title={isHost ? '' : 'Only the host can change the format'}
+              data-testid={`custom-format-${cf.key.toLowerCase()}`}
+            >
+              <span
+                aria-hidden
+                className={styles.customFormatIcon}
+                style={{ WebkitMaskImage: `url(${cf.icon})`, maskImage: `url(${cf.icon})` }}
+              />
+              <span className={styles.customFormatText}>
+                <span className={styles.customFormatName}>
+                  {cf.name}
+                  {active && <span className={styles.customFormatCheck}>✓ Selected</span>}
+                </span>
+                <span className={styles.customFormatDesc}>{cf.desc}</span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
