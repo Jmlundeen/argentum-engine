@@ -44,7 +44,7 @@ the work; **confirm during implementation.**
 
 ---
 
-## ✅ List A — Implementable WITHOUT engine work (58 cards)
+## ✅ List A — Implementable WITHOUT engine work (57 cards)
 
 Compose from existing primitives. Items tagged **(verify)** are composable but non-trivial —
 confirm the noted clause during `add-card`; if it surprises you, move it to List B.
@@ -52,7 +52,6 @@ confirm the noted clause during `add-card`; if it surprises you, move it to List
 ### Clean — straightforward compositions
 - **Argivian Archaeologist** — `{W}{W},{T}`: return target artifact card from GY to hand.
 - **Argivian Blacksmith** — `{T}`: prevent next 2 damage to target artifact creature (`Effects.PreventNextDamage`).
-- **Hurkyl's Recall** — return all artifacts target player owns to hand (mass bounce by filter+owner).
 - **Reconstruction** — return target artifact card from your GY to hand.
 - **Artifact Blast** — counter target artifact spell (`Effects.CounterSpell` + artifact-spell target).
 - **Atog** — `Sacrifice an artifact`: +2/+2 EOT (`Costs.Sacrifice(Artifact)`).
@@ -135,7 +134,7 @@ confirm the noted clause during `add-card`; if it surprises you, move it to List
 
 ---
 
-## 🔧 List B — NEEDS ENGINE WORK (24 cards), grouped by missing mechanic
+## 🔧 List B — NEEDS ENGINE WORK (25 cards), grouped by missing mechanic
 
 Each group is a candidate single feature PR. Confirm with `add-card` before building.
 
@@ -199,6 +198,13 @@ suppression, or untap-count restriction primitive exists.
   artifact sources" — hexproof keyed to a *source category* (its can't-be-blocked-by-artifacts
   and prevent-artifact-damage clauses compose; this clause does not). Could be approximated as
   protection from artifacts, but that wrongly also blocks equipping — implement the real clause.
+- **Hurkyl's Recall** — "Return all artifacts target player **owns** to their hand." The engine has
+  `ControllerPredicate.OwnedByYou`/`OwnedByOpponent` and `ControlledByTargetPlayer`, but **no
+  `OwnedByTargetPlayer`** predicate. "Owns" ≠ "controls" once control of an artifact has changed,
+  and the spell lets the caster target either player, so a fixed owned-by-you/opponent predicate
+  can't capture it either. Needs a small filter addition (`OwnedByTargetPlayer` /
+  `OwnedByReferencedPlayer`). (Originally triaged into List A; reclassified during implementation —
+  the only "(clean)" card that turned out to need engine work.)
 
 ### Postpone (no engine support, by project policy)
 - **Bronze Tablet** — ante zone. The engine has no ante support; postpone, consistent with the
@@ -212,4 +218,4 @@ suppression, or untap-count restriction primitive exists.
   citing it — never a web source.
 - The "(verify)" tags in List A mark the cards most likely to surprise you into List B during
   `add-card`; everything else in List A should compose cleanly.
-- Counts: 3 done + 58 List A + 24 List B = 85.
+- Counts: 3 done + 57 List A + 25 List B = 85.
