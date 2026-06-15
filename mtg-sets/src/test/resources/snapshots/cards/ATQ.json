@@ -821,6 +821,64 @@
     "colorIdentityOverride": []
 }
 
+// Orcish Mechanics
+{
+    "name": "Orcish Mechanics",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Orc",
+    "oracleText": "{T}, Sacrifice an artifact: This creature deals 2 damage to any target.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "artifact"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "any target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "any target"
+                    }
+                ],
+                "descriptionOverride": "{T}, Sacrifice an artifact: This creature deals 2 damage to any target."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "27",
+        "artist": "Pete Venters",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/e/5e34fc6b-5f00-4a22-9ee2-afc1caf99961.jpg?1562914705"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Ornithopter
 {
     "name": "Ornithopter",
