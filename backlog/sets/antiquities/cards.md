@@ -2,8 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 3 / 85
-
+**Implemented:** 4 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -91,7 +90,7 @@
 - [ ] Mishra's War Machine
 - [ ] Obelisk of Undoing
 - [ ] Onulet
-- [ ] Ornithopter
+- [x] Ornithopter
 - [ ] Primal Clay
 - [ ] Rakalite
 - [ ] Rocket Launcher
