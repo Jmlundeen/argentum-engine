@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 35 / 85
+**Implemented:** 36 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -57,7 +57,7 @@
 - [x] Shatterstorm
 
 ### Green
-- [ ] Argothian Pixies
+- [x] Argothian Pixies
 - [ ] Argothian Treefolk
 - [x] Citanul Druid
 - [ ] Crumble

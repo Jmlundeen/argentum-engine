@@ -162,6 +162,53 @@
     ]
 }
 
+// Argothian Pixies
+{
+    "name": "Argothian Pixies",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Faerie",
+    "oracleText": "This creature can't be blocked by artifact creatures.\nPrevent all damage that would be dealt to this creature by artifact creatures.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsArtifact",
+                        "IsCreature"
+                    ]
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "PreventDamage",
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "recipient": "RecipientSelf",
+                    "source": {
+                        "type": "SourceMatching",
+                        "filter": "artifact creature"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "29",
+        "artist": "Amy Weber",
+        "flavorText": "After the rape of Argoth Forest during the rule of the artificers, the Pixies of Argoth bent their magic to more practical ends.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/7/5712e87a-2381-4f5b-a853-6973841f9bf1.jpg?1562913202"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Artifact Blast
 {
     "name": "Artifact Blast",
