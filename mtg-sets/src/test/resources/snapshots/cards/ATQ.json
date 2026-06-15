@@ -51,6 +51,67 @@
     "colorIdentityOverride": []
 }
 
+// Argivian Archaeologist
+{
+    "name": "Argivian Archaeologist",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "{W}{W}, {T}: Return target artifact card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W}{W}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target artifact card from your graveyard"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact own:you",
+                            "zone": "Graveyard"
+                        },
+                        "id": "target artifact card from your graveyard"
+                    }
+                ],
+                "descriptionOverride": "{W}{W}, {T}: Return target artifact card from your graveyard to your hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "RARE",
+        "artist": "Amy Weber",
+        "flavorText": "Fascinated by the lore of ancient struggles, the Archaeologist searches incessantly for remnants of an earlier, more powerful era.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce83a3cb-467d-44f6-a051-4855c8cf52a6.jpg?1562938661"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Ashnod's Altar
 {
     "name": "Ashnod's Altar",

@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 21 / 85
+**Implemented:** 22 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -21,7 +21,7 @@
 ---
 
 ### White
-- [ ] Argivian Archaeologist
+- [x] Argivian Archaeologist
 - [ ] Argivian Blacksmith
 - [ ] Artifact Ward
 - [ ] Circle of Protection: Artifacts
