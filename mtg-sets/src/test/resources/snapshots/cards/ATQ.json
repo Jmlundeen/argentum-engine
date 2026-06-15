@@ -1171,6 +1171,68 @@
     "colorIdentityOverride": []
 }
 
+// Strip Mine
+{
+    "name": "Strip Mine",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{T}, Sacrifice this land: Destroy target land.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target land"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land"
+                        },
+                        "id": "target land"
+                    }
+                ],
+                "descriptionOverride": "{T}, Sacrifice this land: Destroy target land."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "82a",
+        "rarity": "UNCOMMON",
+        "artist": "Daniel Gelon",
+        "flavorText": "Unlike previous conflicts, the war between Urza and Mishra made Dominia itself a casualty of war.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/7/e7880157-7f27-4f1b-9cdc-ab36a6252376.jpg?1562943840"
+    },
+    "colorIdentityOverride": []
+}
+
 // Tablet of Epityr
 {
     "name": "Tablet of Epityr",
