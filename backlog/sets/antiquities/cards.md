@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 17 / 85
+**Implemented:** 18 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -99,7 +99,7 @@
 - [ ] Su-Chi
 - [x] Tablet of Epityr
 - [ ] Tawnos's Coffin
-- [ ] Tawnos's Wand
+- [x] Tawnos's Wand
 - [ ] Tawnos's Weaponry
 - [ ] Tetravus
 - [ ] The Rack

@@ -639,6 +639,59 @@
     "colorIdentityOverride": []
 }
 
+// Tawnos's Wand
+{
+    "name": "Tawnos's Wand",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "{2}, {T}: Target creature with power 2 or less can't be blocked this turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "CANT_BE_BLOCKED",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature with power 2 or less"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature pow<=2"
+                        },
+                        "id": "target creature with power 2 or less"
+                    }
+                ],
+                "descriptionOverride": "{2}, {T}: Target creature with power 2 or less can't be blocked this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "69",
+        "rarity": "UNCOMMON",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/7/978f09dd-121a-4da5-ba16-5c03fbdce084.jpg?1562927106"
+    },
+    "colorIdentityOverride": []
+}
+
 // Triskelion
 {
     "name": "Triskelion",
