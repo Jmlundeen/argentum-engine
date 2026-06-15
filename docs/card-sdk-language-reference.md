@@ -943,6 +943,9 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
 **Hand manipulation**
 
 - `discardCards(count, target)` — controller-of-target chooses (mandatory).
+- `discardCardsUnlessMatching(count, unlessFilter, target?, reducedCount?, requiredMatches?)` /
+  `Effects.DiscardUnlessMatching(...)` — one-step "discard N cards unless you discard a matching card" selection;
+  a lower-count selection is valid only when it includes enough cards matching `unlessFilter`.
 - `discardRandom(count, target)` — random discards.
 - `discardHand(target)` — discard entire hand.
 - `eachOpponentDiscards(count, controllerDrawsPerDiscard?)` — Mind Twist-style.
@@ -3659,12 +3662,15 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
 - `SelectFromCollectionEffect(from, into, selectCount?, allowZero?, alwaysPrompt?, restrictions?)` — let a player pick
   from a collection. `restrictions` (`List<SelectionRestriction>`) cap and trim the picks server-side: `OnePerCardType`,
   `OnePerColor(matchControllerPermanentColors?)`, `OnePerCardName`, `TotalManaValueAtMost(max)`,
-  `OnePerBasicLandType`, and `MaxAffordablePayment(manaPerSelected, payer?)`. `OnePerBasicLandType` keeps at most one
+  `OnePerBasicLandType`, `ReducedMinimumIfMatches(reducedMinimum, filter, requiredMatches?)`, and
+  `MaxAffordablePayment(manaPerSelected, payer?)`. `OnePerBasicLandType` keeps at most one
   land of each basic land type (a kept land claims
   *every* basic type it has) and — unlike `OnePerColor`, where a colourless card is unconstrained — a land with no
   basic land type can't be kept at all (Global Ruin: "chooses a land of each basic land type, then sacrifices the
   rest"). Each restriction also exposes a boolean flag on `SelectCardsDecision` (`onePerBasicLandType`, …) so the UI
-  can disable redundant picks. `MaxAffordablePayment` caps the selection at
+  can disable redundant picks. `ReducedMinimumIfMatches` exposes `conditionalMinimums` on `SelectCardsDecision` so the
+  UI and server can accept one matching card for "discard two unless you discard a creature card" while rejecting one
+  nonmatching card. `MaxAffordablePayment` caps the selection at
   `floor(payer's available mana / manaPerSelected)` (floating + untapped sources) — pair it with a downstream
   `Gate.MayPay` over `PayDynamicMana` at the same rate so a player can never select a set whose total cost is
   unpayable and silently forfeit the payoff; a cap of zero (under `ChooseAnyNumber`) skips the selection prompt

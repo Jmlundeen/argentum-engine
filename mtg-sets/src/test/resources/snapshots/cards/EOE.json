@@ -313,89 +313,44 @@
                             }
                         },
                         {
-                            "type": "ChooseAction",
-                            "choices": [
+                            "type": "Composite",
+                            "effects": [
                                 {
-                                    "label": "Discard an artifact card",
-                                    "effect": {
-                                        "type": "Composite",
-                                        "effects": [
-                                            {
-                                                "type": "GatherCards",
-                                                "source": {
-                                                    "type": "FromZone",
-                                                    "zone": "Hand",
-                                                    "filter": "artifact"
-                                                },
-                                                "storeAs": "artifacts"
-                                            },
-                                            {
-                                                "type": "SelectFromCollection",
-                                                "from": "artifacts",
-                                                "selection": {
-                                                    "type": "ChooseExactly",
-                                                    "count": {
-                                                        "type": "Fixed",
-                                                        "amount": 1
-                                                    }
-                                                },
-                                                "storeSelected": "discarded",
-                                                "prompt": "Choose an artifact card to discard"
-                                            },
-                                            {
-                                                "type": "MoveCollection",
-                                                "from": "discarded",
-                                                "destination": {
-                                                    "type": "ToZone",
-                                                    "zone": "Graveyard"
-                                                },
-                                                "moveType": "Discard"
-                                            }
-                                        ]
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
                                     },
-                                    "feasibilityCheck": {
-                                        "type": "HasCardsInZone",
-                                        "zone": "Hand",
-                                        "filter": "artifact"
-                                    }
+                                    "storeAs": "hand"
                                 },
                                 {
-                                    "label": "Discard two cards",
-                                    "effect": {
-                                        "type": "Composite",
-                                        "effects": [
-                                            {
-                                                "type": "GatherCards",
-                                                "source": {
-                                                    "type": "FromZone",
-                                                    "zone": "Hand"
-                                                },
-                                                "storeAs": "hand"
-                                            },
-                                            {
-                                                "type": "SelectFromCollection",
-                                                "from": "hand",
-                                                "selection": {
-                                                    "type": "ChooseExactly",
-                                                    "count": {
-                                                        "type": "Fixed",
-                                                        "amount": 2
-                                                    }
-                                                },
-                                                "storeSelected": "discarded",
-                                                "prompt": "Choose 2 cards to discard"
-                                            },
-                                            {
-                                                "type": "MoveCollection",
-                                                "from": "discarded",
-                                                "destination": {
-                                                    "type": "ToZone",
-                                                    "zone": "Graveyard"
-                                                },
-                                                "moveType": "Discard"
-                                            }
-                                        ]
-                                    }
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 2 cards to discard, or 1 artifact card",
+                                    "restrictions": [
+                                        {
+                                            "type": "ReducedMinimumIfMatches",
+                                            "reducedMinimum": 1,
+                                            "filter": "artifact"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
                                 }
                             ]
                         }

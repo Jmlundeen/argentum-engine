@@ -409,6 +409,27 @@ sealed interface SelectionRestriction {
     }
 
     /**
+     * Allows a selection to satisfy a lower minimum when the chosen cards include
+     * [requiredMatches] cards matching [filter]. This models "discard two cards unless
+     * you discard a creature card" as a single selection: normally two cards are
+     * required, but one selected creature card is enough.
+     *
+     * The executor computes the matching option IDs when it creates the decision;
+     * SubmitDecision validation then rejects a response that uses the lower count
+     * without including enough matching cards.
+     */
+    @SerialName("ReducedMinimumIfMatches")
+    @Serializable
+    data class ReducedMinimumIfMatches(
+        val reducedMinimum: Int,
+        val filter: GameObjectFilter,
+        val requiredMatches: Int = 1
+    ) : SelectionRestriction {
+        override val description: String =
+            "may select as few as $reducedMinimum if selecting $requiredMatches ${filter.description} card(s)"
+    }
+
+    /**
      * The selection is capped at the number of cards [payer] can afford to pay
      * [manaPerSelected] generic mana for: `floor(availableMana / manaPerSelected)`,
      * where available mana counts floating mana plus untapped sources. Pair it with

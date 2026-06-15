@@ -24,6 +24,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -119,6 +120,52 @@ object HandPatterns {
                     chooser = chooser,
                     storeSelected = "discarded",
                     prompt = prompt
+                ),
+                MoveCollectionEffect(
+                    from = "discarded",
+                    destination = CardDestination.ToZone(Zone.GRAVEYARD, player),
+                    moveType = MoveType.Discard
+                )
+            )
+        )
+    }
+
+    /**
+     * Discard [count] cards, or satisfy the instruction by discarding fewer cards if
+     * the selection includes [requiredMatches] cards matching [unlessFilter].
+     *
+     * Models "discard two cards unless you discard a creature/basic land/artifact card"
+     * as one card-selection decision instead of a prior modal choice.
+     */
+    fun discardCardsUnlessMatching(
+        count: Int,
+        unlessFilter: GameObjectFilter,
+        target: EffectTarget = EffectTarget.Controller,
+        reducedCount: Int = 1,
+        requiredMatches: Int = 1,
+        prompt: String = "Choose $count cards to discard, or $reducedCount ${unlessFilter.description} card${if (reducedCount != 1) "s" else ""}"
+    ): CompositeEffect {
+        val player = effectTargetToPlayer(target)
+        val chooser = effectTargetToChooser(target)
+        return CompositeEffect(
+            listOf(
+                GatherCardsEffect(
+                    source = CardSource.FromZone(Zone.HAND, player),
+                    storeAs = "hand"
+                ),
+                SelectFromCollectionEffect(
+                    from = "hand",
+                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(count)),
+                    chooser = chooser,
+                    storeSelected = "discarded",
+                    prompt = prompt,
+                    restrictions = listOf(
+                        SelectionRestriction.ReducedMinimumIfMatches(
+                            reducedMinimum = reducedCount,
+                            filter = unlessFilter,
+                            requiredMatches = requiredMatches
+                        )
+                    )
                 ),
                 MoveCollectionEffect(
                     from = "discarded",

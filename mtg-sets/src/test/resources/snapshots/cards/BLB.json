@@ -630,49 +630,46 @@
                         "players": "EachOpponent"
                     },
                     "body": {
-                        "type": "PayOrSuffer",
-                        "cost": {
-                            "type": "PayAtom",
-                            "atom": {
-                                "type": "AtomDiscard",
-                                "filter": "nonland"
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "hand"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "hand",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
+                                },
+                                "storeSelected": "discarded",
+                                "prompt": "Choose 2 cards to discard, or 1 nonland card",
+                                "restrictions": [
+                                    {
+                                        "type": "ReducedMinimumIfMatches",
+                                        "reducedMinimum": 1,
+                                        "filter": "nonland"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discarded",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
                             }
-                        },
-                        "suffer": {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "hand"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "hand",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 2
-                                        }
-                                    },
-                                    "storeSelected": "discarded",
-                                    "prompt": "Choose 2 cards to discard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discarded",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
-                                }
-                            ]
-                        }
+                        ]
                     }
                 }
             }

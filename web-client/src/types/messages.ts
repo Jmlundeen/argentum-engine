@@ -342,6 +342,16 @@ export interface SelectCardsDecision extends PendingDecisionBase {
    * UI tracks the running total and disables cards whose mana value would push it over.
    */
   readonly maxTotalManaValue?: number | null
+  /** Conditional lower minimums for choices like "select two unless one matches this subset". */
+  readonly conditionalMinimums?: readonly ConditionalSelectionMinimum[]
+}
+
+export interface ConditionalSelectionMinimum {
+  readonly requiredSelections: number
+  readonly minimumSelections: number
+  readonly matchingOptions: readonly EntityId[]
+  readonly requiredMatches: number
+  readonly description?: string | null
 }
 
 /**

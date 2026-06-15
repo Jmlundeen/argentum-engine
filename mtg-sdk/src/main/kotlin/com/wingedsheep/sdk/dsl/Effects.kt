@@ -373,6 +373,27 @@ object Effects {
         HandPatterns.discardCards(count, target)
 
     /**
+     * Discard [count] cards unless the player discards [reducedCount] cards matching [unlessFilter].
+     * Presented as one selection decision: a matching lower-count selection is valid, otherwise
+     * the full [count] cards must be selected.
+     */
+    fun DiscardUnlessMatching(
+        count: Int,
+        unlessFilter: GameObjectFilter,
+        target: EffectTarget = EffectTarget.Controller,
+        reducedCount: Int = 1,
+        requiredMatches: Int = 1,
+        prompt: String = "Choose $count cards to discard, or $reducedCount ${unlessFilter.description} card${if (reducedCount != 1) "s" else ""}"
+    ): Effect = HandPatterns.discardCardsUnlessMatching(
+        count = count,
+        unlessFilter = unlessFilter,
+        target = target,
+        reducedCount = reducedCount,
+        requiredMatches = requiredMatches,
+        prompt = prompt
+    )
+
+    /**
      * Connive (CR 702.166): draw a card, then discard a card. If the discarded card
      * is a nonland, put a +1/+1 counter on [target].
      *

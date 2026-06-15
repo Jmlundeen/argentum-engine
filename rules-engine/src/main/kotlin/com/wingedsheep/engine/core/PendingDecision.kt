@@ -179,8 +179,19 @@ data class SelectCardsDecision(
      * UI is expected to disable cards whose mana value would push the running total
      * over the cap; the server also trims oversubmits in selection order.
      */
-    val maxTotalManaValue: Int? = null
+    val maxTotalManaValue: Int? = null,
+    /** Conditional lower minimums for decisions like "discard two unless one is a creature". */
+    val conditionalMinimums: List<ConditionalSelectionMinimum> = emptyList()
 ) : PendingDecision
+
+@Serializable
+data class ConditionalSelectionMinimum(
+    val requiredSelections: Int,
+    val minimumSelections: Int,
+    val matchingOptions: List<EntityId>,
+    val requiredMatches: Int = 1,
+    val description: String? = null
+)
 
 /**
  * Player must make a yes/no decision (may abilities).

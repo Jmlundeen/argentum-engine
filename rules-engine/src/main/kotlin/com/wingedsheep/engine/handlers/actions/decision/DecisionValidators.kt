@@ -226,6 +226,18 @@ object DecisionValidators {
         if (response.selectedCards.size > decision.maxSelections) {
             return "Too many cards selected: maximum is ${decision.maxSelections}"
         }
+        val unmetConditionalMinimums = decision.conditionalMinimums.filter {
+            response.selectedCards.size < it.requiredSelections
+        }
+        if (unmetConditionalMinimums.isNotEmpty()) {
+            val satisfiesAlternative = unmetConditionalMinimums.any { minimum ->
+                val matchingCount = response.selectedCards.count { it in minimum.matchingOptions }
+                response.selectedCards.size >= minimum.minimumSelections && matchingCount >= minimum.requiredMatches
+            }
+            if (!satisfiesAlternative) {
+                return unmetConditionalMinimums.first().description ?: "Selection does not satisfy the conditional minimum"
+            }
+        }
         return null
     }
 
