@@ -1068,6 +1068,53 @@
     "colorIdentityOverride": []
 }
 
+// Ivory Tower
+{
+    "name": "Ivory Tower",
+    "manaCost": "{1}",
+    "typeLine": "Artifact",
+    "oracleText": "At the beginning of your upkeep, you gain X life, where X is the number of cards in your hand minus 4.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "IfPositive",
+                        "amount": {
+                            "type": "Subtract",
+                            "left": {
+                                "type": "AggregateZone",
+                                "player": "You",
+                                "zone": "Hand"
+                            },
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 4
+                            }
+                        }
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, you gain X life, where X is the number of cards in your hand minus 4."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "53",
+        "rarity": "UNCOMMON",
+        "artist": "Margaret Organ-Kean",
+        "flavorText": "Valuing scholarship above all else, the inhabitants of the Ivory Tower reward those who sacrifice power for knowledge.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/5/a5f23039-45ca-4c15-af50-bfd40ea26453.jpg?1562929973"
+    },
+    "colorIdentityOverride": []
+}
+
 // Jalum Tome
 {
     "name": "Jalum Tome",

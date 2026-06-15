@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 40 / 85
+**Implemented:** 41 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -83,7 +83,7 @@
 - [x] Feldon's Cane
 - [ ] Golgothian Sylex
 - [x] Grapeshot Catapult
-- [ ] Ivory Tower
+- [x] Ivory Tower
 - [x] Jalum Tome
 - [x] Mightstone
 - [x] Millstone
