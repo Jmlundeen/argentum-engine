@@ -2274,6 +2274,10 @@ internal fun EmitCtx.activatedBlock(rule: JsonObject, activateFromZone: String? 
     // Recover the exact activation cost. Anything we can't render exactly -> SCAFFOLD (never guess Tap).
     val cost = costNode?.let { abilityCostDsl(it) }
     if (cost == null) { reasons.add("activated-cost"); return null }
+    if ((rule["args"].asArr ?: emptyList()).filterIsInstance<JsonObject>().any { it.strField("_Actions") == "Modal_ChooseOne" }) {
+        reasons.add("modal-activated")
+        return null
+    }
     val (targets, actions) = extractEnvelope(rule)
     if (actions == null) { reasons.add("activated-actions"); return null }
 
@@ -2413,7 +2417,14 @@ internal fun EmitCtx.abilityCostDsl(node: JsonElement?): String? {
         "ExileGraveyardCard" ->
             if (obj.field("args").strField("_GraveyardCard") == "ThisGraveyardCard") "Costs.ExileSelf" else null
         "SacrificeAPermanent" -> costFilterDsl(obj.field("args"))?.let {
-            if (it == "GameObjectFilter.Any") "Costs.Sacrifice()" else "Costs.Sacrifice($it)"
+            val another = jsonContains(obj.field("args"), "_Permanents", "Other") &&
+                jsonContains(obj.field("args"), "_Permanent", "ThisPermanent")
+            when {
+                another && it == "GameObjectFilter.Any" -> "Costs.SacrificeAnother()"
+                another -> "Costs.SacrificeAnother($it)"
+                it == "GameObjectFilter.Any" -> "Costs.Sacrifice()"
+                else -> "Costs.Sacrifice($it)"
+            }
         }
         // "Sacrifice N <permanents>" as an activation cost (Magda, the Hoardmaster's "Sacrifice three
         // Treasures"). IR args are [<N Integer>, <permanent filter>]. Maps to Costs.SacrificeMultiple(N,
