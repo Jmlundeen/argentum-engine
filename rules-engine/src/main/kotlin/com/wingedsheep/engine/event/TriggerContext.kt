@@ -115,7 +115,15 @@ data class TriggerContext(
      * Kambal, Profiteering Mayor) can iterate them. `null` / empty for triggers that capture a
      * single entity via [triggeringEntityId] instead.
      */
-    val capturedEntityIds: List<EntityId>? = null
+    val capturedEntityIds: List<EntityId>? = null,
+    /**
+     * For [com.wingedsheep.engine.core.PermanentAttachedEvent] triggers — the permanent the
+     * triggering attachment (Aura/Equipment) became attached to. Resolved by
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.AttachedToTriggeringPermanent] so a
+     * "becomes attached" payoff can act on the host (Eriette gains control of it; Assimilation
+     * Aegis makes it a copy). `null` for non-attachment triggers.
+     */
+    val attachedToEntityId: EntityId? = null
 ) {
     companion object {
         fun fromEvent(event: com.wingedsheep.engine.core.GameEvent): TriggerContext {
@@ -195,6 +203,13 @@ data class TriggerContext(
                 is ControlChangedEvent -> TriggerContext(
                     triggeringEntityId = event.permanentId,
                     triggeringPlayerId = event.newControllerId
+                )
+                is com.wingedsheep.engine.core.PermanentAttachedEvent -> TriggerContext(
+                    // The attachment is the triggering entity; the host it attached to is carried
+                    // for EffectTarget.AttachedToTriggeringPermanent.
+                    triggeringEntityId = event.attachmentId,
+                    triggeringPlayerId = event.controllerId,
+                    attachedToEntityId = event.attachedToId
                 )
                 is BecomesTargetEvent -> TriggerContext(
                     triggeringEntityId = event.targetEntityId,

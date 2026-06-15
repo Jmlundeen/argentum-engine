@@ -552,6 +552,17 @@ class MoveCollectionExecutor(
             )
         }
 
+        // CR 603.2e — the Aura "becomes attached" as it enters attached by this effect; emit so
+        // attachment triggers (Eriette, the Beguiler) fire on the effect-driven attach path too.
+        events.add(
+            com.wingedsheep.engine.core.PermanentAttachedEvent(
+                attachmentId = auraId,
+                attachmentName = cardName,
+                attachedToId = targetId,
+                controllerId = destPlayerId,
+            )
+        )
+
         return Pair(newState, events)
     }
 

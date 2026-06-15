@@ -38,6 +38,12 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     // OTJ Saddle (CR 702.171b) — "Whenever this creature becomes saddled for the first time each turn, …"
     // (Triggers.becomesSaddled(firstTimeEachTurn = true), Stubborn Burrowfiend).
     supported("WhenAPermanentBecomesSaddledForTheFirstTimeInATurn", "trigger: this permanent becomes saddled for the first time each turn (Triggers.becomesSaddled(firstTimeEachTurn = true))")
+    // "Whenever this Equipment/Aura becomes attached to a permanent, …" (CR 603.2e) — the new
+    // Triggers.becomesAttached. Capability-only: the renderable payoffs (Assimilation Aegis'
+    // copy-of-linked-exile, Eriette's gain-control "for as long as that Aura is attached") carry the
+    // attach-relative duration and exile linkage the emitter does NOT reconstruct, so it declines to
+    // SCAFFOLD per the creator's note (chosen/inherited-value shapes). Hand-authored card is ground truth.
+    supported("WhenAPermanentBecomesAttached", "trigger: an Aura/Equipment becomes attached (Triggers.becomesAttached) — capability only, emitter scaffolds")
     // OTJ crime (CR 700.10) — "Whenever you commit a crime, …" (Triggers.YouCommitCrime, Marauding Sphinx).
     supported("WhenAPlayerCommitsACrime", "trigger: you commit a crime (Triggers.YouCommitCrime)")
     // "Whenever one or more cards leave your graveyard, …" — batching leave-graveyard trigger

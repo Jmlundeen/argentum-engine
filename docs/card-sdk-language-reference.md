@@ -628,7 +628,11 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   "for as long as this creature remains tapped [and the stolen creature's power stays ≤ source's
   power]" steal pattern, or `Duration.WhileYouControlSource("<source name>")` for the
   "for as long as you control this [permanent]" pattern (Aladdin, Scroll of Isildur Chapter I,
-  Rangers of Ithilien). `StateProjector` gates these per-frame for the instantaneous view; the
+  Rangers of Ithilien), or `Duration.WhileSourceAttachedToAffected` for "gain control … for as
+  long as that Aura is attached to it" (Eriette, the Beguiler — the effect is sourced from the
+  *Aura*, so the executor swaps the floating effect's source to the triggering attachment, and the
+  control ends the instant the Aura leaves, detaches, or re-attaches elsewhere). `StateProjector`
+  gates these per-frame for the instantaneous view; the
   one-way half of CR 611.2b ("for as long as" durations don't restart) is enforced by the
   `EndedDurationExpiryCheck` state-based action, which physically removes the effect the moment
   the condition fails — so a pump that wears off, a re-tap, or a re-acquired source never
@@ -731,6 +735,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `BecomeArtifactEffect(target, cardTypes = {"ARTIFACT"}, subtypes, colors = emptySet(), loseAllAbilities = true, grantedAbility?, duration = Permanent)` — the general "becomes a Treasure/Food/Clue/artifact" transform: stacks continuous floating effects on `target` — Layer 4 `SetCardTypes` (replaces *all* card types) + `SetAllSubtypes` (replaces *all* subtypes), Layer 5 color (`emptySet()` = colorless), Layer 6 `RemoveAllAbilities` when `loseAllAbilities` — plus an optional single `grantedAbility` recorded durably in `grantedActivatedAbilities` (so it survives the ability wipe; the enumerators read it after the projected `lostAllAbilities` check). `Duration.Permanent` ends only when the permanent leaves the battlefield. Differs from `BecomeCreatureEffect` (which *adds* CREATURE + sets P/T): this fully replaces types/subtypes so the result is exactly the named artifact. (Vraska, the Silencer: a dead opponent's creature returns as a bare colorless Treasure with the sac-for-mana ability.)
 - `BecomeSaddledEffect(target = Self)` (facade `Effects.BecomeSaddled()`) — target permanent becomes saddled until end of turn (CR 702.171b). The resolving half of a Saddle ability: stamps the transient `SaddledComponent` marker (cleared at end of turn / on leaving the battlefield; not copiable) and emits `BecameSaddledEvent`. No P/T or type change — read the marker with `Conditions.SourceIsSaddled` / `.saddled()`.
 - `EachPermanentBecomesCopyOfTargetEffect(target, filter, duration, excludeTarget, affected)` — mass copy (Mirrorform, Naga Fleshcrafter renew). Facade `Effects.EachPermanentBecomesCopyOfTarget(...)`. Copies copiable values only (Rule 707) — counters, tapped state, attached auras/equipment and non-copy modifiers stay put. `duration = Duration.Permanent` (default) bakes the copy into base state for good; `Duration.EndOfTurn` makes a temporary copy reverted by the end-of-turn cleanup (each affected permanent restores its pre-copy `CardComponent` from its `CopyOfComponent` snapshot). `excludeTarget = true` keeps the copy **source** out of the affected set, for "each **other** … becomes a copy of that …" wordings where the target keeps its own identity (and any counter just placed on it). `affected` (an `EffectTarget`, e.g. a second `ContextTarget`) switches to the single-permanent "target permanent A becomes a copy of target permanent B" shape (Fleeting Reflection: "target creature you control … becomes a copy of up to one **other** target creature") — only that one resolved permanent becomes a copy of `target`, and `filter`/`excludeTarget` are ignored; if `affected` resolves to nothing (optional target omitted) the effect is a no-op.
+- `BecomeCopyOfLinkedExileEffect(affected = AttachedToTriggeringPermanent)` — facade `Effects.BecomeCopyOfLinkedExile(affected)`. The `affected` permanent becomes a copy of the first creature card in the effect's **source's linked exile** (`LinkedExileComponent` — the card the source banished via `Effects.ExileUntilLeaves`), copiable values only (Rule 707.2). Baked into the affected permanent's `CardComponent` like Clone, but tagged with a `CopyWhileAttachedComponent(sourceId)`; the `AttachedCopyExpiryCheck` state-based action reverts the copy (restoring the pre-copy snapshot) the moment the source stops being attached to it — detach, re-attach elsewhere, or source leaving (CR 611.2b, one-way). No-op when the source's linked exile holds no creature card. Used by Assimilation Aegis ("for as long as this Equipment remains attached to it, that creature becomes a copy of a creature card exiled with this Equipment").
 - `AnimateLandEffect(target, subtypes, keywords, duration)` — land becomes a creature.
 - `ExploreEffect(target)` — Explore mechanic (reveal top; land → battlefield, else hand + counter).
 - `AttachEquipmentEffect(equip, target)` — attach an Equipment.
@@ -1176,6 +1181,11 @@ can't statically prevent (cross-trigger flows, `Self`-vs-`ContextTarget` inside 
   `resolveTarget(state, target)` overload.
 - `EnchantedPermanent` — same `AttachedToComponent` resolution as `EnchantedCreature`, but type-agnostic; use for
   Auras that enchant non-creature permanents (e.g. Wellspring enchants a land: "gain control of enchanted land").
+- `AttachedToTriggeringPermanent` — inside a `Triggers.becomesAttached` trigger, the permanent the
+  triggering attachment (Aura/Equipment) became attached to. Resolved live from the triggering
+  object's `AttachedToComponent` (so a "for as long as attached" payoff does nothing if the
+  attachment already left — CR 611.2b). Used by Eriette ("gain control of that permanent") and
+  Assimilation Aegis ("that creature becomes a copy …").
 
 ### Cast-time (`Targets.*` / `TargetRequirement`)
 
@@ -1900,6 +1910,19 @@ Triggers.youCastSpell(
   `firstThisTurn` flag, which is true only when the permanent wasn't already saddled when the ability
   resolved (re-saddling in the same turn reports false, since `SaddledComponent` persists until
   cleanup). Use an `ANY` binding + `filter` for "whenever a [filter] becomes saddled".
+- `becomesAttached(attachmentFilter = Any, attachmentController = Any, attachedToFilter = Any, binding = SELF)`
+  — "whenever an Aura/Equipment becomes attached to a permanent" (CR 603.2e). Fires from
+  `PermanentAttachedEvent`, emitted at every attach site (aura ETB onto its enchant target, equip
+  resolution, an aura moved onto the battlefield attached by an effect) only when newly attached —
+  not on a persisting attachment, and not on phasing in/out (CR 702.26j). The triggering entity is
+  the **attachment**; the host it attached to is reachable via
+  `EffectTarget.AttachedToTriggeringPermanent`. `SELF` = "whenever **this** Equipment/Aura becomes
+  attached" (Assimilation Aegis). `ANY` + `attachmentController = Player.You` + `attachmentFilter`
+  = "whenever a [filter] you control becomes attached to …" (Eriette, the Beguiler); the
+  `attachedToFilter` is matched against the host with the attaching object exposed as
+  `EntityReference.Triggering`, so relative predicates like
+  `manaValueAtMostEntity(EntityReference.Triggering)` ("MV ≤ that Aura's MV") resolve against it.
+  Indexed under `TriggerCategory.BECOMES_ATTACHED`.
 - `Valiant` — Bloomburrow Valiant trigger.
 - `RoomFullyUnlocked` — Rooms — both doors unlocked.
 - `OnDoorUnlocked` — single Room door unlocked.

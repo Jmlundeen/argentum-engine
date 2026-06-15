@@ -1232,6 +1232,20 @@ class StackResolver(
 
         // Handle "enters with counters" replacement effects (before adding to battlefield)
         val counterEvents = mutableListOf<GameEvent>()
+
+        // CR 603.2e — an Aura entering attached to its enchant target "becomes attached"; emit the
+        // event so attachment triggers (Eriette, the Beguiler) fire.
+        if (auraTargetId != null) {
+            counterEvents.add(
+                com.wingedsheep.engine.core.PermanentAttachedEvent(
+                    attachmentId = spellId,
+                    attachmentName = cardComponent?.name ?: "Aura",
+                    attachedToId = auraTargetId,
+                    controllerId = controllerId,
+                )
+            )
+        }
+
         if (cardDef != null && !spellComponent.castFaceDown) {
             val totalManaSpent = spellComponent.manaSpentWhite + spellComponent.manaSpentBlue +
                 spellComponent.manaSpentBlack + spellComponent.manaSpentRed +
