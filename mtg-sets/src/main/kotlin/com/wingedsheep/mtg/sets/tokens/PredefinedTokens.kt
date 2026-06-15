@@ -103,6 +103,27 @@ object PredefinedTokens {
     }
 
     /**
+     * Clue token — an artifact with:
+     * "{2}, Sacrifice this token: Draw a card."
+     * Created by the Investigate keyword action ([Effects.Investigate]).
+     */
+    val Clue = card("Clue") {
+        typeLine = "Artifact — Clue"
+
+        activatedAbility {
+            cost = Costs.Composite(
+                Costs.Mana("{2}"),
+                Costs.SacrificeSelf
+            )
+            effect = Effects.DrawCards(1)
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/7/6/764a906c-8b27-4ffa-bdc3-7825c6919d3e.jpg?1712316807"
+        }
+    }
+
+    /**
      * Lander token — an artifact with:
      * "{2}, {T}, Sacrifice this token: Search your library for a basic land card,
      * put it onto the battlefield tapped, then shuffle."
@@ -378,6 +399,7 @@ object PredefinedTokens {
         Treasure,
         Meteorite,
         Food,
+        Clue,
         Lander,
         JustOneGlass,
         Map,

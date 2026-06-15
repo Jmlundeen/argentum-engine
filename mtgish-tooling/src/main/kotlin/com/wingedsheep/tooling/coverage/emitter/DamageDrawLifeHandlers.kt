@@ -151,6 +151,9 @@ internal val damageDrawLifeHandlers: Map<String, ActionHandler> = actionHandlers
     // Willbender). Pairs with `Targets.SpellOrAbilityWithSingleTarget`.
     simple("ChangeTargetsOfSpellOrAbility", dsl = "Effects.ChangeTarget()")
     simple("Shuffle", dsl = "ShuffleLibraryEffect()")
+    // Investigate (keyword action, CR 701.36): create a Clue token. Argument-free constant action
+    // (Malcolm, the Eyes — "investigate"). "Investigate N times" appears as N stacked actions.
+    simple("Investigate", dsl = "Effects.Investigate()")
     simple("TakeAnExtraTurn", dsl = "TakeExtraTurnEffect()")
     simple("DiscardACardAtRandom", dsl = "Patterns.Hand.discardRandom(1)")
 

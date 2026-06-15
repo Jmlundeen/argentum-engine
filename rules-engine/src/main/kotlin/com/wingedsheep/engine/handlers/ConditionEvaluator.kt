@@ -99,6 +99,7 @@ import com.wingedsheep.sdk.scripting.conditions.IsFirstSpellPaidWithTreasureMana
 import com.wingedsheep.sdk.scripting.conditions.SourceAbilityResolvedNTimesThisTurn
 import com.wingedsheep.sdk.scripting.conditions.ManaSpentToCastIncludes
 import com.wingedsheep.sdk.scripting.conditions.NoManaSpentToCast
+import com.wingedsheep.sdk.scripting.conditions.NoManaSpentToCastEntered
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid
@@ -305,6 +306,7 @@ class ConditionEvaluator(
             is BlightWasPaid -> ifResolution { it.wasBlightPaid }
             is ManaSpentToCastIncludes -> ifResolution { evaluateManaSpentToCastIncludes(state, condition, it) }
             is NoManaSpentToCast -> ifResolution { evaluateNoManaSpentToCast(state, it) }
+            is NoManaSpentToCastEntered -> ifResolution { evaluateNoManaSpentToCastEntered(state, it) }
             is SourceChosenModeIs -> {
                 // Dual-mode: the chosen mode is stored in the durable cast-choices bag on the
                 // source permanent, readable both at resolution (gating triggered abilities) and
@@ -756,9 +758,24 @@ class ConditionEvaluator(
      */
     private fun evaluateNoManaSpentToCast(state: GameState, context: EffectContext): Boolean {
         val sourceId = context.sourceId ?: return false
-        val record = state.getEntity(sourceId)?.get<CastRecordComponent>() ?: return true
+        return noManaSpentToCast(state, sourceId)
+    }
+
+    /** True iff no mana at all was spent to cast [entityId] (absent record or zero total). */
+    private fun noManaSpentToCast(state: GameState, entityId: EntityId): Boolean {
+        val record = state.getEntity(entityId)?.get<CastRecordComponent>() ?: return true
         return record.whiteSpent + record.blueSpent + record.blackSpent +
             record.redSpent + record.greenSpent + record.colorlessSpent == 0
+    }
+
+    /**
+     * Satoru-shaped batch gate: every permanent captured by the batch-enters trigger (exposed at
+     * resolution under [PipelineState.TRIGGER_CAPTURED_COLLECTION]) had no mana spent to cast it.
+     * An empty capture is vacuously true.
+     */
+    private fun evaluateNoManaSpentToCastEntered(state: GameState, context: EffectContext): Boolean {
+        val captured = context.pipeline.storedCollections[PipelineState.TRIGGER_CAPTURED_COLLECTION].orEmpty()
+        return captured.all { noManaSpentToCast(state, it) }
     }
 
     private fun evaluateWasKicked(state: GameState, context: EffectContext): Boolean {

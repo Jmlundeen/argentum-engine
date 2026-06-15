@@ -171,6 +171,7 @@ object CardLinter {
         put("FilterCollection" to "storeNonMatching", write(Space.COLLECTION))
         put("ExileLibraryUntilManaValue" to "storeAs", write(Space.COLLECTION))
         put("CopyCardIntoCollection" to "storeAs", write(Space.COLLECTION))
+        put("CastFromCollectionWithoutPayingCost" to "storeCastTo", write(Space.COLLECTION))
         put("CounterAllOnStack" to "storeCountAs", write(Space.COLLECTION))
         put("Behold" to "storeAs", write(Space.COLLECTION))
         put("BeholdOrPay" to "storeAs", write(Space.COLLECTION))

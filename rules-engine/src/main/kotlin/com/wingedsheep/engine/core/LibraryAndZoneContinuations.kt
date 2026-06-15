@@ -319,12 +319,15 @@ data class CascadeMayCastContinuation(
  *
  * @property cardId The card being cast for free
  * @property casterId The controller of the effect (also the decision-maker)
+ * @property storeCastTo When set, the cast card's id is published to this pipeline collection
+ *   once the cast initiates, so an enclosing `IfYouDoEffect` can gate a follow-up.
  */
 @Serializable
 data class CastFromCollectionTargetsContinuation(
     override val decisionId: String,
     val cardId: EntityId,
     val casterId: EntityId,
+    val storeCastTo: String? = null,
 ) : ContinuationFrame
 
 /**

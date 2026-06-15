@@ -186,6 +186,25 @@ data object NoManaSpentToCast : Condition {
 }
 
 /**
+ * Condition: "if none of them were cast or no mana was spent to cast them" — the batch-enters
+ * variant of [NoManaSpentToCast], evaluated over the permanents a batch trigger captured
+ * (the `PermanentsEnteredEvent` batch that caused the trigger, exposed at resolution as the
+ * `trigger.captured` pipeline collection) rather than the ability's own source.
+ *
+ * True iff **every** captured permanent satisfies [NoManaSpentToCast] (was put onto the
+ * battlefield without being cast, or was cast with zero total mana spent). An empty capture is
+ * vacuously true. Use as a resolution-time gate ([ConditionalEffect]) on a
+ * [com.wingedsheep.sdk.dsl.Triggers.OneOrMorePermanentsEnter] payoff — Satoru, the Infiltrator
+ * ("Whenever Satoru and/or one or more other nontoken creatures you control enter, if none of
+ * them were cast or no mana was spent to cast them, draw a card.").
+ */
+@SerialName("NoManaSpentToCastEntered")
+@Serializable
+data object NoManaSpentToCastEntered : Condition {
+    override val description: String = "none of them were cast or no mana was spent to cast them"
+}
+
+/**
  * Condition: "If this spell was cast from [zone]"
  * Used for flashback spells and other zone-dependent effects.
  * Checks whether the spell was cast from the specified zone.

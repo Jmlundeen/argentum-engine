@@ -1548,6 +1548,26 @@ object Effects {
         CreatePredefinedTokenEffect("Food", count, controller)
 
     /**
+     * Create Clue artifact tokens.
+     * "{2}, Sacrifice this token: Draw a card."
+     *
+     * @param count Number of tokens to create
+     * @param controller Who controls the tokens (null = spell controller)
+     */
+    fun CreateClue(count: Int = 1, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Clue", count, controller)
+
+    /**
+     * Investigate (keyword action, CR 701.36): create [count] Clue tokens. Synonymous with
+     * [CreateClue]; named after the keyword action so card text "investigate" maps directly.
+     *
+     * @param count Number of Clue tokens to create (e.g. "investigate twice" → 2)
+     * @param controller Who controls the tokens (null = spell controller)
+     */
+    fun Investigate(count: Int = 1, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Clue", count, controller)
+
+    /**
      * Create Lander artifact tokens.
      * "{2}, {T}, Sacrifice this token: Search your library for a basic land card,
      * put it onto the battlefield tapped, then shuffle."
@@ -1934,6 +1954,18 @@ object Effects {
      */
     fun CastFromCollectionWithoutPayingCost(from: String): Effect =
         CastFromCollectionWithoutPayingCostEffect(from = from)
+
+    /**
+     * Cast the (0..1) card stored under [from], **paying its normal mana cost** (the "you may
+     * cast it" wording without "without paying its mana cost" — Kaervek, the Punisher). The card
+     * must already be in a zone where casting is legal (e.g. exile after a copy step). When
+     * [storeCastTo] is set, the cast card's id is published to that pipeline collection on a
+     * successful cast, so an enclosing [IfYouDoEffect] with
+     * [com.wingedsheep.sdk.scripting.effects.SuccessCriterion.CollectionNonEmpty] can gate a
+     * follow-up ("If you do, …").
+     */
+    fun CastFromCollection(from: String, storeCastTo: String? = null): Effect =
+        CastFromCollectionWithoutPayingCostEffect(from = from, payManaCost = true, storeCastTo = storeCastTo)
 
     /**
      * Suspend an already-exiled [target] with [timeCounters] time counters (CR 702.62) — a
