@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 42 / 85
+**Implemented:** 43 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -96,7 +96,7 @@
 - [ ] Rocket Launcher
 - [ ] Shapeshifter
 - [x] Staff of Zegon
-- [ ] Su-Chi
+- [x] Su-Chi
 - [x] Tablet of Epityr
 - [ ] Tawnos's Coffin
 - [x] Tawnos's Wand

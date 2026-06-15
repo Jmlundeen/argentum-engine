@@ -1796,6 +1796,46 @@
     "colorIdentityOverride": []
 }
 
+// Su-Chi
+{
+    "name": "Su-Chi",
+    "manaCost": "{4}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "When this creature dies, add {C}{C}{C}{C}.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                },
+                "descriptionOverride": "When this creature dies, add {C}{C}{C}{C}."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "rarity": "UNCOMMON",
+        "artist": "Christopher Rush",
+        "flavorText": "Flawed copies of relics from the Thran Empire, the Su-Chi were inherently unstable but provided useful knowledge for Tocasia's students.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/6/a64d4f93-0c04-4078-aec0-7e9de92f260f.jpg?1562930042"
+    },
+    "colorIdentityOverride": []
+}
+
 // Tablet of Epityr
 {
     "name": "Tablet of Epityr",
