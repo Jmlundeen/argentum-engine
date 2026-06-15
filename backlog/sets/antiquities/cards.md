@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 14 / 85
+**Implemented:** 15 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -73,7 +73,7 @@
 - [ ] Ashnod's Transmogrant
 - [ ] Battering Ram
 - [ ] Bronze Tablet
-- [ ] Candelabra of Tawnos
+- [x] Candelabra of Tawnos
 - [x] Clay Statue
 - [ ] Clockwork Avian
 - [ ] Colossus of Sardia

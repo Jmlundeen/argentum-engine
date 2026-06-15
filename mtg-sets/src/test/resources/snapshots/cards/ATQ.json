@@ -51,6 +51,65 @@
     "colorIdentityOverride": []
 }
 
+// Candelabra of Tawnos
+{
+    "name": "Candelabra of Tawnos",
+    "manaCost": "{1}",
+    "typeLine": "Artifact",
+    "oracleText": "{X}, {T}: Untap X target lands.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{X}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "ForEachTarget",
+                    "effects": [
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
+                            "tap": false
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land"
+                        },
+                        "dynamicMaxCount": "XValue"
+                    }
+                ],
+                "descriptionOverride": "{X}, {T}: Untap X target lands."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "43",
+        "rarity": "RARE",
+        "artist": "Douglas Shuler",
+        "flavorText": "Tawnos learned quickly from Urza that utter simplicity often led to wondrous, yet subtle utility.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/5/35a335bf-7358-460f-b7c9-1e8bc4300f64.jpg?1562906316"
+    },
+    "colorIdentityOverride": []
+}
+
 // Clay Statue
 {
     "name": "Clay Statue",
