@@ -1,3 +1,56 @@
+// Amulet of Kroog
+{
+    "name": "Amulet of Kroog",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{2}, {T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "PreventDamageShield",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "any target"
+                    }
+                ],
+                "descriptionOverride": "{2}, {T}: Prevent the next 1 damage that would be dealt to any target this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "36",
+        "artist": "Margaret Organ-Kean",
+        "flavorText": "Among the first allies Urza gained were the people of Kroog. As a sign of friendship, Urza gave the healers of the city potent amulets; afterwards, thousands journeyed to Kroog in hope of healing, greatly adding to the city's glory.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/0/b094f8dd-0184-41a2-9767-e848a6e4eac1.jpg?1562932268"
+    },
+    "colorIdentityOverride": []
+}
+
 // Clay Statue
 {
     "name": "Clay Statue",
