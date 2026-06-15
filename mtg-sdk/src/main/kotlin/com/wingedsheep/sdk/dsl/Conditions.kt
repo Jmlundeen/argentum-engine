@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.conditions.NotCondition
 import com.wingedsheep.sdk.scripting.conditions.WasCast as WasCastCondition
 import com.wingedsheep.sdk.scripting.conditions.NoManaSpentToCast as NoManaSpentToCastCondition
+import com.wingedsheep.sdk.scripting.conditions.NoManaSpentToCastEntered as NoManaSpentToCastEnteredCondition
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand as WasCastFromHandCondition
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone as WasCastFromZoneCondition
 import com.wingedsheep.sdk.scripting.conditions.WasKicked as WasKickedCondition
@@ -514,6 +515,17 @@ object Conditions {
      */
     val NoManaSpentToCast: ConditionInterface =
         NoManaSpentToCastCondition
+
+    /**
+     * "if none of them were cast or no mana was spent to cast them" — the batch-enters variant of
+     * [NoManaSpentToCast]. True iff **every** permanent a batch trigger captured (the
+     * `Triggers.OneOrMorePermanentsEnter` batch, exposed at resolution as the `trigger.captured`
+     * collection) had no mana spent to cast it; an empty capture is vacuously true. Use as a
+     * resolution-time [com.wingedsheep.sdk.dsl.Effects] `ConditionalEffect` gate on the payoff —
+     * Satoru, the Infiltrator.
+     */
+    val NoManaSpentToCastEntered: ConditionInterface =
+        NoManaSpentToCastEnteredCondition
 
     /**
      * If this permanent was cast from your hand.

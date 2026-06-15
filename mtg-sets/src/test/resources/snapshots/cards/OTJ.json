@@ -8852,6 +8852,114 @@
     ]
 }
 
+// Kaervek, the Punisher
+{
+    "name": "Kaervek, the Punisher",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Legendary Creature — Human Warlock",
+    "oracleText": "Whenever you commit a crime, exile up to one target black card from your graveyard and copy it. You may cast the copy. If you do, you lose 2 life. (Targeting opponents, anything they control, and/or cards in their graveyards is a crime. Copies of permanent spells become tokens.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "CommitCrimeEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "up to one target black card from your graveyard"
+                            },
+                            "destination": "Exile"
+                        },
+                        {
+                            "type": "CopyCardIntoCollection",
+                            "source": {
+                                "type": "BoundVariable",
+                                "name": "up to one target black card from your graveyard"
+                            },
+                            "storeAs": "copy"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
+                                "type": "Gated",
+                                "gate": {
+                                    "type": "Gate.DoAction",
+                                    "action": {
+                                        "type": "CastFromCollectionWithoutPayingCost",
+                                        "from": "copy",
+                                        "payManaCost": true,
+                                        "storeCastTo": "kaervekCast"
+                                    },
+                                    "successCriterion": {
+                                        "type": "SuccessCriterion.CollectionNonEmpty",
+                                        "name": "kaervekCast"
+                                    }
+                                },
+                                "then": {
+                                    "type": "LoseLife",
+                                    "amount": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    },
+                                    "target": "Controller"
+                                }
+                            },
+                            "descriptionOverride": "You may cast the copy. If you do, you lose 2 life."
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "black own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "up to one target black card from your graveyard"
+                },
+                "descriptionOverride": "Whenever you commit a crime, exile up to one target black card from your graveyard and copy it. You may cast the copy. If you do, you lose 2 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "92",
+        "rarity": "RARE",
+        "artist": "Cristi Balanescu",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f3affc1-be42-48c7-89ff-b59550ff278c.jpg?1712355608",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "You cast the copy while the ability is resolving and still on the stack. You can't wait to cast it later in the turn."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "Because you're paying the spell's costs, if the spell has {X} in its mana cost, you may choose its value as normal."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "If you don't want to cast the copy, you can choose not to; the copy ceases to exist the next time state-based actions are performed."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "A player commits a crime as they cast a spell, activate an ability, or put a triggered ability on the stack that targets at least one opponent, at least one permanent, spell, or ability an opponent controls, and/or at least one card in an opponent's graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Kambal, Profiteering Mayor
 {
     "name": "Kambal, Profiteering Mayor",
@@ -10003,6 +10111,51 @@
     ]
 }
 
+// Malcolm, the Eyes
+{
+    "name": "Malcolm, the Eyes",
+    "manaCost": "{U}{R}",
+    "typeLine": "Legendary Creature — Siren Pirate",
+    "oracleText": "Flying, haste\nWhenever you cast your second spell each turn, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING",
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "NthSpellCastEvent",
+                    "nthSpell": 2,
+                    "player": "You"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Clue"
+                },
+                "descriptionOverride": "Whenever you cast your second spell each turn, investigate."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "219",
+        "rarity": "RARE",
+        "artist": "Dmitry Burmak",
+        "flavorText": "\"It's funny how rarely folks here think to look up.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/2/521dffaa-813b-41e4-b7c2-a8c407167875.jpg?1712356159"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Map the Frontier
 {
     "name": "Map the Frontier",
@@ -10171,6 +10324,111 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Marchesa, Dealer of Death
+{
+    "name": "Marchesa, Dealer of Death",
+    "manaCost": "{U}{B}{R}",
+    "typeLine": "Legendary Creature — Human Rogue",
+    "oracleText": "Whenever you commit a crime, you may pay {1}. If you do, look at the top two cards of your library. Put one of them into your hand and the other into your graveyard. (Targeting opponents, anything they control, and/or cards in their graveyards is a crime.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "CommitCrimeEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{1}"
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
+                                },
+                                "storeAs": "looked"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "looked",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "kept",
+                                "storeRemainder": "rest",
+                                "selectedLabel": "Put in hand",
+                                "remainderLabel": "Put in graveyard"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "kept",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                }
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "rest",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "Whenever you commit a crime, you may pay {1}. If you do, look at the top two cards of your library. Put one of them into your hand and the other into your graveyard."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "220",
+        "rarity": "RARE",
+        "artist": "Ryan Pancoast",
+        "flavorText": "\"You should have folded when you had the chance.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/e/ee29b59c-d57c-4a03-bae7-e9dfa57d6bb1.jpg?1712356159",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "A player commits a crime as they cast a spell, activate an ability, or put a triggered ability on the stack that targets at least one opponent, at least one permanent, spell, or ability an opponent controls, and/or at least one card in an opponent's graveyard."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "A player can commit only one crime per spell or ability they control. Targeting multiple opponents, permanents, spells, abilities, and/or cards with the same spell or ability doesn't constitute committing multiple crimes."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "You choose whether to pay {1} as Marchesa's triggered ability resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK",
+        "RED"
     ]
 }
 
@@ -14528,6 +14786,65 @@
         "imageUri": "https://cards.scryfall.io/normal/front/3/a/3ab4e0a4-2faf-456b-99e3-ee06c008538c.jpg?1712356353"
     },
     "colorIdentityOverride": []
+}
+
+// Satoru, the Infiltrator
+{
+    "name": "Satoru, the Infiltrator",
+    "manaCost": "{U}{B}",
+    "typeLine": "Legendary Creature — Human Ninja Rogue",
+    "oracleText": "Menace\nWhenever Satoru and/or one or more other nontoken creatures you control enter, if none of them were cast or no mana was spent to cast them, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "PermanentsEnteredEvent",
+                    "filter": "creature nontoken"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": "NoManaSpentToCastEntered"
+                    },
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "descriptionOverride": "Whenever Satoru and/or one or more other nontoken creatures you control enter, if none of them were cast or no mana was spent to cast them, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "230",
+        "rarity": "RARE",
+        "artist": "Heonhwa",
+        "flavorText": "\"This backwater doesn't have a single wall, ward, or guard that could keep me out.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/c/acc9a5cc-2b3c-4c2f-8176-4a2d86265cc5.jpg?1712356202",
+        "rulings": [
+            {
+                "date": "2024-04-12",
+                "text": "If you cast a creature spell without paying its mana cost but you paid mana for additional costs or cost increases (such as from Aven Interrupter), Satoru's last ability won't trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
 }
 
 // Scalestorm Summoner

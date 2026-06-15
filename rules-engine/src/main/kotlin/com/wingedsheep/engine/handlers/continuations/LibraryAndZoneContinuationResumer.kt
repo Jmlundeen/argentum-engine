@@ -857,15 +857,22 @@ class LibraryAndZoneContinuationResumer(
             return checkForMore(state, emptyList())
         }
 
+        // The cast initiated. Publish the cast card so an enclosing IfYouDoEffect frame beneath
+        // (Kaervek's "If you do, you lose 2 life") sees a non-empty collection.
+        val castCollections = continuation.storeCastTo?.let { mapOf(it to listOf(continuation.cardId)) }
+            ?: emptyMap()
+
         if (castResult.pendingDecision != null) {
+            val exposed = exposeCollectionsToNextFrame(castResult.state, castCollections)
             return ExecutionResult.paused(
-                castResult.state,
+                exposed,
                 castResult.pendingDecision,
                 castResult.events,
             )
         }
 
-        return checkForMore(castResult.state, castResult.events)
+        val exposed = exposeCollectionsToNextFrame(castResult.state, castCollections)
+        return checkForMore(exposed, castResult.events)
     }
 
     /**

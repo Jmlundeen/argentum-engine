@@ -63,6 +63,8 @@ internal fun BridgeBuilder.damageLifeAndCards() {
     effect("TakeAnExtraTurn", "TakeExtraTurn")
     effect("LoseTheGame", "LoseGame")
     effect("Shuffle", "ShuffleLibrary")
+    // Investigate (CR 701.36) — create a Clue token (Effects.Investigate() / Effects.CreateClue()).
+    effect("Investigate", "Investigate")
     effect("RevealHand", "RevealHand")
     effect("LookAtPlayersHand", "LookAtTargetHand")
 
