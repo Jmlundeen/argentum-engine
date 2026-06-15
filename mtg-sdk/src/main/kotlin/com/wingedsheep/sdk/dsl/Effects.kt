@@ -2179,6 +2179,15 @@ object Effects {
         ForceSacrificeEffect(filter, count, target)
 
     /**
+     * Force a player to sacrifice a [DynamicAmount] of permanents matching a filter — e.g.
+     * "sacrifices half the creatures they control, rounded up" (Rush of Dread). The amount is
+     * evaluated at resolution against the resolving context, so a per-target player reference
+     * (`Player.ContextPlayer(0)` / `Player.TargetOpponent`) counts the chosen player's permanents.
+     */
+    fun Sacrifice(filter: GameObjectFilter, count: DynamicAmount, target: EffectTarget = EffectTarget.PlayerRef(Player.TargetOpponent)): Effect =
+        ForceSacrificeEffect(filter = filter, target = target, dynamicCount = count)
+
+    /**
      * Sacrifice a specific permanent identified by target.
      * Used in delayed triggers where the exact permanent was determined at resolution time.
      */
@@ -2252,6 +2261,25 @@ object Effects {
      */
     fun PhaseOut(target: EffectTarget = EffectTarget.Self): Effect =
         com.wingedsheep.sdk.scripting.effects.PhaseOutEffect(target)
+
+    /**
+     * Phase a target permanent out indefinitely, linked to the effect's source — it stays phased
+     * out until the source leaves the battlefield (paired with [PhaseInLinkedToSource] on the
+     * source's leaves trigger). The phasing analogue of `ExileUntilLeaves` (Oubliette). Set
+     * [tapOnPhaseIn] to tap the permanent as it phases back in.
+     */
+    fun PhaseOutUntilLeaves(
+        target: EffectTarget = EffectTarget.ContextTarget(0),
+        tapOnPhaseIn: Boolean = false
+    ): Effect =
+        com.wingedsheep.sdk.scripting.effects.PhaseOutUntilLeavesEffect(target, tapOnPhaseIn)
+
+    /**
+     * Phase in everything the effect's source phased out via [PhaseOutUntilLeaves]. Use on the
+     * source's leaves-battlefield trigger (Oubliette).
+     */
+    fun PhaseInLinkedToSource(): Effect =
+        com.wingedsheep.sdk.scripting.effects.PhaseInLinkedToSourceEffect
 
     // =========================================================================
     // Group Effects (atomic effect classes)
@@ -2484,6 +2512,22 @@ object Effects {
         )
 
     /**
+     * Choose a source; the next time it would deal damage to you this turn, the damage is still
+     * dealt to you in full **and** that much damage is dealt to that source's controller (Eye for
+     * an Eye). Same chosen-source reaction machinery as [DeflectNextDamageFromChosenSource], but
+     * with `preventDamage = false` so the original damage is not prevented.
+     */
+    fun ReflectNextDamageFromChosenSourceToController(): Effect =
+        PreventDamageEffect(
+            sourceFilter = PreventionSourceFilter.ChosenSource,
+            preventDamage = false,
+            onPrevented = DealDamageEffect(
+                amount = DynamicAmounts.preventedDamage(),
+                target = EffectTarget.ControllerOfTriggeringEntity
+            )
+        )
+
+    /**
      * Prevent the next N damage that would be dealt to a target this turn by a source of your choice.
      */
     fun PreventNextDamageFromChosenSource(amount: Int, target: EffectTarget): Effect =
@@ -2584,6 +2628,19 @@ object Effects {
         creatureTarget: EffectTarget = EffectTarget.ContextTarget(1)
     ): Effect = com.wingedsheep.sdk.scripting.effects.AttachTargetEquipmentToCreatureEffect(
         equipmentTarget, creatureTarget
+    )
+
+    /**
+     * Put a targeted Aura or Equipment card onto the battlefield attached to a permanent the
+     * controller chooses at resolution (default: a creature you control). Works for both
+     * Auras and Equipment; the host is chosen, not targeted (One Last Job).
+     */
+    fun PutOntoBattlefieldAttachedToChosen(
+        target: EffectTarget = EffectTarget.ContextTarget(0),
+        hostFilter: com.wingedsheep.sdk.scripting.GameObjectFilter =
+            com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.youControl()
+    ): Effect = com.wingedsheep.sdk.scripting.effects.PutOntoBattlefieldAttachedToChosenEffect(
+        target, hostFilter
     )
 
     // =========================================================================

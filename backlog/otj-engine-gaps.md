@@ -108,8 +108,10 @@ Tests: `CrewSaddleContributorsScenarioTest`.
 
 → Unblocks: Giant Beaver, Ornery Tumblewagg, Rambling Possum (saddlers get counters / bounce),
   The Gitrog Ravenous Ride & Calamity (consume the saddlers), **Luxurious Locomotive** (Treasure per
-  creature that crewed it this turn — note: dynamic-count Treasure creation is still Int-only; that
-  card additionally needs a dynamic `CreateTreasure` or a `CreateTokenEffect`-based Treasure).
+  creature that crewed it this turn — ✅ implemented: `Effects.CreateTreasure(count: DynamicAmount)`
+  already supports a dynamic count, and "Crew 1. Activate only once each turn." is now
+  `KeywordAbility.crew(1, onceEachTurn = true)`, enforced by the crew enumerator/handler via
+  `CrewSaddleContributorsComponent.crewActivations`). Tests: `OtjLuxuriousLocomotiveScenarioTest`.
 
 ### 3. `DynamicAmount` over spells cast this turn (filtered, per-player, exclude-self) — ✅ DONE
 
@@ -280,10 +282,14 @@ power via `dynamicPower = CharacteristicValue.dynamic(TurnTracking(You, CARDS_DR
     run once then `RepeatDynamicTimesEffect(amount = DynamicAmount.XValue, body = …)` for "X more times".
     → **Another Round** (implemented).
 
-15. **Targeted reanimate-attached for Auras/Equipment.** Only `ReturnSelfToBattlefieldAttached`
-    (source = self) exists. This mode targets a *separate* graveyard Aura/Equipment and attaches it to
-    a chosen creature on arrival — a targeted reanimate-attached effect.
-    → **One Last Job** (third Spree mode only; modes 1–2 buildable).
+15. **Targeted reanimate-attached for Auras/Equipment.** ✅ DONE —
+    `Effects.PutOntoBattlefieldAttachedToChosen(target, hostFilter = Creature.youControl())` puts a
+    targeted graveyard Aura/Equipment onto the battlefield attached to a host the controller chooses at
+    resolution (host is NOT a target). Works for both Auras and Equipment, intersects an Aura's enchant
+    legality, and (per ruling) lets an Equipment enter unattached / an Aura stay back when no legal host
+    exists. Pausing executor + `PutOntoBattlefieldAttachedToChosenContinuation` reuse the
+    MoveCollection attach helper.
+    → **One Last Job** (all three Spree modes) — implemented.
 
 16. **Inline "excess damage dealt this way" captured within one resolving spell.** ✅ DONE —
     `EntityNumericProperty.ExcessMarkedDamage` reads `max(0, marked − toughness)` of a context target

@@ -371,6 +371,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `PutOntoBattlefield(target, tapped?)` — put target on the battlefield.
 - `PutOntoBattlefieldUnderYourControl(target)` — under controller's control.
 - `PutOntoBattlefieldFaceDown(count, target?)` — enter face-down (2/2 morph shape).
+- `PutOntoBattlefieldAttachedToChosen(target, hostFilter?)` — put a targeted Aura or Equipment onto the
+  battlefield attached to a permanent the controller chooses at resolution (default host filter: a creature
+  you control). Works for both Auras and Equipment; the host is chosen, not targeted. If no legal host exists,
+  an Equipment enters unattached while an Aura can't enter (Rule 303.4g). (One Last Job.)
 - `ReturnSelfToBattlefieldAttached(target)` — return source attached to target (Aura recursion).
 - `ReturnSelfFromExileTransformed` — Craft resolution (CR 702.167a). Returns the source from exile to the
   battlefield as its back face, under its owner's control, and re-attaches the source's
@@ -573,9 +577,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   (Mardu Siegebreaker: a tapped+attacking copy of the linked-exiled card, sacrificed at your next end step).
 - `CreateTokenCopyOfEquippedCreature(count?, tapped?)` — equipment-specific copy.
 - `CreateRandomCreatureTokenWithManaValue(manaValue)` — create a token that's a copy of a *randomly
-  chosen* creature card whose mana value equals `manaValue` (the Momir Basic Vanguard avatar's payoff).
-  The candidate pool is the active `Format.MomirBasic.eligibleCreatureNames` (the set-scoped creature
-  list, stored pre-sorted for replay-stable RNG); the executor filters it to `cmc == manaValue`, picks
+  chosen* creature card whose mana value equals `manaValue` (the Momir Basic Vanguard avatar's payoff —
+  "Momir Vig, Simic Visionary": `{X}, Discard a card`). The candidate pool is the active
+  `Format.MomirBasic.eligibleCreatureNames` (every creature across all sets, stored pre-sorted for
+  replay-stable RNG); the executor filters it to `cmc == manaValue`, picks
   one with the game's seeded `GameRng`, and mints a token copy via `TokenFromDefinition` (the minting
   path for a bare `CardDefinition`, sibling to the in-zone token-copy path). If no creature has that
   mana value, nothing is created (the cost was still paid). The minted token's own `{X}` reads 0 — it
@@ -669,7 +674,13 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `SacrificeTargetEffect(target, sacrificedByItsController = false)` — sacrifice a specific permanent. By
   default only fires if the resolving player controls it; set `sacrificedByItsController = true` for
   "[that creature]'s controller sacrifices it" (e.g. The Ring's Ring-bearer ability).
-- `ForceSacrificeEffect(target, count)` — edict; target sacrifices N creatures.
+- `Effects.Sacrifice(filter, count, target)` / `ForceSacrificeEffect(target, count)` — edict; target
+  sacrifices N permanents matching the filter (target chooses). `count` accepts an `Int` or a
+  `DynamicAmount` — pass a `DynamicAmount` (via the `Effects.Sacrifice(filter, count: DynamicAmount, …)`
+  overload / `ForceSacrificeEffect.dynamicCount`) for "sacrifices half the creatures they control,
+  rounded up" (Rush of Dread): `Divide(AggregateBattlefield(Player.ContextPlayer(0), Creature), Fixed(2),
+  roundUp = true)`. The amount is evaluated at resolution against the resolving context, so a per-target
+  player reference counts the chosen player's permanents.
 - "Return a permanent you control [to its owner's hand]" is a pipeline composition, not an effect type:
   `GatherCards(BattlefieldMatching(filter, Player.You, excludeSelf?))` →
   `SelectFromCollection(ChooseExactly(1), useTargetingUI = true)` → `MoveCollection(→ HAND)` (the
@@ -700,7 +711,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 ### Combat-shape & misc
 
-- `PreventDamageEffect(amount, direction, scope, sourceFilter, onPrevented, gainLifeFromColors, duration)` — prevention shield. `amount = null` prevents all. `sourceFilter` can be `ChosenSource` (player picks any source on resolution) or `ChosenColoredSource` (player picks a source on resolution, but only colored sources are offered — "a source of your choice that shares a color with the mana spent"; a colorless source qualifies for nothing, so it's never offered — Protective Sphere). `onPrevented: Effect?` is an **arbitrary follow-up effect** run when a single-instance `ChosenSource` shield prevents an instance of damage (see below). `gainLifeFromColors: Set<Color>` makes the shield's controller gain that much life whenever it prevents damage from a source of one of those colors (Samite Ministration). Facades: `Effects.PreventNextDamage`, `Effects.PreventNextDamageFromChosenSource(amount, target)`, `Effects.PreventNextDamageFromChosenSource(onPrevented)`, `Effects.PreventAllDamageFromChosenSource(target, gainLifeFromColors)`, `Effects.PreventAllDamageFromChosenColoredSource(target)`, `Effects.DeflectNextDamageFromChosenSource()`.
+- `PreventDamageEffect(amount, direction, scope, sourceFilter, onPrevented, gainLifeFromColors, duration)` — prevention shield. `amount = null` prevents all. `sourceFilter` can be `ChosenSource` (player picks any source on resolution) or `ChosenColoredSource` (player picks a source on resolution, but only colored sources are offered — "a source of your choice that shares a color with the mana spent"; a colorless source qualifies for nothing, so it's never offered — Protective Sphere). `onPrevented: Effect?` is an **arbitrary follow-up effect** run when a single-instance `ChosenSource` shield prevents an instance of damage (see below). `gainLifeFromColors: Set<Color>` makes the shield's controller gain that much life whenever it prevents damage from a source of one of those colors (Samite Ministration). Facades: `Effects.PreventNextDamage`, `Effects.PreventNextDamageFromChosenSource(amount, target)`, `Effects.PreventNextDamageFromChosenSource(onPrevented)`, `Effects.PreventAllDamageFromChosenSource(target, gainLifeFromColors)`, `Effects.PreventAllDamageFromChosenColoredSource(target)`, `Effects.DeflectNextDamageFromChosenSource()`, `Effects.ReflectNextDamageFromChosenSourceToController()`. The `preventDamage` flag (default true) — when **false**, the chosen-source shield does NOT prevent the damage (it still hits in full) but still fires its `onPrevented` reaction with the captured amount; this is the "instead it still deals that damage to you AND deals that much to its controller" shape (Eye for an Eye), as opposed to the deflect/prevent shape (Deflecting Palm).
   - **Prevent-and-react (`onPrevented`)** — instead of a bespoke reaction type, the chosen-source shield runs **any composed effect** when it fires, as a real triggered ability on the stack ("When damage is prevented this way, …", CR-faithful — opponents get priority and can respond). Mechanically: on resolution the shield is created **and** a linked event-based delayed triggered ability (`CreateDelayedTriggerEffect`-style) whose `effect` is `onPrevented`; when the shield prevents an instance it emits an internal `DamagePreventedEvent` that fires only that delayed trigger (matched by id). Inside the trigger the prevented amount is `DynamicAmounts.preventedDamage()` ("that much"/"that many") and the prevented source's controller is `EffectTarget.ControllerOfTriggeringEntity` ("that source's controller") — the same pair Tephraderm uses. So Deflecting Palm's `onPrevented` = `DealDamage(ControllerOfTriggeringEntity, preventedDamage())`; New Way Forward's = `Composite(DealDamage(ControllerOfTriggeringEntity, preventedDamage()), DrawCards(preventedDamage()))`. Because the payoff is a normal stack ability, it may be interactive (targets, replacements) like any other.
 - `BecomeCreatureEffect(target, p, t, subtypes, keywords, duration)` — animate non-creature (lands, artifacts).
 - `BecomeSaddledEffect(target = Self)` (facade `Effects.BecomeSaddled()`) — target permanent becomes saddled until end of turn (CR 702.171b). The resolving half of a Saddle ability: stamps the transient `SaddledComponent` marker (cleared at end of turn / on leaving the battlefield; not copiable) and emits `BecameSaddledEvent`. No P/T or type change — read the marker with `Conditions.SourceIsSaddled` / `.saddled()`.
@@ -719,6 +730,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   target ("untap each of those creatures"). Composes `ForEachTargetEffect` over
   `Effects.Untap(ContextTarget(0))`, with the count owned by the spell's target requirement.
 - `PhaseOutEffect(target = Self)` — phase the target permanent out (Rule 702.26); facade `Effects.PhaseOut(target)`. While phased out it's treated as though it doesn't exist (excluded from `getBattlefield`, so from projection, triggers, combat, targeting, and SBAs) and phases back in before its controller's next untap step. Indirect phasing (attached Auras/Equipment) is handled automatically. Used as the `suffer` branch of a pay-or-phase trigger (Vaporous Djinn: "phases out unless you pay {U}{U}" = `PayOrSufferEffect(Costs.pay.Mana(...), Effects.PhaseOut())`).
+- `PhaseOutUntilLeavesEffect(target, tapOnPhaseIn)` / `Effects.PhaseOutUntilLeaves(target, tapOnPhaseIn)` — phase the target out **indefinitely, linked to the effect's source** (the phasing analogue of `ExileUntilLeaves`): it skips its untap-step phase-in and stays out until the source leaves the battlefield. Pair with `Effects.PhaseInLinkedToSource()` on the source's `LeavesBattlefield` trigger, which phases everything the source phased out this way back in (tapping those flagged `tapOnPhaseIn`). The link lives on the phased-out permanent (`PhasedOutComponent.phaseInOnSourceLeaves`); indirect phasing carries Auras/Equipment out with the creature. This is Oubliette (ETB phase-out + leaves-trigger phase-in, tapped).
 - `MarkExileOnDeathEffect(target)` — replace next "to graveyard" with "to exile".
 - `GatedEffect(gate, then, otherwise?, decisionMaker?)` — **the unified resolution frame for the
   optional / gated-effect cluster** (phase-rs Lesson 1). A `Gate` decides whether `then` runs; if it
@@ -1303,6 +1315,8 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
 - `.withColor(c)` / `.withAnyColor(c…)` / `.notColor(c)` — fixed-color predicates (`CardPredicate.HasColor`/`NotColor`).
 - `.nonartifact()` — appends `CardPredicate.IsNonartifact` ("nonartifact creature", the Terror template);
   the type-negation analogue of `.notColor(c)` / `.notSubtype(s)`.
+- `.notCreature()` — appends `CardPredicate.Not(CardPredicate.IsCreature)` ("noncreature artifact",
+  e.g. `GameObjectFilter.Artifact.notCreature().youControl()` — Guardian Beast).
 - `.withChosenColor()` — `CardPredicate.HasChosenColor`: matches the color chosen during the current
   effect's resolution (read from `EffectContext.chosenColor`, set by `Effects.ChooseColorThen`). Use with
   `AggregateBattlefield(Player.Each, …)` for "for each permanent of that color" (Coalition Dragon cycle).
@@ -2054,6 +2068,14 @@ staticAbility {
   `AbilityFlag.CANT_BE_SACRIFICED` flag, honored by the sacrifice executor — a sacrifice that can't
   happen simply no-ops). Wrap in `ConditionalStaticAbility` for time-restricted forms, e.g. Zurgo,
   Thunder's Decree: `ConditionalStaticAbility(CantBeSacrificed(GroupFilter(Token.youControl().withSubtype("Warrior"))), IsInStep(listOf(Step.END)))`.
+- `GrantKeyword(AbilityFlag.CANT_BE_ENCHANTED.name, filter)` — matching permanents can't be enchanted
+  (CR 303.4): an Aura can't legally target them. Honored in `TargetValidator` at Aura-cast/activation
+  target legality (only the targeting step — effects that move/attach an Aura without targeting are not
+  covered). (Guardian Beast)
+- `GrantKeyword(AbilityFlag.CANT_GAIN_CONTROL.name, filter)` — other players can't gain control of
+  matching permanents. Honored in the control-change executors (`GainControl`, `GainControlByMost`,
+  `ExchangeControl` — an exchange where either side can't be gained control of fails entirely); the
+  controller keeping their own permanent is an unaffected no-op. (Guardian Beast)
 - `CantBlockCreaturesWithGreaterPower(filter = source())` — blocker-side evasion (Spitfire Handler): this
   creature can't block creatures whose projected power exceeds its own.
 - `CantBeBlockedByCreaturesWithLessPower(filter = source())` — attacker-side dual (Formation Breaker): this
@@ -2177,9 +2199,12 @@ staticAbility {
 - `PreventManaPoolEmptying` — mana pools don't empty between steps/phases. (Upwelling)
 - `NoMaximumHandSize` — controller has no hand-size limit. (Thought Vessel)
 - `DampLandManaProduction` — a land tapped for 2+ mana produces `{C}` instead. (Damping Sphere)
-- `RestrictSpellsCastPerTurn(maxPerTurn)` — the controller can't cast more than `maxPerTurn`
-  spell(s) each turn. Per-controller; the most restrictive applies when several are in play.
-  Already-cast spells count, even those cast before this permanent entered. (Yawgmoth's Agenda)
+- `RestrictSpellsCastPerTurn(maxPerTurn, eachPlayer = false)` — a per-turn cap on spells cast.
+  `eachPlayer = false` (default) limits only the source's controller (Yawgmoth's Agenda: "You can't
+  cast more than one spell each turn."); `eachPlayer = true` is a *global* restriction binding every
+  player (High Noon: "Each player can't cast more than one spell each turn."). The most restrictive
+  `maxPerTurn` applies when several are in play. Already-cast spells count, even those cast before this
+  permanent entered.
 - `CantCastSpellsSharingColorWithLastCast` — *global* (all players): can't cast a spell that shares a
   color with the spell most recently cast this turn. Backed by `GameState.lastCastSpellColors` (the
   colors of the last spell cast, cleared each turn). Never blocks the first spell of the turn; a
@@ -2395,7 +2420,11 @@ composite abilities).
   `rampage()`). The second-spell-cast event is matched by `EventPattern.NthSpellCastEvent`; no new engine
   subsystem is involved. Example: `flurry { effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self) }`.
 - `Afflict(n)` — defender loses N when this becomes blocked.
-- `Crew(n)` — tap N power worth to animate a Vehicle.
+- `Crew(n)` (`KeywordAbility.crew(n, onceEachTurn = false)` / `Numeric(Keyword.CREW, n, onceEachTurn)`) —
+  tap N power worth to animate a Vehicle. Pass `onceEachTurn = true` for "Crew N. Activate only once each
+  turn." (Luxurious Locomotive): the crew enumerator + handler then refuse a second crew activation in the
+  same turn (counted via `CrewSaddleContributorsComponent.crewActivations`, reset at end of turn). Vanilla
+  Crew is uncapped. `onceEachTurn` is omitted from compiled JSON when false (`encodeDefaults = false`).
 - `saddle(n)` (`KeywordAbility.saddle(n)`) — Saddle N (CR 702.171). A sorcery-speed activated
   ability whose cost is tapping any number of *other* untapped creatures you control with total
   power ≥ N; on resolution this permanent **becomes saddled** until end of turn. Reuses the same

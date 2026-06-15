@@ -147,11 +147,23 @@ sealed interface KeywordAbility {
      * - `Numeric(Keyword.ANNIHILATOR, 2)` — "Annihilator 2"
      * - `Numeric(Keyword.TOXIC, 1)`       — "Toxic 1"
      * - `Numeric(Keyword.CREW, 3)`        — "Crew 3"
+     *
+     * [onceEachTurn] models a per-turn activation cap on the keyword ability — currently only
+     * meaningful for Crew ("Crew 1. Activate only once each turn." — Luxurious Locomotive). It
+     * defaults to false and, with `encodeDefaults = false`, is omitted from the compiled JSON so
+     * existing numeric-keyword cards are unaffected.
      */
     @SerialName("Numeric")
     @Serializable
-    data class Numeric(override val keyword: Keyword, val n: Int) : KeywordAbility {
-        override val description: String = "${keyword.displayName} $n"
+    data class Numeric(
+        override val keyword: Keyword,
+        val n: Int,
+        val onceEachTurn: Boolean = false
+    ) : KeywordAbility {
+        override val description: String = buildString {
+            append("${keyword.displayName} $n")
+            if (onceEachTurn) append(". Activate only once each turn.")
+        }
     }
 
     /**
@@ -834,7 +846,8 @@ sealed interface KeywordAbility {
         fun rampage(n: Int): KeywordAbility = Numeric(Keyword.RAMPAGE, n)
         fun absorb(n: Int): KeywordAbility = Numeric(Keyword.ABSORB, n)
         fun afflict(n: Int): KeywordAbility = Numeric(Keyword.AFFLICT, n)
-        fun crew(n: Int): KeywordAbility = Numeric(Keyword.CREW, n)
+        fun crew(n: Int, onceEachTurn: Boolean = false): KeywordAbility =
+            Numeric(Keyword.CREW, n, onceEachTurn)
         fun saddle(n: Int): KeywordAbility = Numeric(Keyword.SADDLE, n)
         fun modular(n: Int): KeywordAbility = Numeric(Keyword.MODULAR, n)
         fun fading(n: Int): KeywordAbility = Numeric(Keyword.FADING, n)

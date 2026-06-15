@@ -12,6 +12,7 @@ import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComp
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
+import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.GainControlByMostEffect
@@ -66,6 +67,12 @@ class GainControlByMostExecutor : EffectExecutor<GainControlByMostEffect> {
         val currentControllerId = state.projectedState.getController(targetId)
             ?: targetContainer.get<ControllerComponent>()?.playerId
         if (currentControllerId == newControllerId) return EffectResult.success(state)
+
+        // "Other players can't gain control of it" (Guardian Beast): a different player can't take
+        // control of the permanent.
+        if (state.projectedState.hasKeyword(targetId, AbilityFlag.CANT_GAIN_CONTROL)) {
+            return EffectResult.success(state)
+        }
 
         // Remove any previous Layer.CONTROL floating effects from the same source on the same target.
         val filteredEffects = state.floatingEffects.filter { floating ->

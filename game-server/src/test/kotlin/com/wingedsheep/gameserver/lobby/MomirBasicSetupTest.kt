@@ -8,9 +8,9 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 
 /**
- * Unit coverage for the Momir Basic server setup helper — the set-scope seam that turns lobby set
- * selections into [com.wingedsheep.sdk.core.Format.MomirBasic] data. The engine's behaviour with
- * that data is proven separately by `MomirBasicScenarioTest` in `rules-engine`.
+ * Unit coverage for the Momir Basic server setup helper that turns the card catalog into
+ * [com.wingedsheep.sdk.core.Format.MomirBasic] data. The engine's behaviour with that data is
+ * proven separately by `MomirBasicScenarioTest` in `rules-engine`.
  */
 class MomirBasicSetupTest : FunSpec({
 
@@ -50,9 +50,19 @@ class MomirBasicSetupTest : FunSpec({
         MomirBasicSetup.creaturePool(codes + "ZZZ-not-a-set") shouldBe expected
     }
 
-    test("format() carries the computed pool") {
-        val set = MtgSetCatalog.all.first { set -> set.cards.any { it.isCreature } }
-        val format = MomirBasicSetup.format(listOf(set.code))
-        format.eligibleCreatureNames shouldBe MomirBasicSetup.creaturePool(listOf(set.code))
+    test("allCreaturePool spans every set, sorted and de-duplicated") {
+        val pool = MomirBasicSetup.allCreaturePool()
+        val allCodes = MtgSetCatalog.all.map { it.code }
+
+        pool shouldBe MomirBasicSetup.creaturePool(allCodes)
+        pool shouldBeSortedWith naturalOrder()
+        pool shouldContainExactly pool.distinct()
+        // Strictly larger than any single set's pool (it unions them all).
+        val biggestSinglePool = MtgSetCatalog.all.maxOf { MomirBasicSetup.creaturePool(listOf(it.code)).size }
+        pool.size shouldBeGreaterThan biggestSinglePool
+    }
+
+    test("format() carries the full all-sets pool") {
+        MomirBasicSetup.format().eligibleCreatureNames shouldBe MomirBasicSetup.allCreaturePool()
     }
 })

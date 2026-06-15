@@ -49,8 +49,12 @@ class Strategist(
         if (legalActions.size == 1) return legalActions.first()
 
         val pass = legalActions.find { it.actionType == "PassPriority" }
-        val affordable = preferKickerVariants(
-            legalActions.filter { it.affordable && !it.isManaAbility && it.actionType != "PassPriority" }
+        val affordable = expandXCostAbilities(
+            state,
+            preferKickerVariants(
+                legalActions.filter { it.affordable && !it.isManaAbility && it.actionType != "PassPriority" }
+            ),
+            playerId
         )
 
         if (affordable.isEmpty()) return pass ?: legalActions.first()
@@ -375,6 +379,60 @@ class Strategist(
         }
     }
 
+    /**
+     * Expand an affordable, no-target X-cost activated ability into one candidate [LegalAction] per
+     * concrete X value, filling [ActivateAbility.xValue] and any "discard a card" cost, so the
+     * normal simulation-based scoring picks the best X. Submitting the enumerator's bare action runs
+     * it at the default `xValue = 0` — e.g. the Momir avatar would only ever look for a mana-value-0
+     * creature and make nothing, so the AI would always pass it over. Higher X usually yields a
+     * bigger creature, so when many X are affordable we keep the top [MAX_X_CANDIDATES] and let
+     * simulation choose among them. Targeted X abilities keep the engine's choose-X decision path
+     * (they also need target selection) and pass through untouched, as do abilities with an
+     * additional cost we don't know how to pay here.
+     */
+    private fun expandXCostAbilities(
+        state: GameState,
+        actions: List<LegalAction>,
+        playerId: EntityId
+    ): List<LegalAction> = actions.flatMap { action ->
+        val base = action.action
+        val maxX = action.maxAffordableX
+        val info = action.additionalCostInfo
+        val payableCost = info == null || info.costType == "DiscardCard"
+        if (!action.hasXCost || maxX == null || maxX < 1 ||
+            base !is ActivateAbility || action.requiresTargets || !payableCost
+        ) {
+            return@flatMap listOf(action)
+        }
+        val discard = chooseActivationDiscard(state, action, playerId)
+        val lowest = maxOf(1, maxX - MAX_X_CANDIDATES + 1)
+        (lowest..maxX).map { x ->
+            action.copy(action = base.copy(xValue = x, costPayment = discard ?: base.costPayment))
+        }
+    }
+
+    /**
+     * Choose which card(s) to discard for an activated ability whose additional cost is "discard a
+     * card". Prefers a land as fodder (the safest discard, and in Momir Basic the whole hand is
+     * basics); falls back to the first available card. Returns null when there is no discard cost.
+     */
+    private fun chooseActivationDiscard(
+        state: GameState,
+        action: LegalAction,
+        playerId: EntityId
+    ): com.wingedsheep.sdk.scripting.AdditionalCostPayment? {
+        val info = action.additionalCostInfo ?: return null
+        if (info.costType != "DiscardCard" || info.discardCount <= 0) return null
+        val candidates = info.validDiscardTargets
+        if (candidates.isEmpty()) return null
+        val ranked = candidates.sortedByDescending { id ->
+            if (state.getEntity(id)?.get<CardComponent>()?.isLand == true) 1 else 0
+        }
+        return com.wingedsheep.sdk.scripting.AdditionalCostPayment(
+            discardedCards = ranked.take(info.discardCount)
+        )
+    }
+
     /** Resolve the card name from a legal action's underlying GameAction. */
     private fun resolveCardName(state: GameState, action: LegalAction): String? {
         val entityId = when (val gameAction = action.action) {
@@ -388,5 +446,8 @@ class Strategist(
     private companion object {
         /** Cap on candidate targets simulated per requirement when committing a targeted action. */
         const val MAX_TARGET_CANDIDATES = 8
+
+        /** Cap on the number of X values an X-cost ability is expanded into (keeps the highest). */
+        const val MAX_X_CANDIDATES = 5
     }
 }

@@ -22,6 +22,11 @@ internal fun BridgeBuilder.keywords() {
     // `keywordAbility(KeywordAbility.saddle(N))`; this `supported` entry only marks the capability as
     // covered (never blocking) so the probe doesn't report Saddle as a gap.
     supported("Saddle", "keyword ability: Saddle N -> keywordAbility(KeywordAbility.saddle(N)) (CR 702.171)")
+    // "Crew N. Activate only once each turn." (Luxurious Locomotive) — a PARAMETERIZED keyword ability
+    // like Saddle/Crew, so `supported` (not `keyword`) to avoid dropping the N. The emitter's
+    // `rname == "CrewOnceEachTurn"` branch renders `keywordAbility(KeywordAbility.crew(N, onceEachTurn = true))`;
+    // the engine enforces the once-per-turn cap in the crew enumerator/handler.
+    supported("CrewOnceEachTurn", "keyword ability: Crew N, activate only once each turn -> keywordAbility(KeywordAbility.crew(N, onceEachTurn = true))")
     // Firebending N (CR 702.189, Avatar: The Last Airbender) — a PARAMETERIZED keyword ability (the
     // N count rides in the rule's args as a nested _GameNumber:Integer, exactly like Saddle). Must be
     // `supported`, not `keyword`: a bare `keywords(Keyword.FIREBENDING)` would drop the N. The

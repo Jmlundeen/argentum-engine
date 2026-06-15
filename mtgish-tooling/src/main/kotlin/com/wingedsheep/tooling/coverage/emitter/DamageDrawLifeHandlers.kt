@@ -136,6 +136,17 @@ internal val damageDrawLifeHandlers: Map<String, ActionHandler> = actionHandlers
     // targets for the copy." (Return the Favor mode 1). The four-way target is recovered by
     // `Targets.InstantSorcerySpellOrAbility`; the effect copies whichever stack-object kind was chosen.
     simple("CopySpellOrAbilityAndMayChooseNewTargets", dsl = "Effects.CopyTargetSpellOrAbility()")
+    // "Copy that spell" on a cast trigger — CopySpell(Trigger_ThatSpell) (Double Down). The copy is
+    // made of the triggering spell itself; copies of permanent spells become tokens (handled by the
+    // engine's copy executor). Only the triggering-spell subject renders; any other CopySpell subject
+    // (a chosen target, a stored spell) declines -> SCAFFOLD.
+    on("CopySpell") { node, _, _ ->
+        val subject = (node["args"] as? JsonObject)?.strField("_Spell")
+            ?: (node["args"].asArr?.firstOrNull() as? JsonObject)?.strField("_Spell")
+        if (subject == "Trigger_ThatSpell")
+            Lit("Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity)")
+        else null
+    }
     // "Change the target of target spell or ability with a single target." (Return the Favor mode 2 /
     // Willbender). Pairs with `Targets.SpellOrAbilityWithSingleTarget`.
     simple("ChangeTargetsOfSpellOrAbility", dsl = "Effects.ChangeTarget()")

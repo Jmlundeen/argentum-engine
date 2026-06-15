@@ -780,6 +780,33 @@ private fun EmitCtx.youHaventCastASpellConditionDsl(cond: JsonObject?): String? 
  * The (target list, inner action list) of a mtgish `Targeted` action node, or null if it isn't a
  * Targeted envelope. Mirrors [extractEnvelope]'s Targeted unpacking for a single known node.
  */
+/**
+ * Strip a sibling-distinctness `Other(<ref>)` predicate from a target node's filter. mtgish models
+ * "two target creatures" as a first plain target plus a second whose filter is `And[Other(ref1),
+ * <same type>]` — the `Other` only enforces that the two chosen objects differ, which the engine does
+ * automatically (CR 115.1b). Drop the `Other` arm so the second target's filter renders to the same
+ * type filter as the first. Returns the original node when there's no such clause.
+ */
+private fun JsonObject.stripSiblingOther(): JsonObject {
+    val args = this["args"] as? JsonObject ?: return this
+    if (args.strField("_Permanents") != "And") return this
+    val arms = args["args"].asArr?.filterIsInstance<JsonObject>() ?: return this
+    val kept = arms.filterNot { it.strField("_Permanents") == "Other" }
+    if (kept.size == arms.size) return this // no Other arm
+    val newFilter: JsonElement = when (kept.size) {
+        0 -> return this // nothing left to filter on — keep original rather than widen to "any"
+        1 -> kept[0]
+        else -> buildJsonObject {
+            put("_Permanents", JsonPrimitive("And"))
+            put("args", JsonArray(kept))
+        }
+    }
+    return buildJsonObject {
+        this@stripSiblingOther.forEach { (k, v) -> if (k != "args") put(k, v) }
+        put("args", newFilter)
+    }
+}
+
 private fun targetedArms(node: JsonObject): Pair<List<JsonObject>?, List<JsonObject>>? {
     if (node.strField("_Actions") != "Targeted") return null
     val args = node["args"].asArr ?: return null
@@ -1051,14 +1078,50 @@ internal fun EmitCtx.spreeSpellBlock(rule: JsonObject): List<Stmt>? {
             }
             "Targeted" -> {
                 val (targets, actions) = targetedArms(actionsNode) ?: run { reasons.add("Spree"); return null }
-                if (targets == null || actions == null || targets.size != 1) { reasons.add("Spree"); return null }
-                val tnode = targetExpr(targets[0], actions)
-                    ?: run { reasons.add("target:${targets[0].strField("_Target")}"); return null }
-                // The targeted arm spends the modal target slot — bind the effect's target ref to it.
-                val effect = renderEffectList(actions, "EffectTarget.ContextTarget(0)") ?: return null
-                if (effect is Composite) { reasons.add("Spree"); return null }
-                modeArgs.add(arg("effect", effect))
-                modeArgs.add(arg("targetRequirements", call("listOf", arg(tnode))))
+                if (targets == null || actions == null || targets.isEmpty()) { reasons.add("Spree"); return null }
+                when (targets.size) {
+                    1 -> {
+                        val tnode = targetExpr(targets[0], actions)
+                            ?: run { reasons.add("target:${targets[0].strField("_Target")}"); return null }
+                        // The targeted arm spends the modal target slot — bind the effect's target ref to it.
+                        val effect = renderEffectList(actions, "EffectTarget.ContextTarget(0)") ?: return null
+                        if (effect is Composite) { reasons.add("Spree"); return null }
+                        modeArgs.add(arg("effect", effect))
+                        modeArgs.add(arg("targetRequirements", call("listOf", arg(tnode))))
+                    }
+                    2 -> {
+                        // A two-target mode (Shifting Grift: "exchange control of two target …"). Render
+                        // both target requirements and bind the per-kind refs (Ref_TargetPermanentN) to
+                        // the mode-local ContextTarget(0)/(1) so the effect resolves against them. Restore
+                        // the ref-var state afterwards so other modes/cards are unaffected.
+                        val tnodes = targets.map { t ->
+                            // "two target creatures" — the second slot carries an `Other(<sibling ref>)`
+                            // distinctness clause. Distinct targets are automatic (CR 115.1b: a spell
+                            // can't choose the same object for two of its targets), so strip the sibling
+                            // `Other` before rendering the filter rather than declining on it.
+                            val cleaned = t.stripSiblingOther()
+                            targetExpr(cleaned, actions) ?: run { reasons.add("target:${t.strField("_Target")}"); return null }
+                        }
+                        val kinds = targets.map { refKindForTarget(it) }
+                        if (kinds.any { it == null } || kinds.toSet().size != 1) { reasons.add("Spree"); return null }
+                        val kind = kinds.first()!!
+                        val ctxRefs = listOf("EffectTarget.ContextTarget(0)", "EffectTarget.ContextTarget(1)")
+                        val savedByKind = targetRefVarsByKind
+                        val savedVars = targetVars
+                        targetRefVarsByKind = mapOf(kind to ctxRefs)
+                        targetVars = ctxRefs
+                        val effect = try {
+                            renderEffectList(actions, ctxRefs.first())
+                        } finally {
+                            targetRefVarsByKind = savedByKind
+                            targetVars = savedVars
+                        } ?: return null
+                        if (effect is Composite) { reasons.add("Spree"); return null }
+                        modeArgs.add(arg("effect", effect))
+                        modeArgs.add(arg("targetRequirements", call("listOf", *tnodes.map { arg(it) }.toTypedArray())))
+                    }
+                    else -> { reasons.add("Spree"); return null }
+                }
             }
             else -> { reasons.add("Spree"); return null }
         }
@@ -1468,6 +1531,20 @@ private fun EmitCtx.singleInterveningIfDsl(cond: JsonObject): String? {
         val counter = counterNameForFilter(cond) ?: return null
         return "Conditions.Not(Conditions.SourceHasCounter(CounterTypeFilter.Named(\"$counter\")))"
     }
+    // "this enchantment isn't a creature" — PermanentPassesFilter(ThisPermanent, IsNonCardtype Creature)
+    // (Emergent Haunting's end-step "becomes a creature" gate, which self-disables once animated).
+    // Renders to Conditions.SourceMatches(GameObjectFilter.Noncreature). Only the exact bare
+    // "isn't a creature" filter over ThisPermanent renders; another card type declines -> SCAFFOLD.
+    if (cond.strField("_Condition") == "PermanentPassesFilter") {
+        val condArgs = cond["args"].asArr
+        val subject = (condArgs?.getOrNull(0) as? JsonObject)?.strField("_Permanent")
+        val filt = condArgs?.getOrNull(1) as? JsonObject
+        if (subject == "ThisPermanent" &&
+            filt?.strField("_Permanents") == "IsNonCardtype" && filt.field("args").asStr() == "Creature"
+        ) {
+            return "Conditions.SourceMatches(GameObjectFilter.Noncreature)"
+        }
+    }
     // "if a creature died this turn" — ACreatureOrPlaneswalkerDiedThisTurn over a bare creature-cardtype
     // filter (Rictus Robber). Only the unrestricted "a creature" shape (no controller / subtype / count
     // clause) maps to Conditions.CreatureDiedThisTurn; anything more specific declines -> SCAFFOLD.
@@ -1739,6 +1816,16 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         return "Triggers.entersBattlefield(filter = $filter, binding = $binding)"
     }
 
+    // "Whenever equipped creature deals combat damage to a player" — an Equipment/Aura combat-damage
+    // trigger bound to the host permanent (subject SinglePermanent(HostPermanent)). Maps to the
+    // ATTACHED binding (The Key to the Vault). Only the bare host subject to any player renders.
+    if (jsonContains(trig, "_Trigger", "WhenACreatureDealsCombatDamageToAPlayer") && isHost(trig) &&
+        jsonContains(trig, "_Players", "AnyPlayer")
+    ) {
+        return "Triggers.dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer, " +
+            "binding = TriggerBinding.ATTACHED)"
+    }
+
     // "Whenever a [creature type] deals combat damage to a player, …" — non-self
     // WhenACreatureDealsCombatDamageToAPlayer whose source filter is purely a creature subtype, to any
     // player (Cabal Slaver's "a Goblin"). Anything beyond a bare subtype (controller / colour / count /
@@ -1840,6 +1927,9 @@ private fun castScope(players: JsonObject?): CastScope? = when (players?.strFiel
 private fun spellCastCategory(spells: JsonObject?): String? = when (spells?.strField("_Spells")) {
     "AnySpell" -> "any"
     "IsHistoric" -> "historic"
+    // "an outlaw spell" — a spell with one or more outlaw creature types (Double Down). Maps to the
+    // shared Subtype.OUTLAW_TYPES group via withAnyOfSubtypes.
+    "IsAnOutlaw" -> "outlaw"
     "IsCardtype" -> when (spells.field("args").asStr()) {
         "Creature" -> "creature"
         "Enchantment" -> "enchantment"
@@ -1863,6 +1953,7 @@ private fun categoryFilter(category: String): String? = when (category) {
     "enchantment" -> "GameObjectFilter.Enchantment"
     "instantOrSorcery" -> "GameObjectFilter.InstantOrSorcery"
     "historic" -> "GameObjectFilter.Historic"
+    "outlaw" -> "GameObjectFilter.Any.withAnyOfSubtypes(Subtype.OUTLAW_TYPES)"
     else -> null
 }
 
@@ -1908,6 +1999,7 @@ private fun castTriggerDsl(scope: CastScope, category: String, targetsMatching: 
             "enchantment" -> "Triggers.YouCastEnchantment"
             "instantOrSorcery" -> "Triggers.YouCastInstantOrSorcery"
             "historic" -> "Triggers.YouCastHistoric"
+            "outlaw" -> "Triggers.youCastSpell(spellFilter = ${categoryFilter("outlaw")})"
             else -> null
         }
         CastScope.ANY -> if (filter == null) "Triggers.AnyPlayerCastsSpell" else "Triggers.anyPlayerCasts($filter)"

@@ -55,6 +55,10 @@ internal fun BridgeBuilder.damageLifeAndCards() {
     // Copy / retarget a spell or ability on the stack (Return the Favor). The unified copy effect
     // dispatches at resolution on the chosen stack-object kind (spell / activated / triggered ability).
     effect("CopySpellOrAbilityAndMayChooseNewTargets", "CopyTargetSpellOrAbility")
+    // "Copy that spell" — bare CopySpell(Trigger_ThatSpell) on a cast trigger (Double Down). Renders to
+    // CopyTargetSpell(EffectTarget.TriggeringEntity); only the triggering-spell subject is emitted (the
+    // "may choose new targets" variant stays a deliberate decline above — Breeches).
+    effect("CopySpell", "CopyTargetSpell")
     effect("ChangeTargetsOfSpellOrAbility", "ChangeTarget")
     effect("TakeAnExtraTurn", "TakeExtraTurn")
     effect("LoseTheGame", "LoseGame")

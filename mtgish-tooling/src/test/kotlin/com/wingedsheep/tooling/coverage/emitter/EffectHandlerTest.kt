@@ -41,6 +41,15 @@ class EffectHandlerTest : StringSpec({
         effect("""{"_Action":"SomeActionWeDoNotModel"}""").shouldBeNull()
     }
 
+    "CopySpell(Trigger_ThatSpell) renders 'copy that spell' on a cast trigger (Double Down)" {
+        effect("""{"_Action":"CopySpell","args":{"_Spell":"Trigger_ThatSpell"}}""") shouldBe
+            "Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity)"
+    }
+
+    "CopySpell with a non-triggering-spell subject declines (-> SCAFFOLD)" {
+        effect("""{"_Action":"CopySpell","args":{"_Spell":"Ref_TargetSpell"}}""").shouldBeNull()
+    }
+
     // --- SetPT layer effect ("target creature becomes a P/T until end of turn") -------------------
     fun layer(json: String, tvar: String?): String? = ctx.renderAction(obj(json), tvar)?.let(::render)
 

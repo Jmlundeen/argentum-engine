@@ -93,16 +93,23 @@ class QuickGameLobbyHandler(
                 sender.sendError(session, ErrorCode.INVALID_ACTION, "Only the host can change the format")
                 return@withLock
             }
-            if (current.format == message.format) return@withLock
-            current.format = message.format
+            if (current.format == message.format && current.momirBasic == message.momirBasic) return@withLock
+            // Momir Basic is a "custom format" entry in the same dropdown: picking it flips the
+            // lobby into the deckbuilding-free Vanguard mode (mutually exclusive with a deck-format
+            // restriction). Any other choice clears Momir and applies the constructed format.
+            current.momirBasic = message.momirBasic
+            current.format = if (message.momirBasic) null else message.format
             // Re-validate every submitted deck under the new format. Submissions that no longer
             // pass un-ready the player so they have to update their deck or accept a new format.
-            for (player in current.players) {
-                if (player.isAi) continue
-                val deck = player.deckList ?: continue
-                if (deck.isEmpty()) continue // Random pool — format restriction doesn't apply.
-                val result = deckValidator.validate(deck, message.format)
-                if (!result.valid) player.ready = false
+            // Momir has no deckbuilding, so there is nothing to re-validate.
+            if (!message.momirBasic) {
+                for (player in current.players) {
+                    if (player.isAi) continue
+                    val deck = player.deckList ?: continue
+                    if (deck.isEmpty()) continue // Random pool — format restriction doesn't apply.
+                    val result = deckValidator.validate(deck, message.format)
+                    if (!result.valid) player.ready = false
+                }
             }
             broadcastState(current)
         }
@@ -416,13 +423,13 @@ class QuickGameLobbyHandler(
             ?: humanPlayers.firstOrNull()?.setCode
             ?: deckGenerator.randomSetCode()
         gameSession.quickGameSetCode = aiSetCode
-        // Momir Basic: both seats play the fixed 60-basic deck and the chosen set scopes the random
-        // creature pool. The engine reads `eligibleCreatureNames` from this format at game init and
-        // when the avatar's "{X}{X}{X}, Discard a card" ability resolves.
+        // Momir Basic: both seats play the fixed 60-basic deck and the avatar flips creatures from
+        // the whole card base (every set). The engine reads `eligibleCreatureNames` from this format
+        // at game init and when the avatar's "{X}, Discard a card" ability resolves.
         if (lobby.momirBasic) {
-            val pool = MomirBasicSetup.creaturePool(listOf(aiSetCode))
+            val pool = MomirBasicSetup.allCreaturePool()
             gameSession.engineFormat = com.wingedsheep.sdk.core.Format.MomirBasic(eligibleCreatureNames = pool)
-            logger.info("Momir Basic lobby ${lobby.lobbyId}: set=$aiSetCode, ${pool.size} eligible creatures")
+            logger.info("Momir Basic lobby ${lobby.lobbyId}: ${pool.size} eligible creatures (all sets)")
         }
         gameSession.publicSpectate = lobby.isPublic && !lobby.vsAi
 

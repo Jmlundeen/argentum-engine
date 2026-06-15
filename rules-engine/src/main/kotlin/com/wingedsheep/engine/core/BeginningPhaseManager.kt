@@ -51,8 +51,10 @@ class BeginningPhaseManager(
         val events = mutableListOf<GameEvent>()
         var newState = state
 
-        // Phase in permanents that phased out under each active-team member's control
-        // (Rule 702.26e: this happens during the untap step, before untapping).
+        // Phase in permanents that phased out under each active-team member's control. In a shared
+        // team turn both teammates phase in together (CR 805.4); for a non-team game the active
+        // team is just the active player. This happens during the untap step, before untapping
+        // (Rule 702.26a).
         for (member in activeTeam) {
             newState = phaseInPermanents(newState, member, events)
         }
@@ -250,7 +252,10 @@ class BeginningPhaseManager(
         events: MutableList<GameEvent>
     ): GameState {
         val toPhaseIn = state.allBattlefieldEntities().filter { entityId ->
-            state.getEntity(entityId)?.get<PhasedOutComponent>()?.phasedOutByController == activePlayer
+            val phased = state.getEntity(entityId)?.get<PhasedOutComponent>()
+            // Permanents phased out "until source leaves" (Oubliette) don't phase in at untap —
+            // they wait for the source's leaves-battlefield trigger.
+            phased?.phasedOutByController == activePlayer && phased.phaseInOnSourceLeaves == null
         }
 
         var newState = state
