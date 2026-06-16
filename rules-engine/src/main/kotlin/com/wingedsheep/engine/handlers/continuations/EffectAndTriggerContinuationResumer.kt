@@ -102,6 +102,7 @@ class EffectAndTriggerContinuationResumer(
                 triggerExcessDamageAmount = continuation.triggerExcessDamageAmount,
                 triggerRecipientToughness = continuation.triggerRecipientToughness,
                 triggerManaSpentOnTriggeringSpell = continuation.triggerManaSpentOnTriggeringSpell,
+                triggerColorsSpentOnTriggeringSpell = continuation.triggerColorsSpentOnTriggeringSpell,
                 triggerManaValueOfTriggeringSpell = continuation.triggerManaValueOfTriggeringSpell,
                 triggerXValueOfTriggeringSpell = continuation.triggerXValueOfTriggeringSpell
             )
@@ -153,6 +154,7 @@ class EffectAndTriggerContinuationResumer(
             triggerExcessDamageAmount = continuation.triggerExcessDamageAmount,
             triggerRecipientToughness = continuation.triggerRecipientToughness,
             triggerManaSpentOnTriggeringSpell = continuation.triggerManaSpentOnTriggeringSpell,
+            triggerColorsSpentOnTriggeringSpell = continuation.triggerColorsSpentOnTriggeringSpell,
             triggerManaValueOfTriggeringSpell = continuation.triggerManaValueOfTriggeringSpell,
             triggerXValueOfTriggeringSpell = continuation.triggerXValueOfTriggeringSpell
         )

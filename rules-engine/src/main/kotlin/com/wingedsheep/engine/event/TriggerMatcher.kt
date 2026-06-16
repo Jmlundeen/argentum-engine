@@ -1291,6 +1291,7 @@ class TriggerMatcher(
                 triggerExcessDamageAmount = trigger.triggerContext.excessDamageAmount,
                 triggerRecipientToughness = trigger.triggerContext.recipientToughnessAtDamage,
                 triggerManaSpentOnTriggeringSpell = trigger.triggerContext.manaSpentOnTriggeringSpell,
+                triggerColorsSpentOnTriggeringSpell = trigger.triggerContext.colorsSpentOnTriggeringSpell,
                 triggerManaValueOfTriggeringSpell = trigger.triggerContext.manaValueOfTriggeringSpell,
                 triggerXValueOfTriggeringSpell = trigger.triggerContext.xValueOfTriggeringSpell
             )

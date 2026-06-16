@@ -263,6 +263,19 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
             return if (jsonContains(node["args"], "_Spell", "Trigger_ThatSpell"))
                 call("DynamicAmount.ContextProperty", arg("ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL"))
             else null
+        // Converge — "the number of colors of mana spent to cast it" reading the entering/resolving
+        // permanent's own cast (the dominant Converge "Archaic" shape, also Sunburst). Maps to the
+        // source-relative facade `DynamicAmounts.colorsOfManaSpent()` (DistinctColorsManaSpent).
+        "NumColorsManaSpentToCastEnteringPermanent" ->
+            return call("DynamicAmounts.colorsOfManaSpent")
+        // "the number of colors of mana spent to cast that spell" on a `WhenAPlayerCastsASpell`
+        // trigger (Magmablood Archaic's "+1/+0 ... for each color of mana spent to cast that spell").
+        // Only the triggering-spell subject (`Trigger_ThatSpell`) maps to the context key; any other
+        // spell subject declines -> SCAFFOLD rather than misread a different cast's colors.
+        "NumColorsManaSpentToCastSpell" ->
+            return if (jsonContains(node["args"], "_Spell", "Trigger_ThatSpell"))
+                call("DynamicAmount.ContextProperty", arg("ContextPropertyKey.COLORS_SPENT_ON_TRIGGERING_SPELL"))
+            else null
         // "X" on a `WhenAPlayerCastsASpell(You, HasXInCost)` trigger — the value chosen for {X} on the
         // triggering spell (Geometer's Arthropod's "look at the top X cards of your library"). Reads the
         // triggering-spell X via the context key; the `Trigger_` prefix already scopes it to that spell.
@@ -420,6 +433,12 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
         // the flat type/subtype/controller filter below — emitting the aggregate without it would silently
         // over-count, so decline (-> SCAFFOLD) rather than misrender.
         if ("SharesACreatureTypeWithPermanent" in compact(node)) return null
+        // "for each creature blocking it" — an IsBlockingAttacker combat-relationship predicate scoped to
+        // the triggering attacker (Elvish Berserker's "+1/+1 for each creature blocking it"). A flat
+        // battlefield aggregate has no notion of "blocking <that creature>"; the search filter would
+        // silently drop the predicate and tally EVERY creature on the battlefield. Decline -> SCAFFOLD
+        // rather than misrender.
+        if ("IsBlockingAttacker" in compact(node)) return null
         // "for each creature that crewed it this turn" — a CrewedVehicleThisTurn predicate scoped to the
         // source Vehicle (Luxurious Locomotive). This is a per-source set-tracker count, not a flat
         // battlefield aggregate; the search filter below would silently drop the CrewedVehicleThisTurn
