@@ -1382,7 +1382,7 @@ private fun EmitCtx.opusTriggerBlock(rule: JsonObject, oncePerTurn: Boolean, tri
     if (orArgs.size != 2 || orTypes != setOf("Instant", "Sorcery")) return null
 
     // Sole action: a single IfElse with both arms.
-    val (_, actions) = extractEnvelope(rule)
+    val (targets, actions) = extractEnvelope(rule)
     val ifElse = actions?.singleOrNull()?.takeIf { it.strField("_Action") == "IfElse" } ?: return null
     val ifArgs = ifElse["args"].asArr ?: return null
     val cond = ifArgs.getOrNull(0) as? JsonObject ?: return null
@@ -1405,18 +1405,28 @@ private fun EmitCtx.opusTriggerBlock(rule: JsonObject, oncePerTurn: Boolean, tri
         return null
     }
 
+    // An optional single bound target shared by both arms ("target player mills three cards … that
+    // player mills ten cards instead" — Exhibition Tidecaller). The `opus { }` builder hosts a
+    // `target(…)` local just like a triggered ability, and BOTH arms reference the same chosen target
+    // ("that player" in the 5+ arm), so the target is declared once and threaded into each arm's
+    // effect via the bound-target var. `spellTargetExpr` returns (null, null) for the no-target opus
+    // (Deluge Virtuoso's self-pump) and declines (-> SCAFFOLD) on a target it can't render exactly.
+    val (tnode, tvar) = spellTargetExpr(targets, actions) ?: return null
+
     // A spell-cast trigger's triggering entity is the spell, so any "that …" body reference resolves
     // against the caster — match the generic path's bookkeeping while rendering the two arms.
     val prev = triggeringEntityIsSpell
     triggeringEntityIsSpell = true
-    val base = renderEffectList(elseActions, null).also { triggeringEntityIsSpell = prev } ?: return null
+    val base = renderEffectList(elseActions, tvar).also { triggeringEntityIsSpell = prev } ?: return null
     triggeringEntityIsSpell = true
-    val bonus = renderEffectList(thenActions, null).also { triggeringEntityIsSpell = prev } ?: return null
+    val bonus = renderEffectList(thenActions, tvar).also { triggeringEntityIsSpell = prev } ?: return null
 
-    return listOf(Sub(Block("opus", listOf(
-        Assign("effect", base),
-        Assign("insteadIfFiveOrMore", bonus),
-    ))))
+    val body = buildList {
+        if (tnode != null) add(targetLocal(tnode))
+        add(Assign("effect", base))
+        add(Assign("insteadIfFiveOrMore", bonus))
+    }
+    return listOf(Sub(Block("opus", body)))
 }
 
 /**
