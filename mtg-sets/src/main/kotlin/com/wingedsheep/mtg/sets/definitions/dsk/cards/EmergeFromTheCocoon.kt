@@ -27,7 +27,7 @@ val EmergeFromTheCocoon = card("Emerge from the Cocoon") {
     spell {
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
         effect = Effects.Composite(
-            Effects.Move(t, Zone.BATTLEFIELD),
+            Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
             GainLifeEffect(3)
         )
     }

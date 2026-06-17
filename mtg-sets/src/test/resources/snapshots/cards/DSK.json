@@ -525,7 +525,8 @@
                         "type": "BoundVariable",
                         "name": "target"
                     },
-                    "destination": "Battlefield"
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
                 },
                 {
                     "type": "GainLife",
@@ -1450,7 +1451,8 @@
                             "type": "BoundVariable",
                             "name": "target"
                         },
-                        "destination": "Battlefield"
+                        "destination": "Battlefield",
+                        "fromZone": "Graveyard"
                     },
                     "targetRequirements": [
                         {
@@ -2306,7 +2308,8 @@
                         "type": "BoundVariable",
                         "name": "target"
                     },
-                    "destination": "Battlefield"
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
                 },
                 {
                     "type": "AddCounters",
@@ -3057,7 +3060,8 @@
                         "type": "BoundVariable",
                         "name": "target"
                     },
-                    "destination": "Battlefield"
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
                 },
                 "targetRequirements": [
                     {

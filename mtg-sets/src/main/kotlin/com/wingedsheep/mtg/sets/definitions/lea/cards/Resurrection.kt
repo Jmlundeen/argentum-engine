@@ -25,7 +25,7 @@ val Resurrection = card("Resurrection") {
     oracleText = "Return target creature card from your graveyard to the battlefield."
     spell {
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
-        effect = Effects.Move(t, Zone.BATTLEFIELD)
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
     }
     metadata {
         rarity = Rarity.UNCOMMON

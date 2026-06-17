@@ -30,7 +30,7 @@ val ReyaDawnbringer = card("Reya Dawnbringer") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         val t = target("target creature card from your graveyard", Targets.CreatureCardInYourGraveyard)
-        effect = MayEffect(Effects.Move(t, Zone.BATTLEFIELD))
+        effect = MayEffect(Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD))
     }
 
     metadata {

@@ -35,7 +35,7 @@ val BroodheartEngine = card("Broodheart Engine") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}{G}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
-        effect = Effects.Move(t, Zone.BATTLEFIELD)
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
         timing = TimingRule.SorcerySpeed
     }
     metadata {

@@ -30,7 +30,7 @@ val RiteOfTheMoth = card("Rite of the Moth") {
     spell {
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
         effect = Effects.Composite(
-            Effects.Move(t, Zone.BATTLEFIELD),
+            Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
             AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = t)
         )
     }

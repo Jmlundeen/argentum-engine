@@ -31,7 +31,7 @@ val ValgavothsFaithful = card("Valgavoth's Faithful") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{B}"), Costs.SacrificeSelf)
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
-        effect = Effects.Move(t, Zone.BATTLEFIELD)
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
         timing = TimingRule.SorcerySpeed
     }
     metadata {

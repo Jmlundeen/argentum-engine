@@ -30,7 +30,7 @@ val LiveOrDie = card("Live or Die") {
         modal(chooseCount = 1) {
             mode("Return target creature card from your graveyard to the battlefield") {
                 val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
-                effect = Effects.Move(t, Zone.BATTLEFIELD)
+                effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
             }
             mode("Destroy target creature") {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature))

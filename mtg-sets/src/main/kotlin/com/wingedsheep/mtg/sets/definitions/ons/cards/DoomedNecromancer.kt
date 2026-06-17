@@ -26,7 +26,7 @@ val DoomedNecromancer = card("Doomed Necromancer") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target("target", Targets.CreatureCardInYourGraveyard)
-        effect = Effects.Move(t, Zone.BATTLEFIELD)
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
     }
 
     metadata {

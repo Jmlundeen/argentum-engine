@@ -45,7 +45,7 @@ val ForumNecroscribe = card("Forum Necroscribe") {
             "target creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard),
         )
-        effect = Effects.Move(returned, Zone.BATTLEFIELD)
+        effect = Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
     }
 
     metadata {
