@@ -1033,6 +1033,71 @@
     ]
 }
 
+// Comforting Counsel
+{
+    "name": "Comforting Counsel",
+    "manaCost": "{1}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever you gain life, put a growth counter on this enchantment.\nAs long as there are five or more growth counters on this enchantment, creatures you control get +3/+3.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "growth",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 3,
+                    "toughnessBonus": 3,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "EntityProperty",
+                        "entity": "Source",
+                        "numericProperty": {
+                            "type": "CounterCount",
+                            "counterType": {
+                                "type": "Named",
+                                "name": "growth"
+                            }
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 5
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "143",
+        "rarity": "RARE",
+        "artist": "Chris Rahn",
+        "flavorText": "In the grief that followed the Invasion, Willowdusk's office turned into an unofficial hideaway for overwhelmed students.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/2/5223a04f-6b47-4379-80ce-8489c4a91734.jpg?1775937970"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Conciliator's Duelist
 {
     "name": "Conciliator's Duelist",
@@ -3476,6 +3541,44 @@
     ]
 }
 
+// Goblin Glasswright
+{
+    "name": "Goblin Glasswright",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin Sorcerer",
+    "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "PREPARED"
+    ],
+    "metadata": {
+        "collectorNumber": "117",
+        "artist": "David Auden Nash",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/8/c85c5f06-dd31-4e2c-97be-2f64d65069ea.jpg?1775937759"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ],
+    "layout": "PREPARE",
+    "cardFaces": [
+        {
+            "name": "Craft with Pride",
+            "manaCost": "{R}",
+            "typeLine": "Sorcery",
+            "oracleText": "Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+            "script": {
+                "spellEffect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            }
+        }
+    ]
+}
+
 // Graduation Day
 {
     "name": "Graduation Day",
@@ -5203,6 +5306,109 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Mind Roots
+{
+    "name": "Mind Roots",
+    "manaCost": "{1}{B}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target player discards two cards. Put up to one land card discarded this way onto the battlefield tapped under your control.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "storeAs": "hand"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "hand",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "chooser": "TargetPlayer",
+                    "storeSelected": "discarded",
+                    "prompt": "Choose two cards to discard"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "discarded",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "ContextPlayer",
+                            "index": 0
+                        }
+                    },
+                    "moveType": "Discard",
+                    "storeMovedAs": "discardedToGrave"
+                },
+                {
+                    "type": "FilterCollection",
+                    "from": "discarded",
+                    "filter": {
+                        "type": "MatchesFilter",
+                        "filter": "land"
+                    },
+                    "storeMatching": "discardedLands"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "discardedLands",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "chosenLand",
+                    "prompt": "Put up to one discarded land onto the battlefield tapped"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "chosenLand",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield",
+                        "placement": "Tapped"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "player"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "203",
+        "rarity": "UNCOMMON",
+        "artist": "Elliot Lang",
+        "flavorText": "The best ideas stem from dreams.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d5fdbda-ebbe-45d6-a668-5ddee057a063.jpg?1775938410"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
     ]
 }
 
@@ -7838,6 +8044,71 @@
     "colorIdentityOverride": [
         "WHITE",
         "BLACK"
+    ]
+}
+
+// Snarl Song
+{
+    "name": "Snarl Song",
+    "manaCost": "{5}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Converge — Create two 0/0 green and blue Fractal creature tokens. Put X +1/+1 counters on each of them and you gain X life, where X is the number of colors of mana spent to cast this spell.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 0,
+                    "toughness": 0,
+                    "colors": [
+                        "GREEN",
+                        "BLUE"
+                    ],
+                    "creatureTypes": [
+                        "Fractal"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
+                },
+                {
+                    "type": "AddDynamicCounters",
+                    "counterType": "+1/+1",
+                    "amount": "DistinctColorsManaSpent",
+                    "target": {
+                        "type": "PipelineTarget",
+                        "collectionName": "createdTokens"
+                    }
+                },
+                {
+                    "type": "AddDynamicCounters",
+                    "counterType": "+1/+1",
+                    "amount": "DistinctColorsManaSpent",
+                    "target": {
+                        "type": "PipelineTarget",
+                        "collectionName": "createdTokens",
+                        "index": 1
+                    }
+                },
+                {
+                    "type": "GainLife",
+                    "amount": "DistinctColorsManaSpent"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "161",
+        "rarity": "UNCOMMON",
+        "artist": "Josu Hernaiz",
+        "flavorText": "\"Archaics and mana snarls have both existed since the beginning of time. Coincidence? Highly unlikely.\"\n—Zimone",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/c/fc4c7fa2-aebb-4636-9afd-f1010c923316.jpg?1775938101"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 

@@ -579,8 +579,9 @@ private fun EmitCtx.youCommittedCrimeConditionDsl(condNode: JsonElement?): Strin
  * static gates (Vadmir's "menace and lifelink at 4+ counters"). The predicate reads the source's
  * counter map under projection, so the gated keywords appear/vanish as counters cross the threshold.
  *
- * Only the bare `PTCounter(1,1)` (+1/+1) renders here — a keyword/named counter threshold has different
- * `Counters.*` plumbing and would change meaning, so it declines (-> SCAFFOLD).
+ * Renders for any counter kind [counterTypeDsl] can name — the bare `PTCounter(1,1)` (+1/+1) and the
+ * named/keyword/storage counters (e.g. a GROWTH counter, Comforting Counsel's "five or more growth
+ * counters"). A counter type we can't name declines (-> SCAFFOLD) rather than guessing the plumbing.
  */
 private fun EmitCtx.sourceCounterCountAtLeastConditionDsl(condNode: JsonElement?): String? {
     val cond = condNode as? JsonObject ?: return null
@@ -594,10 +595,8 @@ private fun EmitCtx.sourceCounterCountAtLeastConditionDsl(condNode: JsonElement?
     if (comparison.strField("_Comparison") != "GreaterThanOrEqualTo") return null
     val n = (comparison["args"] as? JsonObject)?.takeIf { it.strField("_GameNumber") == "Integer" }
         ?.get("args").asInt() ?: return null
-    val counter = hArgs.getOrNull(1) as? JsonObject ?: return null
-    val pt = counter.takeIf { it.strField("_CounterType") == "PTCounter" }?.get("args").asArr
-    if (pt?.getOrNull(0).asInt() != 1 || pt?.getOrNull(1).asInt() != 1) return null
-    return "Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, $n)"
+    val counter = counterTypeDsl(hArgs.getOrNull(1)) ?: return null
+    return "Conditions.SourceCounterCountAtLeast($counter, $n)"
 }
 
 /**
@@ -755,12 +754,18 @@ internal fun EmitCtx.ifRuleBlock(rule: JsonObject): List<Stmt>? {
     //   If(PlayerPassesFilter(You, GainedLifeThisTurn))
     //     [ EachPermanentLayerEffect(creatures you control, [AdjustPT(1,0), AddAbility(Trample)]) ]
     // -> the same gated lord, one row per layer effect, gated on Conditions.YouGainedLifeThisTurn.
-    // Only the "during YOUR turn" or "you gained life this turn" gates render; any other condition
-    // declines (-> SCAFFOLD). The lord renderer itself still declines any group/ability it can't
-    // reproduce exactly.
+    // Comforting Counsel: "As long as there are five or more growth counters on this enchantment,
+    //   creatures you control get +3/+3."
+    //   If(PermanentPassesFilter(ThisPermanent, HasNumCountersOfType(>= 5, GrowthCounter)))
+    //     [ EachPermanentLayerEffect(creatures you control, [AdjustPT(3,3)]) ]
+    // -> the same gated lord, gated on Conditions.SourceCounterCountAtLeast(Counters.GROWTH, 5).
+    // Only the "during YOUR turn", "you gained life this turn", or "N+ counters on this permanent"
+    // gates render; any other condition declines (-> SCAFFOLD). The lord renderer itself still
+    // declines any group/ability it can't reproduce exactly.
     if (innerRule.strField("_Rule") == "EachPermanentLayerEffect") {
         val condDsl = isYourTurnConditionDsl(cond)
             ?: youGainedLifeConditionDsl(cond)
+            ?: sourceCounterCountAtLeastConditionDsl(cond)
             ?: run { reasons.add("If"); return null }
         return staticLordBlock(innerRule, condition = condDsl)
     }
