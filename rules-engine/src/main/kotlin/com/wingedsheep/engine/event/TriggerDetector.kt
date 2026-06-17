@@ -28,6 +28,8 @@ import com.wingedsheep.engine.state.components.battlefield.TriggeredAbilityFired
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.SuppressEntersTriggers
 import com.wingedsheep.engine.state.components.identity.RoomComponent
 import com.wingedsheep.engine.state.components.identity.RoomFaceId
 import com.wingedsheep.engine.state.components.identity.TokenComponent
@@ -329,91 +331,49 @@ class TriggerDetector(
         // decayed counter is declared as an attacker, it must be sacrificed at end of combat.
         detectDecayedCounterAttackTriggers(state, events, triggers)
 
-        // CR 614 — Torpor Orb: "[Permanents] entering the battlefield don't cause abilities to
-        // trigger." Remove every enters-the-battlefield trigger caused by an entering permanent that
-        // matches a `SuppressEntersTriggers` static on the battlefield. Done as a post-detection pass
-        // so it catches per-event ETB triggers, batch "permanents entered" triggers, and any ETB
-        // copies added by Panharmonicon-style doublers alike — leaves/dies/other triggers untouched.
+        // Torpor Orb family (SuppressEntersTriggers): remove every pending trigger that a
+        // matching permanent entering the battlefield caused (CR 603.6 enters-the-battlefield
+        // triggers). Runs after all ETB detection paths so it covers the per-permanent, "one or
+        // more permanents entered" batch, and duplicated (Panharmonicon) copies uniformly.
         suppressEntersTriggers(state, events, triggers)
 
-        // Filter out once-per-turn triggers that have already fired this turn
-        val filteredTriggers = triggers.filter { trigger ->
-            if (!trigger.ability.oncePerTurn) return@filter true
-            val entity = state.getEntity(trigger.sourceId)
-            val tracker = entity?.get<TriggeredAbilityFiredThisTurnComponent>()
-            tracker == null || !tracker.hasFired(trigger.ability.id)
-        }
+        // Filter out once-per-turn triggers that have already fired this turn, and dedupe
+        // simultaneous fires (see [capOncePerTurnTriggers]).
+        val filteredTriggers = capOncePerTurnTriggers(state, triggers)
 
         // Rule 603.4: Filter out triggers with unmet intervening-if conditions
         return matcher.sortByApnapOrder(state, matcher.filterByTriggerCondition(state, filteredTriggers))
     }
 
     /**
-     * CR 614 — remove enters-the-battlefield triggers caused by a permanent whose entry is suppressed
-     * by a [SuppressEntersTriggers] static (Torpor Orb: "Creatures entering don't cause abilities to
-     * trigger"). Mutates [triggers] in place.
+     * Filter [triggers] for "this ability triggers only once each turn" (`oncePerTurn`) abilities.
      *
-     * An entering permanent is suppressed when some battlefield permanent has a `SuppressEntersTriggers`
-     * whose filter matches it. A pending trigger is removed when it is an enters-trigger (its trigger
-     * pattern is a battlefield-arrival `ZoneChangeEvent` or a `PermanentsEnteredEvent`) and its
-     * triggering entity is one of the suppressed enterers. This covers a creature's own
-     * "When this enters …" (SELF), other permanents' "Whenever a creature enters …" (OTHER/ANY) that
-     * fired off the suppressed entry, and the batch "one or more … entered" triggers; it never touches
-     * leaves/dies or non-entry triggers, nor enters-tapped / enters-with-counters replacements.
+     * Two cuts, in order:
+     *  1. Drop any oncePerTurn trigger whose source has already fired that ability id this turn
+     *     (tracked by [TriggeredAbilityFiredThisTurnComponent], stamped on resolution).
+     *  2. Within this single detection pass, keep only the *first* trigger per
+     *     `(sourceId, abilityId)` for oncePerTurn abilities. The fired-this-turn tracker is only
+     *     written when a trigger resolves, so a single multi-subject event (e.g. a player
+     *     discarding two cards, which fires a per-card "whenever a player discards" trigger twice)
+     *     would otherwise queue two instances before either resolves and stamps the tracker. This
+     *     dedupe enforces the "only once each turn" cap for batch-style triggers — e.g. Hostile
+     *     Investigator investigating once even when several cards are discarded at once.
+     *
+     * Non-oncePerTurn triggers are never deduped (two lord bonuses, two prowess fires, etc. must
+     * all survive).
      */
-    private fun suppressEntersTriggers(
+    private fun capOncePerTurnTriggers(
         state: GameState,
-        events: List<EngineGameEvent>,
-        triggers: MutableList<PendingTrigger>,
-    ) {
-        if (triggers.isEmpty()) return
-
-        // Enterers this batch.
-        val enterers = events.filterIsInstance<ZoneChangeEvent>()
-            .filter { it.toZone == Zone.BATTLEFIELD }
-            .map { it.entityId }
-            .toSet()
-        if (enterers.isEmpty()) return
-
-        // Battlefield SuppressEntersTriggers filters (global — any controller).
-        val suppressFilters = state.getBattlefield().mapNotNull { permId ->
-            val card = state.getEntity(permId)?.get<CardComponent>() ?: return@mapNotNull null
-            cardRegistry.getCard(card.cardDefinitionId)
-        }.flatMap { it.script.staticAbilities }
-            .filterIsInstance<com.wingedsheep.sdk.scripting.SuppressEntersTriggers>()
-            .map { it.filter }
-        if (suppressFilters.isEmpty()) return
-
-        // Which enterers does at least one suppress filter match? The permanent is on the battlefield
-        // now, so match against projected state (type-changing effects flow through).
-        val projected = state.projectedState
-        val suppressedEnterers = enterers.filter { enteringId ->
-            val controllerId = projected.getController(enteringId)
-                ?: state.getEntity(enteringId)?.get<ControllerComponent>()?.playerId
-                ?: return@filter false
-            suppressFilters.any { filter ->
-                predicateEvaluator.matches(state, projected, enteringId, filter, PredicateContext(controllerId = controllerId))
-            }
-        }.toSet()
-        if (suppressedEnterers.isEmpty()) return
-
-        fun isEntersTrigger(ability: TriggeredAbility): Boolean = when (ability.trigger) {
-            is com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent ->
-                (ability.trigger as com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent).to == Zone.BATTLEFIELD
-            is com.wingedsheep.sdk.scripting.EventPattern.PermanentsEnteredEvent -> true
-            else -> false
-        }
-
-        triggers.removeAll { trigger ->
-            if (!isEntersTrigger(trigger.ability)) return@removeAll false
-            // SELF "when this enters" carries the enterer as sourceId; OTHER/ANY and batch carry it as
-            // the triggering entity. A batch "permanents entered" trigger may have no single triggering
-            // entity — suppress it only when every enterer it could have counted is suppressed.
-            val triggering = trigger.triggerContext.triggeringEntityId
-            trigger.sourceId in suppressedEnterers ||
-                (triggering != null && triggering in suppressedEnterers) ||
-                (trigger.ability.trigger is com.wingedsheep.sdk.scripting.EventPattern.PermanentsEnteredEvent &&
-                    triggering == null && enterers.all { it in suppressedEnterers })
+        triggers: List<PendingTrigger>
+    ): List<PendingTrigger> {
+        val seenOncePerTurn = HashSet<Pair<EntityId, com.wingedsheep.sdk.scripting.AbilityId>>()
+        return triggers.filter { trigger ->
+            if (!trigger.ability.oncePerTurn) return@filter true
+            val entity = state.getEntity(trigger.sourceId)
+            val tracker = entity?.get<TriggeredAbilityFiredThisTurnComponent>()
+            if (tracker != null && tracker.hasFired(trigger.ability.id)) return@filter false
+            // Collapse simultaneous fires of the same ability from the same source.
+            seenOncePerTurn.add(trigger.sourceId to trigger.ability.id)
         }
     }
 
@@ -587,13 +547,9 @@ class TriggerDetector(
         // abilities (e.g., Twinflame Travelers) — also applies to phase/step triggers.
         duplicateSourceTriggers(state, triggers)
 
-        // Filter out once-per-turn triggers that have already fired this turn
-        val filteredTriggers = triggers.filter { trigger ->
-            if (!trigger.ability.oncePerTurn) return@filter true
-            val entity = state.getEntity(trigger.sourceId)
-            val tracker = entity?.get<TriggeredAbilityFiredThisTurnComponent>()
-            tracker == null || !tracker.hasFired(trigger.ability.id)
-        }
+        // Filter out once-per-turn triggers that have already fired this turn, and dedupe
+        // simultaneous fires (see [capOncePerTurnTriggers]).
+        val filteredTriggers = capOncePerTurnTriggers(state, triggers)
 
         // Rule 603.4: Filter out triggers with unmet intervening-if conditions
         return matcher.sortByApnapOrder(state, matcher.filterByTriggerCondition(state, filteredTriggers))
@@ -690,6 +646,101 @@ class TriggerDetector(
                     triggerContext = TriggerContext(triggeringEntityId = attackerId)
                 )
             )
+        }
+    }
+
+    /**
+     * Torpor Orb family ([com.wingedsheep.sdk.scripting.SuppressEntersTriggers]): strip every
+     * pending trigger that a *matching permanent entering the battlefield* caused.
+     *
+     * Per Torpor Orb's Gatherer rulings this suppresses both the entering permanent's own
+     * enters-the-battlefield triggers and any other permanent's "whenever a [...] enters" trigger
+     * whose triggering object is that permanent — the gate is whether the entering object matches a
+     * [SuppressEntersTriggers.filter] in projected state (continuous effects apply), not what the
+     * watching trigger's text names. Replacement effects (enters with counters/tapped) and
+     * "as it enters" choices are untouched because they never become [PendingTrigger]s.
+     *
+     * Operates as a final filter over the already-detected batch, so it covers the per-permanent
+     * ETB path ([detectTriggersForEvent]), the "one or more permanents entered" batch path
+     * ([detectPermanentsEnteredBatchTriggers]), and the Panharmonicon-style duplicates uniformly.
+     */
+    private fun suppressEntersTriggers(
+        state: GameState,
+        events: List<EngineGameEvent>,
+        triggers: MutableList<PendingTrigger>
+    ) {
+        if (triggers.isEmpty()) return
+
+        // Which permanents entered the battlefield in this batch.
+        val enteredIds = events.asSequence()
+            .filterIsInstance<ZoneChangeEvent>()
+            .filter { it.toZone == Zone.BATTLEFIELD }
+            .map { it.entityId }
+            .toSet()
+        if (enteredIds.isEmpty()) return
+
+        // Active suppressors (filter + the granting permanent's projected controller, which is the
+        // reference player for the filter's controller predicate so `youControl()` scopes correctly).
+        val projected = state.projectedState
+        data class Suppressor(val filter: GameObjectFilter, val controllerId: EntityId)
+        val suppressors = mutableListOf<Suppressor>()
+        for (permanentId in state.getBattlefield()) {
+            val container = state.getEntity(permanentId) ?: continue
+            if (container.has<FaceDownComponent>()) continue
+            val cardDef = container.get<CardComponent>()
+                ?.let { cardRegistry.getCard(it.cardDefinitionId) } ?: continue
+            for (ability in cardDef.script.staticAbilities) {
+                if (ability is SuppressEntersTriggers) {
+                    val controller = projected.getController(permanentId)
+                        ?: container.get<ControllerComponent>()?.playerId ?: continue
+                    suppressors.add(Suppressor(ability.filter, controller))
+                }
+            }
+        }
+        if (suppressors.isEmpty()) return
+
+        // An entered permanent whose entry is suppressed by at least one active suppressor.
+        val suppressionCache = HashMap<EntityId, Boolean>()
+        fun isSuppressed(entityId: EntityId): Boolean {
+            if (entityId !in enteredIds) return false
+            return suppressionCache.getOrPut(entityId) {
+                suppressors.any { s ->
+                    predicateEvaluator.matches(
+                        state, projected, entityId, s.filter,
+                        PredicateContext(controllerId = s.controllerId)
+                    )
+                }
+            }
+        }
+
+        // Whether an ability's trigger is an enters-the-battlefield shape (the only triggers an
+        // entry causes); leaves/attack/etc. triggers are never suppressed even if their context
+        // entity happens to have entered this batch.
+        fun isEntersTrigger(trigger: com.wingedsheep.sdk.scripting.EventPattern): Boolean = when (trigger) {
+            is com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent -> trigger.to == Zone.BATTLEFIELD
+            is com.wingedsheep.sdk.scripting.EventPattern.PermanentsEnteredEvent -> true
+            else -> false
+        }
+
+        val iterator = triggers.listIterator()
+        while (iterator.hasNext()) {
+            val trigger = iterator.next()
+            if (!isEntersTrigger(trigger.ability.trigger)) continue
+            val ctx = trigger.triggerContext
+            val captured = ctx.capturedEntityIds
+            if (captured != null) {
+                // Batch trigger: strip the suppressed entries; drop the whole trigger if none
+                // of the permanents that caused it survive.
+                val survivors = captured.filterNot { isSuppressed(it) }
+                when {
+                    survivors.isEmpty() -> iterator.remove()
+                    survivors.size != captured.size ->
+                        iterator.set(trigger.copy(triggerContext = ctx.copy(capturedEntityIds = survivors)))
+                }
+            } else {
+                val triggeringId = ctx.triggeringEntityId ?: trigger.sourceId
+                if (isSuppressed(triggeringId)) iterator.remove()
+            }
         }
     }
 

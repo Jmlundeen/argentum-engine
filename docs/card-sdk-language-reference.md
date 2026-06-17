@@ -587,10 +587,13 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   `CreateChosenTokenEffect`; under the hood it sets `CreateTokenEffect.colorsFromChoice` /
   `creatureTypesFromChoice`.)
 - `CreateTokenCopyOfSelf(count?, tapped?)` — token copies of source.
-- `CreateTokenCopyOfTarget(target, count?, overridePower?, overrideToughness?, tapped?, attacking?, triggeredAbilities?, addedKeywords?, addedSupertypes?, removedSupertypes?, overrideColors?, overrideSubtypes?, sacrificeAtStep?, sacrificeOnlyOnControllersTurn?)` —
+- `CreateTokenCopyOfTarget(target, count?, overridePower?, overrideToughness?, tapped?, attacking?, triggeredAbilities?, addedKeywords?, addedSupertypes?, removedSupertypes?, overrideColors?, overrideSubtypes?, sacrificeAtStep?, sacrificeOnlyOnControllersTurn?, addCardTypes?)` —
   token copy of another permanent (or a card in any zone — the executor copies the target's `CardComponent`,
   so a graveyard/exile card works). `overrideColors`/`overrideSubtypes` replace the copy's colors/subtypes
   outright for "a token that's a copy … except it's a 5/5 black Demon" wording (Ardyn, the Usurper).
+  `addCardTypes` (e.g. `setOf("ARTIFACT")`) *unions* extra card types onto the copy's type line for the
+  "except it's a [type] in addition to its other types" clause (the targeted sibling of
+  `CreateTokenCopyOfSource`'s `addCardTypes`; Molten Duplication).
   `attacking` only applies to copies whose printed type line is a creature (a copy of a non-creature card
   still enters tapped but never attacking). `sacrificeAtStep` schedules one delayed `SacrificeTargetEffect`
   per created copy at that step (the sacrifice sibling of `CreateTokenEffect.sacrificeAtStep`);
@@ -2384,15 +2387,14 @@ staticAbility {
 - `PreventActivatedAbilities(filter)` — activated abilities (mana + non-mana) of matching
   permanents can't be activated; loyalty abilities and animation costs that haven't yet
   produced a creature are unaffected. (Cursed Totem → `GameObjectFilter.Creature`)
-- `SuppressEntersTriggers(filter)` — *global* (any controller): permanents matching `filter`
-  entering the battlefield don't cause abilities to trigger (CR 614). Read at trigger-detection
-  time, it removes every enters-the-battlefield trigger caused by a matching entering permanent —
-  the permanent's own "When this enters …" (SELF), other permanents' "Whenever a [matching]
-  permanent enters …" (OTHER/ANY) that fired off that entry, and the batch "one or more … entered"
-  triggers — while leaving leaves/dies/other triggers and enters-tapped / enters-with-counters
-  *replacements* untouched. Torpor Orb / Hushwing Gryff / Tocatli Honor Guard =
-  `SuppressEntersTriggers(GameObjectFilter.Creature)` ("Creatures entering don't cause abilities to
-  trigger."); a wider filter expresses a "permanents entering …" variant.
+- `SuppressEntersTriggers(filter = GameObjectFilter.Creature)` — permanents matching `filter`
+  entering the battlefield don't cause abilities to trigger (CR 603.6 enters-the-battlefield
+  triggers). Suppresses both the entering permanent's *own* ETB triggers and any other permanent's
+  "whenever a [...] enters" trigger whose triggering object is that permanent — the gate is whether
+  the *entering object* matches `filter` in projected state (continuous effects apply), not what the
+  watching trigger names. Replacement effects (enters with counters/tapped) and `EntersWithChoice`
+  "as it enters" choices are unaffected (they aren't triggered abilities). Torpor Orb / Hushwing Gryff
+  → `SuppressEntersTriggers()`; Tocatli Honor Guard → `SuppressEntersTriggers(GameObjectFilter.Creature.youControl())`.
 - `PreventManaPoolEmptying` — mana pools don't empty between steps/phases. (Upwelling)
 - `NoMaximumHandSize` — controller has no hand-size limit *while this permanent is on the
   battlefield*. (Thought Vessel, Reliquary Tower) For a one-shot resolution effect that confers a
@@ -3785,6 +3787,12 @@ replacementEffect {
   attachment-type validation already happens at cast/attach time via `equipmentTarget` /
   `auraTarget`. Token copies are summoning-sick only when the copy is a creature (CR 302.6).
   Mirrormind Crown: `attachmentVerb = "equipped"`; Moonlit Meditation: `attachmentVerb = "enchanted"`.
+- `CreateAdditionalToken(additionalTokenType, additionalTokenCount = 1, inheritTapped = false, appliesTo)` —
+  token-creation replacement that keeps the original tokens and appends one or more predefined tokens of
+  another type. `appliesTo = EventPattern.TokenCreationEvent(controller, tokenFilter)` gates the original
+  creation event, and the extra tokens are added once per qualifying event, not once per token. The added
+  tokens bypass the same replacement pass so a Map added for an artifact-token event does not recursively
+  trigger itself. Used by Worldwalker Helm (`TokenCreationEvent(You, Artifact)`, add `Map`, `inheritTapped = true`).
 - `EntersAsCopy(optional, copyFilter, copyFromZone, filterByTotalManaSpent, additionalSubtypes, additionalKeywords, nameOverride, powerOverride, toughnessOverride, exileCopiedCard)` —
   "enter as a copy of …". As the permanent resolves, the controller picks an object matching
   `copyFilter` and the permanent enters as a copy (Rule 707 copiable values), with any overrides

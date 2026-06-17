@@ -4,9 +4,10 @@ import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
 /**
- * Torpor Orb reprint in The Big Score. Canonical CardDefinition lives in
- * [com.wingedsheep.mtg.sets.definitions.nph.cards.TorporOrb] (its earliest real printing,
- * New Phyrexia); this file contributes only presentation data.
+ * Torpor Orb reprint in The Big Score (BIG).
+ *
+ * The canonical [com.wingedsheep.sdk.model.CardDefinition] lives in NPH's `cards/` package
+ * (the card's earliest real printing). This file contributes only the BIG presentation row.
  */
 val TorporOrbReprint = Printing(
     oracleId = "97326cad-b13c-4e52-82ce-850a39e5ff08",

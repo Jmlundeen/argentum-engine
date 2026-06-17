@@ -368,7 +368,18 @@ data class CreateTokenCopyOfTargetEffect(
      * controller's turn — i.e. "at the beginning of *your* next end step" rather than the
      * very next end step of any player.
      */
-    val sacrificeOnlyOnControllersTurn: Boolean = false
+    val sacrificeOnlyOnControllersTurn: Boolean = false,
+    /**
+     * Extra card types to union onto the token's type line on top of the copied permanent's
+     * types. Use the [com.wingedsheep.sdk.core.CardType] `name` (e.g. `"ARTIFACT"`).
+     *
+     * Models the "except it's a [type] in addition to its other types" copy clause — the token
+     * has every type the copied permanent had, plus the listed types. The targeted sibling of
+     * [CreateTokenCopyOfSourceEffect.addCardTypes]. First used for Molten Duplication ("a copy of
+     * target artifact or creature you control, except it's an artifact in addition to its other
+     * types"); any future targeted copy-token effect with the same shape can reuse the field.
+     */
+    val addCardTypes: Set<String> = emptySet()
 ) : Effect {
     override val description: String = buildString {
         append("Create ${count.description} token copies of target permanent")
@@ -397,6 +408,14 @@ data class CreateTokenCopyOfTargetEffect(
             append(", except ${if (count == DynamicAmount.Fixed(1)) "it's" else "they're"} ${
                 addedSupertypes.joinToString(" ") { it.displayName.lowercase() }
             }")
+        }
+        if (addCardTypes.isNotEmpty()) {
+            val pronoun = if (count == DynamicAmount.Fixed(1)) "it's" else "they're"
+            val typeWords = addCardTypes.joinToString(" ") { it.lowercase() }
+            val article = if (count == DynamicAmount.Fixed(1)) {
+                if (typeWords.first() in "aeiou") "an " else "a "
+            } else ""
+            append(", except $pronoun $article$typeWords in addition to its other types")
         }
         if (addedKeywords.isNotEmpty()) {
             append(" with ${addedKeywords.joinToString(", ") { it.displayName.lowercase() }}")

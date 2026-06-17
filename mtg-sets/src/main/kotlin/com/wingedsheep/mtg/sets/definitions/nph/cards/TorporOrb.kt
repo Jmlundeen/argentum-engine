@@ -2,20 +2,19 @@ package com.wingedsheep.mtg.sets.definitions.nph.cards
 
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.SuppressEntersTriggers
 
 /**
- * Torpor Orb — New Phyrexia #162 (canonical printing)
- * {2} · Artifact
- *
+ * Torpor Orb
+ * {2}
+ * Artifact
  * Creatures entering don't cause abilities to trigger.
  *
- * The reusable [SuppressEntersTriggers] static (filter = creatures). The engine removes, at
- * trigger-detection time, every enters-the-battlefield trigger caused by a creature entering —
- * both the creature's own "When this enters …" and other permanents' "Whenever a creature
- * enters …" abilities that fired off that entry — for any player. Leaves/dies and other
- * triggers, and enters-tapped / enters-with-counters replacements, are unaffected.
+ * The [SuppressEntersTriggers] static (default `filter = Creature`): when a creature enters the
+ * battlefield, no triggered ability fires from that entry — neither the creature's own
+ * enters-the-battlefield triggers nor any other permanent's "whenever a [...] enters" trigger that
+ * the creature would cause. Replacement effects (enters with counters / tapped) and "as it enters"
+ * choices are unaffected, matching the printed rulings.
  */
 val TorporOrb = card("Torpor Orb") {
     manaCost = "{2}"
@@ -23,7 +22,7 @@ val TorporOrb = card("Torpor Orb") {
     oracleText = "Creatures entering don't cause abilities to trigger."
 
     staticAbility {
-        ability = SuppressEntersTriggers(GameObjectFilter.Creature)
+        ability = SuppressEntersTriggers()
     }
 
     metadata {

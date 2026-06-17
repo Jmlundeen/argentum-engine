@@ -7,19 +7,21 @@ import com.wingedsheep.sdk.model.MtgSet
 import com.wingedsheep.sdk.model.Printing
 
 /**
- * New Phyrexia (2011)
+ * New Phyrexia Set (2011)
+ *
+ * Third and final set in the Scars of Mirrodin block. Phyrexia's victory over Mirrodin;
+ * introduces Phyrexian mana and the Living Weapon mechanic's continuation.
  *
  * Set Code: NPH
  * Release Date: May 13, 2011
- *
- * Scaffolded to hold the canonical [CardDefinition] for Torpor Orb (its earliest real printing).
- * Cards and reprint rows auto-register via the classpath scan over [CARDS_PACKAGE].
+ * Card Count: 175
  */
 object NewPhyrexiaSet : MtgSet {
 
     override val code = "NPH"
     override val displayName = "New Phyrexia"
     override val releaseDate = "2011-05-13"
+    override val block = "Scars of Mirrodin"
     override val basicLandsFallback = PortalSet
     override val incomplete = true
 

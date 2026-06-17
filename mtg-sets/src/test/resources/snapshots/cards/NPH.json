@@ -6,10 +6,7 @@
     "oracleText": "Creatures entering don't cause abilities to trigger.",
     "script": {
         "staticAbilities": [
-            {
-                "type": "SuppressEntersTriggers",
-                "filter": "creature"
-            }
+            "SuppressEntersTriggers"
         ]
     },
     "metadata": {
