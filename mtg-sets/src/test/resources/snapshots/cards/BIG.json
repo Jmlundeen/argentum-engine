@@ -1,3 +1,58 @@
+// Ancient Cornucopia
+{
+    "name": "Ancient Cornucopia",
+    "manaCost": "{2}{G}",
+    "typeLine": "Artifact",
+    "oracleText": "Whenever you cast a spell that's one or more colors, you may gain 1 life for each of that spell's colors. Do this only once each turn.\n{T}: Add one mana of any color.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsColored"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "GainLife",
+                        "amount": {
+                            "type": "EntityProperty",
+                            "entity": "Triggering",
+                            "numericProperty": "ColorCount"
+                        }
+                    }
+                },
+                "oncePerTurn": true
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "rarity": "MYTHIC",
+        "artist": "Bartek Fedyczak",
+        "flavorText": "\"I reckon that thing's trying to put me out of a job!\"\n—Bristly Bill, cactusfolk gardener",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/9/f977975d-0439-4731-b129-270cc4cdbb23.jpg?1739804204"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Generous Plunderer
 {
     "name": "Generous Plunderer",
@@ -327,6 +382,49 @@
     "colorIdentityOverride": []
 }
 
+// Molten Duplication
+{
+    "name": "Molten Duplication",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create a token that's a copy of target artifact or creature you control, except it's an artifact in addition to its other types. It gains haste until end of turn. Sacrifice it at the beginning of the next end step.",
+    "script": {
+        "spellEffect": {
+            "type": "CreateTokenCopyOfTarget",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target"
+            },
+            "addedKeywords": [
+                "HASTE"
+            ],
+            "sacrificeAtStep": "END",
+            "addCardTypes": [
+                "ARTIFACT"
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|artifact ctrl:you"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "14",
+        "rarity": "MYTHIC",
+        "artist": "Justyna Dura",
+        "flavorText": "No one had seen this side of Angeline before, not even her.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/d/fdbe1ac1-461f-4746-a8d8-6c8dea2c97c6.jpg?1739804204"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Pest Control
 {
     "name": "Pest Control",
@@ -471,6 +569,124 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Simulacrum Synthesizer
+{
+    "name": "Simulacrum Synthesizer",
+    "manaCost": "{2}{U}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, scry 2.\nWhenever another artifact you control with mana value 3 or greater enters, create a 0/0 colorless Construct artifact creature token with \"This token gets +1/+1 for each artifact you control.\"",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeAs": "scried"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "scried",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "toBottom",
+                            "storeRemainder": "toTop",
+                            "selectedLabel": "Put on bottom",
+                            "remainderLabel": "Put on top"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "toBottom",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "toTop",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Top"
+                            },
+                            "order": "ControllerChooses"
+                        },
+                        "EmitScriedEvent"
+                    ]
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "artifact mv>=3 ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 0,
+                    "toughness": 0,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Construct"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/3/8/3877d2d1-61f2-4295-b0fc-827965eaaefc.jpg?1712317494",
+                    "artifactToken": true,
+                    "staticAbilities": [
+                        {
+                            "type": "GrantDynamicStats",
+                            "filter": {
+                                "baseFilter": "permanent",
+                                "scope": "Self"
+                            },
+                            "powerBonus": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "artifact"
+                            },
+                            "toughnessBonus": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "artifact"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "MYTHIC",
+        "artist": "Anton Solovianchyk",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/a/aaa05ad1-5cda-4edd-b6bf-562ae3e5011a.jpg?1739804163"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
