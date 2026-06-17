@@ -742,6 +742,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `BecomeCopyOfLinkedExileEffect(affected = AttachedToTriggeringPermanent)` — facade `Effects.BecomeCopyOfLinkedExile(affected)`. The `affected` permanent becomes a copy of the first creature card in the effect's **source's linked exile** (`LinkedExileComponent` — the card the source banished via `Effects.ExileUntilLeaves`), copiable values only (Rule 707.2). Baked into the affected permanent's `CardComponent` like Clone, but tagged with a `CopyWhileAttachedComponent(sourceId)`; the `AttachedCopyExpiryCheck` state-based action reverts the copy (restoring the pre-copy snapshot) the moment the source stops being attached to it — detach, re-attach elsewhere, or source leaving (CR 611.2b, one-way). No-op when the source's linked exile holds no creature card. Used by Assimilation Aegis ("for as long as this Equipment remains attached to it, that creature becomes a copy of a creature card exiled with this Equipment").
 - `AnimateLandEffect(target, subtypes, keywords, duration)` — land becomes a creature.
 - `ExploreEffect(target)` — Explore mechanic (reveal top; land → battlefield, else hand + counter).
+- `MakePreparedEffect(target = Self)` — facade `Effects.MakePrepared(target)`. The target permanent **becomes prepared** (Prepare — Secrets of Strixhaven): gains the prepared status and gets a castable copy of its card's prepare spell (`cardFaces[0]`) in its controller's exile (same machinery as entering prepared, shared via `PreparedService.makePrepared`). No-op if already prepared, or the card has no prepare face. Use for cards that *become* prepared mid-game (e.g. Joined Researchers' end-step trigger); cards that "enter prepared" use `Keyword.PREPARED` on a `PREPARE`-layout card instead.
 - `AttachEquipmentEffect(equip, target)` — attach an Equipment.
 - `TapUntapEffect(target, isTap)` — tap or untap. Facade: `Effects.Tap` / `Effects.Untap`.
 - `Effects.TapEachTarget()` — "tap up to N target creatures": taps every object chosen as a target.
@@ -2856,6 +2857,7 @@ answer it and would silently return `false`.
 - `OpponentControlsCreature` — at least one opponent has a creature.
 - `OpponentControlsMoreCreatures` — an opponent outpaces you.
 - `OpponentControlsMoreLands` — an opponent has more lands.
+- `OpponentHasMoreCardsInHand` — an opponent has more cards in hand than you (compares opponents' hand size to yours). Used by Beza, the Bounding Spring and Joined Researchers.
 - `OpponentControlsLandType(type)` — opponent controls land of a type.
 - `CompareAmounts(left, operator, right)` — generic numeric comparison of two `DynamicAmount`s with a
   `ComparisonOperator.{LT,LTE,EQ,NEQ,GT,GTE}` (composes the underlying `Compare` condition). The facade
@@ -3976,8 +3978,8 @@ Card authors rarely reference these directly; they are created/updated by the ma
   `card { prepare("Name") { spell { … } } }`. The creature is only cast as itself. A creature that carries
   `Keyword.PREPARED` ("This creature enters prepared") becomes prepared on enter
   (`StackResolver.enterPermanentOnBattlefield`, gated on the keyword). A PREPARE-layout creature *without* the
-  keyword (Leech Collector) only becomes prepared via `Effects.BecomePrepared(target)` (`BecomePreparedExecutor`).
-  Both paths call the shared `PreparationLogic.makePrepared`, which
+  keyword (Leech Collector, Joined Researchers) only becomes prepared via `Effects.BecomePrepared(target)`
+  (`BecomePreparedExecutor`). Both paths call the shared `PreparationLogic.makePrepared`, which
   creates a stack-style copy of the prepare spell in the controller's exile carrying
   `PreparedSpellCopyComponent(sourceId)`, stamps `PreparedComponent(exileCopyId)` on the creature, and grants a
   permanent `MayPlayPermission` for the copy. `CastFromZoneEnumerator` recognizes the copy and offers it as
@@ -3986,7 +3988,8 @@ Card authors rarely reference these directly; they are created/updated by the ma
   via the face script and ceases to exist (`CopyOfComponent`). The exiled copy is exempt from the 707.10a
   phantom-copy SBA (`PhantomCardCopiesCheck`) while linked, and that same check removes it once the source leaves
   the battlefield or stops being prepared. First users: Adventurous Eater // Have a Bite, Landscape Painter //
-  Vibrant Idea; becomes-prepared-via-trigger: Leech Collector // Bloodletting.
+  Vibrant Idea; becomes-prepared-via-trigger: Leech Collector // Bloodletting, Joined Researchers // Secret
+  Rendezvous (end-step trigger gated on `Conditions.OpponentHasMoreCardsInHand`).
 - **Hideaway N** — `KeywordAbility.hideaway(n)` (display, "Hideaway N") + `MoveCollectionEffect(faceDown = true,
   linkToSource = true)` + `CardSource.FromLinkedExile()`; no special engine plumbing needed.
 - **Ascend / City's Blessing** — `Keyword.ASCEND` + `Effects.GainCitysBlessing()` + `Conditions.YouHaveCitysBlessing` /

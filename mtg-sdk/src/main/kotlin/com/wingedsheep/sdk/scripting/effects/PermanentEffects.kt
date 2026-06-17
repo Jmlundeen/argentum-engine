@@ -317,4 +317,3 @@ data class ExploreEffect(
 ) : Effect {
     override val description: String = "${target.description} explores"
 }
-
