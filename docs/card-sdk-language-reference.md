@@ -2430,9 +2430,23 @@ staticAbility {
   time through the single `CastPermissionUtils.reasonCannotCast` chokepoint, so it covers every
   casting zone (hand, flashback/harmonize, exile, top of library) uniformly; control is read from
   projected state. Examples: Voice of Victory = `PlayersCantCastSpells(Player.EachOpponent, condition
-  = IsYourTurn)`; Grand Abolisher's cast clause = `PlayersCantCastSpells(Player.EachOpponent)`; Void
-  Winnower = `PlayersCantCastSpells(Player.EachOpponent, spellFilter = GameObjectFilter(cardPredicates
-  = listOf(CardPredicate.ManaValueIsEven)))`.
+  = IsYourTurn)`; Grand Abolisher's cast clause = `PlayersCantCastSpells(Player.EachOpponent, condition
+  = IsYourTurn)`; Void Winnower = `PlayersCantCastSpells(Player.EachOpponent, spellFilter =
+  GameObjectFilter(cardPredicates = listOf(CardPredicate.ManaValueIsEven)))`.
+- `PlayersCantActivateAbilities(affected = Player.EachOpponent, permanentFilter = GameObjectFilter.Any, condition = null)`
+  — continuous *activation* prohibition, the activated-ability twin of `PlayersCantCastSpells`,
+  parameterized along the same three axes: **who** (`affected`, relative to the source's controller),
+  **which** (`permanentFilter`, matched in projected state against the *permanent whose ability is being
+  activated* — not the ability itself), and **when** (`condition`, evaluated in the controller's
+  context). Read at ability-activation-legality time on every battlefield permanent
+  (`CastPermissionUtils.isActivationPreventedForPlayer`, consulted by the activate handler + the
+  activated/mana-ability enumerators), so it blocks mana and non-mana abilities alike. Unlike the
+  who/when-blind `PreventActivatedAbilities` (Cursed Totem), it additionally scopes by who is activating
+  and when. Grand Abolisher's activate clause = `PlayersCantActivateAbilities(Player.EachOpponent,
+  permanentFilter = GameObjectFilter.Artifact or GameObjectFilter.Creature or GameObjectFilter.Enchantment,
+  condition = IsYourTurn)` ("During your turn, your opponents can't activate abilities of artifacts,
+  creatures, or enchantments."); loyalty abilities and land mana abilities are unaffected because the
+  filter only matches those three permanent types.
 
 **Tapped-for-mana mana statics** (extra mana / replaced mana when a land is tapped for mana — resolve
 inline as triggered mana abilities, off the stack per CR 605). These fire on the *manual* mana-ability

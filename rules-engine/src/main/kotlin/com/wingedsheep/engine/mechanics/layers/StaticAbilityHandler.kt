@@ -116,6 +116,7 @@ import com.wingedsheep.sdk.scripting.OverrideEnchantedLandManaColor
 import com.wingedsheep.sdk.scripting.PlayFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlotFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
+import com.wingedsheep.sdk.scripting.PlayersCantActivateAbilities
 import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
 import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
 import com.wingedsheep.sdk.scripting.PreventCycling
@@ -737,6 +738,7 @@ class StaticAbilityHandler(
             is ExtraLoyaltyActivation,
             is GrantActivatedAbility,
             is PreventActivatedAbilities,
+            is PlayersCantActivateAbilities,
             is PreventCycling,
 
             // Trigger detection (TriggerDetector.suppressEntersTriggers) — not a continuous
