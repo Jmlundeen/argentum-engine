@@ -311,6 +311,10 @@ internal fun counterTypeDsl(counterNode: JsonElement?): String? {
         // Loot counter (OTJ — Bandit's Haul): a passive storage counter with no inherent rule; the
         // card's own abilities accumulate it and spend it. Adding one is a plain AddCounters.
         "LootCounter" -> "Counters.LOOT"
+        // Growth counter (SOS — Comforting Counsel): another passive storage counter with no inherent
+        // rule; the card's own static ability reads the count ("as long as there are five or more
+        // growth counters …"). Adding one is a plain AddCounters(Counters.GROWTH, …).
+        "GrowthCounter" -> "Counters.GROWTH"
         else -> null
     }
 }
