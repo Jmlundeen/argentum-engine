@@ -118,6 +118,7 @@ import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
 import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
 import com.wingedsheep.sdk.scripting.PreventCycling
+import com.wingedsheep.sdk.scripting.SuppressEntersTriggers
 import com.wingedsheep.sdk.scripting.PreventManaPoolEmptying
 import com.wingedsheep.sdk.scripting.ReplaceLandManaColor
 import com.wingedsheep.sdk.scripting.RestrictSpellsCastPerTurn
@@ -727,6 +728,10 @@ class StaticAbilityHandler(
             is PreventActivatedAbilities,
             is PreventCycling,
 
+            // Trigger detection (TriggerDetector.suppressEntersTriggers) — not a continuous
+            // projection effect; consulted as a final filter over the batch's pending triggers:
+            is SuppressEntersTriggers,
+
             // Turn-based actions (BeginningPhaseManager / CleanupPhaseManager):
             is NoMaximumHandSize,
             is PreventManaPoolEmptying,
@@ -842,7 +847,8 @@ class StaticAbilityHandler(
             // Token creation:
             is com.wingedsheep.sdk.scripting.ReplaceTokenCreationWithAttachedCopy,
             is com.wingedsheep.sdk.scripting.DoubleTokenCreation,
-            is com.wingedsheep.sdk.scripting.ModifyTokenCount -> true
+            is com.wingedsheep.sdk.scripting.ModifyTokenCount,
+            is com.wingedsheep.sdk.scripting.CreateAdditionalToken -> true
 
             // Entry-time replacements, consumed once as the permanent enters
             // (StackResolver / PlayLandHandler / ModalAndCloneContinuations):

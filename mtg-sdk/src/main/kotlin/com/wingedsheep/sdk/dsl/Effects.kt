@@ -1492,7 +1492,8 @@ object Effects {
         overrideColors: Set<com.wingedsheep.sdk.core.Color>? = null,
         overrideSubtypes: Set<com.wingedsheep.sdk.core.Subtype>? = null,
         sacrificeAtStep: com.wingedsheep.sdk.core.Step? = null,
-        sacrificeOnlyOnControllersTurn: Boolean = false
+        sacrificeOnlyOnControllersTurn: Boolean = false,
+        addCardTypes: Set<String> = emptySet()
     ): Effect = CreateTokenCopyOfTargetEffect(
         target = target,
         count = DynamicAmount.Fixed(count),
@@ -1507,7 +1508,8 @@ object Effects {
         overrideColors = overrideColors,
         overrideSubtypes = overrideSubtypes,
         sacrificeAtStep = sacrificeAtStep,
-        sacrificeOnlyOnControllersTurn = sacrificeOnlyOnControllersTurn
+        sacrificeOnlyOnControllersTurn = sacrificeOnlyOnControllersTurn,
+        addCardTypes = addCardTypes
     )
 
     /**
