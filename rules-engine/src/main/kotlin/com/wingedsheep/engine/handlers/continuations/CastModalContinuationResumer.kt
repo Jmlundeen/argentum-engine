@@ -1,8 +1,10 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.CancelDecisionResponse
+import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.CastModalModeSelectionContinuation
 import com.wingedsheep.engine.core.CastModalTargetSelectionContinuation
+import com.wingedsheep.engine.core.CastSpellAdditionalCostContinuation
 import com.wingedsheep.engine.core.DecisionResponse
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.ExecutionResult
@@ -36,8 +38,36 @@ class CastModalContinuationResumer(
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(CastModalModeSelectionContinuation::class, ::resumeCastModalModeSelection),
-        resumer(CastModalTargetSelectionContinuation::class, ::resumeCastModalTargetSelection)
+        resumer(CastModalTargetSelectionContinuation::class, ::resumeCastModalTargetSelection),
+        resumer(CastSpellAdditionalCostContinuation::class, ::resumeCastSpellAdditionalCost)
     )
+
+    /**
+     * Resume after the caster picks how to pay one selection-requiring additional cost on a free
+     * cast (Roving Actuator / Shiko / Cascade). Merges the chosen entities into the action's
+     * payment and re-enters [CastSpellHandler.execute], which then either pauses for the next
+     * unpaid cost or proceeds. The pause carried no side effects, so cancellation safely aborts
+     * the cast without rollback.
+     */
+    fun resumeCastSpellAdditionalCost(
+        state: GameState,
+        continuation: CastSpellAdditionalCostContinuation,
+        response: DecisionResponse,
+        @Suppress("UNUSED_PARAMETER") checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response is CancelDecisionResponse) {
+            return ExecutionResult.success(state.withPriority(continuation.casterId))
+        }
+        if (response !is CardsSelectedResponse) {
+            return ExecutionResult.error(state, "Expected card selection response for additional-cost payment")
+        }
+        val finalAction = castSpellHandler.withAdditionalCostSelection(
+            continuation.baseCastAction,
+            continuation.costKind,
+            response.selectedCards
+        )
+        return castSpellHandler.execute(state.withPriority(continuation.casterId), finalAction)
+    }
 
     fun resumeCastModalModeSelection(
         state: GameState,

@@ -5,10 +5,14 @@ import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.CastWithCreatureTypeContinuation
 import com.wingedsheep.engine.core.ChooseOptionDecision
+import com.wingedsheep.engine.core.AdditionalCostSelectionKind
+import com.wingedsheep.engine.core.CastSpellAdditionalCostContinuation
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.DecisionPhase
 import com.wingedsheep.engine.core.DecisionRequestedEvent
 import com.wingedsheep.engine.core.EngineServices
+import com.wingedsheep.engine.core.SelectCardsDecision
+import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.LifeChangedEvent
 import com.wingedsheep.engine.core.LifeChangeReason
@@ -143,6 +147,9 @@ class CastSpellHandler(
     )
     private val paymentProcessor = CastPaymentProcessor(manaSolver, costHandler, manaAbilitySideEffectExecutor)
     private val grantedKeywordResolver = com.wingedsheep.engine.mechanics.mana.GrantedKeywordResolver(cardRegistry)
+    private val costEnumerationUtils = com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils(
+        manaSolver, costCalculator, predicateEvaluator, cardRegistry
+    )
 
     override fun validate(state: GameState, action: CastSpell): String? {
         if (state.priorityPlayerId != action.playerId) {
@@ -1635,6 +1642,16 @@ class CastSpellHandler(
         val flattenedAllCosts = allAdditionalCosts.flatMap {
             if (it is AdditionalCost.Composite) it.steps else listOf(it)
         }
+
+        // Server-initiated free cast: pay the spell's printed additional costs even though the
+        // mana cost is waived (CR 601.2f / 118.9). A normal client cast arrives with the
+        // selections already in `additionalCostPayment` (validated in validate()); copy-and-cast
+        // pipelines (Roving Actuator, Shiko, Cascade) call execute() directly with no payment, so
+        // we surface the selection here. The pause sits before any cost is paid, so the re-entry
+        // on resume (with the chosen entities merged into the payment) is side-effect free. Returns
+        // null when every selection-requiring cost is already satisfied — the normal path.
+        surfaceUnpaidAdditionalCostSelection(currentState, action, flattenedAllCosts)?.let { return it }
+
         // PayLife additional costs (e.g., Timeline Culler's "Warp—{B}, Pay 2 life")
         // are auto-paid: the amount is fixed, so no player choice is required and the
         // payment is applied regardless of whether the client included an
@@ -2815,6 +2832,158 @@ class CastSpellHandler(
      * ordinal and appending an empty target list until it finds one that needs targets
      * or all modes are resolved.
      */
+    /**
+     * Surface the first selection-requiring additional cost on a server-initiated free cast that
+     * the action hasn't already paid, pausing for the caster's choice. See
+     * [CastSpellAdditionalCostContinuation] for the re-entry contract.
+     *
+     * - Only the *selection* atoms need a player choice (Sacrifice / Discard / ExileFrom /
+     *   TapPermanents). PayLife / mana / reveal-from-hand are auto-paid downstream and need no
+     *   prompt, so they're ignored here.
+     * - A cost already satisfied by the action's payment (the normal client-cast path, which is
+     *   gated by `validate()`) is skipped — so this never fires for a normal cast.
+     * - If a mandatory cost can't be paid at all (fewer legal options than the count required),
+     *   the cast can't be completed (CR 601.2h — unpayable costs can't be paid): return an error so
+     *   the free-cast caller treats it as a no-op and the card stays where it is.
+     *
+     * Returns null when nothing needs choosing — the cast proceeds inline.
+     */
+    private fun surfaceUnpaidAdditionalCostSelection(
+        state: GameState,
+        action: CastSpell,
+        flattenedCosts: List<AdditionalCost>,
+    ): ExecutionResult? {
+        val payment = action.additionalCostPayment
+        for (cost in flattenedCosts) {
+            val atom = (cost as? AdditionalCost.Atom)?.atom ?: continue
+            val (kind, count, options) = when (atom) {
+                is CostAtom.Sacrifice -> Triple(
+                    AdditionalCostSelectionKind.SACRIFICE,
+                    atom.count,
+                    costEnumerationUtils.findSacrificeTargets(state, action.playerId, atom)
+                )
+                is CostAtom.Discard -> {
+                    if (atom.random) continue // random discard needs no selection
+                    Triple(
+                        AdditionalCostSelectionKind.DISCARD,
+                        atom.count,
+                        costEnumerationUtils.findDiscardTargets(state, action.playerId, atom.filter)
+                            .filter { it != action.cardId }
+                    )
+                }
+                is CostAtom.ExileFrom -> Triple(
+                    AdditionalCostSelectionKind.EXILE,
+                    atom.count,
+                    costEnumerationUtils.findExileTargets(state, action.playerId, atom.filter, atom.zone)
+                        .filter { it != action.cardId }
+                )
+                is CostAtom.TapPermanents -> Triple(
+                    AdditionalCostSelectionKind.TAP,
+                    atom.count,
+                    costEnumerationUtils.findAbilityTapTargets(state, action.playerId, atom.filter)
+                        .let { if (atom.excludeSelf) it.filter { id -> id != action.cardId } else it }
+                )
+                else -> continue
+            }
+            if (count <= 0) continue
+
+            val alreadyPaid = when (kind) {
+                AdditionalCostSelectionKind.SACRIFICE -> payment?.sacrificedPermanents?.size ?: 0
+                AdditionalCostSelectionKind.DISCARD -> payment?.discardedCards?.size ?: 0
+                AdditionalCostSelectionKind.EXILE -> payment?.exiledCards?.size ?: 0
+                AdditionalCostSelectionKind.TAP -> payment?.tappedPermanents?.size ?: 0
+            }
+            if (alreadyPaid >= count) continue // supplied by the caller (normal cast) — nothing to choose
+
+            if (options.size < count) {
+                // CR 601.2h — "Unpayable costs can't be paid": the additional cost can't be met,
+                // so the cast can't be completed.
+                return ExecutionResult.error(state, "Cannot pay additional cost: not enough valid choices")
+            }
+
+            // No real choice (exactly enough legal options) — auto-pay and re-enter, so a forced
+            // single sacrifice doesn't prompt. The re-entry sees this cost satisfied and moves on.
+            if (options.size == count) {
+                return execute(state, withAdditionalCostSelection(action, kind, options))
+            }
+
+            val cardName = state.getEntity(action.cardId)?.get<CardComponent>()?.name ?: "spell"
+            val decisionId = java.util.UUID.randomUUID().toString()
+            val verb = when (kind) {
+                AdditionalCostSelectionKind.SACRIFICE -> "sacrifice"
+                AdditionalCostSelectionKind.DISCARD -> "discard"
+                AdditionalCostSelectionKind.EXILE -> "exile"
+                AdditionalCostSelectionKind.TAP -> "tap"
+            }
+            val prompt = "Choose $count ${if (count > 1) "cards" else "card"} to $verb for $cardName"
+            // Permanents you control are chosen on the battlefield; hidden/zone cards via overlay.
+            val useTargetingUI = kind == AdditionalCostSelectionKind.SACRIFICE ||
+                kind == AdditionalCostSelectionKind.TAP
+            val decision = SelectCardsDecision(
+                id = decisionId,
+                playerId = action.playerId,
+                prompt = prompt,
+                context = DecisionContext(
+                    sourceId = action.cardId,
+                    sourceName = cardName,
+                    phase = DecisionPhase.CASTING,
+                ),
+                options = options,
+                minSelections = count,
+                maxSelections = count,
+                useTargetingUI = useTargetingUI,
+            )
+            val continuation = CastSpellAdditionalCostContinuation(
+                decisionId = decisionId,
+                cardId = action.cardId,
+                casterId = action.playerId,
+                baseCastAction = action,
+                costKind = kind,
+            )
+            val pausedState = state
+                .pushContinuation(continuation)
+                .withPendingDecision(decision)
+                .withPriority(action.playerId)
+            return ExecutionResult.paused(
+                pausedState,
+                decision,
+                listOf(
+                    DecisionRequestedEvent(
+                        decisionId = decisionId,
+                        playerId = action.playerId,
+                        decisionType = "SELECT_CARDS",
+                        prompt = prompt,
+                    )
+                ),
+            )
+        }
+        return null
+    }
+
+    /**
+     * Merge a chosen additional-cost payment into [base]'s [AdditionalCostPayment] for the given
+     * [kind], appending to whatever was already paid. Used by the free-cast additional-cost
+     * resumer to re-enter [execute] with the selection recorded.
+     */
+    internal fun withAdditionalCostSelection(
+        base: CastSpell,
+        kind: AdditionalCostSelectionKind,
+        chosen: List<EntityId>,
+    ): CastSpell {
+        val payment = base.additionalCostPayment ?: AdditionalCostPayment()
+        val merged = when (kind) {
+            AdditionalCostSelectionKind.SACRIFICE ->
+                payment.copy(sacrificedPermanents = payment.sacrificedPermanents + chosen)
+            AdditionalCostSelectionKind.DISCARD ->
+                payment.copy(discardedCards = payment.discardedCards + chosen)
+            AdditionalCostSelectionKind.EXILE ->
+                payment.copy(exiledCards = payment.exiledCards + chosen)
+            AdditionalCostSelectionKind.TAP ->
+                payment.copy(tappedPermanents = payment.tappedPermanents + chosen)
+        }
+        return base.copy(additionalCostPayment = merged)
+    }
+
     internal fun presentCastModalTargetDecision(
         state: GameState,
         cardId: EntityId,
