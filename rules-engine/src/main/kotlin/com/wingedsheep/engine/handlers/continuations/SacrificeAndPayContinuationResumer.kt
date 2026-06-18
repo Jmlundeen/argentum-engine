@@ -70,7 +70,7 @@ class SacrificeAndPayContinuationResumer(
                 newState.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
             }
             events.add(PermanentsSacrificedEvent(playerId, selectedPermanents, permanentNames))
-            newState = ZoneTransitionService.trackFoodSacrifice(newState, selectedPermanents, playerId)
+            newState = ZoneTransitionService.trackPermanentSacrifice(newState, selectedPermanents, playerId)
         }
 
         for (permanentId in selectedPermanents) {
@@ -330,6 +330,7 @@ class SacrificeAndPayContinuationResumer(
             newState.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
         }
         events.add(PermanentsSacrificedEvent(playerId, selectedPermanents, permanentNames))
+        newState = ZoneTransitionService.trackPermanentSacrifice(newState, selectedPermanents, playerId)
 
         for (permanentId in selectedPermanents) {
             val transitionResult = ZoneTransitionService.moveToZone(
@@ -607,6 +608,7 @@ class SacrificeAndPayContinuationResumer(
                 var newState = state
                 val events = mutableListOf<GameEvent>()
                 events.add(PermanentsSacrificedEvent(playerId, selectedPermanents))
+                newState = ZoneTransitionService.trackPermanentSacrifice(newState, selectedPermanents, playerId)
                 for (permanentId in selectedPermanents) {
                     val transitionResult = ZoneTransitionService.moveToZone(newState, permanentId, Zone.GRAVEYARD)
                     newState = transitionResult.state
@@ -786,11 +788,13 @@ class SacrificeAndPayContinuationResumer(
         val events = mutableListOf<GameEvent>()
 
         // Untap the permanents that the player did NOT choose to keep tapped.
-        // Stun counters replace each untap event per Rule 122.1d.
+        // Stun counters replace each untap event per Rule 122.1d; the granted
+        // "remove a +1/+1 counter to untap" replacement applies on this (active
+        // player's) untap step, so pass projected state.
         for (entityId in toUntap) {
-            val (afterUntap, event) = untapOrConsumeStun(newState, entityId)
+            val (afterUntap, untapEvents) = untapOrConsumeStun(newState, entityId, newState.projectedState)
             newState = afterUntap
-            if (event != null) events.add(event)
+            events.addAll(untapEvents)
         }
 
         // Remove WhileSourceTapped (and the power-gated variant) floating effects whose

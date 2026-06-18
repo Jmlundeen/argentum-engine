@@ -145,14 +145,36 @@ data class ModalEffect(
     val chooseAllIfBlightPaid: Boolean = false,
     /**
      * Optional runtime-evaluated upper bound on the number of modes that may be chosen.
-     * When non-null, the engine's modal executor evaluates this against the current
-     * resolution context and uses the result as the effective maximum, clamped to
-     * `modes.size`. Used for "choose up to X" triggered abilities where X depends on
-     * resolution-time data (Riku of Many Paths — X is the number of modes the cast
-     * modal spell chose). [minChooseCount] is treated as `0` when this is set
-     * (i.e. always "choose up to"); [chooseCount] is ignored.
+     * When non-null, the engine evaluates this against the current game state and uses the
+     * result as the effective maximum, clamped to `modes.size`. Two evaluation sites with
+     * different floor semantics:
+     *
+     * - **Resolution-time** (modal triggered/activated abilities, `ModalEffectExecutor`):
+     *   [minChooseCount] is treated as `0` (always "choose up to"); [chooseCount] is ignored.
+     *   Used for "choose up to X" where X depends on resolution-time data (Riku of Many
+     *   Paths — X is the number of modes the cast modal spell chose). See
+     *   [chooseUpToDynamic].
+     * - **Cast-time** (modal *spells*, `CastSpellHandler.effectiveModalChooseCounts`): the
+     *   [minChooseCount] floor is preserved, so the effective range is
+     *   `[minChooseCount, eval.coerceIn(minChooseCount, modes.size)]`. Models "Choose one. If
+     *   [condition] as you cast this spell, you may choose two instead." (Flame of Anor):
+     *   `chooseCount = 2, minChooseCount = 1` with a [DynamicAmount.Conditional] that yields
+     *   2 when the condition holds, else 1.
      */
     val dynamicChooseCount: com.wingedsheep.sdk.scripting.values.DynamicAmount? = null,
+    /**
+     * "Choose one that hasn't been chosen" (e.g., Gandalf the Grey). When `true`, the
+     * engine remembers which modes the *source permanent* has already chosen across the
+     * game (in a per-source memory component) and excludes those modes from every later
+     * presentation of this modal effect. Once all modes have been chosen, the ability has
+     * no legal mode and resolves as a no-op. The memory is keyed to the source object and
+     * persists while it remains the same object on the battlefield (CR 700.4 object
+     * identity); it resets if the permanent leaves and returns as a new object.
+     *
+     * Only meaningful for repeatable modal *abilities* (triggered/activated) on a
+     * persistent source — not modal spells, which are one-shot.
+     */
+    val excludePreviouslyChosenModes: Boolean = false,
     /**
      * Whether choosing among [modes] makes this a *modal spell* in MTG terms (rules
      * 700.2). `true` for printed "Choose one — • X • Y" wording; `false` when this
@@ -168,6 +190,7 @@ data class ModalEffect(
     override val description: String = buildString {
         append("Choose ")
         when {
+            excludePreviouslyChosenModes -> append("one that hasn't been chosen")
             dynamicChooseCount != null -> {
                 append("up to ")
                 append(dynamicChooseCount.description)
@@ -225,6 +248,21 @@ data class ModalEffect(
          */
         fun chooseOne(vararg modes: Mode, countsAsModalSpell: Boolean = true): ModalEffect =
             ModalEffect(modes.toList(), 1, countsAsModalSpell = countsAsModalSpell)
+
+        /**
+         * Create a "choose one that hasn't been chosen" modal effect (Gandalf the Grey).
+         * The source permanent remembers which modes it has chosen across the game and
+         * never offers them again. When all modes have been chosen the ability does
+         * nothing. Intended for repeatable modal triggered/activated abilities, so it is
+         * not flagged as a modal *spell*.
+         */
+        fun chooseOneNotYetChosen(vararg modes: Mode): ModalEffect =
+            ModalEffect(
+                modes = modes.toList(),
+                chooseCount = 1,
+                excludePreviouslyChosenModes = true,
+                countsAsModalSpell = false
+            )
 
         /**
          * Create a choose-two modal effect (Cryptic Command style).

@@ -426,6 +426,25 @@ data class AbilityActivatedEverComponent(
 }
 
 /**
+ * Tracks which modes of a modal effect this permanent has already chosen, for
+ * "choose one that hasn't been chosen" effects (e.g., Gandalf the Grey). Keyed by
+ * the original mode index in the source's [com.wingedsheep.sdk.scripting.effects.ModalEffect].
+ *
+ * NOT cleared at end of turn — the memory persists for as long as the permanent
+ * remains the same object on the battlefield (it resets when the permanent leaves
+ * and returns as a new object, per CR 700.4 / object identity).
+ */
+@Serializable
+data class ChosenModesEverComponent(
+    val modeIndices: Set<Int> = emptySet()
+) : Component {
+    fun withChosen(modeIndex: Int): ChosenModesEverComponent =
+        copy(modeIndices = modeIndices + modeIndex)
+
+    fun hasChosen(modeIndex: Int): Boolean = modeIndex in modeIndices
+}
+
+/**
  * Tracks which triggered abilities have fired this turn for "once each turn" restrictions.
  * Used for cards like Scavenger's Talent: "This ability triggers only once each turn."
  * Cleared at end of turn by CleanupPhaseManager.
@@ -524,6 +543,35 @@ data class DamageDealtToCreaturesThisTurnComponent(
 ) : Component {
     fun withCreature(creatureId: EntityId): DamageDealtToCreaturesThisTurnComponent =
         copy(creatureIds = creatureIds + creatureId)
+}
+
+/**
+ * Last-known snapshot of a source that dealt damage to the bearer this turn — captured at the
+ * moment the damage was dealt (CR 608.2h / 603.10a). Holds just what observer-style death triggers
+ * need to evaluate a source filter ("dealt damage by a Spider you controlled"): the source's
+ * controller and creature-subtypes as they were when it dealt the damage. Stored on the *damaged*
+ * creature so it survives a source that died in the same combat.
+ */
+@Serializable
+data class DamageSourceLki(
+    val sourceControllerId: EntityId,
+    val sourceSubtypes: Set<com.wingedsheep.sdk.core.Subtype> = emptySet(),
+    val sourceWasCreature: Boolean = true,
+)
+
+/**
+ * Tracks the last-known snapshots of all sources that dealt damage to this creature this turn.
+ * Read by observer death triggers of the form "whenever another creature dealt damage this turn by
+ * [a source matching a filter] dies" (Shelob, Child of Ungoliant). Captured as last-known info on
+ * the [com.wingedsheep.engine.core.ZoneChangeEvent] when the bearer leaves the battlefield, and
+ * cleared at end of turn by [com.wingedsheep.engine.core.CleanupPhaseManager].
+ */
+@Serializable
+data class DamagedBySourcesThisTurnComponent(
+    val sources: Set<DamageSourceLki> = emptySet()
+) : Component {
+    fun adding(source: DamageSourceLki): DamagedBySourcesThisTurnComponent =
+        copy(sources = sources + source)
 }
 
 /**
@@ -698,6 +746,17 @@ data object HasDealtDamageComponent : Component
  */
 @Serializable
 data object HasDealtCombatDamageToPlayerComponent : Component
+
+/**
+ * Records which players this creature dealt combat damage to *this turn*.
+ * Cleared at end of turn by CleanupPhaseManager. Used by
+ * StatePredicate.DealtCombatDamageToSourceControllerThisTurn — i.e. "a creature that
+ * dealt combat damage to you this turn" edicts (Witch-king of Angmar).
+ */
+@Serializable
+data class DealtCombatDamageToPlayersThisTurnComponent(
+    val playerIds: Set<EntityId> = emptySet()
+) : Component
 
 /**
  * Tracks the turn number when a card was put into the graveyard.

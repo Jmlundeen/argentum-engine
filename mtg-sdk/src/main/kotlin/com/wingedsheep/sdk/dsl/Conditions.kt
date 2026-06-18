@@ -37,6 +37,7 @@ import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisT
 import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCommittedCrimeThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerHasCitysBlessing
+import com.wingedsheep.sdk.scripting.conditions.RingHasTemptedPlayerAtLeast
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -78,6 +79,13 @@ object Conditions {
      */
     val SourceReceivedCounterThisTurn: ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.SourceReceivedCounterThisTurn
+
+    /**
+     * If the Ring has tempted you [times] or more times this game (CR 701.54). Reads the cumulative
+     * tempt count on your The Ring emblem; a player never tempted counts as 0.
+     */
+    fun RingHasTemptedYouAtLeast(times: Int): ConditionInterface =
+        RingHasTemptedPlayerAtLeast(times, Player.You)
 
     // =========================================================================
     // Battlefield Conditions (via Exists / Compare)
@@ -273,6 +281,28 @@ object Conditions {
     ): ConditionInterface =
         Compare(
             DynamicAmount.AggregateBattlefield(Player.You, filter, Aggregation.DISTINCT_COUNTER_TYPES),
+            ComparisonOperator.GTE,
+            DynamicAmount.Fixed(count)
+        )
+
+    /**
+     * If the total number of [counterType] counters among permanents you control matching [filter]
+     * is at least [count]. Sums that counter kind across the whole group — three Sagas with one,
+     * two, and one lore counter total four. Used for Tom Bombadil ("As long as there are four or
+     * more lore counters among Sagas you control"). Pass [CounterTypeFilter.Any] to total every kind.
+     */
+    fun CounterKindAmongYouControlAtLeast(
+        count: Int,
+        counterType: CounterTypeFilter,
+        filter: GameObjectFilter
+    ): ConditionInterface =
+        Compare(
+            DynamicAmount.AggregateBattlefield(
+                player = Player.You,
+                filter = filter,
+                aggregation = Aggregation.SUM,
+                counterType = counterType
+            ),
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(count)
         )
@@ -705,6 +735,20 @@ object Conditions {
         SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.withSubtype(subtype))
 
     /**
+     * As long as this creature is blocking or blocked by a creature of one of [subtypes].
+     *
+     * Source-relative combat condition resolved through the source: on an Equipment/Aura it reads
+     * the attached creature, so it gates a static ability granted to the equipped creature. True iff
+     * that creature is currently blocking, or being blocked by, a creature with any of the given
+     * subtypes (matched any-of against projected state). Used by Sting, the Glinting Dagger:
+     * "Equipped creature has first strike as long as it's blocking or blocked by a Goblin or Orc."
+     */
+    fun SourceIsBlockingOrBlockedBySubtype(subtypes: List<Subtype>): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.SourceIsBlockingOrBlockedBySubtype(
+            subtypes.map { it.value }
+        )
+
+    /**
      * As long as this creature has a specific keyword.
      * Used for conditional effects like "If this creature has flying, it gets +1/+1."
      */
@@ -813,6 +857,17 @@ object Conditions {
         PlayerAttackedWithCreaturesThisTurn(Player.You, filter, atLeast)
 
     /**
+     * Whether [attacker] attacked [defender] this turn (CR 508.6) — declared one or more
+     * attackers whose defending player was [defender]. Defaults [defender] to [Player.You].
+     * Negate with [Not] for "didn't attack you that turn" (Faramir, Prince of Ithilien).
+     */
+    fun PlayerAttackedPlayerThisTurn(
+        attacker: Player,
+        defender: Player = Player.You
+    ): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.PlayerAttackedPlayerThisTurn(attacker, defender)
+
+    /**
      * As long as you've cast [atLeast] or more spells matching [filter] this turn.
      * Counts every spell cast — countered, fizzled, or still on the stack all count.
      * Defaults to any spell, matching the typical "you've cast two or more spells
@@ -828,6 +883,13 @@ object Conditions {
         fromZone: com.wingedsheep.sdk.core.Zone? = null
     ): ConditionInterface =
         PlayerCastSpellsThisTurn(Player.You, filter, atLeast, fromZone)
+
+    /**
+     * As long as you've drawn [atLeast] or more cards this turn (backed by the per-player
+     * `CardsDrawnThisTurnComponent`). Used by Gwaihir the Windlord's conditional cost reduction.
+     */
+    fun YouDrewCardsThisTurn(atLeast: Int = 1): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.PlayerDrewCardsThisTurn(Player.You, atLeast)
 
     /**
      * If you've committed a crime this turn (CR Outlaws of Thunder Junction). A crime is committed
@@ -1083,6 +1145,13 @@ object Conditions {
      */
     val TriggeringEntityWasCast: ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.TriggeringEntityWasCast
+
+    /**
+     * Intervening-if: "if no mana was spent to cast it" about the triggering spell (Boromir, Warden
+     * of the Tower). Triggering-entity counterpart of [NoManaSpentToCast].
+     */
+    val TriggeringSpellCastWithoutPayingMana: ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.TriggeringSpellCastWithoutPayingMana
 
     /**
      * If the triggering entity entered or was cast from a graveyard.

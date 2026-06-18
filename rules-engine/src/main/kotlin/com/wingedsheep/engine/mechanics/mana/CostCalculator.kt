@@ -416,6 +416,8 @@ class CostCalculator(
                 countDifferentlyNamedPermanents(state, playerId, source.filter)
             is CostReductionSource.PermanentsOnBattlefieldMatching ->
                 countBattlefieldPermanentsMatching(state, playerId, source.filter)
+            is CostReductionSource.PermanentsSacrificedThisTurn ->
+                state.permanentsSacrificedThisTurn * source.amountPerPermanent
         }
     }
 
@@ -926,10 +928,13 @@ class CostCalculator(
             is CardPredicate.ManaValueAtMostColorsSpent -> false
             is CardPredicate.PowerGreaterThanEntity -> false
             is CardPredicate.PowerAtMostEntity -> false
+            is CardPredicate.PowerLessThanEntity -> false
             CardPredicate.ManaValueIsEven -> cardDef.manaCost.cmc % 2 == 0
             CardPredicate.ManaValueIsOdd -> cardDef.manaCost.cmc % 2 != 0
 
             is CardPredicate.PowerEquals -> cardDef.creatureStats?.basePower == predicate.value
+            // CostCalculator has no X context; predicate has no static answer here.
+            CardPredicate.PowerEqualsX -> false
             is CardPredicate.PowerAtMost -> (cardDef.creatureStats?.basePower ?: 0) <= predicate.max
             is CardPredicate.PowerAtLeast -> (cardDef.creatureStats?.basePower ?: 0) >= predicate.min
             is CardPredicate.ToughnessEquals -> cardDef.creatureStats?.baseToughness == predicate.value
@@ -983,6 +988,8 @@ class CostCalculator(
             }
             is CardPredicate.SharesCreatureTypeWith -> true
             is CardPredicate.SharesColorWith -> true
+            is CardPredicate.SharesColorWithPermanentYouControl -> true
+            is CardPredicate.DoesNotShareCreatureTypeWithPermanentYouControl -> true
             CardPredicate.SharesColorWithRecipient -> false
             CardPredicate.SharesChosenColorWithSource -> {
                 if (sourceEntityId == null || state == null) return false

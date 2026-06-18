@@ -16,6 +16,7 @@ import com.wingedsheep.engine.core.CardRevealedFromDrawEvent
 import com.wingedsheep.engine.core.CardsDrawnEvent
 import com.wingedsheep.engine.core.CommitCrimeEvent
 import com.wingedsheep.engine.core.CountersAddedEvent
+import com.wingedsheep.engine.core.SagaChapterResolvedEvent
 import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.core.LifeChangedEvent
 import com.wingedsheep.engine.core.SpellCastEvent
@@ -26,6 +27,7 @@ import com.wingedsheep.engine.core.TappedEvent
 import com.wingedsheep.engine.core.TransformedEvent
 import com.wingedsheep.engine.core.TurnFaceUpEvent
 import com.wingedsheep.engine.core.UntappedEvent
+import com.wingedsheep.engine.core.PhasedInEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
@@ -76,8 +78,13 @@ class TriggerMatcher(
         controllerId: EntityId,
         state: GameState
     ): Boolean {
-        // ATTACHED triggers are handled by AttachmentTriggerDetector, not the main loop
-        if (binding == TriggerBinding.ATTACHED) return false
+        // ATTACHED triggers are generally handled by AttachmentTriggerDetector, not the main loop.
+        // Exception: BlocksOrBecomesBlockedByEvent ATTACHED is handled in the main loop, since it
+        // needs the full BlockersDeclaredEvent block map to find the equipped creature's combat
+        // partner (Barrow-Blade).
+        if (binding == TriggerBinding.ATTACHED &&
+            trigger !is EventPattern.BlocksOrBecomesBlockedByEvent
+        ) return false
 
         return when (trigger) {
             is EventPattern.ZoneChangeEvent -> matchesZoneChangeTrigger(trigger, binding, event, sourceId, controllerId, state)
@@ -171,13 +178,21 @@ class TriggerMatcher(
                 false
             }
             is EventPattern.BlocksOrBecomesBlockedByEvent -> {
-                // Basic match: it's a BlockersDeclaredEvent and the source is involved in combat
-                // Per-partner trigger creation happens in detectTriggersForEvent
+                // Basic match: it's a BlockersDeclaredEvent and the relevant creature is involved
+                // in combat. Per-partner trigger creation happens in detectTriggersForEvent.
+                // SELF: the source creature itself; ATTACHED: the source's equipped/enchanted
+                // creature (Barrow-Blade). Other bindings don't apply.
                 if (event !is BlockersDeclaredEvent) return false
-                if (binding != TriggerBinding.SELF) return false
-                // Source is a blocker or an attacker that's being blocked
-                event.blockers.keys.contains(sourceId) ||
-                    event.blockers.values.any { it.contains(sourceId) }
+                val combatCreatureId = when (binding) {
+                    TriggerBinding.SELF -> sourceId
+                    TriggerBinding.ATTACHED -> state.getEntity(sourceId)
+                        ?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
+                        ?.targetId ?: return false
+                    else -> return false
+                }
+                // The combat creature is a blocker or an attacker that's being blocked.
+                event.blockers.keys.contains(combatCreatureId) ||
+                    event.blockers.values.any { it.contains(combatCreatureId) }
             }
             is EventPattern.DealsDamageEvent -> {
                 // SELF-bound DealsDamageEvent handled separately in detectDamageSourceTriggers
@@ -195,7 +210,7 @@ class TriggerMatcher(
                 event is SpellCastEvent &&
                     matchesPlayer(trigger.player, event.casterId, controllerId) &&
                     matchesSpellFilter(trigger.spellFilter, event, state, sourceId) &&
-                    trigger.requires.all { matchesSpellCastPredicate(it, event, state) }
+                    trigger.requires.all { matchesSpellCastPredicate(it, event, state, sourceId, controllerId) }
             }
             is EventPattern.NthSpellCastEvent -> {
                 // Fires on SpellCastEvent when the casting player's per-turn spell count
@@ -356,6 +371,21 @@ class TriggerMatcher(
             is EventPattern.UntapEvent -> {
                 event is UntappedEvent && (binding != TriggerBinding.SELF || event.entityId == sourceId)
             }
+            is EventPattern.PhasesInEvent -> {
+                if (event !is PhasedInEvent) return false
+                if (binding == TriggerBinding.SELF && event.entityId != sourceId) return false
+                if (binding == TriggerBinding.OTHER && event.entityId == sourceId) return false
+                val filter = trigger.filter
+                if (filter != null) {
+                    val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
+                        controllerId = controllerId,
+                        sourceId = sourceId
+                    )
+                    predicateEvaluator.matches(
+                        state, state.projectedState, event.entityId, filter, predicateContext
+                    )
+                } else true
+            }
             is EventPattern.LandTappedForMana -> {
                 if (event !is LandTappedForManaEvent) return false
                 if (binding == TriggerBinding.SELF && event.landId != sourceId) return false
@@ -380,7 +410,8 @@ class TriggerMatcher(
             }
             is EventPattern.RingTemptedEvent -> {
                 event is com.wingedsheep.engine.core.RingTemptedEvent &&
-                    matchesPlayer(trigger.player, event.playerId, controllerId)
+                    matchesPlayer(trigger.player, event.playerId, controllerId) &&
+                    (!trigger.requireBearerChosen || event.bearerId != null)
             }
             is EventPattern.ScriedEvent -> {
                 event is com.wingedsheep.engine.core.ScriedEvent &&
@@ -414,6 +445,7 @@ class TriggerMatcher(
             // "When damage is prevented this way" fires only via its linked delayed trigger
             // (detectEventBasedDelayedTriggers), never as a battlefield trigger.
             is EventPattern.DamagePreventedEvent -> false
+            is EventPattern.CardPlayedFromPermissionEvent -> false
             // Replacement-effect-only events never match as triggers
             is EventPattern.DamageEvent -> false
             is EventPattern.CounterPlacementEvent -> false
@@ -448,6 +480,7 @@ class TriggerMatcher(
             is EventPattern.PermanentsSacrificedEvent -> false
             // Combat damage batch triggers are handled by detectCombatDamageBatchTriggers
             is EventPattern.OneOrMoreDealCombatDamageToPlayerEvent -> false
+            is EventPattern.OneOrMoreDealCombatDamageToYouEvent -> false
             // Leave battlefield without dying batch triggers are handled by detectLeaveBattlefieldWithoutDyingBatchTriggers
             is EventPattern.LeaveBattlefieldWithoutDyingEvent -> false
             // Creatures-you-control-die batch triggers are handled by detectCreaturesDiedBatchTriggers
@@ -456,6 +489,10 @@ class TriggerMatcher(
             is EventPattern.PermanentsEnteredEvent -> false
             is EventPattern.CountersPlacedEvent -> {
                 if (event !is CountersAddedEvent) return false
+                // SELF binding: only counters landing on this permanent ("counters on Aragorn"
+                // / "whenever you put counters on ~"). OTHER restricts to any *other* permanent.
+                if (binding == TriggerBinding.SELF && event.entityId != sourceId) return false
+                if (binding == TriggerBinding.OTHER && event.entityId == sourceId) return false
                 // Counters.ANY is the wildcard "counters of any type" sentinel.
                 if (trigger.counterType != com.wingedsheep.sdk.core.Counters.ANY &&
                     !counterTypesMatch(trigger.counterType, event.counterType)) return false
@@ -473,6 +510,14 @@ class TriggerMatcher(
                         return false
                     }
                 }
+                true
+            }
+            is EventPattern.SagaChapterResolvedEvent -> {
+                if (event !is SagaChapterResolvedEvent) return false
+                // "of a Saga you control" — the resolving Saga's controller must match the
+                // observer (Tom's controller). Player.You is the only meaningful selector here.
+                if (!matchesPlayer(trigger.player, event.controllerId, controllerId)) return false
+                if (trigger.finalChapterOnly && !event.isFinalChapter) return false
                 true
             }
         }
@@ -817,6 +862,8 @@ class TriggerMatcher(
             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.ManaValueAtMostEntityManaSpent -> false
             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.PowerGreaterThanEntity -> false
             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.PowerAtMostEntity -> false
+            is com.wingedsheep.sdk.scripting.predicates.CardPredicate.PowerLessThanEntity -> false
+            is com.wingedsheep.sdk.scripting.predicates.CardPredicate.SharesColorWithPermanentYouControl -> false
             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.ManaValueEquals -> {
                 val cmc = if (isFaceDown) 0 else cardComponent.manaValue
                 cmc == predicate.value
@@ -856,6 +903,8 @@ class TriggerMatcher(
             }
             // Resolution-time only — TriggerMatcher has no X context, so the predicate never matches here.
             com.wingedsheep.sdk.scripting.predicates.CardPredicate.ToughnessAtMostX -> false
+            // Resolution-time chosen-number predicate; TriggerMatcher has no chosen-number context.
+            com.wingedsheep.sdk.scripting.predicates.CardPredicate.PowerEqualsX -> false
             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.ToughnessEquals -> {
                 val toughness = if (isFaceDown) 2
                     else lastKnownToughness ?: projected.getToughness(entityId) ?: cardComponent.baseStats?.baseToughness ?: 0
@@ -997,6 +1046,9 @@ class TriggerMatcher(
         // Spiritualist) must not react to a creature spell on the stack being targeted.
         if (event.targetIsSpell && !trigger.includeSpellTargets) return false
 
+        // "Becomes the target of a spell" (King of the Oathbreakers) ignores abilities.
+        if (trigger.spellsOnly && !event.sourceIsSpell) return false
+
         // Valiant: check if the targeting spell/ability is controlled by "you" (the trigger's controller)
         if (trigger.byYou && event.controllerId != controllerId) return false
 
@@ -1015,6 +1067,21 @@ class TriggerMatcher(
             // Check card predicates
             for (predicate in trigger.targetFilter.cardPredicates) {
                 if (!matchesCardPredicate(predicate, targetCard, projected, event.targetEntityId)) return false
+            }
+
+            // Check state predicates (e.g. "with a +1/+1 counter on it" — Elrond, Master of
+            // Healing). The targeted permanent is on the battlefield, so projected/base state
+            // applies. (A spell-on-stack target has no such state, so the filter simply won't match.)
+            if (trigger.targetFilter.statePredicates.isNotEmpty()) {
+                val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
+                    controllerId = controllerId, sourceId = sourceId
+                )
+                val statePredicateEvaluator = PredicateEvaluator()
+                for (predicate in trigger.targetFilter.statePredicates) {
+                    if (!statePredicateEvaluator.matchesStatePredicate(
+                            state, event.targetEntityId, predicate, predicateContext
+                        )) return false
+                }
             }
 
             // Check controller predicate. Spells on the stack aren't in projected state
@@ -1237,7 +1304,7 @@ class TriggerMatcher(
      * attack-time fact. The matcher is conjunctive — every predicate the
      * trigger declares must hold.
      */
-    private fun matchesAttackPredicate(
+    internal fun matchesAttackPredicate(
         predicate: AttackPredicate,
         event: AttackersDeclaredEvent
     ): Boolean = when (predicate) {
@@ -1248,7 +1315,9 @@ class TriggerMatcher(
     private fun matchesSpellCastPredicate(
         predicate: SpellCastPredicate,
         event: SpellCastEvent,
-        state: GameState
+        state: GameState,
+        sourceId: com.wingedsheep.sdk.model.EntityId,
+        controllerId: com.wingedsheep.sdk.model.EntityId
     ): Boolean = when (predicate) {
         is SpellCastPredicate.CastFromZone -> {
             val spellComponent = state.getEntity(event.spellEntityId)?.get<SpellOnStackComponent>()
@@ -1267,6 +1336,36 @@ class TriggerMatcher(
         SpellCastPredicate.IsModal -> event.chosenModesCount > 0
         SpellCastPredicate.HasXInCost ->
             state.getEntity(event.spellEntityId)?.get<CardComponent>()?.manaCost?.hasX == true
+        SpellCastPredicate.TargetsSource -> castTargetEntities(event, state).contains(sourceId)
+        is SpellCastPredicate.TargetsMatching -> {
+            val predicateEvaluator = PredicateEvaluator()
+            val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
+                controllerId = controllerId,
+                sourceId = sourceId
+            )
+            castTargetEntities(event, state).any { targetId ->
+                predicateEvaluator.matches(
+                    state, state.projectedState, targetId, predicate.filter, predicateContext
+                )
+            }
+        }
+    }
+
+    /** Permanent/spell entity ids chosen as targets by the just-cast spell. */
+    private fun castTargetEntities(
+        event: SpellCastEvent,
+        state: GameState
+    ): List<com.wingedsheep.sdk.model.EntityId> {
+        val targets = state.getEntity(event.spellEntityId)
+            ?.get<com.wingedsheep.engine.state.components.stack.TargetsComponent>()
+            ?.targets ?: return emptyList()
+        return targets.mapNotNull { t ->
+            when (t) {
+                is com.wingedsheep.engine.state.components.stack.ChosenTarget.Permanent -> t.entityId
+                is com.wingedsheep.engine.state.components.stack.ChosenTarget.Spell -> t.spellEntityId
+                else -> null
+            }
+        }
     }
 
     /**
@@ -1426,15 +1525,20 @@ class TriggerMatcher(
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsBlocked,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsUnblocked,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.InSameBandAsSource,
+        com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsBlockingSource,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.EnteredThisTurn,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.WasDealtDamageThisTurn,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasDealtDamage,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasDealtCombatDamageToPlayer,
+        com.wingedsheep.sdk.scripting.predicates.StatePredicate.DealtCombatDamageToSourceControllerThisTurn,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.AttackedThisTurn,
+        com.wingedsheep.sdk.scripting.predicates.StatePredicate.BlockedOrWasBlockedByLegendaryThisTurn,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsFaceUp,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasMorphAbility,
+        com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsRingBearer,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasGreatestPower,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasLeastPowerAmongAllCreatures,
+        com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasLeastPower,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsEquipped,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsModified,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsSaddled,

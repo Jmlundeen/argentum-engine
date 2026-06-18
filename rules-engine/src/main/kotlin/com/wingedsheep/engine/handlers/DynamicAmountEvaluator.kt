@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.sdk.scripting.references.Player
 import kotlin.math.max
 import kotlin.math.min
@@ -90,6 +91,17 @@ class DynamicAmountEvaluator(
             is DynamicAmount.Fixed -> amount.amount
 
             is DynamicAmount.XValue -> context.xValue ?: 0
+
+            // Counters the source had the moment its self-exile / self-sacrifice cost wiped them
+            // (CR 112.7a). Snapshotted into the resolution context at cost-payment time so the
+            // resolving effect reads the pre-cost count rather than zero (Lost Isle Calling).
+            is DynamicAmount.LastKnownSourceCounters -> {
+                val snapshot = context.lastKnownSourceCounters
+                when (val filter = amount.counterType) {
+                    is CounterTypeFilter.Any -> snapshot.values.sum()
+                    else -> snapshot[counterTypeToString(resolveCounterType(filter))] ?: 0
+                }
+            }
 
             // The {X} this object was cast with, read off the current object regardless of zone.
             // Reads, in order: the durable CastChoicesComponent on the battlefield permanent (and
@@ -167,6 +179,13 @@ class DynamicAmountEvaluator(
                     .flatMap { context.pipeline.storedCollections[it].orEmpty() }
                     .distinct()
                     .size
+            }
+
+            is DynamicAmount.ManaValueSumOfCollection -> {
+                val cards = context.pipeline.storedCollections[amount.collectionName] ?: return 0
+                cards.sumOf { cardId ->
+                    state.getEntity(cardId)?.get<CardComponent>()?.manaValue ?: 0
+                }
             }
 
             // Math operations — propagate [projectedState] so a mid-projection caller's
@@ -478,6 +497,8 @@ class DynamicAmountEvaluator(
                 }
             }
 
+            is DynamicAmount.PermanentsSacrificedThisWay -> context.sacrificedPermanents.size
+
         }
     }
 
@@ -623,17 +644,24 @@ class DynamicAmountEvaluator(
                 }
         }
 
+        // When a counter kind is named, the per-entity value is its count of that counter
+        // (physically stored on the permanent, layer-independent), enabling "the total <kind>
+        // counters among <filter> you control" (Tom Bombadil).
+        val counterFilter = amount.counterType
         return when (amount.aggregation) {
             Aggregation.COUNT -> matchingEntities.size
             Aggregation.MAX -> {
+                if (counterFilter != null) return matchingEntities.maxOfOrNull { counterCountOf(state, it, counterFilter) } ?: 0
                 val prop = amount.property ?: return 0
                 matchingEntities.maxOfOrNull { resolveCardNumericProperty(state, projection, it, prop) } ?: 0
             }
             Aggregation.MIN -> {
+                if (counterFilter != null) return matchingEntities.minOfOrNull { counterCountOf(state, it, counterFilter) } ?: 0
                 val prop = amount.property ?: return 0
                 matchingEntities.minOfOrNull { resolveCardNumericProperty(state, projection, it, prop) } ?: 0
             }
             Aggregation.SUM -> {
+                if (counterFilter != null) return matchingEntities.sumOf { counterCountOf(state, it, counterFilter) }
                 val prop = amount.property ?: return 0
                 matchingEntities.sumOf { resolveCardNumericProperty(state, projection, it, prop) }
             }
@@ -1035,6 +1063,19 @@ class DynamicAmountEvaluator(
             is CharacteristicValue.Dynamic -> evaluate(state, p.source, ctx)
             is CharacteristicValue.DynamicWithOffset -> evaluate(state, p.source, ctx) + p.offset
             null -> 0
+        }
+    }
+
+    /**
+     * Count of counters of the kind described by [filter] on the permanent [entityId]. Counters
+     * are physically stored on the permanent (base state, layer-independent), so this reads
+     * [CountersComponent] directly. [CounterTypeFilter.Any] sums every kind present.
+     */
+    private fun counterCountOf(state: GameState, entityId: EntityId, filter: CounterTypeFilter): Int {
+        val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return 0
+        return when (filter) {
+            is CounterTypeFilter.Any -> counters.counters.values.sum()
+            else -> counters.getCount(resolveCounterType(filter))
         }
     }
 

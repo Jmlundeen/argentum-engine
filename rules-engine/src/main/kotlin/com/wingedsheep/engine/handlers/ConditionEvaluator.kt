@@ -25,6 +25,7 @@ import com.wingedsheep.engine.state.components.battlefield.chosenLandType
 import com.wingedsheep.engine.state.components.battlefield.chosenModeId
 import com.wingedsheep.engine.state.components.battlefield.wasKickedChoice
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
+import com.wingedsheep.engine.state.components.combat.BlockedComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackedThisTurnComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent
@@ -51,6 +52,7 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.conditions.EnchantedCreatureHasSubtype
+import com.wingedsheep.sdk.scripting.conditions.SourceIsBlockingOrBlockedBySubtype
 import com.wingedsheep.sdk.scripting.conditions.EnchantedCreatureIsLegendary
 import com.wingedsheep.sdk.scripting.conditions.EntityMatches
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -112,6 +114,7 @@ import com.wingedsheep.sdk.scripting.conditions.PermanentTypeEnteredBattlefieldT
 import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCommittedCrimeThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerHasCitysBlessing
+import com.wingedsheep.sdk.scripting.conditions.RingHasTemptedPlayerAtLeast
 import com.wingedsheep.sdk.scripting.conditions.CreatureDiedThisTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.ControlledCreatureDiedThisTurnCondition
 import com.wingedsheep.sdk.scripting.conditions.SourcePlottedOnPriorTurn
@@ -120,6 +123,7 @@ import com.wingedsheep.engine.state.components.identity.PlottedComponent
 import com.wingedsheep.sdk.scripting.conditions.YouWereAttackedThisStep
 import com.wingedsheep.sdk.scripting.conditions.VoidCondition
 import com.wingedsheep.engine.state.components.player.PlayerCitysBlessingComponent
+import com.wingedsheep.engine.state.components.player.TheRingComponent
 
 /**
  * Evaluates conditions from the SDK against the game state.
@@ -255,17 +259,41 @@ class ConditionEvaluator(
             // generic StatePredicate.IsModified to warrant its own branch.
             is SourceIsModified -> evaluateSourceIsModifiedCtx(state, ctx)
 
+            is SourceIsBlockingOrBlockedBySubtype -> evaluateSourceIsBlockingOrBlockedBySubtypeCtx(state, condition, ctx)
+
             is EnchantedCreatureHasSubtype -> evaluateEnchantedCreatureHasSubtypeCtx(state, condition, ctx)
             is EnchantedCreatureIsLegendary -> evaluateEnchantedCreatureIsLegendaryCtx(state, ctx)
 
             // Player-relative trackers (resolve [Player] against the current context).
             is PlayerAttackedWithCreaturesThisTurn -> evaluateAttackedWithCreaturesCtx(state, condition, ctx)
+            is com.wingedsheep.sdk.scripting.conditions.PlayerAttackedPlayerThisTurn ->
+                evaluateAttackedPlayerThisTurnCtx(state, condition, ctx)
             is PlayerCastSpellsThisTurn -> evaluateCastSpellsThisTurnCtx(state, condition, ctx)
+            is com.wingedsheep.sdk.scripting.conditions.PlayerDrewCardsThisTurn -> {
+                if (condition.atLeast <= 0) true
+                else {
+                    val playerId = resolvePlayer(state, condition.player, ctx)
+                    val drawn = playerId?.let {
+                        state.getEntity(it)
+                            ?.get<com.wingedsheep.engine.state.components.player.CardsDrawnThisTurnComponent>()
+                            ?.count
+                    } ?: 0
+                    drawn >= condition.atLeast
+                }
+            }
             is PlayerCommittedCrimeThisTurn -> {
                 val playerId = resolvePlayer(state, condition.player, ctx)
                 playerId != null && playerId in state.playersWhoCommittedCrimeThisTurn
             }
             is PlayerHasCitysBlessing -> evaluateHasCitysBlessingCtx(state, condition, ctx)
+
+            is RingHasTemptedPlayerAtLeast -> {
+                val playerId = resolvePlayer(state, condition.player, ctx)
+                val tempted = playerId?.let {
+                    state.getEntity(it)?.get<TheRingComponent>()?.temptCount
+                } ?: 0
+                tempted >= condition.times
+            }
             is PermanentTypeEnteredBattlefieldThisTurn ->
                 evaluatePermanentTypeEnteredBattlefieldThisTurnCtx(state, condition, ctx)
             is PermanentLeftBattlefieldThisTurn ->
@@ -345,6 +373,8 @@ class ConditionEvaluator(
             is YouSacrificedPermanentThisWay -> ifResolution { evaluateYouSacrificedPermanentThisWay(it) }
             is TriggeringEntityWasHistoric -> ifResolution { evaluateTriggeringEntityWasHistoric(state, it) }
             is TriggeringEntityWasCast -> ifResolution { evaluateTriggeringEntityWasCast(state, it) }
+            is com.wingedsheep.sdk.scripting.conditions.TriggeringSpellCastWithoutPayingMana ->
+                ifResolution { evaluateTriggeringSpellCastWithoutPayingMana(state, it) }
             is TriggeringEntityEnteredOrWasCastFromGraveyard ->
                 ifResolution { evaluateTriggeringEntityEnteredOrWasCastFromGraveyard(state, it) }
             is TriggeringEntityHadMinusOneMinusOneCounter ->
@@ -542,6 +572,41 @@ class ConditionEvaluator(
         return false
     }
 
+    /**
+     * "as long as it's blocking or blocked by a creature of one of [subtypes]".
+     *
+     * Resolves "it" through the source: an Equipment/Aura points at its attached creature (so the
+     * static is gated for the equipped creature); a creature source uses itself. Then checks both
+     * combat directions on that creature — the attackers it is blocking ([BlockingComponent]) and
+     * the creatures blocking it ([BlockedComponent]) — and matches any partner whose projected
+     * subtypes include one of [subtypes]. Subtypes use projected state so type-changing effects on
+     * the partner are respected.
+     */
+    private fun evaluateSourceIsBlockingOrBlockedBySubtypeCtx(
+        state: GameState,
+        condition: SourceIsBlockingOrBlockedBySubtype,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val sourceId = ctx.sourceId ?: return false
+        val attached = state.getEntity(sourceId)?.get<AttachedToComponent>()?.targetId
+        val creatureId = attached ?: when (ctx) {
+            is Resolution -> sourceId  // granted-ability / creature-source scope
+            is Projection -> sourceId
+        }
+        val creature = state.getEntity(creatureId) ?: return false
+
+        val partners = buildSet {
+            creature.get<BlockingComponent>()?.blockedAttackerIds?.let { addAll(it) }
+            creature.get<BlockedComponent>()?.blockerIds?.let { addAll(it) }
+        }
+        if (partners.isEmpty()) return false
+
+        val projected = ctx.projectedStateFor(state)
+        return partners.any { partnerId ->
+            condition.subtypes.any { projected.hasSubtype(partnerId, it) }
+        }
+    }
+
     private fun evaluateEnchantedCreatureHasSubtypeCtx(
         state: GameState,
         condition: EnchantedCreatureHasSubtype,
@@ -649,6 +714,20 @@ class ConditionEvaluator(
             }
         }
         return false
+    }
+
+    private fun evaluateAttackedPlayerThisTurnCtx(
+        state: GameState,
+        condition: com.wingedsheep.sdk.scripting.conditions.PlayerAttackedPlayerThisTurn,
+        ctx: ConditionEvaluationContext
+    ): Boolean {
+        val attackerId = resolvePlayer(state, condition.attacker, ctx) ?: return false
+        val defenderId = resolvePlayer(state, condition.defender, ctx) ?: return false
+        val attackedPlayers = state.getEntity(attackerId)
+            ?.get<com.wingedsheep.engine.state.components.combat.PlayerAttackedPlayersThisTurnComponent>()
+            ?.defendingPlayerIds
+            ?: emptySet()
+        return defenderId in attackedPlayers
     }
 
     private fun evaluateCastSpellsThisTurnCtx(
@@ -776,6 +855,21 @@ class ConditionEvaluator(
     private fun evaluateNoManaSpentToCastEntered(state: GameState, context: EffectContext): Boolean {
         val captured = context.pipeline.storedCollections[PipelineState.TRIGGER_CAPTURED_COLLECTION].orEmpty()
         return captured.all { noManaSpentToCast(state, it) }
+    }
+
+    /**
+     * Triggering-entity counterpart of [evaluateNoManaSpentToCast] for a spell still on the stack
+     * (Boromir, Warden of the Tower). The intervening-if runs before the spell resolves, so the
+     * post-resolution `CastRecordComponent` isn't stamped yet — read the cast-time mana-spent totals
+     * recorded on the [SpellOnStackComponent] instead. False (mana was spent) when the spell isn't
+     * found / not a spell on the stack.
+     */
+    private fun evaluateTriggeringSpellCastWithoutPayingMana(state: GameState, context: EffectContext): Boolean {
+        val entityId = context.triggeringEntityId ?: return false
+        val spell = state.getEntity(entityId)
+            ?.get<com.wingedsheep.engine.state.components.stack.SpellOnStackComponent>() ?: return false
+        return spell.manaSpentWhite + spell.manaSpentBlue + spell.manaSpentBlack +
+            spell.manaSpentRed + spell.manaSpentGreen + spell.manaSpentColorless == 0
     }
 
     private fun evaluateWasKicked(state: GameState, context: EffectContext): Boolean {

@@ -376,9 +376,12 @@ object Triggers {
      * TriggerContext.triggeringEntityId = the combat partner.
      * Sole consumer of [BlocksOrBecomesBlockedByEvent].
      */
-    fun BlocksOrBecomesBlockedBy(filter: GameObjectFilter): TriggerSpec = TriggerSpec(
+    fun BlocksOrBecomesBlockedBy(
+        filter: GameObjectFilter,
+        binding: TriggerBinding = TriggerBinding.SELF
+    ): TriggerSpec = TriggerSpec(
         event = BlocksOrBecomesBlockedByEvent(partnerFilter = filter),
-        binding = TriggerBinding.SELF
+        binding = binding
     )
 
     // -------------------------------------------------------------------------
@@ -412,11 +415,24 @@ object Triggers {
 
     /**
      * Whenever a creature dealt damage by this permanent this turn dies (Soul Collector shape).
-     * Only consumer of [CreatureDealtDamageBySourceDiesEvent].
+     * Binding SELF — the damaging source must be the permanent bearing the trigger.
      */
     val CreatureDealtDamageByThisDies: TriggerSpec = TriggerSpec(
-        event = CreatureDealtDamageBySourceDiesEvent,
+        event = CreatureDealtDamageBySourceDiesEvent(),
         binding = TriggerBinding.SELF
+    )
+
+    /**
+     * Whenever a creature dealt damage this turn by a source matching [sourceFilter] dies
+     * (Shelob, Child of Ungoliant: "by a Spider you controlled"). Binding ANY — any creature on the
+     * battlefield can be the dying creature; the damaging source is matched against [sourceFilter]
+     * using last-known information from when it dealt the damage, so a source that died in the same
+     * combat still qualifies. The filter's "you control" predicate resolves to the controller of the
+     * permanent bearing this trigger.
+     */
+    fun creatureDealtDamageBySourceDies(sourceFilter: GameObjectFilter): TriggerSpec = TriggerSpec(
+        event = CreatureDealtDamageBySourceDiesEvent(sourceFilter = sourceFilter),
+        binding = TriggerBinding.ANY
     )
 
     /**
@@ -873,6 +889,26 @@ object Triggers {
     )
 
     /**
+     * Whenever you cast a spell that targets this permanent (the trigger's source).
+     * Example: Legolas, Master Archer — "Whenever you cast a spell that targets Legolas,
+     * put a +1/+1 counter on Legolas."
+     */
+    fun youCastSpellTargetingSource(): TriggerSpec = TriggerSpec(
+        event = SpellCastEvent(player = Player.You, requires = setOf(SpellCastPredicate.TargetsSource)),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
+     * Whenever you cast a spell that targets at least one object matching [filter].
+     * Example: Legolas, Master Archer — "Whenever you cast a spell that targets a creature
+     * you don't control, …" → `youCastSpellTargeting(GameObjectFilter.Creature.opponentControls())`.
+     */
+    fun youCastSpellTargeting(filter: GameObjectFilter): TriggerSpec = TriggerSpec(
+        event = SpellCastEvent(player = Player.You, requires = setOf(SpellCastPredicate.TargetsMatching(filter))),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * Whenever an opponent casts a spell matching [spellFilter].
      * Example: "Whenever an opponent casts a multicolored spell" →
      * `opponentCasts(GameObjectFilter.Multicolored)`.
@@ -998,13 +1034,29 @@ object Triggers {
         filter: GameObjectFilter = GameObjectFilter.Creature.youControl(),
         counterType: String = Counters.ANY,
         firstTimeEachTurn: Boolean = true,
+        binding: TriggerBinding = TriggerBinding.ANY,
     ): TriggerSpec = TriggerSpec(
         event = CountersPlacedEvent(
             counterType = counterType,
             filter = filter,
             firstTimeEachTurn = firstTimeEachTurn,
         ),
-        binding = TriggerBinding.ANY
+        binding = binding
+    )
+
+    /**
+     * Whenever you put one or more counters of any kind on this permanent (CR-style
+     * "whenever you put one or more counters on ~"). Binds to the source via
+     * [TriggerBinding.SELF], so only counters landing on the ability's own permanent
+     * fire it. Used by Aragorn, Company Leader.
+     */
+    val CountersPlacedOnThis: TriggerSpec = TriggerSpec(
+        event = CountersPlacedEvent(
+            counterType = Counters.ANY,
+            filter = GameObjectFilter.Any,
+            firstTimeEachTurn = false,
+        ),
+        binding = TriggerBinding.SELF
     )
 
     // =========================================================================
@@ -1073,6 +1125,17 @@ object Triggers {
     val BecomesUntapped: TriggerSpec = TriggerSpec(
         event = UntapEvent,
         binding = TriggerBinding.SELF
+    )
+
+    /**
+     * Whenever a permanent matching [filter] phases in (Rule 702.26) — King of the
+     * Oathbreakers: "Whenever King of the Oathbreakers or another Spirit you control
+     * phases in …". Because the source matches "a Spirit you control", the ANY binding
+     * covers both halves of the wording.
+     */
+    fun PhasesIn(filter: GameObjectFilter? = null): TriggerSpec = TriggerSpec(
+        event = PhasesInEvent(filter = filter),
+        binding = TriggerBinding.ANY
     )
 
     /**
@@ -1289,6 +1352,17 @@ object Triggers {
     )
 
     /**
+     * Whenever a permanent matching [filter] becomes the target of a **spell** (not an
+     * ability) — King of the Oathbreakers: "Whenever King of the Oathbreakers or another
+     * Spirit you control becomes the target of a spell …". Because the source itself
+     * matches "a Spirit you control", the ANY binding covers both halves of the wording.
+     */
+    fun BecomesTargetOfSpell(filter: GameObjectFilter): TriggerSpec = TriggerSpec(
+        event = BecomesTargetEvent(targetFilter = filter, spellsOnly = true),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * Whenever a creature you control becomes the target of a spell or ability
      * an opponent controls.
      *
@@ -1447,6 +1521,20 @@ object Triggers {
         binding = TriggerBinding.ANY
     )
 
+    /**
+     * Whenever one or more creatures an opponent controls die. Same batched death trigger as
+     * [OneOrMoreCreaturesYouControlDie] with the controller scope fixed to your opponents —
+     * fires at most once per death batch regardless of how many opponents' creatures died
+     * (CR 603.3b), so it pairs with `oncePerTurn` cleanly where a per-creature trigger would
+     * over-fire on a board wipe (Spiteful Banditry).
+     */
+    fun OneOrMoreCreaturesAnOpponentControlsDie(
+        filter: GameObjectFilter = GameObjectFilter.Creature
+    ): TriggerSpec = TriggerSpec(
+        event = CreaturesYouControlDiedEvent(filter = filter.opponentControls()),
+        binding = TriggerBinding.ANY
+    )
+
     // =========================================================================
     // Enter Battlefield Batch Triggers
     // =========================================================================
@@ -1478,6 +1566,21 @@ object Triggers {
      */
     fun OneOrMoreOpponentPermanentsEnter(filter: GameObjectFilter = GameObjectFilter.Any): TriggerSpec = TriggerSpec(
         event = PermanentsEnteredEvent(filter = filter.opponentControls()),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
+     * Whenever one or more creatures matching [filter] deal combat damage to *you* (the
+     * trigger's controller). Defensive batching trigger — fires at most once per combat-damage
+     * batch regardless of how many creatures connected.
+     *
+     * Example: "Whenever one or more creatures deal combat damage to you" (Witch-king of Angmar)
+     * → OneOrMoreCreaturesDealCombatDamageToYou()
+     */
+    fun OneOrMoreCreaturesDealCombatDamageToYou(
+        filter: GameObjectFilter = GameObjectFilter.Creature
+    ): TriggerSpec = TriggerSpec(
+        event = OneOrMoreDealCombatDamageToYouEvent(sourceFilter = filter),
         binding = TriggerBinding.ANY
     )
 
@@ -1537,6 +1640,16 @@ object Triggers {
         binding = TriggerBinding.ANY
     )
 
+    /**
+     * Whenever you choose a creature as your Ring-bearer. Fires only when a temptation actually
+     * results in a chosen creature (CR 701.54a–b) — not when you control no creatures to choose.
+     * Used by Call of the Ring.
+     */
+    val WheneverYouChooseRingBearer: TriggerSpec = TriggerSpec(
+        event = RingTemptedEvent(Player.You, requireBearerChosen = true),
+        binding = TriggerBinding.ANY
+    )
+
     // =========================================================================
     // Scry Triggers (CR 701.18)
     // =========================================================================
@@ -1549,6 +1662,26 @@ object Triggers {
      */
     val WheneverYouScry: TriggerSpec = TriggerSpec(
         event = ScriedEvent(Player.You),
+        binding = TriggerBinding.ANY
+    )
+
+    // =========================================================================
+    // Saga Chapter Resolution Triggers (CR 714)
+    // =========================================================================
+
+    /**
+     * Whenever the final chapter ability of a Saga you control resolves (Tom Bombadil). Fires after
+     * the Saga's last chapter ability resolves successfully. Pair with `oncePerTurn = true` on the
+     * triggered ability for "This ability triggers only once each turn."
+     */
+    val WheneverFinalChapterOfYourSagaResolves: TriggerSpec = TriggerSpec(
+        event = SagaChapterResolvedEvent(Player.You, finalChapterOnly = true),
+        binding = TriggerBinding.ANY
+    )
+
+    /** Whenever any chapter ability of a Saga you control resolves. */
+    val WheneverChapterOfYourSagaResolves: TriggerSpec = TriggerSpec(
+        event = SagaChapterResolvedEvent(Player.You, finalChapterOnly = false),
         binding = TriggerBinding.ANY
     )
 }

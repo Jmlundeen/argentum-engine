@@ -40,33 +40,33 @@ class TargetEnumerationUtils(
     ): List<EntityId> {
         return when (requirement) {
             is TargetPlayer -> state.turnOrder.filter { state.hasEntity(it) && !playerHasShroud(state, it) &&
-                !playerHasHexproofAgainst(state, it, playerId) &&
+                !playerHasHexproofAgainst(state, it, playerId) && !playerHasProtectionFrom(state, it, sourceId, playerId) &&
                 PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, playerId, sourceId) }
             is TargetOpponent -> state.turnOrder.filter { it != playerId && state.hasEntity(it) && !playerHasShroud(state, it) &&
-                !playerHasHexproof(state, it) &&
+                !playerHasHexproof(state, it) && !playerHasProtectionFrom(state, it, sourceId, playerId) &&
                 PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, playerId, sourceId) }
             is AnyTarget -> {
                 val creatures = findValidPermanentTargets(state, playerId, TargetFilter.Creature, sourceId)
                 val planeswalkers = findValidPermanentTargets(state, playerId, TargetFilter.Planeswalker, sourceId)
                 val players = state.turnOrder.filter { state.hasEntity(it) && !playerHasShroud(state, it) &&
-                    !playerHasHexproofAgainst(state, it, playerId) }
+                    !playerHasHexproofAgainst(state, it, playerId) && !playerHasProtectionFrom(state, it, sourceId, playerId) }
                 (creatures + planeswalkers).distinct() + players
             }
             is TargetCreatureOrPlayer -> {
                 val creatures = findValidPermanentTargets(state, playerId, TargetFilter.Creature, sourceId)
                 val players = state.turnOrder.filter { state.hasEntity(it) && !playerHasShroud(state, it) &&
-                    !playerHasHexproofAgainst(state, it, playerId) }
+                    !playerHasHexproofAgainst(state, it, playerId) && !playerHasProtectionFrom(state, it, sourceId, playerId) }
                 creatures + players
             }
             is TargetPlayerOrPlaneswalker -> {
                 val players = state.turnOrder.filter { state.hasEntity(it) && !playerHasShroud(state, it) &&
-                    !playerHasHexproofAgainst(state, it, playerId) }
+                    !playerHasHexproofAgainst(state, it, playerId) && !playerHasProtectionFrom(state, it, sourceId, playerId) }
                 val planeswalkers = findValidPermanentTargets(state, playerId, TargetFilter.Planeswalker, sourceId)
                 players + planeswalkers
             }
             is TargetOpponentOrPlaneswalker -> {
                 val opponents = state.turnOrder.filter { it != playerId && state.hasEntity(it) && !playerHasShroud(state, it) &&
-                    !playerHasHexproof(state, it) }
+                    !playerHasHexproof(state, it) && !playerHasProtectionFrom(state, it, sourceId, playerId) }
                 val planeswalkers = findValidPermanentTargets(state, playerId, TargetFilter.Planeswalker, sourceId)
                 opponents + planeswalkers
             }
@@ -269,6 +269,7 @@ class TargetEnumerationUtils(
                 validTargets = validTargets,
                 targetZone = getTargetZone(req),
                 xConstrainsManaValue = requirementUsesManaValueAtMostX(req),
+                xConstrainsPower = requirementUsesPowerEqualsX(req),
                 xConstrainsCount = requirementXConstrainsCount(req)
             )
         }
@@ -331,6 +332,25 @@ class TargetEnumerationUtils(
         else -> false
     }
 
+    /**
+     * True when [requirement] is a [TargetObject] whose filter contains
+     * [CardPredicate.PowerEqualsX] (anywhere in the predicate tree). Surfaced to the client
+     * so it re-filters the permissive enumeration down to creatures whose power equals the
+     * chosen X after X selection (Ent-Draught Basin).
+     */
+    fun requirementUsesPowerEqualsX(requirement: TargetRequirement): Boolean {
+        val filter = (requirement as? TargetObject)?.filter ?: return false
+        return filter.baseFilter.cardPredicates.any { containsPowerEqualsX(it) }
+    }
+
+    private fun containsPowerEqualsX(predicate: CardPredicate): Boolean = when (predicate) {
+        CardPredicate.PowerEqualsX -> true
+        is CardPredicate.And -> predicate.predicates.any { containsPowerEqualsX(it) }
+        is CardPredicate.Or -> predicate.predicates.any { containsPowerEqualsX(it) }
+        is CardPredicate.Not -> containsPowerEqualsX(predicate.predicate)
+        else -> false
+    }
+
     fun allRequirementsSatisfied(targetInfos: List<TargetInfo>): Boolean {
         return targetInfos.all { it.validTargets.isNotEmpty() || it.minTargets == 0 }
     }
@@ -361,4 +381,14 @@ class TargetEnumerationUtils(
     fun playerHasHexproofAgainst(state: GameState, playerId: EntityId, controllerId: EntityId): Boolean {
         return playerId != controllerId && playerHasHexproof(state, playerId)
     }
+
+    /**
+     * True if [playerId] is protected from a source [sourceId] controlled by [casterId]
+     * (CR 702.16) — so the source can't legally target that player (The One Ring).
+     * Delegates to the shared [PlayerProtectionRules] used by the targeting validator and
+     * damage executor.
+     */
+    fun playerHasProtectionFrom(state: GameState, playerId: EntityId, sourceId: EntityId?, casterId: EntityId): Boolean =
+        com.wingedsheep.engine.mechanics.targeting.PlayerProtectionRules
+            .isProtectedFromSource(state, playerId, sourceId, casterId)
 }

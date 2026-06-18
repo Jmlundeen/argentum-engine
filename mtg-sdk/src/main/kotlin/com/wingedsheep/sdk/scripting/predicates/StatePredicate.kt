@@ -89,6 +89,18 @@ sealed interface StatePredicate {
         override val description: String = "in the same band as this creature"
     }
 
+    /**
+     * Creature that is blocking the effect's source — i.e. a blocker whose blocked-attacker set
+     * contains the source entity supplied in the evaluation context. Source-relative; yields false
+     * with no source context or outside combat. Used for "Whenever this becomes blocked, it deals N
+     * damage to each creature blocking it" (Battle-Scarred Goblin).
+     */
+    @SerialName("IsBlockingSource")
+    @Serializable
+    data object IsBlockingSource : Entity {
+        override val description: String = "blocking this creature"
+    }
+
     // =============================================================================
     // Summoning Sickness (Entity)
     // =============================================================================
@@ -123,6 +135,20 @@ sealed interface StatePredicate {
     @Serializable
     data object HasDealtCombatDamageToPlayer : History {
         override val description: String = "has dealt combat damage to a player"
+    }
+
+    /**
+     * Dealt combat damage *this turn* to the player who controls the effect's source.
+     * Source-relative: resolves `context.sourceId`'s controller and checks whether this
+     * creature is recorded as having dealt combat damage to that player this turn. Used for
+     * "...a creature that dealt combat damage to you this turn" edicts (Witch-king of Angmar).
+     * Backed by a per-turn marker that records, per attacker, which players it connected with;
+     * cleared at end-of-turn cleanup. Inert with no source context.
+     */
+    @SerialName("DealtCombatDamageToSourceControllerThisTurn")
+    @Serializable
+    data object DealtCombatDamageToSourceControllerThisTurn : History {
+        override val description: String = "dealt combat damage to you this turn"
     }
 
     /**
@@ -162,6 +188,26 @@ sealed interface StatePredicate {
     @Serializable
     data object PutIntoGraveyardFromBattlefieldThisTurn : History {
         override val description: String = "put into a graveyard from the battlefield this turn"
+    }
+
+    /**
+     * This creature blocked, or was blocked by, a legendary creature at some point during the
+     * current turn. Used as a target predicate:
+     *
+     *  - You Cannot Pass! (LTR): "Destroy target creature that blocked or was blocked by a
+     *    legendary creature this turn."
+     *
+     * Backed by the `BlockedOrWasBlockedByLegendaryThisTurnComponent` marker on the creature
+     * entity. The marker is stamped at block-declaration time (so the legendary partner's
+     * status is captured at pairing time and the predicate keeps matching even if that
+     * legendary creature later leaves the battlefield or stops being legendary, per the card's
+     * ruling), and cleared at end-of-turn cleanup. Distinct from the combat-only
+     * [IsBlocking]/[IsBlocked] predicates, which only hold during the combat phase.
+     */
+    @SerialName("BlockedOrWasBlockedByLegendaryThisTurn")
+    @Serializable
+    data object BlockedOrWasBlockedByLegendaryThisTurn : History {
+        override val description: String = "that blocked or was blocked by a legendary creature this turn"
     }
 
     // =============================================================================
@@ -228,6 +274,20 @@ sealed interface StatePredicate {
     @Serializable
     data object HasLeastPowerAmongAllCreatures : Entity {
         override val description: String = "with the least power"
+    }
+
+    /** Has the least power among creatures its controller controls */
+    @SerialName("HasLeastPower")
+    @Serializable
+    data object HasLeastPower : Entity {
+        override val description: String = "with the least power"
+    }
+
+    /** Is its controller's Ring-bearer (CR 701.54). Used for "you control a Ring-bearer" conditions. */
+    @SerialName("IsRingBearer")
+    @Serializable
+    data object IsRingBearer : Entity {
+        override val description: String = "that's a Ring-bearer"
     }
 
     // =============================================================================

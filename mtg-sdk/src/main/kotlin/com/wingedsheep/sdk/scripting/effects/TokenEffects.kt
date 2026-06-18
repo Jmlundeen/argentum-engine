@@ -1,6 +1,7 @@
 package com.wingedsheep.sdk.scripting.effects
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
@@ -364,6 +365,19 @@ data class CreateTokenCopyOfTargetEffect(
      */
     val addedSubtypes: Set<Subtype> = emptySet(),
     /**
+     * Replaces the token copy's card types outright (e.g. Shelob, Child of Ungoliant's copy "is a
+     * Food artifact ... and it loses all other card types" → {ARTIFACT}). Null leaves the copied
+     * card's card types untouched. Note: when this drops CREATURE, the copy is no longer a creature,
+     * so it won't enter attacking and copies no P/T meaning.
+     */
+    val overrideCardTypes: Set<CardType>? = null,
+    /**
+     * Activated abilities granted to the token copy in addition to those copied from the source
+     * (e.g. Shelob, Child of Ungoliant grants the Food sacrifice ability
+     * "{2}, {T}, Sacrifice this token: You gain 3 life"). Mirrors [CreateTokenEffect.activatedAbilities].
+     */
+    val activatedAbilities: List<ActivatedAbility> = emptyList(),
+    /**
      * If set, create delayed triggers to sacrifice each created token copy at this step
      * (the sacrifice sibling of [CreateTokenEffect.sacrificeAtStep]). Used for "create a
      * tapped token copy ... at the beginning of your next end step, sacrifice those tokens"
@@ -386,7 +400,21 @@ data class CreateTokenCopyOfTargetEffect(
      * target artifact or creature you control, except it's an artifact in addition to its other
      * types"); any future targeted copy-token effect with the same shape can reuse the field.
      */
-    val addCardTypes: Set<String> = emptySet()
+    val addCardTypes: Set<String> = emptySet(),
+    /**
+     * If set, create delayed triggers to exile each created token copy at this step. The exile
+     * sibling of [sacrificeAtStep], used for "create a token copy ... at the beginning of the
+     * next end step, exile that token" (Sauron, the Necromancer). Unlike [sacrificeAtStep] the
+     * token is *exiled* rather than sacrificed, and the firing step is the next matching step of
+     * any player's turn ("the next end step", not "your next end step").
+     */
+    val exileAtStep: Step? = null,
+    /**
+     * When [exileAtStep] is set, the delayed exile is skipped if the source permanent is the
+     * controller's Ring-bearer at the time the trigger fires (CR 701.54e) — i.e. "exile that
+     * token unless [source] is your Ring-bearer" (Sauron, the Necromancer).
+     */
+    val exileUnlessSourceIsRingBearer: Boolean = false
 ) : Effect {
     override val description: String = buildString {
         append("Create ${count.description} token copies of target permanent")
@@ -425,8 +453,18 @@ data class CreateTokenCopyOfTargetEffect(
             } else ""
             append(", except $pronoun $article$typeWords in addition to its other types")
         }
+        if (overrideCardTypes != null) {
+            append(", except ${if (count == DynamicAmount.Fixed(1)) "it's" else "they're"} ${
+                overrideCardTypes.joinToString(" ") { it.displayName.lowercase() }
+            } and loses all other card types")
+        }
         if (addedKeywords.isNotEmpty()) {
             append(" with ${addedKeywords.joinToString(", ") { it.displayName.lowercase() }}")
+        }
+        if (exileAtStep != null) {
+            val pronoun = if (count == DynamicAmount.Fixed(1)) "that token" else "those tokens"
+            append(". At the beginning of the next ${exileAtStep.name.lowercase()} step, exile $pronoun")
+            if (exileUnlessSourceIsRingBearer) append(" unless this creature is your Ring-bearer")
         }
     }
 }

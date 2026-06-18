@@ -36,7 +36,12 @@ data class DealDamageEffect(
      * last-known-information, so leaving this null on a token's LTB damage clause works
      * (e.g. Munitions' "When this token leaves the battlefield, it deals 2 damage to any target").
      */
-    val damageSource: EffectTarget? = null
+    val damageSource: EffectTarget? = null,
+    /**
+     * When true and the target is a creature, damage in excess of lethal (CR 120.4a) is dealt to
+     * that creature's controller instead (Gandalf's Sanction).
+     */
+    val excessToController: Boolean = false
 ) : Effect {
     /** Convenience constructor for fixed amounts */
     constructor(amount: Int, target: EffectTarget, cantBePrevented: Boolean = false, damageSource: EffectTarget? = null)
@@ -100,6 +105,23 @@ data class AmplifyNoncombatDamageThisTurnEffect(
         val newBonus = bonus.applyTextReplacement(replacer)
         return if (newBonus !== bonus) copy(bonus = newBonus) else this
     }
+}
+
+/**
+ * Turn-scoped "Damage can't be prevented this turn" (CR 615.6 — a prevention effect can't apply
+ * to damage that can't be prevented). While active for the current turn, all damage-prevention
+ * shields, prevention/replacement-of-damage effects, and protection's damage-prevention clause are
+ * ignored when damage is dealt.
+ *
+ * Unlike the static [com.wingedsheep.sdk.scripting.DamageCantBePrevented] replacement effect (which
+ * lives on a battlefield permanent like Sunspine Lynx), this is a one-shot effect a spell or ability
+ * can apply for the rest of the turn — e.g. Fear, Fire, Foes!: "Damage can't be prevented this turn."
+ * The engine sets a turn-scoped flag on the game state that is cleared at the next turn boundary.
+ */
+@SerialName("DamageCantBePreventedThisTurn")
+@Serializable
+data object DamageCantBePreventedThisTurnEffect : Effect {
+    override val description: String = "Damage can't be prevented this turn"
 }
 
 /**

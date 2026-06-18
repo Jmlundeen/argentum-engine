@@ -349,6 +349,14 @@ internal class AffectsFilterResolver {
         // (there's no per-recipient "source" here); it's only evaluated in damage-prevention
         // recipient filters via PredicateEvaluator. Never match in this context.
         StatePredicate.InSameBandAsSource -> false
+        // Source-relative: "blocking the source" needs the ability's source permanent, absent in
+        // group-static projection. Only meaningful in target/group-damage contexts via
+        // PredicateEvaluator. Never match here.
+        StatePredicate.IsBlockingSource -> false
+        // Source-relative: "dealt combat damage to the source's controller this turn" needs the
+        // ability's source permanent, absent in group-static projection. Only meaningful in
+        // target/edict-filter contexts via PredicateEvaluator. Never match here.
+        StatePredicate.DealtCombatDamageToSourceControllerThisTurn -> false
         // Likewise source-relative: "crewed/saddled the source this turn" needs the ability's
         // source permanent, absent in group-static projection. Only meaningful in target/count
         // contexts via PredicateEvaluator / DynamicAmountEvaluator. Never match here.
@@ -371,10 +379,16 @@ internal class AffectsFilterResolver {
         // has had its from-graveyard marker stripped on battlefield entry — so the
         // projection answer is unconditionally false here.
         StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
+        StatePredicate.BlockedOrWasBlockedByLegendaryThisTurn ->
+            container.has<com.wingedsheep.engine.state.components.combat.BlockedOrWasBlockedByLegendaryThisTurnComponent>()
         StatePredicate.IsFaceDown -> isFaceDown
         StatePredicate.IsFaceUp -> !isFaceDown
         StatePredicate.HasMorphAbility ->
             container.has<MorphDataComponent>() || container.has<HasMorphAbilityComponent>()
+        StatePredicate.IsRingBearer -> {
+            val bearer = container.get<com.wingedsheep.engine.state.components.identity.RingBearerComponent>()
+            bearer != null && projectedController(state, entityId, projectedValues) == bearer.ownerId
+        }
         StatePredicate.IsEquipped -> {
             val attachments = container.get<AttachmentsComponent>()
             attachments != null && attachments.attachedIds.any { attachId ->
@@ -395,6 +409,7 @@ internal class AffectsFilterResolver {
             container.has<com.wingedsheep.engine.state.components.battlefield.WarpedComponent>()
         StatePredicate.HasGreatestPower -> hasGreatestPowerInProjection(state, entityId, container, projectedValues)
         StatePredicate.HasLeastPowerAmongAllCreatures -> hasLeastPowerAmongAllCreaturesInProjection(state, entityId, container, projectedValues)
+        StatePredicate.HasLeastPower -> hasLeastPowerInProjection(state, entityId, container, projectedValues)
         StatePredicate.HasAnyCounter -> {
             val counters = container.get<CountersComponent>()
             counters != null && counters.counters.values.any { it > 0 }
@@ -460,6 +475,30 @@ internal class AffectsFilterResolver {
         return entityPower <= minPower
     }
 
+    private fun hasLeastPowerInProjection(
+        state: GameState,
+        entityId: EntityId,
+        container: ComponentContainer,
+        projectedValues: Map<EntityId, MutableProjectedValues>
+    ): Boolean {
+        val entityController = projectedController(state, entityId, projectedValues) ?: return false
+        val entityPower = projectedValues[entityId]?.power
+            ?: container.get<CardComponent>()?.baseStats?.basePower
+            ?: return false
+        val minPower = state.getBattlefield()
+            .filter { id ->
+                projectedController(state, id, projectedValues) == entityController &&
+                    isCreatureInProjection(state, id, projectedValues)
+            }
+            .minOfOrNull {
+                projectedValues[it]?.power
+                    ?: state.getEntity(it)?.get<CardComponent>()?.baseStats?.basePower
+                    ?: Int.MAX_VALUE
+            }
+            ?: return false
+        return entityPower <= minPower
+    }
+
     private fun matchesCardPredicateForProjection(
         predicate: CardPredicate,
         card: CardComponent,
@@ -505,6 +544,8 @@ internal class AffectsFilterResolver {
         is CardPredicate.PowerAtMost -> (projected?.power ?: card.baseStats?.basePower ?: 0) <= predicate.max
         is CardPredicate.PowerAtLeast -> (projected?.power ?: card.baseStats?.basePower ?: 0) >= predicate.min
         is CardPredicate.PowerEquals -> (projected?.power ?: card.baseStats?.basePower) == predicate.value
+        // PowerEqualsX is resolution-time only; layer-projection has no chosen-number context.
+        CardPredicate.PowerEqualsX -> false
         is CardPredicate.ToughnessAtMost -> (projected?.toughness ?: card.baseStats?.baseToughness ?: 0) <= predicate.max
         // ToughnessAtMostX is resolution-time only; layer-projection has no X context, so it never matches here.
         CardPredicate.ToughnessAtMostX -> false
@@ -532,6 +573,7 @@ internal class AffectsFilterResolver {
         is CardPredicate.ManaValueAtMostColorsSpent -> false
         is CardPredicate.PowerGreaterThanEntity -> false
         is CardPredicate.PowerAtMostEntity -> false
+        is CardPredicate.PowerLessThanEntity -> false
         CardPredicate.ManaValueIsEven -> card.manaValue % 2 == 0
         CardPredicate.ManaValueIsOdd -> card.manaValue % 2 != 0
         is CardPredicate.NameEquals -> card.name == predicate.name
@@ -556,6 +598,8 @@ internal class AffectsFilterResolver {
         CardPredicate.SharesColorWithRecipient,
         is CardPredicate.SharesCreatureTypeWith,
         is CardPredicate.SharesColorWith,
+        is CardPredicate.SharesColorWithPermanentYouControl,
+        is CardPredicate.DoesNotShareCreatureTypeWithPermanentYouControl,
         is CardPredicate.HasSubtypeFromVariable,
         is CardPredicate.HasSubtypeInStoredList,
         is CardPredicate.NameEqualsChosen,

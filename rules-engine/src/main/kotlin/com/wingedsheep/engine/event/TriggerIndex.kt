@@ -52,6 +52,7 @@ enum class TriggerCategory {
     CARD_CYCLED,
     TAPPED,
     UNTAPPED,
+    PHASES_IN,
     LIFE_GAIN,
     LIFE_LOSS,
     BECOMES_TARGET,
@@ -75,6 +76,7 @@ enum class TriggerCategory {
     SCRIED,
     BECAME_SADDLED,
     BECOMES_ATTACHED,
+    SAGA_CHAPTER_RESOLVED,
 }
 
 /**
@@ -175,8 +177,14 @@ class TriggerIndex(
          * Only includes categories for triggers handled in the main detectTriggersForEvent loop.
          */
         fun triggerToCategories(trigger: SdkGameEvent, binding: TriggerBinding): List<TriggerCategory> {
-            // ATTACHED triggers are handled by AttachmentTriggerDetector via aurasByTarget index
-            if (binding == TriggerBinding.ATTACHED) return emptyList()
+            // ATTACHED triggers are generally handled by AttachmentTriggerDetector via the
+            // aurasByTarget index. Exception: BlocksOrBecomesBlockedByEvent needs the full
+            // BlockersDeclaredEvent block map to compute the equipped creature's combat partner,
+            // so it stays indexed under BLOCKERS_DECLARED and is handled in the main
+            // detectTriggersForEvent loop (which resolves ATTACHED → the equipped creature).
+            if (binding == TriggerBinding.ATTACHED &&
+                trigger !is SdkGameEvent.BlocksOrBecomesBlockedByEvent
+            ) return emptyList()
 
             return when (trigger) {
                 is SdkGameEvent.ZoneChangeEvent -> listOf(TriggerCategory.ZONE_CHANGE)
@@ -208,6 +216,7 @@ class TriggerIndex(
                 is SdkGameEvent.CycleEvent -> listOf(TriggerCategory.CARD_CYCLED)
                 is SdkGameEvent.TapEvent -> listOf(TriggerCategory.TAPPED)
                 is SdkGameEvent.UntapEvent -> listOf(TriggerCategory.UNTAPPED)
+                is SdkGameEvent.PhasesInEvent -> listOf(TriggerCategory.PHASES_IN)
                 is SdkGameEvent.LifeGainEvent -> listOf(TriggerCategory.LIFE_GAIN)
                 is SdkGameEvent.LifeLossEvent -> listOf(TriggerCategory.LIFE_LOSS)
                 is SdkGameEvent.LifeGainOrLossEvent -> listOf(TriggerCategory.LIFE_GAIN, TriggerCategory.LIFE_LOSS)
@@ -220,6 +229,7 @@ class TriggerIndex(
                 is SdkGameEvent.CardsLeftYourGraveyardEvent -> listOf(TriggerCategory.CARDS_LEFT_GRAVEYARD)
                 is SdkGameEvent.PermanentsSacrificedEvent -> listOf(TriggerCategory.SACRIFICE)
                 is SdkGameEvent.OneOrMoreDealCombatDamageToPlayerEvent -> listOf(TriggerCategory.COMBAT_DAMAGE_BATCH)
+                is SdkGameEvent.OneOrMoreDealCombatDamageToYouEvent -> listOf(TriggerCategory.COMBAT_DAMAGE_BATCH)
                 is SdkGameEvent.LeaveBattlefieldWithoutDyingEvent -> listOf(TriggerCategory.LEAVE_WITHOUT_DYING)
                 is SdkGameEvent.CreaturesYouControlDiedEvent -> listOf(TriggerCategory.CREATURES_DIED_BATCH)
                 is SdkGameEvent.PermanentsEnteredEvent -> listOf(TriggerCategory.PERMANENTS_ENTERED_BATCH)
@@ -233,6 +243,7 @@ class TriggerIndex(
                 is SdkGameEvent.ScriedEvent -> SCRIED_LIST
                 is SdkGameEvent.BecameSaddledEvent -> BECAME_SADDLED_LIST
                 is SdkGameEvent.BecomesAttachedEvent -> BECOMES_ATTACHED_LIST
+                is SdkGameEvent.SagaChapterResolvedEvent -> SAGA_CHAPTER_RESOLVED_LIST
                 // These are handled by specialized detect methods, not the main loop
                 else -> emptyList()
             }
@@ -254,6 +265,7 @@ class TriggerIndex(
             is CardCycledEvent -> CARD_CYCLED_LIST
             is TappedEvent -> TAPPED_LIST
             is UntappedEvent -> UNTAPPED_LIST
+            is com.wingedsheep.engine.core.PhasedInEvent -> PHASES_IN_LIST
             is LifeChangedEvent -> when (event.reason) {
                 LifeChangeReason.LIFE_GAIN -> LIFE_GAIN_LIST
                 LifeChangeReason.DAMAGE, LifeChangeReason.LIFE_LOSS, LifeChangeReason.PAYMENT -> LIFE_LOSS_LIST
@@ -270,6 +282,7 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.ScriedEvent -> SCRIED_LIST
             is com.wingedsheep.engine.core.BecameSaddledEvent -> BECAME_SADDLED_LIST
             is com.wingedsheep.engine.core.PermanentAttachedEvent -> BECOMES_ATTACHED_LIST
+            is com.wingedsheep.engine.core.SagaChapterResolvedEvent -> SAGA_CHAPTER_RESOLVED_LIST
             else -> emptyList()
         }
 
@@ -285,6 +298,7 @@ class TriggerIndex(
         private val CARD_CYCLED_LIST = listOf(TriggerCategory.CARD_CYCLED)
         private val TAPPED_LIST = listOf(TriggerCategory.TAPPED)
         private val UNTAPPED_LIST = listOf(TriggerCategory.UNTAPPED)
+        private val PHASES_IN_LIST = listOf(TriggerCategory.PHASES_IN)
         private val LIFE_GAIN_LIST = listOf(TriggerCategory.LIFE_GAIN)
         private val LIFE_LOSS_LIST = listOf(TriggerCategory.LIFE_LOSS)
         private val BECOMES_TARGET_LIST = listOf(TriggerCategory.BECOMES_TARGET)
@@ -299,5 +313,6 @@ class TriggerIndex(
         private val SCRIED_LIST = listOf(TriggerCategory.SCRIED)
         private val BECAME_SADDLED_LIST = listOf(TriggerCategory.BECAME_SADDLED)
         private val BECOMES_ATTACHED_LIST = listOf(TriggerCategory.BECOMES_ATTACHED)
+        private val SAGA_CHAPTER_RESOLVED_LIST = listOf(TriggerCategory.SAGA_CHAPTER_RESOLVED)
     }
 }

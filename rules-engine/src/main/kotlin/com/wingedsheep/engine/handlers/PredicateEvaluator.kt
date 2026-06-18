@@ -8,6 +8,7 @@ import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CrewSaddleContributorsComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.DealtCombatDamageToPlayersThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.HasDealtCombatDamageToPlayerComponent
 import com.wingedsheep.engine.state.components.battlefield.HasDealtDamageComponent
 import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTurnComponent
@@ -328,6 +329,18 @@ class PredicateEvaluator {
                 val power = projectedValues?.power ?: card.baseStats?.basePower
                 power == predicate.value
             }
+            is CardPredicate.PowerEqualsX -> {
+                // Null xValue means X is unbound (legal-action enumeration runs before the
+                // player chooses X). Match permissively so the ability is offered; the chosen
+                // X is enforced at activation-time validation and resolution-time re-check —
+                // mirrors ManaValueAtMostX. Once X is bound, require power to equal it exactly.
+                val xValue = context?.xValue
+                if (xValue == null) true
+                else {
+                    val power = projectedValues?.power ?: card.baseStats?.basePower
+                    power == xValue
+                }
+            }
             is CardPredicate.PowerAtMost -> {
                 val power = projectedValues?.power ?: card.baseStats?.basePower ?: 0
                 power <= predicate.max
@@ -395,6 +408,16 @@ class PredicateEvaluator {
                     ?: return false
                 val candidatePower = projectedValues?.power ?: card.baseStats?.basePower ?: 0
                 candidatePower <= refPower
+            }
+
+            is CardPredicate.PowerLessThanEntity -> {
+                val refEntityId = resolveEntityReference(predicate.reference, context) ?: return false
+                val refContainer = state.getEntity(refEntityId) ?: return false
+                val refPower = state.projectedState.getPower(refEntityId)
+                    ?: refContainer.get<CardComponent>()?.baseStats?.basePower
+                    ?: return false
+                val candidatePower = projectedValues?.power ?: card.baseStats?.basePower ?: 0
+                candidatePower < refPower
             }
 
             // Source-relative predicates
@@ -470,6 +493,29 @@ class PredicateEvaluator {
                 }
                 if (referenceColors.isEmpty()) return false
                 colors.any { it in referenceColors }
+            }
+
+            is CardPredicate.SharesColorWithPermanentYouControl -> {
+                if (colors.isEmpty()) return false
+                val controllerId = context?.controllerId ?: return false
+                state.getBattlefield().any { otherId ->
+                    projected.getController(otherId) == controllerId &&
+                        matches(state, projected, otherId, predicate.filter, context) &&
+                        projected.getColors(otherId).any { it in colors }
+                }
+            }
+
+            is CardPredicate.DoesNotShareCreatureTypeWithPermanentYouControl -> {
+                val controllerId = context?.controllerId ?: return false
+                val entitySubtypes = projectedValues?.subtypes ?: card.typeLine.subtypes.map { it.value }.toSet()
+                // No shared type when no permanent you control shares any creature type with the candidate.
+                state.getBattlefield().none { otherId ->
+                    projected.getController(otherId) == controllerId &&
+                        matches(state, projected, otherId, predicate.filter, context) &&
+                        projected.getSubtypes(otherId).any { otherSubtype ->
+                            entitySubtypes.any { it.equals(otherSubtype, ignoreCase = true) }
+                        }
+                }
             }
 
             CardPredicate.SharesChosenColorWithSource -> {
@@ -628,6 +674,17 @@ class PredicateEvaluator {
             projected.getController(triggeringId)
                 ?: state.getEntity(triggeringId)?.get<ControllerComponent>()?.playerId
         }
+        // The controller of the spell/ability's first chosen target — lets a filter scope to
+        // "creatures with the same controller as the target" (Fear, Fire, Foes!).
+        EffectTarget.TargetController -> {
+            val targetId = when (val first = context.targets.firstOrNull()) {
+                is ChosenTarget.Permanent -> first.entityId
+                is ChosenTarget.Card -> first.cardId
+                else -> null
+            } ?: return null
+            projected.getController(targetId)
+                ?: state.getEntity(targetId)?.get<ControllerComponent>()?.playerId
+        }
         else -> null
     }
 
@@ -643,9 +700,15 @@ class PredicateEvaluator {
             is EntityReference.TappedAsCost -> null
             is EntityReference.AffectedEntity -> context?.affectedEntityId
             is EntityReference.IterationEntity -> null // Only available during ForEachInGroup iteration
-            is EntityReference.FromCostStorage -> null // Cost-pipeline state is not threaded into PredicateContext
-            is EntityReference.AmassedArmy -> null // Pipeline state is not threaded into PredicateContext
+            // Pipeline-stored entities (cost-chosen, amassed Army) are threaded into PredicateContext
+            // via [storedCollections] so a target/affected-entity filter can compare against them
+            // ("power <= the amassed Army's power"). Mirrors TargetResolutionUtils.resolveEntityReference.
+            is EntityReference.FromCostStorage ->
+                context?.storedCollections?.get(ref.collectionName)?.getOrNull(ref.index)
+            is EntityReference.AmassedArmy ->
+                context?.storedCollections?.get(EntityReference.AmassedArmy.STORAGE_KEY)?.firstOrNull()
             is EntityReference.EnchantedCreature -> null // Attachment lookup needs state, not threaded here
+            is EntityReference.RingBearer -> null // Ring-bearer lookup needs state, not threaded here
         }
     }
 
@@ -697,6 +760,14 @@ class PredicateEvaluator {
                 }
             }
 
+            // Creature blocking the effect's source (CR 509). Source-relative: the candidate is a
+            // blocker whose blocked-attacker set contains context.sourceId. Inert with no source.
+            StatePredicate.IsBlockingSource -> {
+                val sourceId = context?.sourceId
+                sourceId != null &&
+                    container.get<BlockingComponent>()?.blockedAttackerIds?.contains(sourceId) == true
+            }
+
             // Crewed/saddled the effect's source permanent this turn (CR 702.122 / 702.171).
             // Source-relative: reads the source's CrewSaddleContributorsComponent and checks
             // membership. Inert with no source context.
@@ -723,6 +794,19 @@ class PredicateEvaluator {
                 container.has<HasDealtCombatDamageToPlayerComponent>()
             }
 
+            // Dealt combat damage this turn to the player who controls the effect's source.
+            // Source-relative: resolves context.sourceId's controller and checks the candidate's
+            // per-turn recipient marker. "...a creature that dealt combat damage to you this turn"
+            // (Witch-king of Angmar). Inert with no source context.
+            StatePredicate.DealtCombatDamageToSourceControllerThisTurn -> {
+                val sourceId = context?.sourceId
+                val sourceController = sourceId
+                    ?.let { state.getEntity(it)?.get<ControllerComponent>()?.playerId }
+                sourceController != null &&
+                    container.get<DealtCombatDamageToPlayersThisTurnComponent>()
+                        ?.playerIds?.contains(sourceController) == true
+            }
+
             // Whether this creature has been declared as an attacker this turn — derived
             // from the controller's PlayerAttackersThisTurnComponent, the same set that
             // backs raid / "you attacked with N creatures this turn" tribal triggers.
@@ -746,6 +830,12 @@ class PredicateEvaluator {
                 container.has<PutIntoGraveyardFromBattlefieldThisTurnMarker>()
             }
 
+            // "Blocked or was blocked by a legendary creature this turn" (You Cannot Pass! — LTR).
+            // Reads the marker stamped at block declaration; survives the legendary partner leaving.
+            StatePredicate.BlockedOrWasBlockedByLegendaryThisTurn -> {
+                container.has<com.wingedsheep.engine.state.components.combat.BlockedOrWasBlockedByLegendaryThisTurnComponent>()
+            }
+
             // Face-down state
             StatePredicate.IsFaceDown -> container.has<FaceDownComponent>()
             StatePredicate.IsFaceUp -> !container.has<FaceDownComponent>()
@@ -755,6 +845,13 @@ class PredicateEvaluator {
             StatePredicate.HasMorphAbility ->
                 container.has<MorphDataComponent>() ||
                 container.has<HasMorphAbilityComponent>()
+
+            // Ring-bearer designation (CR 701.54e): only while it has the component AND is controlled
+            // by the player who designated it.
+            StatePredicate.IsRingBearer -> {
+                val bearer = container.get<com.wingedsheep.engine.state.components.identity.RingBearerComponent>()
+                bearer != null && state.projectedState.getController(entityId) == bearer.ownerId
+            }
 
             // Counter state
             is StatePredicate.HasCounter -> {
@@ -839,6 +936,23 @@ class PredicateEvaluator {
                 val entityPower = projected.getPower(entityId) ?: return false
                 val minPower = state.getBattlefield()
                     .filter { projected.isCreature(it) }
+                    .minOfOrNull { projected.getPower(it) ?: Int.MAX_VALUE }
+                    ?: return false
+                entityPower <= minPower
+            }
+
+            StatePredicate.HasLeastPower -> {
+                val projected = state.projectedState
+                val entityController = projected.getController(entityId)
+                    ?: container.get<ControllerComponent>()?.playerId
+                    ?: return false
+                val entityPower = projected.getPower(entityId) ?: return false
+                val minPower = state.getBattlefield()
+                    .filter { id ->
+                        val ctrl = projected.getController(id)
+                            ?: state.getEntity(id)?.get<ControllerComponent>()?.playerId
+                        ctrl == entityController && projected.isCreature(id)
+                    }
                     .minOfOrNull { projected.getPower(it) ?: Int.MAX_VALUE }
                     ?: return false
                 entityPower <= minPower
@@ -930,12 +1044,14 @@ class PredicateEvaluator {
 
             // Power/toughness — not meaningful for cast records
             is CardPredicate.PowerEquals, is CardPredicate.PowerAtMost, is CardPredicate.PowerAtLeast,
+            CardPredicate.PowerEqualsX,
             is CardPredicate.ToughnessEquals, is CardPredicate.ToughnessAtMost, is CardPredicate.ToughnessAtLeast,
             CardPredicate.ToughnessAtMostX,
             is CardPredicate.PowerOrToughnessAtLeast,
             is CardPredicate.TotalPowerAndToughnessAtMost,
             is CardPredicate.PowerGreaterThanEntity,
             is CardPredicate.PowerAtMostEntity,
+            is CardPredicate.PowerLessThanEntity,
             CardPredicate.ToughnessGreaterThanPower -> false
 
             // Name predicates — not stored in record
@@ -951,7 +1067,9 @@ class PredicateEvaluator {
             CardPredicate.HasChosenColor, CardPredicate.SharesChosenColorWithSource,
             CardPredicate.SharesColorWithRecipient,
             is CardPredicate.SharesCreatureTypeWith,
-            is CardPredicate.SharesColorWith -> false
+            is CardPredicate.SharesColorWith,
+            is CardPredicate.SharesColorWithPermanentYouControl,
+            is CardPredicate.DoesNotShareCreatureTypeWithPermanentYouControl -> false
             is CardPredicate.HasSubtypeFromVariable, is CardPredicate.HasSubtypeInStoredList,
             is CardPredicate.HasSubtypeInEachStoredGroup -> false
 
@@ -1005,6 +1123,15 @@ data class PredicateContext(
      * each of" semantics.
      */
     val storedSubtypeGroups: Map<String, List<Set<String>>> = emptyMap(),
+    /**
+     * Named lists of entity ids stored by pipeline effects — e.g. the amassed Army under
+     * [EntityReference.AmassedArmy.STORAGE_KEY], or a cost-chosen entity under its `storeAs` key.
+     * Lets a target/affected-entity filter resolve [EntityReference.AmassedArmy] /
+     * [EntityReference.FromCostStorage] and compare against the stored entity's projected
+     * characteristics ("power <= the amassed Army's power" — Grishnákh, Brash Instigator).
+     * Threaded from `EffectContext.pipeline.storedCollections`; empty when no pipeline state exists.
+     */
+    val storedCollections: Map<String, List<EntityId>> = emptyMap(),
     /** Ordered targets chosen for the effect; used to resolve explicit EffectTarget references. */
     val targets: List<ChosenTarget> = emptyList(),
     /** Named targets bound via the DSL, mapped by name. */
@@ -1065,6 +1192,7 @@ data class PredicateContext(
                 chosenValues = context.pipeline.chosenValues,
                 storedStringLists = context.pipeline.storedStringLists,
                 storedSubtypeGroups = context.pipeline.storedSubtypeGroups,
+                storedCollections = context.pipeline.storedCollections,
                 targets = context.targets,
                 namedTargets = context.pipeline.namedTargets,
                 xValue = context.xValue,

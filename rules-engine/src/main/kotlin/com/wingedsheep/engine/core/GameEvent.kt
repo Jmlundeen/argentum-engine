@@ -100,7 +100,14 @@ data class ZoneChangeEvent(
      * captured at the moment of leaving the battlefield. Read by LTB triggers like Grothama:
      * "each player draws cards equal to the damage dealt to ~ this turn by sources they controlled."
      */
-    val lastKnownDamageDealtByPlayers: Map<EntityId, Int> = emptyMap()
+    val lastKnownDamageDealtByPlayers: Map<EntityId, Int> = emptyMap(),
+    /**
+     * Last-known snapshots of the sources that dealt damage to this entity this turn, captured at
+     * the moment of leaving the battlefield. Read by observer death triggers of the form "whenever
+     * another creature dealt damage this turn by [a source matching a filter] dies" (Shelob, Child
+     * of Ungoliant) so a source that died in the same combat is still evaluated against the filter.
+     */
+    val lastKnownDamageSources: Set<com.wingedsheep.engine.state.components.battlefield.DamageSourceLki> = emptySet()
 ) : GameEvent
 
 // =============================================================================
@@ -206,6 +213,27 @@ data class DamagePreventedEvent(
     val amount: Int,
     val linkId: String,
     val sourceName: String? = null
+) : GameEvent
+
+/**
+ * A card was played (cast as a spell or played as a land) using an impulse-style
+ * "you may play this card" permission that carried an "When you play a card this way, …"
+ * rider (Fires of Mount Doom). Emitted at the play site; carries [linkId] so the granting
+ * permission's linked delayed triggered ability fires the rider on the stack. Mirrors
+ * [DamagePreventedEvent]'s link-id scoping.
+ *
+ * @property cardId The card that was played
+ * @property controllerId The player who played it
+ * @property sourceId The permanent that granted the play permission (the rider's source)
+ * @property linkId The id shared with the linked delayed triggered ability
+ */
+@Serializable
+@SerialName("CardPlayedFromPermissionEvent")
+data class CardPlayedFromPermissionEvent(
+    val cardId: EntityId,
+    val controllerId: EntityId,
+    val sourceId: EntityId,
+    val linkId: String
 ) : GameEvent
 
 /**
@@ -476,6 +504,28 @@ data class SpellFizzledEvent(
 data class AbilityResolvedEvent(
     val sourceId: EntityId,
     val description: String
+) : GameEvent
+
+/**
+ * A Saga's chapter ability resolved. Emitted by [com.wingedsheep.engine.mechanics.stack.StackResolver]
+ * when a triggered ability carrying saga-chapter metadata finishes resolving. [isFinalChapter] is
+ * true when [chapterNumber] equals the Saga's highest chapter number (CR 714) — the cue for
+ * "Whenever the final chapter ability of a Saga you control resolves" (Tom Bombadil).
+ *
+ * @property sagaId The Saga permanent whose chapter ability resolved.
+ * @property controllerId The Saga's controller (used to scope "Saga you control" triggers).
+ * @property chapterNumber Which chapter ability resolved.
+ * @property finalChapterNumber The Saga's highest chapter number.
+ * @property isFinalChapter Whether [chapterNumber] is the final chapter.
+ */
+@Serializable
+@SerialName("SagaChapterResolvedEvent")
+data class SagaChapterResolvedEvent(
+    val sagaId: EntityId,
+    val controllerId: EntityId,
+    val chapterNumber: Int,
+    val finalChapterNumber: Int,
+    val isFinalChapter: Boolean
 ) : GameEvent
 
 /**
@@ -1206,7 +1256,9 @@ data class BecomesTargetEvent(
     val sourceEntityId: EntityId,
     val controllerId: EntityId,
     val firstTimeByThisController: Boolean = true,
-    val targetIsSpell: Boolean = false
+    val targetIsSpell: Boolean = false,
+    /** True when the targeting source is a spell on the stack (vs. an activated/triggered ability). */
+    val sourceIsSpell: Boolean = false
 ) : GameEvent
 
 // =============================================================================

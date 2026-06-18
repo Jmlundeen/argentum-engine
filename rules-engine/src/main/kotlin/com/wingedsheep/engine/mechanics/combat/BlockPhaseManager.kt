@@ -27,6 +27,8 @@ import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.sdk.scripting.BlockTax
 import com.wingedsheep.sdk.scripting.BlockerCountLimit
 import com.wingedsheep.sdk.scripting.CanBlockAnyNumber
+import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
+import com.wingedsheep.sdk.scripting.MustBeBlocked
 import com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.CantBlockUnless
@@ -75,6 +77,12 @@ internal class BlockPhaseManager(
         val menaceValidation = validateMenaceRequirements(state, blockers)
         if (menaceValidation != null) {
             return ExecutionResult.error(state, menaceValidation)
+        }
+
+        // Check "can't be blocked except by N or more creatures" (Troll of Khazad-dûm)
+        val minBlockersValidation = validateMinBlockersRequirements(state, blockers)
+        if (minBlockersValidation != null) {
+            return ExecutionResult.error(state, minBlockersValidation)
         }
 
         // Check max-blocker restrictions on attackers (CantBeBlockedByMoreThan)
@@ -152,6 +160,11 @@ internal class BlockPhaseManager(
         }
 
         var newState = state
+        // Capture legendary-ness of every combatant *now* (at block declaration), so the
+        // "blocked or was blocked by a legendary creature this turn" marker (You Cannot Pass!)
+        // reflects the pairing-time status even if a legendary partner later leaves or loses
+        // legendary-ness (CR: the predicate looks at combat history).
+        val projected = state.projectedState
         for ((blockerId, attackerIds) in expandedBlockers) {
             newState = newState.updateEntity(blockerId) { container ->
                 container.with(BlockingComponent(attackerIds))
@@ -162,6 +175,22 @@ internal class BlockPhaseManager(
                 newState = newState.updateEntity(attackerId) { container ->
                     val existing = container.get<BlockedComponent>()?.blockerIds ?: emptyList()
                     container.with(BlockedComponent(existing + blockerId))
+                }
+            }
+
+            // Stamp the "paired with a legendary in combat this turn" marker on each side
+            // whose partner is legendary.
+            val blockerIsLegendary = projected.isLegendary(blockerId)
+            for (attackerId in attackerIds) {
+                if (projected.isLegendary(attackerId)) {
+                    newState = newState.updateEntity(blockerId) { container ->
+                        container.with(com.wingedsheep.engine.state.components.combat.BlockedOrWasBlockedByLegendaryThisTurnComponent)
+                    }
+                }
+                if (blockerIsLegendary) {
+                    newState = newState.updateEntity(attackerId) { container ->
+                        container.with(com.wingedsheep.engine.state.components.combat.BlockedOrWasBlockedByLegendaryThisTurnComponent)
+                    }
                 }
             }
         }
@@ -483,6 +512,42 @@ internal class BlockPhaseManager(
     }
 
     /**
+     * Validate "can't be blocked except by N or more creatures" ([CantBeBlockedByFewerThan]).
+     * Generalizes menace: an attacker carrying the static may be left unblocked, but if blocked it
+     * must have at least [CantBeBlockedByFewerThan.minBlockers] blockers.
+     */
+    private fun validateMinBlockersRequirements(
+        state: GameState,
+        blockers: Map<EntityId, List<EntityId>>
+    ): String? {
+        val attackerToBlockers = mutableMapOf<EntityId, MutableList<EntityId>>()
+        for ((blockerId, attackerIds) in blockers) {
+            for (attackerId in attackerIds) {
+                attackerToBlockers.getOrPut(attackerId) { mutableListOf() }.add(blockerId)
+            }
+        }
+
+        for ((attackerId, blockerList) in attackerToBlockers) {
+            if (blockerList.isEmpty()) continue
+            val attackerContainer = state.getEntity(attackerId) ?: continue
+            if (attackerContainer.has<FaceDownComponent>()) continue
+            val attackerCard = attackerContainer.get<CardComponent>() ?: continue
+            val cardDef = cardRegistry.getCard(attackerCard.cardDefinitionId) ?: continue
+
+            val minBlockers = cardDef.staticAbilities
+                .filterIsInstance<com.wingedsheep.sdk.scripting.CantBeBlockedByFewerThan>()
+                .filter { it.filter.scope is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self }
+                .maxOfOrNull { it.minBlockers } ?: continue
+
+            if (blockerList.size < minBlockers) {
+                return "${attackerCard.name} can't be blocked except by $minBlockers or more creatures"
+            }
+        }
+
+        return null
+    }
+
+    /**
      * Validate `CantBeBlockedByMoreThan` restrictions (CR 509.1b).
      * Each attacker with this static ability caps the number of creatures that may block it.
      */
@@ -501,17 +566,31 @@ internal class BlockPhaseManager(
             val attackerContainer = state.getEntity(attackerId) ?: continue
             if (attackerContainer.has<FaceDownComponent>()) continue
             val attackerCard = attackerContainer.get<CardComponent>() ?: continue
-            val cardDef = cardRegistry.getCard(attackerCard.cardDefinitionId) ?: continue
+            val cardDef = cardRegistry.getCard(attackerCard.cardDefinitionId)
 
-            // Printed "can't be blocked by more than N" plus any granted temporarily
-            // (e.g. Full Steam Ahead grants CantBeBlockedByMoreThan(1) until end of turn).
-            val grantedAbilities = state.grantedStaticAbilities
+            // Printed "can't be blocked by more than N". cardDef may be null for tokens/copies
+            // without a registered definition — the granted forms below still apply.
+            val staticLimit = cardDef?.staticAbilities
+                ?.filterIsInstance<CantBeBlockedByMoreThan>()
+                ?.filter { it.filter.scope is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self }
+                ?.minOfOrNull { it.maxBlockers }
+            // Granted static-ability form: e.g. Full Steam Ahead grants CantBeBlockedByMoreThan(1)
+            // until end of turn via grantedStaticAbilities.
+            val grantedLimit = state.grantedStaticAbilities
                 .filter { it.entityId == attackerId }
                 .map { it.ability }
-            val limit = (cardDef.staticAbilities + grantedAbilities)
                 .filterIsInstance<CantBeBlockedByMoreThan>()
                 .filter { it.filter.scope is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self }
-                .minOfOrNull { it.maxBlockers } ?: continue
+                .minOfOrNull { it.maxBlockers }
+            // Granted (floating) flag form (CR 509.1b): a temporary "can't be blocked by more than one
+            // creature" via Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED_BY_MORE_THAN_ONE) caps at 1.
+            val flagLimit = if (
+                state.projectedState.hasKeyword(
+                    attackerId,
+                    com.wingedsheep.sdk.core.AbilityFlag.CANT_BE_BLOCKED_BY_MORE_THAN_ONE
+                )
+            ) 1 else null
+            val limit = listOfNotNull(staticLimit, grantedLimit, flagLimit).minOrNull() ?: continue
 
             if (count > limit) {
                 val countText = if (limit == 1) "more than one creature" else "more than $limit creatures"
@@ -708,14 +787,42 @@ internal class BlockPhaseManager(
     private fun findMustBeBlockedAttackers(state: GameState): List<EntityId> {
         val attackers = state.findEntitiesWith<AttackingComponent>().map { it.first }.toSet()
 
-        return state.floatingEffects
+        val fromFloating = state.floatingEffects
             .filter { floatingEffect ->
                 floatingEffect.effect.modification is SerializableModification.MustBeBlockedByAll
             }
             .flatMap { floatingEffect ->
                 floatingEffect.effect.affectedEntities.filter { it in attackers }
             }
-            .distinct()
+        return (fromFloating + attackersWithMustBeBlockedStatic(state, allCreatures = true)).distinct()
+    }
+
+    /**
+     * Attackers that carry a [MustBeBlocked] static ability (matching [allCreatures]), including the
+     * conditional form (e.g. Frodo Baggins: gated on `SourceIsRingBearer`). The gating condition is
+     * evaluated with the attacker as the source.
+     */
+    private fun attackersWithMustBeBlockedStatic(state: GameState, allCreatures: Boolean): List<EntityId> {
+        val attackers = state.findEntitiesWith<AttackingComponent>().map { it.first }
+        return attackers.filter { attackerId ->
+            val cardName = state.getEntity(attackerId)?.get<CardComponent>()?.cardDefinitionId ?: return@filter false
+            val statics = cardRegistry.getCard(cardName)?.staticAbilities.orEmpty()
+            statics.any { ability ->
+                val unwrapped = if (ability is ConditionalStaticAbility) ability.ability else ability
+                if (unwrapped !is MustBeBlocked || unwrapped.allCreatures != allCreatures) return@any false
+                if (ability is ConditionalStaticAbility) {
+                    val controller = state.projectedState.getController(attackerId) ?: return@any false
+                    conditionEvaluator.evaluate(
+                        state,
+                        ability.condition,
+                        EffectContext(
+                            sourceId = attackerId,
+                            controllerId = controller
+                        )
+                    )
+                } else true
+            }
+        }
     }
 
     /**
@@ -725,14 +832,14 @@ internal class BlockPhaseManager(
     private fun findMustBeBlockedIfAbleAttackers(state: GameState): List<EntityId> {
         val attackers = state.findEntitiesWith<AttackingComponent>().map { it.first }.toSet()
 
-        return state.floatingEffects
+        val fromFloating = state.floatingEffects
             .filter { floatingEffect ->
                 floatingEffect.effect.modification is SerializableModification.MustBeBlockedIfAble
             }
             .flatMap { floatingEffect ->
                 floatingEffect.effect.affectedEntities.filter { it in attackers }
             }
-            .distinct()
+        return (fromFloating + attackersWithMustBeBlockedStatic(state, allCreatures = false)).distinct()
     }
 
     /**

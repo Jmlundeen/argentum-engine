@@ -8,6 +8,7 @@ import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.event.DelayedTriggeredAbility
+import com.wingedsheep.engine.event.GrantedActivatedAbility
 import com.wingedsheep.engine.event.GrantedTriggeredAbility
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.engine.state.ComponentContainer
@@ -25,7 +26,12 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CreatureStats
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
+import com.wingedsheep.sdk.scripting.effects.Gate
+import com.wingedsheep.sdk.scripting.effects.GatedEffect
+import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import java.util.UUID
@@ -88,7 +94,7 @@ class CreateTokenCopyOfTargetExecutor(
                 .mapNotNull { name -> runCatching { CardType.valueOf(name.uppercase()) }.getOrNull() }
                 .toSet()
             val tokenTypeLine = targetCard.typeLine.copy(
-                cardTypes = targetCard.typeLine.cardTypes + extraCardTypes,
+                cardTypes = (effect.overrideCardTypes ?: targetCard.typeLine.cardTypes) + extraCardTypes,
                 supertypes = targetCard.typeLine.supertypes + effect.addedSupertypes - effect.removedSupertypes,
                 subtypes = effect.overrideSubtypes ?: (targetCard.typeLine.subtypes + effect.addedSubtypes)
             )
@@ -159,6 +165,20 @@ class CreateTokenCopyOfTargetExecutor(
                 )
             }
 
+            // Activated abilities granted to the copy (e.g. Shelob's Food sacrifice ability). Tokens
+            // have no CardDefinition, so granted abilities live in GameState.grantedActivatedAbilities,
+            // which the legal-action enumerator and ActivateAbilityHandler consult for any entity.
+            for (ability in effect.activatedAbilities) {
+                val grant = GrantedActivatedAbility(
+                    entityId = tokenId,
+                    ability = ability,
+                    duration = Duration.Permanent
+                )
+                newState = newState.copy(
+                    grantedActivatedAbilities = newState.grantedActivatedAbilities + grant
+                )
+            }
+
             events.add(
                 ZoneChangeEvent(
                     entityId = tokenId,
@@ -188,6 +208,40 @@ class CreateTokenCopyOfTargetExecutor(
                     // "sacrifice at the beginning of your next end step" → gate the firing step
                     // to the token controller's turn (the single fireOnPlayerId gate).
                     fireOnPlayerId = if (effect.sacrificeOnlyOnControllersTurn) controllerId else null
+                )
+                newState = newState.addDelayedTrigger(delayedTrigger)
+            }
+        }
+
+        // If exileAtStep is set, create a delayed trigger to exile each created token copy at that
+        // step (Sauron, the Necromancer: "at the beginning of the next end step, exile that token
+        // unless Sauron is your Ring-bearer"). The firing step is the next matching step of any
+        // player's turn ("the next end step", so no fireOnPlayerId gate). When
+        // exileUnlessSourceIsRingBearer is set the exile is wrapped in a condition that skips it
+        // while the source (resolved to the delayed trigger's sourceId) is the controller's
+        // Ring-bearer (CR 701.54e) — the condition is re-evaluated at fire time.
+        val exileStep = effect.exileAtStep
+        if (exileStep != null && createdTokens.isNotEmpty()) {
+            val sourceId = context.sourceId ?: controllerId
+            val sourceName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: "Unknown"
+            for (tokenId in createdTokens) {
+                val exileEffect = MoveToZoneEffect(EffectTarget.SpecificEntity(tokenId), Zone.EXILE)
+                val delayedEffect = if (effect.exileUnlessSourceIsRingBearer) {
+                    GatedEffect(
+                        gate = Gate.WhenCondition(SourceIsRingBearer),
+                        then = CompositeEffect(emptyList()),
+                        otherwise = exileEffect
+                    )
+                } else {
+                    exileEffect
+                }
+                val delayedTrigger = DelayedTriggeredAbility(
+                    id = UUID.randomUUID().toString(),
+                    effect = delayedEffect,
+                    fireAtStep = exileStep,
+                    sourceId = sourceId,
+                    sourceName = sourceName,
+                    controllerId = controllerId
                 )
                 newState = newState.addDelayedTrigger(delayedTrigger)
             }

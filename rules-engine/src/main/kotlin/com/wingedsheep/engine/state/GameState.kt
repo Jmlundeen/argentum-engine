@@ -117,6 +117,15 @@ data class GameState(
     /** Whether a spell was warped this turn (for Void condition: "a spell was warped this turn") */
     val spellWarpedThisTurn: Boolean = false,
 
+    /**
+     * Whether damage can't be prevented for the rest of this turn (CR 615.6 — a prevention effect
+     * can't apply to damage that can't be prevented). Set by the
+     * [com.wingedsheep.sdk.scripting.effects.DamageCantBePreventedThisTurnEffect] one-shot (Fear,
+     * Fire, Foes!) and read by [com.wingedsheep.engine.handlers.effects.DamageUtils.isDamagePreventionDisabled].
+     * Reset to false at every turn boundary.
+     */
+    val damageCantBePreventedThisTurn: Boolean = false,
+
     /** Whether a nonland permanent left the battlefield this turn (for the Void ability word). */
     val nonlandPermanentLeftBattlefieldThisTurn: Boolean = false,
 
@@ -133,6 +142,14 @@ data class GameState(
      * boundary as a safety net). See [ActiveCounterPlacementModifier].
      */
     val activeCounterPlacementModifiers: List<ActiveCounterPlacementModifier> = emptyList(),
+
+    /**
+     * Number of permanents sacrificed this turn by all players (not controller-scoped),
+     * for cost reductions like The Balrog, Durin's Bane ("costs {1} less for each permanent
+     * sacrificed this turn"). Incremented by the central sacrifice hook
+     * (`ZoneTransitionService.trackPermanentSacrifice`) and reset to 0 each turn.
+     */
+    val permanentsSacrificedThisTurn: Int = 0,
 
     /**
      * Players (by entity id) who have committed a crime this turn (CR 700-level Outlaws of Thunder

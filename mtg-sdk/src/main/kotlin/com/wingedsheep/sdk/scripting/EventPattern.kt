@@ -316,9 +316,18 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @SerialName("RingTemptedEvent")
     @Serializable
     data class RingTemptedEvent(
-        val player: Player = Player.You
+        val player: Player = Player.You,
+        /**
+         * When true, only match temptations in which the player actually *chose* a creature as
+         * their Ring-bearer (the event's `bearerId` is non-null). Models "Whenever you choose a
+         * creature as your Ring-bearer" (Call of the Ring) as distinct from the plain
+         * "Whenever the Ring tempts you" (which fires even when no creature could be chosen).
+         */
+        val requireBearerChosen: Boolean = false
     ) : EventPattern {
-        override val description: String = "the Ring tempts ${player.description}"
+        override val description: String =
+            if (requireBearerChosen) "${player.description} choose a creature as your Ring-bearer"
+            else "the Ring tempts ${player.description}"
     }
 
     /**
@@ -675,16 +684,26 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     }
 
     /**
-     * Whenever a creature dealt damage by this permanent this turn dies.
-     * Binding SELF = "whenever a creature dealt damage by Soul Collector this turn dies".
+     * Whenever a creature dealt damage this turn by a matching source dies.
      *
-     * Detection uses DamageDealtToCreaturesThisTurnComponent on the source entity
-     * to check if it dealt damage to the dying creature this turn.
+     * - [sourceFilter] == null → the Soul Collector shape, bound SELF: "whenever a creature dealt
+     *   damage by this creature this turn dies". Detection uses the
+     *   DamageDealtToCreaturesThisTurnComponent on the source (this) entity.
+     * - [sourceFilter] != null → an observer shape (binding ANY): "whenever a creature dealt damage
+     *   this turn by [a source matching the filter] dies" (Shelob, Child of Ungoliant: "by a Spider
+     *   you controlled"). The damaging sources are evaluated against the filter using last-known
+     *   information from when the damage was dealt (CR 603.10a / 608.2h), so a Spider that died in
+     *   the same combat still qualifies. The filter's controller predicate is resolved relative to
+     *   the controller of the permanent bearing the trigger.
      */
     @SerialName("CreatureDealtDamageBySourceDiesEvent")
     @Serializable
-    data object CreatureDealtDamageBySourceDiesEvent : EventPattern {
-        override val description: String = "whenever a creature dealt damage by this creature this turn dies"
+    data class CreatureDealtDamageBySourceDiesEvent(
+        val sourceFilter: GameObjectFilter? = null
+    ) : EventPattern {
+        override val description: String =
+            if (sourceFilter == null) "whenever a creature dealt damage by this creature this turn dies"
+            else "whenever a creature dealt damage this turn by ${sourceFilter.description} dies"
     }
 
     /**
@@ -697,6 +716,20 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @Serializable
     data object DamagePreventedEvent : EventPattern {
         override val description: String = "when damage is prevented this way"
+    }
+
+    /**
+     * When a card is played (cast as a spell or played as a land) using a specific
+     * "you may play this card" permission — i.e. an impulse-style "exile … you may play
+     * that card this turn" grant. Used only as the spec of an event-based delayed
+     * triggered ability that the granting permission links to via id, so the rider
+     * ("When you play a card this way, …") fires on the stack. Mirrors the link-id
+     * scoping of [DamagePreventedEvent]. (Fires of Mount Doom.)
+     */
+    @SerialName("CardPlayedFromPermissionEvent")
+    @Serializable
+    data object CardPlayedFromPermissionEvent : EventPattern {
+        override val description: String = "when you play a card this way"
     }
 
     // ---- Phase/Step Triggers ----
@@ -1044,6 +1077,8 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      *
      * [byYou] restricts to spells or abilities controlled by the trigger's controller.
      * [firstTimeEachTurn] restricts to the first time each turn (used by Valiant).
+     * [spellsOnly] restricts to "becomes the target of a **spell**" wording (King of the
+     * Oathbreakers), ignoring abilities; the default matches both spells and abilities.
      */
     @SerialName("BecomesTargetEvent")
     @Serializable
@@ -1052,11 +1087,13 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
         val byYou: Boolean = false,
         val byOpponent: Boolean = false,
         val firstTimeEachTurn: Boolean = false,
-        val includeSpellTargets: Boolean = false
+        val includeSpellTargets: Boolean = false,
+        val spellsOnly: Boolean = false
     ) : EventPattern {
         override val description: String = buildString {
             append(describeObjectForEvent(targetFilter))
-            append(" becomes the target of a spell or ability")
+            append(" becomes the target of a spell")
+            if (!spellsOnly) append(" or ability")
             if (byYou) append(" you control")
             if (byOpponent) append(" an opponent controls")
             if (firstTimeEachTurn) append(" for the first time each turn")
@@ -1131,6 +1168,31 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @Serializable
     data object UntapEvent : EventPattern {
         override val description: String = "this permanent becomes untapped"
+    }
+
+    /**
+     * When a permanent phases in (Rule 702.26).
+     * Binding SELF = "whenever this permanent phases in",
+     * ANY = "whenever a permanent matching [filter] phases in".
+     *
+     * [filter] optionally restricts which permanents count (e.g. "a Spirit you control" —
+     * King of the Oathbreakers). Null = any permanent. A permanent phases in during its
+     * controller's untap step; the phase-in trigger then fires with the permanent back on
+     * the battlefield (same object, with its counters and attachments preserved).
+     */
+    @SerialName("PhasesInEvent")
+    @Serializable
+    data class PhasesInEvent(
+        val filter: GameObjectFilter? = null
+    ) : EventPattern {
+        override val description: String = buildString {
+            append(filter?.let { describeObjectForEvent(it) } ?: "a permanent")
+            append(" phases in")
+        }
+        override fun applyTextReplacement(replacer: TextReplacer): EventPattern {
+            val newFilter = filter?.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
     }
 
     /**
@@ -1489,6 +1551,33 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
         }
     }
 
+    /**
+     * Whenever one or more creatures matching [sourceFilter] deal combat damage to *you* (the
+     * trigger's controller). Defensive batching counterpart of
+     * [OneOrMoreDealCombatDamageToPlayerEvent] — fires at most once per combat-damage batch
+     * regardless of how many creatures connected with you.
+     *
+     * Examples:
+     *   → OneOrMoreDealCombatDamageToYouEvent()
+     *     "Whenever one or more creatures deal combat damage to you" (Witch-king of Angmar)
+     */
+    @SerialName("OneOrMoreDealCombatDamageToYouEvent")
+    @Serializable
+    data class OneOrMoreDealCombatDamageToYouEvent(
+        val sourceFilter: GameObjectFilter = GameObjectFilter.Companion.Creature
+    ) : EventPattern {
+        override val description: String = buildString {
+            append("one or more ")
+            append(describeObjectForEvent(sourceFilter))
+            append(" deal combat damage to you")
+        }
+
+        override fun applyTextReplacement(replacer: TextReplacer): EventPattern {
+            val newFilter = sourceFilter.applyTextReplacement(replacer)
+            return if (newFilter !== sourceFilter) copy(sourceFilter = newFilter) else this
+        }
+    }
+
     // =========================================================================
     // Leave Battlefield Without Dying Batch Triggers
     // =========================================================================
@@ -1559,7 +1648,15 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
             append("one or more ")
             if (excludeSelf) append("other ")
             append(describeObjectForEvent(filter))
-            append(" you control die")
+            // The filter's controller predicate scopes the trigger (you control / an opponent
+            // controls); a null predicate keeps the historical "you control" wording.
+            append(
+                when (filter.controllerPredicate) {
+                    com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByOpponent ->
+                        " an opponent controls die"
+                    else -> " you control die"
+                }
+            )
         }
 
         override fun applyTextReplacement(replacer: TextReplacer): EventPattern {
@@ -1597,6 +1694,37 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
         override fun applyTextReplacement(replacer: TextReplacer): EventPattern {
             val newFilter = filter.applyTextReplacement(replacer)
             return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+    }
+
+    // =========================================================================
+    // Saga Chapter Resolution
+    // =========================================================================
+
+    /**
+     * Whenever a Saga chapter ability resolves. With [finalChapterOnly] = true (the default),
+     * only the Saga's *final* chapter ability matches — "Whenever the final chapter ability of a
+     * Saga you control resolves" (Tom Bombadil). With it false, any chapter ability matches.
+     *
+     * The Saga must be controlled by the trigger source's controller ([player] = Player.You).
+     * Saga chapter abilities are detected from lore-counter additions and put on the stack by the
+     * engine; when one resolves it emits a SagaChapterResolvedEvent that this pattern matches.
+     *
+     * Pair with `oncePerTurn = true` on the triggered ability for "This ability triggers only once
+     * each turn."
+     */
+    @SerialName("SagaChapterResolvedEvent")
+    @Serializable
+    data class SagaChapterResolvedEvent(
+        val player: Player = Player.You,
+        val finalChapterOnly: Boolean = true
+    ) : EventPattern {
+        override val description: String = buildString {
+            append("the ")
+            if (finalChapterOnly) append("final chapter ") else append("chapter ")
+            append("ability of a Saga ")
+            append(if (player == Player.You) "you control" else "${player.description} controls")
+            append(" resolves")
         }
     }
 }

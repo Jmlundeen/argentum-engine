@@ -10,6 +10,8 @@ import com.wingedsheep.engine.state.components.battlefield.AbilityResolutionCoun
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtByPlayersThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtToCreaturesThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.DamagedBySourcesThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.DealtCombatDamageToPlayersThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.TargetedByControllerThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.ReceivedCountersThisTurnComponent
@@ -17,6 +19,7 @@ import com.wingedsheep.engine.state.components.battlefield.TriggeredAbilityFired
 import com.wingedsheep.engine.state.components.battlefield.GraveyardPlayPermissionUsedComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.battlefield.TokenReplacementOfferedThisTurnComponent
+import com.wingedsheep.engine.state.components.combat.BlockedOrWasBlockedByLegendaryThisTurnComponent
 import com.wingedsheep.engine.state.components.combat.CanAttackDespiteDefenderThisTurnComponent
 import com.wingedsheep.engine.state.components.combat.GoadedComponent
 import com.wingedsheep.engine.state.components.combat.MustAttackThisTurnComponent
@@ -33,6 +36,7 @@ import com.wingedsheep.engine.state.components.player.CantCastSpellsComponent
 import com.wingedsheep.engine.state.components.player.DamageBonusComponent
 import com.wingedsheep.engine.state.components.player.DamageReceivedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.FlashGrantsThisTurnComponent
+import com.wingedsheep.engine.state.components.player.PlayerProtectionComponent
 import com.wingedsheep.engine.state.components.player.CardsLeftGraveyardThisTurnComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.LandsEnteredUnderControlThisTurnComponent
@@ -175,7 +179,7 @@ class CleanupPhaseManager(
         }
         val floatingChanged = remainingFloating.size != state.floatingEffects.size
         val globalChanged = remainingGlobal.size != state.globalGrantedTriggeredAbilities.size
-        return if (floatingChanged || globalChanged) {
+        var result = if (floatingChanged || globalChanged) {
             state.copy(
                 floatingEffects = if (floatingChanged) remainingFloating else state.floatingEffects,
                 globalGrantedTriggeredAbilities = if (globalChanged) remainingGlobal else state.globalGrantedTriggeredAbilities
@@ -183,6 +187,13 @@ class CleanupPhaseManager(
         } else {
             state
         }
+        // Player-component "until your next turn" effects (The One Ring's protection) expire on
+        // the same post-untap hook as floating UntilYourNextTurn effects.
+        val protection = result.getEntity(activePlayer)?.get<PlayerProtectionComponent>()
+        if (protection?.removeOn == PlayerEffectRemoval.UntilYourNextTurn) {
+            result = result.updateEntity(activePlayer) { it.without<PlayerProtectionComponent>() }
+        }
+        return result
     }
 
     /**
@@ -427,6 +438,10 @@ class CleanupPhaseManager(
                 if (hexproof?.removeOn == PlayerEffectRemoval.EndOfTurn) {
                     result = result.without<PlayerHexproofComponent>()
                 }
+                val protection = result.get<PlayerProtectionComponent>()
+                if (protection?.removeOn == PlayerEffectRemoval.EndOfTurn) {
+                    result = result.without<PlayerProtectionComponent>()
+                }
                 val cantCast = result.get<CantCastSpellsComponent>()
                 if (cantCast?.removeOn == PlayerEffectRemoval.EndOfTurn) {
                     result = result.without<CantCastSpellsComponent>()
@@ -524,6 +539,9 @@ class CleanupPhaseManager(
             if (container.has<PlayerAttackersThisTurnComponent>()) {
                 needsUpdate = true
             }
+            if (container.has<com.wingedsheep.engine.state.components.combat.PlayerAttackedPlayersThisTurnComponent>()) {
+                needsUpdate = true
+            }
             if (container.has<GraveyardPlayPermissionUsedComponent>()) {
                 needsUpdate = true
             }
@@ -539,7 +557,16 @@ class CleanupPhaseManager(
             if (container.has<WasDealtDamageThisTurnComponent>()) {
                 needsUpdate = true
             }
+            if (container.has<BlockedOrWasBlockedByLegendaryThisTurnComponent>()) {
+                needsUpdate = true
+            }
             if (container.has<DamageDealtByPlayersThisTurnComponent>()) {
+                needsUpdate = true
+            }
+            if (container.has<DamagedBySourcesThisTurnComponent>()) {
+                needsUpdate = true
+            }
+            if (container.has<DealtCombatDamageToPlayersThisTurnComponent>()) {
                 needsUpdate = true
             }
             // Saddled lasts "until end of turn" (CR 702.171b)
@@ -558,12 +585,16 @@ class CleanupPhaseManager(
                         .without<ReceivedCountersThisTurnComponent>()
                         .without<PlayerAttackedThisTurnComponent>()
                         .without<PlayerAttackersThisTurnComponent>()
+                        .without<com.wingedsheep.engine.state.components.combat.PlayerAttackedPlayersThisTurnComponent>()
                         .without<GraveyardPlayPermissionUsedComponent>()
                         .without<TriggeredAbilityFiredThisTurnComponent>()
                         .without<AbilityResolutionCountThisTurnComponent>()
                         .without<TokenReplacementOfferedThisTurnComponent>()
                         .without<WasDealtDamageThisTurnComponent>()
+                        .without<BlockedOrWasBlockedByLegendaryThisTurnComponent>()
                         .without<DamageDealtByPlayersThisTurnComponent>()
+                        .without<DamagedBySourcesThisTurnComponent>()
+                        .without<DealtCombatDamageToPlayersThisTurnComponent>()
                         .without<SaddledComponent>()
                         .without<CrewSaddleContributorsComponent>()
                 }

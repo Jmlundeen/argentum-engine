@@ -178,7 +178,7 @@ class ActivateAbilityHandler(
             // matching permanents — mana and non-mana alike. Loyalty abilities of
             // planeswalkers and Crew-style animation abilities are not blocked because the
             // filter (typically `Creature`) is matched in projected state.
-            if (castPermissionUtils.isActivationPrevented(state, action.sourceId)) {
+            if (castPermissionUtils.isActivationPrevented(state, action.sourceId, abilityIsManaAbility = ability.isManaAbility)) {
                 return "Activated abilities of this permanent can't be activated"
             }
 
@@ -209,10 +209,17 @@ class ActivateAbilityHandler(
         }
         // Apply ability-specific generic cost reduction (e.g., The Dominion Bracelet's
         // "{X} less, where X is this creature's power"). Per Scryfall ruling, the reduced
-        // cost is locked in here, before costs are paid. Then apply Forge Anew's free-first-equip.
-        val effectiveCost = castPermissionUtils.applyFreeFirstEquipDiscount(
-            applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId, action.targets),
-            ability, state, action.playerId
+        // cost is locked in here, before costs are paid. Then apply generic equip-cost reduction
+        // (Éowyn) and finally Forge Anew's free-first-equip.
+        val effectiveCost = castPermissionUtils.relaxAbilityCostColorsIfAny(
+            state, action.sourceId,
+            castPermissionUtils.applyFreeFirstEquipDiscount(
+                castPermissionUtils.applyEquipCostReduction(
+                    applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId, action.targets),
+                    ability, state, action.playerId
+                ),
+                ability, state, action.playerId
+            )
         )
         val effectiveTargetReqs = if (textReplacement != null) {
             ability.targetRequirements.map { it.applyTextReplacement(textReplacement) }
@@ -446,10 +453,17 @@ class ActivateAbilityHandler(
         }
         // Apply ability-specific generic cost reduction (e.g., The Dominion Bracelet's
         // "{X} less, where X is this creature's power"). Locked in before payment. Then apply
-        // Forge Anew's free-first-equip discount (zeroes the first equip's cost each turn).
-        val effectiveCost = castPermissionUtils.applyFreeFirstEquipDiscount(
-            applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId, action.targets),
-            ability, state, action.playerId
+        // generic equip-cost reduction (Éowyn) and Forge Anew's free-first-equip discount.
+        // Finally relax colored requirements when "mana of any type can be spent" applies (Sharkey).
+        val effectiveCost = castPermissionUtils.relaxAbilityCostColorsIfAny(
+            state, action.sourceId,
+            castPermissionUtils.applyFreeFirstEquipDiscount(
+                castPermissionUtils.applyEquipCostReduction(
+                    applyGenericCostReduction(rawCost, ability, state, action.sourceId, action.playerId, action.targets),
+                    ability, state, action.playerId
+                ),
+                ability, state, action.playerId
+            )
         )
 
         // -------------------------------------------------------------------
@@ -513,6 +527,48 @@ class ActivateAbilityHandler(
                 decisionId = decisionId,
                 action = action,
                 tapTargets = tapTargets
+            )
+            val pausedState = state
+                .withPendingDecision(decision)
+                .pushContinuation(continuation)
+            val event = com.wingedsheep.engine.core.DecisionRequestedEvent(
+                decisionId = decisionId,
+                playerId = action.playerId,
+                decisionType = "CHOOSE_NUMBER",
+                prompt = decision.prompt
+            )
+            return ExecutionResult.paused(pausedState, decision, listOf(event))
+        }
+
+        // -------------------------------------------------------------------
+        // {X} *mana* cost pause (legal-actions submission path).
+        //
+        // When the cost contains `{X}` mana (Wizard's Rockets: "{X}, {T}, Sacrifice this artifact:
+        // Add X mana...") the frontend submits the bare `ActivateAbility` with no xValue, expecting
+        // the engine to ask which X to pay. Without this the handler defaults X to 0
+        // (`action.xValue ?: 0`), pays nothing, and the ability produces no mana — the player never
+        // gets to choose X. The engine-direct path (xValue pre-filled) skips this.
+        // -------------------------------------------------------------------
+        val manaXCost = extractManaCost(effectiveCost)
+        if (manaXCost?.hasX == true && action.xValue == null && tapXCost == null) {
+            val fixedMana = manaXCost.cmc // the non-X portion ({X} alone is 0; {1}{X} is 1)
+            val maxX = (manaSolver.getAvailableManaCount(state, action.playerId) - fixedMana).coerceAtLeast(0)
+            val decisionId = java.util.UUID.randomUUID().toString()
+            val decision = com.wingedsheep.engine.core.ChooseNumberDecision(
+                id = decisionId,
+                playerId = action.playerId,
+                prompt = "Choose X for ${cardComponent.name} (0-$maxX)",
+                context = com.wingedsheep.engine.core.DecisionContext(
+                    sourceId = action.sourceId,
+                    sourceName = cardComponent.name,
+                    phase = com.wingedsheep.engine.core.DecisionPhase.CASTING
+                ),
+                minValue = 0,
+                maxValue = maxX
+            )
+            val continuation = com.wingedsheep.engine.core.ActivateAbilityChooseManaXContinuation(
+                decisionId = decisionId,
+                action = action
             )
             val pausedState = state
                 .withPendingDecision(decision)
@@ -768,6 +824,21 @@ class ActivateAbilityHandler(
         // battlefield in response while the ability is on the stack.
         val tappedTargetIds = firstTapSlice
         val tappedSnapshots = capturePermanentSnapshots(tappedTargetIds, currentState.projectedState)
+
+        // Snapshot the source's counters before a self-exile / self-sacrifice cost wipes them
+        // (CR 112.7a / 122.2), so the effect can read the pre-cost count via
+        // DynamicAmount.LastKnownSourceCounters (Lost Isle Calling).
+        val lastKnownSourceCounters: Map<String, Int> =
+            if (costExilesOrSacrificesSelf(effectiveCost)) {
+                currentState.getEntity(action.sourceId)
+                    ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
+                    ?.counters
+                    ?.filterValues { it > 0 }
+                    ?.mapKeys { (type, _) ->
+                        com.wingedsheep.engine.handlers.effects.permanent.counters
+                            .counterTypeToString(type)
+                    } ?: emptyMap()
+            } else emptyMap()
 
         // When using Explicit payment, mana sources were already tapped above —
         // strip the Mana portion so payAbilityCost doesn't try to deduct from the pool.
@@ -1217,6 +1288,7 @@ class ActivateAbilityHandler(
             xValue = action.xValue,
             tappedPermanents = firstTapSlice,
             tappedPermanentSnapshots = tappedSnapshots,
+            lastKnownSourceCounters = lastKnownSourceCounters,
             descriptionOverride = ability.descriptionOverride,
             abilityIdentity = com.wingedsheep.sdk.scripting.AbilityIdentity(
                 cardComponent.cardDefinitionId, ability.id
@@ -1478,6 +1550,17 @@ class ActivateAbilityHandler(
     private fun hasTapCost(cost: AbilityCost): Boolean = when (cost) {
         is AbilityCost.Tap -> true
         is AbilityCost.Composite -> cost.costs.any { it is AbilityCost.Tap }
+        else -> false
+    }
+
+    /**
+     * Whether [cost] removes the source from its current zone — a self-exile or self-sacrifice.
+     * Used to decide whether to snapshot the source's counters before payment so the resolving
+     * effect can read the pre-cost count (DynamicAmount.LastKnownSourceCounters).
+     */
+    private fun costExilesOrSacrificesSelf(cost: AbilityCost): Boolean = when (cost) {
+        is AbilityCost.ExileSelf, is AbilityCost.SacrificeSelf -> true
+        is AbilityCost.Composite -> cost.costs.any { costExilesOrSacrificesSelf(it) }
         else -> false
     }
 
@@ -2180,6 +2263,11 @@ class ActivateAbilityHandler(
                 }
             }
         }
+
+        // GainActivatedAbilitiesOfPermanents (Sharkey): copies of opponents' lands' abilities, etc.
+        // Resolved by the shared helper so the enumerator and this handler agree on the gained set.
+        castPermissionUtils.getGainedAbilitiesOfPermanents(entityId, state)
+            .forEach { result.add(it.ability to it.granterId) }
 
         return result
     }

@@ -261,6 +261,13 @@ class CardBuilder(private val name: String) {
     var cantBeCountered: Boolean = false
 
     /**
+     * Whether this spell can't be copied (CR 707.10). When true, any effect that would
+     * copy this spell on the stack creates no copy (e.g., Display of Power's "This spell
+     * can't be copied.").
+     */
+    var cantBeCopied: Boolean = false
+
+    /**
      * A condition under which this spell can be cast as though it had flash.
      * Used for Ferocious-style conditional flash abilities.
      */
@@ -779,6 +786,7 @@ class CardBuilder(private val name: String) {
             castRestrictions = spellBuilder?.restrictions ?: emptyList(),
             castTimeCreatureTypeChoice = castTimeCreatureTypeChoice,
             cantBeCountered = cantBeCountered,
+            cantBeCopied = cantBeCopied,
             conditionalFlash = conditionalFlash,
             kickerTargetRequirements = spellBuilder?.kickerTargetRequirements ?: emptyList(),
             kickerSpellEffect = spellBuilder?.kickerEffect,
@@ -1045,9 +1053,10 @@ class SpellBuilder {
         minChooseCount: Int = chooseCount,
         allowRepeat: Boolean = false,
         chooseAllIfBlightPaid: Boolean = false,
+        dynamicChooseCount: com.wingedsheep.sdk.scripting.values.DynamicAmount? = null,
         init: ModalBuilder.() -> Unit
     ) {
-        val builder = ModalBuilder(chooseCount, minChooseCount, allowRepeat, chooseAllIfBlightPaid)
+        val builder = ModalBuilder(chooseCount, minChooseCount, allowRepeat, chooseAllIfBlightPaid, dynamicChooseCount)
         builder.init()
         effect = builder.build()
     }
@@ -1065,7 +1074,8 @@ class ModalBuilder(
     private val chooseCount: Int,
     private val minChooseCount: Int = chooseCount,
     private val allowRepeat: Boolean = false,
-    private val chooseAllIfBlightPaid: Boolean = false
+    private val chooseAllIfBlightPaid: Boolean = false,
+    private val dynamicChooseCount: com.wingedsheep.sdk.scripting.values.DynamicAmount? = null
 ) {
     private val modes: MutableList<Mode> = mutableListOf()
 
@@ -1086,7 +1096,14 @@ class ModalBuilder(
     }
 
     internal fun build(): ModalEffect =
-        ModalEffect(modes.toList(), chooseCount, minChooseCount, allowRepeat, chooseAllIfBlightPaid)
+        ModalEffect(
+            modes = modes.toList(),
+            chooseCount = chooseCount,
+            minChooseCount = minChooseCount,
+            allowRepeat = allowRepeat,
+            chooseAllIfBlightPaid = chooseAllIfBlightPaid,
+            dynamicChooseCount = dynamicChooseCount
+        )
 }
 
 /**

@@ -172,6 +172,40 @@ data class RemoveAnyNumberOfCountersContinuation(
 ) : ContinuationFrame
 
 /**
+ * Resume after the controller picks how many counters of one kind to move from a
+ * [sourceId] permanent onto a [destinationId] permanent. The executor for
+ * `MoveChosenCountersToTargetEffect` issues one decision per counter kind on the source;
+ * on resume, the chosen amount is removed from the source and added to the destination, and
+ * the next kind (if any) is prompted. After the last kind, if [drawCardOnMove] is set and at
+ * least one counter was moved overall, the controller draws a card. (Goldberry — ability B.)
+ *
+ * @property sourceId The permanent counters are moved from
+ * @property destinationId The permanent counters are moved onto
+ * @property controllerId The player making the choices (and who draws)
+ * @property currentCounterType The counter kind the active decision is for
+ * @property currentMaxAmount Cap shown to the player (0..currentMaxAmount)
+ * @property remainingCounterTypes Pending (counterType, maxAmount) prompts
+ * @property sourceName Display name of the source for follow-up prompts
+ * @property destinationName Display name of the destination for follow-up prompts
+ * @property drawCardOnMove Whether to draw a card at the end if any counter was moved
+ * @property anyMovedSoFar Whether any counter has been moved across prior prompts
+ */
+@Serializable
+data class MoveChosenCountersToTargetContinuation(
+    override val decisionId: String,
+    val sourceId: EntityId,
+    val destinationId: EntityId,
+    val controllerId: EntityId,
+    val currentCounterType: String,
+    val currentMaxAmount: Int,
+    val remainingCounterTypes: List<Pair<String, Int>>,
+    val sourceName: String,
+    val destinationName: String,
+    val drawCardOnMove: Boolean,
+    val anyMovedSoFar: Boolean = false
+) : ContinuationFrame
+
+/**
  * Resume after the controller picks the permanents and/or players that should
  * each receive another counter of each kind already on them (Proliferate).
  *
@@ -300,6 +334,28 @@ data class StormCopyTargetContinuation(
 ) : ContinuationFrame
 
 /**
+ * Resume copying a list of targeted spells one at a time (CR 707.10).
+ *
+ * Used by [com.wingedsheep.sdk.scripting.effects.CopyEachTargetSpellEffect] (Display of
+ * Power). [remainingSpellIds] holds every spell still to be copied, head first; the head
+ * is the spell whose copy's targets are being chosen by the paused decision. On resume the
+ * head is copied with the selected targets, then the tail is processed.
+ *
+ * @property remainingSpellIds Spells still to copy (head = the one being retargeted now)
+ * @property controllerId Player who controls the copies and picks targets
+ * @property targetRequirements Target requirements of the head spell (for the copy)
+ */
+@Serializable
+data class CopyEachSpellContinuation(
+    override val decisionId: String,
+    val remainingSpellIds: List<EntityId>,
+    val controllerId: EntityId,
+    val targetRequirements: List<TargetRequirement>,
+    val keywordsForCopy: Set<String> = emptySet(),
+    val removeLegendary: Boolean = false
+) : ContinuationFrame
+
+/**
  * Resume Storm modal target selection (rule 702.40a + 707.10).
  *
  * Modal Storm spells keep their chosen modes on every copy (700.2g — modes are
@@ -410,6 +466,22 @@ data class ActivateAbilityChooseXContinuation(
     override val decisionId: String,
     val action: ActivateAbility,
     val tapTargets: List<EntityId>
+) : ContinuationFrame
+
+/**
+ * Resume after a player chooses X for an activated ability whose cost contains `{X}` **mana**
+ * (e.g. Wizard's Rockets: "{X}, {T}, Sacrifice this artifact: Add X mana..."). The legal-actions
+ * submission path sends a bare [ActivateAbility] with `xValue == null`; the handler raises a
+ * ChooseNumberDecision and stores this frame. On resume the handler is re-entered with `xValue`
+ * bound to the chosen number, and the `{X}` mana cost is paid for that amount.
+ *
+ * Unlike [ActivateAbilityChooseXContinuation] (a tap-X cost, which has a follow-up tap-target
+ * selection), a mana-X cost has no second decision — paying the mana is automatic.
+ */
+@Serializable
+data class ActivateAbilityChooseManaXContinuation(
+    override val decisionId: String,
+    val action: ActivateAbility
 ) : ContinuationFrame
 
 /**

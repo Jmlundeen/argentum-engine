@@ -11,6 +11,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
+import com.wingedsheep.engine.state.components.battlefield.DealtCombatDamageToPlayersThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.HasDealtCombatDamageToPlayerComponent
 import com.wingedsheep.engine.state.components.battlefield.HasDealtDamageComponent
 import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTurnComponent
@@ -877,7 +878,11 @@ internal class CombatDamageManager(
         // Track combat damage: source dealt damage + dealt combat damage to player
         if (sourceId in newState.getBattlefield()) {
             newState = newState.updateEntity(sourceId) { container ->
-                container.with(HasDealtDamageComponent).with(HasDealtCombatDamageToPlayerComponent)
+                val priorRecipients = container.get<DealtCombatDamageToPlayersThisTurnComponent>()
+                    ?.playerIds ?: emptySet()
+                container.with(HasDealtDamageComponent)
+                    .with(HasDealtCombatDamageToPlayerComponent)
+                    .with(DealtCombatDamageToPlayersThisTurnComponent(priorRecipients + targetId))
             }
         }
         // Track that player was dealt combat damage this turn
@@ -1017,7 +1022,11 @@ internal class CombatDamageManager(
             // Track combat damage: source dealt damage + dealt combat damage to player
             if (sourceId in newState.getBattlefield()) {
                 newState = newState.updateEntity(sourceId) { container ->
-                    container.with(HasDealtDamageComponent).with(HasDealtCombatDamageToPlayerComponent)
+                    val priorRecipients = container.get<DealtCombatDamageToPlayersThisTurnComponent>()
+                        ?.playerIds ?: emptySet()
+                    container.with(HasDealtDamageComponent)
+                        .with(HasDealtCombatDamageToPlayerComponent)
+                        .with(DealtCombatDamageToPlayersThisTurnComponent(priorRecipients + targetId))
                 }
             }
             // Track that player was dealt combat damage this turn
@@ -1108,6 +1117,10 @@ internal class CombatDamageManager(
                 }
             }
             newState = DamageUtils.trackDamageDealtToCreature(newState, sourceId, targetId)
+            // Snapshot the source's last-known controller / subtypes onto the recipient so observer
+            // death triggers ("a creature dealt damage this turn by a Spider you controlled dies",
+            // Shelob) can match the source even after it dies in the same combat (CR 608.2h).
+            newState = DamageUtils.trackDamageSourceLki(newState, sourceId, targetId)
             val sourceName = newState.getEntity(sourceId)?.get<CardComponent>()?.name ?: "Creature"
             val targetName = newState.getEntity(targetId)?.get<CardComponent>()?.name ?: "Creature"
             val targetIsFaceDown = newState.getEntity(targetId)?.has<FaceDownComponent>() == true
@@ -1260,6 +1273,7 @@ internal class CombatDamageManager(
                         val damageCantBePrevented = DamageUtils.isDamagePreventionDisabled(state)
                         val attackerColors = projected.getColors(attackerId)
                         val attackerSubtypes = projected.getSubtypes(attackerId)
+                        val attackerTypes = projected.getTypes(attackerId)
                         val protectedFromOpponent = !damageCantBePrevented &&
                             projected.hasKeyword(targetId, "PROTECTION_FROM_EACH_OPPONENT") &&
                             run {
@@ -1271,6 +1285,8 @@ internal class CombatDamageManager(
                             projected.hasKeyword(targetId, "PROTECTION_FROM_$it")
                         } || attackerSubtypes.any {
                             projected.hasKeyword(targetId, "PROTECTION_FROM_SUBTYPE_${it.uppercase()}")
+                        } || attackerTypes.any {
+                            projected.hasKeyword(targetId, "PROTECTION_FROM_CARDTYPE_${it.uppercase()}")
                         }) || protectedFromOpponent
                         if (!blockerProtected) {
                             incomingDamage.getOrPut(targetId) { mutableMapOf() }

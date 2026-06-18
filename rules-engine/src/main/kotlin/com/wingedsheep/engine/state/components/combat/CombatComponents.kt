@@ -33,6 +33,17 @@ data class BlockedComponent(
 ) : Component
 
 /**
+ * Marks a creature that blocked, or was blocked by, a legendary creature at some point during
+ * the current turn. Stamped at block-declaration time (capturing the partner's legendary status
+ * at the moment of the pairing, so it survives that legendary creature leaving or losing
+ * legendary-ness), and cleared at end-of-turn cleanup. Backs
+ * [com.wingedsheep.sdk.scripting.predicates.StatePredicate.BlockedOrWasBlockedByLegendaryThisTurn]
+ * (You Cannot Pass!, LTR).
+ */
+@Serializable
+data object BlockedOrWasBlockedByLegendaryThisTurnComponent : Component
+
+/**
  * Combat damage assignment for a creature.
  */
 @Serializable
@@ -175,6 +186,23 @@ data object PlayerAttackedThisTurnComponent : Component
 @Serializable
 data class PlayerAttackersThisTurnComponent(
     val attackerIds: Set<EntityId>
+) : Component
+
+/**
+ * Records which players this player has "attacked" this turn (CR 508.6): the set of
+ * defending players against whom they declared one or more attackers. A creature's
+ * defending player is the player it's attacking, or the controller of the planeswalker /
+ * protector of the battle it's attacking (CR 508.5), so attacking an opponent's
+ * planeswalker counts as having attacked that opponent.
+ *
+ * Stamped on the attacking player in [com.wingedsheep.engine.mechanics.combat.AttackPhaseManager]
+ * at declare-attackers time (union across all combat phases this turn). Cleared at end of
+ * turn during cleanup. Read by the `PlayerAttackedPlayerThisTurn` condition (Faramir, Prince
+ * of Ithilien: "you draw a card if they didn't attack you that turn").
+ */
+@Serializable
+data class PlayerAttackedPlayersThisTurnComponent(
+    val defendingPlayerIds: Set<EntityId>
 ) : Component
 
 /**

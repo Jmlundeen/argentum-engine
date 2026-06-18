@@ -153,6 +153,7 @@ object ZoneTransitionService {
         var lastKnownBlockingOrBlockedByIds: List<EntityId> = emptyList()
         var lastKnownWasToken = false
         var lastKnownDamageDealtByPlayers: Map<EntityId, Int> = emptyMap()
+        var lastKnownDamageSources: Set<com.wingedsheep.engine.state.components.battlefield.DamageSourceLki> = emptySet()
         // The {X} this permanent was cast with (DynamicAmount.CastX), captured before the
         // CastChoicesComponent is stripped so dies/leaves triggers reading CastX still see it
         // as last-known information (CR 603.10a).
@@ -198,6 +199,9 @@ object ZoneTransitionService {
             lastKnownWasToken = container.has<TokenComponent>()
             lastKnownDamageDealtByPlayers =
                 container.get<DamageDealtByPlayersThisTurnComponent>()?.perPlayer ?: emptyMap()
+            lastKnownDamageSources =
+                container.get<com.wingedsheep.engine.state.components.battlefield.DamagedBySourcesThisTurnComponent>()
+                    ?.sources ?: emptySet()
             lastKnownCastX = container
                 .get<com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent>()?.x
         }
@@ -232,6 +236,10 @@ object ZoneTransitionService {
             newState = cleanupReverseAttachmentLink(newState, entityId)
             newState = cleanupCombatReferences(newState, entityId)
         }
+        // Equipment/Auras attached *to* this permanent become unattached when their host leaves
+        // the battlefield (CR 704.5q) — handled by the UnattachedAurasCheck state-based action,
+        // which runs after any "when equipped creature dies/leaves" triggers (Forebears Blade) have
+        // been detected, so the attachment must NOT be cleared eagerly here.
 
         // 5. Strip face-down if leaving exile
         if (fromZone == Zone.EXILE) {
@@ -414,6 +422,7 @@ object ZoneTransitionService {
                 lastKnownBlockingOrBlockedByIds = if (leavingBattlefield) lastKnownBlockingOrBlockedByIds else emptyList(),
                 lastKnownCardDefinitionId = if (leavingBattlefield) cardComponent.cardDefinitionId else null,
                 lastKnownDamageDealtByPlayers = lastKnownDamageDealtByPlayers,
+                lastKnownDamageSources = lastKnownDamageSources,
                 xValue = lastKnownCastX
             )
         )
@@ -615,11 +624,21 @@ object ZoneTransitionService {
     }
 
     /**
-     * Track Food sacrifice for the given permanents.
-     * Call this when permanents are sacrificed to mark if any were Food artifacts.
+     * Central per-turn sacrifice bookkeeping. Call this at every sacrifice site (alongside
+     * emitting [PermanentsSacrificedEvent], before moving the permanents to the graveyard).
+     *
+     * Two effects:
+     *  - Increments the turn-scoped [GameState.permanentsSacrificedThisTurn] counter by the
+     *    number of permanents sacrificed (feeds [CostReductionSource.PermanentsSacrificedThisTurn]
+     *    on The Balrog, Durin's Bane). Not controller-scoped: it counts every sacrifice this turn.
+     *  - Marks the controller with [SacrificedFoodThisTurnComponent] if any sacrificed permanent
+     *    was a Food (Food-sacrifice triggers, e.g. Ygra).
      */
-    fun trackFoodSacrifice(state: GameState, permanentIds: List<EntityId>, controllerId: EntityId): GameState {
-        var newState = state
+    fun trackPermanentSacrifice(state: GameState, permanentIds: List<EntityId>, controllerId: EntityId): GameState {
+        if (permanentIds.isEmpty()) return state
+        var newState = state.copy(
+            permanentsSacrificedThisTurn = state.permanentsSacrificedThisTurn + permanentIds.size,
+        )
         val projected = state.projectedState
         for (permId in permanentIds) {
             newState.getEntity(permId)?.get<CardComponent>() ?: continue

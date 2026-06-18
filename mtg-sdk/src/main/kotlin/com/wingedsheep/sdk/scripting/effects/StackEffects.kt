@@ -329,12 +329,28 @@ sealed interface WardCost {
         override val description: String = "pay $amount life"
     }
 
-    /** Ward with a discard cost — e.g. Ward—Discard a card. */
+    /**
+     * Ward with a discard cost — e.g. Ward—Discard a card.
+     *
+     * When [filter] is non-null the discarded card(s) must match it — e.g.
+     * Saruman of Many Colors' "Ward—Discard an enchantment, instant, or sorcery card."
+     * The filter restricts both the can-pay eligibility check and the cards offered for
+     * discard. A null filter means any card.
+     */
     @SerialName("WardCost.Discard")
     @Serializable
-    data class Discard(val count: Int = 1, val random: Boolean = false) : WardCost {
+    data class Discard(
+        val count: Int = 1,
+        val random: Boolean = false,
+        val filter: GameObjectFilter? = null,
+    ) : WardCost {
         override val description: String = buildString {
-            if (count == 1) append("a card") else append("$count cards")
+            if (filter != null) {
+                if (count == 1) append("a ") else append("$count ")
+                append(filter.description)
+            } else {
+                if (count == 1) append("a card") else append("$count cards")
+            }
             if (random) append(" at random")
         }
     }
@@ -571,6 +587,30 @@ data class CopyTargetSpellEffect(
 }
 
 /**
+ * Copy each spell targeted by this effect (CR 707.10). One copy is created per
+ * targeted spell on the stack; for each copy the controller may choose new targets.
+ *
+ * Models "Copy any number of target instant and/or sorcery spells. You may choose new
+ * targets for the copies." (Display of Power). Unlike [CopyTargetSpellEffect], which
+ * copies a single referenced target, this reads **every** spell target chosen for the
+ * spell/ability (all [com.wingedsheep.sdk.scripting.targets.ChosenTarget.Spell] entries in
+ * the resolution context) and copies them in turn, pausing per copy that has targets so
+ * the controller can retarget it.
+ *
+ * Spells flagged "can't be copied" are skipped (no copy is created for them).
+ */
+@SerialName("CopyEachTargetSpell")
+@Serializable
+data class CopyEachTargetSpellEffect(
+    /** Keywords (by enum name) granted to each copy while it remains a spell on the stack. */
+    val keywordsForCopy: List<String> = emptyList(),
+    /** When true, the Legendary supertype is stripped from each resulting copy (CR 707.10f). */
+    val removeLegendary: Boolean = false
+) : Effect {
+    override val description: String = "Copy each target spell"
+}
+
+/**
  * Copy target triggered ability on the stack.
  * "Copy target triggered ability. You may choose new targets for the copy."
  *
@@ -770,4 +810,28 @@ data class MarkSpellPlotOnResolveEffect(
 @Serializable
 data object ReturnSpellToOwnersHandEffect : Effect {
     override val description: String = "Return target spell to its owner's hand"
+}
+
+/**
+ * Return a single [target] — which may be a **spell on the stack** or a **permanent on the
+ * battlefield** — to its owner's hand. This is the bounce counterpart to
+ * [com.wingedsheep.sdk.scripting.effects.PutOnLibraryPositionOfChoiceEffect] (Swat Away),
+ * which already handles the dual spell/permanent case for library placement.
+ *
+ * The executor resolves [target] to a single entity and dispatches:
+ * - if the entity is a spell on the stack, it is removed from the stack and put into its
+ *   owner's hand (it does not resolve) — like [ReturnSpellToOwnersHandEffect], this is **not**
+ *   a counter (CR 701.27 / 701.5b), so "can't be countered" does not prevent it;
+ * - otherwise it is treated as a permanent and bounced to its owner's hand.
+ *
+ * Used by cards whose single "target spell or nonland permanent" must go to hand regardless of
+ * which it turns out to be (e.g. Press the Enemy). Pair with [TargetSpellOrPermanent].
+ * If the target is no longer in a valid zone at resolution, the effect does nothing.
+ */
+@SerialName("ReturnSpellOrPermanentToOwnersHand")
+@Serializable
+data class ReturnSpellOrPermanentToOwnersHandEffect(
+    val target: EffectTarget = EffectTarget.ContextTarget(0)
+) : Effect {
+    override val description: String = "Return target spell or permanent to its owner's hand"
 }

@@ -393,6 +393,20 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
         override val description: String = "with power $value"
     }
 
+    /**
+     * Power exactly equal to the X chosen for the source spell/ability. Resolves against
+     * `PredicateContext.xValue` at evaluation time — the power analogue of [ManaValueEqualsX].
+     * Used by an X-cost activated ability that targets "a creature with power X"
+     * (Ent-Draught Basin). When X is unbound (legal-action enumeration runs before the player
+     * chooses X) it matches permissively so the ability is still offered; the chosen X is then
+     * enforced at activation-time validation and resolution-time re-check.
+     */
+    @SerialName("PowerEqualsX")
+    @Serializable
+    data object PowerEqualsX : CardPredicate {
+        override val description: String = "with power X"
+    }
+
     @SerialName("PowerAtMost")
     @Serializable
     data class PowerAtMost(val max: Int) : CardPredicate {
@@ -487,6 +501,17 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     @Serializable
     data class PowerAtMostEntity(val reference: EntityReference) : CardPredicate {
         override val description: String = "with power less than or equal to ${reference.description}"
+        override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
+    }
+
+    /**
+     * Power strictly less than the projected power of [reference] (e.g. "a creature with lesser
+     * power" than the source — Rangers of Ithilien). Strict counterpart of [PowerAtMostEntity].
+     */
+    @SerialName("PowerLessThanEntity")
+    @Serializable
+    data class PowerLessThanEntity(val reference: EntityReference) : CardPredicate {
+        override val description: String = "with power less than ${reference.description}"
         override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
     }
 
@@ -610,6 +635,41 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     @Serializable
     data object SharesColorWithRecipient : CardPredicate {
         override val description: String = "that shares a color with it"
+    }
+
+    /**
+     * Matches objects that share a color with at least one permanent the evaluating player
+     * controls matching [filter]. Used by Ringsight ("a card that shares a color with a legendary
+     * creature you control") with `filter = GameObjectFilter.Creature.legendary()`. The colors of
+     * the controlled permanents are read from projected state (so anthem/devotion-style color
+     * grants are honored). Colorless candidates never match.
+     */
+    @SerialName("SharesColorWithPermanentYouControl")
+    @Serializable
+    data class SharesColorWithPermanentYouControl(val filter: GameObjectFilter) : CardPredicate {
+        override val description: String = "that shares a color with ${filter.description} you control"
+        override fun applyTextReplacement(replacer: TextReplacer): CardPredicate {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+    }
+
+    /**
+     * Matches creature cards that share **no** creature type with any permanent the evaluating
+     * player controls matching [filter]. Used by Radagast the Brown ("a creature card that doesn't
+     * share a creature type with a creature you control") with `filter = GameObjectFilter.Creature`.
+     * The creature types of the controlled permanents are read from projected state, so granted
+     * types (changelings, type-changing effects) are honored. A candidate with no creature types of
+     * its own shares none, so it matches.
+     */
+    @SerialName("DoesNotShareCreatureTypeWithPermanentYouControl")
+    @Serializable
+    data class DoesNotShareCreatureTypeWithPermanentYouControl(val filter: GameObjectFilter) : CardPredicate {
+        override val description: String = "that doesn't share a creature type with ${filter.description} you control"
+        override fun applyTextReplacement(replacer: TextReplacer): CardPredicate {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
     }
 
     // =============================================================================

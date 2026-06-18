@@ -120,7 +120,25 @@ class LandwalkRule : BlockEvasionRule {
                 }
             }
         }
+        // Nonbasic landwalk (CR 702.14 family): unblockable while the defending player controls any
+        // land that isn't a basic land.
+        if (ctx.projected.hasKeyword(ctx.attackerId, Keyword.NONBASIC_LANDWALK) &&
+            playerControlsNonbasicLand(ctx)
+        ) {
+            return "$attackerName has ${Keyword.NONBASIC_LANDWALK.displayName} and cannot be blocked"
+        }
         return null
+    }
+
+    private fun playerControlsNonbasicLand(ctx: BlockCheckContext): Boolean {
+        return ctx.state.getBattlefield().any { entityId ->
+            val container = ctx.state.getEntity(entityId) ?: return@any false
+            val cardComponent = container.get<CardComponent>() ?: return@any false
+            val controller = ctx.projected.getController(entityId)
+            controller == ctx.blockingPlayer &&
+                cardComponent.typeLine.isLand &&
+                !cardComponent.typeLine.isBasicLand
+        }
     }
 
     private fun playerControlsLandWithSubtype(ctx: BlockCheckContext, landSubtype: Subtype): Boolean {
@@ -358,6 +376,24 @@ class ProtectionFromSupertypeRule : BlockEvasionRule {
 }
 
 /**
+ * Protection from card type: Attacker can't be blocked by creatures whose card type it has
+ * protection from (e.g. "protection from creatures"). Used by Pippin, Guard of the Citadel.
+ */
+class ProtectionFromCardTypeRule : BlockEvasionRule {
+    override fun check(ctx: BlockCheckContext): String? {
+        val attackerName = ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature"
+        val blockerName = ctx.state.getEntity(ctx.blockerId)?.get<CardComponent>()?.name ?: "Creature"
+
+        for (cardType in ctx.projected.getTypes(ctx.blockerId)) {
+            if (ctx.projected.hasKeyword(ctx.attackerId, "PROTECTION_FROM_CARDTYPE_${cardType.uppercase()}")) {
+                return "$attackerName has protection from ${cardType.lowercase()}s and can't be blocked by $blockerName"
+            }
+        }
+        return null
+    }
+}
+
+/**
  * CanOnlyBlockCreaturesWith: Blocker can only block creatures matching a filter
  * (e.g. Realm of Koh's Spirit token: "can't block ... non-Spirit creatures").
  *
@@ -543,6 +579,7 @@ fun defaultBlockEvasionRules(
     ProtectionFromColorRule(),
     ProtectionFromSubtypeRule(),
     ProtectionFromSupertypeRule(),
+    ProtectionFromCardTypeRule(),
     ProtectionFromEachOpponentRule(),
     CanOnlyBlockCreaturesWithRule(predicateEvaluator),
     CantBlockCreaturesWithGreaterPowerRule(),

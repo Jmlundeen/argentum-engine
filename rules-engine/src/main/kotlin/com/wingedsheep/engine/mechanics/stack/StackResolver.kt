@@ -351,7 +351,31 @@ class StackResolver(
         // Emit BecomesTargetEvent for each permanent or spell target (Rule 601.2c)
         // Also track targeting for Valiant ("first time each turn")
         for (target in effectiveTargets) {
-            newState = emitBecomesTarget(newState, target, cardId, casterId, events)
+            newState = emitBecomesTarget(newState, target, cardId, casterId, events, sourceIsSpell = true)
+        }
+
+        // "When you play a card this way, …" rider (Fires of Mount Doom). If this spell was cast
+        // from exile via a may-play permission that carries a rider, emit the linked event so the
+        // rider's delayed triggered ability fires on the stack. Read off the pre-removal [state] —
+        // the permission survives until the spell resolves, but its cardIds is most reliably
+        // inspected before any of this method's zone churn.
+        if (castFromZone == Zone.EXILE) {
+            for (permission in state.mayPlayPermissions) {
+                if (permission.riderLinkId != null &&
+                    permission.controllerId == casterId &&
+                    cardId in permission.cardIds &&
+                    permission.sourceId != null
+                ) {
+                    events.add(
+                        com.wingedsheep.engine.core.CardPlayedFromPermissionEvent(
+                            cardId = cardId,
+                            controllerId = casterId,
+                            sourceId = permission.sourceId,
+                            linkId = permission.riderLinkId
+                        )
+                    )
+                }
+            }
         }
 
         return ExecutionResult.success(
@@ -383,7 +407,8 @@ class StackResolver(
         target: ChosenTarget,
         sourceEntityId: EntityId,
         controllerId: EntityId,
-        events: MutableList<GameEvent>
+        events: MutableList<GameEvent>,
+        sourceIsSpell: Boolean = false
     ): GameState {
         val isSpell = target is ChosenTarget.Spell
         val targetEntityId = when (target) {
@@ -400,7 +425,8 @@ class StackResolver(
                 sourceEntityId,
                 controllerId,
                 firstTime,
-                targetIsSpell = isSpell
+                targetIsSpell = isSpell,
+                sourceIsSpell = sourceIsSpell
             )
         )
         return if (isSpell) state else markTargetedByController(state, targetEntityId, controllerId)
@@ -485,6 +511,10 @@ class StackResolver(
     ): ExecutionResult {
         val sourceContainer = state.getEntity(sourceSpellId)
             ?: return ExecutionResult.error(state, "Source spell not found: $sourceSpellId")
+        // CR 707.10: a spell that can't be copied yields no copy. Succeed without change.
+        if (sourceContainer.has<com.wingedsheep.engine.state.components.identity.CantBeCopiedComponent>()) {
+            return ExecutionResult.success(state)
+        }
         val sourceCard = sourceContainer.get<CardComponent>()
             ?: return ExecutionResult.error(state, "Source is not a card: $sourceSpellId")
         val sourceSpell = sourceContainer.get<SpellOnStackComponent>()
@@ -558,7 +588,7 @@ class StackResolver(
         // Emit BecomesTargetEvent for each permanent or spell target — the copy is its own
         // source on the stack (ward on the target can counter the copy independently).
         for (target in effectiveTargets) {
-            newState = emitBecomesTarget(newState, target, copyId, copyController, events)
+            newState = emitBecomesTarget(newState, target, copyId, copyController, events, sourceIsSpell = true)
         }
 
         return ExecutionResult.success(newState.tick(), events)
@@ -1922,12 +1952,26 @@ class StackResolver(
         // Remove the ability entity
         newState = newState.removeEntity(abilityId)
 
+        // A Saga chapter ability resolving emits SagaChapterResolvedEvent so "whenever the final
+        // chapter ability of a Saga you control resolves" triggers (Tom Bombadil) can detect it.
+        val sagaEvents = abilityComponent.sagaChapterInfo?.let { info ->
+            listOf(
+                SagaChapterResolvedEvent(
+                    sagaId = abilityComponent.sourceId,
+                    controllerId = abilityComponent.controllerId,
+                    chapterNumber = info.chapterNumber,
+                    finalChapterNumber = info.finalChapterNumber,
+                    isFinalChapter = info.isFinalChapter
+                )
+            )
+        } ?: emptyList()
+
         return ExecutionResult.success(
             newState,
             effectResult.events + AbilityResolvedEvent(
                 abilityComponent.sourceId,
                 abilityComponent.description
-            )
+            ) + sagaEvents
         )
     }
 
@@ -1980,6 +2024,7 @@ class StackResolver(
             xValue = abilityComponent.xValue,
             tappedPermanents = abilityComponent.tappedPermanents,
             tappedPermanentSnapshots = abilityComponent.tappedPermanentSnapshots,
+            lastKnownSourceCounters = abilityComponent.lastKnownSourceCounters,
             pipeline = PipelineState(namedTargets = EffectContext.buildNamedTargets(activatedReqs, activatedTargets))
         )
 
@@ -2434,6 +2479,23 @@ class StackResolver(
                     for (subtype in sourceSubtypes) {
                         if (projected.hasKeyword(target.entityId, "PROTECTION_FROM_SUBTYPE_${subtype.uppercase()}")) {
                             return@filterIndexed false
+                        }
+                    }
+                    // Check protection from the source's card type, e.g. "protection from creatures"
+                    // (Rule 702.16). Prefer projected types (permanent sources); fall back to the
+                    // card's printed card types for spell/ability sources not in the projection.
+                    if (sourceId != null) {
+                        val projectedTypes = projected.getTypes(sourceId)
+                        val sourceCardTypes = if (projectedTypes.isNotEmpty()) {
+                            projectedTypes
+                        } else {
+                            state.getEntity(sourceId)?.get<CardComponent>()
+                                ?.typeLine?.cardTypes?.map { it.name }?.toSet() ?: emptySet()
+                        }
+                        for (cardType in sourceCardTypes) {
+                            if (projected.hasKeyword(target.entityId, "PROTECTION_FROM_CARDTYPE_${cardType.uppercase()}")) {
+                                return@filterIndexed false
+                            }
                         }
                     }
 

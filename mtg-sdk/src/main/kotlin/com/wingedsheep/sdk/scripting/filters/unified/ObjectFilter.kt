@@ -311,6 +311,11 @@ data class GameObjectFilter(
         cardPredicates = cardPredicates + CardPredicate.PowerEquals(value)
     )
 
+    /** Power exactly equal to the X chosen for the source spell/ability (Ent-Draught Basin) */
+    fun powerEqualsX() = copy(
+        cardPredicates = cardPredicates + CardPredicate.PowerEqualsX
+    )
+
     /** Power at most */
     fun powerAtMost(max: Int) = copy(
         cardPredicates = cardPredicates + CardPredicate.PowerAtMost(max)
@@ -327,6 +332,10 @@ data class GameObjectFilter(
     )
 
     /** Power less than or equal to the projected power of a referenced entity (source, triggering, etc.) */
+    fun powerLessThanEntity(reference: EntityReference) = copy(
+        cardPredicates = cardPredicates + CardPredicate.PowerLessThanEntity(reference)
+    )
+
     fun powerAtMostEntity(reference: EntityReference) = copy(
         cardPredicates = cardPredicates + CardPredicate.PowerAtMostEntity(reference)
     )
@@ -454,6 +463,23 @@ data class GameObjectFilter(
         cardPredicates = cardPredicates + CardPredicate.SharesColorWithRecipient
     )
 
+    /**
+     * Must share a color with at least one permanent the evaluating player controls matching
+     * [filter] (Ringsight: "a card that shares a color with a legendary creature you control").
+     */
+    fun sharingColorWithPermanentYouControl(filter: GameObjectFilter) = copy(
+        cardPredicates = cardPredicates + CardPredicate.SharesColorWithPermanentYouControl(filter)
+    )
+
+    /**
+     * Must share **no** creature type with any permanent the evaluating player controls matching
+     * [filter] (Radagast the Brown: "a creature card that doesn't share a creature type with a
+     * creature you control").
+     */
+    fun notSharingCreatureTypeWithPermanentYouControl(filter: GameObjectFilter) = copy(
+        cardPredicates = cardPredicates + CardPredicate.DoesNotShareCreatureTypeWithPermanentYouControl(filter)
+    )
+
     // =============================================================================
     // Fluent Builder Methods - State Predicates
     // =============================================================================
@@ -498,9 +524,26 @@ data class GameObjectFilter(
         statePredicates = statePredicates + StatePredicate.InSameBandAsSource
     )
 
+    /**
+     * Must have dealt combat damage *this turn* to the player who controls the effect's source.
+     * Source-relative; cleared at end-of-turn cleanup. Used by "each opponent sacrifices a
+     * creature ... that dealt combat damage to you this turn" (Witch-king of Angmar).
+     */
+    fun dealtCombatDamageToSourceControllerThisTurn() = copy(
+        statePredicates = statePredicates + StatePredicate.DealtCombatDamageToSourceControllerThisTurn
+    )
+
     /** Must be blocking */
     fun blocking() = copy(
         statePredicates = statePredicates + StatePredicate.IsBlocking
+    )
+
+    /**
+     * Must be blocking the effect's source (CR 509). Source-relative; only matches the source's
+     * own blockers. "Whenever this becomes blocked, it deals N damage to each creature blocking it."
+     */
+    fun blockingSource() = copy(
+        statePredicates = statePredicates + StatePredicate.IsBlockingSource
     )
 
     /** Must be attacking or blocking */
@@ -581,6 +624,21 @@ data class GameObjectFilter(
      */
     fun hasLeastPowerAmongAllCreatures() = copy(
         statePredicates = statePredicates + StatePredicate.HasLeastPowerAmongAllCreatures
+    )
+
+    /** Must have the least power among creatures its controller controls */
+    fun hasLeastPower() = copy(
+        statePredicates = statePredicates + StatePredicate.HasLeastPower
+    )
+
+    /** Must be its controller's Ring-bearer (CR 701.54). */
+    fun ringBearer() = copy(
+        statePredicates = statePredicates + StatePredicate.IsRingBearer
+    )
+
+    /** Must have blocked, or been blocked by, a legendary creature this turn (You Cannot Pass!). */
+    fun blockedOrWasBlockedByLegendaryThisTurn() = copy(
+        statePredicates = statePredicates + StatePredicate.BlockedOrWasBlockedByLegendaryThisTurn
     )
 
     /** Must have at least one Equipment attached */

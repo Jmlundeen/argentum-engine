@@ -310,6 +310,27 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     }
 
     /**
+     * The number of counters matching [counterType] that the *source* of the current ability had
+     * the moment its self-exile / self-sacrifice cost was paid (CR 112.7a / 608.2h last-known
+     * information). When an activated ability's cost exiles or sacrifices its own source, the
+     * source's counters are gone by the time the effect resolves (CR 122.2 removes counters on a
+     * zone change), so the count is snapshotted into the resolution context at cost-payment time.
+     *
+     * Example — Lost Isle Calling: "{4}{U}{U}, Exile this enchantment: Draw a card for each verse
+     * counter on this enchantment. If it had seven or more verse counters on it, take an extra turn
+     * after this one." Both the draw amount and the seven-or-more test read
+     * `LastKnownSourceCounters(CounterTypeFilter.Named(Counters.VERSE))`.
+     */
+    @SerialName("LastKnownSourceCounters")
+    @Serializable
+    data class LastKnownSourceCounters(
+        val counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+    ) : DynamicAmount {
+        override val description: String =
+            "the number of ${counterType.description} counters on it".replace("  ", " ")
+    }
+
+    /**
      * The value of `{X}` this object was cast with, read off the *current object* regardless of
      * what zone it is in.
      *
@@ -447,6 +468,21 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @Serializable
     data class DistinctEntitiesInCollections(val collections: List<String>) : DynamicAmount {
         override val description: String = "the number of distinct selected permanents"
+    }
+
+    /**
+     * Sum of the mana values of *every* card in a named pipeline collection.
+     *
+     * Unlike [StoredCardManaValue] (which reads only the first card), this totals the mana value
+     * of all cards stored under [collectionName]. Cards are read by entity id, so the value is
+     * correct even after the collection has been moved to another zone (e.g. milled into the
+     * graveyard). Used for "you mill X cards… that player loses life equal to the total mana value
+     * of those cards" (Palantír of Orthanc).
+     */
+    @SerialName("ManaValueSumOfCollection")
+    @Serializable
+    data class ManaValueSumOfCollection(val collectionName: String) : DynamicAmount {
+        override val description: String = "the total mana value of the $collectionName cards"
     }
 
     // =========================================================================
@@ -663,6 +699,11 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      * @param filter Filter for which permanents to include
      * @param aggregation How to aggregate (COUNT, MAX, MIN, SUM)
      * @param property Which numeric property to aggregate (ignored for COUNT)
+     * @param counterType When set together with [Aggregation.SUM] (or MAX/MIN), the value aggregated
+     *   per matched permanent is the count of this kind of counter on it, rather than [property].
+     *   This expresses "the total number of <kind> counters among <filter> you control" — e.g. Tom
+     *   Bombadil's "four or more lore counters among Sagas you control". Takes precedence over
+     *   [property] when both are present.
      */
     @SerialName("AggregateBattlefield")
     @Serializable
@@ -671,7 +712,8 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
         val filter: GameObjectFilter = GameObjectFilter.Companion.Any,
         val aggregation: Aggregation = Aggregation.COUNT,
         val property: CardNumericProperty? = null,
-        val excludeSelf: Boolean = false
+        val excludeSelf: Boolean = false,
+        val counterType: CounterTypeFilter? = null
     ) : DynamicAmount {
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
             val newFilter = filter.applyTextReplacement(replacer)
@@ -695,7 +737,9 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
                     append(pluralize(filter.description))
                 }
                 Aggregation.SUM -> {
-                    append("the total ${property?.description ?: "value"} of ")
+                    val what = counterType?.let { "${it.description} counters" } ?: (property?.description ?: "value")
+                    append("the total $what ")
+                    append(if (counterType != null) "among " else "of ")
                     if (excludeSelf) append("other ")
                     append(pluralize(filter.description))
                 }
@@ -1046,6 +1090,18 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
             append(player.possessive)
             append(" control this turn")
         }
+    }
+
+    /**
+     * Number of permanents sacrificed by the current resolving effect ("this way"). Reads the
+     * effect context's `sacrificedPermanents` snapshot list, populated when an edict (e.g. "each
+     * opponent sacrifices a creature") resolves earlier in the same composite. Used by "Create a
+     * Food token for each creature sacrificed this way" (Voracious Fell Beast).
+     */
+    @SerialName("PermanentsSacrificedThisWay")
+    @Serializable
+    data object PermanentsSacrificedThisWay : DynamicAmount {
+        override val description: String = "the number of permanents sacrificed this way"
     }
 
 }

@@ -16,6 +16,7 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
+import com.wingedsheep.engine.state.components.player.SacrificedFoodThisTurnComponent
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -50,8 +51,23 @@ class MoveCollectionExecutor(
         effect: MoveCollectionEffect,
         context: EffectContext
     ): EffectResult {
-        val cards = context.pipeline.storedCollections[effect.from]
+        val allCards = context.pipeline.storedCollections[effect.from]
             ?: return EffectResult.error(state, "No collection named '${effect.from}' in storedCollections")
+
+        // Optional per-card filter: only move cards matching it; the rest stay put. Lets a single
+        // gathered pile be split by type across multiple MoveCollection steps.
+        val cards = if (effect.filter != null) {
+            val predicateEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator()
+            val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
+                controllerId = context.controllerId,
+                sourceId = context.sourceId
+            )
+            allCards.filter { cardId ->
+                predicateEvaluator.matches(state, state.projectedState, cardId, effect.filter!!, predicateContext)
+            }
+        } else {
+            allCards
+        }
 
         val destination = effect.destination
         if (cards.isEmpty()) {
@@ -699,10 +715,24 @@ class MoveCollectionExecutor(
             events.add(CardsDiscardedEvent(destPlayerId, cards, discardNames))
         }
 
-        // Emit sacrifice event if configured
+        // Emit sacrifice event if configured. Track the per-turn sacrifice count + Food
+        // sacrifice off the *pre-move* state, where the sacrificed permanents (and their
+        // projected subtypes) still exist on the battlefield.
         if (moveType == MoveType.Sacrifice && cards.isNotEmpty()) {
             val sacrificeNames = cards.map { cardId ->
                 state.getEntity(cardId)?.get<CardComponent>()?.name ?: "Unknown"
+            }
+            val tracked = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                .trackPermanentSacrifice(state, cards, context.controllerId)
+            newState = newState.copy(
+                permanentsSacrificedThisTurn = tracked.permanentsSacrificedThisTurn,
+            )
+            // trackPermanentSacrifice also tags the controller with SacrificedFoodThisTurnComponent
+            // when a sacrificed permanent was a Food. That tag lives on the controller entity (which
+            // the move above leaves untouched), so carry it over too — otherwise "whenever you
+            // sacrifice a Food" triggers never fire for Foods sacrificed through this path.
+            if (tracked.getEntity(context.controllerId)?.has<SacrificedFoodThisTurnComponent>() == true) {
+                newState = newState.updateEntity(context.controllerId) { it.with(SacrificedFoodThisTurnComponent) }
             }
             events.add(0, PermanentsSacrificedEvent(context.controllerId, cards, sacrificeNames))
         }

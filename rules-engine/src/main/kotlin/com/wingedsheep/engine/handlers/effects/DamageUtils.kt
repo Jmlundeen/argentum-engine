@@ -21,6 +21,8 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtByPlayersThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtToCreaturesThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.DamageSourceLki
+import com.wingedsheep.engine.state.components.battlefield.DamagedBySourcesThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.HasDealtDamageComponent
 import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
@@ -110,7 +112,13 @@ object DamageUtils {
         sourceId: EntityId?,
         cantBePrevented: Boolean = false,
         isCombatDamage: Boolean = false,
-        appliedRedirects: Set<EntityId> = emptySet()
+        appliedRedirects: Set<EntityId> = emptySet(),
+        /**
+         * When true and [targetId] is a creature, any damage in excess of what was needed to be
+         * lethal (CR 120.4a) is dealt to that creature's controller instead (Gandalf's Sanction:
+         * "Excess damage is dealt to that creature's controller instead.").
+         */
+        excessToController: Boolean = false
     ): EffectResult {
         if (amount <= 0) return EffectResult.success(state)
 
@@ -168,6 +176,12 @@ object DamageUtils {
                     return EffectResult.success(state)
                 }
             }
+            // Protection from card type, e.g. "protection from creatures" (Pippin, Guard of the Citadel)
+            for (cardType in projected.getTypes(sourceId)) {
+                if (projected.hasKeyword(targetId, "PROTECTION_FROM_CARDTYPE_${cardType.uppercase()}")) {
+                    return EffectResult.success(state)
+                }
+            }
 
             // Protection from each opponent (Rule 702.16e)
             if (projected.hasKeyword(targetId, "PROTECTION_FROM_EACH_OPPONENT")) {
@@ -177,6 +191,14 @@ object DamageUtils {
                 if (sourceController != null && targetController != null && sourceController != targetController) {
                     return EffectResult.success(state)
                 }
+            }
+
+            // Player-level protection, e.g. The One Ring's "protection from everything" (Rule 702.16).
+            // Damage from a source matching one of the player's protection scopes is prevented.
+            if (com.wingedsheep.engine.mechanics.targeting.PlayerProtectionRules
+                    .isProtectedFromSource(state, targetId, sourceId, casterId = null)
+            ) {
+                return EffectResult.success(state)
             }
         }
 
@@ -268,12 +290,6 @@ object DamageUtils {
                 val existingDamage = newState.getEntity(targetId)?.get<DamageComponent>()
                 val currentDamage = existingDamage?.amount ?: 0
                 val hasDeathtouch = sourceId != null && projected.hasKeyword(sourceId, Keyword.DEATHTOUCH)
-                newState = newState.updateEntity(targetId) { container ->
-                    container.with(DamageComponent(
-                        amount = currentDamage + effectiveAmount,
-                        deathtouchDamageReceived = hasDeathtouch || (existingDamage?.deathtouchDamageReceived == true)
-                    ))
-                }
                 // Excess damage (CR 120.4a) — damage in excess of what was needed to be
                 // lethal. With deathtouch, any amount of damage greater than 1 is excess —
                 // lethal collapses to a flat 1 regardless of marked damage (CR 120.4a refs
@@ -282,6 +298,17 @@ object DamageUtils {
                 val lethalNeeded = if (hasDeathtouch) 1
                 else (toughness - currentDamage).coerceAtLeast(0)
                 creatureExcessDamage = (effectiveAmount - lethalNeeded).coerceAtLeast(0)
+                // "Excess damage is dealt to that creature's controller instead" (Gandalf's
+                // Sanction): the creature is marked only with the lethal portion; the excess is
+                // dealt to its controller below.
+                val markedOnCreature = if (excessToController) effectiveAmount - creatureExcessDamage
+                else effectiveAmount
+                newState = newState.updateEntity(targetId) { container ->
+                    container.with(DamageComponent(
+                        amount = currentDamage + markedOnCreature,
+                        deathtouchDamageReceived = hasDeathtouch || (existingDamage?.deathtouchDamageReceived == true)
+                    ))
+                }
             }
             // Mark creature as having been dealt damage this turn
             newState = newState.updateEntity(targetId) { container ->
@@ -290,6 +317,7 @@ object DamageUtils {
             // Track damage source for "creature dealt damage by this dies" triggers
             if (sourceId != null) {
                 newState = trackDamageDealtToCreature(newState, sourceId, targetId)
+                newState = trackDamageSourceLki(newState, sourceId, targetId)
             }
             // Track per-player damage dealt to this entity this turn (Grothama LTB).
             if (sourceId != null) {
@@ -333,6 +361,19 @@ object DamageUtils {
                     if (gainEvent != null) events.add(gainEvent)
                 }
             }
+        }
+
+        // "Excess damage is dealt to that creature's controller instead" (CR-style redirect for
+        // Gandalf's Sanction). Deal the computed excess to the creature's controller, attributed
+        // to the same source. excessToController is not propagated to this player-damage call.
+        if (excessToController && targetWasCreature && creatureExcessDamage > 0 && targetControllerId != null) {
+            val excessResult = dealDamageToTarget(
+                newState, targetControllerId, creatureExcessDamage, sourceId,
+                cantBePrevented = cantBePrevented, isCombatDamage = isCombatDamage,
+                appliedRedirects = appliedRedirects, excessToController = false
+            )
+            newState = excessResult.state
+            events.addAll(excessResult.events)
         }
 
         return EffectResult.success(newState, events)
@@ -550,6 +591,35 @@ object DamageUtils {
     }
 
     /**
+     * Record a last-known snapshot of [sourceId] (its controller and creature-subtypes as projected
+     * right now) on [targetCreatureId]'s [DamagedBySourcesThisTurnComponent]. Read at death time by
+     * observer triggers of the form "whenever another creature dealt damage this turn by [a source
+     * matching a filter] dies" (Shelob). Snapshotting on the *damaged* creature means a source that
+     * died in the same combat is still evaluated against its damage-time state (CR 608.2h).
+     */
+    fun trackDamageSourceLki(state: GameState, sourceId: EntityId, targetCreatureId: EntityId): GameState {
+        if (targetCreatureId !in state.getBattlefield()) return state
+        val projected = state.projectedState
+        val controllerId = projected.getController(sourceId)
+            ?: state.getEntity(sourceId)?.get<ControllerComponent>()?.playerId
+            ?: state.getEntity(sourceId)?.get<CardComponent>()?.ownerId
+            ?: return state
+        val subtypes = projected.getSubtypes(sourceId)
+            .map { com.wingedsheep.sdk.core.Subtype(it) }
+            .toSet()
+        val snapshot = DamageSourceLki(
+            sourceControllerId = controllerId,
+            sourceSubtypes = subtypes,
+            sourceWasCreature = projected.isCreature(sourceId),
+        )
+        return state.updateEntity(targetCreatureId) { container ->
+            val existing = container.get<DamagedBySourcesThisTurnComponent>()
+                ?: DamagedBySourcesThisTurnComponent()
+            container.with(existing.adding(snapshot))
+        }
+    }
+
+    /**
      * Track that [amount] damage was dealt to [targetId] this turn by a source controlled
      * by the controller of [sourceId]. Read at LTB time for "each player draws cards equal
      * to the damage dealt to ~ this turn by sources they controlled" (Grothama).
@@ -607,6 +677,8 @@ object DamageUtils {
      * on the battlefield (e.g., Sunspine Lynx, Leyline of Punishment).
      */
     fun isDamagePreventionDisabled(state: GameState): Boolean {
+        // Turn-scoped "Damage can't be prevented this turn" (Fear, Fire, Foes!).
+        if (state.damageCantBePreventedThisTurn) return true
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
             val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
@@ -1512,6 +1584,9 @@ object DamageUtils {
                 val totalCounters = updatedCounters.getCount(counterType)
                 val threshold = effect.sacrificeThreshold
                 if (threshold != null && totalCounters >= threshold) {
+                    newState = ZoneTransitionService.trackPermanentSacrifice(
+                        newState, listOf(entityId), sourceControllerId
+                    )
                     // Delegate zone movement to ZoneTransitionService for full cleanup
                     val transitionResult = ZoneTransitionService.moveToZone(
                         newState, entityId, Zone.GRAVEYARD

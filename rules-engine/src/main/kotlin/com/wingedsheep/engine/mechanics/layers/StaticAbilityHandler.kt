@@ -25,6 +25,7 @@ import com.wingedsheep.sdk.scripting.CantBeBlocked
 import com.wingedsheep.sdk.scripting.CantAttack
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.CanBlockAdditionalForCreatureGroup
+import com.wingedsheep.sdk.scripting.MustBeBlocked
 import com.wingedsheep.sdk.scripting.MustBlock
 import com.wingedsheep.sdk.scripting.MustAttack
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
@@ -33,6 +34,7 @@ import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.ControlEnchantedPermanent
 import com.wingedsheep.sdk.scripting.EquipAbilitiesAtInstantSpeed
 import com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn
+import com.wingedsheep.sdk.scripting.ReduceEquipCost
 import com.wingedsheep.sdk.scripting.SetEnchantedLandType
 import com.wingedsheep.sdk.scripting.SetEnchantedLandTypeFromChosen
 import com.wingedsheep.sdk.scripting.GrantKeywordByCounter
@@ -90,8 +92,10 @@ import com.wingedsheep.sdk.scripting.CastSpellTypesFromTopOfLibrary
 import com.wingedsheep.sdk.scripting.DampLandManaProduction
 import com.wingedsheep.sdk.scripting.DivideCombatDamageFreely
 import com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation
+import com.wingedsheep.sdk.scripting.GainActivatedAbilitiesOfPermanents
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.HasAllActivatedAbilitiesOfLinkedExiledCard
+import com.wingedsheep.sdk.scripting.SpendAnyManaTypeForActivatedAbilities
 import com.wingedsheep.sdk.scripting.GrantAdditionalLandDrop
 import com.wingedsheep.sdk.scripting.GrantAlternativeCastingCost
 import com.wingedsheep.sdk.scripting.GrantCantBeCountered
@@ -481,6 +485,8 @@ class StaticAbilityHandler(
                     affectsFilter = convertGroupFilter(ability.filter)
                 )
             }
+            // Enforced directly by BlockPhaseManager (scans attackers' statics); no continuous effect.
+            is MustBeBlocked -> null
             is CanBlockAdditionalForCreatureGroup -> {
                 ContinuousEffectData(
                     modification = Modification.CanBlockAdditional(ability.count),
@@ -689,6 +695,7 @@ class StaticAbilityHandler(
             is CantBeBlockedBy,
             is CantBeBlockedByCreaturesWithLessPower,
             is CantBeBlockedByMoreThan,
+            is com.wingedsheep.sdk.scripting.CantBeBlockedByFewerThan,
             is CantBeBlockedIfCastSpellType,
             is CantBeBlockedUnlessDefenderSharesCreatureType,
             is CantBlockCreaturesWithGreaterPower,
@@ -718,6 +725,7 @@ class StaticAbilityHandler(
             // ActivatedAbilityEnumerator / ActivateAbilityHandler, not continuous effects):
             is EquipAbilitiesAtInstantSpeed,
             is FreeFirstEquipEachTurn,
+            is ReduceEquipCost,
             is PlayFromTopOfLibrary,
             is PlayLandsAndCastFilteredFromTopOfLibrary,
             is PlotFromTopOfLibrary,
@@ -739,6 +747,8 @@ class StaticAbilityHandler(
             is ExtraLoyaltyActivation,
             is GrantActivatedAbility,
             HasAllActivatedAbilitiesOfLinkedExiledCard,
+            is GainActivatedAbilitiesOfPermanents,
+            is SpendAnyManaTypeForActivatedAbilities,
             is PreventActivatedAbilities,
             is PlayersCantActivateAbilities,
             is PreventCycling,

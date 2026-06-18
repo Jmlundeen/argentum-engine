@@ -273,6 +273,11 @@ object ZoneMovementUtils {
             // (CR 400.7 / 707.2). ZoneTransitionService restores the printed
             // CardComponent before this strip runs.
             .without<com.wingedsheep.engine.state.components.identity.CopyOfComponent>()
+            // The Ring-bearer designation is tied to the permanent; a permanent that leaves the
+            // battlefield stops being the Ring-bearer (CR 701.54e), and the object that returns is
+            // a new object (CR 400.7) that must not inherit the designation (e.g. a blinked
+            // Ring-bearer via Meneldor, Swift Savior).
+            .without<com.wingedsheep.engine.state.components.identity.RingBearerComponent>()
             // Battlefield
             .without<TappedComponent>()
             .without<SummoningSicknessComponent>()

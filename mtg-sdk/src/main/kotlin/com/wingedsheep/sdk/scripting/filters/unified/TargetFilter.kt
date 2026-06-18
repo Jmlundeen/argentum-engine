@@ -288,6 +288,9 @@ data class TargetFilter(
     /** Mana value at least */
     fun manaValueAtLeast(min: Int) = copy(baseFilter = baseFilter.manaValueAtLeast(min))
 
+    /** Power exactly equal to the X chosen for the source spell/ability (Ent-Draught Basin). */
+    fun powerEqualsX() = copy(baseFilter = baseFilter.powerEqualsX())
+
     /** Power at most */
     fun powerAtMost(max: Int) = copy(baseFilter = baseFilter.powerAtMost(max))
 
@@ -297,6 +300,10 @@ data class TargetFilter(
     /** Power strictly greater than the projected power of a referenced entity (source, triggering, etc.) */
     fun powerGreaterThanEntity(reference: com.wingedsheep.sdk.scripting.values.EntityReference) =
         copy(baseFilter = baseFilter.powerGreaterThanEntity(reference))
+
+    /** Power strictly less than the projected power of a referenced entity (source, triggering, etc.) */
+    fun powerLessThanEntity(reference: com.wingedsheep.sdk.scripting.values.EntityReference) =
+        copy(baseFilter = baseFilter.powerLessThanEntity(reference))
 
     /** Power less than or equal to the projected power of a referenced entity (source, triggering, etc.) */
     fun powerAtMostEntity(reference: com.wingedsheep.sdk.scripting.values.EntityReference) =

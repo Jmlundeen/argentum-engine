@@ -834,6 +834,11 @@ class TriggerDetector(
             is com.wingedsheep.sdk.scripting.EventPattern.DamagePreventedEvent -> {
                 event is com.wingedsheep.engine.core.DamagePreventedEvent && event.linkId == delayedId
             }
+            // "When you play a card this way": fires only for the may-play permission that this
+            // delayed trigger is linked to, matched by the linkId echoed on the event.
+            is com.wingedsheep.sdk.scripting.EventPattern.CardPlayedFromPermissionEvent -> {
+                event is com.wingedsheep.engine.core.CardPlayedFromPermissionEvent && event.linkId == delayedId
+            }
             is com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent -> {
                 if (event !is ZoneChangeEvent) return false
                 if (watchedEntityId != null) {
@@ -1057,23 +1062,35 @@ class TriggerDetector(
                             }
                         }
                     }
-                    // For "blocks or becomes blocked by [filter]" (BlocksOrBecomesBlockedByEvent with SELF binding),
-                    // check both blocking and being-blocked relationships and create one trigger per matching partner.
+                    // For "blocks or becomes blocked by [filter]" (BlocksOrBecomesBlockedByEvent),
+                    // check both blocking and being-blocked relationships and create one trigger per
+                    // matching partner. Supports SELF binding (the creature itself) and ATTACHED
+                    // binding (an Equipment/Aura whose equipped/enchanted creature is in combat —
+                    // Barrow-Blade); for ATTACHED the combat relationships are read against the
+                    // attached creature, but the trigger's source stays the equipment.
                     else if (ability.trigger is EventPattern.BlocksOrBecomesBlockedByEvent &&
-                        ability.binding == TriggerBinding.SELF && event is com.wingedsheep.engine.core.BlockersDeclaredEvent) {
+                        (ability.binding == TriggerBinding.SELF || ability.binding == TriggerBinding.ATTACHED) &&
+                        event is com.wingedsheep.engine.core.BlockersDeclaredEvent) {
                         val trigger = ability.trigger as EventPattern.BlocksOrBecomesBlockedByEvent
+                        val combatCreatureId: EntityId? = if (ability.binding == TriggerBinding.ATTACHED) {
+                            state.getEntity(entityId)
+                                ?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
+                                ?.targetId
+                        } else entityId
                         val partners = mutableListOf<EntityId>()
 
-                        // Case 1: Source creature is a blocker — its combat partners are the attackers it blocks
-                        val blockedAttackerIds = event.blockers[entityId]
-                        if (blockedAttackerIds != null) {
-                            partners.addAll(blockedAttackerIds)
-                        }
+                        if (combatCreatureId != null) {
+                            // Case 1: combat creature is a blocker — partners are the attackers it blocks
+                            val blockedAttackerIds = event.blockers[combatCreatureId]
+                            if (blockedAttackerIds != null) {
+                                partners.addAll(blockedAttackerIds)
+                            }
 
-                        // Case 2: Source creature is an attacker — its combat partners are blockers blocking it
-                        for ((blockerId, attackerIds) in event.blockers) {
-                            if (attackerIds.contains(entityId)) {
-                                partners.add(blockerId)
+                            // Case 2: combat creature is an attacker — partners are blockers blocking it
+                            for ((blockerId, attackerIds) in event.blockers) {
+                                if (attackerIds.contains(combatCreatureId)) {
+                                    partners.add(blockerId)
+                                }
                             }
                         }
 
@@ -1776,16 +1793,19 @@ class TriggerDetector(
         projected: ProjectedState,
         index: TriggerIndex
     ) {
-        // Collect all combat damage-to-player events, grouped by the controller of the damage source
+        // Collect all combat damage-to-player events, grouped by the controller of the damage
+        // source (offensive batch) and, separately, by the damaged player (defensive batch).
         data class CombatDamageInfo(val sourceId: EntityId, val targetPlayerId: EntityId)
         val combatDamageByController = mutableMapOf<EntityId, MutableList<CombatDamageInfo>>()
+        val combatDamageByDamagedPlayer = mutableMapOf<EntityId, MutableList<CombatDamageInfo>>()
         for (event in events) {
             if (event is DamageDealtEvent && event.isCombatDamage && event.sourceId != null &&
                 event.targetId in state.turnOrder) {
                 val sourceContainer = state.getEntity(event.sourceId) ?: continue
                 val controller = sourceContainer.get<ControllerComponent>()?.playerId ?: continue
-                combatDamageByController.getOrPut(controller) { mutableListOf() }
-                    .add(CombatDamageInfo(event.sourceId, event.targetId))
+                val info = CombatDamageInfo(event.sourceId, event.targetId)
+                combatDamageByController.getOrPut(controller) { mutableListOf() }.add(info)
+                combatDamageByDamagedPlayer.getOrPut(event.targetId) { mutableListOf() }.add(info)
             }
         }
         if (combatDamageByController.isEmpty()) return
@@ -1793,6 +1813,36 @@ class TriggerDetector(
         for (entry in index.getEntitiesForCategory(TriggerCategory.COMBAT_DAMAGE_BATCH)) {
             for (ability in entry.abilities) {
                 val trigger = ability.trigger
+
+                // Defensive variant: "one or more creatures deal combat damage to you" — group by
+                // the damaged player (the observer's controller) instead of the source controller.
+                if (trigger is EventPattern.OneOrMoreDealCombatDamageToYouEvent) {
+                    val controllerId = entry.controllerId
+                    val damageEvents = combatDamageByDamagedPlayer[controllerId] ?: continue
+                    val firstMatchingInfo = damageEvents.firstOrNull { info ->
+                        val sourceContainer = state.getEntity(info.sourceId) ?: return@firstOrNull false
+                        sourceContainer.get<CardComponent>() ?: return@firstOrNull false
+                        if (!projected.isCreature(info.sourceId)) return@firstOrNull false
+                        if (sourceContainer.has<FaceDownComponent>()) return@firstOrNull false
+                        predicateEvaluator.matches(
+                            state, projected, info.sourceId, trigger.sourceFilter,
+                            PredicateContext(controllerId = controllerId, sourceId = entry.entityId)
+                        )
+                    }
+                    if (firstMatchingInfo != null) {
+                        triggers.add(
+                            PendingTrigger(
+                                ability = ability,
+                                sourceId = entry.entityId,
+                                sourceName = entry.cardComponent.name,
+                                controllerId = controllerId,
+                                triggerContext = TriggerContext(triggeringEntityId = firstMatchingInfo.sourceId)
+                            )
+                        )
+                    }
+                    continue
+                }
+
                 if (trigger !is EventPattern.OneOrMoreDealCombatDamageToPlayerEvent) continue
 
                 val controllerId = entry.controllerId
@@ -1956,6 +2006,7 @@ class TriggerDetector(
         for (entry in index.getEntitiesForCategory(TriggerCategory.CREATURES_DIED_BATCH)) {
             for (ability in entry.abilities) {
                 fireCreaturesDiedBatchTrigger(
+                    state = state,
                     ability = ability,
                     sourceId = entry.entityId,
                     sourceName = entry.cardComponent.name,
@@ -1988,6 +2039,7 @@ class TriggerDetector(
             for (ability in abilityResolver.getTriggeredAbilities(event.entityId, cardDefId, state)) {
                 if (ability.trigger !is EventPattern.CreaturesYouControlDiedEvent) continue
                 fireCreaturesDiedBatchTrigger(
+                    state = state,
                     ability = ability,
                     sourceId = event.entityId,
                     sourceName = sourceName,
@@ -2000,11 +2052,16 @@ class TriggerDetector(
     }
 
     /**
-     * Evaluate a single "whenever one or more [filtered] creatures you control die" ability
-     * against the batch of deaths grouped by controller, firing it at most once. Shared by the
+     * Evaluate a single batched "whenever one or more [filtered] creatures die" ability against
+     * the batch of deaths grouped by controller, firing it at most once. Shared by the
      * surviving-source (battlefield index) and dead-source (Rule 603.10 look-back) paths.
+     *
+     * The filter's controller predicate scopes which players' creature deaths count, mirroring the
+     * enter-batch trigger: no predicate (or `ControlledByYou`) means "creatures you control",
+     * `ControlledByOpponent` scopes to the observer's opponents (Spiteful Banditry).
      */
     private fun fireCreaturesDiedBatchTrigger(
+        state: GameState,
         ability: TriggeredAbility,
         sourceId: EntityId,
         sourceName: String,
@@ -2015,13 +2072,34 @@ class TriggerDetector(
         val trigger = ability.trigger
         if (trigger !is EventPattern.CreaturesYouControlDiedEvent) return
 
-        val controllerDeaths = deathsByController[controllerId] ?: return
+        // The filter's controller predicate scopes which players' deaths count, relative to the
+        // observer (the trigger's controller). Defaults to "you control".
+        val controllerPredicate = trigger.filter.controllerPredicate
+        fun controllerMatches(deathControllerId: EntityId): Boolean = when (controllerPredicate) {
+            null, com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByYou ->
+                deathControllerId == controllerId
+            com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByOpponent ->
+                deathControllerId in state.getOpponents(controllerId)
+            else -> controllerPredicate.evaluateWith { leaf ->
+                when (leaf) {
+                    com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByYou ->
+                        deathControllerId == controllerId
+                    com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByOpponent ->
+                        deathControllerId in state.getOpponents(controllerId)
+                    else -> null
+                }
+            }
+        }
+
+        val scopedDeaths = deathsByController.entries
+            .filter { controllerMatches(it.key) }
+            .flatMap { it.value }
 
         // "one or more *other* creatures you control die" excludes the source's own death.
         val relevantDeaths = if (trigger.excludeSelf) {
-            controllerDeaths.filter { it.entityId != sourceId }
+            scopedDeaths.filter { it.entityId != sourceId }
         } else {
-            controllerDeaths
+            scopedDeaths
         }
         if (relevantDeaths.isEmpty()) return
 
@@ -2230,6 +2308,7 @@ class TriggerDetector(
             val previousLoreCount = loreCount - event.amount
             val controllerId = container.get<ControllerComponent>()?.playerId
                 ?: cardComponent.ownerId ?: continue
+            val finalChapter = sagaChapters.maxOf { it.chapter }
 
             // Fire chapters that are newly reached by this counter addition
             for (chapter in sagaChapters.sortedBy { it.chapter }) {
@@ -2251,7 +2330,13 @@ class TriggerDetector(
                             sourceId = entityId,
                             sourceName = cardComponent.name,
                             controllerId = controllerId,
-                            triggerContext = TriggerContext()
+                            triggerContext = TriggerContext(),
+                            // Mark this as a Saga chapter ability so a SagaChapterResolvedEvent is
+                            // emitted when it resolves (Tom Bombadil's "final chapter resolves" cue).
+                            sagaChapterInfo = SagaChapterInfo(
+                                chapterNumber = chapter.chapter,
+                                finalChapterNumber = finalChapter
+                            )
                         )
                     )
                 }

@@ -159,7 +159,10 @@ data class TriggeredAbilityOnStackComponent(
      *  batch). Seeded into the resolving ability's pipeline under
      *  `PipelineState.TRIGGER_CAPTURED_COLLECTION` so a `ForEachInCollectionEffect` payoff can
      *  iterate them ("for each of them, create a tapped copy" — Kambal). Empty for non-batch triggers. */
-    val capturedEntityIds: List<EntityId> = emptyList()
+    val capturedEntityIds: List<EntityId> = emptyList(),
+    /** Set when this triggered ability is a Saga chapter ability; on resolution the engine emits a
+     *  SagaChapterResolvedEvent so "final chapter of a Saga resolves" triggers (Tom Bombadil) can fire. */
+    val sagaChapterInfo: com.wingedsheep.engine.event.SagaChapterInfo? = null
 ) : Component {
     val hasTargets: Boolean = false  // Will be updated based on effect
 }
@@ -179,6 +182,13 @@ data class ActivatedAbilityOnStackComponent(
     val tappedPermanents: List<EntityId> = emptyList(),
     /** LKI snapshots for [tappedPermanents] — see [sacrificedPermanents]. */
     val tappedPermanentSnapshots: List<PermanentSnapshot> = emptyList(),
+    /**
+     * Counters (counter-type-string → count) the source had the moment a self-exile /
+     * self-sacrifice cost was paid (CR 112.7a). Captured before the cost wipes them so the
+     * resolving effect can read the pre-cost count via
+     * [com.wingedsheep.sdk.scripting.values.DynamicAmount.LastKnownSourceCounters] (Lost Isle Calling).
+     */
+    val lastKnownSourceCounters: Map<String, Int> = emptyMap(),
     /** Optional human-readable description from `ActivatedAbility.descriptionOverride`,
      *  used when displaying the ability on the stack instead of the auto-generated effect text. */
     val descriptionOverride: String? = null,

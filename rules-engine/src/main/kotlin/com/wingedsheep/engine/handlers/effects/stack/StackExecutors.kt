@@ -21,6 +21,7 @@ class StackExecutors(
         ChangeTargetExecutor(),
         StormCopyEffectExecutor(cardRegistry),
         CopyTargetSpellExecutor(cardRegistry),
+        CopyEachTargetSpellExecutor(cardRegistry),
         CopyTargetTriggeredAbilityExecutor(cardRegistry),
         CopyTargetSpellOrAbilityExecutor(cardRegistry),
         CopyNextSpellCastExecutor(),
@@ -32,6 +33,7 @@ class StackExecutors(
         MarkSpellExileWithCountersExecutor(),
         MarkSpellPlotOnResolveExecutor(),
         ReturnSpellToOwnersHandExecutor(),
+        ReturnSpellOrPermanentToOwnersHandExecutor(cardRegistry),
         DestroySourceOfTargetedAbilityExecutor()
     )
 }

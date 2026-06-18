@@ -119,6 +119,25 @@ data class PlayerAttackedWithCreaturesThisTurn(
 }
 
 /**
+ * Condition: "If [attacker] attacked [defender] this turn" (CR 508.6) — i.e. [attacker]
+ * declared one or more creatures as attackers whose defending player was [defender] (the
+ * player itself, or the controller of a planeswalker / protector of a battle the creature
+ * attacked). Reads [attacker]'s per-turn attacked-players record.
+ *
+ * Negate via `Conditions.Not(...)` for "didn't attack you that turn" (Faramir, Prince of
+ * Ithilien: "you draw a card if they didn't attack you that turn").
+ */
+@SerialName("PlayerAttackedPlayerThisTurn")
+@Serializable
+data class PlayerAttackedPlayerThisTurn(
+    val attacker: Player,
+    val defender: Player = Player.You
+) : Condition {
+    override val description: String =
+        "if ${attacker.description} attacked ${defender.description} this turn"
+}
+
+/**
  * Condition: "If [player] has cast [atLeast] or more spells matching [filter] this turn".
  * Counts [player]'s `CastSpellRecord`s captured at cast time, so every spell
  * cast counts even if it was countered, fizzled, or is still on the stack.
@@ -156,6 +175,25 @@ data class PlayerCastSpellsThisTurn(
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
     }
+}
+
+/**
+ * Condition: "as long as [player] has drawn [atLeast] or more cards this turn".
+ *
+ * Backed by the per-player `CardsDrawnThisTurnComponent` (reset for all players at the start of
+ * each turn), so it counts every draw this turn regardless of how it happened. Used by Gwaihir the
+ * Windlord ("This spell costs {2} less to cast as long as you've drawn two or more cards this
+ * turn"). Works in both resolution and cost-reduction (projection) contexts. The
+ * `Conditions.YouDrewCardsThisTurn` DSL helper passes [Player.You].
+ */
+@SerialName("PlayerDrewCardsThisTurn")
+@Serializable
+data class PlayerDrewCardsThisTurn(
+    val player: Player = Player.You,
+    val atLeast: Int = 1
+) : Condition {
+    override val description: String =
+        "if ${player.description} drew $atLeast or more cards this turn"
 }
 
 /**
@@ -379,5 +417,28 @@ data object SourcePlottedOnPriorTurn : Condition {
 @Serializable
 data class PlayerHasCitysBlessing(val player: Player = Player.You) : Condition {
     override val description: String = "if ${player.description} has the city's blessing"
+}
+
+/**
+ * Intervening-if / resolution condition: "if the Ring has tempted [player] [times] or more times
+ * this game" (CR 701.54).
+ *
+ * Reads the cumulative `temptCount` the engine tracks on the player's The Ring emblem
+ * (`TheRingComponent`), which only ever increases as the Ring tempts that player. A player who has
+ * never been tempted has no emblem, so the count is treated as 0. The `Conditions.RingHasTemptedYouAtLeast`
+ * DSL helper passes [Player.You], resolved to the source's controller. Used by Frodo, Sauron's Bane's
+ * granted Rogue ability ("that player loses the game if the Ring has tempted you four or more times
+ * this game").
+ *
+ * @property times The minimum cumulative tempt count required for the condition to hold.
+ */
+@SerialName("RingHasTemptedPlayerAtLeast")
+@Serializable
+data class RingHasTemptedPlayerAtLeast(
+    val times: Int,
+    val player: Player = Player.You
+) : Condition {
+    override val description: String =
+        "if the Ring has tempted ${player.description} $times or more times this game"
 }
 

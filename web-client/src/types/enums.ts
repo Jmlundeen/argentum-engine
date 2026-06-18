@@ -153,6 +153,7 @@ export enum Keyword {
   MOUNTAINWALK = 'MOUNTAINWALK',
   PLAINSWALK = 'PLAINSWALK',
   DESERTWALK = 'DESERTWALK',
+  NONBASIC_LANDWALK = 'NONBASIC_LANDWALK',
   // Combat
   FIRST_STRIKE = 'FIRST_STRIKE',
   DOUBLE_STRIKE = 'DOUBLE_STRIKE',
@@ -223,6 +224,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.MOUNTAINWALK]: 'Mountainwalk',
   [Keyword.PLAINSWALK]: 'Plainswalk',
   [Keyword.DESERTWALK]: 'Desertwalk',
+  [Keyword.NONBASIC_LANDWALK]: 'Nonbasic landwalk',
   [Keyword.FIRST_STRIKE]: 'First strike',
   [Keyword.DOUBLE_STRIKE]: 'Double strike',
   [Keyword.TRAMPLE]: 'Trample',
@@ -277,6 +279,7 @@ export enum AbilityFlag {
   DOESNT_UNTAP = 'DOESNT_UNTAP',
   MAY_NOT_UNTAP = 'MAY_NOT_UNTAP',
   CANT_RECEIVE_COUNTERS = 'CANT_RECEIVE_COUNTERS',
+  ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS = 'ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS',
 }
 
 export const AbilityFlagDisplayNames: Record<AbilityFlag, string> = {
@@ -285,6 +288,7 @@ export const AbilityFlagDisplayNames: Record<AbilityFlag, string> = {
   [AbilityFlag.DOESNT_UNTAP]: "Doesn't untap during your untap step",
   [AbilityFlag.MAY_NOT_UNTAP]: 'You may choose not to untap',
   [AbilityFlag.CANT_RECEIVE_COUNTERS]: "Can't have counters put on it",
+  [AbilityFlag.ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS]: 'Assigns combat damage equal to its toughness rather than its power',
 }
 
 /**
@@ -333,6 +337,7 @@ export enum CounterType {
   SUPPLY = 'SUPPLY',
   FLYING = 'FLYING',
   FIRST_STRIKE = 'FIRST_STRIKE',
+  VIGILANCE = 'VIGILANCE',
   LIFELINK = 'LIFELINK',
   INDESTRUCTIBLE = 'INDESTRUCTIBLE',
   DEATHTOUCH = 'DEATHTOUCH',
@@ -377,6 +382,7 @@ export const CounterTypeDisplayNames: Record<CounterType, string> = {
   [CounterType.SUPPLY]: 'Supply',
   [CounterType.FLYING]: 'Flying',
   [CounterType.FIRST_STRIKE]: 'First Strike',
+  [CounterType.VIGILANCE]: 'Vigilance',
   [CounterType.LIFELINK]: 'Lifelink',
   [CounterType.INDESTRUCTIBLE]: 'Indestructible',
   [CounterType.DEATHTOUCH]: 'Deathtouch',

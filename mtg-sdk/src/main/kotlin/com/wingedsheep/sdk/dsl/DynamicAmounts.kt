@@ -204,6 +204,14 @@ object DynamicAmounts {
     fun distinctEntitiesIn(vararg collections: String): DynamicAmount =
         DynamicAmount.DistinctEntitiesInCollections(collections.toList())
 
+    /**
+     * Total mana value of every card in a named pipeline collection (e.g. the cards just milled
+     * into a "milled" collection). Reads each card by entity id, so it stays correct after the
+     * collection has moved zones. See [DynamicAmount.ManaValueSumOfCollection].
+     */
+    fun manaValueSumOf(collectionName: String): DynamicAmount =
+        DynamicAmount.ManaValueSumOfCollection(collectionName)
+
     // =========================================================================
     // Graveyard counting
     // =========================================================================
@@ -258,6 +266,16 @@ object DynamicAmounts {
 
     fun additionalCostExiledCount(): DynamicAmount =
         DynamicAmount.ContextProperty(ContextPropertyKey.ADDITIONAL_COST_EXILED_COUNT)
+
+    /**
+     * The number of [filter] counters the source had the moment its self-exile / self-sacrifice
+     * cost wiped them — "for each verse counter on this" / "if it had seven or more counters on it"
+     * read as last-known information (CR 112.7a). See
+     * [DynamicAmount.LastKnownSourceCounters] (Lost Isle Calling).
+     */
+    fun lastKnownSourceCounters(
+        filter: com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+    ): DynamicAmount = DynamicAmount.LastKnownSourceCounters(filter)
 
     // =========================================================================
     // Spell-cast trigger values
@@ -446,4 +464,12 @@ object DynamicAmounts {
      */
     fun creaturesThatCrewedOrSaddledThisTurn(): DynamicAmount =
         DynamicAmount.CreaturesThatCrewedOrSaddledThisTurn
+
+    /**
+     * Number of permanents sacrificed by the current resolving effect ("this way"), read from the
+     * effect context's `sacrificedPermanents`. See [DynamicAmount.PermanentsSacrificedThisWay]. Used
+     * by "Create a Food token for each creature sacrificed this way" (Voracious Fell Beast).
+     */
+    fun permanentsSacrificedThisWay(): DynamicAmount =
+        DynamicAmount.PermanentsSacrificedThisWay
 }
