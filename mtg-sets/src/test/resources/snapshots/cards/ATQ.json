@@ -42,6 +42,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "36",
         "artist": "Margaret Organ-Kean",
@@ -100,6 +101,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "1",
         "rarity": "RARE",
@@ -151,6 +153,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "2",
         "artist": "Kerstin Kaman",
@@ -198,6 +201,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "29",
         "artist": "Amy Weber",
@@ -234,6 +238,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "30",
         "artist": "Amy Weber",
@@ -264,6 +269,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "22",
         "artist": "Mark Poole",
@@ -321,6 +327,7 @@
             }
         }
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "15",
         "artist": "Christopher Rush",
@@ -329,6 +336,60 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Artifact Ward
+{
+    "name": "Artifact Ward",
+    "manaCost": "{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature can't be blocked by artifact creatures.\nPrevent all damage that would be dealt to enchanted creature by artifact sources.\nEnchanted creature can't be the target of abilities from artifact sources.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsArtifact",
+                        "IsCreature"
+                    ]
+                },
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            },
+            "CantBeTargetedByArtifactSourceAbilities"
+        ],
+        "replacementEffects": [
+            {
+                "type": "PreventDamage",
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "recipient": "RecipientEnchantedCreature",
+                    "source": {
+                        "type": "SourceMatching",
+                        "filter": "artifact"
+                    }
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "3",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/3/b3a5101a-ec66-4658-950c-9ad49c29b836.jpg?1562932896"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -361,6 +422,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "38",
         "rarity": "UNCOMMON",
@@ -428,6 +490,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "39",
         "rarity": "UNCOMMON",
@@ -490,6 +553,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "40",
         "rarity": "UNCOMMON",
@@ -537,6 +601,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "23",
         "artist": "Jesper Myrfors",
@@ -595,6 +660,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "43",
         "rarity": "RARE",
@@ -638,6 +704,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "31",
         "rarity": "UNCOMMON",
@@ -678,6 +745,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "44",
         "artist": "Jesper Myrfors",
@@ -735,6 +803,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "46",
         "rarity": "RARE",
@@ -802,6 +871,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "47",
         "rarity": "RARE",
@@ -863,6 +933,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "32",
         "artist": "Jesper Myrfors",
@@ -898,6 +969,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "48",
         "rarity": "UNCOMMON",
@@ -923,6 +995,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "5",
         "rarity": "UNCOMMON",
@@ -988,6 +1061,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "24",
         "rarity": "UNCOMMON",
@@ -1035,6 +1109,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "49",
         "artist": "Anson Maddocks",
@@ -1104,6 +1179,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "25",
         "rarity": "UNCOMMON",
@@ -1158,6 +1234,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "50",
         "rarity": "UNCOMMON",
@@ -1194,6 +1271,7 @@
             "offset": 1
         }
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "33",
         "rarity": "RARE",
@@ -1257,6 +1335,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "16",
         "rarity": "UNCOMMON",
@@ -1267,6 +1346,77 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Golgothian Sylex
+{
+    "name": "Golgothian Sylex",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "{1}, {T}: Each nontoken permanent with a name originally printed in the Antiquities expansion is sacrificed by its controller.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsPermanent",
+                                        "IsNontoken",
+                                        {
+                                            "type": "OriginallyPrintedInSet",
+                                            "setCode": "ATQ"
+                                        }
+                                    ]
+                                },
+                                "excludeSelf": true,
+                                "excludeTriggering": true
+                            },
+                            "storeAs": "sacrificeAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "sacrificeAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Sacrifice"
+                        }
+                    ]
+                },
+                "descriptionOverride": "{1}, {T}: Each nontoken permanent with a name originally printed in the Antiquities expansion is sacrificed by its controller."
+            }
+        ]
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "51",
+        "rarity": "RARE",
+        "artist": "Kerstin Kaman",
+        "flavorText": "From their earliest educations, the brothers had known that no human contrivance could stand against the true masters of Dominia.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/5/856be1dd-a20b-49c2-be9d-7db76c7efd8b.jpg?1666943891"
+    },
+    "colorIdentityOverride": []
 }
 
 // Grapeshot Catapult
@@ -1307,6 +1457,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "52",
         "artist": "Dan Frazier",
@@ -1363,6 +1514,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "17",
         "rarity": "UNCOMMON",
@@ -1410,6 +1562,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "10",
         "rarity": "RARE",
@@ -1459,6 +1612,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "53",
         "rarity": "UNCOMMON",
@@ -1542,6 +1696,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "54",
         "rarity": "UNCOMMON",
@@ -1570,6 +1725,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "55",
         "rarity": "UNCOMMON",
@@ -1645,6 +1801,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "56",
         "rarity": "UNCOMMON",
@@ -1683,6 +1840,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "81",
         "rarity": "RARE",
@@ -1748,6 +1906,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "58",
         "rarity": "RARE",
@@ -1787,6 +1946,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "59",
         "rarity": "UNCOMMON",
@@ -1845,6 +2005,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "27",
         "artist": "Pete Venters",
@@ -1868,6 +2029,7 @@
     "keywords": [
         "FLYING"
     ],
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "60",
         "artist": "Amy Weber",
@@ -1932,6 +2094,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "18",
         "artist": "Amy Weber",
@@ -1967,6 +2130,7 @@
             }
         }
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "11",
         "rarity": "UNCOMMON",
@@ -2020,6 +2184,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "34",
         "rarity": "UNCOMMON",
@@ -2072,6 +2237,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "19",
         "artist": "Mark Tedin",
@@ -2205,6 +2371,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "61",
         "rarity": "UNCOMMON",
@@ -2266,6 +2433,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "62",
         "rarity": "UNCOMMON",
@@ -2302,6 +2470,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "12",
         "artist": "Anson Maddocks",
@@ -2310,6 +2479,37 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Reverse Polarity
+{
+    "name": "Reverse Polarity",
+    "manaCost": "{W}{W}",
+    "typeLine": "Instant",
+    "oracleText": "You gain X life, where X is twice the damage dealt to you so far this turn by artifacts.",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Multiply",
+                "amount": {
+                    "type": "TurnTracking",
+                    "player": "You",
+                    "tracker": "DAMAGE_RECEIVED_FROM_ARTIFACTS"
+                },
+                "multiplier": 2
+            }
+        }
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "7",
+        "artist": "Justin Hampton",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/a/da7ed8ba-3886-4779-a9b3-6892a7ed3527.jpg?1562941146"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -2350,6 +2550,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "13",
         "artist": "Pete Venters",
@@ -2414,6 +2615,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "64",
         "rarity": "RARE",
@@ -2455,6 +2657,7 @@
             ]
         }
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "28",
         "rarity": "RARE",
@@ -2518,6 +2721,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "65",
         "artist": "Mark Poole",
@@ -2579,6 +2783,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "82a",
         "rarity": "UNCOMMON",
@@ -2619,6 +2824,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "66",
         "rarity": "UNCOMMON",
@@ -2666,6 +2872,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "67",
         "artist": "Christopher Rush",
@@ -2719,6 +2926,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "69",
         "rarity": "UNCOMMON",
@@ -2786,6 +2994,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "70",
         "rarity": "UNCOMMON",
@@ -2906,6 +3115,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "71",
         "rarity": "RARE",
@@ -2913,6 +3123,161 @@
         "imageUri": "https://cards.scryfall.io/normal/front/2/3/23eb19f9-2e8f-4bf0-9bf8-868e6da70e2d.jpg?1562902619"
     },
     "colorIdentityOverride": []
+}
+
+// Transmute Artifact
+{
+    "name": "Transmute Artifact",
+    "manaCost": "{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Sacrifice an artifact. If you do, search your library for an artifact card. If that card's mana value is less than or equal to the sacrificed artifact's mana value, put it onto the battlefield. If it's greater, you may pay {X}, where X is the difference. If you do, put it onto the battlefield. If you don't, put it into its owner's graveyard. Then shuffle.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "BattlefieldMatching",
+                        "filter": "artifact"
+                    },
+                    "storeAs": "sacrificeable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "sacrificeable",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "sacrificed",
+                    "prompt": "Sacrifice an artifact"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "sacrificed",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Sacrifice"
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "CollectionContainsMatch",
+                            "collection": "sacrificed"
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "artifact"
+                                },
+                                "storeAs": "searchable"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found",
+                                "prompt": "Search your library for an artifact card"
+                            },
+                            {
+                                "type": "Gated",
+                                "gate": {
+                                    "type": "Gate.WhenCondition",
+                                    "condition": {
+                                        "type": "Compare",
+                                        "left": {
+                                            "type": "StoredCardManaValue",
+                                            "collectionName": "found"
+                                        },
+                                        "operator": "LTE",
+                                        "right": {
+                                            "type": "StoredCardManaValue",
+                                            "collectionName": "sacrificed"
+                                        }
+                                    }
+                                },
+                                "then": {
+                                    "type": "MoveCollection",
+                                    "from": "found",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    }
+                                },
+                                "otherwise": {
+                                    "type": "Gated",
+                                    "gate": {
+                                        "type": "Gate.MayPay",
+                                        "cost": {
+                                            "type": "PayDynamicManaCost",
+                                            "amount": {
+                                                "type": "Subtract",
+                                                "left": {
+                                                    "type": "StoredCardManaValue",
+                                                    "collectionName": "found"
+                                                },
+                                                "right": {
+                                                    "type": "StoredCardManaValue",
+                                                    "collectionName": "sacrificed"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "type": "MoveCollection",
+                                        "from": "found",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield"
+                                        }
+                                    },
+                                    "otherwise": {
+                                        "type": "MoveCollection",
+                                        "from": "found",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "14",
+        "rarity": "UNCOMMON",
+        "artist": "Anson Maddocks",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/e/6eab6765-eba3-4844-81ca-ae37a6e903df.jpg?1562918256"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // Triskelion
@@ -2961,6 +3326,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "73",
         "rarity": "RARE",
@@ -3012,6 +3378,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "75",
         "artist": "Jeff A. Menges",
@@ -3075,6 +3442,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "83c",
         "artist": "Anson Maddocks",
@@ -3138,6 +3506,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "84a",
         "artist": "Mark Tedin",
@@ -3201,6 +3570,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "85a",
         "artist": "Mark Poole",
@@ -3224,6 +3594,7 @@
         "DEFENDER",
         "FIRST_STRIKE"
     ],
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "77",
         "rarity": "UNCOMMON",
@@ -3252,6 +3623,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "78",
         "rarity": "UNCOMMON",
@@ -3311,6 +3683,7 @@
             }
         ]
     },
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "21",
         "rarity": "RARE",
@@ -3335,6 +3708,7 @@
     "keywords": [
         "VIGILANCE"
     ],
+    "setCode": "ATQ",
     "metadata": {
         "collectorNumber": "79",
         "artist": "Christopher Rush",
