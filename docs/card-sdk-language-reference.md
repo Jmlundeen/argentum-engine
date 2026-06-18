@@ -2149,6 +2149,12 @@ for anything else (the ATTACHED-binding aura shapes, custom step/player combinat
 - `YourDrawStep` — start of your draw step.
 - `EachUpkeep` — every upkeep.
 - `EachOpponentUpkeep` — at each opponent's upkeep.
+- `ChosenOpponentUpkeep` — at the upkeep of the opponent chosen as the source entered (The Rack).
+  Pairs with `replacementEffect(EntersWithChoice(ChoiceType.OPPONENT))`; the step trigger
+  (`StepEvent(UPKEEP, Player.ChosenOpponent)`) fires only on that stored player's upkeep — the
+  matcher resolves `Player.ChosenOpponent` against the source's `ChoiceSlot.OPPONENT` and doesn't
+  fire until a choice is recorded. Effects/dynamic amounts in the ability can reference
+  `Player.ChosenOpponent` / `EffectTarget.PlayerRef(Player.ChosenOpponent)` for "that player".
 - `YourEndStep` — beginning of your end step.
 - `EachEndStep` — beginning of each end step.
 - `BeginCombat` — start of combat on your turn.

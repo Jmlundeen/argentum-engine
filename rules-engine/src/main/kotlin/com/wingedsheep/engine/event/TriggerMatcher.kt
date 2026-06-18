@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.event
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
+import com.wingedsheep.engine.state.components.battlefield.chosenOpponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 
@@ -1229,11 +1230,12 @@ class TriggerMatcher(
         trigger: EventPattern,
         step: Step,
         controllerId: EntityId,
-        state: GameState
+        state: GameState,
+        sourceId: EntityId? = null
     ): Boolean {
         if (trigger !is EventPattern.StepEvent) return false
         if (step != trigger.step) return false
-        return matchesPlayerForStep(trigger.player, controllerId, state)
+        return matchesPlayerForStep(trigger.player, controllerId, state, sourceId)
     }
 
     /**
@@ -1243,12 +1245,27 @@ class TriggerMatcher(
      * step" trigger fires while the opposing team is active. In a non-team game this reduces to the
      * ordinary active-player comparison. (The 805.4d per-opponent *multiplicity* nuance — firing once
      * per opposing teammate — is not yet modelled; the trigger fires once.)
+     *
+     * [Player.ChosenOpponent] keys the step to the opponent stored on the source permanent when
+     * it entered (`ChoiceSlot.OPPONENT`, via [com.wingedsheep.sdk.scripting.EntersWithChoice]) —
+     * The Rack: "at the beginning of the chosen player's upkeep". The trigger fires only on that
+     * player's step; without [sourceId] (or before a choice is recorded) it can't resolve and
+     * doesn't fire, rather than firing on every player's step.
      */
-    fun matchesPlayerForStep(player: Player, controllerId: EntityId, state: GameState): Boolean {
+    fun matchesPlayerForStep(
+        player: Player,
+        controllerId: EntityId,
+        state: GameState,
+        sourceId: EntityId? = null
+    ): Boolean {
         return when (player) {
             Player.You -> state.isActiveTurnFor(controllerId)
             Player.Each -> true
             Player.EachOpponent -> !state.isActiveTurnFor(controllerId)
+            Player.ChosenOpponent -> {
+                val chosen = sourceId?.let { state.getEntity(it)?.chosenOpponent() } ?: return false
+                state.isActiveTurnFor(chosen)
+            }
             else -> true
         }
     }

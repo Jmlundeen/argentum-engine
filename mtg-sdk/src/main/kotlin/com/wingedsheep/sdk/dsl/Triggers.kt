@@ -503,6 +503,16 @@ object Triggers {
     )
 
     /**
+     * At the beginning of the chosen opponent's upkeep (The Rack). Pairs with an
+     * `EntersWithChoice(ChoiceType.OPPONENT)` replacement that records the chosen player on the
+     * source under `ChoiceSlot.OPPONENT`; the trigger fires only on that player's upkeep.
+     */
+    val ChosenOpponentUpkeep: TriggerSpec = TriggerSpec(
+        event = StepEvent(Step.UPKEEP, Player.ChosenOpponent),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * At the beginning of your end step.
      */
     val YourEndStep: TriggerSpec = TriggerSpec(
