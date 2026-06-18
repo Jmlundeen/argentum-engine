@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityReference
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -369,6 +370,30 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     data class ManaValueAtMostColorsSpent(val reference: EntityReference) : CardPredicate {
         override val description: String =
             "with mana value less than or equal to the number of colors of mana spent to cast ${reference.description}"
+    }
+
+    /**
+     * Mana value at most a resolved [DynamicAmount]. The general "mana value X or less, where X is
+     * <some game value>" cap: feed it any [DynamicAmount] (a turn-tracking total, a count over a
+     * filter, a life total, an arithmetic composition, …) and the engine evaluates it at the moment
+     * the predicate is checked, comparing against the card's mana value.
+     *
+     * The sibling fixed/entity-derived caps cover their narrow cases ([ManaValueAtMost] = a constant,
+     * [ManaValueAtMostX] = the cast {X}, [ManaValueAtMostEntity] / [ManaValueAtMostEntityManaSpent] /
+     * [ManaValueAtMostColorsSpent] = values read off a referenced entity). This variant is the
+     * open-ended one for any other dynamic source — e.g. Moseo, Vein's New Dean: "return … a creature
+     * card with mana value X or less …, where X is the amount of life you gained this turn"
+     * ([DynamicAmount.TurnTracking] of `LIFE_GAINED`).
+     */
+    @SerialName("ManaValueAtMostDynamic")
+    @Serializable
+    data class ManaValueAtMostDynamic(val amount: DynamicAmount) : CardPredicate {
+        override val description: String = "with mana value ${amount.description} or less"
+
+        override fun applyTextReplacement(replacer: TextReplacer): CardPredicate {
+            val newAmount = amount.applyTextReplacement(replacer)
+            return if (newAmount === amount) this else copy(amount = newAmount)
+        }
     }
 
     @SerialName("ManaValueIsEven")

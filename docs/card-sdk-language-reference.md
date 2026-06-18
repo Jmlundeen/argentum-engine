@@ -1583,6 +1583,16 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   color *count* rather than total mana (colorless is not a color). The **Converge** exile-by-color-count
   gate — Sundering Archaic ("exile target nonland permanent an opponent controls with mana value less than
   or equal to the number of colors of mana spent to cast this creature"), with `EntityReference.Source`.
+- `.manaValueAtMostDynamic(amount)` — mana value ≤ a resolved `DynamicAmount`. The open-ended
+  "mana value X or less, where X is <some game value>" cap, for sources no fixed/entity-derived sibling
+  covers: feed it any `DynamicAmount` (a `TurnTracking` total, a count over a filter, a life total, an
+  arithmetic composition, …) and the engine evaluates it against the controller/source at evaluation
+  time. **Moseo, Vein's New Dean** — "return … a creature card with mana value X or less from your
+  graveyard …, where X is the amount of life you gained this turn" — uses
+  `.manaValueAtMostDynamic(DynamicAmount.TurnTracking(Player.You, TurnTracker.LIFE_GAINED))`. The cap
+  fails closed (matches nothing) when there is no controller context to resolve a player-scoped amount,
+  and is `false` in the layer-projection / cost-calculation / cast-record paths (no resolution context),
+  matching the other entity-relative caps.
 - `.manaValueIsOdd()` / `.manaValueIsEven()` — mana-value parity (zero is even). Pair with modal
   spells whose modes ask the caster to choose a parity (e.g. *Mutinous Massacre*).
 - `.toughnessAtMost(n)` / `.toughnessAtLeast(n)` — toughness comparator.
