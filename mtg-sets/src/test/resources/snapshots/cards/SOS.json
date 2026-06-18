@@ -1170,6 +1170,77 @@
     ]
 }
 
+// Choreographed Sparks
+{
+    "name": "Choreographed Sparks",
+    "manaCost": "{R}{R}",
+    "typeLine": "Instant",
+    "oracleText": "This spell can't be copied.\nChoose one or both —\n• Copy target instant or sorcery spell you control. You may choose new targets for the copy.\n• Copy target creature spell you control. The copy gains haste and \"At the beginning of the end step, sacrifice this token.\"",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "CopyTargetSpell",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target instant or sorcery spell you control"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "instant|sorcery ctrl:you",
+                                "zone": "Stack"
+                            },
+                            "id": "target instant or sorcery spell you control"
+                        }
+                    ],
+                    "description": "Copy target instant or sorcery spell you control. You may choose new targets for the copy"
+                },
+                {
+                    "effect": {
+                        "type": "CopyTargetSpell",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature spell you control"
+                        },
+                        "addedTokenKeywords": [
+                            "HASTE"
+                        ],
+                        "sacrificeTokenAtStep": "END"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you",
+                                "zone": "Stack"
+                            },
+                            "id": "target creature spell you control"
+                        }
+                    ],
+                    "description": "Copy target creature spell you control. The copy gains haste and \"At the beginning of the end step, sacrifice this token.\""
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1
+        },
+        "cantBeCopied": true
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "rarity": "RARE",
+        "artist": "Paolo Parente",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/c/0cda4235-4dce-48fe-a8a5-2a952dedbe25.jpg?1776583993"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Colorstorm Stallion
 {
     "name": "Colorstorm Stallion",
@@ -10080,6 +10151,62 @@
     ]
 }
 
+// Splatter Technique
+{
+    "name": "Splatter Technique",
+    "manaCost": "{1}{U}{U}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one —\n• Draw four cards.\n• Splatter Technique deals 4 damage to each creature and planeswalker.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    },
+                    "description": "Draw four cards"
+                },
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature|planeswalker"
+                            }
+                        },
+                        "body": {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 4
+                            },
+                            "target": "Self"
+                        }
+                    },
+                    "description": "Splatter Technique deals 4 damage to each creature and planeswalker"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "231",
+        "rarity": "RARE",
+        "artist": "Tuan Duong Chu",
+        "flavorText": "As the marvels of living art they are, elemental whales can't resist contributing to Summitfest's displays.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/6/969b6657-c3b9-47e1-a42e-95bbcccf452d.jpg?1775938612"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Stadium Tidalmage
 {
     "name": "Stadium Tidalmage",
@@ -10310,6 +10437,112 @@
     "colorIdentityOverride": [
         "RED",
         "WHITE"
+    ]
+}
+
+// Steal the Show
+{
+    "name": "Steal the Show",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one or both —\n• Target player discards any number of cards, then draws that many cards.\n• Steal the Show deals damage equal to the number of instant and sorcery cards in your graveyard to target creature or planeswalker.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand",
+                                    "player": {
+                                        "type": "ContextPlayer",
+                                        "index": 0
+                                    }
+                                },
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "gathered0",
+                                "selection": "ChooseAnyNumber",
+                                "chooser": "TargetPlayer",
+                                "storeSelected": "selected1",
+                                "prompt": "Choose any number of cards to discard"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "selected1",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard",
+                                    "player": {
+                                        "type": "ContextPlayer",
+                                        "index": 0
+                                    }
+                                },
+                                "moveType": "Discard"
+                            },
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "VariableReference",
+                                    "variableName": "selected1_count"
+                                },
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetPlayer",
+                            "id": "target player"
+                        }
+                    ],
+                    "description": "Target player discards any number of cards, then draws that many cards"
+                },
+                {
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Count",
+                            "player": "You",
+                            "zone": "Graveyard",
+                            "filter": "instant|sorcery"
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature or planeswalker"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetCreatureOrPlaneswalker",
+                            "id": "target creature or planeswalker"
+                        }
+                    ],
+                    "description": "Steal the Show deals damage equal to the number of instant and sorcery cards in your graveyard to target creature or planeswalker"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1
+        }
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "rarity": "RARE",
+        "artist": "Pauline Voss",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/a/7ac6649f-980e-4404-9c05-458c30578ecc.jpg?1775937875"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 

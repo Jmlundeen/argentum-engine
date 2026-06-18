@@ -74,6 +74,47 @@
     ]
 }
 
+// Seize the Spoils
+{
+    "name": "Seize the Spoils",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, discard a card.\nDraw two cards and create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            ]
+        },
+        "additionalCosts": [
+            {
+                "type": "AdditionalAtom",
+                "atom": "AtomDiscard"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "artist": "Jesper Ejsing",
+        "flavorText": "\"Grab what you want and burn the rest. Leave nothing behind.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/3/b3b7a69c-75d2-49a6-ab56-ef608d0b0208.jpg?1631049630"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Snakeskin Veil
 {
     "name": "Snakeskin Veil",
