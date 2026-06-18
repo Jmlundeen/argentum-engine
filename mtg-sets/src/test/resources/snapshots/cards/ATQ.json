@@ -250,6 +250,94 @@
     ]
 }
 
+// Armageddon Clock
+{
+    "name": "Armageddon Clock",
+    "manaCost": "{6}",
+    "typeLine": "Artifact",
+    "oracleText": "At the beginning of your upkeep, put a doom counter on this artifact.\nAt the beginning of your draw step, this artifact deals damage equal to the number of doom counters on it to each player.\n{4}: Remove a doom counter from this artifact. Any player may activate this ability but only during any upkeep step.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "doom",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "At the beginning of your upkeep, put a doom counter on this artifact."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "DRAW"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Source",
+                        "numericProperty": {
+                            "type": "CounterCount",
+                            "counterType": {
+                                "type": "Named",
+                                "name": "doom"
+                            }
+                        }
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                },
+                "descriptionOverride": "At the beginning of your draw step, this artifact deals damage equal to the number of doom counters on it to each player."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}"
+                    }
+                },
+                "effect": {
+                    "type": "RemoveCounters",
+                    "counterType": "doom",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "restrictions": [
+                    "AnyPlayerMay",
+                    {
+                        "type": "DuringStep",
+                        "step": "UPKEEP"
+                    }
+                ],
+                "descriptionOverride": "{4}: Remove a doom counter from this artifact. Any player may activate this ability but only during any upkeep step."
+            }
+        ]
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "37",
+        "rarity": "UNCOMMON",
+        "artist": "Amy Weber",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/4/44a31889-6a8d-450c-a73d-381a7ff28bf9.jpg?1562909201"
+    },
+    "colorIdentityOverride": []
+}
+
 // Artifact Blast
 {
     "name": "Artifact Blast",
@@ -1134,6 +1222,56 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Energy Flux
+{
+    "name": "Energy Flux",
+    "manaCost": "{2}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "All artifacts have \"At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.\"",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantTriggeredAbility",
+                "ability": {
+                    "id": "ability_1",
+                    "trigger": {
+                        "type": "StepEvent",
+                        "step": "UPKEEP"
+                    },
+                    "binding": "ANY",
+                    "effect": {
+                        "type": "PayOrSuffer",
+                        "cost": {
+                            "type": "PayAtom",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "suffer": {
+                            "type": "SacrificeTarget",
+                            "target": "Self"
+                        }
+                    }
+                },
+                "filter": {
+                    "baseFilter": "artifact"
+                }
+            }
+        ]
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "9",
+        "rarity": "UNCOMMON",
+        "artist": "Kaja Foglio",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bd1f624b-e8f2-462f-838a-7cb9e8fda988.jpg?1562934930"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -3124,6 +3262,142 @@
         "artist": "Douglas Shuler",
         "flavorText": "A brainchild of Tawnos, the Triskelion proved its versatility and usefulness in many of the later battles between the brothers.",
         "imageUri": "https://cards.scryfall.io/normal/front/a/7/a79c99e1-722a-44b6-8fa3-2be3f0c193d8.jpg?1562930328"
+    },
+    "colorIdentityOverride": []
+}
+
+// Urza's Avenger
+{
+    "name": "Urza's Avenger",
+    "manaCost": "{6}",
+    "typeLine": "Artifact Creature — Shapeshifter",
+    "oracleText": "{0}: This creature gets -1/-1 and gains your choice of banding, flying, first strike, or trample until end of turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostFree",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "ModifyStats",
+                                        "powerModifier": {
+                                            "type": "Fixed",
+                                            "amount": -1
+                                        },
+                                        "toughnessModifier": {
+                                            "type": "Fixed",
+                                            "amount": -1
+                                        },
+                                        "target": "Self"
+                                    },
+                                    {
+                                        "type": "GrantKeyword",
+                                        "keyword": "BANDING",
+                                        "target": "Self"
+                                    }
+                                ]
+                            },
+                            "description": "This creature gets -1/-1 and gains banding until end of turn"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "ModifyStats",
+                                        "powerModifier": {
+                                            "type": "Fixed",
+                                            "amount": -1
+                                        },
+                                        "toughnessModifier": {
+                                            "type": "Fixed",
+                                            "amount": -1
+                                        },
+                                        "target": "Self"
+                                    },
+                                    {
+                                        "type": "GrantKeyword",
+                                        "keyword": "FLYING",
+                                        "target": "Self"
+                                    }
+                                ]
+                            },
+                            "description": "This creature gets -1/-1 and gains flying until end of turn"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "ModifyStats",
+                                        "powerModifier": {
+                                            "type": "Fixed",
+                                            "amount": -1
+                                        },
+                                        "toughnessModifier": {
+                                            "type": "Fixed",
+                                            "amount": -1
+                                        },
+                                        "target": "Self"
+                                    },
+                                    {
+                                        "type": "GrantKeyword",
+                                        "keyword": "FIRST_STRIKE",
+                                        "target": "Self"
+                                    }
+                                ]
+                            },
+                            "description": "This creature gets -1/-1 and gains first strike until end of turn"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "ModifyStats",
+                                        "powerModifier": {
+                                            "type": "Fixed",
+                                            "amount": -1
+                                        },
+                                        "toughnessModifier": {
+                                            "type": "Fixed",
+                                            "amount": -1
+                                        },
+                                        "target": "Self"
+                                    },
+                                    {
+                                        "type": "GrantKeyword",
+                                        "keyword": "TRAMPLE",
+                                        "target": "Self"
+                                    }
+                                ]
+                            },
+                            "description": "This creature gets -1/-1 and gains trample until end of turn"
+                        }
+                    ],
+                    "countsAsModalSpell": false
+                },
+                "descriptionOverride": "{0}: This creature gets -1/-1 and gains your choice of banding, flying, first strike, or trample until end of turn."
+            }
+        ]
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "74",
+        "rarity": "RARE",
+        "artist": "Amy Weber",
+        "flavorText": "Unable to settle on just one design, Urza decided to create one versatile being.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/4/448e1811-fb16-4390-ac22-b7066a4a019c.jpg?1562909193"
     },
     "colorIdentityOverride": []
 }

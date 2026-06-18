@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 58 / 85
+**Implemented:** 61 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -31,7 +31,7 @@
 
 ### Blue
 - [ ] Drafna's Restoration
-- [ ] Energy Flux
+- [x] Energy Flux
 - [x] Hurkyl's Recall
 - [x] Power Artifact
 - [x] Reconstruction
@@ -67,7 +67,7 @@
 
 ### Artifacts
 - [x] Amulet of Kroog
-- [ ] Armageddon Clock
+- [x] Armageddon Clock
 - [x] Ashnod's Altar
 - [ ] Ashnod's Battle Gear
 - [x] Ashnod's Transmogrant
@@ -104,7 +104,7 @@
 - [x] Tetravus
 - [ ] The Rack
 - [x] Triskelion
-- [ ] Urza's Avenger
+- [x] Urza's Avenger
 - [x] Urza's Chalice
 - [ ] Urza's Miter
 - [x] Wall of Spears
