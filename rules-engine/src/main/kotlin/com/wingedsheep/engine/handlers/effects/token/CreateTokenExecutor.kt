@@ -231,19 +231,6 @@ class CreateTokenExecutor(
             counterEvents.addAll(events)
         }
 
-        // Apply "create those tokens plus an additional X token" replacements (Worldwalker Helm,
-        // Peregrin Took): if the controller has any matching CreateAdditionalToken effects, create
-        // those extra predefined tokens directly (no recursive replacement pass — CR 614.5).
-        if (createdTokens.isNotEmpty()) {
-            val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
-                .applyAdditionalTokenReplacements(
-                    newState, tokenControllerId, createdTokens, effect.tapped,
-                    cardRegistry, staticAbilityHandler
-                )
-            newState = afterAdditional
-            counterEvents.addAll(additionalEvents)
-        }
-
         // If exileAtStep is set, create delayed triggers to exile each created token
         val exileStep = effect.exileAtStep
         if (exileStep != null) {
