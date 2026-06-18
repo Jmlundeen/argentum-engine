@@ -2965,7 +2965,10 @@ val DregsOfSorrow = card("Dregs of Sorrow") {
     typeLine = "Sorcery"
     oracleText = "Destroy X target nonblack creatures. Draw X cards."
     spell {
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK)))
+        val t = target(
+            "target",
+            TargetCreature(dynamicMaxCount = DynamicAmount.XValue, filter = TargetFilter.Creature.notColor(Color.BLACK))
+        )
         effect = Effects.Composite(
             ForEachTargetEffect(
                 listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true))

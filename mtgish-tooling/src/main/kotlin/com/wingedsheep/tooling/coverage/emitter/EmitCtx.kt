@@ -762,6 +762,18 @@ internal fun EmitCtx.actionConditionDsl(cond: JsonObject?): String? {
                     if (n == 0) return "Conditions.EmptyHand"
                 }
             }
+            // Delirium — "if there are [N] or more card types among cards in your graveyard"
+            // (`NumCardTypesInGraveyardIs(GreaterThanOrEqualTo N)`) -> Conditions.Delirium(N).
+            // The printed threshold is always four (Impossible Inferno), but the count is read
+            // from the IR so any GTE-N variant renders. Only the GTE comparator renders; any other
+            // comparator declines (-> SCAFFOLD) rather than misread the gate.
+            if (controls?.strField("_Players") == "NumCardTypesInGraveyardIs") {
+                val cmp = controls["args"] as? JsonObject
+                if (cmp?.strField("_Comparison") == "GreaterThanOrEqualTo") {
+                    val n = cmp["args"].asInt() ?: ((cmp["args"] as? JsonObject)?.get("args").asInt())
+                    if (n != null) return "Conditions.Delirium($n)"
+                }
+            }
         }
     }
     // "If [N] or more mana was spent to cast that spell, …" — the Opus 5+ mana tier
@@ -1004,12 +1016,15 @@ internal fun EmitCtx.impulseExileTopMayPlay(actions: List<JsonObject>): Dsl? {
     val blob = compact(grant)
     if ("MayPlayExiledCard" !in blob || "TheCardExiledThisWay" !in blob) return null
     // "Until the end of your next turn" — never expires this turn even on your own turn. mtgish
-    // encodes this window two equivalent ways for the may-play permission: the dedicated
-    // `UntilEndOfNextTurn`, and `UntilPlayersNextTurn(You)` (Elemental Mascot, Light Up the Stage,
-    // Reckless Impulse — all printed "until the end of your next turn"). Both map to
+    // encodes this window three equivalent ways for the may-play permission: the dedicated
+    // `UntilEndOfNextTurn`, `UntilPlayersNextTurn(You)` (Elemental Mascot, Light Up the Stage,
+    // Reckless Impulse), and `UntilTheEndOfPlayersNextTurn(You)` (Duskmourn — Clockwork
+    // Percussionist, Impossible Inferno). All three are the same window and map to
     // MayPlayExpiry.UntilEndOfNextTurn; any other window declines -> SCAFFOLD.
     val untilEndOfNextTurn = jsonContains(grant, "_Expiration", "UntilEndOfNextTurn") ||
-        (jsonContains(grant, "_Expiration", "UntilPlayersNextTurn") && jsonContains(grant, "_Player", "You"))
+        ((jsonContains(grant, "_Expiration", "UntilPlayersNextTurn") ||
+            jsonContains(grant, "_Expiration", "UntilTheEndOfPlayersNextTurn")) &&
+            jsonContains(grant, "_Player", "You"))
     if (!untilEndOfNextTurn) return null
     // Use the shared "impulseExiled" pipeline-variable name — the same key `Patterns.Exile.impulse`
     // (the hand-authored idiom) writes, so the emitted tree is identical to a card built with that

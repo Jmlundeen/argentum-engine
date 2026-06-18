@@ -693,6 +693,75 @@
     ]
 }
 
+// Clockwork Percussionist
+{
+    "name": "Clockwork Percussionist",
+    "manaCost": "{R}",
+    "typeLine": "Artifact Creature — Monkey Toy",
+    "oracleText": "Haste\nWhen this creature dies, exile the top card of your library. You may play it until the end of your next turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "impulseExiled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "impulseExiled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "impulseExiled",
+                            "expiry": {
+                                "type": "UntilControllerStep",
+                                "step": "CLEANUP",
+                                "includeCurrentTurn": false
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "artist": "Eric Wilkerson",
+        "flavorText": "Dance to its beat, or it will dance on your grave.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/0/10986e5a-9fc6-41e2-8352-289328245171.jpg?1726286332"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Commune with Evil
 {
     "name": "Commune with Evil",
@@ -1715,6 +1784,103 @@
     "colorIdentityOverride": [
         "WHITE",
         "GREEN"
+    ]
+}
+
+// Impossible Inferno
+{
+    "name": "Impossible Inferno",
+    "manaCost": "{4}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Impossible Inferno deals 6 damage to target creature.\nDelirium — If there are four or more card types among cards in your graveyard, exile the top card of your library. You may play it until the end of your next turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 6
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "AggregateZone",
+                                "player": "You",
+                                "zone": "Graveyard",
+                                "aggregation": "DISTINCT_TYPES"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 4
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeAs": "impulseExiled"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "impulseExiled",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                }
+                            },
+                            {
+                                "type": "GrantMayPlayFromExile",
+                                "from": "impulseExiled",
+                                "expiry": {
+                                    "type": "UntilControllerStep",
+                                    "step": "CLEANUP",
+                                    "includeCurrentTurn": false
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "140",
+        "artist": "Edgar Sánchez Hidalgo",
+        "flavorText": "No living being, survivor or monster, is exempt from Valgavoth's wrath.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/3/a35248f9-9a4e-4758-a4c1-0e0c83e3fd75.jpg?1726286368"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -3617,6 +3783,87 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Untimely Malfunction
+{
+    "name": "Untimely Malfunction",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Destroy target artifact.\n• Change the target of target spell or ability with a single target.\n• One or two target creatures can't block this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "artifact"
+                            }
+                        }
+                    ],
+                    "description": "Destroy target artifact"
+                },
+                {
+                    "effect": "ChangeTarget",
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {},
+                                "zone": "Stack"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": "IterationSpace.Targets",
+                        "body": {
+                            "type": "CantBlockTargetCreatures",
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            }
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "count": 2,
+                            "minCount": 1,
+                            "filter": {
+                                "baseFilter": "creature"
+                            }
+                        }
+                    ],
+                    "description": "One or two target creatures can't block this turn"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "161",
+        "rarity": "UNCOMMON",
+        "artist": "Jarel Threat",
+        "flavorText": "\"No! This worked perfectly in the lab!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/5/857bfb0e-17dc-4dda-bc37-3df927a9eae6.jpg?1726286456"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
