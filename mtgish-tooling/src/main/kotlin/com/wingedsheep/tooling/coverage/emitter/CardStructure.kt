@@ -1314,8 +1314,20 @@ internal fun EmitCtx.spellBlock(card: JsonObject): List<Stmt>? {
     balanceEffect(card)?.let { return it }
     conditionalSpell(card)?.let { return it }
 
-    val (targets, actions) = extractEnvelope(card["Rules"])
-    if (actions == null) return null
+    val (targets, rawActions) = extractEnvelope(card["Rules"])
+    if (rawActions == null) return null
+
+    // Paradigm (Secrets of Strixhaven) lowers to the spell-envelope ability word `paradigm()`, not an
+    // effect: the IR carries a trailing `Paradigm(ThisSpell)` action after the spell's real body. Strip
+    // it here and emit `paradigm()` in the spell block; the remaining actions render through the normal
+    // body path, so every body the emitter can already render automatically gains Paradigm support. Only
+    // the trailing-action form (`Paradigm` as the last action of the spell's ActionList, scoped to
+    // ThisSpell) is recognized — anything else declines to SCAFFOLD via the normal path.
+    val paradigm = rawActions.lastOrNull()?.let { it.strField("_Action") == "Paradigm" && jsonContains(it, "_Spell", "ThisSpell") } == true
+    val actions = if (paradigm) rawActions.dropLast(1) else rawActions
+    if (actions.isEmpty()) return null
+    fun withParadigm(stmts: List<Stmt>): List<Stmt> =
+        if (paradigm) listOf<Stmt>(RawLine("        paradigm()")) + stmts else stmts
 
     // MULTI-target spell (two or more chosen targets, e.g. Skulduggery's "target creature you control …
     // and target creature an opponent controls …"). Render one `target("tN", …)` local per chosen
@@ -1335,7 +1347,7 @@ internal fun EmitCtx.spellBlock(card: JsonObject): List<Stmt>? {
             restrictions.forEach { stmts.add(RawLine(it)) }
             targetStmts.forEach { stmts.add(it) }
             stmts.add(Assign("effect", edsl))
-            return listOf(Sub(Block("spell", stmts)))
+            return listOf(Sub(Block("spell", withParadigm(stmts))))
         } finally {
             targetVars = emptyList()
             targetRefVars = emptyMap()
@@ -1350,7 +1362,7 @@ internal fun EmitCtx.spellBlock(card: JsonObject): List<Stmt>? {
     restrictions.forEach { stmts.add(RawLine(it)) }
     if (tvar != null) stmts.add(targetLocal(tnode!!))
     stmts.add(Assign("effect", edsl))
-    return listOf(Sub(Block("spell", stmts)))
+    return listOf(Sub(Block("spell", withParadigm(stmts))))
 }
 
 private fun spellOf(effect: Dsl): List<Stmt> = listOf(Sub(Block("spell", listOf(Assign("effect", effect)))))
