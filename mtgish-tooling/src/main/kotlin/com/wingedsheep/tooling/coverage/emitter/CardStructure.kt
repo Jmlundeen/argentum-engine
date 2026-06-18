@@ -2123,6 +2123,16 @@ private fun EmitCtx.singleInterveningIfDsl(cond: JsonObject): String? {
     ) {
         return "Conditions.TriggeringEntityHadCounters"
     }
+    // "if a card left your graveyard this turn" — ACardLeftPlayersGraveyardThisTurn(AnyCard, You) ->
+    // Conditions.CardsLeftGraveyardThisTurn(1) (Living History, Primary Research). Only the bare
+    // "any card" + You scope renders; a typed card filter or another player scope has no calibrated
+    // DSL, so it declines -> SCAFFOLD rather than widening the condition.
+    if (cond.strField("_Condition") == "ACardLeftPlayersGraveyardThisTurn" &&
+        jsonContains(cond, "_Cards", "AnyCard") &&
+        jsonContains(cond, "_Player", "You")
+    ) {
+        return "Conditions.CardsLeftGraveyardThisTurn(1)"
+    }
     // "during your turn" — IsPlayersTurn(You) -> Conditions.IsYourTurn (Overzealous Muscle's
     // "Whenever you commit a crime during your turn, …"). Only the You scope renders; any other
     // player scope (an opponent's turn) has no calibrated DSL constant yet, so it declines -> SCAFFOLD.
@@ -2505,6 +2515,16 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         if (scope != CastScope.YOU) return null
         val filter = gameObjectFilterDsl(argv.getOrNull(1)) ?: return null
         return "Triggers.YouAttackWithFilter($filter)"
+    }
+
+    // "Whenever you attack" — WhenAPlayerAttacks scoped to a SinglePlayer(You). The batched trigger
+    // fires once per combat when you declare one or more attackers. Maps to Triggers.YouAttack
+    // (Living History). Only the You scope renders; any other player scope has no calibrated
+    // Triggers.* constant, so it declines -> SCAFFOLD rather than widening the trigger.
+    if (jsonContains(trig, "_Trigger", "WhenAPlayerAttacks")) {
+        val scope = castScope(trig["args"] as? JsonObject)
+        if (scope != CastScope.YOU) return null
+        return "Triggers.YouAttack"
     }
 
     // "Whenever you fully unlock a Room" — the Eerie Room half (CR 709.5h, Balemurk Leech, Optimistic

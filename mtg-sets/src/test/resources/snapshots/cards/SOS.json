@@ -3592,6 +3592,64 @@
     ]
 }
 
+// Fix What's Broken
+{
+    "name": "Fix What's Broken",
+    "manaCost": "{2}{W}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, pay X life.\nReturn each artifact and creature card with mana value X from your graveyard to the battlefield.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Graveyard",
+                        "filter": {
+                            "cardPredicates": [
+                                {
+                                    "type": "Or",
+                                    "predicates": [
+                                        "IsArtifact",
+                                        "IsCreature"
+                                    ]
+                                },
+                                "ManaValueEqualsX"
+                            ]
+                        }
+                    },
+                    "storeAs": "reanimate"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "reanimate",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    },
+                    "underOwnersControl": true
+                }
+            ]
+        },
+        "additionalCosts": [
+            "PayXLife"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "188",
+        "rarity": "RARE",
+        "artist": "Chris Rallis",
+        "flavorText": "Two tired souls finally found something to unite them.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/0/c0cd1d71-8e4a-4e00-80cd-83aec231fa57.jpg?1775938304"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
 // Foolish Fate
 {
     "name": "Foolish Fate",
@@ -5335,6 +5393,50 @@
     ]
 }
 
+// Impractical Joke
+{
+    "name": "Impractical Joke",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Damage can't be prevented this turn.\nImpractical Joke deals 3 damage to up to one target creature or planeswalker.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                "DamageCantBePreventedThisTurn",
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "up to one target creature or planeswalker"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetCreatureOrPlaneswalker",
+                "optional": true,
+                "id": "up to one target creature or planeswalker"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "119",
+        "rarity": "UNCOMMON",
+        "artist": "Caroline Gariba",
+        "flavorText": "Strixhaven students have a sense of humor. The spirits of the Blood Age do not.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/9/39a816b4-39b8-421c-b828-68db901d34b7.jpg?1775937777"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Infirmary Healer
 {
     "name": "Infirmary Healer",
@@ -6029,6 +6131,88 @@
                 }
             }
         }
+    ]
+}
+
+// Living History
+{
+    "name": "Living History",
+    "manaCost": "{1}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, create a 2/2 red and white Spirit creature token.\nWhenever you attack, if a card left your graveyard this turn, target attacking creature gets +2/+0 until end of turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "RED",
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Spirit"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/7/877f7ddb-ed70-41a0-b845-d9bf8ac65f9b.jpg?1775828448"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": "YouAttackEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "attacking creature"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature attacking"
+                    },
+                    "id": "attacking creature"
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "CARDS_LEFT_GRAVEYARD"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "121",
+        "rarity": "UNCOMMON",
+        "artist": "Caroline Gariba",
+        "flavorText": "Experience is a harsh tutor.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/0/2028792c-fd60-40d4-bff7-3b82dbe1ffb5.jpg?1775937797"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -9485,6 +9669,74 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Root Manipulation
+{
+    "name": "Root Manipulation",
+    "manaCost": "{3}{B}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Until end of turn, creatures you control get +2/+2 and gain menace and \"Whenever this creature attacks, you gain 1 life.\" (A creature with menace can't be blocked except by two or more creatures.)",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            },
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": "Self"
+                    },
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "MENACE",
+                        "target": "Self"
+                    },
+                    {
+                        "type": "GrantTriggeredAbility",
+                        "ability": {
+                            "id": "ability_1",
+                            "trigger": "AttackEvent",
+                            "effect": {
+                                "type": "GainLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "descriptionOverride": "Whenever this creature attacks, you gain 1 life."
+                        },
+                        "target": "Self"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "222",
+        "rarity": "UNCOMMON",
+        "artist": "Elizabeth Peiró",
+        "flavorText": "\"Nature endures and adapts, and so shall we.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/3/5390a79c-bc4b-4edb-a845-0d3514986401.jpg?1775938546"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
     ]
 }
 

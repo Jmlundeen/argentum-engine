@@ -26,6 +26,12 @@ internal fun BridgeBuilder.zoneMovement() {
     // "Return all <filter> cards from your graveyard to your hand" (Wisdom of Ages) — a mass
     // Gather(graveyard, filter) -> MoveCollection(hand) with no selection.
     composed("ReturnEachCardFromGraveyardToHand", "Gather(graveyard, filter) -> MoveCollection(hand)", composes = listOf("MoveCollection"))
+    // "Return each <filter> card from your graveyard to the battlefield" (Fix What's Broken) — the
+    // battlefield analog: a mass Gather(graveyard, filter) -> MoveCollection(battlefield, under owners'
+    // control). The emitter declines this (Fix What's Broken pairs it with the additional pay-X-life cost
+    // that surfaces X into the graveyard filter — an extra-cost / cast-time-value shape the engine is
+    // still sloppy around, per the module README), so this is capability-only -> SCAFFOLD.
+    composed("PutEachGraveyardCardOntoBattlefield", "Gather(graveyard, filter) -> MoveCollection(battlefield); emitter scaffolds (additional pay-X-life cost into filter)", composes = listOf("MoveCollection"))
     composed("ExileGraveyardCard", UNIVERSAL, composes = listOf("MoveToZone"))
 
     composed("ShuffleHandIntoLibrary", "MoveCollection hand->library + ShuffleLibrary", composes = listOf("MoveCollection", "ShuffleLibrary"))

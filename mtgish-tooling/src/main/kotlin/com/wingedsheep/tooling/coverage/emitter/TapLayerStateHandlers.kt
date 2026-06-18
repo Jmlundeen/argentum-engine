@@ -526,19 +526,32 @@ internal fun EmitCtx.renderLayerEffect(node: JsonObject, action: String, tvar: S
             }
             "AddAbility" -> {
                 // A bare keyword grant renders as Effects.GrantKeyword; a renderable static permanent rule
-                // (e.g. "can't be blocked by more than one creature") renders as Effects.GrantStaticAbility.
-                // A granted triggered/activated ability or a parameterized keyword carries structure this
-                // can't reproduce, so scaffold instead of dropping it.
+                // (e.g. "can't be blocked by more than one creature") renders as Effects.GrantStaticAbility;
+                // a granted self-bound triggered ability ("Whenever this creature attacks, you gain 1
+                // life") renders as GrantTriggeredAbilityEffect. A parameterized keyword or any granted
+                // ability shape we can't reproduce exactly scaffolds instead of dropping it.
                 val kw = grantedKeyword(leObj)
                 if (kw != null) {
                     val gkArgs = mutableListOf(arg("Keyword.$kw"), arg(Lit(target)))
                     if (duration.isNotEmpty()) gkArgs.add(arg(Lit(duration)))
                     inner.add(Call("Effects.GrantKeyword", gkArgs))
                 } else {
-                    val staticAbility = grantedStaticAbility(leObj) ?: return null
-                    val gsArgs = mutableListOf(arg(staticAbility), arg(Lit(target)))
-                    if (duration.isNotEmpty()) gsArgs.add(arg(Lit(duration)))
-                    inner.add(Call("Effects.GrantStaticAbility", gsArgs))
+                    val grantedRule = (leObj["args"].asArr)?.getOrNull(0) as? JsonObject
+                    if (grantedRule?.strField("_Rule") == "TriggerA") {
+                        // The granted ability is itself a triggered ability — render it via the shared
+                        // grantedTriggeredAbilityExpr (SELF-bound, untargeted, plain shape only) wrapped in
+                        // GrantTriggeredAbilityEffect on the affected permanent. Anything that helper can't
+                        // carry (targeted / "you may" / intervening-if) declines -> SCAFFOLD.
+                        val ability = grantedTriggeredAbilityExpr(grantedRule) ?: return null
+                        val gtArgs = mutableListOf(arg("ability", ability), arg("target", Lit(target)))
+                        if (duration.isNotEmpty()) gtArgs.add(arg("duration", Lit(duration)))
+                        inner.add(Call("GrantTriggeredAbilityEffect", gtArgs))
+                    } else {
+                        val staticAbility = grantedStaticAbility(leObj) ?: return null
+                        val gsArgs = mutableListOf(arg(staticAbility), arg(Lit(target)))
+                        if (duration.isNotEmpty()) gsArgs.add(arg(Lit(duration)))
+                        inner.add(Call("Effects.GrantStaticAbility", gsArgs))
+                    }
                 }
             }
             else -> return null  // any other layer effect (e.g. add card type, lose abilities) -> SCAFFOLD

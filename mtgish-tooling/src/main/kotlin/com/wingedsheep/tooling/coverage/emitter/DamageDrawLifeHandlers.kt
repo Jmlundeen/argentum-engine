@@ -108,6 +108,19 @@ internal val damageDrawLifeHandlers: Map<String, ActionHandler> = actionHandlers
         call("Effects.Fight", arg(Lit(t1)), arg(Lit(t2)))
     }
 
+    on("CreateGameEffect") { node, _, _ ->
+        // A turn-scoped game-wide continuous effect: args = [<Expiration>, <GameEffect>]. Only the exact
+        // "Damage can't be prevented this turn" shape renders (DamageCantBePrevented + UntilEndOfTurn) ->
+        // Effects.DamageCantBePreventedThisTurn() (Impractical Joke). Any other game effect or a non-turn
+        // expiration has no calibrated facade, so decline -> SCAFFOLD rather than emit a wrong effect.
+        val arr = node["args"].asArr ?: return@on null
+        val expiration = arr.firstOrNull { it is JsonObject && (it as JsonObject).containsKey("_Expiration") } as? JsonObject
+        val gameEffect = arr.firstOrNull { it is JsonObject && (it as JsonObject).containsKey("_GameEffect") } as? JsonObject
+        if (expiration?.strField("_Expiration") != "UntilEndOfTurn") return@on null
+        if (gameEffect?.strField("_GameEffect") != "DamageCantBePrevented") return@on null
+        call("Effects.DamageCantBePreventedThisTurn")
+    }
+
     on("GainLifeForEach") { _, args, _ ->
         val dyn = dynamicAmountExpr(gainForEachAmount(args)) ?: return@on null
         call("GainLifeEffect", arg(dyn))

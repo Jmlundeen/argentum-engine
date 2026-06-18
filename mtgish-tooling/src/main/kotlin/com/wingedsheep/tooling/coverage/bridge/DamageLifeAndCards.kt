@@ -69,6 +69,10 @@ internal fun BridgeBuilder.damageLifeAndCards() {
     effect("ChangeTargetsOfSpellOrAbility", "ChangeTarget")
     effect("TakeAnExtraTurn", "TakeExtraTurn")
     effect("LoseTheGame", "LoseGame")
+    // A turn-scoped game-wide continuous effect. Only "Damage can't be prevented this turn"
+    // (DamageCantBePrevented + UntilEndOfTurn) renders -> Effects.DamageCantBePreventedThisTurn()
+    // (Impractical Joke); other game effects scaffold in the emitter.
+    effect("CreateGameEffect", "DamageCantBePreventedThisTurn")
     effect("Shuffle", "ShuffleLibrary")
     // Investigate (CR 701.36) — create a Clue token (Effects.Investigate() / Effects.CreateClue()).
     effect("Investigate", "Investigate")
