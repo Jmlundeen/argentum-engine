@@ -4528,6 +4528,10 @@ of `AddMana`. The engine empties pools at end of turn, so:
 - `OPPONENT_CREATURES_EXILED` — opponent creatures you exiled.
 - `OPPONENTS_WHO_LOST_LIFE` — count of opponents who lost life.
 - `DAMAGE_RECEIVED` — damage received by player.
+- `DAMAGE_RECEIVED_FROM_ARTIFACTS` — damage dealt to the player this turn by artifact sources
+  (a source that is an artifact when it deals the damage). Combat and non-combat both count;
+  prevented damage does not. Powers Reverse Polarity ("twice the damage dealt to you so far this
+  turn by artifacts") via `Multiply(TurnTracking(You, DAMAGE_RECEIVED_FROM_ARTIFACTS), 2)`.
 - `LIFE_GAINED` — life gained this turn (Bre of Clan Stoutarm).
 - `LIFE_LOST` — life lost this turn.
 - `PLAYER_ATTACKED` — whether/how many times you attacked.
