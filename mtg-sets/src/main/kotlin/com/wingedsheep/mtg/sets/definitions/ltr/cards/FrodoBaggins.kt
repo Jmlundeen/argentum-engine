@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
  * Frodo Baggins
  * {G}{W}
  * Legendary Creature — Halfling Scout
- * 1/1
+ * 1/3
  *
  * Whenever Frodo Baggins or another legendary creature you control enters, the Ring tempts you.
  * As long as Frodo Baggins is your Ring-bearer, it must be blocked if able.

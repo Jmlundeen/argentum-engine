@@ -35,6 +35,7 @@ import com.wingedsheep.sdk.scripting.values.ManaColorSet
  */
 val MountDoom = card("Mount Doom") {
     typeLine = "Legendary Land"
+    colorIdentity = "BR"
     oracleText = "{T}, Pay 1 life: Add {B} or {R}.\n" +
         "{1}{B}{R}, {T}: Mount Doom deals 1 damage to each opponent.\n" +
         "{5}{B}{R}, {T}, Sacrifice Mount Doom and a legendary artifact: Choose up to two creatures, " +

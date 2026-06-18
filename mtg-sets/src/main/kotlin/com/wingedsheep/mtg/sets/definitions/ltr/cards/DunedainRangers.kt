@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * Dúnedain Rangers
  * {3}{G}
  * Creature — Human Ranger
- * 4/3
+ * 4/4
  *
  * Landfall — Whenever a land you control enters, if you don't control a Ring-bearer, the Ring tempts you.
  *
