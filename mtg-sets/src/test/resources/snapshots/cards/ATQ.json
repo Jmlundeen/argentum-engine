@@ -1962,6 +1962,56 @@
     ]
 }
 
+// Priest of Yawgmoth
+{
+    "name": "Priest of Yawgmoth",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Phyrexian Human Cleric",
+    "oracleText": "{T}, Sacrifice an artifact: Add an amount of {B} equal to the sacrificed artifact's mana value.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "artifact"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Sacrificed",
+                        "numericProperty": "ManaValue"
+                    }
+                },
+                "descriptionOverride": "{T}, Sacrifice an artifact: Add an amount of {B} equal to the sacrificed artifact's mana value."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/9/c9fd4054-42fc-4f95-a6f7-369a5da43dd5.jpg?1562937643"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Primal Clay
 {
     "name": "Primal Clay",

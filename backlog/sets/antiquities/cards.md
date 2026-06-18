@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 55 / 85
+**Implemented:** 56 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -43,7 +43,7 @@
 - [x] Gate to Phyrexia
 - [x] Haunting Wind
 - [ ] Phyrexian Gremlins
-- [ ] Priest of Yawgmoth
+- [x] Priest of Yawgmoth
 - [ ] Xenic Poltergeist
 - [x] Yawgmoth Demon
 
