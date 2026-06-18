@@ -311,9 +311,14 @@ internal val tapLayerStateHandlers: Map<String, ActionHandler> = actionHandlers 
             jsonContains(node, "_CardInExile", "TheCardExiledThisWay") &&
             jsonContains(node, "_Player", "You")
         ) {
+            // mtgish encodes "until the end of your next turn" three equivalent ways:
+            // `UntilEndOfNextTurn`, `UntilPlayersNextTurn` (You), and
+            // `UntilTheEndOfPlayersNextTurn` (You, the Duskmourn encoding). All three map to
+            // MayPlayExpiry.UntilEndOfNextTurn; any other window declines -> SCAFFOLD.
             val expiry = when (firstExpiration(node)) {
                 "UntilEndOfTurn" -> "MayPlayExpiry.EndOfTurn"
-                "UntilEndOfNextTurn" -> "MayPlayExpiry.UntilEndOfNextTurn"
+                "UntilEndOfNextTurn", "UntilPlayersNextTurn", "UntilTheEndOfPlayersNextTurn" ->
+                    "MayPlayExpiry.UntilEndOfNextTurn"
                 else -> return@on null
             }
             return@on call("GrantMayPlayFromExileEffect", arg("\"impulseExiled\""), arg(Lit(expiry)))

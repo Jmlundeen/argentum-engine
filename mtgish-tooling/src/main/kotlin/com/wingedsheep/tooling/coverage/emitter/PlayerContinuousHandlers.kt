@@ -117,6 +117,19 @@ internal fun EmitCtx.renderGrantToGroup(node: JsonObject, tvar: String?): Dsl? {
     if (jsonContains(node, "_PermanentRule", "MustAttackPlayer")) {  // Taunt
         return if (tvar != null) call("TauntEffect", arg(Lit(tvar))) else call("TauntEffect")
     }
+    // "<chosen creatures> can't block this turn." — `CantBlock` applied to the 1-2 (or N) chosen
+    // creatures (`Ref_TargetPermanents`). Untimely Malfunction's "one or two target creatures can't
+    // block this turn" mode. Apply the per-target restriction to EVERY creature the spell chose via
+    // ForEachTargetEffect (the same shape Amazing Acrobatics uses for "tap one or two target
+    // creatures"). Only the chosen-targets subject renders; a group/filter subject declines below.
+    if (jsonContains(node, "_PermanentRule", "CantBlock") &&
+        jsonContains(node, "_Permanents", "Ref_TargetPermanents")
+    ) {
+        return call(
+            "ForEachTargetEffect",
+            arg(Lit("listOf(Effects.CantBlock(EffectTarget.ContextTarget(0)))")),
+        )
+    }
     val blob = compact(node)
     if (("CantBeBlockedExceptByColor" in blob || "CantBeBlockedExceptByDefenders" in blob) && "\"_Color\"" in blob) {
         val m = Regex(""""_Color":\s*"(\w+)"""").find(blob)

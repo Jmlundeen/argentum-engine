@@ -441,6 +441,13 @@ internal fun EmitCtx.targetExpr(tnode: JsonObject, actionContext: List<JsonObjec
     val ttype = tnode.strField("_Target")
     val args = tnode["args"]
     val countInt = findInteger(tnode)
+    // "X target <permanents>" — a `NumberTargetPermanents(ValueX, <filter>)` count tied to the
+    // spell's X (Wave of Indifference: "X target creatures can't block"). The count argument is
+    // `ValueX` rather than a literal Integer, so it renders as `dynamicMaxCount = DynamicAmount.XValue`
+    // (the X-clamped target count, CR 601.2c). Detected only on the count arm of the target node so a
+    // `ValueX` buried inside a filter predicate doesn't mis-trigger it.
+    val isValueXCount = ttype == "NumberTargetPermanents" &&
+        (args.asArr?.getOrNull(0) as? JsonObject)?.strField("_GameNumber") == "ValueX"
     if (ttype == "TargetPlayer") {
         // "target player dealt damage by this creature this turn" (Wicked Akuba) is a source-relative
         // restriction with no SDK target filter — decline rather than emit an unrestricted target player.
@@ -505,11 +512,16 @@ internal fun EmitCtx.targetExpr(tnode: JsonObject, actionContext: List<JsonObjec
         if (creatureTarget) {
             val filter = creatureFilterExpr(args) ?: return null
             val parts = mutableListOf(arg("filter", filter))
-            if (ttype in setOf("NumberTargetPermanents", "UptoNumberTargetPermanents") && countInt is Int) parts.add(0, arg("count", "$countInt"))
+            if (isValueXCount) parts.add(0, arg("dynamicMaxCount", Lit("DynamicAmount.XValue")))
+            else if (ttype in setOf("NumberTargetPermanents", "UptoNumberTargetPermanents") && countInt is Int) parts.add(0, arg("count", "$countInt"))
             if (ttype == "OneOrTwoTargetPermanents") { parts.add(0, arg("minCount", "1")); parts.add(0, arg("count", "2")) }
             if (ttype == "UptoNumberTargetPermanents" || isUpToOne) parts.add(0, arg("optional", "true"))
             return Call("TargetCreature", parts)
         }
+        // An "X target <permanents>" count (ValueX) is only rendered with `dynamicMaxCount` on the
+        // creature branch above. For any other permanent target shape we'd silently drop the X count
+        // to a single target — decline (-> SCAFFOLD) rather than emit a wrong target count.
+        if (isValueXCount) return null
         // "target creature or planeswalker[, an opponent controls]" (Annie Joins Up's ETB damage):
         // an Or unioning the two cardtypes Creature and Planeswalker, optionally narrowed by a
         // controller clause. TargetCreatureOrPlaneswalker carries no filter field, so the controller
