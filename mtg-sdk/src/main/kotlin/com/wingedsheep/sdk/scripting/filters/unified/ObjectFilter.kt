@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityReference
 import kotlinx.serialization.Serializable
 
@@ -294,6 +295,11 @@ data class GameObjectFilter(
     /** Mana value at most the number of colors of mana spent to cast a referenced entity (Converge). */
     fun manaValueAtMostColorsSpent(reference: EntityReference) = copy(
         cardPredicates = cardPredicates + CardPredicate.ManaValueAtMostColorsSpent(reference)
+    )
+
+    /** Mana value at most a resolved [DynamicAmount] (e.g. "X or less, where X is the life you gained this turn"). */
+    fun manaValueAtMostDynamic(amount: DynamicAmount) = copy(
+        cardPredicates = cardPredicates + CardPredicate.ManaValueAtMostDynamic(amount)
     )
 
     /** Mana value is even (zero is even). */

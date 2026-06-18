@@ -38,6 +38,7 @@ import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.engine.state.CastSpellRecord
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
@@ -314,6 +315,11 @@ class PredicateEvaluator {
                 val colorsSpent = ManaSpentReader.distinctColorsSpent(state, refEntityId)
                 val cmc = if (projectedValues?.isFaceDown == true) 0 else card.manaValue
                 cmc <= colorsSpent
+            }
+            is CardPredicate.ManaValueAtMostDynamic -> {
+                val cap = evaluateDynamicCap(state, predicate.amount, context) ?: return false
+                val cmc = if (projectedValues?.isFaceDown == true) 0 else card.manaValue
+                cmc <= cap
             }
             CardPredicate.ManaValueIsEven -> {
                 val cmc = if (projectedValues?.isFaceDown == true) 0 else card.manaValue
@@ -691,6 +697,28 @@ class PredicateEvaluator {
     /**
      * Resolve an EntityReference to an EntityId using the predicate context.
      */
+    /**
+     * Resolve a [DynamicAmount] cap for [CardPredicate.ManaValueAtMostDynamic]. The amount is
+     * evaluated through [DynamicAmountEvaluator] against a minimal [EffectContext] reconstructed
+     * from the predicate context's controller/source/X. Returns null when there is no controller
+     * to resolve player-scoped amounts against (e.g. legal-action enumeration with no context), so
+     * the predicate fails closed rather than treating the cap as 0 and silently matching only
+     * mana-value-0 cards.
+     */
+    private fun evaluateDynamicCap(
+        state: GameState,
+        amount: DynamicAmount,
+        context: PredicateContext?,
+    ): Int? {
+        val controllerId = context?.controllerId ?: return null
+        val effectContext = EffectContext(
+            sourceId = context.sourceId,
+            controllerId = controllerId,
+            xValue = context.xValue,
+        )
+        return DynamicAmountEvaluator().evaluate(state, amount, effectContext)
+    }
+
     private fun resolveEntityReference(ref: EntityReference, context: PredicateContext?): EntityId? {
         return when (ref) {
             is EntityReference.Source -> context?.sourceId
@@ -1039,6 +1067,7 @@ class PredicateEvaluator {
             is CardPredicate.ManaValueAtMostEntity -> false
             is CardPredicate.ManaValueAtMostEntityManaSpent -> false
             is CardPredicate.ManaValueAtMostColorsSpent -> false
+            is CardPredicate.ManaValueAtMostDynamic -> false
             CardPredicate.ManaValueIsEven -> record.manaValue % 2 == 0
             CardPredicate.ManaValueIsOdd -> record.manaValue % 2 != 0
 

@@ -1672,6 +1672,37 @@ private fun EmitCtx.orTriggerBlocks(rule: JsonObject, oncePerTurn: Boolean, trig
     if (arms.size < 2) return null
     if (arms.any { it.strField("_Trigger") == null || it.strField("_Trigger") == "Or" }) return null
 
+    // "Whenever this creature OR another <filter> enters" — the self-or-other-matching ETB union
+    // (Bogwater Lumaret: "this creature or another creature you control enters"). Two arms, both
+    // WhenAPermanentEntersTheBattlefield: one is the bare self ETB (`ThisPermanent`), the other is an
+    // `Other(ThisPermanent)` ETB whose remaining filter the source itself satisfies. CR-wise this is
+    // exactly one ANY-binding trigger over that filter — `ANY` matches the source AND any other matching
+    // permanent — which is the hand-authored idiom. Collapse to a single `entersBattlefield(filter, ANY)`
+    // when the shape is exactly that (and the "other" arm's filter renders whole); otherwise fall through
+    // to the per-arm expansion below.
+    if (arms.size == 2) {
+        val selfArm = arms.firstOrNull { isBareSelfEtb(it) }
+        val otherArm = arms.firstOrNull { it !== selfArm }
+        if (selfArm != null && otherArm != null &&
+            jsonContains(otherArm, "_Trigger", "WhenAPermanentEntersTheBattlefield") &&
+            jsonContains(otherArm, "_Permanents", "Other")
+        ) {
+            // Strip the `Other(ThisPermanent)` clause from the "other" arm's subject so it becomes a
+            // plain "<filter> enters" ETB. triggerBlock then renders it as a single ANY-binding
+            // entersBattlefield trigger (ANY covers both the source and any other matching permanent),
+            // sharing the same effect body. If the stripped shape can't be rendered whole, fall through
+            // to the per-arm expansion below rather than emit a wrong card.
+            val plainOtherArm = stripOtherThisPermanentClause(otherArm)
+            if (plainOtherArm != null) {
+                val collapsedRule = buildJsonObject {
+                    rule.forEach { (k, v) -> if (k != "args") put(k, v) }
+                    put("args", JsonArray(listOf<JsonElement>(plainOtherArm) + args.drop(1)))
+                }
+                triggerBlock(collapsedRule, oncePerTurn, triggerCondition)?.let { return it }
+            }
+        }
+    }
+
     val out = mutableListOf<Stmt>()
     for (arm in arms) {
         val armRule = buildJsonObject {
@@ -1682,6 +1713,59 @@ private fun EmitCtx.orTriggerBlocks(rule: JsonObject, oncePerTurn: Boolean, trig
         out.addAll(block)
     }
     return out
+}
+
+/**
+ * True iff [arm] is the bare "this permanent enters" ETB — a `WhenAPermanentEntersTheBattlefield`
+ * whose subject is exactly `ThisPermanent` with no `Other` / type / controller constraints. The self
+ * half of a "this creature or another <filter> enters" union (Bogwater Lumaret).
+ */
+private fun isBareSelfEtb(arm: JsonObject): Boolean {
+    if (arm.strField("_Trigger") != "WhenAPermanentEntersTheBattlefield") return false
+    if (!jsonContains(arm, "_Permanent", "ThisPermanent")) return false
+    return !jsonContains(arm, "_Permanents", "Other") &&
+        !jsonContains(arm, "_Permanents", "IsCardtype") &&
+        !jsonContains(arm, "_Permanents", "ControlledByAPlayer")
+}
+
+/**
+ * Remove the `Other(ThisPermanent)` clause from [arm]'s subject filter, collapsing a now-single-element
+ * `And` to its sole child. Turns the "another creature you control enters" arm into a plain "creature
+ * you control enters" trigger (which renders as an ANY binding). Returns null if no such clause was
+ * found (so the caller falls back to the per-arm union rather than emit an unchanged tree).
+ */
+private fun stripOtherThisPermanentClause(arm: JsonObject): JsonObject? {
+    var removed = false
+    fun isOtherThisPermanent(node: JsonElement?): Boolean =
+        node is JsonObject && node.strField("_Permanents") == "Other" &&
+            jsonContains(node, "_Permanent", "ThisPermanent")
+    fun strip(node: JsonElement): JsonElement = when (node) {
+        is JsonObject -> {
+            // An `And` of permanent filters: drop any `Other(ThisPermanent)` member, recurse the rest.
+            if (node.strField("_Permanents") == "And") {
+                val kept = (node["args"].asArr ?: JsonArray(emptyList()))
+                    .filterNot { isOtherThisPermanent(it) }
+                    .map { strip(it) }
+                if (kept.size != (node["args"].asArr?.size ?: 0)) removed = true
+                when (kept.size) {
+                    0 -> node // shouldn't happen; leave untouched
+                    1 -> kept.single()
+                    else -> buildJsonObject {
+                        node.forEach { (k, v) -> if (k != "args") put(k, v) }
+                        put("args", JsonArray(kept))
+                    }
+                }
+            } else {
+                buildJsonObject {
+                    node.forEach { (k, v) -> put(k, strip(v)) }
+                }
+            }
+        }
+        is JsonArray -> JsonArray(node.map { strip(it) })
+        else -> node
+    }
+    val result = strip(arm) as? JsonObject ?: return null
+    return if (removed) result else null
 }
 
 /**

@@ -30,6 +30,11 @@ internal fun BridgeBuilder.structuralEnvelopes() {
     envelope("FromHand", "envelope: activated ability used from hand (activateFromZone = Zone.HAND)")
     envelope("FromGraveyard", "envelope: activated ability used from graveyard (activateFromZone = Zone.GRAVEYARD)")
     envelope("And", "envelope: cost/action conjunction")
+    // A `_Trigger: "Or"` combinator — "whenever [trigger A] or [trigger B]" (Bogwater Lumaret:
+    // "whenever this creature or another creature you control enters"). Structural: the capability is
+    // the nested triggers (each a WhenAPermanentEntersTheBattlefield), scored on their own. The emitter
+    // renders the self-or-other-creature ETB shape as a single ANY-binding entersBattlefield trigger.
+    envelope("Or", "envelope: trigger disjunction ('whenever A or B')")
     // A resolution-time intervening-if (`If[cond, [then]]` inside a spell/ability ActionList) realises as
     // a `ConditionalEffect` -> `GatedEffect(gate = WhenCondition)` (SerialName "Gated") in our trees, the
     // same compiled shape as a "you may" gate; so the conditional envelope composes the Gated capability

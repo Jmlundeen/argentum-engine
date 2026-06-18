@@ -6700,14 +6700,9 @@ val NebelgastHerald = card("Nebelgast Herald") {
     toughness = 1
     keywords(Keyword.FLASH, Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
-        val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = Effects.Tap(t)
-    }
-    triggeredAbility {
         trigger = Triggers.entersBattlefield(
             filter = GameObjectFilter.Creature.withSubtype(Subtype.SPIRIT).youControl(),
-            binding = TriggerBinding.OTHER
+            binding = TriggerBinding.ANY
         )
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Tap(t)
