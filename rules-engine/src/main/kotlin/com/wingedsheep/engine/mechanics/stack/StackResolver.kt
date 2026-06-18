@@ -2532,6 +2532,18 @@ class StackResolver(
                         }
                     }
 
+                    // Artifact Ward: can't be the target of abilities from artifact sources (CR
+                    // 109.5). Not controller-gated — applies even to the warded creature's own
+                    // controller's artifacts. Spells bypass (it's an abilities-only restriction).
+                    if (targetingSourceType != TargetingSourceType.SPELL && sourceId != null &&
+                        projected.hasKeyword(target.entityId, "CANT_BE_TARGETED_BY_ARTIFACT_SOURCES")
+                    ) {
+                        val sourceIsArtifact = projected.hasType(sourceId, "ARTIFACT") ||
+                            state.getEntity(sourceId)?.get<CardComponent>()?.typeLine?.cardTypes
+                                ?.any { it.name == "ARTIFACT" } == true
+                        if (sourceIsArtifact) return@filterIndexed false
+                    }
+
                     // Check protection from source colors/subtypes (Rule 702.16)
                     for (color in sourceColors) {
                         if (projected.hasKeyword(target.entityId, "PROTECTION_FROM_${color.name}")) {

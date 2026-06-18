@@ -7,6 +7,8 @@ import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
+import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
@@ -233,6 +235,37 @@ abstract class ScenarioTestBase : FunSpec() {
             state = state.withEntity(cardId, container)
             return this
         }
+
+        /**
+         * Put an Aura (or other attachment) on the battlefield already attached to a permanent
+         * named [hostName] (which must already be on the battlefield). Wires the Aura's
+         * [AttachedToComponent] and the host's [AttachmentsComponent] and registers the Aura's
+         * static/replacement effects, so its "enchanted permanent ..." abilities apply immediately —
+         * the deterministic alternative to casting + resolving the Aura. The attachment owner/
+         * controller is [playerNumber].
+         */
+        fun withCardAttachedTo(playerNumber: Int, auraName: String, hostName: String): ScenarioBuilder {
+            val playerId = if (playerNumber == 1) player1Id!! else player2Id!!
+            val hostId = findPermanentInBuilder(hostName)
+                ?: error("Host '$hostName' must already be on the battlefield before attaching '$auraName'")
+
+            withCardOnBattlefield(playerNumber, auraName)
+            val auraId = findPermanentInBuilder(auraName)
+                ?: error("Failed to place aura '$auraName' on the battlefield")
+
+            state = state.updateEntity(auraId) { it.with(AttachedToComponent(hostId)).with(ControllerComponent(playerId)) }
+            state = state.updateEntity(hostId) { container ->
+                val existing = container.get<AttachmentsComponent>()?.attachedIds ?: emptyList()
+                container.with(AttachmentsComponent(existing + auraId))
+            }
+            return this
+        }
+
+        /** Locate a permanent by name on the battlefield during scenario construction. */
+        private fun findPermanentInBuilder(name: String): EntityId? =
+            state.getBattlefield().firstOrNull { id ->
+                state.getEntity(id)?.get<CardComponent>()?.name == name
+            }
 
         /**
          * Add multiple lands to the battlefield (untapped, ready to tap for mana).

@@ -153,8 +153,19 @@ class TargetFinder(
         entityId: EntityId,
         entityController: EntityId?,
         controllerId: EntityId,
-        targetingSourceType: TargetingSourceType
+        targetingSourceType: TargetingSourceType,
+        sourceId: EntityId? = null
     ): Boolean {
+        // Artifact-source restriction (Artifact Ward) is checked first because, unlike the
+        // opponent-ability restriction, it is NOT controller-gated: an artifact source can't
+        // target the warded creature even if the same player controls both. It still only blocks
+        // abilities (not spells).
+        if (targetingSourceType != TargetingSourceType.SPELL &&
+            hasCantBeTargetedByArtifactSource(state, entityId, sourceId)
+        ) {
+            return true
+        }
+
         if (entityController == controllerId) return false  // own permanents are never restricted
         if (targetingSourceType == TargetingSourceType.SPELL) return false  // spells bypass this restriction
 
@@ -165,6 +176,27 @@ class TargetFinder(
             return true
         }
         return false
+    }
+
+    /**
+     * Artifact Ward: the entity has `CANT_BE_TARGETED_BY_ARTIFACT_SOURCES` and the targeting
+     * source is an artifact (projected type on the battlefield; base card types otherwise). Not
+     * gated on who controls the source — an artifact source can't target the warded creature even
+     * if its controller also controls the source. With an unknown source (`sourceId == null`) the
+     * restriction can't apply, so this returns false.
+     */
+    private fun hasCantBeTargetedByArtifactSource(
+        state: GameState,
+        entityId: EntityId,
+        sourceId: EntityId?
+    ): Boolean {
+        if (sourceId == null) return false
+        val projected = state.projectedState
+        if (!projected.hasKeyword(entityId, "CANT_BE_TARGETED_BY_ARTIFACT_SOURCES")) return false
+        val sourceIsArtifact = projected.hasType(sourceId, "ARTIFACT") ||
+            state.getEntity(sourceId)?.get<CardComponent>()?.typeLine?.cardTypes
+                ?.any { it.name == "ARTIFACT" } == true
+        return sourceIsArtifact
     }
 
     private fun findOpponentOrPlaneswalkerTargets(
@@ -195,7 +227,7 @@ class TargetFinder(
             // Check hexproof from color
             if (hasHexproofFromSourceColors(state, projected, entityId, entityController, controllerId, sourceId)) continue
             // Check can't-be-targeted-by-abilities
-            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType)) continue
+            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType, sourceId)) continue
 
             targets.add(entityId)
         }
@@ -231,7 +263,7 @@ class TargetFinder(
             // Check hexproof from color
             if (hasHexproofFromSourceColors(state, projected, entityId, entityController, controllerId, sourceId)) continue
             // Check can't-be-targeted-by-abilities
-            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType)) continue
+            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType, sourceId)) continue
 
             targets.add(entityId)
         }
@@ -281,7 +313,7 @@ class TargetFinder(
                     return@filter false
                 }
                 // Check can't-be-targeted-by-abilities
-                if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType)) {
+                if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType, sourceId)) {
                     return@filter false
                 }
             }
@@ -329,7 +361,7 @@ class TargetFinder(
                 continue
             }
             // Check can't-be-targeted-by-abilities
-            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType)) {
+            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType, sourceId)) {
                 continue
             }
 
@@ -389,7 +421,7 @@ class TargetFinder(
                 return@filter false
             }
             // Check can't-be-targeted-by-abilities
-            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType)) {
+            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType, sourceId)) {
                 return@filter false
             }
 
@@ -513,7 +545,7 @@ class TargetFinder(
             if (projected.hasKeyword(entityId, Keyword.SHROUD)) continue
             // Check hexproof from color
             if (hasHexproofFromSourceColors(state, projected, entityId, entityController, controllerId, sourceId)) continue
-            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType)) continue
+            if (hasCantBeTargetedRestriction(state, entityId, entityController, controllerId, targetingSourceType, sourceId)) continue
 
             if (permanentFilter != null &&
                 !predicateEvaluator.matches(state, projected, entityId, permanentFilter, predicateContext)

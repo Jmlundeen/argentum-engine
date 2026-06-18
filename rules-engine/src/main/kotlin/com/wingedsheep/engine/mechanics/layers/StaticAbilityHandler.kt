@@ -59,6 +59,7 @@ import com.wingedsheep.sdk.scripting.TransformPermanent
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessStatic
 import com.wingedsheep.sdk.scripting.SetBaseToughnessForCreatureGroup
+import com.wingedsheep.sdk.scripting.CantBeTargetedByArtifactSourceAbilities
 import com.wingedsheep.sdk.scripting.CantBeTargetedByOpponentAbilities
 import com.wingedsheep.sdk.scripting.CantBeSacrificed
 import com.wingedsheep.sdk.scripting.CantReceiveCounters
@@ -446,6 +447,14 @@ class StaticAbilityHandler(
                     modification = Modification.GrantKeyword(
                         "PROTECTION_FROM_CARDTYPE_${ability.cardType.name}"
                     ),
+                    affectsFilter = convertGroupFilter(ability.filter)
+                )
+            }
+            is CantBeTargetedByArtifactSourceAbilities -> {
+                // Projected as the keyword CANT_BE_TARGETED_BY_ARTIFACT_SOURCES; enforced at
+                // targeting by TargetFinder.hasCantBeTargetedByArtifactSource (Artifact Ward).
+                ContinuousEffectData(
+                    modification = Modification.GrantKeyword("CANT_BE_TARGETED_BY_ARTIFACT_SOURCES"),
                     affectsFilter = convertGroupFilter(ability.filter)
                 )
             }

@@ -222,6 +222,34 @@ data object CantBeTargetedByOpponentAbilities : StaticAbility {
 }
 
 /**
+ * Creatures matching [filter] can't be the target of *abilities from artifact sources* — hexproof
+ * keyed to a source *category* (the source being an artifact) rather than a controller or color.
+ * This blocks only abilities (activated/triggered), not spells, and applies regardless of who
+ * controls the artifact source (CR 109.5 source typing).
+ *
+ * Projected as the keyword `CANT_BE_TARGETED_BY_ARTIFACT_SOURCES`; enforced at targeting by the
+ * engine's `TargetFinder`, which checks the targeting source's projected/base artifact-ness. Used
+ * by Artifact Ward ("Enchanted creature can't be the target of abilities from artifact sources").
+ *
+ * Deliberately *not* protection-from-artifacts: protection would also stop the creature from being
+ * enchanted/equipped by artifacts, which this clause does not.
+ *
+ * @property filter What this applies to — defaults to the attached/enchanted creature for Auras.
+ */
+@SerialName("CantBeTargetedByArtifactSourceAbilities")
+@Serializable
+data class CantBeTargetedByArtifactSourceAbilities(
+    val filter: GroupFilter = GroupFilter.attachedCreature()
+) : StaticAbility {
+    override val description: String =
+        "${filter.description} can't be the target of abilities from artifact sources"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
  * You can't lose the game.
  * Grants the "can't lose the game" effect to the permanent's controller.
  * Used for Lich's Mastery, Platinum Angel, etc.
