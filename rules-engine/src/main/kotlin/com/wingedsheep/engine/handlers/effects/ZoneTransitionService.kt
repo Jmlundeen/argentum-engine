@@ -303,6 +303,11 @@ object ZoneTransitionService {
             // until then, graveyard/exile instances need the component for last-known-info triggers.
             val preStripLinkedExile = newState.getEntity(entityId)
                 ?.get<com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent>()
+            // Same last-known-info preservation for the noted-exile snapshot (Tawnos's Coffin):
+            // its "return the exiled card with the noted counters" LTB trigger reads it after the
+            // source has left.
+            val preStripNotedExile = newState.getEntity(entityId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.NotedExileComponent>()
 
             // Revert permanent-level copy effects (Clone / Mockingbird / "becomes a copy of").
             // Per CR 400.7, a card that changes zones becomes a new object — its copy effect
@@ -325,6 +330,11 @@ object ZoneTransitionService {
             if (preStripLinkedExile != null && actualDestZone != Zone.BATTLEFIELD) {
                 newState = newState.updateEntity(entityId) { c ->
                     c.with(preStripLinkedExile)
+                }
+            }
+            if (preStripNotedExile != null && actualDestZone != Zone.BATTLEFIELD) {
+                newState = newState.updateEntity(entityId) { c ->
+                    c.with(preStripNotedExile)
                 }
             }
         }
@@ -713,6 +723,7 @@ object ZoneTransitionService {
             // a permanent that re-enters the battlefield is a new object with no memory of
             // its previous existence, so it should not retain links to previously exiled cards)
             updated = updated.without<LinkedExileComponent>()
+            updated = updated.without<com.wingedsheep.engine.state.components.battlefield.NotedExileComponent>()
 
             // Same for CraftedFromExiledComponent (CR 702.167c materials link): the
             // re-entering object is a new object, so it has no recorded materials. The
