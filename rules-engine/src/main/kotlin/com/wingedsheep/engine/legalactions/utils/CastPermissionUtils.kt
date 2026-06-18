@@ -829,7 +829,7 @@ class CastPermissionUtils(
      * matches [entityId], copy the printed activated abilities of every permanent matching its
      * `sourceFilter` (dropping mana abilities unless `includeManaAbilities`). The granter is the
      * permanent bearing the static (e.g., Sharkey), so a copied ability's `SacrificeSelf` / `{T}`
-     * refers to the gainer — CR 113.2.
+     * refers to the gainer — CR 113.7 (the source of an ability is the object that generated it).
      */
     fun getGainedAbilitiesOfPermanents(
         entityId: EntityId,

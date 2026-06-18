@@ -547,7 +547,7 @@ data class DamageDealtToCreaturesThisTurnComponent(
 
 /**
  * Last-known snapshot of a source that dealt damage to the bearer this turn — captured at the
- * moment the damage was dealt (CR 608.2h / 603.10e). Holds just what observer-style death triggers
+ * moment the damage was dealt (CR 608.2h / 603.10a). Holds just what observer-style death triggers
  * need to evaluate a source filter ("dealt damage by a Spider you controlled"): the source's
  * controller and creature-subtypes as they were when it dealt the damage. Stored on the *damaged*
  * creature so it survives a source that died in the same combat.

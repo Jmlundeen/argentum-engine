@@ -692,7 +692,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * - [sourceFilter] != null → an observer shape (binding ANY): "whenever a creature dealt damage
      *   this turn by [a source matching the filter] dies" (Shelob, Child of Ungoliant: "by a Spider
      *   you controlled"). The damaging sources are evaluated against the filter using last-known
-     *   information from when the damage was dealt (CR 603.10e / 608.2h), so a Spider that died in
+     *   information from when the damage was dealt (CR 603.10a / 608.2h), so a Spider that died in
      *   the same combat still qualifies. The filter's controller predicate is resolved relative to
      *   the controller of the permanent bearing the trigger.
      */

@@ -16,6 +16,7 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
+import com.wingedsheep.engine.state.components.player.SacrificedFoodThisTurnComponent
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -726,6 +727,13 @@ class MoveCollectionExecutor(
             newState = newState.copy(
                 permanentsSacrificedThisTurn = tracked.permanentsSacrificedThisTurn,
             )
+            // trackPermanentSacrifice also tags the controller with SacrificedFoodThisTurnComponent
+            // when a sacrificed permanent was a Food. That tag lives on the controller entity (which
+            // the move above leaves untouched), so carry it over too — otherwise "whenever you
+            // sacrifice a Food" triggers never fire for Foods sacrificed through this path.
+            if (tracked.getEntity(context.controllerId)?.has<SacrificedFoodThisTurnComponent>() == true) {
+                newState = newState.updateEntity(context.controllerId) { it.with(SacrificedFoodThisTurnComponent) }
+            }
             events.add(0, PermanentsSacrificedEvent(context.controllerId, cards, sacrificeNames))
         }
 

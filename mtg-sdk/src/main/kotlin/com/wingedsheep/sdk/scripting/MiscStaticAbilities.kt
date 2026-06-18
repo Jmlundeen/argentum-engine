@@ -451,7 +451,7 @@ data class PreventActivatedAbilities(
 
 /**
  * Permanents matching [grantedTo] gain copies of the activated abilities of every permanent
- * matching [sourceFilter] (CR 113.2; the copy uses the gaining permanent as its source, so
+ * matching [sourceFilter] (CR 113.7; the copy uses the gaining permanent as its source, so
  * "this permanent" / `SacrificeSelf` / `{T}` in a copied ability refer to the gainer).
  *
  * Models Sharkey, Tyrant of the Shire ("Sharkey has all activated abilities of lands your
