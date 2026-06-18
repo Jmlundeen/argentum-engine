@@ -2,6 +2,8 @@ package com.wingedsheep.engine.state.components.stack
 
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityId
@@ -270,4 +272,21 @@ data class SpellContextComponent(
 @Serializable
 data class SpellGrantedKeywordsComponent(
     val keywords: Set<String> = emptySet()
+) : Component
+
+/**
+ * Riders attached to a spell *copy* that resolves into a token (CR 707.10f — a copy of a permanent
+ * spell becomes a token as it resolves). Read by [com.wingedsheep.engine.mechanics.stack.StackResolver]
+ * when the copy resolves into a permanent: [addedKeywords] are baked onto the resulting token's
+ * base keywords, and — if [sacrificeAtStep] is set — a delayed trigger is registered to sacrifice
+ * the token at the beginning of that step ([sacrificeOnlyOnControllersTurn] gates it to the
+ * controller's turn). The spell-copy sibling of the same fields on
+ * `CreateTokenCopyOfTargetEffect`; used for "Copy target creature spell you control. The copy gains
+ * haste and 'At the beginning of the end step, sacrifice this token.'" (Choreographed Sparks).
+ */
+@Serializable
+data class SpellCopyTokenRidersComponent(
+    val addedKeywords: Set<Keyword> = emptySet(),
+    val sacrificeAtStep: Step? = null,
+    val sacrificeOnlyOnControllersTurn: Boolean = false
 ) : Component

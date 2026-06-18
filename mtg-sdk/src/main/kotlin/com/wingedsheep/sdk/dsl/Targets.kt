@@ -296,6 +296,12 @@ object Targets {
     val InstantOrSorcerySpellYouControl: TargetRequirement = TargetSpell(filter = TargetFilter.InstantOrSorcerySpellOnStack.youControl())
 
     /**
+     * Target creature spell you control (e.g. Choreographed Sparks' "Copy target creature
+     * spell you control").
+     */
+    val CreatureSpellYouControl: TargetRequirement = TargetSpell(filter = TargetFilter.CreatureSpellOnStack.youControl())
+
+    /**
      * Target spell you don't control.
      * In multiplayer this matches any spell controlled by an opponent.
      */

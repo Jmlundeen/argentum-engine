@@ -53,6 +53,17 @@ class CopyTargetSpellExecutor(
 
         val stackResolver = StackResolver(cardRegistry = cardRegistry)
 
+        // Token-side riders (CR 707.10f): keywords baked onto, and a delayed sacrifice trigger for,
+        // the token the copy resolves into when the copied spell is a permanent spell. Stamped on
+        // the copy entity and consumed by StackResolver at resolution.
+        val tokenRiders = if (effect.addedTokenKeywords.isNotEmpty() || effect.sacrificeTokenAtStep != null) {
+            com.wingedsheep.engine.state.components.stack.SpellCopyTokenRidersComponent(
+                addedKeywords = effect.addedTokenKeywords,
+                sacrificeAtStep = effect.sacrificeTokenAtStep,
+                sacrificeOnlyOnControllersTurn = effect.sacrificeTokenOnlyOnControllersTurn
+            )
+        } else null
+
         // Propagate modal info from the source spell (700.2g — copies keep the
         // same chosen modes). Targets inherit by default; a future enhancement
         // may let the copy controller re-choose per-mode targets.
@@ -79,7 +90,7 @@ class CopyTargetSpellExecutor(
                 if (!copyResult.isSuccess) return EffectResult.from(copyResult)
                 val mutated = StormCopyEffectExecutor.applyCopyMutations(
                     copyResult.newState, copyResult.events,
-                    effect.keywordsForCopy.toSet(), effect.removeLegendary
+                    effect.keywordsForCopy.toSet(), effect.removeLegendary, tokenRiders
                 )
                 return EffectResult.from(ExecutionResult.success(mutated, copyResult.events))
             }
@@ -120,7 +131,7 @@ class CopyTargetSpellExecutor(
                 if (!copyResult.isSuccess) return EffectResult.from(copyResult)
                 val mutated = StormCopyEffectExecutor.applyCopyMutations(
                     copyResult.newState, copyResult.events,
-                    effect.keywordsForCopy.toSet(), effect.removeLegendary
+                    effect.keywordsForCopy.toSet(), effect.removeLegendary, tokenRiders
                 )
                 return EffectResult.from(ExecutionResult.success(mutated, copyResult.events))
             }

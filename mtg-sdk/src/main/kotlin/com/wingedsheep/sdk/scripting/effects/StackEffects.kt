@@ -2,6 +2,7 @@ package com.wingedsheep.sdk.scripting.effects
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -581,7 +582,28 @@ data class CopyTargetSpellEffect(
      * Applied to every copy regardless of which path (no-target, modal-with-targets, single-target
      * permanent or non-permanent) the executor takes.
      */
-    val removeLegendary: Boolean = false
+    val removeLegendary: Boolean = false,
+    /**
+     * Keywords granted to the *token* the copy resolves into, when the copied spell is a permanent
+     * spell (CR 707.10f — a copy of a permanent spell becomes a token as it resolves). Unlike
+     * [keywordsForCopy] (which lasts only while the copy is a spell on the stack), these are baked
+     * onto the resulting permanent for its whole life on the battlefield. Used for "the copy gains
+     * haste" riders (Choreographed Sparks). Empty by default; ignored for non-permanent copies.
+     */
+    val addedTokenKeywords: Set<Keyword> = emptySet(),
+    /**
+     * If set, register a delayed trigger to sacrifice the token the copy resolves into at the
+     * beginning of this step (the spell-copy sibling of
+     * [CreateTokenCopyOfTargetEffect.sacrificeAtStep]). Models "the copy gains '… sacrifice this
+     * token.'" (Choreographed Sparks). Ignored for non-permanent copies.
+     */
+    val sacrificeTokenAtStep: Step? = null,
+    /**
+     * When [sacrificeTokenAtStep] is set, gate the delayed sacrifice trigger to fire only on the
+     * copy controller's turn — i.e. "at the beginning of *your* next end step" rather than the very
+     * next end step of any player. Mirrors [CreateTokenCopyOfTargetEffect.sacrificeOnlyOnControllersTurn].
+     */
+    val sacrificeTokenOnlyOnControllersTurn: Boolean = false
 ) : Effect {
     override val description: String = "Copy target spell"
 }

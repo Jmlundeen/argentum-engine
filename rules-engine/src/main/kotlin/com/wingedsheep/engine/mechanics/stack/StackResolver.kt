@@ -1231,7 +1231,47 @@ class StackResolver(
                 )
             }
 
+            // CR 707.10f token-copy riders: a copy of a permanent spell that carried added keywords
+            // (e.g. "the copy gains haste", Choreographed Sparks) bakes them onto the resulting
+            // token's base keywords for its whole life on the battlefield.
+            val copyRiders = updated.get<com.wingedsheep.engine.state.components.stack.SpellCopyTokenRidersComponent>()
+            if (copyRiders != null && copyRiders.addedKeywords.isNotEmpty()) {
+                val card = updated.get<CardComponent>()
+                if (card != null) {
+                    updated = updated.with(card.copy(baseKeywords = card.baseKeywords + copyRiders.addedKeywords))
+                }
+            }
+
             updated
+        }
+
+        // CR 707.10f token-copy riders: register the delayed "sacrifice this token" trigger after
+        // the permanent enters. The token shares the resolving spell-copy's entity id, so the
+        // delayed trigger targets `spellId` directly.
+        run {
+            val copyRiders = newState.getEntity(spellId)
+                ?.get<com.wingedsheep.engine.state.components.stack.SpellCopyTokenRidersComponent>()
+            val sacrificeStep = copyRiders?.sacrificeAtStep
+            if (sacrificeStep != null) {
+                val sourceName = newState.getEntity(spellId)?.get<CardComponent>()?.name ?: "Unknown"
+                newState = newState.addDelayedTrigger(
+                    DelayedTriggeredAbility(
+                        id = java.util.UUID.randomUUID().toString(),
+                        effect = com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect(
+                            com.wingedsheep.sdk.scripting.targets.EffectTarget.SpecificEntity(spellId)
+                        ),
+                        fireAtStep = sacrificeStep,
+                        sourceId = spellId,
+                        sourceName = sourceName,
+                        controllerId = controllerId,
+                        fireOnPlayerId = if (copyRiders.sacrificeOnlyOnControllersTurn) controllerId else null
+                    )
+                )
+                // The rider component has done its job; strip it so it doesn't linger on the permanent.
+                newState = newState.updateEntity(spellId) { c ->
+                    c.without<com.wingedsheep.engine.state.components.stack.SpellCopyTokenRidersComponent>()
+                }
+            }
         }
 
         // Aura: add reverse AttachmentsComponent on the enchanted permanent

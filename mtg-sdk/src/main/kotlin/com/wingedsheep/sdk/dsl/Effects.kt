@@ -2389,9 +2389,19 @@ object Effects {
     fun CopyTargetSpell(
         target: EffectTarget = EffectTarget.ContextTarget(0),
         keywordsForCopy: List<com.wingedsheep.sdk.core.Keyword> = emptyList(),
-        removeLegendary: Boolean = false
+        removeLegendary: Boolean = false,
+        addedTokenKeywords: Set<com.wingedsheep.sdk.core.Keyword> = emptySet(),
+        sacrificeTokenAtStep: com.wingedsheep.sdk.core.Step? = null,
+        sacrificeTokenOnlyOnControllersTurn: Boolean = false
     ): Effect =
-        CopyTargetSpellEffect(target, keywordsForCopy.map { it.name }, removeLegendary)
+        CopyTargetSpellEffect(
+            target,
+            keywordsForCopy.map { it.name },
+            removeLegendary,
+            addedTokenKeywords,
+            sacrificeTokenAtStep,
+            sacrificeTokenOnlyOnControllersTurn
+        )
 
     /**
      * Copy each spell targeted by this effect — one copy per targeted spell, with
