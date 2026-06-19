@@ -197,20 +197,42 @@ internal val tapLayerStateHandlers: Map<String, ActionHandler> = actionHandlers 
         // ±1/±1 / keyword counters render; an unrenderable amount or non-token recipient declines.
         val arr = args.asArr ?: return@on null
         val counter = counterTypeDsl(arr.getOrNull(1)) ?: return@on null
-        val target = createdTokensTarget(arr.getOrNull(2)) ?: return@on null
-        // A fixed integer count renders through the static AddCountersEffect (matching the singular
-        // PutNumberCountersOfTypeOnPermanent handler — Fractal Tender's "put three +1/+1 counters on it");
-        // a derived count (Outlaw Stitcher's "two per spell cast this turn") through AddDynamicCounters.
-        (findInteger(arr.getOrNull(0)) as? Int)?.let { count ->
-            return@on call("AddCountersEffect", arg("counterType", counter), arg("count", "$count"), arg("target", target))
+        val recipient = arr.getOrNull(2)
+        val target = createdTokensTarget(recipient)
+        if (target != null) {
+            // Recipient is the just-created token(s) (`TheTokensCreatedThisWay` -> CREATED_TOKENS slot,
+            // Outlaw Stitcher / Fractal Tender). A fixed integer count renders through the static
+            // AddCountersEffect (matching the singular PutNumberCountersOfTypeOnPermanent handler); a
+            // derived count (Outlaw Stitcher's "two per spell cast this turn") through AddDynamicCounters.
+            (findInteger(arr.getOrNull(0)) as? Int)?.let { count ->
+                return@on call("AddCountersEffect", arg("counterType", counter), arg("count", "$count"), arg("target", target))
+            }
+            val amount = dynamicAmount(arr.getOrNull(0)) ?: return@on null
+            return@on call(
+                "Effects.AddDynamicCounters",
+                arg("counterType", counter),
+                arg("amount", Lit(amount)),
+                arg("target", target),
+            )
         }
-        val amount = dynamicAmount(arr.getOrNull(0)) ?: return@on null
-        call(
-            "Effects.AddDynamicCounters",
-            arg("counterType", counter),
-            arg("amount", Lit(amount)),
-            arg("target", target),
-        )
+        // A real "each <group> you control" recipient (Germination Practicum: "put two +1/+1
+        // counters on each creature you control"). Render a ForEachInGroup over the recovered
+        // GroupFilter, putting the counters on each iterated permanent (EffectTarget.Self). Decline
+        // (-> SCAFFOLD) if the group filter or the count isn't one we can render exactly, rather than
+        // widen the effect to the whole battlefield.
+        val groupFilter = groupFilterExpr(recipient) ?: return@on null
+        val perEntity = (findInteger(arr.getOrNull(0)) as? Int)?.let { count ->
+            call("AddCountersEffect", arg("counterType", counter), arg("count", "$count"), arg("target", "EffectTarget.Self"))
+        } ?: run {
+            val amount = dynamicAmount(arr.getOrNull(0)) ?: return@on null
+            call(
+                "Effects.AddDynamicCounters",
+                arg("counterType", counter),
+                arg("amount", Lit(amount)),
+                arg("target", "EffectTarget.Self"),
+            )
+        }
+        call("Effects.ForEachInGroup", arg(groupFilter), arg(perEntity))
     }
 
     on("PutCounters") { _, args, tvar ->

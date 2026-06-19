@@ -1,5 +1,6 @@
 package com.wingedsheep.tooling.coverage.emitter
 
+import com.wingedsheep.tooling.coverage.Composite
 import com.wingedsheep.tooling.coverage.Dsl
 import com.wingedsheep.tooling.coverage.Lit
 import com.wingedsheep.tooling.coverage.amountNode
@@ -43,6 +44,7 @@ internal val playerContinuousHandlers: Map<String, ActionHandler> = actionHandle
 
     on("EachPlayerAction", "EachPlayerActions") { node, _, _ -> renderEachPlayer(node) }
     on("PlayerAction", "HavePlayerTakeAction") { node, _, tvar -> renderPlayerAction(node, tvar) }
+    on("PlayerActions") { node, _, tvar -> renderPlayerActions(node, tvar) }
 
     on("CreateReplaceWouldDealDamageUntil") { node, _, tvar ->
         val blob = compact(node)
@@ -176,6 +178,34 @@ internal fun EmitCtx.renderPlayerAction(node: JsonObject, tvar: String?): Dsl? {
     if (jsonContains(node, "_Player", "OwnerOfPermanent") || jsonContains(node, "_Player", "ControllerOfPermanent")) return null
     val inner = innerAction(node) ?: return null
     val ptv = refTarget(args, tvar)  // the player the action applies to
+    return renderPlayerInnerAction(inner, ptv)
+}
+
+/**
+ * `PlayerActions` (plural) — "target player draws two cards and loses 2 life." The IR carries a
+ * `Ref_TargetPlayer` actor plus a *list* of inner actions; render each action scoped to that player
+ * via [renderPlayerInnerAction] and combine them with a Composite. Every action must render exactly
+ * (no lossy drops) or the whole shape declines -> SCAFFOLD. Decorum Dissertation (SOS).
+ */
+internal fun EmitCtx.renderPlayerActions(node: JsonObject, tvar: String?): Dsl? {
+    val args = node["args"].asArr ?: return null
+    // args = [ {_Player: <ref>}, [ <action>, <action>, ... ] ]
+    val playerRef = args.getOrNull(0)
+    // Only the bound-target-player actor is modeled (a relational owner/controller ref would
+    // mis-attribute the actions, as in the singular handler above).
+    if (jsonContains(playerRef, "_Player", "OwnerOfPermanent") ||
+        jsonContains(playerRef, "_Player", "ControllerOfPermanent")
+    ) return null
+    val ptv = refTarget(playerRef, tvar)
+    val actionList = args.getOrNull(1).asArr ?: return null
+    val rendered = actionList.mapNotNull { it as? JsonObject }
+        .map { renderPlayerInnerAction(it, ptv) ?: return null }
+    if (rendered.isEmpty()) return null
+    return if (rendered.size == 1) rendered.single() else Composite(rendered)
+}
+
+/** Render a single action applied to the player resolved as [ptv] (null = no bound target). */
+private fun EmitCtx.renderPlayerInnerAction(inner: JsonObject, ptv: String?): Dsl? {
     when (inner.strField("_Action")) {
         "DiscardACard", "DiscardNumberCards", "DiscardAnyNumberOfCards" -> {
             // discardCards takes a fixed Int — a derived/X count (Arcane Omens' "colours of mana spent")

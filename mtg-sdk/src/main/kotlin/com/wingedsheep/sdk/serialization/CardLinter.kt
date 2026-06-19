@@ -262,7 +262,8 @@ object CardLinter {
                 listOf(Kind.READ to (Space.CHOSEN to "chosenCreatureType"))
             // Token executors publish the created tokens' ids under this well-known name so
             // sibling steps can address them via PipelineTarget(CREATED_TOKENS, i).
-            type == "CreateToken" || type == "CreatePredefinedToken" ->
+            type == "CreateToken" || type == "CreatePredefinedToken" ||
+                type == "CreateTokenCopyOfTarget" || type == "CreateTokenCopyOfSource" ->
                 listOf(Kind.WRITE to (Space.COLLECTION to "createdTokens"))
             else -> emptyList()
         }

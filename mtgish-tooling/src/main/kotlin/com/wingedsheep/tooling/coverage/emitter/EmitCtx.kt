@@ -170,6 +170,7 @@ internal fun EmitCtx.renderEffectList(actions: List<JsonObject>, tvar: String?):
     chooseCreatureTypeRevealTopEffect(actions)?.let { return it }
     impulseExileTopMayPlay(actions)?.let { return it }
     lookExileCastFree(actions)?.let { return it }
+    improvisationExileUntilCastFreeEffect(actions)?.let { return it }
     createValueXDealsDamageEffect(actions, tvar)?.let { return it }
     val rendered = mutableListOf<Dsl>()
     var i = 0

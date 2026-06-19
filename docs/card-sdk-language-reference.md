@@ -661,6 +661,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   so it is skipped while the source is the controller's Ring-bearer at fire time (CR 701.54e) — "create a
   tapped and attacking token that's a copy of that card … at the beginning of the next end step, exile that
   token unless ~ is your Ring-bearer" (Sauron, the Necromancer).
+  Like `CreateToken`, both `CreateTokenCopyOfTarget` and `CreateTokenCopyOfSource` publish their created token
+  entity IDs to the `CREATED_TOKENS` pipeline collection, so a sibling effect in a `CompositeEffect` can address
+  the new copy — e.g. Applied Geometry's "Create a token that's a copy … Put six +1/+1 counters on it" composes
+  `CreateTokenCopyOfTarget(...)` then `AddCountersToCollection(CREATED_TOKENS, "+1/+1", 6)`.
 - `CreateTokenCopyOfEquippedCreature(count?, tapped?)` — equipment-specific copy.
 - `CreateRandomCreatureTokenWithManaValue(manaValue)` — create a token that's a copy of a *randomly
   chosen* creature card whose mana value equals `manaValue` (the Momir Basic Vanguard avatar's payoff —

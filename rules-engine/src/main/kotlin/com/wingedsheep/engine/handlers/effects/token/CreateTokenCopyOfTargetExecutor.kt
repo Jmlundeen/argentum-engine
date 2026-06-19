@@ -247,6 +247,15 @@ class CreateTokenCopyOfTargetExecutor(
             }
         }
 
-        return EffectResult.success(newState, events)
+        // Publish the created token ids into the shared CREATED_TOKENS pipeline collection so a
+        // following composite step can reference them — e.g. "Create a token that's a copy of
+        // target permanent ... Put six +1/+1 counters on it" composes this with
+        // AddCountersToCollection(CREATED_TOKENS, ...). Mirrors CreateTokenExecutor /
+        // CreateTokenCopyOfSourceExecutor, which expose their tokens the same way.
+        return EffectResult(
+            state = newState,
+            events = events,
+            updatedCollections = mapOf(com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS to createdTokens.toList())
+        )
     }
 }

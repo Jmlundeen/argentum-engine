@@ -655,3 +655,37 @@ internal fun EmitCtx.lumaretsFavorInfusionCopyBlock(rule: JsonObject): List<Stmt
         ))),
     )
 }
+
+/**
+ * Improvisation Capstone: `[ExileTopCardsOfLibraryUntilGroupCardsAreExiled(TotalManaValueIs >= N),
+ *                           CastAnyNumberOfSpellsFromExileWithoutPaying(AnySpell, TheCardsExiledThisWay)]`
+ * → `Effects.ExileLibraryUntilManaValue(Player.You, N, storeAs) + GrantMayPlayFromExileEffect +
+ *    GrantPlayWithoutPayingCostEffect` (the Dream Harvest impulse-and-free-cast shape, on your own
+ *    library).
+ *
+ * The mtgish IR splits this into a self-library "exile until total mana value ≥ N" action and a
+ * separate "cast any number of the cards exiled this way for free" action; the engine fuses them with
+ * a shared pipeline collection. Renders only this exact shape with an integer threshold and the
+ * cast scoped to `TheCardsExiledThisWay`; any other group filter, threshold, or cast scope declines
+ * (→ SCAFFOLD) rather than emit a lossy approximation.
+ */
+internal fun EmitCtx.improvisationExileUntilCastFreeEffect(actions: List<JsonObject>): Dsl? {
+    if (actions.size != 2) return null
+    val (exile, cast) = actions
+    if (exile.strField("_Action") != "ExileTopCardsOfLibraryUntilGroupCardsAreExiled") return null
+    if (cast.strField("_Action") != "CastAnyNumberOfSpellsFromExileWithoutPaying") return null
+    // The stop condition must be "total mana value ≥ <integer>".
+    val gf = exile["args"] as? JsonObject ?: return null
+    if (gf.strField("_GroupFilter") != "TotalManaValueIs") return null
+    val cmp = gf["args"] as? JsonObject ?: return null
+    if (cmp.strField("_Comparison") != "GreaterThanOrEqualTo") return null
+    val threshold = findInteger(cmp["args"]) as? Int ?: return null
+    // The free cast must be of any spell among the cards exiled this way.
+    if (!jsonContains(cast["args"], "_Spells", "AnySpell")) return null
+    if (!jsonContains(cast["args"], "_CardsInExile", "TheCardsExiledThisWay")) return null
+    return Composite(listOf(
+        Lit("Effects.ExileLibraryUntilManaValue(players = Player.You, threshold = $threshold, storeAs = \"exiled\")"),
+        Lit("GrantMayPlayFromExileEffect(\"exiled\")"),
+        Lit("GrantPlayWithoutPayingCostEffect(\"exiled\")"),
+    ))
+}

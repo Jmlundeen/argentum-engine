@@ -427,6 +427,71 @@
     ]
 }
 
+// Applied Geometry
+{
+    "name": "Applied Geometry",
+    "manaCost": "{2}{G}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create a token that's a copy of target non-Aura permanent you control, except it's a 0/0 Fractal creature in addition to its other types. Put six +1/+1 counters on it.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CreateTokenCopyOfTarget",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target non-Aura permanent you control"
+                    },
+                    "overridePower": 0,
+                    "overrideToughness": 0,
+                    "addedSubtypes": [
+                        "Fractal"
+                    ],
+                    "addCardTypes": [
+                        "CREATURE"
+                    ]
+                },
+                {
+                    "type": "AddCountersToCollection",
+                    "collectionName": "createdTokens",
+                    "counterType": "+1/+1",
+                    "count": 6
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsPermanent",
+                            {
+                                "type": "NotSubtype",
+                                "subtype": "Aura"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                },
+                "id": "target non-Aura permanent you control"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "172",
+        "rarity": "RARE",
+        "artist": "Justyna Dura",
+        "flavorText": "\"I know the prompt was to replicate a scurrid, but I took some creative liberties with my version.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f109f2eb-895b-44a6-b6b5-81bf3831ccd5.jpg?1775938180"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "GREEN"
+    ]
+}
+
 // Arcane Omens
 {
     "name": "Arcane Omens",
@@ -490,6 +555,77 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Archaic's Agony
+{
+    "name": "Archaic's Agony",
+    "manaCost": "{4}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Converge — Archaic's Agony deals X damage to target creature, where X is the number of colors of mana spent to cast this spell. Exile cards from the top of your library equal to the excess damage dealt to that creature this way. You may play those cards until the end of your next turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": "DistinctColorsManaSpent",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "EntityProperty",
+                            "entity": "Target",
+                            "numericProperty": "ExcessMarkedDamage"
+                        }
+                    },
+                    "storeAs": "exiledByAgony"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "exiledByAgony",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    }
+                },
+                {
+                    "type": "GrantMayPlayFromExile",
+                    "from": "exiledByAgony",
+                    "expiry": {
+                        "type": "UntilControllerStep",
+                        "step": "CLEANUP",
+                        "includeCurrentTurn": false
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "107",
+        "rarity": "UNCOMMON",
+        "artist": "Joshua Raphael",
+        "flavorText": "Its past became present became paradox.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/d/8d99f8b2-5c1c-4059-bf68-c6b2e9e5b275.jpg?1775937675"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2052,6 +2188,63 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Decorum Dissertation
+{
+    "name": "Decorum Dissertation",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Sorcery — Lesson",
+    "oracleText": "Target player draws two cards and loses 2 life.\nParadigm (Then exile this spell. After you first resolve a spell with this name, you may cast a copy of it from exile without paying its mana cost at the beginning of each of your first main phases.)",
+    "keywords": [
+        "PARADIGM"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target player"
+                    }
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target player"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "target player"
+            }
+        ],
+        "selfExileOnResolve": true,
+        "paradigm": true
+    },
+    "metadata": {
+        "collectorNumber": "78",
+        "rarity": "MYTHIC",
+        "artist": "Mila Pesic",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/4/f4ab2d9b-c73d-478d-aac7-4d3bb24296d2.jpg?1775937454"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -4515,6 +4708,45 @@
     ]
 }
 
+// Germination Practicum
+{
+    "name": "Germination Practicum",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Sorcery — Lesson",
+    "oracleText": "Put two +1/+1 counters on each creature you control.\nParadigm (Then exile this spell. After you first resolve a spell with this name, you may cast a copy of it from exile without paying its mana cost at the beginning of each of your first main phases.)",
+    "keywords": [
+        "PARADIGM"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            },
+            "body": {
+                "type": "AddCounters",
+                "counterType": "+1/+1",
+                "count": 2,
+                "target": "Self"
+            }
+        },
+        "selfExileOnResolve": true,
+        "paradigm": true
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "rarity": "MYTHIC",
+        "artist": "Johan Grenier",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/b/abe8332f-c76e-44e2-9427-d1228453abec.jpg?1775938016"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Glorious Decay
 {
     "name": "Glorious Decay",
@@ -5658,6 +5890,52 @@
         "artist": "Caroline Gariba",
         "flavorText": "Strixhaven students have a sense of humor. The spirits of the Blood Age do not.",
         "imageUri": "https://cards.scryfall.io/normal/front/3/9/39a816b4-39b8-421c-b828-68db901d34b7.jpg?1775937777"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Improvisation Capstone
+{
+    "name": "Improvisation Capstone",
+    "manaCost": "{5}{R}{R}",
+    "typeLine": "Sorcery — Lesson",
+    "oracleText": "Exile cards from the top of your library until you exile cards with total mana value 4 or greater. You may cast any number of spells from among them without paying their mana costs.\nParadigm (Then exile this spell. After you first resolve a spell with this name, you may cast a copy of it from exile without paying its mana cost at the beginning of each of your first main phases.)",
+    "keywords": [
+        "PARADIGM"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ExileLibraryUntilManaValue",
+                    "players": "You",
+                    "threshold": {
+                        "type": "Fixed",
+                        "amount": 4
+                    },
+                    "storeAs": "exiled"
+                },
+                {
+                    "type": "GrantMayPlayFromExile",
+                    "from": "exiled"
+                },
+                {
+                    "type": "GrantPlayWithoutPayingCost",
+                    "from": "exiled"
+                }
+            ]
+        },
+        "selfExileOnResolve": true,
+        "paradigm": true
+    },
+    "metadata": {
+        "collectorNumber": "120",
+        "rarity": "MYTHIC",
+        "artist": "Marta Nael",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/0/d01fe6e9-49ee-4708-833e-75cd5a9f167c.jpg?1775937787"
     },
     "colorIdentityOverride": [
         "RED"
