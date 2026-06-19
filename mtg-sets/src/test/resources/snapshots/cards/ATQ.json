@@ -2069,6 +2069,49 @@
     "colorIdentityOverride": []
 }
 
+// Martyrs of Korlis
+{
+    "name": "Martyrs of Korlis",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Creature — Human",
+    "oracleText": "As long as this creature is untapped, all damage that would be dealt to you by artifacts is dealt to this creature instead.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 6
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "RedirectDamage",
+                "redirectTo": "Self",
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "recipient": "You",
+                    "source": {
+                        "type": "SourceMatching",
+                        "filter": "artifact"
+                    }
+                },
+                "condition": {
+                    "type": "EntityMatches",
+                    "entity": "Self",
+                    "filter": "untapped"
+                }
+            }
+        ]
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "UNCOMMON",
+        "artist": "Margaret Organ-Kean",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bde037b9-4947-4ff7-8ea4-e9f1a7e4ab88.jpg?1562935113"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Mightstone
 {
     "name": "Mightstone",

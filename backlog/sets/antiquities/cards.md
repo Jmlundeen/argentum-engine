@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 67 / 85
+**Implemented:** 68 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -26,7 +26,7 @@
 - [ ] Artifact Ward
 - [x] Circle of Protection: Artifacts
 - [ ] Damping Field
-- [ ] Martyrs of Korlis
+- [x] Martyrs of Korlis
 - [ ] Reverse Polarity
 
 ### Blue
