@@ -1703,6 +1703,15 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   predicate can't express it. Gather with `Patterns.Group.returnAllToHand(GroupFilter(
   GameObjectFilter.Artifact.ownedByTargetPlayer()))` — its `BattlefieldMatching(player = Player.Each)`
   adds no `youControl` constraint, so the filter matches purely on ownership across the battlefield.
+  Also works **at target-validation time** in a *graveyard* zone for a separately-targeted player:
+  `TargetValidator` threads the chosen player target (target index 0) into graveyard-card validation,
+  so a `TargetObject(unlimited = true, filter = TargetFilter(GameObjectFilter.Artifact.ownedByTargetPlayer(),
+  zone = Zone.GRAVEYARD))` legally selects "any number of target artifact cards from **target player's**
+  graveyard" — **Drafna's Restoration**. (An `unlimited` requirement combined with a bounded one is now
+  overflow-safe in the validator's per-cast target-count cap.) Pair with `GatherCardsEffect(CardSource.
+  ChosenTargets)` → `MoveCollectionEffect(destination = ToZone(LIBRARY, player = Player.TargetPlayer,
+  placement = Top), order = CardOrder.ControllerChooses)` to put the chosen cards on top of *their*
+  (the target player's) library in a player-chosen order.
 - `.withControllerPredicate(p)` — set any `ControllerPredicate` directly; the entry point for the
   **composed** predicates `ControllerPredicate.And(list)` / `Or(list)` / `Not(p)`, which express
   heterogeneous controller/owner relationships in one filter — e.g. "creatures you own but don't
