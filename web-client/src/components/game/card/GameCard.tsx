@@ -2124,10 +2124,26 @@ function GameCardImpl({
         document.body,
       )}
 
-      {/* Active effect badges (evasion, etc.) */}
-      {battlefield && card.activeEffects && card.activeEffects.length > 0 && (
-        <ActiveEffectBadges effects={card.activeEffects} />
-      )}
+      {/* Active effect badges (evasion, type/color change, etc.) — sized off the battlefield
+          card width so they shrink with the board and don't bury the art on small screens. */}
+      {battlefield && card.activeEffects && card.activeEffects.length > 0 && (() => {
+        // These art-obscuring type/color labels run one step smaller than the generic
+        // small-label size — they're informational, so they yield to the card image.
+        const effFont = Math.max(6, responsive.badges.smallLabelFontSize - 1)
+        return (
+          <ActiveEffectBadges
+            effects={card.activeEffects}
+            sizing={{
+              fontSize: effFont,
+              padding: `1px ${Math.max(2, Math.round(effFont / 2))}px`,
+              // Tie the column's lift to the (also-scaled) P/T overlay so it stays just above it.
+              bottom: Math.round(responsive.badges.ptFontSize * 2.2),
+              gap: 1,
+              borderRadius: Math.max(2, Math.round(effFont / 2.5)),
+            }}
+          />
+        )
+      })()}
 
       {/* Playable indicator glow effect (only outside combat mode) */}
       {isPlayable && !isSelected && (

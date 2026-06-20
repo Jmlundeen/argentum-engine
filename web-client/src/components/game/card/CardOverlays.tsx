@@ -292,10 +292,28 @@ function getTooltipBorderColor(icon?: string): string {
 }
 
 /**
+ * Responsive sizing for the active-effect badge column. Derived from `responsive.badges`
+ * at the call site so the badges shrink with the actual battlefield card width instead of
+ * staying a fixed size that swamps the art on a small (e.g. laptop) board.
+ */
+export interface ActiveEffectBadgeSizing {
+  fontSize: number
+  /** CSS padding shorthand, e.g. "1px 3px". */
+  padding: string
+  /** Distance from the card bottom — scales so the column clears the (also-scaled) P/T overlay. */
+  bottom: number
+  gap: number
+  borderRadius: number
+}
+
+/**
  * Container component for active effect badges on a card.
  * Used for temporary effects like "can't be blocked except by black creatures".
  */
-export function ActiveEffectBadges({ effects }: { effects: readonly ClientCardEffect[] }) {
+export function ActiveEffectBadges({ effects, sizing }: {
+  effects: readonly ClientCardEffect[]
+  sizing?: ActiveEffectBadgeSizing
+}) {
   const [hoveredEffect, setHoveredEffect] = React.useState<string | null>(null)
   const [tooltipPos, setTooltipPos] = React.useState<{ x: number; y: number } | null>(null)
 
@@ -316,15 +334,23 @@ export function ActiveEffectBadges({ effects }: { effects: readonly ClientCardEf
 
   return (
     <>
-      <div style={styles.activeEffectsContainer}>
+      <div style={sizing
+        ? { ...styles.activeEffectsContainer, bottom: sizing.bottom, gap: sizing.gap }
+        : styles.activeEffectsContainer}>
         {effects.map((effect) => (
           <div
             key={effect.effectId}
-            style={{ ...styles.activeEffectBadge, ...getBadgeStyle(effect.icon) }}
+            style={{
+              ...styles.activeEffectBadge,
+              ...getBadgeStyle(effect.icon),
+              ...(sizing ? { padding: sizing.padding, borderRadius: sizing.borderRadius } : {}),
+            }}
             onMouseEnter={(e) => handleMouseEnter(effect.effectId, e)}
             onMouseLeave={handleMouseLeave}
           >
-            <span style={styles.activeEffectText}>{effect.name}</span>
+            <span style={sizing
+              ? { ...styles.activeEffectText, fontSize: sizing.fontSize }
+              : styles.activeEffectText}>{effect.name}</span>
           </div>
         ))}
       </div>
