@@ -291,6 +291,15 @@ set. This has wider benefits than the one feature: the tooling maps the mtgish I
 whole corpus, so one bridge/emitter entry typically unlocks coverage and auto-draft for many cards
 that share the mechanic. When your feature corresponds to an mtgish IR tag, add it in two places:
 
+**Gating — decide on the right axis.** This step applies when the feature introduces a *new SDK
+effect/primitive that maps to an mtgish IR tag*. It does **not** apply when the feature is pure
+composition of existing effects the emitter already renders (e.g. a `jobSelect()` keyword shell that
+just chains `CreateToken` + `AttachEquipment`) — there is no new capability or IR tag to register, so
+skip it and say so. Crucially, **do not gate this decision on whether the motivating set is in the
+mtgish corpus.** The generator is corpus-wide and a new capability can be registered during feature
+work regardless of which set surfaced it; "the set isn't in the corpus / there's no
+`coverage-verify --set X` path" is not a valid reason to decline.
+
 - **Capability bridge** (`mtgish-tooling/.../coverage/bridge/`) — add a one-line mapping from the
   mtgish tag to your new Argentum capability in the closest themed bridge file, so the probe scores
   cards that use it as *coverable* instead of *blocked*.
