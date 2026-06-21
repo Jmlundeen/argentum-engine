@@ -53,24 +53,23 @@ val TomBombadil = card("Tom Bombadil") {
         "the rest on the bottom of your library in a random order. This ability triggers only " +
         "once each turn."
 
+    // Four or more lore counters among Sagas you control (CR 714 lore counters).
+    val fourLoreAmongYourSagas = Conditions.CounterKindAmongYouControlAtLeast(
+        count = 4,
+        counterType = CounterTypeFilter.Named("lore"),
+        filter = GameObjectFilter.Enchantment.withSubtype("Saga").youControl()
+    )
+
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.HEXPROOF, GroupFilter.source()),
-            condition = Conditions.CounterKindAmongYouControlAtLeast(
-                count = 4,
-                counterType = CounterTypeFilter.Named("lore"),
-                filter = GameObjectFilter.Enchantment.withSubtype("Saga").youControl()
-            )
+            condition = fourLoreAmongYourSagas
         )
     }
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.INDESTRUCTIBLE, GroupFilter.source()),
-            condition = Conditions.CounterKindAmongYouControlAtLeast(
-                count = 4,
-                counterType = CounterTypeFilter.Named("lore"),
-                filter = GameObjectFilter.Enchantment.withSubtype("Saga").youControl()
-            )
+            condition = fourLoreAmongYourSagas
         )
     }
 

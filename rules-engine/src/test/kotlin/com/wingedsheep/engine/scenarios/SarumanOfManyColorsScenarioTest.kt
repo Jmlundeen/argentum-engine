@@ -94,6 +94,47 @@ class SarumanOfManyColorsScenarioTest : ScenarioTestBase() {
                 }
             }
 
+            test("declining the free cast leaves the copy to cease to exist (CR 707.10a); nothing is drawn") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Saruman of Many Colors")
+                    .withCardsInHand(1, "Palladium Myr", 2)
+                    .withLandsOnBattlefield(1, "Island", 8)
+                    .withCardInLibrary(2, "Grizzly Bears")
+                    .withCardInLibrary(2, "Centaur Courser")
+                    .withCardInLibrary(2, "Forest")
+                    .withCardInGraveyard(2, "Divination")
+                    // Cards the copy WOULD draw if (wrongly) cast — proves nothing is drawn.
+                    .withCardInLibrary(1, "Plains")
+                    .withCardInLibrary(1, "Swamp")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val controllerHandBefore = game.handSize(1)
+                val targetDivination = graveyardCardId(game, 2, "Divination")
+
+                game.castSpell(1, "Palladium Myr")
+                game.resolveStack()
+                game.castSpell(1, "Palladium Myr")
+                game.resolveStack()
+
+                // Exile + copy the Divination, then DECLINE the optional free cast.
+                game.hasPendingDecision() shouldBe true
+                game.selectTargets(listOf(targetDivination))
+                game.resolveStack()
+                game.hasPendingDecision() shouldBe true
+                game.answerYesNo(false)
+                game.resolveStack()
+
+                withClue("The targeted Divination was still exiled from the opponent's graveyard") {
+                    game.isInGraveyard(2, "Divination") shouldBe false
+                }
+                withClue("The declined copy ceased to exist; no card was drawn (only the two Myrs left hand)") {
+                    game.handSize(1) shouldBe (controllerHandBefore - 2)
+                }
+            }
+
             test("a graveyard card with mana value greater than the second spell is not a legal target") {
                 val game = scenario()
                     .withPlayers("Player1", "Player2")

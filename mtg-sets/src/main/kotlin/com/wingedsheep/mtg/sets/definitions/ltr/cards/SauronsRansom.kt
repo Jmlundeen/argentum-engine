@@ -20,10 +20,13 @@ import com.wingedsheep.sdk.model.Rarity
  * (the shared pile-split primitive) with `count = 4`, chained with "The Ring tempts
  * you". In a two-player game the lone opponent is the chooser automatically.
  *
- * Note: the printed face-down / face-up distinction is an information-visibility
- * nuance only (the chooser of the split sees both piles either way; the controller
- * then picks where each pile goes). The split-and-choose and hand/graveyard routing —
- * the mechanically load-bearing part — are modeled exactly.
+ * KNOWN LIMITATION — hidden-pile information: the printed card hides one pile
+ * (face-down) from the controller when they choose where each pile goes, whereas
+ * [Patterns.Library.factOrFiction] reveals both piles. The controller therefore chooses
+ * with strictly more information than the printed card intends. The split-and-choose and
+ * hand/graveyard routing — the mechanically load-bearing part — are modeled exactly;
+ * faithfully hiding the face-down pile needs an engine primitive for a pile the chooser
+ * can't see (add-feature territory), tracked for when that lands.
  */
 val SauronsRansom = card("Sauron's Ransom") {
     manaCost = "{1}{U}{B}"

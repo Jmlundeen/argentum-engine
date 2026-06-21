@@ -158,7 +158,8 @@ class SharkeyTyrantOfTheShireScenarioTest : ScenarioTestBase() {
                 withClue("The gained draw-two ability should resolve and draw two cards") {
                     game.handSize(1) shouldBe handBefore + 2
                 }
-                // SacrificeSelf in the copied ability sacrifices the gainer (Sharkey), CR 113.2.
+                // The gained ability's source is Sharkey, so its "Sacrifice this permanent" cost
+                // sacrifices Sharkey itself, not the land it was copied from.
                 withClue("Sharkey should be sacrificed by the gained ability's SacrificeSelf cost") {
                     game.isOnBattlefield("Sharkey, Tyrant of the Shire") shouldBe false
                 }
