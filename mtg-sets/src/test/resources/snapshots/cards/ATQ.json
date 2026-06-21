@@ -903,6 +903,133 @@
     "colorIdentityOverride": []
 }
 
+// Clockwork Avian
+{
+    "name": "Clockwork Avian",
+    "manaCost": "{5}",
+    "typeLine": "Artifact Creature — Bird",
+    "oracleText": "Flying\nThis creature enters with four +1/+0 counters on it.\nAt end of combat, if this creature attacked or blocked this combat, remove a +1/+0 counter from it.\n{X}, {T}: Put up to X +1/+0 counters on this creature. This ability can't cause the total number of +1/+0 counters on this creature to be greater than four. Activate only during your upkeep.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END_COMBAT",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "RemoveCounters",
+                    "counterType": "+1/+0",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "triggerCondition": {
+                    "type": "Any",
+                    "conditions": [
+                        {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": {
+                                "statePredicates": [
+                                    "AttackedThisTurn"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": {
+                                "statePredicates": [
+                                    "BlockedThisTurn"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "At end of combat, if this creature attacked or blocked this combat, remove a +1/+0 counter from it."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{X}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddDynamicCounters",
+                    "counterType": "+1/+0",
+                    "amount": {
+                        "type": "IfPositive",
+                        "amount": {
+                            "type": "Min",
+                            "left": "XValue",
+                            "right": {
+                                "type": "Subtract",
+                                "left": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                },
+                                "right": {
+                                    "type": "EntityProperty",
+                                    "entity": "Source",
+                                    "numericProperty": {
+                                        "type": "CounterCount",
+                                        "counterType": "PlusOnePlusZero"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "target": "Self"
+                },
+                "restrictions": [
+                    {
+                        "type": "DuringStep",
+                        "step": "UPKEEP"
+                    },
+                    "OnlyDuringYourTurn"
+                ],
+                "descriptionOverride": "{X}, {T}: Put up to X +1/+0 counters on this creature (max four total). Activate only during your upkeep."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "counterType": "PlusOnePlusZero",
+                "count": 4,
+                "selfOnly": true
+            }
+        ]
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "RARE",
+        "artist": "Randy Asplund-Faith",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/d/1dea8c2f-4aea-478d-aee7-cba1f74edd6c.jpg?1562901278"
+    },
+    "colorIdentityOverride": []
+}
+
 // Colossus of Sardia
 {
     "name": "Colossus of Sardia",
@@ -2042,8 +2169,14 @@
                 },
                 "effect": {
                     "type": "BecomeCreature",
-                    "power": 2,
-                    "toughness": 2,
+                    "power": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughness": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
                     "creatureTypes": [
                         "Assembly-Worker"
                     ],
@@ -2090,6 +2223,69 @@
         "rarity": "UNCOMMON",
         "artist": "Kaja Foglio & Phil Foglio",
         "imageUri": "https://cards.scryfall.io/normal/front/a/6/a696c5b6-f216-454d-8029-74e84bbd1428.jpg?1562930097"
+    },
+    "colorIdentityOverride": []
+}
+
+// Mishra's War Machine
+{
+    "name": "Mishra's War Machine",
+    "manaCost": "{7}",
+    "typeLine": "Artifact Creature — Juggernaut",
+    "oracleText": "Banding\nAt the beginning of your upkeep, this creature deals 3 damage to you unless you discard a card. If it deals damage to you this way, tap it.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "BANDING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.DoAction",
+                        "action": {
+                            "type": "PayOrSuffer",
+                            "cost": {
+                                "type": "PayAtom",
+                                "atom": "AtomDiscard"
+                            },
+                            "suffer": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "target": "Controller",
+                                "damageSource": "Self"
+                            }
+                        },
+                        "successCriterion": "SuccessCriterion.DamageDealt"
+                    },
+                    "then": {
+                        "type": "TapUntap",
+                        "target": "Self"
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, this creature deals 3 damage to you unless you discard a card. If it deals damage to you this way, tap it."
+            }
+        ]
+    },
+    "setCode": "ATQ",
+    "metadata": {
+        "collectorNumber": "57",
+        "rarity": "RARE",
+        "artist": "Amy Weber",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f6b4652-a1d4-418f-a89b-6a977a920a9e.jpg?1562925240"
     },
     "colorIdentityOverride": []
 }
