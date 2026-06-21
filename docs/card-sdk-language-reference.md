@@ -2371,6 +2371,38 @@ Triggers.youCastSpell(
   the trigger still fires when the library was empty and zero cards were looked at (CR 701.18d /
   701.42d).
 
+### Saga creatures — "Enchantment Creature — Saga" (CR 714.1a)
+
+A Summon Saga (Final Fantasy) is a permanent that is **simultaneously a creature and a Saga**: it
+has power/toughness, keywords, and fights in combat while progressing through lore chapters. No
+special builder is needed — just author a normal `card { }` with both a creature type line and
+`sagaChapter` blocks:
+
+```kotlin
+val SummonTitan = card("Summon: Titan") {
+    typeLine = "Enchantment Creature — Saga Giant"   // both CREATURE and ENCHANTMENT + Saga subtype
+    power = 7; toughness = 7
+    keywords(Keyword.REACH, Keyword.TRAMPLE)         // body keywords are independent of chapters
+    sagaChapter(1) { effect = Patterns.Library.mill(5) }
+    sagaChapter(3) {                                  // chapters may reference the saga-creature
+        effect = Effects.DealDamage(                  //   itself via EffectTarget.Self
+            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+            EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
+    }
+}
+```
+
+The saga machinery is **type-line driven, not enchantment-gated**: `TypeLine.isSaga` is
+`isEnchantment && hasSubtype(SAGA)`, which an Enchantment Creature satisfies. Lore accrual at the
+controller's precombat main (CR 714.3c), chapter triggers (CR 714.2b), self-referential
+`EffectTarget.Self` resolution in a chapter effect, and the final-chapter sacrifice SBA (CR 714.4)
+all apply unchanged while the permanent is a live creature. A chapter effect's `Self` resolves to
+the saga permanent (e.g. "This creature deals damage equal to its power …"). Covered by
+`CreatureSagaTest` and `FinSummonSagaScenarioTest`. *(The standalone Summon Sagas all read
+"Sacrifice after N", so the default CR 714.4 sacrifice is correct; no opt-out flag exists. Eikon /
+Dominant back faces that "stay" instead self-exile on their final chapter, dodging 714.4 via its
+"not the source of a chapter ability on the stack" clause.)*
+
 ### Saga chapter resolution (CR 714)
 
 - `WheneverFinalChapterOfYourSagaResolves` — fires when the *final* chapter ability of a Saga you
