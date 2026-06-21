@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CrewSaddleContributorsComponent
@@ -255,14 +256,21 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
 
         // Persist reveals for cards that came from a library source.
         // - Public reveal (`revealed = true`) → revealed to every player.
-        // - Private look (Scry / Surveil / look-at-top-N) → revealed to the looking player only.
+        // - Private look (Scry / Surveil / look-at-top-N) → revealed to the audience named by
+        //   [GatherCardsEffect.lookAudience]: the controller by default, an opponent for "they
+        //   look at the top N of your library" (Sauron's Ransom), or no one when a downstream
+        //   decision is the only window into the cards.
         // HAND is intentionally excluded: the owner already sees their own hand, and the caster
         // should never automatically see another player's hand from a gather. Cards that genuinely
         // reveal/look at an opponent's hand use [RevealHandEffect] or [LookAtTargetHandEffect]
         // as an explicit prior step.
         val revealAudience: Set<EntityId> = when {
             effect.revealed -> state.turnOrder.toSet()
-            isLibrarySource(effect.source) -> setOf(context.controllerId)
+            isLibrarySource(effect.source) -> when (effect.lookAudience) {
+                LookAudience.Controller -> setOf(context.controllerId)
+                LookAudience.Opponent -> state.getOpponents(context.controllerId).toSet()
+                LookAudience.None -> emptySet()
+            }
             else -> emptySet()
         }
         val newState = if (revealAudience.isNotEmpty()) {

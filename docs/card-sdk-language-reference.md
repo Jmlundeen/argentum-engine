@@ -4652,6 +4652,17 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
   `Player.EachOpponent`) and fan out across every relevant player's copy of the zone in a single gather —
   e.g. "all creature cards in each player's graveyard" (Bringer of the Last Gift). Pair with
   `MoveCollectionEffect(underOwnersControl = true)` to return each card to its owner.
+  `revealed = true` makes a public reveal (every player sees the cards while they stay in a hidden
+  zone, persisted via `RevealedToComponent` and emitting a reveal event). For a non-public library
+  *look* (`revealed = false`), `lookAudience` chooses who privately sees the cards:
+  `LookAudience.Controller` (default — Scry / Surveil / look-at-top-N), `LookAudience.Opponent`
+  ("an opponent looks at the top N of your library"), or `LookAudience.None` (no one is auto-shown;
+  a downstream decision is the only window — used by **Sauron's Ransom**, where the opponent who
+  partitions sees the cards through their own `SelectFromCollection` decision but the caster does
+  not). `lookAudience` is ignored when `revealed = true` or for non-library sources. To then turn a
+  single pile face up for everyone — including the caster, before a `ChoosePileEffect` — re-gather
+  that pile via `GatherCards(FromVariable("pile"), revealed = true)`; any pile never revealed
+  renders to the caster as opaque card backs (Sauron's Ransom's concealed face-down pile).
 - `CaptureControllersEffect(from, storeAs)` — snapshot each entity's current controller into a parallel
   `List<EntityId>` under `storedCollections[storeAs]`. Required when a later step needs "who controlled
   this card before it left the battlefield" — `ControllerComponent` is stripped on move-out.

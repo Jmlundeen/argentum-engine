@@ -515,6 +515,29 @@ enum class Chooser {
 }
 
 /**
+ * Who privately sees a non-public library "look" performed by [GatherCardsEffect].
+ *
+ * Only meaningful when [GatherCardsEffect.revealed] is `false` and the source is a library
+ * (a public reveal — `revealed = true` — always shows the cards to every player and ignores
+ * this). Scry / Surveil / look-at-top-N use [Controller]; "an opponent looks at the top N of
+ * your library" (e.g. Sauron's Ransom) uses [None] so the cards stay hidden from the caster and
+ * are seen only by the opponent through their own pending decision; [Opponent] additionally
+ * persists that knowledge to the opponent(s).
+ */
+@Serializable
+enum class LookAudience {
+    /** The cards are revealed to the controller of the spell/ability (the default look). */
+    Controller,
+    /** The cards are revealed to the controller's opponent(s). */
+    Opponent,
+    /**
+     * No player is automatically shown the cards. A downstream decision (e.g. an opponent's
+     * [SelectFromCollectionEffect]) is the only window into them, so only that decider sees them.
+     */
+    None
+}
+
+/**
  * How to order cards when moving a collection.
  */
 @Serializable
@@ -540,13 +563,17 @@ enum class CardOrder {
  * @property source Where to get the cards from
  * @property storeAs Name of the collection to store the cards in
  * @property revealed Whether the gathered cards are revealed to all players
+ * @property lookAudience For a non-public library look (`revealed = false`), who privately sees
+ *   the cards. Defaults to [LookAudience.Controller] (Scry / Surveil / look-at-top-N). Ignored
+ *   when [revealed] is `true` (a public reveal shows everyone) or for non-library sources.
  */
 @SerialName("GatherCards")
 @Serializable
 data class GatherCardsEffect(
     val source: CardSource,
     val storeAs: String,
-    val revealed: Boolean = false
+    val revealed: Boolean = false,
+    val lookAudience: LookAudience = LookAudience.Controller
 ) : Effect {
     override val description: String = buildString {
         if (revealed) append("Reveal ") else append("Look at ")
