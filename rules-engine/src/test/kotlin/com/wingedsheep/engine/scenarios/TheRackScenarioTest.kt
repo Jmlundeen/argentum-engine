@@ -1,7 +1,11 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.ChooseOptionDecision
+import com.wingedsheep.engine.core.OptionChosenResponse
+import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
+import com.wingedsheep.engine.state.components.battlefield.chosenOpponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -84,6 +88,45 @@ class TheRackScenarioTest : ScenarioTestBase() {
                 val game = runUpkeep(activePlayerNumber = 1, chosenPlayerNumber = 2, chosenHandCount = 0)
                 withClue("Player 1's upkeep is not the chosen player's — no damage to player 2") {
                     game.getLifeTotal(2) shouldBe 20
+                }
+            }
+
+            // End-to-end: cast The Rack from hand and resolve the real EntersWithChoice(OPPONENT)
+            // replacement, proving the chosen player it records under ChoiceSlot.OPPONENT is the same
+            // slot the ChosenOpponentUpkeep trigger reads — not just the injected-component shortcut.
+            test("casting The Rack records the chosen opponent and damages them on their upkeep") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardInHand(1, "The Rack")
+                    .withLandsOnBattlefield(1, "Plains", 1) // pays {1}
+                    .withLifeTotal(2, 20)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                game.castSpell(1, "The Rack").error shouldBe null
+                if (game.getPendingDecision() is SelectManaSourcesDecision) {
+                    game.submitManaSourcesAutoPay()
+                }
+                // Resolving the spell raises the "choose an opponent" prompt; pick the sole opponent.
+                game.resolveStack()
+                val choose = game.getPendingDecision()
+                withClue("The Rack's EntersWithChoice surfaces an opponent prompt as it resolves") {
+                    (choose is ChooseOptionDecision) shouldBe true
+                }
+                game.submitDecision(OptionChosenResponse(choose!!.id, 0))
+                game.resolveStack()
+
+                val rack = game.findPermanent("The Rack")!!
+                withClue("the chosen opponent is recorded under ChoiceSlot.OPPONENT") {
+                    game.state.getEntity(rack)!!.chosenOpponent() shouldBe game.player2Id
+                }
+
+                // Advance into the chosen opponent's (player 2's) upkeep — empty hand → 3 damage.
+                game.passUntilPhase(Phase.BEGINNING, Step.UPKEEP)
+                game.resolveStack()
+                withClue("chosen opponent has an empty hand at their upkeep → 3 - 0 = 3 → 20 - 3 = 17") {
+                    game.getLifeTotal(2) shouldBe 17
                 }
             }
         }

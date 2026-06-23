@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPayManaEffect
  * Whenever an artifact you control is put into a graveyard from the battlefield, if it wasn't
  * sacrificed, you may pay {3}. If you do, draw a card.
  *
- * The "if it wasn't sacrificed" intervening-if (CR 701.17) is expressed on the trigger via
+ * The "if it wasn't sacrificed" intervening-if (CR 701.21) is expressed on the trigger via
  * `excludeSacrifice = true`: `TriggerMatcher.matchesZoneChangeTrigger` reads the triggering
  * `ZoneChangeEvent.wasSacrificed` flag (stamped by the central sacrifice hook) and suppresses the
  * trigger for sacrifices. Otherwise this mirrors the no-condition sibling Tablet of Epityr: an

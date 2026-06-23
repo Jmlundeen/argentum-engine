@@ -109,7 +109,7 @@ data class ZoneChangeEvent(
      */
     val lastKnownDamageSources: Set<com.wingedsheep.engine.state.components.battlefield.DamageSourceLki> = emptySet(),
     /**
-     * True when this battlefield exit was a sacrifice (CR 701.17). Lets leaves/dies triggers
+     * True when this battlefield exit was a sacrifice (CR 701.21). Lets leaves/dies triggers
      * distinguish a sacrifice from any other way a permanent is put into the graveyard —
      * e.g. Urza's Miter ("if it wasn't sacrificed"). Always `false` for non-battlefield exits and
      * for non-sacrifice deaths (destruction, lethal damage, state-based actions).

@@ -1,11 +1,11 @@
 package com.wingedsheep.engine.handlers.effects.linkedexile
 
-import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.PermanentAttachedEvent
-import com.wingedsheep.engine.core.ZoneChangeEvent
+import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.effects.BattlefieldEntry
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
+import com.wingedsheep.engine.handlers.effects.ZoneEntryOptions
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
@@ -13,9 +13,7 @@ import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.battlefield.NotedExileComponent
-import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -32,6 +30,13 @@ import kotlin.reflect.KClass
  *  2. Returns the other linked-exiled cards (the creature's Auras) to the battlefield attached to
  *     that creature. Auras that can't legally re-attach are sent to their owners' graveyards by the
  *     unattached-Aura state-based action (CR 704.5m) — the "If you don't …" fallback.
+ *
+ * Both returns go through [ZoneTransitionService.moveToZone] (the canonical battlefield-entry
+ * pipeline) so the re-entering objects get the full entry treatment — enters-the-battlefield
+ * replacement effects, summoning sickness, and static/replacement-ability registration (the Aura's
+ * own "enchanted creature gets …" static included) — and the standard `ZoneChangeEvent` so ETB
+ * triggers fire. The noted counters are applied after the creature re-enters; the Aura is attached
+ * after it re-enters (the "return attached" wording bypasses normal Aura targeting).
  *
  * A no-op when nothing is noted or the principal is no longer in exile, so firing it from both the
  * becomes-untapped and the leaves-the-battlefield trigger is safe (whichever fires first does the
@@ -65,70 +70,60 @@ class ReturnNotedExileTappedWithAurasExecutor : EffectExecutor<ReturnNotedExileT
             return EffectResult.success(clearBookkeeping(state, sourceId))
         }
 
+        val creatureOwner = ownerOf(state, creatureId)
+            ?: return EffectResult.success(clearBookkeeping(state, sourceId))
+
         val events = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
         var newState = state
 
-        // 1. Return the creature tapped, under its owner's control, with the noted counters.
-        val creatureOwner = ownerOf(newState, creatureId)
-            ?: return EffectResult.success(clearBookkeeping(newState, sourceId))
-        val creatureName = newState.getEntity(creatureId)?.get<CardComponent>()?.name ?: "Creature"
-
-        newState = newState.removeFromZone(ZoneKey(creatureOwner, Zone.EXILE), creatureId)
-        newState = newState.updateEntity(creatureId) { c ->
-            var updated = c.with(ControllerComponent(creatureOwner)).with(TappedComponent)
-            if (noted.notedCounters.isNotEmpty()) {
-                updated = updated.with(CountersComponent(noted.notedCounters))
-            }
-            updated
-        }
-        newState = BattlefieldEntry.place(newState, creatureOwner, creatureId)
-        events.add(
-            ZoneChangeEvent(
-                entityId = creatureId,
-                entityName = creatureName,
-                fromZone = Zone.EXILE,
-                toZone = Zone.BATTLEFIELD,
-                ownerId = creatureOwner
-            )
+        // 1. Return the creature tapped, under its owner's control, via the canonical pipeline.
+        val creatureReturn = ZoneTransitionService.moveToZone(
+            newState, creatureId, Zone.BATTLEFIELD,
+            options = ZoneEntryOptions(controllerId = creatureOwner, tapped = true)
         )
+        newState = creatureReturn.state
+        events.addAll(creatureReturn.events)
 
-        // 2. Return the other linked-exiled cards (Auras) attached to the creature.
-        val auraIds = linked.filter { it != creatureId && inExile(it) }
-        for (auraId in auraIds) {
-            val auraOwner = ownerOf(newState, auraId) ?: continue
-            val auraName = newState.getEntity(auraId)?.get<CardComponent>()?.name ?: "Aura"
-
-            newState = newState.removeFromZone(ZoneKey(auraOwner, Zone.EXILE), auraId)
-            newState = newState.updateEntity(auraId) { c ->
-                c.with(ControllerComponent(auraOwner)).with(AttachedToComponent(creatureId))
-            }
-            newState = BattlefieldEntry.place(newState, auraOwner, auraId)
-            // Record the reverse attachment link on the creature.
+        // Restore the noted counters once it's back on the battlefield (a new object).
+        if (creatureId in newState.getBattlefield() && noted.notedCounters.isNotEmpty()) {
             newState = newState.updateEntity(creatureId) { c ->
-                val existing = c.get<AttachmentsComponent>()?.attachedIds ?: emptyList()
-                c.with(AttachmentsComponent(existing + auraId))
+                c.with(CountersComponent(noted.notedCounters))
             }
-            events.add(
-                ZoneChangeEvent(
-                    entityId = auraId,
-                    entityName = auraName,
-                    fromZone = Zone.EXILE,
-                    toZone = Zone.BATTLEFIELD,
-                    ownerId = auraOwner
-                )
-            )
-            events.add(
-                PermanentAttachedEvent(
-                    attachmentId = auraId,
-                    attachmentName = auraName,
-                    attachedToId = creatureId,
-                    controllerId = auraOwner
-                )
-            )
         }
 
-        // The unattached-Aura SBA (CR 704.5m) sends any Aura whose attachment is illegal to its
-        // owner's graveyard — the "If you don't …" fallback — so no extra handling is needed here.
+        // 2. Return the other linked-exiled cards (Auras) attached to the creature. If the creature
+        // didn't make it back (e.g. a replacement redirected it), the Auras re-enter unattached and
+        // the unattached-Aura SBA (CR 704.5m) bins them — the correct fallback.
+        if (creatureId in newState.getBattlefield()) {
+            val auraIds = linked.filter { it != creatureId && inExile(it) }
+            for (auraId in auraIds) {
+                val auraOwner = ownerOf(newState, auraId) ?: continue
+                val auraName = newState.getEntity(auraId)?.get<CardComponent>()?.name ?: "Aura"
+
+                val auraReturn = ZoneTransitionService.moveToZone(
+                    newState, auraId, Zone.BATTLEFIELD,
+                    options = ZoneEntryOptions(controllerId = auraOwner)
+                )
+                newState = auraReturn.state
+                events.addAll(auraReturn.events)
+                if (auraId !in newState.getBattlefield()) continue
+
+                // Attach to the creature (the "return attached" wording bypasses Aura targeting).
+                newState = newState.updateEntity(auraId) { c -> c.with(AttachedToComponent(creatureId)) }
+                newState = newState.updateEntity(creatureId) { c ->
+                    val existing = c.get<AttachmentsComponent>()?.attachedIds ?: emptyList()
+                    c.with(AttachmentsComponent(existing + auraId))
+                }
+                events.add(
+                    PermanentAttachedEvent(
+                        attachmentId = auraId,
+                        attachmentName = auraName,
+                        attachedToId = creatureId,
+                        controllerId = auraOwner
+                    )
+                )
+            }
+        }
 
         newState = clearBookkeeping(newState, sourceId)
         return EffectResult.success(newState, events)

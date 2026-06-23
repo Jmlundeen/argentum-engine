@@ -70,7 +70,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeCreatureTyp
 import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeWordInTextExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.ChooseColorForTargetExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.LoseAllCreatureTypesExecutor
-import com.wingedsheep.engine.handlers.effects.permanent.types.MassAnimateByManaValueExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.types.MassAnimateExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeColorExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeColorToChosenExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeGroupColorExecutor
@@ -155,7 +155,7 @@ class PermanentExecutors(
         EachPermanentBecomesCopyOfTargetExecutor(),
         BecomeCopyOfLinkedExileExecutor(),
         LoseAllCreatureTypesExecutor(),
-        MassAnimateByManaValueExecutor(),
+        MassAnimateExecutor(),
         SetCreatureSubtypesExecutor(),
         SetGroupCreatureSubtypesExecutor(),
         TransformEffectExecutor(cardRegistry),

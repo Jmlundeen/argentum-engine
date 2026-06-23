@@ -3408,7 +3408,7 @@
                     "from": "Battlefield"
                 },
                 "effect": {
-                    "type": "MassAnimateByManaValue",
+                    "type": "MassAnimate",
                     "filter": {
                         "cardPredicates": [
                             "IsArtifact",
@@ -3417,6 +3417,16 @@
                                 "predicate": "IsCreature"
                             }
                         ]
+                    },
+                    "power": {
+                        "type": "EntityProperty",
+                        "entity": "AffectedEntity",
+                        "numericProperty": "ManaValue"
+                    },
+                    "toughness": {
+                        "type": "EntityProperty",
+                        "entity": "AffectedEntity",
+                        "numericProperty": "ManaValue"
                     }
                 }
             }

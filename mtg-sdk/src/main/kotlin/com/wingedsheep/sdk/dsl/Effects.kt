@@ -3214,17 +3214,21 @@ object Effects {
 
     /**
      * One-shot: animate every permanent matching [filter] into a creature for [duration], setting
-     * each one's base power and toughness to its own mana value and (by default) stripping all of
-     * its abilities. The affected set is captured once at resolution (CR 611.2c). Companion to
-     * expressing the same effect continuously via group statics — use this for the "this effect
-     * continues until end of turn" linger (Titania's Song) when the source enchantment leaves.
+     * each one's base power and toughness to [power]/[toughness] (each a [DynamicAmount] evaluated
+     * per affected permanent — e.g. `DynamicAmounts.manaValueOf(self)` for "P/T equal to its mana
+     * value") and (by default) stripping all of its abilities. The affected set is captured once at
+     * resolution (CR 611.2c). Companion to expressing the same effect continuously via group statics
+     * — use this for the "this effect continues until end of turn" linger (Titania's Song) when the
+     * source permanent leaves.
      */
-    fun MassAnimateByManaValue(
+    fun MassAnimate(
         filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
+        power: com.wingedsheep.sdk.scripting.values.DynamicAmount,
+        toughness: com.wingedsheep.sdk.scripting.values.DynamicAmount,
         loseAllAbilities: Boolean = true,
         duration: Duration = Duration.EndOfTurn
-    ): Effect = com.wingedsheep.sdk.scripting.effects.MassAnimateByManaValueEffect(
-        filter, loseAllAbilities, duration
+    ): Effect = com.wingedsheep.sdk.scripting.effects.MassAnimateEffect(
+        filter, power, toughness, loseAllAbilities, duration
     )
 
     /**

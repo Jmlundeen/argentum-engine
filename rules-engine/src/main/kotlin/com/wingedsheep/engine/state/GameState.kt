@@ -152,7 +152,7 @@ data class GameState(
     val permanentsSacrificedThisTurn: Int = 0,
 
     /**
-     * Permanents currently being sacrificed (CR 701.17), recorded by the central sacrifice hook
+     * Permanents currently being sacrificed (CR 701.21), recorded by the central sacrifice hook
      * (`ZoneTransitionService.trackPermanentSacrifice`) just before they are moved to the graveyard.
      * `ZoneTransitionService.moveToZone` reads this set to stamp [com.wingedsheep.engine.core.
      * ZoneChangeEvent.wasSacrificed] (and removes each id as it processes it), so leaves/dies

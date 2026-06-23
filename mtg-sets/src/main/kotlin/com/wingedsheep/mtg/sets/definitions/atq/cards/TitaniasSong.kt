@@ -35,7 +35,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * Opalescence/Conspiracy locked-set rule).
  *
  * The "continues until end of turn" linger is a leaves-the-battlefield self-trigger that replays
- * the same animate-with-ability-removal as one-shot floating effects (Effects.MassAnimateByManaValue)
+ * the same animate-with-ability-removal as one-shot floating effects (Effects.MassAnimate, P/T = mana value)
  * over whatever noncreature artifacts exist when the enchantment leaves.
  */
 val TitaniasSong = card("Titania's Song") {
@@ -65,8 +65,10 @@ val TitaniasSong = card("Titania's Song") {
     // "If this enchantment leaves the battlefield, this effect continues until end of turn."
     triggeredAbility {
         trigger = Triggers.leavesBattlefield(binding = TriggerBinding.SELF)
-        effect = Effects.MassAnimateByManaValue(
-            filter = GameObjectFilter.Artifact.notCreature()
+        effect = Effects.MassAnimate(
+            filter = GameObjectFilter.Artifact.notCreature(),
+            power = manaValue,
+            toughness = manaValue,
         )
     }
 

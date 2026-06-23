@@ -20,7 +20,6 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.DamageUtils
-import com.wingedsheep.engine.handlers.effects.ZoneEntryOptions
 import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.mana.ManaPool
@@ -395,10 +394,7 @@ class CostPaymentService(private val services: EngineServices) {
             newState = ZoneTransitionService.trackPermanentSacrifice(newState, selected, payerId)
         }
         for (permanentId in selected) {
-            val transition = ZoneTransitionService.moveToZone(
-                newState, permanentId, Zone.GRAVEYARD,
-                options = ZoneEntryOptions(isSacrifice = true)
-            )
+            val transition = ZoneTransitionService.moveToZone(newState, permanentId, Zone.GRAVEYARD)
             newState = transition.state
             events.addAll(transition.events)
         }

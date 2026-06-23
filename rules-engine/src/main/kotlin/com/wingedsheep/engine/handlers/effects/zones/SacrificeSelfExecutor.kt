@@ -3,7 +3,6 @@ package com.wingedsheep.engine.handlers.effects.zones
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
-import com.wingedsheep.engine.handlers.effects.ZoneEntryOptions
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
@@ -43,8 +42,7 @@ class SacrificeSelfExecutor : EffectExecutor<SacrificeSelfEffect> {
         var newState = ZoneTransitionService.trackPermanentSacrifice(state, listOf(sourceId), controllerId)
 
         val transitionResult = ZoneTransitionService.moveToZone(
-            newState, sourceId, Zone.GRAVEYARD, fromZoneKey = battlefieldZone,
-            options = ZoneEntryOptions(isSacrifice = true)
+            newState, sourceId, Zone.GRAVEYARD, fromZoneKey = battlefieldZone
         )
 
         val events = mutableListOf<GameEvent>()

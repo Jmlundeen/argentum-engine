@@ -10,7 +10,7 @@ import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.battlefield.NotedExileComponent
-import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.ExileWithAurasNotingCountersEffect
@@ -46,11 +46,13 @@ class ExileWithAurasNotingCountersExecutor : EffectExecutor<ExileWithAurasNoting
         val creatureId = context.resolveTarget(effect.target) ?: return EffectResult.success(state)
         if (creatureId !in state.getBattlefield()) return EffectResult.success(state)
 
-        // Capture the Auras attached to the creature (before it leaves the battlefield).
+        // Capture the Auras attached to the creature (before it leaves the battlefield). Read the
+        // Aura subtype through projection — a text-changing / type-changing effect could alter it.
+        val projected = state.projectedState
         val auraIds = state.getEntity(creatureId)?.get<AttachmentsComponent>()?.attachedIds
             ?.filter { attachId ->
                 attachId in state.getBattlefield() &&
-                    state.getEntity(attachId)?.get<CardComponent>()?.typeLine?.isAura == true
+                    projected.hasSubtype(attachId, Subtype.AURA.value)
             }
             ?: emptyList()
 

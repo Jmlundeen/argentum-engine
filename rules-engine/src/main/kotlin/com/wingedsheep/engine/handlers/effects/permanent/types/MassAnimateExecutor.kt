@@ -9,35 +9,33 @@ import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.Sublayer
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.sdk.scripting.effects.MassAnimateByManaValueEffect
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.effects.MassAnimateEffect
 import kotlin.reflect.KClass
 
 /**
- * Executor for [MassAnimateByManaValueEffect].
+ * Executor for [MassAnimateEffect].
  *
  * Captures every permanent matching the filter against the *current* battlefield (CR 611.2c —
  * the set of affected permanents is locked in at resolution time), then layers floating
- * continuous effects keyed to that set for [MassAnimateByManaValueEffect.duration]:
+ * continuous effects keyed to that set for [MassAnimateEffect.duration]:
  *   - Layer 4 (TYPE): AddType("CREATURE")
  *   - Layer 6 (ABILITY): RemoveAllAbilities (when requested)
- *   - Layer 7b (POWER_TOUGHNESS, SET_VALUES): base P/T each equal to the permanent's own mana value
+ *   - Layer 7b (POWER_TOUGHNESS, SET_VALUES): base P/T = the effect's [MassAnimateEffect.power] /
+ *     [MassAnimateEffect.toughness] dynamic amounts, evaluated per affected entity
  *
- * Each P/T floating effect resolves its dynamic amount per affected entity
- * ([EntityReference.AffectedEntity]), so every animated permanent gets its own mana value — not
- * the source's. This is the one-shot "this effect continues until end of turn" companion to the
+ * The dynamic P/T is resolved per affected permanent, so a formula like
+ * `EntityProperty(AffectedEntity, ManaValue)` gives each animated permanent its own mana value —
+ * not the source's. This is the one-shot "this effect continues until end of turn" companion to the
  * continuous group statics (GrantCardType + LoseAllAbilities + SetBasePowerToughnessDynamicStatic)
- * used while Titania's Song is on the battlefield.
+ * used while the generating permanent (e.g. Titania's Song) is on the battlefield.
  */
-class MassAnimateByManaValueExecutor : EffectExecutor<MassAnimateByManaValueEffect> {
+class MassAnimateExecutor : EffectExecutor<MassAnimateEffect> {
 
-    override val effectType: KClass<MassAnimateByManaValueEffect> = MassAnimateByManaValueEffect::class
+    override val effectType: KClass<MassAnimateEffect> = MassAnimateEffect::class
 
     override fun execute(
         state: GameState,
-        effect: MassAnimateByManaValueEffect,
+        effect: MassAnimateEffect,
         context: EffectContext
     ): EffectResult {
         val affectedEntities = BattlefieldFilterUtils.findMatchingOnBattlefield(
@@ -68,15 +66,12 @@ class MassAnimateByManaValueExecutor : EffectExecutor<MassAnimateByManaValueEffe
             )
         }
 
-        // Layer 7b (POWER_TOUGHNESS, SET_VALUES): base P/T = each permanent's own mana value.
-        val manaValue: DynamicAmount = DynamicAmount.EntityProperty(
-            entity = EntityReference.AffectedEntity,
-            numericProperty = EntityNumericProperty.ManaValue
-        )
+        // Layer 7b (POWER_TOUGHNESS, SET_VALUES): base P/T = the effect's dynamic amounts,
+        // resolved per affected entity.
         newState = newState.addFloatingEffect(
             layer = Layer.POWER_TOUGHNESS,
             sublayer = Sublayer.SET_VALUES,
-            modification = SerializableModification.SetPowerToughnessDynamic(manaValue, manaValue),
+            modification = SerializableModification.SetPowerToughnessDynamic(effect.power, effect.toughness),
             affectedEntities = affectedEntities,
             duration = effect.duration,
             context = context
