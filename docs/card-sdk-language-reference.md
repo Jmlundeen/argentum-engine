@@ -506,7 +506,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 ### Stats & keywords
 
-- `ModifyStats(power, toughness, target?)` — `±P/±T` until end of turn (default scope).
+- `ModifyStats(power, toughness, target?, duration?)` — `±P/±T` for `duration` (default: until end of
+  turn). Pass `Duration.WhileSourceTapped("…")` for the Antiquities "tap-locked" buffs (Ashnod's Battle
+  Gear `+2/-2`, Tawnos's Weaponry `+1/+1`): the bonus persists for as long as the source artifact remains
+  tapped and the one-way latch drops it when it untaps.
 - `SetBasePower(target, power: DynamicAmount, duration)` — set base power to a dynamic value (Layer 7b).
 - `SetBasePowerAndToughness(power, toughness, target?, duration)` — set base power AND toughness to
   fixed values (Layer 7b, set values), e.g. "Target creature has base power and toughness 5/5 until end
@@ -2204,6 +2207,20 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
   Mentor, whose payoff is `Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity)` (for an
   `AbilityActivatedEvent` the triggering entity is the activated ability on the stack; the copy executor reprompts for
   new targets, CR 707.10/707.10c).
+- `activatesAbilityWithoutTap(player?, sourceFilter?, binding?)` — the Antiquities "tap / activate an artifact"
+  punisher half: a permanent matching `sourceFilter` has an activated ability used **without `{T}` in its activation
+  cost** (Haunting Wind, Powerleech, Artifact Possession). Backed by
+  `EventPattern.AbilityActivatedEvent(player, sourceFilter, requireNoTapInCost = true)`. This differs from
+  `OpponentActivatesAbility` / `YouActivateAbility` in two ways: it keys on the literal `{T}`-in-cost wording rather
+  than "isn't a mana ability", so **a non-`{T}` mana ability also fires it** (the engine emits an
+  `AbilityActivatedEvent` for every activated ability whose cost lacks `{T}`, mana or not, and `costsTap`/`isManaAbility`
+  on the event let the matcher pick the right wording); and `sourceFilter` restricts which permanent's ability counts
+  (`GameObjectFilter.Artifact`, `Artifact.opponentControls()`, or null with `TriggerBinding.ATTACHED` for "enchanted
+  artifact"). Pair with `becomesTapped(...)` to cover the full "becomes tapped or has a non-`{T}` ability activated"
+  clause. For "that artifact's controller": the **global** form uses
+  `EffectTarget.PlayerRef(Player.TriggeringPlayer)` (the activator); the **ATTACHED** form uses
+  `EffectTarget.ControllerOfTriggeringEntity` (the enchanted artifact's controller, exposed by
+  `AttachmentTriggerDetector`).
 
 **Other casters.** The same shape, scoped to a different caster via the runtime
 `Player.Each` / `Player.EachOpponent` matching on `SpellCastEvent`. Bind the payoff to the
@@ -2723,8 +2740,16 @@ staticAbility {
 - **Untap-step restriction flags** — granted via `GrantKeyword(AbilityFlag.X.name)` and read by the untap
   step (`BeginningPhaseManager`) off projected keywords, so they vanish when the granting source leaves play:
   - `AbilityFlag.DOESNT_UNTAP` — "doesn't untap during its controller's untap step" (Charmed Sleep,
-    Temporal Distortion's hourglass-counter form).
-  - `AbilityFlag.MAY_NOT_UNTAP` — controller may choose not to untap it (Everglove Courier).
+    Temporal Distortion's hourglass-counter form). `Effects.GrantKeyword(AbilityFlag.DOESNT_UNTAP, target,
+    duration)` works on **any** battlefield permanent, not only creatures (the grant executor no longer
+    requires a creature target), so it covers noncreature-artifact targets. For **imposed untap
+    suppression that lasts only while the source stays tapped** — Phyrexian Gremlins, "{T}: Tap target
+    artifact. It doesn't untap during its controller's untap step for as long as Phyrexian Gremlins
+    remains tapped" — compose `Effects.Tap(target) then Effects.GrantKeyword(AbilityFlag.DOESNT_UNTAP,
+    target, Duration.WhileSourceTapped("…"))`: the one-way `WhileSourceTapped` latch drops the grant the
+    instant the source untaps.
+  - `AbilityFlag.MAY_NOT_UNTAP` — controller may choose not to untap it (Everglove Courier, and the
+    Antiquities self-optional untap-skip on Phyrexian Gremlins / Ashnod's Battle Gear / Tawnos's Weaponry).
   - `AbilityFlag.REMOVE_COUNTER_TO_UNTAP` — "If this would untap during your untap step, remove a +1/+1
     counter from it instead. If you do, untap it." (Bewitching Leechcraft). During the controller's untap
     step the engine tries to remove a +1/+1 counter; the permanent untaps **only if** one was removed,
@@ -2733,6 +2758,14 @@ staticAbility {
     the natural untap step (callers pass projected state); explicit "untap target permanent" effects and
     other players' untap steps (Seedborn Muse) pass `projected = null` and never apply it — matching the
     "during **your** untap step" wording. Stacks after the stun-counter replacement (CR 122.1d, checked first).
+- `UntapLimitPerStep(filter, max)` — global untap-count cap, "Players can't untap more than `max` `filter`
+  during their untap steps" (Damping Field — `filter = GameObjectFilter.Artifact`, `max = 1`). Read by
+  `BeginningPhaseManager` for **every** player's untap step regardless of who controls the source: when a
+  player has more matching permanents that would untap than the cap allows, the engine raises the same
+  keep-tapped decision used by `MAY_NOT_UNTAP` with `minSelections = (matching − max)`, so the player keeps
+  the excess tapped and chooses which one untaps. Multiple copies do not stack to a stricter cap unless one
+  names a smaller `max` (most restrictive per filter wins). Inert when the player has `≤ max` matching
+  permanents tapped.
 - `MustBlock(filter = source())` — matching creatures must block each combat if able (Grand Melee).
 - `MustBeBlocked(allCreatures = false)` — static: the source creature must be blocked while active —
   "if able" (≥1 blocker, default) or by **all** able blockers (`allCreatures = true`, Lure-style).

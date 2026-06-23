@@ -172,18 +172,34 @@ data class AnyPlayerMayPayContinuation(
 /**
  * Resume after player selects which permanents to keep tapped during untap step.
  *
- * Used for permanents with "You may choose not to untap" keyword (MAY_NOT_UNTAP).
- * The player selects which permanents to keep tapped; everything else untaps normally.
+ * Used for permanents with "You may choose not to untap" keyword (MAY_NOT_UNTAP) and for
+ * untap-count restrictions such as Damping Field ("can't untap more than one artifact"). The
+ * player selects which permanents to keep tapped; everything else untaps normally.
  *
  * @property playerId The active player making the choice
  * @property allPermanentsToUntap All permanents that would normally untap
+ * @property untapLimits Active untap-count caps (Damping Field). Each pair is the set of would-untap
+ *   permanents matching the restriction's filter and the maximum of them allowed to untap. The
+ *   resumer enforces that no more than `max` of each set untaps (defence in depth — the raised
+ *   decision's `minSelections` already prevents an under-keep when the matching pool is homogeneous).
  */
 @Serializable
 data class UntapChoiceContinuation(
     override val decisionId: String,
     val playerId: EntityId,
-    val allPermanentsToUntap: List<EntityId>
+    val allPermanentsToUntap: List<EntityId>,
+    val untapLimits: List<UntapLimitChoice> = emptyList()
 ) : ContinuationFrame
+
+/**
+ * One active untap-count cap during a player's untap step: at most [max] of [matchingPermanents]
+ * (the would-untap permanents matching the restriction's filter) may untap.
+ */
+@Serializable
+data class UntapLimitChoice(
+    val matchingPermanents: List<EntityId>,
+    val max: Int
+)
 
 /**
  * Resume after player selects a card from their graveyard.

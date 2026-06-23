@@ -275,6 +275,63 @@
     ]
 }
 
+// Artifact Possession
+{
+    "name": "Artifact Possession",
+    "manaCost": "{2}{B}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant artifact\nWhenever enchanted artifact becomes tapped or a player activates an ability of enchanted artifact without {T} in its activation cost, this Aura deals 2 damage to that artifact's controller.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "TapEvent",
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": "ControllerOfTriggeringEntity"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "AbilityActivatedEvent",
+                    "player": "Each",
+                    "requireNoTapInCost": true
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": "ControllerOfTriggeringEntity"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "artifact"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "artist": "Christopher Rush",
+        "flavorText": "Any black mage could coax a Thraxodemon to inhabit a magical device.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/8/587d6ac8-fad8-49e0-862e-636e06628ff9.jpg?1562913472"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Ashnod's Altar
 {
     "name": "Ashnod's Altar",
@@ -309,6 +366,74 @@
         "rarity": "UNCOMMON",
         "artist": "Anson Maddocks",
         "imageUri": "https://cards.scryfall.io/normal/front/c/d/cdcccb0f-ce96-453b-9e82-41d87f52e58b.jpg?1562938535"
+    },
+    "colorIdentityOverride": []
+}
+
+// Ashnod's Battle Gear
+{
+    "name": "Ashnod's Battle Gear",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "You may choose not to untap this artifact during your untap step.\n{2}, {T}: Target creature you control gets +2/-2 for as long as this artifact remains tapped.",
+    "flags": [
+        "MAY_NOT_UNTAP"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": -2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    },
+                    "duration": {
+                        "type": "WhileSourceTapped",
+                        "sourceDescription": "Ashnod's Battle Gear"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "target creature you control"
+                    }
+                ],
+                "descriptionOverride": "{2}, {T}: Target creature you control gets +2/-2 for as long as this artifact remains tapped."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Poole",
+        "flavorText": "This horrid invention clearly illustrates why Mishra's lieutenant was feared as much by her troops as by her foes.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/e/aeeec853-dd3f-4ac3-8b20-c07fada8888f.jpg?1562931933"
     },
     "colorIdentityOverride": []
 }
@@ -562,6 +687,64 @@
     "colorIdentityOverride": []
 }
 
+// Colossus of Sardia
+{
+    "name": "Colossus of Sardia",
+    "manaCost": "{9}",
+    "typeLine": "Artifact Creature — Golem",
+    "oracleText": "Trample\nThis creature doesn't untap during your untap step.\n{9}: Untap this creature. Activate only during your upkeep.",
+    "creatureStats": {
+        "power": 9,
+        "toughness": 9
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "flags": [
+        "DOESNT_UNTAP"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{9}"
+                    }
+                },
+                "effect": {
+                    "type": "TapUntap",
+                    "target": "Self",
+                    "tap": false
+                },
+                "restrictions": [
+                    {
+                        "type": "ActivationAll",
+                        "restrictions": [
+                            "OnlyDuringYourTurn",
+                            {
+                                "type": "DuringStep",
+                                "step": "UPKEEP"
+                            }
+                        ]
+                    }
+                ],
+                "descriptionOverride": "{9}: Untap this creature. Activate only during your upkeep."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "46",
+        "rarity": "RARE",
+        "artist": "Jesper Myrfors",
+        "flavorText": "From the Sardian mountains wakes ancient doom: Warrior born from a rocky womb.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/6/067c44e9-1b23-42fd-9acb-daafb62c32a2.jpg?1562896386"
+    },
+    "colorIdentityOverride": []
+}
+
 // Coral Helm
 {
     "name": "Coral Helm",
@@ -688,6 +871,33 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Damping Field
+{
+    "name": "Damping Field",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Players can't untap more than one artifact during their untap steps.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "UntapLimitPerStep",
+                "filter": "artifact",
+                "max": 1
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "5",
+        "rarity": "UNCOMMON",
+        "artist": "Justin Hampton",
+        "flavorText": "Eventually, mages learned to harness the power of natural damping fields and use it for their own ends.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/2/12ab9836-bc90-4d92-a86d-b8e1b7671aa7.jpg?1562898915"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -1070,6 +1280,65 @@
         "imageUri": "https://cards.scryfall.io/normal/front/4/c/4c7a7348-c82e-453c-975c-e5365e152a3a.jpg?1562911063"
     },
     "colorIdentityOverride": []
+}
+
+// Haunting Wind
+{
+    "name": "Haunting Wind",
+    "manaCost": "{3}{B}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever an artifact becomes tapped or a player activates an artifact's ability without {T} in its activation cost, this enchantment deals 1 damage to that artifact's controller.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "TapEvent",
+                    "filter": "artifact"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "ControllerOfTriggeringEntity"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "AbilityActivatedEvent",
+                    "player": "Each",
+                    "sourceFilter": "artifact",
+                    "requireNoTapInCost": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "17",
+        "rarity": "UNCOMMON",
+        "artist": "Jeff A. Menges",
+        "flavorText": "These devices lured so many spirits that sometimes entire battlefields would become haunted at once.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/2/a2f6ef2f-a3a2-4e1f-b7eb-59abc8414114.jpg?1562929345"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
 }
 
 // Ivory Tower
@@ -1527,6 +1796,125 @@
     "colorIdentityOverride": []
 }
 
+// Phyrexian Gremlins
+{
+    "name": "Phyrexian Gremlins",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Phyrexian Gremlin",
+    "oracleText": "You may choose not to untap this creature during your untap step.\n{T}: Tap target artifact. It doesn't untap during its controller's untap step for as long as this creature remains tapped.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "flags": [
+        "MAY_NOT_UNTAP"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target artifact"
+                            }
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "DOESNT_UNTAP",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target artifact"
+                            },
+                            "duration": {
+                                "type": "WhileSourceTapped",
+                                "sourceDescription": "Phyrexian Gremlins"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact"
+                        },
+                        "id": "target artifact"
+                    }
+                ],
+                "descriptionOverride": "{T}: Tap target artifact. It doesn't untap during its controller's untap step for as long as this creature remains tapped."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "artist": "Amy Weber",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/1/21a985a9-5612-4844-982e-fd1aa6249770.jpg?1562902131"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Powerleech
+{
+    "name": "Powerleech",
+    "manaCost": "{G}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever an artifact an opponent controls becomes tapped or an opponent activates an artifact's ability without {T} in its activation cost, you gain 1 life.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "TapEvent",
+                    "filter": "artifact ctrl:opponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "AbilityActivatedEvent",
+                    "player": "EachOpponent",
+                    "sourceFilter": "artifact ctrl:opponent",
+                    "requireNoTapInCost": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "rarity": "UNCOMMON",
+        "artist": "Christopher Rush",
+        "flavorText": "The Forest of Argoth has developed a resistance to mechanical intrusion.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/e/ae1d7b09-3a1f-410f-b330-04ae768b0455.jpg?1562931798"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Rakalite
 {
     "name": "Rakalite",
@@ -1973,6 +2361,74 @@
         "rarity": "UNCOMMON",
         "artist": "Douglas Shuler",
         "imageUri": "https://cards.scryfall.io/normal/front/9/7/978f09dd-121a-4da5-ba16-5c03fbdce084.jpg?1562927106"
+    },
+    "colorIdentityOverride": []
+}
+
+// Tawnos's Weaponry
+{
+    "name": "Tawnos's Weaponry",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "You may choose not to untap this artifact during your untap step.\n{2}, {T}: Target creature gets +1/+1 for as long as this artifact remains tapped.",
+    "flags": [
+        "MAY_NOT_UNTAP"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    },
+                    "duration": {
+                        "type": "WhileSourceTapped",
+                        "sourceDescription": "Tawnos's Weaponry"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target creature"
+                    }
+                ],
+                "descriptionOverride": "{2}, {T}: Target creature gets +1/+1 for as long as this artifact remains tapped."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "70",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Frazier",
+        "flavorText": "When Urza's war machines became too costly, Tawnos's weaponry replaced them.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/0/3035cead-a501-4204-9154-5fd648577d32.jpg?1562905158"
     },
     "colorIdentityOverride": []
 }

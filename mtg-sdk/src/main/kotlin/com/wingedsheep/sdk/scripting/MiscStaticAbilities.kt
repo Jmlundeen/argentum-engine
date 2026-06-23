@@ -718,6 +718,30 @@ data class UntapFilteredDuringOtherUntapSteps(
 }
 
 /**
+ * Caps how many permanents matching [filter] a player may untap during their own untap step
+ * (CR 502.3 — "effects can keep one or more of a player's permanents from untapping"). A global
+ * restriction: it applies to every player's untap step, regardless of who controls the source.
+ *
+ * The active player still chooses *which* of the matching permanents untap: during the untap step
+ * the engine lets the player keep at least `(matching that would untap − max)` of them tapped, so
+ * no more than [max] ever untap. With fewer than [max] matching permanents tapped, the cap is
+ * inert. Multiple copies do not stack to a lower cap unless they name a smaller [max]; the most
+ * restrictive applies per filter.
+ *
+ * Used by Damping Field — "Players can't untap more than one artifact during their untap steps"
+ * (`filter = GameObjectFilter.Artifact`, `max = 1`).
+ */
+@SerialName("UntapLimitPerStep")
+@Serializable
+data class UntapLimitPerStep(
+    val filter: GameObjectFilter,
+    val max: Int
+) : StaticAbility {
+    override val description: String =
+        "Players can't untap more than $max ${filter.description} during their untap steps"
+}
+
+/**
  * You may activate loyalty abilities of planeswalkers you control an extra time each turn.
  * Used for Oath of Teferi: "You may activate the loyalty abilities of planeswalkers you control
  * twice each turn rather than only once."

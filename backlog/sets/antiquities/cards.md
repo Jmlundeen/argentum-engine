@@ -2,7 +2,7 @@
 
 **Set Size:** 85 cards
 **Release Date:** March 4, 1994
-**Implemented:** 48 / 85
+**Implemented:** 51 / 85
 | Color       | Count |
 |-------------|-------|
 | White       | 7     |
@@ -39,9 +39,9 @@
 - [ ] Transmute Artifact
 
 ### Black
-- [ ] Artifact Possession
+- [x] Artifact Possession
 - [x] Gate to Phyrexia
-- [ ] Haunting Wind
+- [x] Haunting Wind
 - [ ] Phyrexian Gremlins
 - [ ] Priest of Yawgmoth
 - [ ] Xenic Poltergeist
@@ -62,7 +62,7 @@
 - [x] Citanul Druid
 - [x] Crumble
 - [x] Gaea's Avenger
-- [ ] Powerleech
+- [x] Powerleech
 - [ ] Titania's Song
 
 ### Artifacts

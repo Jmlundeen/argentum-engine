@@ -993,10 +993,18 @@ object Effects {
     // =========================================================================
 
     /**
-     * Modify power and toughness.
+     * Modify power and toughness for the given [duration] (default: until end of turn).
+     * Pass [com.wingedsheep.sdk.scripting.Duration.WhileSourceTapped] for the Antiquities
+     * "tap-locked" buffs (Ashnod's Battle Gear, Tawnos's Weaponry) — the bonus persists for as
+     * long as the source artifact remains tapped and ends when it untaps.
      */
-    fun ModifyStats(power: Int, toughness: Int, target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
-        ModifyStatsEffect(power, toughness, target)
+    fun ModifyStats(
+        power: Int,
+        toughness: Int,
+        target: EffectTarget = EffectTarget.ContextTarget(0),
+        duration: Duration = Duration.EndOfTurn
+    ): Effect =
+        ModifyStatsEffect(power, toughness, target, duration)
 
     /**
      * Modify power and toughness by dynamic amounts.
