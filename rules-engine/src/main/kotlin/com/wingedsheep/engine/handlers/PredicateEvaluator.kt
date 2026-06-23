@@ -16,7 +16,9 @@ import com.wingedsheep.engine.state.components.battlefield.HasDealtDamageCompone
 import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.battlefield.SaddledComponent
+import com.wingedsheep.engine.state.components.combat.AttackedThisCombatComponent
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
+import com.wingedsheep.engine.state.components.combat.BlockedThisCombatComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -890,10 +892,16 @@ class PredicateEvaluator {
                 entityId in attackerSet
             }
 
-            // Whether this creature was declared as a blocker this turn — backed by the
-            // per-entity BlockedThisTurnComponent marker stamped at block-declaration time.
-            StatePredicate.BlockedThisTurn -> {
-                container.has<com.wingedsheep.engine.state.components.combat.BlockedThisTurnComponent>()
+            // Whether this creature was declared as an attacker / blocker this combat — backed by the
+            // per-entity AttackedThisCombatComponent / BlockedThisCombatComponent markers, stamped at
+            // declaration time and cleared only when the combat phase ends (so they survive deaths and
+            // removal-from-combat that clear the live AttackingComponent/BlockingComponent).
+            StatePredicate.AttackedThisCombat -> {
+                container.has<AttackedThisCombatComponent>()
+            }
+
+            StatePredicate.BlockedThisCombat -> {
+                container.has<BlockedThisCombatComponent>()
             }
 
             // "Put there from the battlefield this turn" filter for graveyard-zone targets

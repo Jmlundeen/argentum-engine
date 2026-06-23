@@ -787,18 +787,32 @@ object Conditions {
         SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.attackedThisTurn())
 
     /**
-     * If this creature was declared as a blocker at least once during the current turn (CR 509.1).
+     * If this creature was declared as an attacker at least once during the current combat (CR 508.1).
+     * Backed by the per-entity `AttackedThisCombatComponent` marker, stamped at attacker-declaration
+     * time and cleared when the combat phase ends — so, unlike [SourceAttackedThisTurn], it resets
+     * between multiple combats in one turn, and unlike the current `AttackingComponent` it survives
+     * the creature being removed from combat.
      */
-    val SourceBlockedThisTurn: ConditionInterface =
-        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.blockedThisTurn())
+    val SourceAttackedThisCombat: ConditionInterface =
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.attackedThisCombat())
 
     /**
-     * If this creature attacked or blocked at least once during the current turn. Used by
-     * Clockwork Avian's end-of-combat "if this creature attacked or blocked this combat, remove a
-     * +1/+0 counter" trigger.
+     * If this creature was declared as a blocker at least once during the current combat (CR 509.1).
+     * Backed by the per-entity `BlockedThisCombatComponent` marker, stamped at blocker-declaration
+     * time and cleared when the combat phase ends. Survives the blocked attacker dying (which clears
+     * the live `BlockingComponent`), so it still reads true at end of combat.
      */
-    val SourceAttackedOrBlockedThisTurn: ConditionInterface =
-        Any(SourceAttackedThisTurn, SourceBlockedThisTurn)
+    val SourceBlockedThisCombat: ConditionInterface =
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.blockedThisCombat())
+
+    /**
+     * If this creature attacked or blocked at least once during the current combat. Used as the
+     * intervening-if on Clockwork Avian's `EachEndOfCombat` counter-shed trigger ("at end of combat,
+     * if this creature attacked or blocked this combat, …"). Correctly per-combat: a second combat in
+     * the same turn re-evaluates against fresh markers.
+     */
+    val SourceAttackedOrBlockedThisCombat: ConditionInterface =
+        Any(SourceAttackedThisCombat, SourceBlockedThisCombat)
 
     /**
      * As long as this creature is a specific subtype.

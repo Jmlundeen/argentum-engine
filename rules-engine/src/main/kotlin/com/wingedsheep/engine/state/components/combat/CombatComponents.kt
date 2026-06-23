@@ -44,14 +44,25 @@ data class BlockedComponent(
 data object BlockedOrWasBlockedByLegendaryThisTurnComponent : Component
 
 /**
- * Marks a creature that was declared as a blocker at least once during the current turn
- * (CR 509.1). Stamped at block-declaration time and cleared at end-of-turn cleanup, mirroring
- * the attacker-side [PlayerAttackersThisTurnComponent] derivation. Backs
- * [com.wingedsheep.sdk.scripting.predicates.StatePredicate.BlockedThisTurn] — e.g. Clockwork
- * Avian's "if this creature attacked or blocked this combat" end-of-combat trigger.
+ * Marks a creature that was declared as an attacker at least once during the current combat
+ * (CR 508.1). Stamped at attacker-declaration time and cleared when the combat phase ends
+ * ([com.wingedsheep.engine.mechanics.combat.CombatManager.endCombat]). Unlike the turn-scoped,
+ * player-level `PlayerAttackersThisTurnComponent`, this is per-creature and resets between
+ * multiple combats in one turn; unlike the live `AttackingComponent`, it survives removal from
+ * combat. Backs [com.wingedsheep.sdk.scripting.predicates.StatePredicate.AttackedThisCombat].
  */
 @Serializable
-data object BlockedThisTurnComponent : Component
+data object AttackedThisCombatComponent : Component
+
+/**
+ * Marks a creature that was declared as a blocker at least once during the current combat
+ * (CR 509.1). Stamped at blocker-declaration time and cleared when the combat phase ends. Survives
+ * the blocked attacker dying (which clears the live `BlockingComponent`), so an end-of-combat
+ * trigger still sees it. Backs [com.wingedsheep.sdk.scripting.predicates.StatePredicate.BlockedThisCombat]
+ * — Clockwork Avian's "if this creature attacked or blocked this combat" end-of-combat shed.
+ */
+@Serializable
+data object BlockedThisCombatComponent : Component
 
 /**
  * Combat damage assignment for a creature.

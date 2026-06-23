@@ -182,15 +182,28 @@ sealed interface StatePredicate {
     }
 
     /**
-     * Was declared as a blocker at least once during the current turn (CR 509.1). Backed by the
-     * [com.wingedsheep.engine.state.components.combat.BlockedThisTurnComponent] marker stamped at
-     * block-declaration time and cleared at end-of-turn cleanup. Pairs with [AttackedThisTurn] to
-     * express "attacked or blocked this turn" (Clockwork Avian's end-of-combat counter shed).
+     * Was declared as an attacker at least once during the current combat (CR 508.1). Backed by the
+     * per-entity `AttackedThisCombatComponent` marker, stamped at attacker-declaration time and
+     * cleared when the combat phase ends. Resets between multiple combats in one turn, and survives
+     * the creature being removed from combat. Pairs with [BlockedThisCombat] for Clockwork Avian's
+     * end-of-combat "if this creature attacked or blocked this combat" counter shed.
      */
-    @SerialName("BlockedThisTurn")
+    @SerialName("AttackedThisCombat")
     @Serializable
-    data object BlockedThisTurn : History {
-        override val description: String = "blocked this turn"
+    data object AttackedThisCombat : History {
+        override val description: String = "attacked this combat"
+    }
+
+    /**
+     * Was declared as a blocker at least once during the current combat (CR 509.1). Backed by the
+     * per-entity `BlockedThisCombatComponent` marker, stamped at blocker-declaration time and cleared
+     * when the combat phase ends. Survives the blocked attacker dying (which clears the live
+     * `BlockingComponent`), so it still reads true at end of combat.
+     */
+    @SerialName("BlockedThisCombat")
+    @Serializable
+    data object BlockedThisCombat : History {
+        override val description: String = "blocked this combat"
     }
 
     /**

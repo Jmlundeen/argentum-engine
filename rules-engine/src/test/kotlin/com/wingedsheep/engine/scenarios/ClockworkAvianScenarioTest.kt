@@ -89,6 +89,41 @@ class ClockworkAvianScenarioTest : ScenarioTestBase() {
                 }
             }
 
+            test("removes a +1/+0 counter at end of combat after blocking, becoming a 3/4") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardOnBattlefield(1, "Clockwork Avian")
+                    .withCardOnBattlefield(2, "Grizzly Bears") // opponent's attacker
+                    .withActivePlayer(2)
+                    .inPhase(Phase.COMBAT, Step.DECLARE_ATTACKERS)
+                    .build()
+
+                // Stamp the four +1/+0 counters it would have entered with.
+                val avian = game.findPermanent("Clockwork Avian")!!
+                game.state = game.state.updateEntity(avian) { c ->
+                    c.with(CountersComponent(mapOf(CounterType.PLUS_ONE_PLUS_ZERO to 4)))
+                }
+
+                // The opponent attacks; player 1's Avian blocks the Bears (it never attacked itself —
+                // this exercises the "or blocked this combat" half of the shed trigger).
+                game.declareAttackers(mapOf("Grizzly Bears" to 1)).error shouldBe null
+                game.passUntilPhase(Phase.COMBAT, Step.DECLARE_BLOCKERS)
+                game.declareBlockers(mapOf("Clockwork Avian" to listOf("Grizzly Bears")))
+
+                // Advance to end of combat; the end-of-combat trigger fires and resolves.
+                game.passUntilPhase(Phase.COMBAT, Step.END_COMBAT)
+                game.resolveStack()
+
+                withClue("One +1/+0 counter shed at end of combat (blocked this combat)") {
+                    plusOneZero(game, avian) shouldBe 3
+                }
+                withClue("With three +1/+0 counters it is a 3/4") {
+                    val projected = stateProjector.project(game.state)
+                    projected.getPower(avian) shouldBe 3
+                    projected.getToughness(avian) shouldBe 4
+                }
+            }
+
             test("does not remove a counter at end of combat if it neither attacked nor blocked") {
                 val game = scenario()
                     .withPlayers("Player", "Opponent")

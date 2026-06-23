@@ -23,8 +23,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The animate ability uses [Effects.BecomeCreature] with `addTypes = setOf("ARTIFACT")` so the land
  * faithfully becomes a 2/2 **artifact** creature (not merely a creature) of subtype Assembly-Worker
- * while keeping its base Land type (CR 305.7 — the type-adding floating effects are additive). Prior
- * to the `addTypes` addition, animate effects could only grant CREATURE, dropping the artifact type.
+ * while keeping its base Land type — the type-adding floating effects are additive in the type-changing
+ * layer (Layer 4), so the existing Land card type is preserved ("It's still a land"). Prior to the
+ * `addTypes` addition, animate effects could only grant CREATURE, dropping the artifact type.
  * The pump ability targets any Assembly-Worker creature (including this land once animated).
  */
 val MishrasFactory = card("Mishra's Factory") {

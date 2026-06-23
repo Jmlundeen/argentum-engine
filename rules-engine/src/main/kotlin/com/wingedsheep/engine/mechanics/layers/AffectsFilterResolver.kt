@@ -12,7 +12,9 @@ import com.wingedsheep.engine.state.components.battlefield.HasDealtCombatDamageT
 import com.wingedsheep.engine.state.components.battlefield.HasDealtDamageComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.battlefield.WasDealtDamageThisTurnComponent
+import com.wingedsheep.engine.state.components.combat.AttackedThisCombatComponent
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
+import com.wingedsheep.engine.state.components.combat.BlockedThisCombatComponent
 import com.wingedsheep.engine.state.components.combat.BlockingComponent
 import com.wingedsheep.engine.state.components.combat.PlayerAttackersThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -401,8 +403,10 @@ internal class AffectsFilterResolver {
             } ?: emptySet()
             entityId in attackerSet
         }
-        StatePredicate.BlockedThisTurn ->
-            container.has<com.wingedsheep.engine.state.components.combat.BlockedThisTurnComponent>()
+        StatePredicate.AttackedThisCombat ->
+            container.has<AttackedThisCombatComponent>()
+        StatePredicate.BlockedThisCombat ->
+            container.has<BlockedThisCombatComponent>()
         // Graveyard-zone-only predicate (Samwise/Lobelia). Battlefield projection
         // never sees a card whose stamp would match — every battlefield permanent
         // has had its from-graveyard marker stripped on battlefield entry — so the

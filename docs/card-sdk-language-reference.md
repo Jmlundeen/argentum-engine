@@ -2184,7 +2184,7 @@ for anything else (the ATTACHED-binding aura shapes, custom step/player combinat
 - `BeginCombat` — start of combat on your turn.
 - `EachCombat` — beginning of each combat (any player's turn).
 - `EachEndOfCombat` — at end of combat (CR 511.1), on any player's turn. `YourEndOfCombat` for your
-  turn only. Pair with `triggerCondition = Conditions.SourceAttackedOrBlockedThisTurn` for "at end of
+  turn only. Pair with `triggerCondition = Conditions.SourceAttackedOrBlockedThisCombat` for "at end of
   combat, if this creature attacked or blocked this combat, …" (Clockwork Avian).
 - `FirstMainPhase` — start of pre-combat main.
 - `YourPostcombatMain` — start of post-combat main.
@@ -3890,11 +3890,15 @@ that works in both resolution and static-ability (projection) contexts.
 - `SourceAttackedThisTurn` — source was declared as an attacker at least once during the
   current turn (per-creature, derived from the controller's `PlayerAttackersThisTurnComponent`).
   Negate via `Conditions.Not(...)` for Erg Raiders-style "if it didn't attack this turn".
-- `SourceBlockedThisTurn` — source was declared as a blocker at least once during the current turn
-  (per-creature `BlockedThisTurnComponent`, stamped at block-declaration time, cleared at end-of-turn
-  cleanup; filter helper `.blockedThisTurn()`).
-- `SourceAttackedOrBlockedThisTurn` — `Any(SourceAttackedThisTurn, SourceBlockedThisTurn)`. Used as
-  the intervening-if on Clockwork Avian's `EachEndOfCombat` counter-shed trigger.
+- `SourceAttackedThisCombat` / `SourceBlockedThisCombat` — source was declared as an attacker /
+  blocker at least once during the current combat (per-creature `AttackedThisCombatComponent` /
+  `BlockedThisCombatComponent`, stamped at declaration time, cleared when the combat phase ends;
+  filter helpers `.attackedThisCombat()` / `.blockedThisCombat()`). Unlike the live
+  `AttackingComponent`/`BlockingComponent` these survive the creature (or its blocked attacker)
+  leaving combat, so they still read true at end of combat; unlike `SourceAttackedThisTurn` they
+  reset between multiple combats in one turn.
+- `SourceAttackedOrBlockedThisCombat` — `Any(SourceAttackedThisCombat, SourceBlockedThisCombat)`.
+  Used as the intervening-if on Clockwork Avian's `EachEndOfCombat` counter-shed trigger.
 - `SourceHasDealtDamage` — source has dealt damage since entering the battlefield.
 - `SourceHasDealtCombatDamageToPlayer` — saboteur-style payoff gate.
 - `SourceIsModified` — has counters, attached Equipment, or controller-owned Aura

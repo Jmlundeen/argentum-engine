@@ -118,6 +118,8 @@ class CombatManager(
                     .without<RequiresManualDamageAssignmentComponent>()
                     .without<AttackersDeclaredThisCombatComponent>()
                     .without<BlockersDeclaredThisCombatComponent>()
+                    .without<AttackedThisCombatComponent>()
+                    .without<BlockedThisCombatComponent>()
             }
         }
 

@@ -543,12 +543,21 @@ data class GameObjectFilter(
     )
 
     /**
-     * Was declared as a blocker this turn (CR 509.1). Backed by a per-entity marker stamped at
-     * block-declaration time; cleared at end-of-turn cleanup. Pair with [attackedThisTurn] for
-     * "attacked or blocked this turn".
+     * Was declared as an attacker at least once during the current combat (CR 508.1). Backed by a
+     * per-entity marker stamped at attacker-declaration time; cleared when the combat phase ends.
+     * Survives removal from combat. Pair with [blockedThisCombat] for "attacked or blocked this combat".
      */
-    fun blockedThisTurn() = copy(
-        statePredicates = statePredicates + StatePredicate.BlockedThisTurn
+    fun attackedThisCombat() = copy(
+        statePredicates = statePredicates + StatePredicate.AttackedThisCombat
+    )
+
+    /**
+     * Was declared as a blocker at least once during the current combat (CR 509.1). Backed by a
+     * per-entity marker stamped at blocker-declaration time; cleared when the combat phase ends.
+     * Survives the blocked attacker dying (which clears the live `BlockingComponent`).
+     */
+    fun blockedThisCombat() = copy(
+        statePredicates = statePredicates + StatePredicate.BlockedThisCombat
     )
 
     /**

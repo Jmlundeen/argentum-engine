@@ -7,6 +7,7 @@ import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.combat.AttackedThisCombatComponent
 import com.wingedsheep.engine.state.components.combat.AttackersDeclaredThisCombatComponent
 import com.wingedsheep.engine.state.components.combat.GoadedComponent
 import com.wingedsheep.engine.state.components.combat.MustAttackPlayerComponent
@@ -184,6 +185,7 @@ internal class AttackPhaseManager(
             val hasVigilance = projected.hasKeyword(attackerId, Keyword.VIGILANCE)
             newState = newState.updateEntity(attackerId) { container ->
                 container.with(AttackingComponent(defenderId, bandIdByAttacker[attackerId]))
+                    .with(AttackedThisCombatComponent)
             }
             // Non-vigilance attackers tap as a turn-based action; route through the tap atom so the
             // TappedEvent fires "becomes tapped" triggers (it was open-coded and once dropped here).

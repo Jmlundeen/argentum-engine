@@ -940,7 +940,7 @@
                             "entity": "Self",
                             "filter": {
                                 "statePredicates": [
-                                    "AttackedThisTurn"
+                                    "AttackedThisCombat"
                                 ]
                             }
                         },
@@ -949,7 +949,7 @@
                             "entity": "Self",
                             "filter": {
                                 "statePredicates": [
-                                    "BlockedThisTurn"
+                                    "BlockedThisCombat"
                                 ]
                             }
                         }
