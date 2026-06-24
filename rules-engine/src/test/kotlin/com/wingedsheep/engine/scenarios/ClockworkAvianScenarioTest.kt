@@ -16,7 +16,7 @@ import io.kotest.matchers.shouldBe
  * "This creature enters with four +1/+0 counters on it.
  *  At end of combat, if this creature attacked or blocked this combat, remove a +1/+0 counter from it."
  *
- * Exercises the new +1/+0 stat counter (layer 7d) and the attacked-or-blocked end-of-combat shed.
+ * Exercises the new +1/+0 stat counter (layer 7c) and the attacked-or-blocked end-of-combat shed.
  */
 class ClockworkAvianScenarioTest : ScenarioTestBase() {
 
