@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 158 / 190
+**Implemented:** 159 / 190
 ---
 
 - [x] Action News Crew
@@ -142,7 +142,7 @@
 - [x] Ravenous Robots
 - [ ] Ray Fillet, Man Ray
 - [x] Renet, Temporal Apprentice
-- [ ] Retro-Mutation
+- [x] Retro-Mutation
 - [x] Return to the Sewers
 - [x] Rock Soldiers
 - [x] Rocksteady, Crash Courser

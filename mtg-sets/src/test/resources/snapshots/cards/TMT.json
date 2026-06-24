@@ -7615,6 +7615,57 @@
     ]
 }
 
+// Retro-Mutation
+{
+    "name": "Retro-Mutation",
+    "manaCost": "{2}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Flash\nEnchant creature\nEnchanted creature is a Turtle with base power and toughness 0/1. It can't attack and loses all abilities. (It also loses all other creature types.)",
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "TransformPermanent",
+                "setCardTypes": [
+                    "CREATURE"
+                ],
+                "setSubtypes": [
+                    "Turtle"
+                ]
+            },
+            {
+                "type": "SetBasePowerToughnessStatic",
+                "power": 0,
+                "toughness": 1
+            },
+            {
+                "type": "CantAttack",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            },
+            "LoseAllAbilities"
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "51",
+        "artist": "Leonardo Santanna",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/a/4af284ba-fa54-43c5-8c76-3e1128957452.jpg?1771586820"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Return to the Sewers
 {
     "name": "Return to the Sewers",
