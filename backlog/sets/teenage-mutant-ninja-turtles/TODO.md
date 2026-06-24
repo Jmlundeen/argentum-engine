@@ -10,13 +10,23 @@ Verify status anytime with: `scripts/card-status --set TMT` (and `--list --set T
 
 ## Status
 
-152 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
+157 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
 `cards.md` for the full checklist (the authoritative status); the per-card
 commits all carry `flavorText` in metadata.
 
 > **2026-06-24 run — the gap list below was badly overestimated.** A sweep added
-> 33 cards by discovering that most "blocking gaps" were *already supported* and
-> the cards just needed authoring. Debunked gaps (now shipped composably):
+> 38 cards by discovering that most "blocking gaps" were *already supported* and
+> the cards just needed authoring. Additional debunked gaps from the continued
+> sweep: **Gap P** (sacrifice-unless-discard = `PayOrSufferEffect`, Bebop &
+> Rocksteady), **Gap R** (mass gain-control = `ForEachInGroup(GainControl)`,
+> Insurrection shape, Broadcast Takeover), **Gap FF** (becomes-artifact-creature =
+> `BecomeCreature` + `AddCardTypeEffect("ARTIFACT")`, Mind Transfer Protocol),
+> **Gap CC** (tap-land-for-mana = `Triggers.landTappedForMana`, Groundchuck &
+> Dirtbag), **Gap JJ** (multi-subtype mana = `SubtypeSpellsOnly(set)`, Turtle Lair),
+> plus the Mutagen cost-reduction static (`ReduceActivatedAbilityCost`), `+1`
+> counter rider (`ModifyCounterPlacement`), Chrome Dome
+> (`CreateTokenCopyOfTarget(addedKeywords, sacrificeAtStep)`), and the three Class
+> cards (Does Machines, Cool but Rude, Leader's Talent). Debunked gaps (now shipped composably):
 > - **Gap B (Disappear)** — `Conditions.YouHadPermanentLeaveBattlefieldThisTurn`
 >   + the per-controller all-permanent leave tracker already existed (LTR Shortcut
 >   to Mushrooms). NO engine change. Shipped Foot Mystic, Insectoid Exterminator,
