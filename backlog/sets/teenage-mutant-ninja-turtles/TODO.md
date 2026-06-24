@@ -10,7 +10,7 @@ Verify status anytime with: `scripts/card-status --set TMT` (and `--list --set T
 
 ## Status
 
-157 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
+161 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
 `cards.md` for the full checklist (the authoritative status); the per-card
 commits all carry `flavorText` in metadata.
 
@@ -26,7 +26,32 @@ commits all carry `flavorText` in metadata.
 > plus the Mutagen cost-reduction static (`ReduceActivatedAbilityCost`), `+1`
 > counter rider (`ModifyCounterPlacement`), Chrome Dome
 > (`CreateTokenCopyOfTarget(addedKeywords, sacrificeAtStep)`), and the three Class
-> cards (Does Machines, Cool but Rude, Leader's Talent). Debunked gaps (now shipped composably):
+> cards (Does Machines, Cool but Rude, Leader's Talent). Final sweep also shipped:
+> **Gap II** (tap-or-untap choice = `MayEffect(ModalEffect(tap, untap))`, Sewer-veillance
+> Cam), Retro-Mutation (`TransformPermanent`+`SetBasePowerToughnessStatic`+`CantAttack`+
+> `LoseAllAbilities` aura), Kitsune (`ExchangeControl`), Venus (`TakesDamage` +
+> `dealsDamage` factory + `MayPayMana`), and Everything Pizza (multi-target composite).
+>
+> The remaining 29 cards each need a genuinely new engine feature (each verified
+> individually this run — none is "just authoring"): dynamic pay-life (Madame Null),
+> target-state cost reduction (Grounded for Life), card-types-cast-this-turn amount
+> (April O'Neil Hacktivist), permanent-entered-this-turn condition (Fugitive Droid),
+> grant-affinity-to-next-spell (Don & Raph), any-ability mana restriction (Purple
+> Dragon Punks), crewed-this-turn filter (Turtle Van), counter-typed activated-ability
+> cost (Ray Fillet), remove-one-counter-of-any-kind action (Leatherhead), last-known
+> counter transfer (Donatello Mutant Mechanic), cast-from-GY/top *with a counter rider*
+> (Leonardo Sewer Samurai, Mikey & Don, Ninja Teen L3), total-mana-value-budget select
+> (Michelangelo's Technique), "opponents are attacked" trigger (Party Dude), UEOT grant
+> of play-from-linked-exile (Raphael Most Attitude), persistent mana / Enrage display
+> (Raphael Ninja Destroyer), mode-not-chosen-this-turn (Lita), same-name reanimate (Rat
+> King), reveal-until + cast-from-exile (Krang & Shredder), linked-exile copy across
+> Saga chapters (The Cloning of Shredder), attacks-alone + mill-then-do (The Last Ronin),
+> mana-spent-< -MV trigger (Tokka & Rahzar), linked-exile land (Northampton Farm),
+> delayed-target ransom return (Koya), become-chosen-color + colors-among-permanents
+> (Mondo Gecko), and wishboard (North Wind Avatar, Turtles Forever), plus the
+> mass-bounce/shuffle/draw-7 Turtles in Time.
+>
+> Debunked gaps (now shipped composably):
 > - **Gap B (Disappear)** — `Conditions.YouHadPermanentLeaveBattlefieldThisTurn`
 >   + the per-controller all-permanent leave tracker already existed (LTR Shortcut
 >   to Mushrooms). NO engine change. Shipped Foot Mystic, Insectoid Exterminator,
