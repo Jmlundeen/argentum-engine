@@ -2166,6 +2166,92 @@
     ]
 }
 
+// Go Ninja Go
+{
+    "name": "Go Ninja Go",
+    "manaCost": "{R}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one or both —\n• Exile target creature you control, then return it to the battlefield under its owner's control.\n• Go Ninja Go deals damage equal to the greatest power among creatures you control to target creature an opponent controls.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                },
+                                "destination": "Exile"
+                            },
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                },
+                                "destination": "Battlefield"
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            },
+                            "id": "target creature you control"
+                        }
+                    ],
+                    "description": "Exile target creature you control, then return it to the battlefield under its owner's control"
+                },
+                {
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "creature",
+                            "aggregation": "MAX",
+                            "property": "POWER"
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature an opponent controls"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:opponent"
+                            },
+                            "id": "target creature an opponent controls"
+                        }
+                    ],
+                    "description": "Go Ninja Go deals damage equal to the greatest power among creatures you control to target creature an opponent controls"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1
+        }
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "rarity": "UNCOMMON",
+        "artist": "Patrick Gañas",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/90e68cd8-ea76-4bd1-9199-474da9c3e8bf.jpg?1771587007"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}
+
 // Guac & Marshmallow Pizza
 {
     "name": "Guac & Marshmallow Pizza",
