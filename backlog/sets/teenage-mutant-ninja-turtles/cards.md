@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 156 / 190
+**Implemented:** 157 / 190
 ---
 
 - [x] Action News Crew
@@ -149,7 +149,7 @@
 - [x] Sally Pride, Lioness Leader
 - [x] Savanti Romero, Time's Exile
 - [x] Saved by the Shell
-- [ ] Sewer-veillance Cam
+- [x] Sewer-veillance Cam
 - [x] Shark Shredder, Killer Clone
 - [x] Shredder's Armor
 - [x] Shredder's Revenge
