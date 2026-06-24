@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 144 / 190
+**Implemented:** 145 / 190
 ---
 
 - [x] Action News Crew
@@ -23,7 +23,7 @@
 - [x] Casey Jones, Jury-Rig Justiciar
 - [x] Casey Jones, Vigilante
 - [ ] Chrome Dome
-- [ ] Cool but Rude
+- [x] Cool but Rude
 - [x] Courier of Comestibles
 - [x] Cowabunga!
 - [x] Crustacean Commando
