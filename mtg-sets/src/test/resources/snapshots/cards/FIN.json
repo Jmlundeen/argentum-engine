@@ -532,7 +532,8 @@
                         ],
                         "creatureTypes": [
                             "Knight"
-                        ]
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/a/7/a7758a0b-9e85-4b4a-bf1c-ffcc6761dbad.jpg?1748704059"
                     },
                     "description": "Attack — Create a 2/2 white Knight creature token"
                 },
@@ -635,7 +636,8 @@
                             "colors": [],
                             "creatureTypes": [
                                 "Hero"
-                            ]
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                         },
                         {
                             "type": "AttachEquipment",
@@ -2423,7 +2425,8 @@
                     "colors": [],
                     "creatureTypes": [
                         "Hero"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                 }
             }
         ]
@@ -2509,7 +2512,8 @@
                     "colors": [],
                     "creatureTypes": [
                         "Hero"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                 }
             }
         ]
@@ -4774,7 +4778,8 @@
                     "colors": [],
                     "creatureTypes": [
                         "Hero"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                 }
             }
         ]
@@ -4912,7 +4917,8 @@
                             "colors": [],
                             "creatureTypes": [
                                 "Hero"
-                            ]
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                         },
                         {
                             "type": "AttachEquipment",
@@ -5658,7 +5664,8 @@
                             "colors": [],
                             "creatureTypes": [
                                 "Hero"
-                            ]
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                         },
                         {
                             "type": "AttachEquipment",
@@ -6549,7 +6556,8 @@
                     ],
                     "creatureTypes": [
                         "Knight"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/7/a7758a0b-9e85-4b4a-bf1c-ffcc6761dbad.jpg?1748704059"
                 }
             },
             {
@@ -6567,7 +6575,8 @@
                     ],
                     "creatureTypes": [
                         "Knight"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/7/a7758a0b-9e85-4b4a-bf1c-ffcc6761dbad.jpg?1748704059"
                 }
             },
             {
@@ -6585,7 +6594,8 @@
                     ],
                     "creatureTypes": [
                         "Knight"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/7/a7758a0b-9e85-4b4a-bf1c-ffcc6761dbad.jpg?1748704059"
                 }
             },
             {
@@ -6603,7 +6613,8 @@
                     ],
                     "creatureTypes": [
                         "Knight"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/7/a7758a0b-9e85-4b4a-bf1c-ffcc6761dbad.jpg?1748704059"
                 }
             },
             {
@@ -7025,7 +7036,8 @@
                     "colors": [],
                     "creatureTypes": [
                         "Hero"
-                    ]
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                 },
                 {
                     "type": "ForEach",
@@ -8099,7 +8111,8 @@
                             "colors": [],
                             "creatureTypes": [
                                 "Hero"
-                            ]
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                         },
                         {
                             "type": "AttachEquipment",
@@ -8277,7 +8290,8 @@
                             "colors": [],
                             "creatureTypes": [
                                 "Hero"
-                            ]
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                         },
                         {
                             "type": "AttachEquipment",
@@ -8582,7 +8596,8 @@
                             "colors": [],
                             "creatureTypes": [
                                 "Hero"
-                            ]
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
                         },
                         {
                             "type": "AddCountersToCollection",

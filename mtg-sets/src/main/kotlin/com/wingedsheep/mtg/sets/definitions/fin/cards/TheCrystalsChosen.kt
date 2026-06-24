@@ -27,7 +27,13 @@ val TheCrystalsChosen = card("The Crystal's Chosen") {
     oracleText = "Create four 1/1 colorless Hero creature tokens. Then put a +1/+1 counter on each creature you control."
     spell {
         effect = Effects.Composite(
-            Effects.CreateToken(power = 1, toughness = 1, creatureTypes = setOf("Hero"), count = 4),
+            Effects.CreateToken(
+                power = 1,
+                toughness = 1,
+                creatureTypes = setOf("Hero"),
+                count = 4,
+                imageUri = "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030",
+            ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

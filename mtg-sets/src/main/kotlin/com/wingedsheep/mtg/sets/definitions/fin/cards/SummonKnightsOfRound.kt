@@ -44,6 +44,7 @@ val SummonKnightsOfRound = card("Summon: Knights of Round") {
         colors = setOf(Color.WHITE),
         creatureTypes = setOf("Knight"),
         count = 3,
+        imageUri = "https://cards.scryfall.io/normal/front/a/7/a7758a0b-9e85-4b4a-bf1c-ffcc6761dbad.jpg?1748704059",
     )
 
     sagaChapter(1) { effect = makeKnights }

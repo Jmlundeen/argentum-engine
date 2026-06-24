@@ -22,7 +22,12 @@ val DwarvenCastleGuard = card("Dwarven Castle Guard") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = Effects.CreateToken(power = 1, toughness = 1, creatureTypes = setOf("Hero"))
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            creatureTypes = setOf("Hero"),
+            imageUri = "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030",
+        )
     }
     metadata {
         rarity = Rarity.COMMON

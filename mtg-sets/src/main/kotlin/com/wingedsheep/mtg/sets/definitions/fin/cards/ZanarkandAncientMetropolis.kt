@@ -55,7 +55,8 @@ val ZanarkandAncientMetropolis = card("Zanarkand, Ancient Metropolis") {
                     power = 1,
                     toughness = 1,
                     colors = emptySet(),
-                    creatureTypes = setOf("Hero")
+                    creatureTypes = setOf("Hero"),
+                    imageUri = "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030",
                 ),
                 Effects.AddCountersToCollection(
                     CREATED_TOKENS,

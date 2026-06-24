@@ -24,7 +24,12 @@ val MagitekArmor = card("Magitek Armor") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.CreateToken(power = 1, toughness = 1, creatureTypes = setOf("Hero"))
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            creatureTypes = setOf("Hero"),
+            imageUri = "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030",
+        )
     }
     keywordAbility(KeywordAbility.crew(1))
     metadata {

@@ -36,7 +36,8 @@ val BattleMenu = card("Battle Menu") {
                     power = 2,
                     toughness = 2,
                     colors = setOf(Color.WHITE),
-                    creatureTypes = setOf("Knight")
+                    creatureTypes = setOf("Knight"),
+                    imageUri = "https://cards.scryfall.io/normal/front/a/7/a7758a0b-9e85-4b4a-bf1c-ffcc6761dbad.jpg?1748704059",
                 )
             }
             mode("Ability — Target creature gets +0/+4 until end of turn") {

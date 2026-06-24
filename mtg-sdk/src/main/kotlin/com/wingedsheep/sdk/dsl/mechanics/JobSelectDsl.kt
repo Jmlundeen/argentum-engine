@@ -6,6 +6,13 @@ import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
+ * Scryfall artwork for the 1/1 colorless Hero token every Job-select Equipment creates (FIN `tfin`
+ * #2). Defined once here so the whole cycle shares one image rather than duplicating it per card.
+ */
+private const val JOB_SELECT_HERO_TOKEN_IMAGE =
+    "https://cards.scryfall.io/normal/front/d/0/d0657ce1-bf75-4007-ac1b-0623eb263357.jpg?1748704030"
+
+/**
  * Add Job select (Final Fantasy) — keyword + enters-the-battlefield triggered ability.
  *
  * "Job select (When this Equipment enters, create a 1/1 colorless Hero creature token,
@@ -35,7 +42,8 @@ fun CardBuilder.jobSelect() {
                     power = 1,
                     toughness = 1,
                     colors = emptySet(),
-                    creatureTypes = setOf("Hero")
+                    creatureTypes = setOf("Hero"),
+                    imageUri = JOB_SELECT_HERO_TOKEN_IMAGE
                 ),
                 Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
             ),
