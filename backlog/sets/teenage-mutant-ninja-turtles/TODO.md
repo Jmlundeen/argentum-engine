@@ -246,32 +246,30 @@ Still to author (3 — each blocked on a SECOND gap, NOT pure authoring):
 `Michelangelo's Technique` (aggregate total-MV-≤6 selection). See the corrected
 Sneak bullet in the Status section above; each needs its own `add-feature` PR.
 
-### Gap B — Disappear (ability-word trigger with "a permanent left the battlefield under your control this turn" condition) — 9 cards
-**Engine change:** generalize the existing `nonlandPermanentLeftBattlefieldThisTurn`
-flag and add a Condition usable inside any triggered ability.
+### Gap B — Disappear — RESOLVED (no engine change needed; the premise below was wrong)
+**Engine change: NONE.** The earlier premise — that only a *global, nonland-only*
+flag existed — was incorrect. A **per-controller, all-permanent** tracker already
+ships: `PermanentLeftBattlefieldThisTurnComponent(count)` on each player, set in
+`ZoneTransitionService` for every permanent (lands and tokens included) that leaves
+that player's battlefield, credited to the last-known controller, and cleared at
+cleanup. The matching Condition (`PermanentLeftBattlefieldThisTurn(Player.You)`,
+DSL `Conditions.YouHadPermanentLeaveBattlefieldThisTurn`) already reads it for the
+ability's controller in both resolution and projection — it is exactly "if a
+permanent left the battlefield under your control this turn" and is what LTR
+Shortcut to Mushrooms uses. Wire it as `triggerCondition` (the intervening-if, CR
+603.4) on the existing `Triggers.EntersBattlefield` / `Triggers.YourEndStep`.
 
-Required pieces:
-1. **Per-player, all-permanent tracking.** The current flag in `GameState` is global and
-   nonland-only (used by EOE's Void / Spellwarp). Disappear needs **any** permanent
-   (lands included) that left the battlefield while under that **player's** control,
-   per-turn. Suggested rename / addition:
-   `permanentLeftBattlefieldThisTurnByController: Map<PlayerId, Boolean>` set in
-   `ZoneTransitionService` whenever a permanent moves out of the battlefield (destroy,
-   sacrifice, exile, bounce, phase-out). Existing Void uses can keep reading the
-   nonland-restricted flag or migrate; do not silently change Void's filter.
-2. **`Condition.PermanentLeftBattlefieldUnderYourControlThisTurn`** that reads the
-   per-controller map for the triggered ability's controller.
-3. The triggers themselves are existing primitives (`Triggers.EtbSelf`,
-   `Triggers.AtYourEndStep`, and an enters-with-counters static for `Putrid Pals`).
-   Wire them with the new condition and the existing effect library.
+Shipped composably (4 pure): `Foot Mystic` (ETB → 1/1 black Ninja token),
+`Insectoid Exterminator` (end step → scry 1), `Michelangelo, Game Master`
+(end step → +1/+1 counter on self), `Putrid Pals` (enters-with-two-counters via
+the Benalish Lancer conditional-ETB-counters idiom).
 
-Triggers used across the 9 cards:
-- End-step (7): `Insectoid Exterminator`, `Lord Dregg, Insect Invader`,
-  `Rat King, Verminister`, `Michelangelo, Game Master`, `West Wind Avatar`,
-  `Krang & Shredder`, `Pizza Face, Gastromancer`
-- ETB (1): `Foot Mystic`
-- "Enters with two +1/+1 counters if ..." (1): `Putrid Pals` — needs
-  `entersWith(counters, condition)` if not already supported.
+Still blocked, but on a *second* gap (Disappear itself is no longer the holdup):
+- End-step Disappear + secondary gap: `Lord Dregg, Insect Invader` (Sacrifice-a-
+  token cost — Gap M), `Rat King, Verminister` (same-name reanimate — Gap M),
+  `West Wind Avatar` (token-or-land sac filter — Gap M), `Krang & Shredder`
+  (reveal-until + cast-from-exile chain — Gap M), `Pizza Face, Gastromancer`
+  (type-grant on a non-creature — Gap M).
 
 ### Gap C — Alliance (ability-word trigger) — partly RESOLVED
 **Engine change:** still none required for behavior — `Triggers.OtherCreatureEnters`

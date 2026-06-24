@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 125 / 190
+**Implemented:** 129 / 190
 ---
 
 - [x] Action News Crew
@@ -47,7 +47,7 @@
 - [x] Featherbrained Filcher
 - [x] Foot Elite
 - [x] Foot Headquarters
-- [ ] Foot Mystic
+- [x] Foot Mystic
 - [x] Foot Ninjas
 - [x] Frog Butler
 - [ ] Fugitive Droid
@@ -64,7 +64,7 @@
 - [x] Ice Cream Kitty
 - [x] Illegitimate Business
 - [x] Improvised Arsenal
-- [ ] Insectoid Exterminator
+- [x] Insectoid Exterminator
 - [x] Jennika's Technique
 - [x] Jennika, Bad Apple Big Sister
 - [x] Karai's Technique
@@ -91,7 +91,7 @@
 - [x] Mechanized Ninja Cavalry
 - [x] Metalhead
 - [ ] Michelangelo's Technique
-- [ ] Michelangelo, Game Master
+- [x] Michelangelo, Game Master
 - [x] Michelangelo, Improviser
 - [ ] Michelangelo, Mutant BFF
 - [ ] Michelangelo, Weirdness to 11
@@ -128,7 +128,7 @@
 - [x] Primordial Pachyderm
 - [x] Punk Frogs
 - [ ] Purple Dragon Punks
-- [ ] Putrid Pals
+- [x] Putrid Pals
 - [x] Quintessential Katana
 - [x] Ragamuffin Raptor
 - [x] Raph & Leo, Sibling Rivals
