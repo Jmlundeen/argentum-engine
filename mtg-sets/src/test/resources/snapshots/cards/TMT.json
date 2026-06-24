@@ -5080,6 +5080,138 @@
     ]
 }
 
+// Pizza Face, Gastromancer
+{
+    "name": "Pizza Face, Gastromancer",
+    "manaCost": "{3}{B}{G}",
+    "typeLine": "Legendary Artifact Creature — Food Mutant",
+    "oracleText": "When Pizza Face enters, create a Food token.\nDisappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, put three +1/+1 counters on up to one other target artifact or creature. If it isn't a creature, it becomes a 0/0 Mutant creature in addition to its other types.\n{10}, {T}, Sacrifice Pizza Face: You gain 15 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                },
+                "descriptionOverride": "When Pizza Face enters, create a Food token."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 3,
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Not",
+                                    "condition": {
+                                        "type": "EntityMatches",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
+                                        "filter": "creature"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "type": "BecomeCreature",
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "power": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "toughness": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "creatureTypes": [
+                                    "Mutant"
+                                ],
+                                "duration": "Permanent"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature|artifact",
+                        "excludeSelf": true
+                    }
+                },
+                "triggerCondition": "PermanentLeftBattlefieldThisTurn",
+                "descriptionOverride": "Disappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, put three +1/+1 counters on up to one other target artifact or creature. If it isn't a creature, it becomes a 0/0 Mutant creature in addition to its other types."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{10}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 15
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "163",
+        "rarity": "UNCOMMON",
+        "artist": "Villarrte",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/0/b03cf0bb-3207-4e8e-bb3f-e3e4367aa86e.jpg?1771599896"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Primordial Pachyderm
 {
     "name": "Primordial Pachyderm",

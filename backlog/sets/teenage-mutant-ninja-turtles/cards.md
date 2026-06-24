@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 130 / 190
+**Implemented:** 131 / 190
 ---
 
 - [x] Action News Crew
@@ -123,7 +123,7 @@
 - [x] Pain 101
 - [ ] Paramecia Coloniex
 - [ ] Party Dude
-- [ ] Pizza Face, Gastromancer
+- [x] Pizza Face, Gastromancer
 - [ ] Prehistoric Pet
 - [x] Primordial Pachyderm
 - [x] Punk Frogs
