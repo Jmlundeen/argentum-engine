@@ -57,10 +57,10 @@ Gaps **resolved across the runs so far**:
   plus wiring in `CastSpellHandler`, `StackResolver`, and `ConditionEvaluator`
   so a permanent cast for Sneak enters tapped and attacking and carries the
   "sneak cost was paid" fact durably. Proven by `SneakTest` and per-card
-  scenario tests. 17 of 26 Sneak cards have shipped (incl. all four
+  scenario tests. 23 of 26 Sneak cards have shipped (incl. all four
   sneak-was-paid riders: `Leonardo, Leader in Blue`, `Turncoat Kunoichi`,
-  `The Last Ronin's Technique`, and the Karai rider). The remaining 9 carry
-  no separate blocker and are pending implementation only.
+  `The Last Ronin's Technique`, and the Karai rider). The remaining 3 each
+  carry a second engine gap beyond Sneak (see the Status section above).
 - **Gap C — Alliance (partly cleared)**: 6 of the 10 Alliance cards (`East
   Wind Avatar`, `EPF Point Squad`, `Mighty Mutanimals`, `Mutant Town
   Musicians`, `Raphael, Tough Turtle`, `Slash, Reptile Rampager`) shipped by
@@ -199,10 +199,11 @@ Composable cards (no engine change needed) can land directly on `main`, one comm
 Each gap is its own PR. A card with more than one gap is listed under its dominant one
 with the secondary noted inline. Quotes are from the card's oracle text in `tmt_full.json`.
 
-### Gap A — Sneak (alternative cost) — RESOLVED — 17 of 26 cards shipped
+### Gap A — Sneak (alternative cost) — RESOLVED — 23 of 26 cards shipped
 **Status:** the keyword + alternative-cost pipeline is fully implemented and tested.
-All four required pieces below landed; what remains is purely per-card authoring for
-the 9 unimplemented Sneak cards (none of which carry a *separate* engine blocker).
+All four required pieces below landed; the 3 unimplemented Sneak cards each carry a
+*second* engine gap beyond Sneak itself (see the Status section: `Leonardo's Technique`,
+`Leonardo, Sewer Samurai`, `Michelangelo's Technique`).
 
 > Sneak {cost} (You may cast this spell for {cost} if you also return an unblocked
 > attacker you control to hand during the declare blockers step.

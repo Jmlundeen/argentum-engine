@@ -6,7 +6,7 @@
 Counts below are cards in the set that use the mechanic. A card may appear under
 multiple entries (e.g. a creature with Flying + Sneak).
 
-**Implementation progress (113 / 190).** Mechanics now exercised end-to-end:
+**Implementation progress (119 / 190).** Mechanics now exercised end-to-end:
 
 Evergreen keywords — Flying, Vigilance, Trample, Haste, Flash, Deathtouch,
 Menace, Reach (granted and printed), Indestructible, Ward, Equip, Double strike,
@@ -150,9 +150,9 @@ Cross-card combinators landed since the previous progress note:
 (`SneakWindow` declare-blockers payment, `SneakCastEnumerator`, and wiring in
 `CastSpellHandler` / `StackResolver` / `ConditionEvaluator` so a permanent cast
 for Sneak enters tapped and attacking and carries the "sneak cost was paid"
-fact). Proven by `SneakTest` and per-card scenario tests. 17 of 26 Sneak cards
-shipped (incl. all four sneak-was-paid riders); the remaining 9 are pending
-authoring only, with no separate engine blocker.
+fact). Proven by `SneakTest` and per-card scenario tests. 23 of 26 Sneak cards
+shipped (incl. all four sneak-was-paid riders); the remaining 3 each carry a
+second engine gap beyond Sneak (see `TODO.md` Gap A).
 
 **Still not exercised** — Disappear's per-controller permanent-left tracking,
 the display markers for Alliance / Channel / Disappear, Class enchantments, the
@@ -164,11 +164,11 @@ gaps stop the specific TMT cards from shipping.)
 
 ## New mechanics in TMT
 
-### Sneak — 26 cards — IMPLEMENTED (17/26 cards shipped)
+### Sneak — 26 cards — IMPLEMENTED (23/26 cards shipped)
 Alternative cost keyword. Fully wired in the SDK and engine (`Keyword.SNEAK`,
 `KeywordAbility.Sneak`, the `sneak("{cost}")` DSL helper, `SneakWindow`,
-`SneakCastEnumerator`, and `Conditions.SneakCostWasPaid`); the 9 unimplemented
-Sneak cards are pending authoring only. Reminder text:
+`SneakCastEnumerator`, and `Conditions.SneakCostWasPaid`); the 3 unimplemented
+Sneak cards each carry a second engine gap beyond Sneak. Reminder text:
 
 > Sneak {cost} (You may cast this spell for {cost} if you also return an
 > unblocked attacker you control to hand during the declare blockers step.

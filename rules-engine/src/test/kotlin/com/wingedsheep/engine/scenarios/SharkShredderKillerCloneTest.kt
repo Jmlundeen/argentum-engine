@@ -1,6 +1,8 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseTargetsDecision
+import com.wingedsheep.engine.state.components.battlefield.TappedComponent
+import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tmt.cards.SharkShredderKillerClone
@@ -43,14 +45,18 @@ class SharkShredderKillerCloneTest : FunSpec({
         driver.passPriorityUntil(Step.DECLARE_BLOCKERS)
         driver.declareBlockers(opponent, emptyMap())
 
+        // Resolve the combat-damage trigger, choosing the Bear; stop the moment it's reanimated so
+        // the assertions run while combat is still ongoing (end-of-combat removes attackers, CR 511.3).
         var guard = 0
-        while (driver.state.step != Step.POSTCOMBAT_MAIN && guard++ < 40) {
+        while (guard++ < 40) {
             val decision = driver.pendingDecision
             val holder = driver.state.priorityPlayerId
             if (decision is ChooseTargetsDecision) {
                 driver.submitTargetSelection(decision.playerId, listOf(bearInGy))
             } else if (driver.state.stack.isNotEmpty()) {
                 driver.bothPass()
+            } else if (driver.findPermanent(player, "Test Bear") != null) {
+                break // reanimation resolved, still mid-combat
             } else if (holder != null) {
                 driver.passPriority(holder)
             } else {
@@ -60,6 +66,13 @@ class SharkShredderKillerCloneTest : FunSpec({
 
         // The Bear left the opponent's graveyard and is now a permanent under the player's control.
         driver.getGraveyard(opponent).contains(bearInGy) shouldBe false
-        driver.findPermanent(player, "Test Bear") shouldNotBe null
+        val reanimated = driver.findPermanent(player, "Test Bear")
+        reanimated shouldNotBe null
+
+        // "It enters tapped and attacking that player" — verify the placement, not just control.
+        driver.state.getEntity(reanimated!!)?.has<TappedComponent>() shouldBe true
+        val attacking = driver.state.getEntity(reanimated)?.get<AttackingComponent>()
+        attacking shouldNotBe null
+        attacking!!.defenderId shouldBe opponent
     }
 })
