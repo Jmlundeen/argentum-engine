@@ -10,7 +10,7 @@ Verify status anytime with: `scripts/card-status --set TMT` (and `--list --set T
 
 ## Status
 
-161 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
+163 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
 `cards.md` for the full checklist (the authoritative status); the per-card
 commits all carry `flavorText` in metadata.
 
@@ -32,13 +32,20 @@ commits all carry `flavorText` in metadata.
 > `LoseAllAbilities` aura), Kitsune (`ExchangeControl`), Venus (`TakesDamage` +
 > `dealsDamage` factory + `MayPayMana`), and Everything Pizza (multi-target composite).
 >
-> The remaining 29 cards each need a genuinely new engine feature (each verified
+> Also debunked after that note: **Grounded for Life** (`ModifySpellCost` +
+> `CostReductionSource.FixedIfAnyTargetMatches(Creature.tapped())`, Quicksand
+> Whirlpool shape) and **Ray Fillet** (`Costs.RemovePlusOnePlusOneCounters` — the
+> counter-typed cost already existed). 27 cards remain.
+>
+> The remaining 27 cards each need a genuinely new engine feature (each verified
 > individually this run — none is "just authoring"): dynamic pay-life (Madame Null),
-> target-state cost reduction (Grounded for Life), card-types-cast-this-turn amount
-> (April O'Neil Hacktivist), permanent-entered-this-turn condition (Fugitive Droid),
+> card-types-cast-this-turn amount
+> (April O'Neil Hacktivist), counter-spell-that-targets-a-filter (Fugitive Droid —
+> its can't-be-blocked half is `ConditionalStaticAbility` +
+> `PermanentTypeEnteredBattlefieldThisTurn`),
 > grant-affinity-to-next-spell (Don & Raph), any-ability mana restriction (Purple
-> Dragon Punks), crewed-this-turn filter (Turtle Van), counter-typed activated-ability
-> cost (Ray Fillet), remove-one-counter-of-any-kind action (Leatherhead), last-known
+> Dragon Punks), crewed-this-turn filter (Turtle Van),
+> remove-one-counter-of-any-kind action (Leatherhead), last-known
 > counter transfer (Donatello Mutant Mechanic), cast-from-GY/top *with a counter rider*
 > (Leonardo Sewer Samurai, Mikey & Don, Ninja Teen L3), total-mana-value-budget select
 > (Michelangelo's Technique), "opponents are attacked" trigger (Party Dude), UEOT grant
