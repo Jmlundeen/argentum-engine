@@ -5172,6 +5172,64 @@
     ]
 }
 
+// Mind Transfer Protocol
+{
+    "name": "Mind Transfer Protocol",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Until end of turn, target artifact or creature becomes an artifact creature with base power and toughness 4/5.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "BecomeCreature",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
+                    "power": {
+                        "type": "Fixed",
+                        "amount": 4
+                    },
+                    "toughness": {
+                        "type": "Fixed",
+                        "amount": 5
+                    }
+                },
+                {
+                    "type": "AddCardType",
+                    "cardType": "ARTIFACT",
+                    "duration": "EndOfTurn"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|artifact"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "artist": "Chris Seaman",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/d/2ddfcc4d-dd5f-42f1-8f33-a8e8b5354534.jpg?1771502582"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Mona Lisa, Science Geek
 {
     "name": "Mona Lisa, Science Geek",
