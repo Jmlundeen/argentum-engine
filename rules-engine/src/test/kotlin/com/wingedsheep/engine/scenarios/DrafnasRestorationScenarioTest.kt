@@ -94,6 +94,39 @@ class DrafnasRestorationScenarioTest : ScenarioTestBase() {
                     game.state.getGraveyard(game.player2Id).contains(trisk) shouldBe true
                 }
             }
+
+            test("an artifact card in a player OTHER than the targeted one's graveyard is not a legal target") {
+                val game = scenario()
+                    .withPlayers("Player", "Opponent")
+                    .withCardInHand(1, "Drafna's Restoration")
+                    .withLandsOnBattlefield(1, "Island", 1)
+                    // The artifact we'll try to pull lives in P1's OWN graveyard...
+                    .withCardInGraveyard(1, "Ornithopter")
+                    // ...while we point the player target at P2. OwnedByTargetPlayer must reject it.
+                    .withCardInGraveyard(2, "Millstone")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val p1Ornithopter = game.graveyardCard(1, "Ornithopter")
+                val cardId = game.state.getHand(game.player1Id)
+                    .first { game.state.getEntity(it)?.get<CardComponent>()?.name == "Drafna's Restoration" }
+
+                // Player target = P2, but the artifact card target is in P1's graveyard.
+                val cast = game.execute(
+                    CastSpell(
+                        playerId = game.player1Id,
+                        cardId = cardId,
+                        targets = listOf(
+                            ChosenTarget.Player(game.player2Id),
+                            ChosenTarget.Card(p1Ornithopter, game.player1Id, Zone.GRAVEYARD)
+                        )
+                    )
+                )
+                withClue("A card in a non-targeted player's graveyard must fail OwnedByTargetPlayer validation") {
+                    (cast.error != null) shouldBe true
+                }
+            }
         }
     }
 
