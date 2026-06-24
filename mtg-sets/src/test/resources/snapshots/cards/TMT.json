@@ -1489,6 +1489,206 @@
     ]
 }
 
+// Does Machines
+{
+    "name": "Does Machines",
+    "manaCost": "{1}{U}",
+    "typeLine": "Enchantment — Class",
+    "oracleText": "(Gain the next level as a sorcery to add its ability.)\nWhen this Class enters, mill two cards, draw two cards, then discard two cards.\n{1}{U}: Level 2 — When this Class becomes level 2, return up to two target artifact cards from your graveyard to your hand.\n{4}{U}: Level 3 — At the beginning of combat on your turn, put three +1/+1 counters on target artifact you control. If it isn't a creature, it becomes a 0/0 Robot creature in addition to its other types.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 2 cards to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "classLevels": [
+            {
+                "level": 2,
+                "cost": "{1}{U}",
+                "triggeredAbilities": [
+                    {
+                        "id": "ability_2",
+                        "trigger": {
+                            "type": "ZoneChangeEvent",
+                            "to": "Battlefield"
+                        },
+                        "effect": {
+                            "type": "ForEach",
+                            "space": "IterationSpace.Targets",
+                            "body": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "destination": "Hand"
+                            }
+                        },
+                        "targetRequirement": {
+                            "type": "TargetObject",
+                            "count": 2,
+                            "optional": true,
+                            "filter": {
+                                "baseFilter": "artifact own:you",
+                                "zone": "Graveyard"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "level": 3,
+                "cost": "{4}{U}",
+                "triggeredAbilities": [
+                    {
+                        "id": "ability_3",
+                        "trigger": {
+                            "type": "StepEvent",
+                            "step": "BEGIN_COMBAT"
+                        },
+                        "binding": "ANY",
+                        "effect": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "AddCounters",
+                                    "counterType": "+1/+1",
+                                    "count": 3,
+                                    "target": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    }
+                                },
+                                {
+                                    "type": "Gated",
+                                    "gate": {
+                                        "type": "Gate.WhenCondition",
+                                        "condition": {
+                                            "type": "Not",
+                                            "condition": {
+                                                "type": "EntityMatches",
+                                                "entity": {
+                                                    "type": "ContextTarget",
+                                                    "index": 0
+                                                },
+                                                "filter": "creature"
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "type": "BecomeCreature",
+                                        "target": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
+                                        "power": {
+                                            "type": "Fixed",
+                                            "amount": 0
+                                        },
+                                        "toughness": {
+                                            "type": "Fixed",
+                                            "amount": 0
+                                        },
+                                        "creatureTypes": [
+                                            "Robot"
+                                        ],
+                                        "duration": "Permanent"
+                                    }
+                                }
+                            ]
+                        },
+                        "targetRequirement": {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "artifact ctrl:you"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "rarity": "RARE",
+        "artist": "Aeron Ng",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/8/989da63a-2cbd-41a9-9bbb-99f4ad1c6a25.jpg?1774102268"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Don & Leo, Problem Solvers
 {
     "name": "Don & Leo, Problem Solvers",

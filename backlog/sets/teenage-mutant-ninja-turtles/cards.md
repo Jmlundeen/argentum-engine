@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 142 / 190
+**Implemented:** 143 / 190
 ---
 
 - [x] Action News Crew
@@ -31,7 +31,7 @@
 - [x] Death in the Family
 - [x] Dimension X
 - [x] Dimensional Exile
-- [ ] Does Machines
+- [x] Does Machines
 - [x] Don & Leo, Problem Solvers
 - [ ] Don & Raph, Hard Science
 - [x] Donatello's Technique
