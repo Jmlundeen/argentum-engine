@@ -10,19 +10,25 @@ Verify status anytime with: `scripts/card-status --set TMT` (and `--list --set T
 
 ## Status
 
-113 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
+119 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
 `cards.md` for the full checklist (the authoritative status); the per-card
 commits all carry `flavorText` in metadata.
 
-The remaining 77 cards mostly cluster on a handful of unresolved gaps:
+The remaining 71 cards mostly cluster on a handful of unresolved gaps:
 - **Sneak** — RESOLVED (Gap A). The keyword, alt-cost plumbing, and
-  "sneak cost was paid" flag are fully wired; 17 of 26 Sneak cards have
-  shipped. The 9 still-pending Sneak cards carry no *other* recorded blocker —
-  they are unblocked at the mechanic level and simply await implementation
-  (`Dark Leo & Shredder`, `Karai, Future of the Foot`, `Kitsune's Technique`,
-  `Leonardo's Technique`, `Leonardo, Sewer Samurai`, `Michelangelo's
-  Technique`, `Michelangelo, Improviser`, `Raphael's Technique`,
-  `Shark Shredder, Killer Clone`).
+  "sneak cost was paid" flag are fully wired; 23 of 26 Sneak cards have
+  shipped. Of the 9 that were previously called "pure authoring", **6 were
+  genuinely composable and shipped** (`Dark Leo & Shredder`,
+  `Karai, Future of the Foot`, `Kitsune's Technique`, `Michelangelo, Improviser`,
+  `Raphael's Technique`, `Shark Shredder, Killer Clone`). The remaining **3 carry
+  a SECOND engine gap beyond Sneak** — the earlier "no other blocker" note was
+  wrong for them: `Leonardo's Technique` (up-to-two *target* graveyard reanimate
+  with a per-target MV≤3 filter — no multi-target zone-card selector exists),
+  `Leonardo, Sewer Samurai` (cast-creatures-from-graveyard *static permission* —
+  missing), `Michelangelo's Technique` (look-at-8, put up to 2 with *total* MV≤6
+  — aggregate-MV-budget selection; note `SelectCardsDecision.maxTotalManaValue`
+  already exists at the decision layer, so this may be closer to composable than
+  first thought). Each is its own `add-feature` PR.
 - **Disappear** — 9 cards (Gap B — unresolved)
 - **Alliance** — 4 cards left (Gap C — partly cleared; 6 shipped composably,
   the remaining 4 each have an *additional* unresolved blocker beyond Alliance
@@ -224,17 +230,20 @@ Tests: `SneakTest` plus per-card scenario tests (`JennikasTechniqueTest`,
 `TurncoatKunoichiTest`, `LeonardoLeaderInBlueTest`, `TheLastRoninsTechniqueTest`,
 `KaraisTechniqueTest`, `NewGenerationsTechniqueTest`, `FootNinjasTest`).
 
-Shipped (17): `Donatello's Technique`, `Donatello, Gadget Master`, `Foot Ninjas`,
+Shipped (23): `Donatello's Technique`, `Donatello, Gadget Master`, `Foot Ninjas`,
 `Jennika's Technique`, `Karai's Technique`, `Leonardo, Big Brother`,
 `Leonardo, Cutting Edge`, `Leonardo, Leader in Blue`, `New Generation's Technique`,
 `Oroku Saki, Shredder Rising`, `Raphael, the Nightwatcher`, `Shredder's Technique`,
 `Shredder, Unrelenting`, `Splinter's Technique`, `Splinter, Hamato Yoshi`,
-`The Last Ronin's Technique`, `Turncoat Kunoichi`.
+`The Last Ronin's Technique`, `Turncoat Kunoichi`, plus the 6 most recent:
+`Dark Leo & Shredder`, `Karai, Future of the Foot`, `Kitsune's Technique`,
+`Michelangelo, Improviser`, `Raphael's Technique`, `Shark Shredder, Killer Clone`.
 
-Still to author (9, mechanic-unblocked): `Dark Leo & Shredder`,
-`Karai, Future of the Foot`, `Kitsune's Technique`, `Leonardo's Technique`,
-`Leonardo, Sewer Samurai`, `Michelangelo's Technique`, `Michelangelo, Improviser`,
-`Raphael's Technique`, `Shark Shredder, Killer Clone`.
+Still to author (3 — each blocked on a SECOND gap, NOT pure authoring):
+`Leonardo's Technique` (multi-target GY reanimate, per-target MV≤3),
+`Leonardo, Sewer Samurai` (cast-from-graveyard static permission),
+`Michelangelo's Technique` (aggregate total-MV-≤6 selection). See the corrected
+Sneak bullet in the Status section above; each needs its own `add-feature` PR.
 
 ### Gap B — Disappear (ability-word trigger with "a permanent left the battlefield under your control this turn" condition) — 9 cards
 **Engine change:** generalize the existing `nonlandPermanentLeftBattlefieldThisTurn`
@@ -653,7 +662,6 @@ for what closed those.
 | Cool but Rude                         | Gap U (Class)                               |
 | Courier of Comestibles                | Gap V (search-or-fail-then-token)           |
 | Crustacean Commando                   | Gap W (Mutagen token)                       |
-| Dark Leo & Shredder                   | Gap A RESOLVED — pending authoring (no other blocker) |
 | Does Machines                         | Gap U (Class)                               |
 | Don & Leo, Problem Solvers            | Gap X (paired flicker)                      |
 | Don & Raph, Hard Science              | Gap Y (grant Affinity to next spell)        |
@@ -667,21 +675,18 @@ for what closed those.
 | Groundchuck & Dirtbag                 | Gap CC (tap-land-for-mana trigger)          |
 | Grounded for Life                     | Gap DD (cost reduction if target tapped)    |
 | Insectoid Exterminator                | Gap B (Disappear)                           |
-| Karai, Future of the Foot             | Gap A RESOLVED — pending authoring (no other blocker) |
-| Kitsune's Technique                   | Gap A RESOLVED — pending authoring (no other blocker) |
 | Kitsune, Dragon's Daughter            | "Exchange control of two creatures controlled by different players" — bespoke |
 | Koya, Death from Above                | Delayed end-step "you may pay; if not, return that card" conditional — bespoke |
 | Krang & Shredder                      | Gap B (Disappear) + Gap M (cast-from-exile-without-paying chain) |
 | Leader's Talent                       | Gap U (Class)                               |
 | Leatherhead, Swamp Stalker            | Hexproof counter + "may remove a counter; when you do, …" (Gap AA shape) |
-| Leonardo's Technique                  | Gap A RESOLVED — pending authoring (no other blocker) |
-| Leonardo, Sewer Samurai               | Gap A RESOLVED — pending authoring (no other blocker) |
+| Leonardo's Technique                  | Sneak OK; needs up-to-2 *target* GY reanimate, per-target MV≤3 (new gap) |
+| Leonardo, Sewer Samurai               | Sneak OK; needs cast-creatures-from-graveyard static permission (new gap) |
 | Lita, Little Orphan Amphibian         | Gap C (Alliance) + Gap E (mode-not-yet-chosen) |
 | Lord Dregg, Insect Invader            | Gap B (Disappear) + Gap M (Sacrifice-a-token cost) |
 | Madame Null, Power Broker             | Gap GG (may-pay-dynamic-life)               |
-| Michelangelo's Technique              | Gap A RESOLVED — pending authoring (no other blocker) |
+| Michelangelo's Technique              | Sneak OK; needs aggregate total-MV-≤6 selection over looked-at cards (new gap; `SelectCardsDecision.maxTotalManaValue` may already cover it) |
 | Michelangelo, Game Master             | Gap B (Disappear)                           |
-| Michelangelo, Improviser              | Gap A RESOLVED — pending authoring (no other blocker) |
 | Michelangelo, Mutant BFF              | Gap W (Mutagen) + counter-doubling replacement |
 | Michelangelo, Weirdness to 11         | Gap W (Mutagen) + counter-doubling replacement |
 | Mikey & Don, Party Planners           | Play-from-top + cast-Mutant/Ninja/Turtle-from-top — bespoke |
@@ -700,7 +705,6 @@ for what closed those.
 | Prehistoric Pet                       | Gap HH (can't-be-blocked-by-greater-power)  |
 | Purple Dragon Punks                   | Gap KK (artifact-spell-or-any-ability mana restriction) |
 | Putrid Pals                           | Gap B (Disappear)                           |
-| Raphael's Technique                   | Gap A RESOLVED — pending authoring (no other blocker) |
 | Raphael, Most Attitude                | Gap C (Alliance)                            |
 | Raphael, Ninja Destroyer              | Gap F (Enrage) + Gap G (persistent mana)    |
 | Rat King, Verminister                 | Gap B (Disappear) + Gap M (same-name reanimate) |
@@ -708,7 +712,6 @@ for what closed those.
 | Retro-Mutation                        | Type-overriding Aura + "loses all abilities" UEOT |
 | Return to the Sewers                  | Owner-chooses-top-or-bottom + Gap W (Mutagen) |
 | Sewer-veillance Cam                   | Gap II (tap-or-untap controller-chooses)    |
-| Shark Shredder, Killer Clone          | Gap A RESOLVED — pending authoring (no other blocker) |
 | Slithering Cryptid                    | Gap W (Mutagen)                             |
 | Technodrome                           | "Can't attack or block unless its power is 6 or greater" — Gap O-shape on self |
 | The Cloning of Shredder               | Gap MM (addedSubtypes on CreateTokenCopy)   |
