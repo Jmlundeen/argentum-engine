@@ -1089,6 +1089,43 @@
     ]
 }
 
+// Crustacean Commando
+{
+    "name": "Crustacean Commando",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Crab Mutant Soldier",
+    "oracleText": "When this creature enters, create a Mutagen token. (It's an artifact with \"{1}, {T}, Sacrifice this token: Put a +1/+1 counter on target creature. Activate only as a sorcery.\")",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Mutagen"
+                },
+                "descriptionOverride": "When this creature enters, create a Mutagen token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "33",
+        "artist": "Narendra Bintara Adi",
+        "flavorText": "\"Wondering what I've got in the box? Pain, soldier! And lots of it!\"\n—Herman",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/5/9528cc07-df4b-417f-ad65-c2fae6fc2d49.jpg?1771502563"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Dark Leo & Shredder
 {
     "name": "Dark Leo & Shredder",

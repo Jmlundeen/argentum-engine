@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 119 / 190
+**Implemented:** 120 / 190
 ---
 
 - [x] Action News Crew
@@ -26,7 +26,7 @@
 - [ ] Cool but Rude
 - [ ] Courier of Comestibles
 - [x] Cowabunga!
-- [ ] Crustacean Commando
+- [x] Crustacean Commando
 - [x] Dark Leo & Shredder
 - [x] Death in the Family
 - [x] Dimension X
