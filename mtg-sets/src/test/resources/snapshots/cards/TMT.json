@@ -8164,6 +8164,51 @@
     ]
 }
 
+// Purple Dragon Punks
+{
+    "name": "Purple Dragon Punks",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "{T}: Add {R}. Spend this mana only to cast an artifact spell or to activate an ability.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED",
+                    "restriction": {
+                        "type": "AnyOf",
+                        "restrictions": [
+                            {
+                                "type": "CardTypeSpellsOrAbilitiesOnly",
+                                "cardType": "ARTIFACT"
+                            },
+                            "AbilityActivationOnly"
+                        ]
+                    }
+                },
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add {R}. Spend this mana only to cast an artifact spell or to activate an ability."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "100",
+        "artist": "Rose Benjamin",
+        "flavorText": "\"These guys are young, but no rookies. They've fought and beat everything on two legs in this area . . . except us.\"\n—Leonardo",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/b/bbe1d7e5-68e2-4458-aa3f-5e97fa8e7cae.jpg?1771586948"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Putrid Pals
 {
     "name": "Putrid Pals",

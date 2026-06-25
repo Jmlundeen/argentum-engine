@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 179 / 190
+**Implemented:** 180 / 190
 ---
 
 - [x] Action News Crew
@@ -127,7 +127,7 @@
 - [x] Prehistoric Pet
 - [x] Primordial Pachyderm
 - [x] Punk Frogs
-- [ ] Purple Dragon Punks
+- [x] Purple Dragon Punks
 - [x] Putrid Pals
 - [x] Quintessential Katana
 - [x] Ragamuffin Raptor
