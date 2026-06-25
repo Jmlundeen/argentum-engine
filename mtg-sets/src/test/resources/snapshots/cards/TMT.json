@@ -4688,6 +4688,131 @@
     ]
 }
 
+// Krang & Shredder
+{
+    "name": "Krang & Shredder",
+    "manaCost": "{4}{U/B}{U/B}",
+    "typeLine": "Legendary Creature — Utrom Human Ninja",
+    "oracleText": "Whenever Krang & Shredder enter or attack, each opponent exiles cards from the top of their library until they exile a nonland card.\nDisappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, you may cast a card exiled with Krang & Shredder without paying its mana cost.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 7
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "EachOpponent"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherUntilMatch",
+                                "filter": "nonland",
+                                "storeMatch": "krangMatch",
+                                "storeRevealed": "krangRevealed"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "krangRevealed",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "linkToSource": true
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "Whenever Krang & Shredder enter or attack, each opponent exiles cards from the top of their library until they exile a nonland card."
+            },
+            {
+                "id": "ability_2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "EachOpponent"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherUntilMatch",
+                                "filter": "nonland",
+                                "storeMatch": "krangMatch",
+                                "storeRevealed": "krangRevealed"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "krangRevealed",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "linkToSource": true
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "Whenever Krang & Shredder enter or attack, each opponent exiles cards from the top of their library until they exile a nonland card."
+            },
+            {
+                "id": "ability_3",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": "FromLinkedExile",
+                                "storeAs": "krangCastable"
+                            },
+                            {
+                                "type": "GrantMayPlayFromExile",
+                                "from": "krangCastable"
+                            },
+                            {
+                                "type": "GrantPlayWithoutPayingCost",
+                                "from": "krangCastable"
+                            }
+                        ]
+                    }
+                },
+                "triggerCondition": "PermanentLeftBattlefieldThisTurn",
+                "descriptionOverride": "Disappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, you may cast a card exiled with Krang & Shredder without paying its mana cost."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "153",
+        "rarity": "RARE",
+        "artist": "Néstor Ossandón Leal",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/b/9b5437e2-e3f4-4c19-a2aa-a75f65a001bb.jpg?1769006256"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
 // Krang, Master Mind
 {
     "name": "Krang, Master Mind",

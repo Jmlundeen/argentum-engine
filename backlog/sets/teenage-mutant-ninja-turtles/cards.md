@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 178 / 190
+**Implemented:** 179 / 190
 ---
 
 - [x] Action News Crew
@@ -72,7 +72,7 @@
 - [x] Kitsune's Technique
 - [x] Kitsune, Dragon's Daughter
 - [x] Koya, Death from Above
-- [ ] Krang & Shredder
+- [x] Krang & Shredder
 - [x] Krang, Master Mind
 - [x] Krang, Utrom Warlord
 - [x] Leader's Talent
