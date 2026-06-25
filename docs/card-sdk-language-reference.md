@@ -3556,6 +3556,15 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   your graveyard". Lands are *played*, not cast, so they need the lands permission separately. This
   grants permission over *other* cards in your graveyard from a battlefield permanent — for a card
   that grants permission to cast *itself* from a zone, use `MayCastSelfFromZones`.
+- `GraveyardCreaturesHaveSneak(cost)` — "Creature cards in your graveyard have sneak `cost`. You may
+  cast creature spells from your graveyard using their sneak abilities." (Ninja Teen level 3.) While
+  the controller has this static active, their graveyard creature cards become castable via the
+  Sneak alt-cost (CR 702.190) from the graveyard — pay `cost` plus return an unblocked attacker you
+  control during your declare-blockers step; the creature enters tapped and attacking. Implemented
+  additively (the printed-Sneak hand path is untouched): `SneakWindow.graveyardSneakGrantCost` /
+  `effectiveSneakCost` are read by `SneakCastEnumerator` (a graveyard loop) and four sites in
+  `CastSpellHandler` (zone gate, both cost paths, the enters-tapped/bounce resolution). No
+  exile-on-resolution (unlike flashback) — the creature simply moves graveyard → stack → battlefield.
 - `MayCastSelfFromZones(zones, condition = null)` — intrinsic *self* permission: this card may be
   cast from any of `zones` (graveyard/exile) following normal timing and for its normal mana cost.
   Squee, the Immortal = `MayCastSelfFromZones(listOf(GRAVEYARD, EXILE))`. When `condition` is
