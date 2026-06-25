@@ -7226,6 +7226,84 @@
     ]
 }
 
+// Ninja Teen
+{
+    "name": "Ninja Teen",
+    "manaCost": "{2}{B}",
+    "typeLine": "Enchantment — Class",
+    "oracleText": "(Gain the next level as a sorcery to add its ability.)\nWhenever a creature you control leaves the battlefield, each opponent loses 1 life.\n{1}{B}: Level 2\nCreatures you control get +1/+0 and have menace.\n{B}: Level 3\nCreature cards in your graveyard have sneak {3}{B}.\nYou may cast creature spells from your graveyard using their sneak abilities.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "from": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "EachOpponent"
+                    },
+                    "body": {
+                        "type": "LoseLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "Controller"
+                    }
+                },
+                "descriptionOverride": "Whenever a creature you control leaves the battlefield, each opponent loses 1 life."
+            }
+        ],
+        "classLevels": [
+            {
+                "level": 2,
+                "cost": "{1}{B}",
+                "staticAbilities": [
+                    {
+                        "type": "ModifyStats",
+                        "powerBonus": 1,
+                        "toughnessBonus": 0,
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "MENACE",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    }
+                ]
+            },
+            {
+                "level": 3,
+                "cost": "{B}",
+                "staticAbilities": [
+                    {
+                        "type": "GraveyardCreaturesHaveSneak",
+                        "cost": "{3}{B}"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "67",
+        "rarity": "RARE",
+        "artist": "Justyna Dura",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/0825a28f-f60b-4f80-83e3-cad6f9b266ce.jpg?1777939770"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Nobody
 {
     "name": "Nobody",

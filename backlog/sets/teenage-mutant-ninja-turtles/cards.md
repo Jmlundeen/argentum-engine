@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 187 / 190
+**Implemented:** 188 / 190
 ---
 
 - [x] Action News Crew
@@ -110,7 +110,7 @@
 - [x] Mutant Town Musicians
 - [x] Negate
 - [x] New Generation's Technique
-- [ ] Ninja Teen
+- [x] Ninja Teen
 - [x] Nobody
 - [ ] North Wind Avatar
 - [x] Northampton Farm
