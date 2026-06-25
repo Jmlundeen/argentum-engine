@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 177 / 190
+**Implemented:** 178 / 190
 ---
 
 - [x] Action News Crew
@@ -186,7 +186,7 @@
 - [x] Turtle Power!
 - [x] Turtle Van
 - [ ] Turtles Forever
-- [ ] Turtles in Time
+- [x] Turtles in Time
 - [x] Uneasy Alliance
 - [x] Utrom Scientists
 - [x] Venus, Torn Between Worlds

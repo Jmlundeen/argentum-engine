@@ -11731,6 +11731,96 @@
     }
 }
 
+// Turtles in Time
+{
+    "name": "Turtles in Time",
+    "manaCost": "{5}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return all creatures to their owners' hands. Each player may shuffle their hand and graveyard into their library, then each player who does draws seven cards.\nExile Turtles in Time.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "creature"
+                            },
+                            "storeAs": "returnAllToHand_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "returnAllToHand_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromMultipleZones",
+                                        "zones": [
+                                            "Hand",
+                                            "Graveyard"
+                                        ]
+                                    },
+                                    "storeAs": "turtlesInTimeShuffle"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "turtlesInTimeShuffle",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Library",
+                                        "placement": "Shuffled"
+                                    }
+                                },
+                                {
+                                    "type": "DrawCards",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 7
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "selfExileOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "MYTHIC",
+        "artist": "Inkognit",
+        "flavorText": "\"When are we now?\"\n—Donatello",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bdb3efe7-7b12-4503-83e9-7977eb099db5.jpg?1769005754"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Uneasy Alliance
 {
     "name": "Uneasy Alliance",
