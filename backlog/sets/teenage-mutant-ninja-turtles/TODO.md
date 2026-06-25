@@ -53,7 +53,10 @@ commits all carry `flavorText` in metadata.
 > - **Don & Raph** — grant the next noncreature spell you cast affinity for artifacts.
 > - **Purple Dragon Punks** — "spend only to cast an artifact spell or activate **any**
 >   ability" mana (`CardTypeSpellsOrAbilitiesOnly` ties abilities to the card type).
-> - **North Wind Avatar** + **Turtles Forever** — wishboard (cards from outside the game).
+> - **North Wind Avatar** + **Turtles Forever** — **inherently deferred**: both need a "from
+>   outside the game" / wishboard zone, which this single-game engine has no concept of (Zone =
+>   LIBRARY/HAND/BATTLEFIELD/GRAVEYARD/STACK/EXILE/COMMAND only; no sideboard). Faithful support
+>   needs a whole new zone + deck-construction integration; the clause can't be silently dropped.
 
 > **2026-06-25 sweep — six more "feature-gated" cards were actually composable.**
 > Re-verifying each supposed gap against real primitives debunked: **Turtle Van**
@@ -97,7 +100,10 @@ commits all carry `flavorText` in metadata.
 > - **Mikey & Don** — cast from top of library; creatures cast this way enter with a +1/+1 counter.
 > - **The Cloning of Shredder** — token copy of a card in this Saga's linked exile.
 > - **Don & Raph** — grant the next noncreature spell you cast affinity for artifacts.
-> - **North Wind Avatar** + **Turtles Forever** — wishboard (cards from outside the game).
+> - **North Wind Avatar** + **Turtles Forever** — **inherently deferred**: both need a "from
+>   outside the game" / wishboard zone, which this single-game engine has no concept of (Zone =
+>   LIBRARY/HAND/BATTLEFIELD/GRAVEYARD/STACK/EXILE/COMMAND only; no sideboard). Faithful support
+>   needs a whole new zone + deck-construction integration; the clause can't be silently dropped.
 > - **Turtles in Time** — each-player-MAY Timetwister (per-player shuffle-hand+gy / draw 7).
 
 > **2026-06-24 run — the gap list below was badly overestimated.** A sweep added
