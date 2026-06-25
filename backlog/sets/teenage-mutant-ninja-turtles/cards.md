@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 171 / 190
+**Implemented:** 172 / 190
 ---
 
 - [x] Action News Crew
@@ -76,7 +76,7 @@
 - [x] Krang, Master Mind
 - [x] Krang, Utrom Warlord
 - [x] Leader's Talent
-- [ ] Leatherhead, Swamp Stalker
+- [x] Leatherhead, Swamp Stalker
 - [x] Leonardo's Technique
 - [x] Leonardo, Big Brother
 - [x] Leonardo, Cutting Edge
