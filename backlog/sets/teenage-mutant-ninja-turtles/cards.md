@@ -2,7 +2,7 @@
 
 **Set Size:** 190 cards (excluding basic lands)
 **Release Date:** March 6, 2026
-**Implemented:** 166 / 190
+**Implemented:** 167 / 190
 ---
 
 - [x] Action News Crew
@@ -90,7 +90,7 @@
 - [x] Manhole Missile
 - [x] Mechanized Ninja Cavalry
 - [x] Metalhead
-- [ ] Michelangelo's Technique
+- [x] Michelangelo's Technique
 - [x] Michelangelo, Game Master
 - [x] Michelangelo, Improviser
 - [x] Michelangelo, Mutant BFF

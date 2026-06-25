@@ -5361,6 +5361,92 @@
     ]
 }
 
+// Michelangelo's Technique
+{
+    "name": "Michelangelo's Technique",
+    "manaCost": "{4}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Sneak {3}{G} (You may cast this spell for {3}{G} if you also return an unblocked attacker you control to hand during the declare blockers step.)\nLook at the top eight cards of your library. Put up to two creature cards with total mana value 6 or less from among them onto the battlefield and the rest on the bottom of your library in a random order.",
+    "keywords": [
+        "SNEAK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Sneak",
+            "cost": "{3}{G}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 8
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "filter": "creature",
+                    "storeSelected": "toBattlefield",
+                    "storeRemainder": "toBottom",
+                    "prompt": "Put up to two creature cards with total mana value 6 or less onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield",
+                    "remainderLabel": "Put on the bottom of your library",
+                    "showAllCards": true,
+                    "restrictions": [
+                        {
+                            "type": "TotalManaValueAtMost",
+                            "max": 6
+                        }
+                    ]
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "toBattlefield",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "toBottom",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "Random"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "RARE",
+        "artist": "Dominik Mayer",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/a/3a63c06a-7c59-4b72-b916-e5b6ad78c684.jpg?1769006772"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Michelangelo, Game Master
 {
     "name": "Michelangelo, Game Master",
