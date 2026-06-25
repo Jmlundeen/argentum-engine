@@ -10,25 +10,28 @@ Verify status anytime with: `scripts/card-status --set TMT` (and `--list --set T
 
 ## Status
 
-187 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
+188 / 190 implemented (basics excluded — handled by `basicLandsFallback`). See
 `cards.md` for the full checklist (the authoritative status); the per-card
 commits all carry `flavorText` in metadata.
 
-> **Final state of the 2026-06-24/25 sweep: 187/190 (98.4%).** The 3 unimplemented cards are
-> all genuinely-blocked, not authoring gaps:
-> - **Ninja Teen** — a focused, reviewable engine feature, fully mapped (see L3 note below): a
->   `GraveyardCreaturesHaveSneak` static + an additive `SneakCastEnumerator` graveyard loop +
->   `CastSpellHandler` granted-sneak acceptance. Deferred only because it touches the central cast
->   path for the set's signature mechanic and wants the full Sneak regression suite as a safety net.
-> - **North Wind Avatar** + **Turtles Forever** — *inherently infeasible*: both need a "from outside
->   the game" / wishboard zone this single-game engine has no concept of.
+> **Final state of the 2026-06-24/25 sweep: 188/190 (98.9%).** The 2 remaining cards are
+> *inherently infeasible*, not authoring gaps:
+> - **North Wind Avatar** + **Turtles Forever** — both need a "from outside the game" / wishboard
+>   zone this single-game engine has no concept of (Zone = LIBRARY/HAND/BATTLEFIELD/GRAVEYARD/
+>   STACK/EXILE/COMMAND). Implementing them means adding an entire sideboard/wishboard zone — out
+>   of scope for this content sweep.
+>
+> Ninja Teen (the set's hardest card) shipped as the 11th feature: `GraveyardCreaturesHaveSneak`
+> (cast graveyard creatures via a granted Sneak alt-cost), built additively over the printed-Sneak
+> path with the full Sneak suite as a regression net.
 >
 > Engine features built this sweep (each with a scenario/unit test): Mutagen token, dynamic
 > pay-life (`PayDynamicLife`), distinct-card-types-cast amount, any-ability mana
 > (`ManaRestriction.AbilityActivationOnly`), non-self `EntersWithCounters` condition fix,
 > `CastFromLibraryComponent`/`WasCastFromZone(LIBRARY)`, delayed attack-trigger per-attacker fan-out,
-> `ReturnSameNamedFromGraveyard`, `GrantNextSpellAffinity`, and the `CreaturesAttackYourOpponent`
-> trigger. Everything else was composed from existing primitives (≈50 supposed "gaps" debunked).
+> `ReturnSameNamedFromGraveyard`, `GrantNextSpellAffinity`, the `CreaturesAttackYourOpponent`
+> trigger, and `GraveyardCreaturesHaveSneak`. Everything else was composed from existing primitives
+> (≈50 supposed "gaps" debunked).
 
 > **2026-06-25 second sweep — eight more "feature-gated" cards were composable.**
 > Debunked: **Leatherhead** (Slumbering Walker's reflexive remove-a-counter +
