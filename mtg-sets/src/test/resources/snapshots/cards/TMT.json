@@ -197,6 +197,48 @@
     ]
 }
 
+// April O'Neil, Hacktivist
+{
+    "name": "April O'Neil, Hacktivist",
+    "manaCost": "{3}{U}",
+    "typeLine": "Legendary Creature — Human Scientist",
+    "oracleText": "At the beginning of your end step, draw a card for each card type among spells you've cast this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "SpellsCastThisTurn",
+                        "countDistinctCardTypes": true
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, draw a card for each card type among spells you've cast this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "29",
+        "rarity": "RARE",
+        "artist": "Xabi Gaztelua",
+        "flavorText": "In the fight between mutants, ninjas, and aliens, don't underestimate a resourceful human.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/0/f0147f6d-b797-4d5e-aca2-a9d309896eca.jpg?1760102651"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // April O'Neil, Kunoichi Trainee
 {
     "name": "April O'Neil, Kunoichi Trainee",
