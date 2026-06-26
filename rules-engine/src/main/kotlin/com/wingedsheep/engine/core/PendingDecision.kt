@@ -174,6 +174,12 @@ data class SelectCardsDecision(
      */
     val onePerBasicLandType: Boolean = false,
     /**
+     * When true, at most one card of each (printed) power may be selected. A card with no
+     * fixed power can't be selected at all (Rip, Spawn Hunter). The server enforces this; the
+     * UI should disable cards sharing an already-claimed power.
+     */
+    val onePerPower: Boolean = false,
+    /**
      * Maximum sum of mana values across selected cards (Scout for Survivors). null
      * means no cap. {X} contributes 0 (CR 202.3e for cards not on the stack). The
      * UI is expected to disable cards whose mana value would push the running total
@@ -472,7 +478,13 @@ data class SearchCardInfo(
     val typeLine: String,
     val imageUri: String? = null,
     /** Colour identity letters (e.g. ["W","U"]); empty for colourless cards */
-    val colors: List<String> = emptyList()
+    val colors: List<String> = emptyList(),
+    /**
+     * Printed (base) power, when fixed. Null for cards with no printed P/T or a
+     * characteristic-defining `*` power. Lets a hidden-zone selection UI group cards
+     * by power for [SelectCardsDecision.onePerPower].
+     */
+    val power: Int? = null
 )
 
 /**

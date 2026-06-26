@@ -146,6 +146,13 @@ data class GameObjectFilter(
                 CardPredicate.Or(listOf(CardPredicate.IsCreature, CardPredicate.IsArtifact))
             )
         )
+        // A Vehicle is always an artifact carrying the Vehicle subtype, so matching the subtype
+        // alone identifies it. Used for "creature and/or Vehicle" wording (Rip, Spawn Hunter).
+        val CreatureOrVehicle = GameObjectFilter(
+            cardPredicates = listOf(
+                CardPredicate.Or(listOf(CardPredicate.IsCreature, CardPredicate.HasSubtype(Subtype.VEHICLE)))
+            )
+        )
         val ArtifactOrLand = GameObjectFilter(
             cardPredicates = listOf(
                 CardPredicate.Or(listOf(CardPredicate.IsArtifact, CardPredicate.IsLand))

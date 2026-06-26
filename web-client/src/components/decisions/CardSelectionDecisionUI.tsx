@@ -159,6 +159,27 @@ export function CardSelectionDecision({
     return types
   }, [decision.onePerBasicLandType, decision.cardInfo, selectedCards, gameState?.cards])
 
+  /** Read a card's fixed (printed) power from the decision's card info or gameState; null if unknown. */
+  const powerForCard = (cardId: EntityId): number | null => {
+    const fromInfo = decision.cardInfo?.[cardId]?.power
+    if (typeof fromInfo === 'number') return fromInfo
+    const fromState = gameState?.cards[cardId]?.power
+    if (typeof fromState === 'number') return fromState
+    return null
+  }
+
+  // OnePerPower: compute which powers are already claimed by selected cards.
+  const claimedPowers = useMemo(() => {
+    if (!decision.onePerPower) return new Set<number>()
+    const powers = new Set<number>()
+    for (const id of selectedCards) {
+      const p = powerForCard(id)
+      if (p != null) powers.add(p)
+    }
+    return powers
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [decision.onePerPower, decision.cardInfo, selectedCards, gameState?.cards])
+
   /** Read a card's mana value: prefer gameState (server-computed), fall back to parsing the cost string. */
   const manaValueForCard = (cardId: EntityId): number => {
     const fromState = gameState?.cards[cardId]?.manaValue
@@ -195,6 +216,11 @@ export function CardSelectionDecision({
       const landTypes = extractBasicLandTypes(typeLine)
       // A land with no basic land type can't be kept; one sharing a claimed type is blocked.
       if (landTypes.length === 0 || landTypes.some((t) => claimedLandTypes.has(t))) return true
+    }
+    if (decision.onePerPower) {
+      const power = powerForCard(cardId)
+      // A card with no fixed power can't be kept; one sharing a claimed power is blocked.
+      if (power == null || claimedPowers.has(power)) return true
     }
     return false
   }

@@ -427,7 +427,13 @@ class LibraryAndZoneContinuationResumer(
             val claimedColors = mutableSetOf<com.wingedsheep.sdk.core.Color>()
             val claimedNames = mutableSetOf<String>()
             val claimedLandTypes = mutableSetOf<com.wingedsheep.sdk.core.Subtype>()
+            val claimedPowers = mutableSetOf<Int>()
             var runningManaValue = 0
+            // A card's fixed (printed) power, or null for cards with no fixed power.
+            fun fixedPowerOf(cardId: EntityId): Int? =
+                state.getEntity(cardId)
+                    ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()
+                    ?.baseStats?.basePower
             // Basic land subtypes a card has (Plains/Island/Swamp/Mountain/Forest), for OnePerBasicLandType.
             fun basicLandTypesOf(cardId: EntityId): Set<com.wingedsheep.sdk.core.Subtype> =
                 state.getEntity(cardId)
@@ -468,6 +474,11 @@ class LibraryAndZoneContinuationResumer(
                             // A typeless land can't be kept; a typed land needs all its types free.
                             types.isNotEmpty() && types.none { it in claimedLandTypes }
                         }
+                        is SelectionRestriction.OnePerPower -> {
+                            // A card with no fixed power can't be kept; otherwise its power must be free.
+                            val power = fixedPowerOf(cardId)
+                            power != null && power !in claimedPowers
+                        }
                         is SelectionRestriction.ReducedMinimumIfMatches -> true
                         is SelectionRestriction.MaxAffordablePayment ->
                             // A pure count cap, already folded into the decision's maxSelections
@@ -505,6 +516,9 @@ class LibraryAndZoneContinuationResumer(
                             }
                             is SelectionRestriction.OnePerBasicLandType -> {
                                 claimedLandTypes += basicLandTypesOf(cardId)
+                            }
+                            is SelectionRestriction.OnePerPower -> {
+                                fixedPowerOf(cardId)?.let { claimedPowers += it }
                             }
                             is SelectionRestriction.ReducedMinimumIfMatches -> {
                                 // Response validation enforces the conditional minimum.

@@ -305,6 +305,13 @@ class SelectFromCollectionExecutor(
                         state.getEntity(cardId)?.get<CardComponent>()?.name
                     }.toSet().size.coerceAtLeast(0)
                 }
+                is SelectionRestriction.OnePerPower -> {
+                    // One slot per distinct fixed power present. Cards with no fixed power
+                    // (mapNotNull drops them) can't be kept and so add no slots.
+                    eligibleCards.mapNotNull { cardId ->
+                        state.getEntity(cardId)?.get<CardComponent>()?.baseStats?.basePower
+                    }.toSet().size
+                }
                 is SelectionRestriction.TotalManaValueAtMost -> {
                     // Greedy upper bound: how many cards fit under the cap when picking
                     // the cheapest first. Any selection of more cards than this is
@@ -383,7 +390,8 @@ class SelectFromCollectionExecutor(
                 manaCost = cardComponent?.manaCost?.toString() ?: "",
                 typeLine = cardComponent?.typeLine?.toString() ?: "",
                 imageUri = null,
-                colors = cardComponent?.colors?.map { it.name }?.toList() ?: emptyList()
+                colors = cardComponent?.colors?.map { it.name }?.toList() ?: emptyList(),
+                power = cardComponent?.baseStats?.basePower
             )
         }
 
@@ -416,6 +424,7 @@ class SelectFromCollectionExecutor(
             availableColors = controllerPermanentColors?.map { it.name },
             onePerCardName = effect.restrictions.any { it is SelectionRestriction.OnePerCardName },
             onePerBasicLandType = effect.restrictions.any { it is SelectionRestriction.OnePerBasicLandType },
+            onePerPower = effect.restrictions.any { it is SelectionRestriction.OnePerPower },
             maxTotalManaValue = effect.restrictions
                 .filterIsInstance<SelectionRestriction.TotalManaValueAtMost>()
                 .also {
