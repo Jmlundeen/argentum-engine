@@ -1310,6 +1310,7 @@ export function DeckbuilderPage() {
               pinnedPrintingArt={pinnedPrintingArt}
               onOpenPicker={handleOpenPicker}
               rowDragSource="deck"
+              onMoveFromSideboard={removeFromSideboard}
             />
 
             <SideboardPanel
@@ -1381,6 +1382,7 @@ export function DeckbuilderPage() {
             onHoverLeave={handleDeckHoverLeave}
             pinnedPrintings={pinnedPrintings}
             onOpenPicker={handleOpenPicker}
+            onMoveFromSideboard={removeFromSideboard}
           />
 
           <SideboardPanel
@@ -3815,6 +3817,7 @@ function DeckListPanel({
   onOpenPicker,
   hideBasicLandHelpers = false,
   rowDragSource,
+  onMoveFromSideboard,
 }: {
   deckCards: Record<string, number>
   catalog: Record<string, CardSummary>
@@ -3835,6 +3838,10 @@ function DeckListPanel({
   // When set, rows are draggable with this source tag (the main deck uses 'deck' so rows can be
   // dragged into the sideboard). Omitted for the sideboard's own list.
   rowDragSource?: CardDragSource
+  // When set, the list becomes a drop target: catalog tiles add a copy, and a card dragged out of
+  // the sideboard is *moved* into the deck (this callback removes the sideboard copy). Omitted for
+  // the sideboard's own list, which is never a deck drop target.
+  onMoveFromSideboard?: (name: string) => void
 }) {
   const grouped = useMemo(
     () => groupForDeckList(deckCards, catalog, commander, hideBasicLandHelpers),
@@ -3895,8 +3902,24 @@ function DeckListPanel({
 
   const hasDeck = Object.keys(deckCards).length > 0
 
+  // Deck-list drop target: catalog tiles add a copy; a card dragged out of the sideboard is moved
+  // into the deck. Enabled only when `onMoveFromSideboard` is supplied (i.e. the main deck list,
+  // not the sideboard's own row list).
+  const acceptsDrops = onMoveFromSideboard !== undefined
+  const { dragActive, dropHandlers } = useCardDropZone((payload) => {
+    // A deck card dropped back onto the deck is a no-op.
+    if (payload.source === 'deck') return
+    const card = catalog[payload.name]
+    if (!card) return
+    if (payload.source === 'sideboard') onMoveFromSideboard?.(payload.name)
+    onAdd(card)
+  })
+
   return (
-    <div className={styles.deckList}>
+    <div
+      className={`${styles.deckList} ${acceptsDrops && dragActive ? styles.deckListDrop : ''}`}
+      {...(acceptsDrops ? dropHandlers : {})}
+    >
       {grouped.map((group) => (
         <div key={group.label} className={styles.deckGroup}>
           <div className={styles.deckGroupHeader}>
@@ -3938,7 +3961,7 @@ function DeckListPanel({
       ))}
       {grouped.length === 0 && (
         <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textAlign: 'center', margin: 'var(--space-4) 0' }}>
-          Click cards in the grid to add them.
+          Click cards in the grid to add them — or drag them here.
         </p>
       )}
       <HoverFollowPreview
@@ -3966,12 +3989,14 @@ const SB_NO_VIOLATIONS: Map<string, Set<string>> = new Map()
 const SB_NO_PRINTINGS: Record<string, PrintingRef> = {}
 const SB_NO_PRINTING_ART: Record<string, { imageUri: string | null; backFaceImageUri: string | null }> = {}
 
-// Drag payload shared by the card grid, deck rows, and the sideboard drop zone. We carry both a
-// custom MIME (so we can tag where the drag started) and `text/plain` (so the drag still has a
-// sane fallback). `source` lets the sideboard treat a card dragged out of the main deck as a
-// *move* (remove one there, add one here) versus a catalog drag as a plain add.
+// Drag payload shared by the card grid, deck rows, the deck list, and the sideboard drop zone. We
+// carry both a custom MIME (so we can tag where the drag started) and `text/plain` (so the drag
+// still has a sane fallback). `source` lets a drop zone treat a card dragged out of another zone as
+// a *move* (remove one there, add one here) versus a catalog drag as a plain add — the combined
+// 4-of cap (CR 100.2a) spans deck + sideboard, so a plain add could otherwise be a silent no-op.
 const CARD_DRAG_MIME = 'application/x-argentum-card'
-type CardDragSource = 'catalog' | 'deck'
+type CardDragSource = 'catalog' | 'deck' | 'sideboard'
+type CardDragPayload = { name: string; source: CardDragSource }
 
 function setCardDragData(e: React.DragEvent, name: string, source: CardDragSource) {
   e.dataTransfer.setData(CARD_DRAG_MIME, JSON.stringify({ name, source }))
@@ -3979,11 +4004,11 @@ function setCardDragData(e: React.DragEvent, name: string, source: CardDragSourc
   e.dataTransfer.effectAllowed = 'copyMove'
 }
 
-function readCardDragData(e: React.DragEvent): { name: string; source: CardDragSource } | null {
+function readCardDragData(e: React.DragEvent): CardDragPayload | null {
   const raw = e.dataTransfer.getData(CARD_DRAG_MIME)
   if (raw) {
     try {
-      const parsed = JSON.parse(raw) as { name: string; source: CardDragSource }
+      const parsed = JSON.parse(raw) as CardDragPayload
       if (parsed.name) return parsed
     } catch {
       // fall through to the text/plain fallback
@@ -3991,6 +4016,30 @@ function readCardDragData(e: React.DragEvent): { name: string; source: CardDragS
   }
   const name = e.dataTransfer.getData('text/plain')
   return name ? { name, source: 'catalog' } : null
+}
+
+// Shared drop-zone wiring for the deck list and the sideboard. Tracks a drag-over highlight and
+// invokes `onDrop` with the decoded payload. The `onDragLeave` guard only clears the highlight when
+// the pointer truly leaves the zone, not when it crosses between child elements.
+function useCardDropZone(onDrop: (payload: CardDragPayload) => void) {
+  const [dragActive, setDragActive] = useState(false)
+  const dropHandlers = {
+    onDragOver: (e: React.DragEvent) => {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'copy'
+      if (!dragActive) setDragActive(true)
+    },
+    onDragLeave: (e: React.DragEvent) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragActive(false)
+    },
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault()
+      setDragActive(false)
+      const payload = readCardDragData(e)
+      if (payload) onDrop(payload)
+    },
+  }
+  return { dragActive, dropHandlers }
 }
 
 function SideboardPanel({
@@ -4012,35 +4061,23 @@ function SideboardPanel({
   onMoveFromDeck: (name: string) => void
 }) {
   const total = Object.values(sideboardCards).reduce((a, b) => a + b, 0)
-  const [dragActive, setDragActive] = useState(false)
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragActive(false)
-    const payload = readCardDragData(e)
-    if (!payload) return
+  const { dragActive, dropHandlers } = useCardDropZone((payload) => {
+    // A sideboard card dropped back onto the sideboard is a no-op.
+    if (payload.source === 'sideboard') return
     const card = catalogIndex[payload.name]
     if (!card) return
     // Dragged out of the main deck → move it (the combined 4-of cap means a plain add could
     // otherwise be a silent no-op when the deck already holds the max).
     if (payload.source === 'deck') onMoveFromDeck(payload.name)
     onAdd(card)
-  }
+  })
 
   return (
     <section
       className={`${styles.sideboardPanel} ${dragActive ? styles.sideboardPanelDrop : ''}`}
       aria-label="Sideboard"
-      onDragOver={(e) => {
-        e.preventDefault()
-        e.dataTransfer.dropEffect = 'copy'
-        if (!dragActive) setDragActive(true)
-      }}
-      onDragLeave={(e) => {
-        // Only clear when the pointer actually leaves the panel, not when crossing child elements.
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragActive(false)
-      }}
-      onDrop={handleDrop}
+      {...dropHandlers}
     >
       <div className={styles.sideboardHeader}>
         <h3 className={styles.sideboardTitle}>Sideboard{total > 0 ? ` (${total})` : ''}</h3>
@@ -4065,6 +4102,7 @@ function SideboardPanel({
           pinnedPrintingArt={SB_NO_PRINTING_ART}
           onOpenPicker={SB_NOOP_NAME}
           hideBasicLandHelpers
+          rowDragSource="sideboard"
         />
       ) : (
         <p className={styles.sideboardEmpty}>
@@ -4474,6 +4512,7 @@ function DeckCentricView({
   onHoverLeave,
   pinnedPrintings,
   onOpenPicker,
+  onMoveFromSideboard,
 }: {
   deckCards: Record<string, number>
   catalog: Record<string, CardSummary>
@@ -4489,11 +4528,23 @@ function DeckCentricView({
   onHoverLeave: () => void
   pinnedPrintings: Record<string, PrintingRef>
   onOpenPicker: (name: string) => void
+  // Drop target: a card dragged out of the sideboard is moved into the deck (this callback removes
+  // the sideboard copy). The deck-centric layout has no catalog grid, so in practice only sideboard
+  // drags land here, but catalog drags are handled too for parity with the cards layout.
+  onMoveFromSideboard: (name: string) => void
 }) {
   const grouped = useMemo(
     () => groupByCardType(deckCards, catalog, commander),
     [deckCards, catalog, commander],
   )
+
+  const { dragActive, dropHandlers } = useCardDropZone((payload) => {
+    if (payload.source === 'deck') return
+    const card = catalog[payload.name]
+    if (!card) return
+    if (payload.source === 'sideboard') onMoveFromSideboard(payload.name)
+    onAdd(card)
+  })
 
   // Use the raw deck size (not the grouped-bucket count) because the Lands group now always
   // synthesizes the 5 basic-land rows even at count 0 — so an empty deck would otherwise still
@@ -4501,7 +4552,10 @@ function DeckCentricView({
   const isEmpty = Object.keys(deckCards).length === 0 && commander === null
   if (isEmpty) {
     return (
-      <div className={styles.deckCentricEmpty}>
+      <div
+        className={`${styles.deckCentricEmpty} ${dragActive ? styles.deckListDrop : ''}`}
+        {...dropHandlers}
+      >
         Your deck is empty. Type a card name in the search bar above, or switch to{' '}
         <strong>Cards to add</strong> to browse the catalog.
       </div>
@@ -4509,7 +4563,7 @@ function DeckCentricView({
   }
 
   return (
-    <div className={styles.deckCentric}>
+    <div className={`${styles.deckCentric} ${dragActive ? styles.deckListDrop : ''}`} {...dropHandlers}>
       <div className={styles.deckCentricColumns}>
         {grouped.map((group) => (
           <div key={group.label} className={styles.deckCentricGroup}>
