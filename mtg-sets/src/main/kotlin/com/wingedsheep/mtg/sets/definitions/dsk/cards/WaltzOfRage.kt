@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
@@ -55,7 +54,7 @@ val WaltzOfRage = card("Waltz of Rage") {
         val chosen = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
             // Target creature you control deals damage equal to its power to each other creature.
-            ForEachInGroupEffect(
+            Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
                 effect = DealDamageEffect(
                     amount = DynamicAmounts.targetPower(0),
