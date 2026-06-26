@@ -293,6 +293,11 @@ export function DeckbuilderPage() {
   // Working deck state.
   const [deckName, setDeckName] = useState('Untitled deck')
   const [deckCards, setDeckCards] = useState<Record<string, number>>({})
+  // Constructed sideboard ("outside the game", CR 100.4a) — cards reachable in-game only by wish
+  // effects (Burning Wish, …). Persisted on the saved deck and sent as `sideboard` when playing.
+  // Limited (sealed/draft) decks don't use this: their sideboard is the pool − maindeck complement,
+  // derived server-side (CR 100.4b).
+  const [sideboardCards, setSideboardCards] = useState<Record<string, number>>({})
   const [activeDeckId, setActiveDeckId] = useState<string | null>(null)
   // Pinned printings, keyed by card name. Empty unless the user opens the printing picker
   // and chooses a non-default printing for some row. Persisted via [SavedDeck.entries] (v2)
@@ -788,6 +793,29 @@ export function DeckbuilderPage() {
     })
   }, [])
 
+  // Sideboard add/remove. The 4-of cap (CR 100.2a) applies to deck + sideboard *combined*, so a
+  // card already maxed in the main deck can't also be added to the sideboard.
+  const addToSideboard = useCallback((card: CardSummary) => {
+    setSideboardCards((prev) => {
+      const inSide = prev[card.name] ?? 0
+      const inDeck = deckCards[card.name] ?? 0
+      const cap = effectiveCopyCap(card, isCommanderFormat)
+      if (inDeck + inSide >= cap) return prev
+      return { ...prev, [card.name]: inSide + 1 }
+    })
+  }, [deckCards, isCommanderFormat])
+
+  const removeFromSideboard = useCallback((name: string) => {
+    setSideboardCards((prev) => {
+      const current = prev[name] ?? 0
+      if (current <= 0) return prev
+      const next = { ...prev }
+      if (current === 1) delete next[name]
+      else next[name] = current - 1
+      return next
+    })
+  }, [])
+
   const setPinnedPrinting = useCallback((name: string, printing: PrintingDTO) => {
     setPinnedPrintings((prev) => ({
       ...prev,
@@ -817,6 +845,7 @@ export function DeckbuilderPage() {
   const handleNew = () => {
     setDeckName('Untitled deck')
     setDeckCards({})
+    setSideboardCards({})
     setCommander(null)
     setActiveDeckId(null)
     setPinnedPrintings({})
@@ -839,6 +868,7 @@ export function DeckbuilderPage() {
       ...(designated ? { commander: designated } : {}),
       ...(commanderPrintingForSave ? { commanderPrinting: commanderPrintingForSave } : {}),
       ...(entries ? { entries } : {}),
+      ...(Object.keys(sideboardCards).length > 0 ? { sideboard: sideboardCards } : {}),
     })
     setActiveDeckId(saved.id)
     if (saved.id !== deckId) navigate(`/deckbuilder/${saved.id}${searchSuffix()}`, { replace: true })
@@ -858,6 +888,7 @@ export function DeckbuilderPage() {
       ...(designated ? { commander: designated } : {}),
       ...(commanderPrintingForSave ? { commanderPrinting: commanderPrintingForSave } : {}),
       ...(entries ? { entries } : {}),
+      ...(Object.keys(sideboardCards).length > 0 ? { sideboard: sideboardCards } : {}),
     })
     setDeckName(saved.name)
     setActiveDeckId(saved.id)
@@ -910,6 +941,7 @@ export function DeckbuilderPage() {
   const handleLoadSaved = (deck: SavedDeck) => {
     setDeckName(deck.name)
     setDeckCards(mergeCommanderIntoCards(deck.cards, deck.commander ?? null))
+    setSideboardCards(deck.sideboard ? { ...deck.sideboard } : {})
     setCommander(deck.commander ?? null)
     setActiveDeckId(deck.id)
     setPinnedPrintings(pinnedPrintingsFromEntries(deck.entries, deck.commander, deck.commanderPrinting))
@@ -943,8 +975,11 @@ export function DeckbuilderPage() {
     cards: Record<string, number>,
     suggestedName: string | null,
     importedCommander: string | null,
+    importedSideboard: Record<string, number> = {},
   ) => {
     setDeckCards(cards)
+    // The Arena/MTGO list's "Sideboard"/"SB:" section becomes the wish sideboard (CR 100.4a).
+    setSideboardCards(importedSideboard)
     // The commander designation rides along when the source list had a Commander
     // section; otherwise reset so a stale value from the previous deck doesn't leak.
     setCommander(importedCommander)
@@ -1274,6 +1309,17 @@ export function DeckbuilderPage() {
               pinnedPrintings={pinnedPrintings}
               pinnedPrintingArt={pinnedPrintingArt}
               onOpenPicker={handleOpenPicker}
+              rowDragSource="deck"
+            />
+
+            <SideboardPanel
+              sideboardCards={sideboardCards}
+              catalogIndex={catalogIndex}
+              activeFormat={activeFormat}
+              isCommanderFormat={isCommanderFormat}
+              onAdd={addToSideboard}
+              onRemove={removeFromSideboard}
+              onMoveFromDeck={removeCard}
             />
 
             <div className={styles.deckSummaryWrap}>
@@ -1335,6 +1381,16 @@ export function DeckbuilderPage() {
             onHoverLeave={handleDeckHoverLeave}
             pinnedPrintings={pinnedPrintings}
             onOpenPicker={handleOpenPicker}
+          />
+
+          <SideboardPanel
+            sideboardCards={sideboardCards}
+            catalogIndex={catalogIndex}
+            activeFormat={activeFormat}
+            isCommanderFormat={isCommanderFormat}
+            onAdd={addToSideboard}
+            onRemove={removeFromSideboard}
+            onMoveFromDeck={removeCard}
           />
 
           <DeckCentricFooter
@@ -1565,6 +1621,7 @@ function ImportDeckModal({
     cards: Record<string, number>,
     suggestedName: string | null,
     commander: string | null,
+    sideboard: Record<string, number>,
   ) => void
 }) {
   const [text, setText] = useState('')
@@ -1606,7 +1663,11 @@ function ImportDeckModal({
       ? catalog.find((c) => c.name.toLowerCase() === commanderEntry.name.toLowerCase())?.name
         ?? commanderEntry.name
       : null
-    onImport(merged, preview.parsed.deckName ?? null, commanderName)
+    // Resolve the "Sideboard"/"SB:" section against the catalog the same way as the main deck,
+    // so the imported sideboard becomes the wish sideboard (unknown cards survive as placeholders).
+    const sideResolved = resolveAgainstCatalog(preview.parsed.sideboard, catalog)
+    const sideboard = { ...sideResolved.deckCards, ...sideResolved.unmatchedCards }
+    onImport(merged, preview.parsed.deckName ?? null, commanderName, sideboard)
   }
 
   return (
@@ -3570,6 +3631,8 @@ const CardTile = memo(function CardTile({
     <div
       ref={ref}
       className={styles.cardTile}
+      draggable
+      onDragStart={(e) => setCardDragData(e, card.name, 'catalog')}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onMouseEnter={() => onHover(card)}
@@ -3750,6 +3813,8 @@ function DeckListPanel({
   pinnedPrintings,
   pinnedPrintingArt,
   onOpenPicker,
+  hideBasicLandHelpers = false,
+  rowDragSource,
 }: {
   deckCards: Record<string, number>
   catalog: Record<string, CardSummary>
@@ -3765,10 +3830,15 @@ function DeckListPanel({
   pinnedPrintings: Record<string, PrintingRef>
   pinnedPrintingArt: Record<string, { imageUri: string | null; backFaceImageUri: string | null }>
   onOpenPicker: (name: string) => void
+  // Sideboard use: suppress the "Suggest basic lands" button and the 0-count basic placeholders.
+  hideBasicLandHelpers?: boolean
+  // When set, rows are draggable with this source tag (the main deck uses 'deck' so rows can be
+  // dragged into the sideboard). Omitted for the sideboard's own list.
+  rowDragSource?: CardDragSource
 }) {
   const grouped = useMemo(
-    () => groupForDeckList(deckCards, catalog, commander),
-    [deckCards, catalog, commander],
+    () => groupForDeckList(deckCards, catalog, commander, hideBasicLandHelpers),
+    [deckCards, catalog, commander, hideBasicLandHelpers],
   )
   const [hoverCard, setHoverCard] = useState<CardSummary | null>(null)
   const [hoverName, setHoverName] = useState<string | null>(null)
@@ -3833,7 +3903,7 @@ function DeckListPanel({
             <h3 className={styles.deckGroupLabel}>
               {group.label} ({group.entries.reduce((a, e) => a + e.count, 0)})
             </h3>
-            {group.label === 'Lands' && (
+            {group.label === 'Lands' && !hideBasicLandHelpers && (
               <button
                 type="button"
                 className={styles.basicLandsSuggest}
@@ -3861,6 +3931,7 @@ function DeckListPanel({
               onLeave={handleLeave}
               pinnedPrinting={pinnedPrintings[entry.name]}
               onOpenPicker={onOpenPicker}
+              {...(rowDragSource ? { dragSource: rowDragSource } : {})}
             />
           ))}
         </div>
@@ -3877,6 +3948,130 @@ function DeckListPanel({
         imageRotateDeg={splitImageRotateDeg(effectiveHoverCard)}
       />
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Sideboard panel — the constructed "outside the game" list (CR 100.4a) that
+// wish effects (Burning Wish, …) fetch from. Reuses AddCardSearch for input and
+// DeckListPanel for the rows, with commander/printing/validation chrome turned
+// off (a sideboard has no commander, and the 4-of cap is enforced combined with
+// the main deck at add-time). Limited decks never use this — their sideboard is
+// the pool − maindeck complement, derived server-side (CR 100.4b).
+// ---------------------------------------------------------------------------
+
+const SB_NOOP = () => {}
+const SB_NOOP_NAME = (_name: string) => {}
+const SB_NO_VIOLATIONS: Map<string, Set<string>> = new Map()
+const SB_NO_PRINTINGS: Record<string, PrintingRef> = {}
+const SB_NO_PRINTING_ART: Record<string, { imageUri: string | null; backFaceImageUri: string | null }> = {}
+
+// Drag payload shared by the card grid, deck rows, and the sideboard drop zone. We carry both a
+// custom MIME (so we can tag where the drag started) and `text/plain` (so the drag still has a
+// sane fallback). `source` lets the sideboard treat a card dragged out of the main deck as a
+// *move* (remove one there, add one here) versus a catalog drag as a plain add.
+const CARD_DRAG_MIME = 'application/x-argentum-card'
+type CardDragSource = 'catalog' | 'deck'
+
+function setCardDragData(e: React.DragEvent, name: string, source: CardDragSource) {
+  e.dataTransfer.setData(CARD_DRAG_MIME, JSON.stringify({ name, source }))
+  e.dataTransfer.setData('text/plain', name)
+  e.dataTransfer.effectAllowed = 'copyMove'
+}
+
+function readCardDragData(e: React.DragEvent): { name: string; source: CardDragSource } | null {
+  const raw = e.dataTransfer.getData(CARD_DRAG_MIME)
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as { name: string; source: CardDragSource }
+      if (parsed.name) return parsed
+    } catch {
+      // fall through to the text/plain fallback
+    }
+  }
+  const name = e.dataTransfer.getData('text/plain')
+  return name ? { name, source: 'catalog' } : null
+}
+
+function SideboardPanel({
+  sideboardCards,
+  catalogIndex,
+  activeFormat,
+  isCommanderFormat,
+  onAdd,
+  onRemove,
+  onMoveFromDeck,
+}: {
+  sideboardCards: Record<string, number>
+  catalogIndex: Record<string, CardSummary>
+  activeFormat: string | null
+  isCommanderFormat: boolean
+  onAdd: (card: CardSummary) => void
+  onRemove: (name: string) => void
+  // Move one copy out of the main deck (used when a deck row is dragged into the sideboard).
+  onMoveFromDeck: (name: string) => void
+}) {
+  const total = Object.values(sideboardCards).reduce((a, b) => a + b, 0)
+  const [dragActive, setDragActive] = useState(false)
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragActive(false)
+    const payload = readCardDragData(e)
+    if (!payload) return
+    const card = catalogIndex[payload.name]
+    if (!card) return
+    // Dragged out of the main deck → move it (the combined 4-of cap means a plain add could
+    // otherwise be a silent no-op when the deck already holds the max).
+    if (payload.source === 'deck') onMoveFromDeck(payload.name)
+    onAdd(card)
+  }
+
+  return (
+    <section
+      className={`${styles.sideboardPanel} ${dragActive ? styles.sideboardPanelDrop : ''}`}
+      aria-label="Sideboard"
+      onDragOver={(e) => {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'copy'
+        if (!dragActive) setDragActive(true)
+      }}
+      onDragLeave={(e) => {
+        // Only clear when the pointer actually leaves the panel, not when crossing child elements.
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragActive(false)
+      }}
+      onDrop={handleDrop}
+    >
+      <div className={styles.sideboardHeader}>
+        <h3 className={styles.sideboardTitle}>Sideboard{total > 0 ? ` (${total})` : ''}</h3>
+        <span className={styles.sideboardHint}>
+          Cards kept alongside your deck. Drag cards here from the grid or your deck list.
+        </span>
+      </div>
+      {total > 0 ? (
+        <DeckListPanel
+          deckCards={sideboardCards}
+          catalog={catalogIndex}
+          activeFormat={activeFormat}
+          onAdd={onAdd}
+          onRemove={onRemove}
+          commander={null}
+          showCommanderControls={false}
+          onToggleCommander={SB_NOOP_NAME}
+          rowViolations={SB_NO_VIOLATIONS}
+          isCommanderFormat={isCommanderFormat}
+          onSuggestBasics={SB_NOOP}
+          pinnedPrintings={SB_NO_PRINTINGS}
+          pinnedPrintingArt={SB_NO_PRINTING_ART}
+          onOpenPicker={SB_NOOP_NAME}
+          hideBasicLandHelpers
+        />
+      ) : (
+        <p className={styles.sideboardEmpty}>
+          Drag cards here to set them aside. Optional — most decks leave this empty.
+        </p>
+      )}
+    </section>
   )
 }
 
@@ -3905,6 +4100,7 @@ const DeckRow = memo(function DeckRow({
   onLeave,
   pinnedPrinting,
   onOpenPicker,
+  dragSource,
 }: {
   entry: { name: string; count: number; card: CardSummary | undefined }
   activeFormat: string | null
@@ -3919,6 +4115,8 @@ const DeckRow = memo(function DeckRow({
   onLeave: () => void
   pinnedPrinting: PrintingRef | undefined
   onOpenPicker: (name: string) => void
+  // When set, the row can be dragged (e.g. into the sideboard) carrying this source tag.
+  dragSource?: CardDragSource
 }) {
   const illegal =
     activeFormat !== null &&
@@ -3994,6 +4192,12 @@ const DeckRow = memo(function DeckRow({
     <div
       className={rowClasses}
       title={rowTitle}
+      {...(dragSource
+        ? {
+            draggable: true,
+            onDragStart: (e: React.DragEvent) => setCardDragData(e, entry.name, dragSource),
+          }
+        : {})}
       onMouseEnter={() => onEnter(entry)}
       onMouseLeave={onLeave}
     >
@@ -4328,6 +4532,7 @@ function DeckCentricView({
                 onLeave={onHoverLeave}
                 pinnedPrinting={pinnedPrintings[entry.name]}
                 onOpenPicker={onOpenPicker}
+                dragSource="deck"
               />
             ))}
           </div>
@@ -4460,6 +4665,9 @@ function groupForDeckList(
   deck: Record<string, number>,
   catalog: Record<string, CardSummary>,
   commander: string | null,
+  // When true (sideboard use), don't inject the 0-count basic-land sticky rows — a sideboard
+  // shouldn't show an empty mana base. Basics actually present in the sideboard still appear.
+  hideEmptyBasics = false,
 ): DeckGroup[] {
   const spells: DeckGroup['entries'] = []
   const lands: DeckGroup['entries'] = []
@@ -4487,7 +4695,9 @@ function groupForDeckList(
   for (const basicName of BASIC_LAND_ORDER) {
     const card = catalog[basicName]
     if (!card) continue
-    basicEntries.push({ name: basicName, count: deck[basicName] ?? 0, card })
+    const count = deck[basicName] ?? 0
+    if (hideEmptyBasics && count <= 0) continue
+    basicEntries.push({ name: basicName, count, card })
   }
   const allLands = [...lands, ...basicEntries]
   const groups: DeckGroup[] = []

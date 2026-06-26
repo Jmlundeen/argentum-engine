@@ -439,6 +439,7 @@ class LobbyHandler(
                 message.commander,
                 message.cardEntries,
                 message.commanderPrinting,
+                message.sideboard,
             )
             return
         }
@@ -512,7 +513,7 @@ class LobbyHandler(
                 ?: throw IllegalStateException("Player $playerId has no submitted deck")
             val deckWithVariants = BoosterGenerator.distributeBasicLandVariants(baseDeck, sealedSession.allBasicLandVariants)
             val deck = EasterEggDeckInjector.maybeInjectEasterEggs(playerState.session.playerName, deckWithVariants)
-            gameSession.addPlayer(playerState.session, deck)
+            gameSession.addPlayer(playerState.session, deck, sideboard = playerState.submittedSideboard)
 
             // Store player info for persistence
             val token = sessionRegistry.getTokenByWsId(playerState.session.webSocketSession.id)
@@ -2161,6 +2162,7 @@ class LobbyHandler(
         commander: String? = null,
         cardEntries: List<com.wingedsheep.gameserver.protocol.DeckEntryDTO>? = null,
         commanderPrinting: com.wingedsheep.sdk.model.PrintingRef? = null,
+        sideboard: Map<String, Int> = emptyMap(),
     ) {
         val lobby = lobbyRepository.findLobbyById(lobbyId)
         if (lobby == null) {
@@ -2261,7 +2263,9 @@ class LobbyHandler(
             }
         }
 
-        val result = lobby.submitDeck(identity.playerId, deckList, effectiveCommander)
+        // For a PREMADE_DECKS (constructed) lobby this explicit sideboard is honored; for Limited
+        // lobbies TournamentLobby.submitDeck ignores it and derives pool − maindeck (CR 100.4b).
+        val result = lobby.submitDeck(identity.playerId, deckList, effectiveCommander, sideboard)
         when (result) {
             is TournamentLobby.DeckSubmissionResult.Success -> {
                 val deckSize = deckList.values.sum()
