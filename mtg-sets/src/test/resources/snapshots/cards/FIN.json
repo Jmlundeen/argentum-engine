@@ -9171,6 +9171,67 @@
     ]
 }
 
+// Sorceress's Schemes
+{
+    "name": "Sorceress's Schemes",
+    "manaCost": "{3}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target instant or sorcery card from your graveyard or exiled card with flashback you own to your hand. Add {R}.\nFlashback {4}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{4}{R}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "instant or sorcery card from your graveyard or exiled card with flashback you own"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "AddMana",
+                    "color": "RED"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "instant|sorcery own:you",
+                    "zone": "Graveyard",
+                    "alternatives": [
+                        {
+                            "baseFilter": "kw:flashback own:you",
+                            "zone": "Exile"
+                        }
+                    ]
+                },
+                "id": "instant or sorcery card from your graveyard or exiled card with flashback you own"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "UNCOMMON",
+        "artist": "Jessica Fong",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/e/7efd7627-0754-4685-9d04-8f5f82f45632.jpg?1748706360"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Starting Town
 {
     "name": "Starting Town",

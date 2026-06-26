@@ -1673,6 +1673,31 @@ can't statically prevent (cross-trigger flows, `Self`-vs-`ContextTarget` inside 
 for "an instant or sorcery spell that targets a creature" — Forum Necroscribe, Lecturing Scornmage);
 plus `TargetFilter.excludeSelf` to exclude the source.
 
+### Cross-zone union targets (`TargetFilter.or` / `TargetFilter.anyOf`)
+
+A **single** target whose legal objects can come from more than one zone, each with its own predicate —
+the cross-zone "or" wording. `TargetFilter` carries `alternatives: List<TargetFilter>`, additional
+zone-scoped clauses unioned with the primary one; build it with `clauseA.or(clauseB)` or
+`TargetFilter.anyOf(clauseA, clauseB, …)`. The legal-target set is the union over every clause and a
+chosen target is legal iff it satisfies *any* clause. This is **not** a multi-target requirement (still
+one target), and it is distinct from the player/permanent unions (`TargetSpellOrPermanent`,
+`TargetCreatureOrPlayer`). `GameObjectFilter.anyOf` is the same idea *within one zone*; this lifts it
+across zones, which the flat `baseFilter` can't express because each zone needs its own predicate and
+the engine dispatches target-finding/validation per `TargetFilter.zone`.
+
+```kotlin
+// Sorceress's Schemes — "instant or sorcery card from your graveyard or exiled card with flashback you own"
+val union = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()
+    .or(TargetFilter(GameObjectFilter.Any).withKeyword(Keyword.FLASHBACK).ownedByYou().inZone(Zone.EXILE))
+val t = target("…", TargetObject(filter = union))
+effect = Effects.Composite(Effects.ReturnToHand(t), Effects.AddMana(Color.RED))
+```
+
+"Card with flashback" is just `withKeyword(Keyword.FLASHBACK)`: a flashback ability adds
+`Keyword.FLASHBACK` to the card's base keywords, so the predicate matches even on a card sitting in
+exile (no projection needed). The client routes a union to its cross-zone card picker, grouping the
+valid targets into per-(owner, zone) tabs — "Your Graveyard", "Your Exile", etc.
+
 ### Named multi-target binding
 
 ```kotlin
