@@ -12287,6 +12287,97 @@
     ]
 }
 
+// Saw
+{
+    "name": "Saw",
+    "manaCost": "{2}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +2/+0.\nWhenever equipped creature attacks, you may sacrifice a permanent other than that creature or this Equipment. If you do, draw a card.\nEquip {2}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": {
+                                "cardPredicates": [
+                                    "IsPermanent"
+                                ],
+                                "statePredicates": [
+                                    {
+                                        "type": "StateNot",
+                                        "predicate": "IsAttachedToBySource"
+                                    }
+                                ]
+                            },
+                            "excludeSource": true
+                        }
+                    },
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "descriptionOverride": "Whenever equipped creature attacks, you may sacrifice a permanent other than that creature or this Equipment. If you do, draw a card."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 0
+            }
+        ]
+    },
+    "equipCost": "{2}",
+    "metadata": {
+        "collectorNumber": "254",
+        "rarity": "UNCOMMON",
+        "artist": "Jarel Threat",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/0/603c3ef4-4ef1-4db8-9ed2-e2b0926269d5.jpg?1726286820"
+    },
+    "colorIdentityOverride": []
+}
+
 // Sawblade Skinripper
 {
     "name": "Sawblade Skinripper",
@@ -14923,6 +15014,122 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Underwater Tunnel // Slimy Aquarium
+{
+    "name": "Underwater Tunnel // Slimy Aquarium",
+    "manaCost": "",
+    "typeLine": "Enchantment — Room",
+    "oracleText": "When you unlock this door, surveil 2.\n//\nWhen you unlock this door, manifest dread, then put a +1/+1 counter on that creature.",
+    "metadata": {
+        "collectorNumber": "79",
+        "artist": "Titus Lunter",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/d/2dd69f2d-8c9c-41fc-93ea-48fc7a6d5272.jpg?1726780798"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ],
+    "layout": "SPLIT",
+    "cardFaces": [
+        {
+            "name": "Underwater Tunnel",
+            "manaCost": "{U}",
+            "typeLine": "Enchantment — Room",
+            "oracleText": "When you unlock this door, surveil 2.",
+            "script": {
+                "triggeredAbilities": [
+                    {
+                        "id": "ability_1",
+                        "trigger": "DoorUnlockedEvent",
+                        "effect": {
+                            "type": "Surveil",
+                            "count": 2
+                        },
+                        "descriptionOverride": "When you unlock this door, surveil 2."
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Slimy Aquarium",
+            "manaCost": "{3}{U}",
+            "typeLine": "Enchantment — Room",
+            "oracleText": "When you unlock this door, manifest dread, then put a +1/+1 counter on that creature.",
+            "script": {
+                "triggeredAbilities": [
+                    {
+                        "id": "ability_2",
+                        "trigger": "DoorUnlockedEvent",
+                        "effect": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "GatherCards",
+                                            "source": {
+                                                "type": "TopOfLibrary",
+                                                "count": {
+                                                    "type": "Fixed",
+                                                    "amount": 2
+                                                }
+                                            },
+                                            "storeAs": "manifestDreadLooked"
+                                        },
+                                        {
+                                            "type": "SelectFromCollection",
+                                            "from": "manifestDreadLooked",
+                                            "selection": {
+                                                "type": "ChooseExactly",
+                                                "count": {
+                                                    "type": "Fixed",
+                                                    "amount": 1
+                                                }
+                                            },
+                                            "storeSelected": "manifestDreadManifested",
+                                            "storeRemainder": "manifestDreadGraveyard",
+                                            "selectedLabel": "Manifest (put onto the battlefield face down)",
+                                            "remainderLabel": "Put into your graveyard"
+                                        },
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "manifestDreadManifested",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Battlefield"
+                                            },
+                                            "faceDown": "MANIFEST"
+                                        },
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "manifestDreadGraveyard",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Graveyard"
+                                            }
+                                        },
+                                        "EmitManifestedDreadEvent"
+                                    ]
+                                },
+                                {
+                                    "type": "AddCounters",
+                                    "counterType": "+1/+1",
+                                    "count": 1,
+                                    "target": {
+                                        "type": "PipelineTarget",
+                                        "collectionName": "manifestDreadManifested"
+                                    }
+                                }
+                            ]
+                        },
+                        "descriptionOverride": "When you unlock this door, manifest dread, then put a +1/+1 counter on that creature."
+                    }
+                ]
+            }
+        }
     ]
 }
 
