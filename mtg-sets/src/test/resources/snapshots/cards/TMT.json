@@ -4538,7 +4538,8 @@
                                             "destination": {
                                                 "type": "ToZone",
                                                 "zone": "Battlefield"
-                                            }
+                                            },
+                                            "underOwnersControl": true
                                         }
                                     ]
                                 }
@@ -6746,7 +6747,7 @@
                             "type": "SelectFromCollection",
                             "from": "exiled",
                             "selection": {
-                                "type": "ChooseUpTo",
+                                "type": "ChooseExactly",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 1

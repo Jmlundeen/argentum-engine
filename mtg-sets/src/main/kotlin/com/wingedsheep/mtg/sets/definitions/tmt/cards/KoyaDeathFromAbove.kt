@@ -57,7 +57,10 @@ val KoyaDeathFromAbove = card("Koya, Death from Above") {
                             GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "koyaExile"),
                             MoveCollectionEffect(
                                 from = "koyaExile",
-                                destination = CardDestination.ToZone(Zone.BATTLEFIELD)
+                                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
+                                // The exiled creature returns under its *owner's* control, not Koya's
+                                // controller's — it may be a creature an opponent owns.
+                                underOwnersControl = true
                             )
                         )
                     )

@@ -56,7 +56,9 @@ val NorthamptonFarm = card("Northampton Farm") {
                 GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "exiled"),
                 SelectFromCollectionEffect(
                     from = "exiled",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
+                    // "Return a creature card" is mandatory when one is available (ChooseExactly clamps
+                    // to the eligible cards: auto-selects the lone creature, no-ops on an empty pile).
+                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
                     filter = GameObjectFilter.Creature,
                     showAllCards = true,
                     storeSelected = "toBattlefield",

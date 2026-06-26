@@ -1110,6 +1110,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
             append("the number of ")
             if (countDistinctCardTypes) {
                 append("card types among ")
+                if (excludeSelf) append("other ")
                 if (filter != GameObjectFilter.Any) append("${filter.description} ")
                 append("spells")
             } else {
