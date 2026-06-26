@@ -190,6 +190,86 @@
     ]
 }
 
+// Altanak, the Thrice-Called
+{
+    "name": "Altanak, the Thrice-Called",
+    "manaCost": "{5}{G}{G}",
+    "typeLine": "Legendary Creature — Insect Beast",
+    "oracleText": "Trample\nWhenever Altanak becomes the target of a spell or ability an opponent controls, draw a card.\n{1}{G}, Discard this card: Return target land card from your graveyard to the battlefield tapped.",
+    "creatureStats": {
+        "power": 9,
+        "toughness": 9
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "BecomesTargetEvent",
+                    "byOpponent": true
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{G}"
+                            }
+                        },
+                        "CostDiscardSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "land"
+                    },
+                    "destination": "Battlefield",
+                    "placement": "Tapped"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land own:you",
+                            "zone": "Graveyard"
+                        },
+                        "id": "land"
+                    }
+                ],
+                "activateFromZone": "Hand"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "166",
+        "rarity": "UNCOMMON",
+        "artist": "Sam Wolfe Connelly",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/0/807b0674-8eba-4204-b6b6-fa2b785a79e9.jpg?1726286473"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Anthropede
 {
     "name": "Anthropede",
@@ -8572,6 +8652,79 @@
     ]
 }
 
+// Kona, Rescue Beastie
+{
+    "name": "Kona, Rescue Beastie",
+    "manaCost": "{3}{G}",
+    "typeLine": "Legendary Creature — Beast Survivor",
+    "oracleText": "Survival — At the beginning of your second main phase, if Kona is tapped, you may put a permanent card from your hand onto the battlefield.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "POSTCOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "filter": "permanent"
+                            },
+                            "storeAs": "put_candidates"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "put_candidates",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "putting"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "putting",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
+                        }
+                    ]
+                },
+                "triggerCondition": {
+                    "type": "EntityMatches",
+                    "entity": "Self",
+                    "filter": "tapped"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "187",
+        "rarity": "RARE",
+        "artist": "Brian Valeza",
+        "flavorText": "She's got a heart of gold, a nose for danger, and jaws that can pulverize a cellarspawn with a single snap.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/f/6f035294-2787-4719-8520-227bf03e84e7.jpg?1726286561"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Leyline of Hope
 {
     "name": "Leyline of Hope",
@@ -8968,6 +9121,50 @@
     "colorIdentityOverride": [
         "GREEN"
     ]
+}
+
+// Marvin, Murderous Mimic
+{
+    "name": "Marvin, Murderous Mimic",
+    "manaCost": "{2}",
+    "typeLine": "Legendary Artifact Creature — Toy",
+    "oracleText": "Marvin has all activated abilities of creatures you control that don't have the same name as this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GainActivatedAbilitiesOfPermanents",
+                "grantedTo": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "sourceFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "Not",
+                            "predicate": {
+                                "type": "NameEquals",
+                                "name": "Marvin, Murderous Mimic"
+                            }
+                        }
+                    ],
+                    "controllerPredicate": "ControlledByYou"
+                },
+                "includeManaAbilities": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "253",
+        "rarity": "RARE",
+        "artist": "Mirko Failoni",
+        "flavorText": "In a moment of bloodthirsty whimsy, a razorkin once picked up a ventriloquist's puppet and used it to terrorize a survivor. Now it hunts on its own, with no one pulling its strings.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/66898970-b99b-48f2-9240-68c301c95500.jpg?1726286819"
+    }
 }
 
 // Miasma Demon

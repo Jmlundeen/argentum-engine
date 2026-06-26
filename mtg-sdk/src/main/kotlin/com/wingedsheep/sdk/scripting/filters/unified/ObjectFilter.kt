@@ -263,6 +263,11 @@ data class GameObjectFilter(
         cardPredicates = cardPredicates + CardPredicate.NameEquals(name)
     )
 
+    /** Match cards whose name is **not** [name] — e.g. "creatures … that don't have the same name". */
+    fun notNamed(name: String) = copy(
+        cardPredicates = cardPredicates + CardPredicate.Not(CardPredicate.NameEquals(name))
+    )
+
     /** Match cards whose name equals the card name stored in chosenValues[variableName] */
     fun namedFromVariable(variableName: String) = copy(
         cardPredicates = cardPredicates + CardPredicate.NameEqualsChosen(variableName)

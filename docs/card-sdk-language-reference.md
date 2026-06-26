@@ -1882,6 +1882,9 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   a creature type with a creature you control") with `filter = GameObjectFilter.Creature`. A candidate
   with no creature types of its own shares none, so it matches.
 - `.named(name)` — `CardPredicate.NameEquals`: matches a fixed card name.
+- `.notNamed(name)` — `CardPredicate.Not(NameEquals)`: matches cards whose name is **not** `name`. Use for
+  "… that don't have the same name as this creature" wording (Marvin, Murderous Mimic — creatures you control
+  not named "Marvin, Murderous Mimic").
 - `.namedFromVariable(variableName)` — `CardPredicate.NameEqualsChosen`: matches the card name stored in
   `chosenValues[variableName]` (case-insensitive). Set the name with `Effects.ChooseCardName` (player names it)
   or `Effects.StoreCardName` (captured from a chosen card). Fails closed in static/projection contexts. Used by
