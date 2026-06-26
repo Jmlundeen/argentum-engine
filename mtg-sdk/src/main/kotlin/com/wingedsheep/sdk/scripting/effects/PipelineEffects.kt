@@ -427,6 +427,29 @@ sealed interface SelectionRestriction {
     }
 
     /**
+     * At most one card of each power may be selected. A card's power is its printed
+     * (base) power read off the card definition. A card with no *fixed* power — no
+     * printed P/T at all, or a characteristic-defining `*` power that can only be
+     * computed on the battlefield — can't be kept under this restriction and falls
+     * into the remainder, mirroring [OnePerBasicLandType]'s handling of a typeless
+     * land. In practice the paired [GameObjectFilter] already restricts the eligible
+     * set to objects that have a power (creatures and Vehicles), so this only bites
+     * the rare `*`-power member of that set.
+     *
+     * Used for "creature and/or Vehicle cards with different powers from among them"
+     * wording (Rip, Spawn Hunter).
+     *
+     * The executor enforces this server-side: if the player's response names multiple
+     * cards sharing a power, only the first such card (in response order) is kept; the
+     * rest fall through into the remainder collection.
+     */
+    @SerialName("OnePerPower")
+    @Serializable
+    data object OnePerPower : SelectionRestriction {
+        override val description: String = "at most one card of each power"
+    }
+
+    /**
      * The sum of selected cards' mana values must not exceed [max]. {X} contributes 0
      * (per CR 202.3e for cards not on the stack). Used for "with total mana value N or
      * less" wording like Scout for Survivors.

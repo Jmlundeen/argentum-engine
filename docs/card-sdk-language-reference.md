@@ -1863,8 +1863,9 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   creature" leg of the Terror template ("destroy target nonartifact, nonblack creature") — pair with
   `IsCreature` + `.notColor(...)`. FQL keys: `nonland` / `noncreature` / `nonartifact`.
 - **Combined-type filters** — `GameObjectFilter.InstantOrSorcery` / `CreatureOrPlaneswalker` /
-  `CreatureOrEnchantment` / `ArtifactOrEnchantment` / `CreatureOrArtifact` / `ArtifactOrLand` /
-  `ArtifactCreatureOrEnchantment` each wrap a `CardPredicate.Or` of the named top-level types.
+  `CreatureOrEnchantment` / `ArtifactOrEnchantment` / `CreatureOrArtifact` / `CreatureOrVehicle` /
+  `ArtifactOrLand` / `ArtifactCreatureOrEnchantment` each wrap a `CardPredicate.Or` of the named
+  types (`CreatureOrVehicle` matches a creature or any object with the Vehicle subtype).
   `ArtifactCreatureOrEnchantment` (the three-type O-Ring restriction) has matching target constants
   `TargetFilter.ArtifactCreatureOrEnchantment` and
   `TargetFilter.ArtifactCreatureOrEnchantmentOpponentControls` — the latter for "exile target
@@ -5453,9 +5454,12 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
   split are unaffected).
 - `SelectFromCollectionEffect(from, into, selectCount?, allowZero?, alwaysPrompt?, restrictions?)` — let a player pick
   from a collection. `restrictions` (`List<SelectionRestriction>`) cap and trim the picks server-side: `OnePerCardType`,
-  `OnePerColor(matchControllerPermanentColors?)`, `OnePerCardName`, `TotalManaValueAtMost(max)`,
+  `OnePerColor(matchControllerPermanentColors?)`, `OnePerCardName`, `OnePerPower`, `TotalManaValueAtMost(max)`,
   `OnePerBasicLandType`, `ReducedMinimumIfMatches(reducedMinimum, filter, requiredMatches?)`, and
-  `MaxAffordablePayment(manaPerSelected, payer?)`. `OnePerBasicLandType` keeps at most one
+  `MaxAffordablePayment(manaPerSelected, payer?)`. `OnePerPower` keeps at most one card of each *printed* power
+  (a card with no fixed power — no printed P/T, or a characteristic-defining `*` — can't be kept and bottoms out,
+  like a typeless land under `OnePerBasicLandType`); pair it with the `CreatureOrVehicle` filter for "any number of
+  creature and/or Vehicle cards with different powers" (Rip, Spawn Hunter). `OnePerBasicLandType` keeps at most one
   land of each basic land type (a kept land claims
   *every* basic type it has) and — unlike `OnePerColor`, where a colourless card is unconstrained — a land with no
   basic land type can't be kept at all (Global Ruin: "chooses a land of each basic land type, then sacrifices the
