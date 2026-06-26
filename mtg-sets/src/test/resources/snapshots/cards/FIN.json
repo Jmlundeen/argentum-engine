@@ -3269,6 +3269,55 @@
     ]
 }
 
+// Eject
+{
+    "name": "Eject",
+    "manaCost": "{3}{U}",
+    "typeLine": "Instant",
+    "oracleText": "This spell can't be countered.\nReturn target nonland permanent to its owner's hand.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target nonland permanent"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "nonland permanent"
+                },
+                "id": "target nonland permanent"
+            }
+        ],
+        "cantBeCountered": true
+    },
+    "metadata": {
+        "collectorNumber": "52",
+        "rarity": "UNCOMMON",
+        "artist": "Ramza Psyru",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/e/aec83c9a-8ec4-4a5a-b27f-0e74a2b3d21e.jpg?1748705947"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Elixir
 {
     "name": "Elixir",
@@ -6396,6 +6445,162 @@
     ]
 }
 
+// Memories Returning
+{
+    "name": "Memories Returning",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Reveal the top five cards of your library. Put one of them into your hand. Then choose an opponent. They put one on the bottom of your library. Then you put one into your hand. Then they put one on the bottom of your library. Put the other into your hand.\nFlashback {7}{U}{U}",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{7}{U}{U}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    },
+                    "storeAs": "revealed"
+                },
+                {
+                    "type": "RevealCollection",
+                    "from": "revealed"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "revealed",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "hand1",
+                    "storeRemainder": "rem1",
+                    "prompt": "Put a card into your hand",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "hand1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "rem1",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "chooser": "Opponent",
+                    "storeSelected": "bottom1",
+                    "storeRemainder": "rem2",
+                    "prompt": "An opponent puts a card on the bottom of your library",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "bottom1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    }
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "rem2",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "hand2",
+                    "storeRemainder": "rem3",
+                    "prompt": "Put a card into your hand",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "hand2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "rem3",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "chooser": "Opponent",
+                    "storeSelected": "bottom2",
+                    "storeRemainder": "rem4",
+                    "prompt": "An opponent puts a card on the bottom of your library",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "bottom2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rem4",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "63",
+        "rarity": "RARE",
+        "artist": "Grace Zhu",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/7/a753abfc-35d3-4faf-ab35-3b51aa778174.jpg?1748705992"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Midgar, City of Mako
 {
     "name": "Midgar, City of Mako",
@@ -7216,6 +7421,97 @@
     },
     "colorIdentityOverride": [
         "WHITE",
+        "RED"
+    ]
+}
+
+// Random Encounter
+{
+    "name": "Random Encounter",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Shuffle your library, then mill four cards. Put each creature card milled this way onto the battlefield. They gain haste. At the beginning of the next end step, return those creatures to their owner's hand.\nFlashback {6}{R}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{6}{R}{R}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                "ShuffleLibrary",
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    },
+                    "storeAs": "milled"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "milled",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "milled",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    },
+                    "storeMovedAs": "reanimated",
+                    "markEnteredViaSourceAbility": true,
+                    "filter": "creature"
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Collection",
+                        "collection": "reanimated"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": "Self",
+                                "duration": "Permanent"
+                            },
+                            {
+                                "type": "CreateDelayedTrigger",
+                                "step": "END",
+                                "effect": {
+                                    "type": "MoveToZone",
+                                    "target": "Self",
+                                    "destination": "Hand"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "UNCOMMON",
+        "artist": "Ben Wootten",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/3618e283-2df9-4eb9-97b0-96b55ee31cc0.jpg?1748706320"
+    },
+    "colorIdentityOverride": [
         "RED"
     ]
 }

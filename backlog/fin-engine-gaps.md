@@ -263,6 +263,13 @@ so a land // spell Adventure offers *both* "play the land" (PlayLandEnumerator) 
   owner isn't you (exiled-from-opponent cast). Verify ownership-vs-controller is tracked on cast for the trigger.
 - **Two-permanent "this creature gets all abilities of a chosen card"** — not in FIN at the Koh scale, but Relm's
   Sketching (copy-token-of-target artifact/creature/**land**) — confirm copy-token supports copying a *land*.
+- **"Destroy up to one Equipment attached to that creature"** (Light of Judgment) — ❌ GAP. The damage half is
+  trivial (`Effects.DealDamage(6, target)`), but the rider needs an **optional, up-to-one** select-and-destroy of
+  the Equipment attached to the *damaged* creature. `Effects.DestroyAllEquipmentOnTarget` is mandatory and destroys
+  *all* of them; there is no "attached to that creature" target/group filter (only `IsAttachedToBySource` /
+  `AttachedToCardType`) and no up-to-N optional select-attached-and-destroy primitive. Needs either a
+  `DestroyEquipmentOnTarget(target, max = 1, optional = true)` effect with a selection continuation, or an
+  "attached-to-context-target" `StatePredicate` usable in the gather→select→destroy pipeline.
 
 ---
 
