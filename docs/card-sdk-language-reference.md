@@ -19,9 +19,11 @@ section; do not let SDK additions land without a corresponding doc update.
 **Entry points**
 
 - `card("Name") { ... }` — open the builder for a standard card.
-- `basicLand("Plains" | "Island" | "Swamp" | "Mountain" | "Forest")` — shortcut for basic lands (sets type line,
-  intrinsic mana ability, supertype). Supports `collectorNumber`, `artist`, `flavorText`, `imageUri`, `rarity`, and
-  `inBooster` (set `false` to keep an art variant defined but exclude it from the draft/sealed deck-building basic pool).
+- `basicLand("Plains" | "Island" | "Swamp" | "Mountain" | "Forest" | "Wastes")` — shortcut for basic lands (sets
+  type line, intrinsic mana ability, supertype). The five colored types get a subtype after the dash and tap for
+  their color; `"Wastes"` is the colorless basic — type line `Basic Land` with no subtype, intrinsic `{T}: Add {C}`.
+  Supports `collectorNumber`, `artist`, `flavorText`, `imageUri`, `rarity`, and `inBooster` (set `false` to keep an
+  art variant defined but exclude it from the draft/sealed deck-building basic pool).
 
 **Card builder properties**
 
