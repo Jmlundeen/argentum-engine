@@ -8049,6 +8049,71 @@
     ]
 }
 
+// Quistis Trepe
+{
+    "name": "Quistis Trepe",
+    "manaCost": "{2}{U}",
+    "typeLine": "Legendary Creature — Human Wizard",
+    "oracleText": "Blue Magic — When Quistis Trepe enters, you may cast target instant or sorcery card from a graveyard, and mana of any type can be spent to cast that spell. If that spell would be put into a graveyard, exile it instead.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
+                            "destination": "Exile"
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "borrowed"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "borrowed",
+                            "withAnyManaType": true,
+                            "exileAfterResolve": true
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "instant|sorcery",
+                        "zone": "Graveyard"
+                    }
+                },
+                "descriptionOverride": "Blue Magic — When Quistis Trepe enters, you may cast target instant or sorcery card from a graveyard, and mana of any type can be spent to cast that spell. If that spell would be put into a graveyard, exile it instead."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "rarity": "UNCOMMON",
+        "artist": "Touge369",
+        "flavorText": "\"It's not like everyone can get by on their own, you know?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/1/61784cbd-92e9-43c7-a1a8-4004b1bf4dae.jpg?1748706001"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Rabanastre, Royal City
 {
     "name": "Rabanastre, Royal City",
@@ -9718,6 +9783,38 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Snow Villiers
+{
+    "name": "Snow Villiers",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Human Rebel Monk",
+    "oracleText": "Vigilance\nSnow Villiers's power is equal to the number of creatures you control.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "creature"
+            }
+        },
+        "toughness": 3
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "metadata": {
+        "collectorNumber": "33",
+        "rarity": "UNCOMMON",
+        "artist": "Fariba Khamseh",
+        "flavorText": "\"All I can do is go forward. Keep fighting and surviving, until I find the answers I need.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/9/399bb699-e61d-4b41-b6e9-e594cbad6194.jpg?1748705880"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -13096,5 +13193,73 @@
                 }
             }
         }
+    ]
+}
+
+// Zell Dincht
+{
+    "name": "Zell Dincht",
+    "manaCost": "{2}{R}",
+    "typeLine": "Legendary Creature — Human Monk",
+    "oracleText": "You may play an additional land on each of your turns.\nZell Dincht gets +1/+0 for each land you control.\nAt the beginning of your end step, return a land you control to its owner's hand.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "land ctrl:you"
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, return a land you control to its owner's hand."
+            }
+        ],
+        "staticAbilities": [
+            "GrantAdditionalLandDrop",
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "land"
+                },
+                "toughnessBonus": {
+                    "type": "Fixed",
+                    "amount": 0
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "170",
+        "rarity": "RARE",
+        "artist": "Kevin Sidharta",
+        "flavorText": "\"My weapons are these fists of mine!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/3/135d6b27-9168-4513-9d7d-56edae048857.jpg?1748706397"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
