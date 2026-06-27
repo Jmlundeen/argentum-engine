@@ -56,7 +56,7 @@ design). The deploy writes them into the server `.env`; the bundled `postgres` s
 | `ACCOUNTS_AUTH_SECRET` | HMAC secret for signing auth tokens — long & random; don't rotate casually  | (a long random string)               |
 | `ACCOUNTS_FROM_EMAIL`  | From address — **must be on your verified Mailgun domain**                  | `no-reply@mg.wingedsheep.com`        |
 | `MAIL_HOST`            | Mailgun SMTP host — **`smtp.eu.mailgun.org` for EU-region accounts**, else `smtp.mailgun.org` | `smtp.eu.mailgun.org`                |
-| `MAIL_PORT`            | SMTP port (optional, defaults to 587)                                       | `587`                                |
+| `MAIL_PORT`            | SMTP port (optional, defaults to `2525`). Many hosts block 25/465/587; Mailgun also listens on 2525. | `2525`                       |
 | `MAIL_USERNAME`        | Mailgun SMTP username (the domain's SMTP login)                             | `postmaster@mg.wingedsheep.com`      |
 | `MAIL_PASSWORD`        | Mailgun SMTP password                                                       | (from the Mailgun dashboard)         |
 
@@ -93,7 +93,9 @@ is US, swap `eu.mailgun.org` hosts for the non-EU ones and use `app.mailgun.com`
    propagate; SPF + DKIM must show green before delivery is reliable.
 
 5. **Grab the SMTP credentials.** Open the domain → **SMTP** tab. You'll see:
-   - Host `smtp.eu.mailgun.org`, port `587` (STARTTLS — matches the server config).
+   - Host `smtp.eu.mailgun.org`. Mailgun accepts STARTTLS on `587` **and `2525`** — we default to
+     `2525` because many hosts (Scaleway, GCP, …) block outbound 25/465/587. Set `MAIL_PORT=587` only
+     if your host allows it.
    - Default login `postmaster@mg.wingedsheep.com` and a generated password (you can reset it here, or
      add a dedicated SMTP user).
 
@@ -102,7 +104,7 @@ is US, swap `eu.mailgun.org` hosts for the non-EU ones and use `app.mailgun.com`
    | Mailgun value                          | Secret                | Example                          |
    |----------------------------------------|-----------------------|----------------------------------|
    | SMTP host                              | `MAIL_HOST`           | `smtp.eu.mailgun.org`            |
-   | SMTP port                              | `MAIL_PORT`           | `587`                            |
+   | SMTP port                              | `MAIL_PORT`           | `2525` (or `587` if not blocked) |
    | SMTP login                             | `MAIL_USERNAME`       | `postmaster@mg.wingedsheep.com`  |
    | SMTP password                          | `MAIL_PASSWORD`       | (from the SMTP tab)              |
    | any address on the verified domain     | `ACCOUNTS_FROM_EMAIL` | `no-reply@mg.wingedsheep.com`    |
@@ -113,7 +115,7 @@ is US, swap `eu.mailgun.org` hosts for the non-EU ones and use `app.mailgun.com`
 7. **Test the credentials** before wiring them in (optional but saves a round-trip). With
    [`swaks`](https://github.com/jetmore/swaks):
    ```bash
-   swaks --server smtp.eu.mailgun.org:587 --tls \
+   swaks --server smtp.eu.mailgun.org:2525 --tls \
      --auth-user postmaster@mg.wingedsheep.com --auth-password '<smtp-password>' \
      --from no-reply@mg.wingedsheep.com --to you@youraddress.com \
      --header 'Subject: Mailgun test' --body 'it works'

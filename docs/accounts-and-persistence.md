@@ -32,14 +32,23 @@ ACCOUNTS_AUTH_SECRET=<long-random-string>   # blank => random per restart (dev o
 APP_BASE_URL=http://localhost:5173          # origin the magic link points at
 ACCOUNTS_FROM_EMAIL=no-reply@wingedsheep.com
 # Mailgun SMTP — leave MAIL_USERNAME blank in dev to log the link to the console instead of sending.
-MAIL_HOST=smtp.mailgun.org
-MAIL_PORT=587
+MAIL_HOST=smtp.mailgun.org      # smtp.eu.mailgun.org for an EU-region Mailgun domain
+MAIL_PORT=2525                   # default; see "Outbound SMTP ports" below
 MAIL_USERNAME=postmaster@your-domain.mailgun.org
 MAIL_PASSWORD=<mailgun-smtp-password>
 ```
 
 In Docker, `docker-compose.yml` already defines a `postgres` service; set `ACCOUNTS_ENABLED=true`
 and `ACCOUNTS_AUTOCONFIG_EXCLUDE=` in the deploy env to turn it on.
+
+### Outbound SMTP ports
+
+`MAIL_PORT` defaults to **2525**, not the usual 587. Many cloud hosts (Scaleway, GCP, …) block
+outbound connections on 25 / 465 / 587 to curb spam, and Mailgun listens on **2525** for exactly this
+case. A blocked port shows up as the sign-in request hanging, then a server-side
+`MailConnectException: Couldn't connect to host … Operation timed out`. If your host *does* allow 587
+(or you use a provider that needs it), set `MAIL_PORT=587`. Verify from the host with
+`nc -zv <MAIL_HOST> 2525`.
 
 ### Gating (why the exclude env var exists)
 

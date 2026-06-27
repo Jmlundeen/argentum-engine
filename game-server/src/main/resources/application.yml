@@ -23,8 +23,10 @@ spring:
   mail:
     # Mailgun SMTP by default; override host/credentials for any provider. Unused when accounts are
     # disabled or when no username is set (the magic link is logged to the console instead).
+    # Port 2525 (not 587) by default: many cloud hosts (Scaleway, GCP, …) block outbound 25/465/587
+    # to curb spam, and Mailgun listens on 2525 for exactly this case. Override MAIL_PORT if needed.
     host: ${MAIL_HOST:smtp.mailgun.org}
-    port: ${MAIL_PORT:587}
+    port: ${MAIL_PORT:2525}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
     properties:

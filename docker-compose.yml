@@ -51,7 +51,8 @@ services:
       - APP_BASE_URL=${APP_BASE_URL:-https://${APP_DOMAIN}}
       - ACCOUNTS_FROM_EMAIL=${ACCOUNTS_FROM_EMAIL:-no-reply@wingedsheep.com}
       - MAIL_HOST=${MAIL_HOST:-smtp.mailgun.org}
-      - MAIL_PORT=${MAIL_PORT:-587}
+      # 2525 by default — many hosts block outbound 25/465/587; Mailgun also listens on 2525.
+      - MAIL_PORT=${MAIL_PORT:-2525}
       - MAIL_USERNAME=${MAIL_USERNAME:-}
       - MAIL_PASSWORD=${MAIL_PASSWORD:-}
       - GAME_AI_ENABLED=${GAME_AI_ENABLED:-false}
