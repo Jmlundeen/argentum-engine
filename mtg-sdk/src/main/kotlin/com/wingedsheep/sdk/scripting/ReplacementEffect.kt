@@ -454,18 +454,39 @@ data class RedirectDamage(
 /**
  * Double damage dealt.
  * Example: Furnace of Rath, Insult // Injury
+ *
+ * The optional [restrictions] list lets a card gate the doubling on arbitrary
+ * additional conditions (mirroring [PreventDamage.restrictions]). Each entry is a
+ * [Condition] evaluated against the source permanent's controller; the doubling only
+ * applies when *all* restrictions hold — this is how delirium-gated forms are expressed
+ * without a dedicated conditional-replacement wrapper, e.g. The Rollercrusher Ride
+ * ("…while there are four or more card types among cards in your graveyard, it deals
+ * double that damage instead").
  */
 @SerialName("DoubleDamage")
 @Serializable
 data class DoubleDamage(
+    val restrictions: List<Condition> = emptyList(),
     override val appliesTo: EventPattern
 ) : ReplacementEffect {
-    override val description: String =
-        "If ${appliesTo.description}, it deals double that damage instead"
+    override val description: String = buildString {
+        val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
+        if (restrictionDesc.isNotEmpty()) {
+            append(restrictionDesc.replaceFirstChar { it.uppercase() })
+            append(", if ")
+        } else {
+            append("If ")
+        }
+        append(appliesTo.description)
+        append(", it deals double that damage instead")
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
-        return if (newAppliesTo !== appliesTo) copy(appliesTo = newAppliesTo) else this
+        val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
+        val anyChanged = newAppliesTo !== appliesTo ||
+            newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
+        return if (anyChanged) copy(appliesTo = newAppliesTo, restrictions = newRestrictions) else this
     }
 }
 

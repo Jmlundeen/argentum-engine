@@ -5274,6 +5274,16 @@ replacementEffect {
   "as long as …, prevent …" statics (Spirit of Resistance: a five-distinct-colors `Compare` gate).
 - `CapDamage(maxAmount, appliesTo)` — clamp matching damage to `maxAmount` (a *replacement* distinct
   from prevent/modify; applied after all amplification). Divine Presence: `CapDamage(3, DamageEvent(recipient = Any))`.
+- `DoubleDamage(restrictions?, appliesTo)` — double matching damage (Gratuitous Violence, Furnace of
+  Rath). `restrictions: List<Condition>` (default empty) gates the doubling on extra conditions
+  evaluated against the source's controller — the same pattern as `PreventDamage.restrictions`. The
+  doubling also honours `appliesTo.damageType` (`Combat` / `NonCombat` / `Any`). The Rollercrusher
+  Ride: `DoubleDamage(restrictions = listOf(Conditions.Delirium(4)), appliesTo = DamageEvent(source =
+  SourceFilter.Matching(GameObjectFilter.Any.youControl()), damageType = DamageType.NonCombat))` — a
+  delirium-gated "double all noncombat damage from sources you control". The doubled damage stays
+  attributed to the original source (the engine scales the amount in place).
+- `ModifyDamageAmount(modifier, appliesTo)` — add a flat `modifier` to matching damage (Valley
+  Flamecaller: "deals that much damage plus 1").
 - `RedirectDamage(redirectTo, appliesTo, condition = null)` — redirect matching damage to another
   recipient. Now wired as a continuous static replacement (each source applies at most once per damage
   event). `redirectTo` supports `EffectTarget.ControllerOfDamageSource` (the controller of the damaging

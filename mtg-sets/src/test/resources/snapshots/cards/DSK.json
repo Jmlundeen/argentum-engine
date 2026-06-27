@@ -16228,6 +16228,95 @@
     ]
 }
 
+// The Rollercrusher Ride
+{
+    "name": "The Rollercrusher Ride",
+    "manaCost": "{X}{2}{R}",
+    "typeLine": "Legendary Enchantment",
+    "oracleText": "Delirium — If a source you control would deal noncombat damage to a permanent or player while there are four or more card types among cards in your graveyard, it deals double that damage instead.\nWhen The Rollercrusher Ride enters, it deals X damage to each of up to X target creatures.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": "CastX",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "up to X target creatures",
+                    "dynamicMaxCount": "CastX"
+                },
+                "descriptionOverride": "When The Rollercrusher Ride enters, it deals X damage to each of up to X target creatures."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "DoubleDamage",
+                "restrictions": [
+                    {
+                        "type": "Compare",
+                        "left": {
+                            "type": "AggregateZone",
+                            "player": "You",
+                            "zone": "Graveyard",
+                            "aggregation": "DISTINCT_TYPES"
+                        },
+                        "operator": "GTE",
+                        "right": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    }
+                ],
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "source": {
+                        "type": "SourceMatching",
+                        "filter": "ctrl:you"
+                    },
+                    "damageType": "DamageNonCombat"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "155",
+        "rarity": "MYTHIC",
+        "artist": "Deruchenko Alexander",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/70019956-fca1-4090-b3b6-6a963528e05b.jpg?1726286431",
+        "rulings": [
+            {
+                "date": "2024-09-20",
+                "text": "The damage is dealt by the same source as the original source of damage. The doubled damage isn't dealt by The Rollercrusher Ride unless it was the original source of damage."
+            },
+            {
+                "date": "2024-09-20",
+                "text": "If damage dealt by a source you control is being divided among multiple permanents and/or players while you have delirium, that damage is divided before doubling."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // The Swarmweaver
 {
     "name": "The Swarmweaver",

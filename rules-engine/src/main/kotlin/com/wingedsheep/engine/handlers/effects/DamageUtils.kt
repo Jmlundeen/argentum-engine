@@ -1281,6 +1281,25 @@ object DamageUtils {
                 val damageEvent = effect.appliesTo
                 if (damageEvent !is com.wingedsheep.sdk.scripting.EventPattern.DamageEvent) continue
 
+                // Check damage type filter (combat vs non-combat) — The Rollercrusher Ride
+                // only doubles noncombat damage.
+                val damageTypeMatches = when (damageEvent.damageType) {
+                    is DamageType.Any -> true
+                    is DamageType.Combat -> isCombatDamage
+                    is DamageType.NonCombat -> !isCombatDamage
+                }
+                if (!damageTypeMatches) continue
+
+                // Additional gating conditions evaluated against the source's controller
+                // (The Rollercrusher Ride: delirium — "four or more card types … in your graveyard").
+                if (effect.restrictions.isNotEmpty()) {
+                    val context = EffectContext(
+                        sourceId = entityId,
+                        controllerId = sourceControllerId,
+                    )
+                    if (effect.restrictions.any { !conditionEvaluator.evaluate(state, it, context) }) continue
+                }
+
                 // Check if the damage source matches the source filter
                 val sourceMatches = when (val sourceFilter = damageEvent.source) {
                     is SourceFilter.Any -> true
