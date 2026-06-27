@@ -558,6 +558,80 @@
     ]
 }
 
+// Ambrosia Whiteheart
+{
+    "name": "Ambrosia Whiteheart",
+    "manaCost": "{1}{W}",
+    "typeLine": "Legendary Creature — Bird",
+    "oracleText": "Flash\nWhen Ambrosia Whiteheart enters, you may return another permanent you control to its owner's hand.\nLandfall — Whenever a land you control enters, Ambrosia Whiteheart gets +1/+0 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "another permanent you control"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "permanent ctrl:you",
+                        "excludeSelf": true
+                    },
+                    "id": "another permanent you control"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, Ambrosia Whiteheart gets +1/+0 until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "UNCOMMON",
+        "artist": "Fajareka Setiawan",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2596767-7d19-4110-86ed-3cfc93ac7483.jpg?1748705777"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Ardyn, the Usurper
 {
     "name": "Ardyn, the Usurper",
@@ -4596,6 +4670,76 @@
     ]
 }
 
+// Gaius van Baelsar
+{
+    "name": "Gaius van Baelsar",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Legendary Creature — Human Soldier",
+    "oracleText": "When Gaius van Baelsar enters, choose one —\n• Each player sacrifices a creature token of their choice.\n• Each player sacrifices a nontoken creature of their choice.\n• Each player sacrifices an enchantment of their choice.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "ForceSacrifice",
+                                "filter": "creature token",
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "Each"
+                                }
+                            },
+                            "description": "Each player sacrifices a creature token of their choice"
+                        },
+                        {
+                            "effect": {
+                                "type": "ForceSacrifice",
+                                "filter": "creature nontoken",
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "Each"
+                                }
+                            },
+                            "description": "Each player sacrifices a nontoken creature of their choice"
+                        },
+                        {
+                            "effect": {
+                                "type": "ForceSacrifice",
+                                "filter": "enchantment",
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "Each"
+                                }
+                            },
+                            "description": "Each player sacrifices an enchantment of their choice"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "102",
+        "rarity": "UNCOMMON",
+        "artist": "Nino Is",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/4/a4ee8ba5-6a79-4652-b2a4-a3dae804bc28.jpg?1748706145"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Genji Glove
 {
     "name": "Genji Glove",
@@ -6564,6 +6708,61 @@
     ]
 }
 
+// Judgment Bolt
+{
+    "name": "Judgment Bolt",
+    "manaCost": "{3}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Judgment Bolt deals 5 damage to target creature and X damage to that creature's controller, where X is the number of Equipment you control.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Battlefield",
+                        "filter": "artifact Equipment"
+                    },
+                    "target": "TargetController"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "559",
+        "rarity": "RARE",
+        "artist": "Billy Christian",
+        "flavorText": "\"I'm here to even the odds. Any objections?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/5/05b04b06-9271-4a28-a60e-287df0d1a4d1.jpg?1748707602"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Jumbo Cactuar
 {
     "name": "Jumbo Cactuar",
@@ -8060,6 +8259,115 @@
     ]
 }
 
+// Nibelheim Aflame
+{
+    "name": "Nibelheim Aflame",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose target creature you control. It deals damage equal to its power to each other creature. If this spell was cast from a graveyard, discard your hand and draw four cards.\nFlashback {5}{R}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{5}{R}{R}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature",
+                            "excludeTarget": true
+                        }
+                    },
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "EntityProperty",
+                            "entity": "Target",
+                            "numericProperty": "Power"
+                        },
+                        "target": "Self",
+                        "damageSource": {
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
+                        }
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "WasCastFromZone",
+                            "zone": "Graveyard"
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Hand"
+                                        },
+                                        "storeAs": "discardedHand"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "discardedHand",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Discard"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "target creature you control"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "146",
+        "rarity": "MYTHIC",
+        "artist": "Arou",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/d/3d3e926a-74af-4996-849f-d31e0fdedeae.jpg?1748706306"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Overkill
 {
     "name": "Overkill",
@@ -9398,6 +9706,68 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Retrieve the Esper
+{
+    "name": "Retrieve the Esper",
+    "manaCost": "{3}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create a 3/3 blue Robot Warrior artifact creature token. Then if this spell was cast from a graveyard, put two +1/+1 counters on that token.\nFlashback {5}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{5}{U}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CreateToken",
+                    "power": 3,
+                    "toughness": 3,
+                    "colors": [
+                        "BLUE"
+                    ],
+                    "creatureTypes": [
+                        "Robot",
+                        "Warrior"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/c/2/c2b4e93b-6b27-4dd3-a6dd-a75d6fab14dc.jpg?1748704066",
+                    "artifactToken": true
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "WasCastFromZone",
+                            "zone": "Graveyard"
+                        }
+                    },
+                    "then": {
+                        "type": "AddCountersToCollection",
+                        "collectionName": "createdTokens",
+                        "counterType": "+1/+1",
+                        "count": 2
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "68",
+        "artist": "Jake Murray",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/ebd733f0-8883-434a-b36c-ef76b091fe8e.jpg?1748706008"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
