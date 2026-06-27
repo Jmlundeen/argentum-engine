@@ -54,13 +54,13 @@ class EffectHandlerTest : StringSpec({
     fun layer(json: String, tvar: String?): String? = ctx.renderAction(obj(json), tvar)?.let(::render)
 
     "SetPT sets base P/T, and the end-of-turn case emits an EXPLICIT Duration.EndOfTurn" {
-        // SetBasePowerToughnessEffect defaults to Duration.Permanent, so the EOT layer effect must spell
-        // the duration out — relying on the default would set the creature's P/T forever.
+        // The SetBasePowerAndToughness facade defaults to Duration.EndOfTurn, but the layer renderer
+        // always spells the duration out so the intended expiration is explicit.
         layer(
             """{"_Action":"CreatePermanentLayerEffectUntil","args":[{"_Permanent":"Ref_TargetPermanent"},""" +
                 """[{"_LayerEffect":"SetPT","args":{"_PT":"PT","args":[5,1]}}],{"_Expiration":"UntilEndOfTurn"}]}""",
             "t",
-        ) shouldBe "SetBasePowerToughnessEffect(t, 5, 1, Duration.EndOfTurn)"
+        ) shouldBe "Effects.SetBasePowerAndToughness(5, 1, t, Duration.EndOfTurn)"
     }
 
     "SetPT carries a non-default expiration verbatim (for as long as it remains tapped)" {
@@ -69,7 +69,7 @@ class EffectHandlerTest : StringSpec({
                 """[{"_LayerEffect":"SetPT","args":{"_PT":"PT","args":[0,2]}}],""" +
                 """{"_Expiration":"ForAsLongAsPermanentRemainsTapped"}]}""",
             "t",
-        ) shouldBe "SetBasePowerToughnessEffect(t, 0, 2, Duration.WhileSourceTapped())"
+        ) shouldBe "Effects.SetBasePowerAndToughness(0, 2, t, Duration.WhileSourceTapped())"
     }
 
     "the each-permanent SetPT form wraps the set over a group" {
@@ -80,7 +80,7 @@ class EffectHandlerTest : StringSpec({
                 """[{"_LayerEffect":"SetPT","args":{"_PT":"PT","args":[1,1]}}],{"_Expiration":"UntilEndOfTurn"}]}""",
             null,
         ) shouldBe "Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature.youControl()), " +
-            "SetBasePowerToughnessEffect(EffectTarget.Self, 1, 1, Duration.EndOfTurn))"
+            "Effects.SetBasePowerAndToughness(1, 1, EffectTarget.Self, Duration.EndOfTurn))"
     }
 
     "a SetPT riding an unsupported AddCardtype still scaffolds (no silently-dropped 'becomes an artifact')" {

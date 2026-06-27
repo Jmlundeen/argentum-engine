@@ -13,9 +13,9 @@ import com.wingedsheep.sdk.scripting.Duration
  *
  * Target creature has base power and toughness 5/5 until end of turn. The Ring tempts you.
  *
- * Gap 13 (set base power AND toughness) is engine-landed: SetBasePowerToughnessEffect + its
- * executor already exist; this adds the `Effects.SetBasePowerAndToughness` facade and composes it
- * with the Ring-tempts rider.
+ * Gap 13 (set base power AND toughness) is engine-landed: the `Effects.SetBasePowerAndToughness`
+ * facade lowers onto `SetBaseStatsEffect` (the unified base-stats set atom); this composes it with
+ * the Ring-tempts rider.
  */
 val DreadfulAsTheStorm = card("Dreadful as the Storm") {
     manaCost = "{2}{U}"

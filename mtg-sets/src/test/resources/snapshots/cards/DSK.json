@@ -6511,10 +6511,16 @@
                                 "type": "Composite",
                                 "effects": [
                                     {
-                                        "type": "SetBasePowerToughness",
+                                        "type": "SetBaseStats",
                                         "target": "Self",
-                                        "power": 1,
-                                        "toughness": 1
+                                        "power": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        },
+                                        "toughness": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
                                     },
                                     {
                                         "type": "AddCreatureType",

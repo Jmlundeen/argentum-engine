@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -39,7 +38,7 @@ val GlamerGifter = card("Glamer Gifter") {
         ))
         effect = Effects.Composite(
             listOf(
-                SetBasePowerToughnessEffect(creature, 4, 4, Duration.EndOfTurn),
+                Effects.SetBasePowerAndToughness(4, 4, creature, Duration.EndOfTurn),
                 Effects.GrantKeyword(Keyword.CHANGELING, creature)
             )
         )

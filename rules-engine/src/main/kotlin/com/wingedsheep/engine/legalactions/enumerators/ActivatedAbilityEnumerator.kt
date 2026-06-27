@@ -40,8 +40,7 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.LevelUpClassEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerEffect
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
+import com.wingedsheep.sdk.scripting.effects.SetBaseStatsEffect
 import com.wingedsheep.sdk.scripting.effects.SetCreatureSubtypesEffect
 import com.wingedsheep.engine.legalactions.ConvokeCreatureData
 import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
@@ -1134,8 +1133,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
         return when (effect) {
             is BecomeCreatureEffect,
             is BecomeCreatureTypeEffect,
-            is SetBasePowerEffect,
-            is SetBasePowerToughnessEffect,
+            is SetBaseStatsEffect,
             is SetCreatureSubtypesEffect,
             is AnimateLandEffect,
             is RegenerateEffect -> false

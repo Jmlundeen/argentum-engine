@@ -4470,10 +4470,16 @@
                                 "subtype": "Coward"
                             },
                             {
-                                "type": "SetBasePowerToughness",
+                                "type": "SetBaseStats",
                                 "target": "Self",
-                                "power": 1,
-                                "toughness": 1
+                                "power": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "toughness": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         ]
                     }
@@ -8226,13 +8232,19 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "SetBasePowerToughness",
+                            "type": "SetBaseStats",
                             "target": {
                                 "type": "BoundVariable",
                                 "name": "creature"
                             },
-                            "power": 4,
-                            "toughness": 4,
+                            "power": {
+                                "type": "Fixed",
+                                "amount": 4
+                            },
+                            "toughness": {
+                                "type": "Fixed",
+                                "amount": 4
+                            },
                             "duration": "EndOfTurn"
                         },
                         {

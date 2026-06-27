@@ -119,9 +119,12 @@ Offenders ignoring it: `CantAttackGroup`/`CantBlockGroup`, `SetGroupCreatureSubt
 - Near-duplicate pairs: `GrantHarmonize`/`GrantFlashback` (→ `GrantGraveyardCastKeyword`),
   `ChangeCreatureTypeText`/`ChangeWordInText` (→ `ChangeTextWords(category)`),
   `CopyNextSpellCast`/`CopyEachSpellCast` (→ `consumption` param),
-  the three coin effects (→ `FlipCoins` + a gate), `SetBasePower`/`SetBasePowerToughness`
-  (→ `SetBaseStats(power: DynamicAmount?, toughness: DynamicAmount?)`, also fixes the
-  `DynamicAmount`-vs-`Int` asymmetry), `AddCreatureType`/`AddSubtype` (differ only by a
+  the three coin effects (→ `FlipCoins` + a gate),
+  ✅ `SetBasePower`/`SetBasePowerToughness` → one `SetBaseStats(power: DynamicAmount?, toughness:
+  DynamicAmount?)` (null leaves a stat unchanged; fixed the `DynamicAmount`-vs-`Int` asymmetry; added
+  the toughness-only path + `Effects.SetBaseToughness` facade; `Effects.SetBasePower`/
+  `SetBasePowerAndToughness` facades unchanged) — DONE,
+  `AddCreatureType`/`AddSubtype` (differ only by a
   creature type-check), `ChangeColorToChosen`/`BecomeChosenManaColor` (differ only in context slot).
 
 ### 5. True one-card monoliths (the D's) — *bespoke executors that should be compositions*
@@ -225,7 +228,7 @@ the `onPrevented` reflection idiom; `DividedDamageEffect` carries an awkward dua
 Healthy core (`AddCounters` 346, `AddDynamicCounters` 36, `Proliferate`, exemplary
 `GrantCounterPlacementModifier`). The counter-move/distribute cluster (smell #3) is the headline
 refactor; `DoubleCounters` should evaporate into `AddDynamicCounters(amount = CountersOnTarget(type))`
-once that `DynamicAmount` exists; `SetBasePower` + `SetBasePowerToughness` → `SetBaseStats`.
+once that `DynamicAmount` exists; ✅ `SetBasePower` + `SetBasePowerToughness` → `SetBaseStats` (DONE).
 
 ### Token / Copy / Stack (B−)
 
@@ -385,7 +388,7 @@ tagged *(ReplacementEffect)* implement `ReplacementEffect`, not `Effect`.
 | `DistributeCountersFromSelfEffect` | C | `DistributeDecision` from self → overlaps the next row; unify. |
 | `DistributeCountersAmongTargetsEffect` | C | `DistributeDecision` among targets (6); unify both into `DistributeCounters(source, recipients, total, minPerTarget)`. |
 | `ConvertCountersToTokensEffect` | C | Tetravus forward-half is a bespoke remove-N→mint-N loop a `ForEach` could express. |
-| `SetBasePowerEffect` / `SetBasePowerToughnessEffect` | C | Power-only vs both, with `DynamicAmount`-vs-`Int` asymmetry → one `SetBaseStats(power:DynamicAmount?, toughness:DynamicAmount?)`. |
+| ~~`SetBasePowerEffect` / `SetBasePowerToughnessEffect`~~ | ✅ DONE | Unified into one `SetBaseStatsEffect(target, power:DynamicAmount?, toughness:DynamicAmount?, duration)` — null leaves a stat unchanged; asymmetry fixed (both `DynamicAmount`); added toughness-only path + `Effects.SetBaseToughness`. Facades `Effects.SetBasePower`/`SetBasePowerAndToughness` unchanged. |
 | `MoveCountersEffect` | D | 1 use; its kdoc cross-references the next two as siblings → unify all into one `MoveCounters`. |
 | `MoveChosenCountersToTargetEffect` | D | 1 use; `drawCardOnMove` rider belongs in an `IfYouDo`/`GatedEffect`, not baked in. |
 | `MoveCountersEachKindMissingEffect` | D | 1 use; a kind-selector mode of the move primitive, not a type. |

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveAllAbilitiesEffect
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -62,7 +61,7 @@ val AzureBeastbinder = card("Azure Beastbinder") {
         effect = RemoveAllAbilitiesEffect(t, Duration.UntilYourNextTurn)
             .then(ConditionalEffect(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
-                effect = SetBasePowerToughnessEffect(t, 2, 2, Duration.UntilYourNextTurn)
+                effect = Effects.SetBasePowerAndToughness(2, 2, t, Duration.UntilYourNextTurn)
             ))
     }
 

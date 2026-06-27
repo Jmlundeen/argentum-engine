@@ -48,8 +48,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.protection.GrantHexproo
 import com.wingedsheep.engine.handlers.effects.permanent.protection.GrantProtectionFromChosenColorExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.protection.GrantProtectionFromChosenCardTypeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.stats.ModifyStatsExecutor
-import com.wingedsheep.engine.handlers.effects.permanent.stats.SetBasePowerExecutor
-import com.wingedsheep.engine.handlers.effects.permanent.stats.SetBasePowerToughnessExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.stats.SetBaseStatsExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.phasing.PhaseOutExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.phasing.PhaseOutUntilLeavesExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.phasing.PhaseInLinkedToSourceExecutor
@@ -174,8 +173,7 @@ class PermanentExecutors(
         GrantExileOnLeaveExecutor(),
         // stats
         ModifyStatsExecutor(amountEvaluator),
-        SetBasePowerExecutor(amountEvaluator),
-        SetBasePowerToughnessExecutor(),
+        SetBaseStatsExecutor(amountEvaluator),
         // abilities
         GrantActivatedAbilityExecutor(),
         GrantActivatedAbilityToGroupExecutor(),

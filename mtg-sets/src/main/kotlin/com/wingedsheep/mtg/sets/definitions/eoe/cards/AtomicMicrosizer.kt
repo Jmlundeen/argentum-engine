@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
 /**
  * Atomic Microsizer
  * {U}
@@ -40,7 +39,7 @@ val AtomicMicrosizer = card("Atomic Microsizer") {
             // Can't be blocked this turn
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, target),
             // Has base power and toughness 1/1 until end of turn
-            SetBasePowerToughnessEffect(target, 1, 1, com.wingedsheep.sdk.scripting.Duration.EndOfTurn)
+            Effects.SetBasePowerAndToughness(1, 1, target, com.wingedsheep.sdk.scripting.Duration.EndOfTurn)
         ))
     }
 

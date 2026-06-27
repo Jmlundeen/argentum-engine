@@ -24,7 +24,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
  *
  * Regression guard: when the target is a non-creature artifact, only the
  * ability-removal half of the effect should apply. The "if it's a creature" branch of
- * SetBasePowerToughnessEffect must not turn the artifact into a 2/2 or otherwise
+ * SetBaseStatsEffect must not turn the artifact into a 2/2 or otherwise
  * change its type.
  */
 class AzureBeastbinderTest : FunSpec({

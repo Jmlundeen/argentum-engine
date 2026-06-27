@@ -35,8 +35,7 @@ import com.wingedsheep.sdk.scripting.effects.BecomePreparedEffect
 import com.wingedsheep.sdk.scripting.effects.UnprepareEffect
 import com.wingedsheep.sdk.scripting.effects.BecomeSaddledEffect
 import com.wingedsheep.sdk.scripting.effects.EachPermanentBecomesCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerEffect
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
+import com.wingedsheep.sdk.scripting.effects.SetBaseStatsEffect
 
 import com.wingedsheep.sdk.scripting.effects.ChooseColorThenEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseNumberThenEffect
@@ -1426,14 +1425,24 @@ object Effects {
     ): Effect = ChangeWordInTextEffect(target = target, duration = duration)
 
     /**
-     * Set a creature's base power to a dynamic value.
+     * Set a creature's base power to a dynamic value (Layer 7b, set values), leaving toughness alone.
      * "Change this creature's base power to target creature's power."
      */
     fun SetBasePower(
         target: EffectTarget = EffectTarget.Self,
         power: DynamicAmount,
         duration: Duration = Duration.Permanent
-    ): Effect = SetBasePowerEffect(target, power, duration)
+    ): Effect = SetBaseStatsEffect(target, power = power, duration = duration)
+
+    /**
+     * Set a creature's base toughness to a dynamic value (Layer 7b, set values), leaving power alone.
+     * The toughness-only sibling of [SetBasePower].
+     */
+    fun SetBaseToughness(
+        target: EffectTarget = EffectTarget.Self,
+        toughness: DynamicAmount,
+        duration: Duration = Duration.Permanent
+    ): Effect = SetBaseStatsEffect(target, toughness = toughness, duration = duration)
 
     /**
      * Set a creature's base power AND toughness to fixed values (Layer 7b, set values).
@@ -1444,7 +1453,19 @@ object Effects {
         toughness: Int,
         target: EffectTarget = EffectTarget.ContextTarget(0),
         duration: Duration = Duration.EndOfTurn
-    ): Effect = SetBasePowerToughnessEffect(target, power, toughness, duration)
+    ): Effect = SetBaseStatsEffect(target, DynamicAmount.Fixed(power), DynamicAmount.Fixed(toughness), duration)
+
+    /**
+     * Set a creature's base power AND toughness to dynamic values (Layer 7b, set values).
+     * "Base power and toughness each become equal to ..." — the dynamic counterpart of the fixed
+     * overload above.
+     */
+    fun SetBasePowerAndToughness(
+        power: DynamicAmount,
+        toughness: DynamicAmount,
+        target: EffectTarget = EffectTarget.ContextTarget(0),
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = SetBaseStatsEffect(target, power, toughness, duration)
 
     // =========================================================================
     // Mana Effects

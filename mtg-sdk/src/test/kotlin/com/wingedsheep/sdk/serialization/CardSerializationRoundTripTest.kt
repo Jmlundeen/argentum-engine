@@ -26,6 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
+import com.wingedsheep.sdk.scripting.effects.SetBaseStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
@@ -70,6 +71,32 @@ class CardSerializationRoundTripTest : DescribeSpec({
             val deserialized = CardLoader.fromJson(serialized)
             deserialized.name shouldBe "Lightning Bolt"
             deserialized.script.spellEffect.shouldBeInstanceOf<DealDamageEffect>()
+        }
+
+        it("should round-trip the unified SetBaseStats effect, preserving a null stat") {
+            // Toughness-only: power must survive serialization as null so projection leaves it unchanged.
+            val card = card("Set Stats Test") {
+                manaCost = "{U}"
+                typeLine = "Instant"
+                spell {
+                    target = Targets.Creature
+                    effect = Effects.SetBaseToughness(
+                        EffectTarget.ContextTarget(0),
+                        DynamicAmount.Fixed(7),
+                        Duration.EndOfTurn
+                    )
+                }
+            }
+
+            val serialized = CardLoader.toJson(card)
+            serialized shouldContain "SetBaseStats"
+
+            val deserialized = CardLoader.fromJson(serialized)
+            val effect = deserialized.script.spellEffect
+            effect.shouldBeInstanceOf<SetBaseStatsEffect>()
+            effect.power shouldBe null
+            effect.toughness shouldBe DynamicAmount.Fixed(7)
+            effect.duration shouldBe Duration.EndOfTurn
         }
 
         it("should round-trip a creature with triggered ability") {

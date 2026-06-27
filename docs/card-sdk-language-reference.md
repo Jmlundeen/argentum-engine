@@ -539,10 +539,17 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   turn). Pass `Duration.WhileSourceTapped("…")` for the Antiquities "tap-locked" buffs (Ashnod's Battle
   Gear `+2/-2`, Tawnos's Weaponry `+1/+1`): the bonus persists for as long as the source artifact remains
   tapped and the one-way latch drops it when it untaps.
-- `SetBasePower(target, power: DynamicAmount, duration)` — set base power to a dynamic value (Layer 7b).
-- `SetBasePowerAndToughness(power, toughness, target?, duration)` — set base power AND toughness to
-  fixed values (Layer 7b, set values), e.g. "Target creature has base power and toughness 5/5 until end
-  of turn" (Dreadful as the Storm). Backed by `SetBasePowerToughnessEffect`.
+- `SetBasePower(target, power: DynamicAmount, duration)` — set base power to a dynamic value (Layer 7b),
+  leaving toughness unchanged.
+- `SetBaseToughness(target, toughness: DynamicAmount, duration)` — toughness-only sibling of `SetBasePower`.
+- `SetBasePowerAndToughness(power, toughness, target?, duration)` — set base power AND toughness (Layer 7b,
+  set values), e.g. "Target creature has base power and toughness 5/5 until end of turn" (Dreadful as the
+  Storm). Two overloads: fixed `Int`s or `DynamicAmount`s.
+  - All three facades lower onto the one **`SetBaseStatsEffect(target, power: DynamicAmount?, toughness:
+    DynamicAmount?, duration)`** atom — `null` power or toughness leaves that stat unchanged, so the same
+    type covers power-only, toughness-only, and both. (Distinct from `ModifyStatsEffect`, a +N/+N
+    *modifier* in layer 7c, and from the `SetBasePowerToughness*Static` CDAs, which apply for as long as a
+    static ability is active rather than as a one-shot floating effect.)
 - `GrantKeyword(keyword, target, duration)` — grant a keyword for a duration.
 - `GrantStaticAbility(ability, target, duration)` — grant a printed-shape `StaticAbility` (e.g. `CantBeBlockedByMoreThan(1)`) to a permanent for a duration. The runtime sibling of a printed static ability: unlike keyword grants (which flow through projected keywords) it is recorded as a `GrantedStaticAbility` keyed to the entity in `GameState.grantedStaticAbilities` and read **at the point of use** — combat blocker validation (`BlockPhaseManager`, CR 509.1b) consults granted `CantBeBlockedByMoreThan` alongside the creature's printed static abilities; the grant expires in the cleanup step (EndOfTurn). Compose inside `ForEachInGroup` with `EffectTarget.Self` for "each creature you control gains ..." (Full Steam Ahead = `ModifyStats(2,2)` + `GrantKeyword(TRAMPLE)` + `GrantStaticAbility(CantBeBlockedByMoreThan(1))`). Only `CantBeBlockedByMoreThan` is wired into a read site today; granting another `StaticAbility` kind compiles and stores but needs its own point-of-use read to take effect.
 - `GrantHarmonize(target, cost?, duration)` — grant **Harmonize** (CR 702.180) to a target instant/sorcery card in a graveyard. `cost` defaults to `null` = "equal to the card's mana cost" (Songcrafter Mage); pass a `ManaCost` for a fixed harmonize cost. Records a runtime `GrantedKeywordAbility` keyed to the card entity; the cast-from-graveyard enumerator, the cast handler, the alternative-payment handler (tap-for-power reduction), and the stack resolver (exile on resolution) all read printed-or-granted harmonize through the shared `HarmonizeGrants` resolver, so a granted harmonize behaves identically to a printed one. The grant expires in the cleanup step (EndOfTurn) and surfaces a "Granted Ability" badge on the card.

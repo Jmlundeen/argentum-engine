@@ -8571,7 +8571,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CounterCondition
 import com.wingedsheep.sdk.scripting.effects.CounterEffect
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -8604,7 +8603,7 @@ val QuandrixCharm = card("Quandrix Charm") {
             }
             mode("Target creature has base power and toughness 5/5 until end of turn") {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-                effect = SetBasePowerToughnessEffect(t, 5, 5, Duration.EndOfTurn)
+                effect = Effects.SetBasePowerAndToughness(5, 5, t, Duration.EndOfTurn)
             }
         }
     }

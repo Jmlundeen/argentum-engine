@@ -97,6 +97,9 @@ sealed interface SerializableModification {
     @Serializable
     data class SetPower(val power: Int) : SerializableModification
 
+    @Serializable
+    data class SetToughness(val toughness: Int) : SerializableModification
+
     /**
      * Dynamic base power/toughness *setting* (characteristic-defining ability) — Layer 7b
      * (SET_VALUES), evaluated per affected entity at projection time. Mirrors
@@ -580,6 +583,7 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.SetPowerToughness -> Modification.SetPowerToughness(power, toughness)
     is SerializableModification.SetPowerToughnessDynamic -> Modification.SetPowerToughnessDynamic(power, toughness)
     is SerializableModification.SetPower -> Modification.SetPower(power)
+    is SerializableModification.SetToughness -> Modification.SetToughness(toughness)
     is SerializableModification.ModifyPowerToughness -> Modification.ModifyPowerToughness(powerMod, toughnessMod)
     is SerializableModification.SwitchPowerToughness -> Modification.SwitchPowerToughness(EntityId(""))
     is SerializableModification.GrantKeyword -> Modification.GrantKeyword(keyword)

@@ -553,15 +553,15 @@ internal fun EmitCtx.renderLayerEffect(node: JsonObject, action: String, tvar: S
             }
             "SetPT" -> {
                 // "becomes a P/T" — set base power and toughness (CR 613.4b, layer 7b). The IR nests the
-                // values one level deeper than AdjustPT: args is `{_PT: PT, args: [p, t]}`. Unlike ModifyStats,
-                // SetBasePowerToughnessEffect defaults to Duration.Permanent, so the end-of-turn case MUST emit
-                // an explicit Duration.EndOfTurn rather than relying on the default (which would set it forever).
+                // values one level deeper than AdjustPT: args is `{_PT: PT, args: [p, t]}`. The
+                // SetBaseStats atom (behind the SetBasePowerAndToughness facade) defaults to
+                // Duration.EndOfTurn via the facade, but the layer renderer always spells the duration out.
                 val pt = (leObj["args"] as? JsonObject)?.get("args").asArr
                 if (pt == null || pt.size != 2) return null
                 val p = pt[0].asInt() ?: return null
                 val t = pt[1].asInt() ?: return null
                 val dur = if (duration.isEmpty()) "Duration.EndOfTurn" else duration
-                inner.add(call("SetBasePowerToughnessEffect", arg(Lit(target)), arg("$p"), arg("$t"), arg(Lit(dur))))
+                inner.add(call("Effects.SetBasePowerAndToughness", arg("$p"), arg("$t"), arg(Lit(target)), arg(Lit(dur))))
             }
             "AdjustPTX" -> {
                 // "+X/+X" / "-X/-X" where X is a dynamic game number (Wirewood Pride: +Elf-count, Feeding
@@ -699,7 +699,7 @@ internal fun EmitCtx.becomeCreatureLayerEffect(
     if (effects.none { it.strField("_LayerEffect") in setOf("SetPT", "SetPowerAndToughnessBoth") }) return null
     if (effects.any { it.strField("_LayerEffect") !in recognised }) return null
     // A BARE SetPT ("becomes a 5/1 until end of turn", no type/colour/keyword change) is a base-P/T set,
-    // not a "becomes a creature" — keep it as SetBasePowerToughnessEffect (the per-layer renderer). Only
+    // not a "becomes a creature" — keep it as SetBasePowerAndToughness (the per-layer renderer). Only
     // the genuine "becomes a [colour] [type] creature" shape (a type/colour/keyword grant present) maps
     // to BecomeCreature.
     if (effects.none { it.strField("_LayerEffect") in typeOrColourKinds }) return null

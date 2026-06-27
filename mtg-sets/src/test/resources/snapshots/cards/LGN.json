@@ -5530,7 +5530,7 @@
                     }
                 },
                 "effect": {
-                    "type": "SetBasePower",
+                    "type": "SetBaseStats",
                     "target": "Self",
                     "power": {
                         "type": "EntityProperty",

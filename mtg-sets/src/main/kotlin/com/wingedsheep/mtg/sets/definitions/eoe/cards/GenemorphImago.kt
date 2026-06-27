@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.SetBasePowerToughnessEffect
 
 /**
  * Genemorph Imago
@@ -39,8 +39,8 @@ val GenemorphImago = card("Genemorph Imago") {
         val t = target("target creature", Targets.Creature)
         effect = ConditionalEffect(
             condition = Conditions.ControlLandsAtLeast(6),
-            effect = SetBasePowerToughnessEffect(t, 6, 6, Duration.EndOfTurn),
-            elseEffect = SetBasePowerToughnessEffect(t, 3, 3, Duration.EndOfTurn)
+            effect = Effects.SetBasePowerAndToughness(6, 6, t, Duration.EndOfTurn),
+            elseEffect = Effects.SetBasePowerAndToughness(3, 3, t, Duration.EndOfTurn)
         )
         description = "Landfall — Whenever a land you control enters, target creature has base power " +
             "and toughness 3/3 until end of turn. If you control six or more lands, that creature has " +
