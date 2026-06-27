@@ -11096,6 +11096,115 @@
     ]
 }
 
+// Nashi, Searcher in the Dark
+{
+    "name": "Nashi, Searcher in the Dark",
+    "manaCost": "{U}{B}",
+    "typeLine": "Legendary Creature — Rat Ninja Wizard",
+    "oracleText": "Menace\nWhenever Nashi deals combat damage to a player, you mill that many cards. You may put any number of legendary and/or enchantment cards from among them into your hand. If you put no cards into your hand this way, put a +1/+1 counter on Nashi.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": "AnyPlayer"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "ContextProperty",
+                                    "key": "TRIGGER_DAMAGE_AMOUNT"
+                                }
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "milled",
+                            "selection": "ChooseAnyNumber",
+                            "filter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsLegendary",
+                                            "IsEnchantment"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "storeSelected": "toHand",
+                            "prompt": "Put any number of legendary and/or enchantment cards into your hand",
+                            "selectedLabel": "Put in hand",
+                            "remainderLabel": "Leave in graveyard",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "toHand",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Not",
+                                    "condition": {
+                                        "type": "CollectionContainsMatch",
+                                        "collection": "toHand"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 1,
+                                "target": "Self"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "223",
+        "rarity": "RARE",
+        "artist": "Johan Grenier",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0fbf9e1e-43f2-499e-844d-22fc10dbad06.jpg?1726286698"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
 // Neglected Manor
 {
     "name": "Neglected Manor",
@@ -19643,6 +19752,77 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Walk-In Closet // Forgotten Cellar
+{
+    "name": "Walk-In Closet // Forgotten Cellar",
+    "manaCost": "",
+    "typeLine": "Enchantment — Room",
+    "oracleText": "You may play lands from your graveyard.\n//\nWhen you unlock this door, you may cast spells from your graveyard this turn, and if a card would be put into your graveyard from anywhere this turn, exile it instead.",
+    "metadata": {
+        "collectorNumber": "205",
+        "rarity": "MYTHIC",
+        "artist": "Miklós Ligeti",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/a/0adcd4e5-d542-4293-8774-ace2305ef820.jpg?1726867658"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ],
+    "layout": "SPLIT",
+    "cardFaces": [
+        {
+            "name": "Walk-In Closet",
+            "manaCost": "{2}{G}",
+            "typeLine": "Enchantment — Room",
+            "oracleText": "You may play lands from your graveyard.",
+            "script": {
+                "staticAbilities": [
+                    "MayPlayLandsFromGraveyard"
+                ]
+            }
+        },
+        {
+            "name": "Forgotten Cellar",
+            "manaCost": "{3}{G}{G}",
+            "typeLine": "Enchantment — Room",
+            "oracleText": "When you unlock this door, you may cast spells from your graveyard this turn, and if a card would be put into your graveyard from anywhere this turn, exile it instead.",
+            "script": {
+                "triggeredAbilities": [
+                    {
+                        "id": "ability_1",
+                        "trigger": "DoorUnlockedEvent",
+                        "effect": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GrantStaticAbility",
+                                    "ability": {
+                                        "type": "MayCastFromGraveyard",
+                                        "filter": "nonland"
+                                    },
+                                    "target": "Self"
+                                },
+                                {
+                                    "type": "GrantReplacementEffect",
+                                    "replacement": {
+                                        "type": "RedirectZoneChange",
+                                        "newDestination": "Exile",
+                                        "appliesTo": {
+                                            "type": "ZoneChangeEvent",
+                                            "filter": "own:you",
+                                            "to": "Graveyard"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "descriptionOverride": "When you unlock this door, you may cast spells from your graveyard this turn, and if a card would be put into your graveyard from anywhere this turn, exile it instead."
+                    }
+                ]
+            }
+        }
     ]
 }
 

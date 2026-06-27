@@ -95,6 +95,7 @@ import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.GrantExileOnLeaveEffect
 import com.wingedsheep.sdk.scripting.effects.GrantEvasionKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
+import com.wingedsheep.sdk.scripting.effects.GrantReplacementEffectEffect
 import com.wingedsheep.sdk.scripting.effects.GrantStaticAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordToAttackersBlockedByEffect
@@ -1108,6 +1109,20 @@ object Effects {
         target: EffectTarget = EffectTarget.ContextTarget(0),
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantStaticAbilityEffect(ability, target, duration)
+
+    /**
+     * Grant a replacement effect to a target for a duration — the runtime sibling of a printed
+     * [com.wingedsheep.sdk.scripting.ReplacementEffect]. Anchored to [target] (defaults to the
+     * resolving source); the grant's controller is the target's controller. Currently honored by
+     * the zone-change redirect read path, so granting a
+     * [com.wingedsheep.sdk.scripting.RedirectZoneChange] gives a durational "if X would be put
+     * into a graveyard this turn, exile it instead" rider (Forgotten Cellar).
+     */
+    fun GrantReplacementEffect(
+        replacement: com.wingedsheep.sdk.scripting.ReplacementEffect,
+        target: EffectTarget = EffectTarget.Self,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = GrantReplacementEffectEffect(replacement, target, duration)
 
     /**
      * Mark a permanent so that if it would leave the battlefield, it is exiled instead.

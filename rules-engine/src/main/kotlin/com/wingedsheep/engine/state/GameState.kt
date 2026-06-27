@@ -5,6 +5,7 @@ import com.wingedsheep.engine.event.DelayedTriggeredAbility
 import com.wingedsheep.engine.event.GlobalGrantedTriggeredAbility
 import com.wingedsheep.engine.event.GrantedActivatedAbility
 import com.wingedsheep.engine.event.GrantedKeywordAbility
+import com.wingedsheep.engine.event.GrantedReplacementEffect
 import com.wingedsheep.engine.event.GrantedStaticAbility
 import com.wingedsheep.engine.event.GrantedTriggeredAbility
 import com.wingedsheep.engine.mechanics.layers.ActiveFloatingEffect
@@ -89,6 +90,9 @@ data class GameState(
 
     /** Static abilities granted to entities temporarily (e.g., Full Steam Ahead) */
     val grantedStaticAbilities: List<GrantedStaticAbility> = emptyList(),
+
+    /** Replacement effects granted to entities temporarily (e.g., Forgotten Cellar's "exile instead of graveyard this turn") */
+    val grantedReplacementEffects: List<GrantedReplacementEffect> = emptyList(),
 
     /** Cast-keyword abilities granted to card entities temporarily (e.g., Songcrafter Mage grants Harmonize) */
     val grantedKeywordAbilities: List<GrantedKeywordAbility> = emptyList(),

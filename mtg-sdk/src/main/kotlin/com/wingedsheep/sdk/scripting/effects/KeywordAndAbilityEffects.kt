@@ -231,6 +231,41 @@ data class GrantStaticAbilityEffect(
 }
 
 /**
+ * Grant a replacement effect to a target for a duration — the runtime sibling of a printed
+ * [com.wingedsheep.sdk.scripting.ReplacementEffect]. Mirrors [GrantStaticAbilityEffect]: the
+ * grant is recorded keyed to the entity ([com.wingedsheep.engine.state.GameState.grantedReplacementEffects])
+ * and read at the point of use rather than projected through the layer system.
+ *
+ * Used for "this turn" replacement riders created by a resolving ability — e.g. Forgotten Cellar
+ * ("if a card would be put into your graveyard from anywhere this turn, exile it instead"),
+ * which grants a [com.wingedsheep.sdk.scripting.RedirectZoneChange] to the room for end of turn.
+ * The zone-change redirect read site consults these alongside permanents' printed replacement
+ * effects, so any card needing a durational redirect-to-exile/graveyard rider reuses this
+ * instead of a one-off effect.
+ *
+ * @property replacement The replacement effect to grant
+ * @property target The permanent the grant is anchored to (its controller owns the grant)
+ * @property duration How long the grant lasts
+ */
+@SerialName("GrantReplacementEffect")
+@Serializable
+data class GrantReplacementEffectEffect(
+    val replacement: com.wingedsheep.sdk.scripting.ReplacementEffect,
+    val target: EffectTarget = EffectTarget.Self,
+    val duration: Duration = Duration.EndOfTurn
+) : Effect {
+    override val description: String = buildString {
+        append("${target.description} gains \"${replacement.description}\"")
+        if (duration.description.isNotEmpty()) append(" ${duration.description}")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newReplacement = replacement.applyTextReplacement(replacer)
+        return if (newReplacement !== replacement) copy(replacement = newReplacement) else this
+    }
+}
+
+/**
  * Grant an activated ability to a group of creatures.
  * "Each creature you control gains '{B}: This creature gets +1/+1 until end of turn.'"
  *

@@ -1615,6 +1615,16 @@ class CastFromZoneEnumerator : ActionEnumerator {
                 }
             }
         }
+        // Durational grants (e.g. Forgotten Cellar's "you may cast spells from your graveyard this
+        // turn") recorded in grantedStaticAbilities, anchored to a permanent the player controls.
+        for (grant in state.grantedStaticAbilities) {
+            val ability = grant.ability
+            if (ability !is MayCastFromGraveyard) continue
+            val anchor = state.getEntity(grant.entityId) ?: continue
+            val controller = anchor.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
+            if (controller != playerId) continue
+            permissions.add(ability)
+        }
 
         if (permissions.isEmpty()) return
 

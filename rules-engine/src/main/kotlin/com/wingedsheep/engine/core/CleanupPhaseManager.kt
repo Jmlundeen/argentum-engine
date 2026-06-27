@@ -817,6 +817,15 @@ class CleanupPhaseManager(
             newState = newState.copy(grantedStaticAbilities = remainingGrants)
         }
 
+        // 7a-i. Expire granted replacement effects (e.g. Forgotten Cellar's "exile instead of
+        // graveyard this turn") with EndOfTurn duration.
+        if (newState.grantedReplacementEffects.isNotEmpty()) {
+            val remainingGrants = newState.grantedReplacementEffects.filter { grant ->
+                grant.duration !is Duration.EndOfTurn
+            }
+            newState = newState.copy(grantedReplacementEffects = remainingGrants)
+        }
+
         // 7b. Expire granted cast-keyword abilities (e.g. Songcrafter Mage's harmonize) with
         // EndOfTurn duration.
         if (newState.grantedKeywordAbilities.isNotEmpty()) {
