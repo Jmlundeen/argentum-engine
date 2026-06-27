@@ -700,6 +700,15 @@ data object GrantsControllerHexproofComponent : Component
 data object GrantsCantLoseGameComponent : Component
 
 /**
+ * Marks a permanent as granting "you don't lose the game for having 0 or less life" to its
+ * controller — the narrow sibling of [GrantsCantLoseGameComponent]. Read only by the 704.5a
+ * life-loss state-based action (Marina Vendrell's Grimoire); poison / empty-library / effect
+ * losses are unaffected. Leaves with the permanent — no cleanup needed.
+ */
+@Serializable
+data object GrantsCantLoseGameFromLifeComponent : Component
+
+/**
  * Marks a permanent as granting the Station-using-toughness effect to creatures its
  * controller controls. When a creature with this component's controller taps for a
  * Station ability and its toughness > power, it contributes toughness instead of power.

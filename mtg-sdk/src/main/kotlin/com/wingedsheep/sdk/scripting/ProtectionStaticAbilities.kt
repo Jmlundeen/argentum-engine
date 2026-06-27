@@ -268,6 +268,22 @@ data object GrantCantLoseGame : StaticAbility {
 }
 
 /**
+ * Grants the controller "you don't lose the game for having 0 or less life" — the *narrow*
+ * sibling of [GrantCantLoseGame].
+ *
+ * Unlike [GrantCantLoseGame], this only suppresses the 0-or-less-life state-based action
+ * (CR 704.5a). The controller can still lose to poison (704.5c), drawing from an empty library
+ * (704.5b/c), and card effects. Marina Vendrell's Grimoire (DSK): "You have no maximum hand size
+ * and don't lose the game for having 0 or less life." — its own "if you have no cards in hand, you
+ * lose the game" clause therefore still functions.
+ */
+@SerialName("GrantCantLoseGameFromLife")
+@Serializable
+data object GrantCantLoseGameFromLife : StaticAbility {
+    override val description: String = "You don't lose the game for having 0 or less life"
+}
+
+/**
  * Creatures matching [filter] can be the targets of spells and abilities as though
  * they didn't have hexproof.
  *

@@ -7,6 +7,7 @@ import com.wingedsheep.engine.mechanics.sba.SbaOrder
 import com.wingedsheep.engine.mechanics.sba.StateBasedActionCheck
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.GrantsCantLoseGameComponent
+import com.wingedsheep.engine.state.components.battlefield.GrantsCantLoseGameFromLifeComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.player.LossReason
@@ -30,6 +31,8 @@ class PlayerLifeLossCheck : StateBasedActionCheck {
             val container = state.getEntity(playerId) ?: continue
             if (container.has<PlayerLostComponent>()) continue
             if (playerCantLoseGame(state, playerId)) continue
+            // Narrow "don't lose for 0 or less life" (Marina Vendrell's Grimoire) — 704.5a only.
+            if (playerCantLoseGameFromLife(state, playerId)) continue
 
             // Presence guard stays per-player; the value is the team's shared total (CR 810.9c).
             // Reading through the resolver means every member of a 0-life team is marked in this
@@ -60,3 +63,16 @@ internal fun playerCantLoseGame(state: GameState, playerId: EntityId): Boolean {
             container.get<ControllerComponent>()?.playerId in team
     }
 }
+
+/**
+ * Narrow sibling of [playerCantLoseGame]: true when [playerId] controls a permanent granting
+ * "you don't lose the game for having 0 or less life" (Marina Vendrell's Grimoire). Consulted only
+ * by the 704.5a life-loss check, so poison / empty-library / effect losses are unaffected. Scoped
+ * to the controller itself — it is not a team-wide "can't lose" grant.
+ */
+internal fun playerCantLoseGameFromLife(state: GameState, playerId: EntityId): Boolean =
+    state.getBattlefield().any { entityId ->
+        val container = state.getEntity(entityId) ?: return@any false
+        container.has<GrantsCantLoseGameFromLifeComponent>() &&
+            container.get<ControllerComponent>()?.playerId == playerId
+    }

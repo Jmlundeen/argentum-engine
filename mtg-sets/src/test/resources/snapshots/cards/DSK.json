@@ -10289,6 +10289,116 @@
     ]
 }
 
+// Marina Vendrell's Grimoire
+{
+    "name": "Marina Vendrell's Grimoire",
+    "manaCost": "{5}{U}",
+    "typeLine": "Legendary Artifact — Book",
+    "oracleText": "When Marina Vendrell's Grimoire enters, if you cast it, draw five cards.\nYou have no maximum hand size and don't lose the game for having 0 or less life.\nWhenever you gain life, draw that many cards.\nWhenever you lose life, discard that many cards. Then if you have no cards in hand, you lose the game.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 5
+                    }
+                },
+                "triggerCondition": "WasCast"
+            },
+            {
+                "id": "ability_2",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "ContextProperty",
+                        "key": "TRIGGER_LIFE_GAINED"
+                    }
+                }
+            },
+            {
+                "id": "ability_3",
+                "trigger": "LifeLossEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "ContextProperty",
+                                            "key": "TRIGGER_LIFE_LOST"
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose cards to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Hand",
+                                    "negate": true
+                                }
+                            },
+                            "then": "LoseGame"
+                        }
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            "NoMaximumHandSize",
+            "GrantCantLoseGameFromLife"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "rarity": "RARE",
+        "artist": "Denys Tsiperko",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/a/1ab1aef7-4171-4869-8eb5-fe42e3ca9e45.jpg?1726286094"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Marvin, Murderous Mimic
 {
     "name": "Marvin, Murderous Mimic",

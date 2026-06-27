@@ -6,6 +6,7 @@ import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.battlefield.CantBeTargetedByOpponentAbilitiesComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantCantBeBlockedToSmallCreaturesComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantsCantLoseGameComponent
+import com.wingedsheep.engine.state.components.battlefield.GrantsCantLoseGameFromLifeComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantsControllerHexproofComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantsStationUsingToughnessComponent
 import com.wingedsheep.engine.state.components.battlefield.GrantsControllerShroudComponent
@@ -232,6 +233,11 @@ class StaticAbilityHandler(
         // Add tag component for "you can't lose the game"
         if (allStaticAbilities.any { it is com.wingedsheep.sdk.scripting.GrantCantLoseGame }) {
             result = result.with(GrantsCantLoseGameComponent)
+        }
+
+        // Add tag component for the narrow "you don't lose for 0 or less life" (Marina's Grimoire)
+        if (allStaticAbilities.any { it is com.wingedsheep.sdk.scripting.GrantCantLoseGameFromLife }) {
+            result = result.with(GrantsCantLoseGameFromLifeComponent)
         }
 
         // Add tag component for "station using toughness"
@@ -820,6 +826,7 @@ class StaticAbilityHandler(
             is CantBeTargetedByOpponentAbilities,
             is GrantCantBeBlockedToSmallCreatures,
             is GrantCantLoseGame,
+            is com.wingedsheep.sdk.scripting.GrantCantLoseGameFromLife,
             is GrantHexproofToController,
             is GrantShroudToController,
             is StationUsingToughness,
