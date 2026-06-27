@@ -678,6 +678,7 @@ class CostCalculator(
             is CardPredicate.IsLand -> cardDef.typeLine.isLand
             is CardPredicate.IsInstant -> cardDef.typeLine.isInstant
             is CardPredicate.IsSorcery -> cardDef.typeLine.isSorcery
+            is CardPredicate.IsPermanent -> cardDef.typeLine.isPermanent
             is CardPredicate.HasSubtype -> predicate.subtype in cardDef.typeLine.subtypes
             is CardPredicate.Or -> predicate.predicates.any { matchesGraveyardPredicate(cardDef, it) }
             is CardPredicate.And -> predicate.predicates.all { matchesGraveyardPredicate(cardDef, it) }
