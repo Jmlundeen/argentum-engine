@@ -3579,6 +3579,56 @@
     ]
 }
 
+// Diamond Weapon
+{
+    "name": "Diamond Weapon",
+    "manaCost": "{7}{G}{G}",
+    "typeLine": "Legendary Artifact Creature — Elemental",
+    "oracleText": "This spell costs {1} less to cast for each permanent card in your graveyard.\nReach\nImmune — Prevent all combat damage that would be dealt to Diamond Weapon.",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 8
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "CardsInGraveyardMatchingFilter",
+                        "filter": "permanent"
+                    }
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "PreventDamage",
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "recipient": "RecipientSelf",
+                    "damageType": "DamageCombat"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "183",
+        "rarity": "UNCOMMON",
+        "artist": "Esuthio",
+        "flavorText": "A tutelary creature said only to appear when the planet is in grave danger.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/c/6ce7f494-2a19-4b11-94d4-fc5e5a7068bd.jpg?1748706442"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Dragoon's Lance
 {
     "name": "Dragoon's Lance",
@@ -4036,6 +4086,99 @@
     ]
 }
 
+// Excalibur II
+{
+    "name": "Excalibur II",
+    "manaCost": "{1}",
+    "typeLine": "Legendary Artifact — Equipment",
+    "oracleText": "Whenever you gain life, put a charge counter on Excalibur II.\nEquipped creature gets +1/+1 for each charge counter on Excalibur II.\nEquip {3}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "charge",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                },
+                "powerBonus": {
+                    "type": "EntityProperty",
+                    "entity": "Source",
+                    "numericProperty": {
+                        "type": "CounterCount",
+                        "counterType": {
+                            "type": "Named",
+                            "name": "charge"
+                        }
+                    }
+                },
+                "toughnessBonus": {
+                    "type": "EntityProperty",
+                    "entity": "Source",
+                    "numericProperty": {
+                        "type": "CounterCount",
+                        "counterType": {
+                            "type": "Named",
+                            "name": "charge"
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "equipCost": "{3}",
+    "metadata": {
+        "collectorNumber": "257",
+        "rarity": "RARE",
+        "artist": "Russell Dongjun Lu",
+        "flavorText": "The ultimate sword, used by a legendary king. It was forged in another world.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d42e5fed-67ac-46d7-a5d4-78f661f3e8b4.jpg?1748706751"
+    },
+    "colorIdentityOverride": []
+}
+
 // Fang, Fearless l'Cie
 {
     "name": "Fang, Fearless l'Cie",
@@ -4265,6 +4408,91 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// From Father to Son
+{
+    "name": "From Father to Son",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for a Vehicle card, reveal it, and put it into your hand. If this spell was cast from a graveyard, put that card onto the battlefield instead. Then shuffle.\nFlashback {4}{W}{W}{W} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{4}{W}{W}{W}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "artifact Vehicle"
+                    },
+                    "storeAs": "searchable"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found",
+                    "prompt": "Search for a Vehicle card",
+                    "selectedLabel": "Reveal it"
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "WasCastFromZone",
+                            "zone": "Graveyard"
+                        }
+                    },
+                    "then": {
+                        "type": "MoveCollection",
+                        "from": "found",
+                        "destination": {
+                            "type": "ToZone",
+                            "zone": "Battlefield"
+                        },
+                        "revealed": true
+                    },
+                    "otherwise": {
+                        "type": "MoveCollection",
+                        "from": "found",
+                        "destination": {
+                            "type": "ToZone",
+                            "zone": "Hand"
+                        },
+                        "revealed": true
+                    }
+                },
+                "ShuffleLibrary"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "20",
+        "rarity": "RARE",
+        "artist": "Jeremy Chong",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/c/0c730a3b-334e-466b-bb9b-4b41fce2af6d.jpg?1748705832"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -13218,6 +13446,97 @@
     ]
 }
 
+// Ultros, Obnoxious Octopus
+{
+    "name": "Ultros, Obnoxious Octopus",
+    "manaCost": "{1}{U}",
+    "typeLine": "Legendary Creature — Octopus",
+    "oracleText": "Whenever you cast a noncreature spell, if at least four mana was spent to cast it, tap target creature an opponent controls and put a stun counter on it. (If a permanent with a stun counter would become untapped, remove one from it instead.)\nWhenever you cast a noncreature spell, if at least eight mana was spent to cast it, put eight +1/+1 counters on Ultros.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "stun",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    },
+                    "id": "target"
+                },
+                "triggerCondition": {
+                    "type": "TriggeringSpellManaSpentAtLeast",
+                    "amount": 4
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 8,
+                    "target": "Self"
+                },
+                "triggerCondition": {
+                    "type": "TriggeringSpellManaSpentAtLeast",
+                    "amount": 8
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "83",
+        "rarity": "UNCOMMON",
+        "artist": "Domenico Cava",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/4/14379198-9a0a-4853-9d51-fb074a24b1c0.jpg?1748706073"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Undercity Dire Rat
 {
     "name": "Undercity Dire Rat",
@@ -13715,6 +14034,96 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Weapons Vendor
+{
+    "name": "Weapons Vendor",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "When this creature enters, draw a card.\nAt the beginning of combat on your turn, if you control an Equipment, you may pay {1}. When you do, attach target Equipment you control to target creature you control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "BEGIN_COMBAT"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{1}"
+                        }
+                    },
+                    "then": {
+                        "type": "AttachTargetEquipmentToCreature",
+                        "equipmentTarget": {
+                            "type": "BoundVariable",
+                            "name": "target Equipment you control"
+                        },
+                        "creatureTarget": {
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact Equipment ctrl:you"
+                    },
+                    "id": "target Equipment you control"
+                },
+                "additionalTargetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "target creature you control"
+                    }
+                ],
+                "triggerCondition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "artifact Equipment"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "40",
+        "artist": "Mushk Rizvi",
+        "flavorText": "\"Man in your line of work needs weapons, no? Why not try that one on for size?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/9/c9e6b374-3e44-4df7-b0a3-4ef98dc08267.jpg?1748705905"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
