@@ -47,7 +47,10 @@ import {
   decodeSharedDeck,
   buildShareUrl,
   SHARE_PARAM,
+  type SharedDeck,
 } from './shareDeck'
+import { AccountDeckBar } from './AccountDeckBar'
+import { getDeck as getAccountDeck } from '@/api/account'
 import {
   detectProducedColors,
   suggestBasicLands,
@@ -907,26 +910,74 @@ export function DeckbuilderPage() {
   // captures exactly what's on screen — saved or not — including the commander, format and
   // any pinned printings. Mirrors the save path's commander-stripping so a shared deck
   // re-imports without double-counting the commander.
-  const handleShare = async () => {
+  // Snapshot the working deck as a SharedDeck (the canonical wire shape), or null if empty. Used by
+  // both the share-link path and the account "Save online" path so they capture identical content.
+  const buildSharedDeck = useCallback((): SharedDeck | null => {
     const designated = isCommanderFormat ? commander : null
     const cardsForShare = stripCommanderFromCards(deckCards, designated)
-    if (Object.keys(cardsForShare).length === 0) return
+    if (Object.keys(cardsForShare).length === 0) return null
     const printings: Record<string, PrintingRef> = {}
     for (const [name, ref] of Object.entries(pinnedPrintings)) {
       if (name in cardsForShare) printings[name] = ref
     }
     const commanderPrinting = designated ? pinnedPrintings[designated] : undefined
-    const code = await encodeSharedDeck(
-      {
-        name: deckName.trim() || 'Untitled deck',
-        cards: cardsForShare,
-        ...(Object.keys(printings).length > 0 ? { printings } : {}),
-        ...(activeFormat ? { format: activeFormat } : {}),
-        ...(designated ? { commander: designated } : {}),
-        ...(commanderPrinting ? { commanderPrinting } : {}),
-      },
-      resolvePrinting,
-    )
+    return {
+      name: deckName.trim() || 'Untitled deck',
+      cards: cardsForShare,
+      ...(Object.keys(printings).length > 0 ? { printings } : {}),
+      ...(activeFormat ? { format: activeFormat } : {}),
+      ...(designated ? { commander: designated } : {}),
+      ...(commanderPrinting ? { commanderPrinting } : {}),
+    }
+  }, [isCommanderFormat, commander, deckCards, pinnedPrintings, deckName, activeFormat])
+
+  // Apply a SharedDeck into the builder (account load / deep link). Mirrors the share-URL decode
+  // path: schedules format + commander in one transition so the "clear commander" guard never sees
+  // an inconsistent in-between state.
+  const applySharedDeck = useCallback(
+    (shared: SharedDeck) => {
+      startTransition(() => {
+        setSearchParams(
+          (prev) => {
+            const params = new URLSearchParams(prev)
+            params.delete('accountDeck')
+            if (shared.format) params.set('fmt', shared.format.toUpperCase())
+            params.set('view', 'deck')
+            return params
+          },
+          { replace: true },
+        )
+        setDeckName(shared.name || 'Saved deck')
+        setDeckCards(mergeCommanderIntoCards(shared.cards, shared.commander ?? null))
+        setCommander(shared.commander ?? null)
+        setActiveDeckId(null)
+        const pins: Record<string, PrintingRef> = { ...(shared.printings ?? {}) }
+        if (shared.commander && shared.commanderPrinting) pins[shared.commander] = shared.commanderPrinting
+        setPinnedPrintings(pins)
+      })
+    },
+    [setSearchParams],
+  )
+
+  // Deep link from the profile page (/deckbuilder?accountDeck=<id>): fetch the saved deck and load
+  // it. Guarded so it runs once per id even as the effect re-fires on searchParams churn.
+  const accountDeckLoadedRef = useRef<string | null>(null)
+  useEffect(() => {
+    const id = searchParams.get('accountDeck')
+    if (!id || accountDeckLoadedRef.current === id) return
+    if (catalog.length === 0) return
+    accountDeckLoadedRef.current = id
+    void getAccountDeck(Number(id))
+      .then((detail) => applySharedDeck(detail.deck))
+      .catch(() => {
+        /* not found / not signed in — leave the builder as-is */
+      })
+  }, [searchParams, catalog.length, applySharedDeck])
+
+  const handleShare = async () => {
+    const shared = buildSharedDeck()
+    if (!shared) return
+    const code = await encodeSharedDeck(shared, resolvePrinting)
     const url = buildShareUrl(window.location.origin, code)
     try {
       await navigator.clipboard.writeText(url)
@@ -1169,6 +1220,7 @@ export function DeckbuilderPage() {
         >
           {shareCopied ? 'Link copied!' : 'Share'}
         </button>
+        <AccountDeckBar buildSharedDeck={buildSharedDeck} onLoad={applySharedDeck} />
         <button className={styles.iconButton} onClick={handleNew}>
           New deck
         </button>

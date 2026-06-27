@@ -1797,6 +1797,8 @@ export interface ConnectMessage {
   readonly type: 'connect'
   readonly playerName: string
   readonly token?: string
+  /** Durable account auth token (magic-link login). When valid, links this session to the account. */
+  readonly authToken?: string
 }
 
 /**
@@ -2011,8 +2013,17 @@ export function isDeckSubmittedMessage(msg: ServerMessage): msg is DeckSubmitted
 // Message Factories
 // ============================================================================
 
-export function createConnectMessage(playerName: string, token?: string): ConnectMessage {
-  return token ? { type: 'connect', playerName, token } : { type: 'connect', playerName }
+export function createConnectMessage(
+  playerName: string,
+  token?: string,
+  authToken?: string,
+): ConnectMessage {
+  return {
+    type: 'connect',
+    playerName,
+    ...(token ? { token } : {}),
+    ...(authToken ? { authToken } : {}),
+  }
 }
 
 export function createCreateGameMessage(

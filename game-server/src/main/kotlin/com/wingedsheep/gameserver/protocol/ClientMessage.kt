@@ -14,10 +14,18 @@ import kotlinx.serialization.Serializable
 sealed interface ClientMessage {
     /**
      * Connect to the server with a player name.
+     *
+     * [token] is the in-memory reconnect token (anonymous session continuity). [authToken] is the
+     * optional durable account auth token (from magic-link login) — when present and valid, the
+     * connection's identity is linked to that account so its games count toward the account's stats.
      */
     @Serializable
     @SerialName("connect")
-    data class Connect(val playerName: String, val token: String? = null) : ClientMessage
+    data class Connect(
+        val playerName: String,
+        val token: String? = null,
+        val authToken: String? = null,
+    ) : ClientMessage
 
     /**
      * Create a new game with a deck list.

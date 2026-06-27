@@ -32,6 +32,12 @@ const LlmTournamentPage = lazy(() =>
 const SetCompletionPage = lazy(() =>
   import('./components/setCompletion/SetCompletionPage').then(({ SetCompletionPage }) => ({ default: SetCompletionPage }))
 )
+const LoginVerifyPage = lazy(() =>
+  import('./pages/LoginVerifyPage').then(({ LoginVerifyPage }) => ({ default: LoginVerifyPage }))
+)
+const ProfilePage = lazy(() =>
+  import('./pages/ProfilePage').then(({ ProfilePage }) => ({ default: ProfilePage }))
+)
 
 initAnalytics()
 
@@ -53,6 +59,8 @@ createRoot(rootElement).render(
           <Route path="/deckbuilder/:deckId" element={<DeckbuilderPage />} />
           <Route path="/scenario" element={<ScenarioBuilderPage />} />
           <Route path="/set-completion" element={<SetCompletionPage />} />
+          <Route path="/login/verify" element={<LoginVerifyPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/llm-tournament" element={<LlmTournamentPage />} />
           <Route path="/llm-tournament/:id" element={<LlmTournamentPage />} />
           <Route path="*" element={<App />} />
