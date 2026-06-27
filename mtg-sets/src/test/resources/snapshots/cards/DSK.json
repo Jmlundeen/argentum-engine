@@ -16201,6 +16201,142 @@
     ]
 }
 
+// Unidentified Hovership
+{
+    "name": "Unidentified Hovership",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Artifact — Vehicle",
+    "oracleText": "Flying\nWhen this Vehicle enters, exile up to one target creature with toughness 5 or less.\nWhen this Vehicle leaves the battlefield, the exiled card's owner manifests dread.\nCrew 1",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING",
+        "CREW"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "CREW",
+            "n": 1
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ExileUntilLeaves",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "up to one target creature with toughness 5 or less"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature tou<=5"
+                    },
+                    "id": "up to one target creature with toughness 5 or less"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "OwnersOfLinkedExile"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
+                                },
+                                "storeAs": "manifestDreadLooked"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "manifestDreadLooked",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "manifestDreadManifested",
+                                "storeRemainder": "manifestDreadGraveyard",
+                                "selectedLabel": "Manifest (put onto the battlefield face down)",
+                                "remainderLabel": "Put into your graveyard"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "manifestDreadManifested",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield"
+                                },
+                                "faceDown": "MANIFEST"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "manifestDreadGraveyard",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                }
+                            },
+                            "EmitManifestedDreadEvent"
+                        ]
+                    }
+                },
+                "descriptionOverride": "When this Vehicle leaves the battlefield, the exiled card's owner manifests dread."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "rarity": "RARE",
+        "artist": "Jana Heidersdorf",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bd23f168-9ad0-4b4e-bfff-ae004c163727.jpg?1726285993",
+        "rulings": [
+            {
+                "date": "2024-09-20",
+                "text": "If Unidentified Hovership leaves the battlefield before its second ability resolves, the ability still exiles the target creature."
+            },
+            {
+                "date": "2024-09-20",
+                "text": "If there's no exiled card when Unidentified Hovership's third ability resolves (most likely because its second ability hasn't resolved yet), the ability won't do anything."
+            },
+            {
+                "date": "2024-09-20",
+                "text": "If Unidentified Hovership's second ability exiled more than one card (possibly because another effect caused it to trigger an additional time), each player who owns one or more of the exiled cards manifests dread."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Unnerving Grasp
 {
     "name": "Unnerving Grasp",
