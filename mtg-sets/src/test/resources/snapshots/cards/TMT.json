@@ -3438,19 +3438,11 @@
         "TRAMPLE"
     ],
     "script": {
-        "triggeredAbilities": [
+        "staticAbilities": [
             {
-                "id": "ability_1",
-                "trigger": {
-                    "type": "LandTappedForMana",
-                    "player": "You"
-                },
-                "binding": "ANY",
-                "effect": {
-                    "type": "AddMana",
-                    "color": "GREEN"
-                },
-                "descriptionOverride": "Whenever you tap a land for mana, add {G}."
+                "type": "AdditionalManaOnSourceTap",
+                "sourceFilter": "land ctrl:you",
+                "color": "GREEN"
             }
         ]
     },
