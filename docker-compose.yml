@@ -8,17 +8,52 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
 
+  # Durable storage for accounts, saved decks, and match stats. Only used when ACCOUNTS_ENABLED=true.
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=${ACCOUNTS_DB_NAME:-argentum}
+      - POSTGRES_USER=${ACCOUNTS_DB_USER:-argentum}
+      - POSTGRES_PASSWORD=${ACCOUNTS_DB_PASSWORD:-argentum}
+    networks:
+      - app_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ACCOUNTS_DB_USER:-argentum} -d ${ACCOUNTS_DB_NAME:-argentum}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   backend:
     image: ${IMAGE_REPO}/backend:latest
     restart: always
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+      # Wait until Postgres accepts connections so Flyway/Hikari don't race an unready DB on startup.
+      postgres:
+        condition: service_healthy
     environment:
       - CACHE_REDIS_ENABLED=${CACHE_REDIS_ENABLED:-true}
       - CACHE_REDIS_HOST=redis
       - CACHE_REDIS_PORT=6379
       - CACHE_REDIS_TTL_MINUTES=${CACHE_REDIS_TTL_MINUTES:-1440}
       - GAME_ADMIN_PASSWORD=${GAME_ADMIN_PASSWORD:-}
+      # Accounts / persistence (opt-in). To enable: ACCOUNTS_ENABLED=true and clear the exclude.
+      - ACCOUNTS_ENABLED=${ACCOUNTS_ENABLED:-false}
+      - ACCOUNTS_AUTOCONFIG_EXCLUDE=${ACCOUNTS_AUTOCONFIG_EXCLUDE-org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration,org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration}
+      - ACCOUNTS_DB_URL=${ACCOUNTS_DB_URL:-jdbc:postgresql://postgres:5432/argentum}
+      - ACCOUNTS_DB_USER=${ACCOUNTS_DB_USER:-argentum}
+      - ACCOUNTS_DB_PASSWORD=${ACCOUNTS_DB_PASSWORD:-argentum}
+      - ACCOUNTS_AUTH_SECRET=${ACCOUNTS_AUTH_SECRET:-}
+      - APP_BASE_URL=${APP_BASE_URL:-https://${APP_DOMAIN}}
+      - ACCOUNTS_FROM_EMAIL=${ACCOUNTS_FROM_EMAIL:-no-reply@wingedsheep.com}
+      - MAIL_HOST=${MAIL_HOST:-smtp.mailgun.org}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
       - GAME_AI_ENABLED=${GAME_AI_ENABLED:-false}
       - GAME_AI_BASE_URL=${GAME_AI_BASE_URL:-https://openrouter.ai/api/v1}
       - GAME_AI_API_KEY=${GAME_AI_API_KEY:-}
@@ -59,3 +94,4 @@ networks:
 
 volumes:
   redis_data:
+  postgres_data:

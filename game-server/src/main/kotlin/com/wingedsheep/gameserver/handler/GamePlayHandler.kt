@@ -40,7 +40,8 @@ class GamePlayHandler(
     private val deckGenerator: SealedDeckGenerator,
     private val gameProperties: GameProperties,
     private val gameHistoryRepository: GameHistoryRepository,
-    private val aiGameManager: AiGameManager
+    private val aiGameManager: AiGameManager,
+    private val matchResultSink: com.wingedsheep.gameserver.stats.MatchResultSink
 ) {
     private val logger = LoggerFactory.getLogger(GamePlayHandler::class.java)
 
@@ -668,6 +669,32 @@ class GamePlayHandler(
             )
             gameHistoryRepository.save(record)
             logger.info("Saved replay for game $gameSessionId ($frameCount frames)")
+        }
+
+        // Record a durable match-history row for account stats. The sink is a no-op unless accounts
+        // are enabled, and only persists games with at least one signed-in account. We resolve each
+        // seat's account via its live identity (null for guests/AI).
+        run {
+            val statsLobby = lobbyId?.let { lobbyRepository.findLobbyById(it) }
+            matchResultSink.record(
+                com.wingedsheep.gameserver.stats.RecordedMatch(
+                    gameId = gameSessionId,
+                    format = statsLobby?.format?.name,
+                    tournamentName = statsLobby?.let {
+                        it.setNames.joinToString(" / ") + " " + it.format.name.lowercase()
+                            .replaceFirstChar { c -> c.uppercase() }
+                    },
+                    startedAt = gameSession.replayStartedAt,
+                    endedAt = Instant.now(),
+                    participants = gameSession.getPlayers().map { player ->
+                        com.wingedsheep.gameserver.stats.RecordedParticipant(
+                            userId = sessionRegistry.getIdentityByWsId(player.webSocketSession.id)?.userId,
+                            playerName = player.playerName,
+                            won = winnerId != null && player.playerId == winnerId,
+                        )
+                    },
+                )
+            )
         }
 
         // Notify the dev LLM-tournament orchestrator (no-op for games it doesn't own).

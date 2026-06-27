@@ -4,6 +4,51 @@ server:
 spring:
   application:
     name: argentum-game-server
+  # Accounts/persistence is OPT-IN. By default we exclude the DataSource + Flyway auto-config so the
+  # server (and the test/e2e context) boots with no database at all. Spring Data JDBC and Flyway are
+  # both @ConditionalOnBean(DataSource), so excluding DataSourceAutoConfiguration cascade-disables
+  # them too (and avoids Spring Data JDBC's startup DB dialect probe).
+  #
+  # To ENABLE accounts: set ACCOUNTS_ENABLED=true, clear the exclude list (ACCOUNTS_AUTOCONFIG_EXCLUDE=),
+  # and point ACCOUNTS_DB_* at a Postgres instance. See docs/accounts-and-persistence.md.
+  autoconfigure:
+    exclude: ${ACCOUNTS_AUTOCONFIG_EXCLUDE:org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration,org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration}
+  datasource:
+    url: ${ACCOUNTS_DB_URL:}
+    username: ${ACCOUNTS_DB_USER:}
+    password: ${ACCOUNTS_DB_PASSWORD:}
+  flyway:
+    enabled: ${ACCOUNTS_ENABLED:false}
+    locations: classpath:db/migration
+  mail:
+    # Mailgun SMTP by default; override host/credentials for any provider. Unused when accounts are
+    # disabled or when no username is set (the magic link is logged to the console instead).
+    host: ${MAIL_HOST:smtp.mailgun.org}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+accounts:
+  # Master switch for the whole accounts/persistence/auth subsystem.
+  enabled: ${ACCOUNTS_ENABLED:false}
+  auth:
+    # HMAC secret for signing auth tokens. If blank, a random secret is generated at startup
+    # (tokens then don't survive a restart) — set ACCOUNTS_AUTH_SECRET in production.
+    secret: ${ACCOUNTS_AUTH_SECRET:}
+    # How long an issued auth token stays valid.
+    token-ttl-hours: ${ACCOUNTS_AUTH_TOKEN_TTL_HOURS:720}
+    # How long a magic-link login token stays valid.
+    login-token-ttl-minutes: ${ACCOUNTS_LOGIN_TOKEN_TTL_MINUTES:15}
+    # Public base URL the magic link points at (the client's origin).
+    base-url: ${APP_BASE_URL:http://localhost:5173}
+    # From address on the magic-link email.
+    from-email: ${ACCOUNTS_FROM_EMAIL:no-reply@wingedsheep.com}
 
 cache:
   redis:

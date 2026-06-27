@@ -19,6 +19,10 @@ class PlayerIdentity(
     /** LLM model override for AI players, null otherwise. Persisted alongside the lobby. */
     val aiModelOverride: String? = null
 ) {
+    /** Account id this identity is signed in as (from magic-link auth), or null for guest play. */
+    @Volatile
+    var userId: Long? = null
+
     /** Current WebSocket session — swapped on reconnect */
     @Volatile
     var webSocketSession: WebSocketSession? = null

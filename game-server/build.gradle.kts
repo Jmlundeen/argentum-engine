@@ -16,6 +16,15 @@ dependencies {
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.bundles.springBootWeb)
     implementation(libs.springBootStarterDataRedis)
+    // Accounts / persistence: PostgreSQL via Spring Data JDBC + Flyway, magic-link email.
+    // All gated behind `accounts.enabled` — the DataSource/Flyway/JDBC auto-config is excluded
+    // by default so the server still boots (and tests run) with no database present.
+    implementation(libs.springBootStarterDataJdbc)
+    implementation(libs.springBootStarterMail)
+    implementation(libs.springBootFlyway)
+    implementation(libs.flywayCore)
+    implementation(libs.flywayPostgresql)
+    runtimeOnly(libs.postgresql)
     implementation(libs.springdocOpenapi)
     implementation(kotlin("reflect"))
 
@@ -28,4 +37,8 @@ dependencies {
     testImplementation(libs.kotestExtensionsSpring)
     testImplementation(libs.kotlinxCoroutinesTest)
     testImplementation(libs.mockk)
+    // Real-Postgres integration tests for the JDBC repositories + Flyway migration.
+    // Self-skips when Docker is unavailable (see PostgresAccountsRepositoryTest).
+    testImplementation(libs.testcontainersPostgresql)
+    testImplementation(libs.testcontainersJunit)
 }

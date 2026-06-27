@@ -1,6 +1,8 @@
 package com.wingedsheep.gameserver.handler
 
 import com.wingedsheep.gameserver.ai.AiGameManager
+import com.wingedsheep.gameserver.auth.AuthSupport
+import org.springframework.beans.factory.ObjectProvider
 import com.wingedsheep.gameserver.lobby.LobbyState
 import com.wingedsheep.gameserver.protocol.ClientMessage
 import com.wingedsheep.gameserver.protocol.ErrorCode
@@ -26,9 +28,15 @@ class ConnectionHandler(
     private val lobbyRepository: LobbyRepository,
     private val sender: MessageSender,
     private val aiGameManager: AiGameManager,
-    private val boosterGenerator: BoosterGenerator
+    private val boosterGenerator: BoosterGenerator,
+    // Present only when accounts are enabled; resolved lazily so this handler stays usable without it.
+    private val authSupport: ObjectProvider<AuthSupport>
 ) {
     private val logger = LoggerFactory.getLogger(ConnectionHandler::class.java)
+
+    /** Resolve the durable account id from a connect message's auth token, or null if absent/invalid. */
+    private fun resolveAccountUserId(authToken: String?): Long? =
+        authToken?.let { authSupport.ifAvailable?.userOrNull(it)?.uid }
 
     private fun buildAvailableSetsList() = boosterGenerator.availableSets.values.map { config ->
         ServerMessage.AvailableSet(
@@ -53,6 +61,8 @@ class ConnectionHandler(
             val existingIdentity = sessionRegistry.getIdentityByToken(token)
             logger.info("Token lookup result: ${if (existingIdentity != null) "found identity for ${existingIdentity.playerName}" else "no identity found"}")
             if (existingIdentity != null) {
+                // Re-link the account in case the player signed in since their last connect.
+                resolveAccountUserId(message.authToken)?.let { existingIdentity.userId = it }
                 handleReconnect(session, existingIdentity)
                 return
             }
@@ -62,7 +72,7 @@ class ConnectionHandler(
         val identity = PlayerIdentity(
             playerId = playerId,
             playerName = message.playerName
-        )
+        ).apply { userId = resolveAccountUserId(message.authToken) }
 
         val playerSession = PlayerSession(
             webSocketSession = session,

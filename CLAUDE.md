@@ -160,6 +160,7 @@ card is pure authoring vs needs `add-feature`; a blank-page head-start on simple
 | [`continuous-effect-dependency-system.md`](docs/continuous-effect-dependency-system.md) | Rule 613.8 dependency resolution |
 | [`managing-complex-and-rare-abilities.md`](docs/managing-complex-and-rare-abilities.md) | Patterns for complex abilities |
 | [`engine-server-interface.md`](docs/engine-server-interface.md) | Engine ↔ API contract |
+| [`accounts-and-persistence.md`](docs/accounts-and-persistence.md) | Opt-in accounts, magic-link auth, PostgreSQL (saved decks + stats) |
 | [`player-input.md`](docs/player-input.md) | Async I/O and decision protocol |
 | [`data-contracts.md`](docs/data-contracts.md) | Client/server JSON payloads |
 | [`web-client-architecture.md`](docs/web-client-architecture.md) | Frontend architecture, WebSocket API |

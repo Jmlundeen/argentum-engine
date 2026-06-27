@@ -99,7 +99,9 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
       // never reconnects as an existing identity and gets its old spectating game restored.
       const token = spectator ? undefined : (urlToken ?? localStorage.getItem('argentum-token') ?? undefined)
       const connectName = spectator ? playerName : (localStorage.getItem('argentum-player-name') ?? playerName)
-      getWebSocket()?.send(createConnectMessage(connectName, token))
+      // Durable account token (magic-link login) links this session to the account for stats.
+      const authToken = spectator ? undefined : (localStorage.getItem('argentum-auth') ?? undefined)
+      getWebSocket()?.send(createConnectMessage(connectName, token, authToken))
     }
 
     const ws = new GameWebSocket({

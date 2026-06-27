@@ -1,0 +1,138 @@
+/**
+ * REST client for the optional accounts subsystem: magic-link auth, server-side saved decks, and
+ * win/loss stats. All endpoints 404 when the server has accounts disabled — callers should treat
+ * failures gracefully (the UI hides account features until {@link fetchMe} succeeds).
+ *
+ * The auth token (a signed token from magic-link login) lives in localStorage under `argentum-auth`
+ * and is sent as `Authorization: Bearer <token>` on authenticated calls. It is also picked up by the
+ * WebSocket connect handshake (see connectionSlice) to attribute games to the account.
+ */
+import type { SharedDeck } from '@/components/deckbuilder/shareDeck'
+
+const AUTH_KEY = 'argentum-auth'
+
+export function getAuthToken(): string | null {
+  return localStorage.getItem(AUTH_KEY)
+}
+export function setAuthToken(token: string): void {
+  localStorage.setItem(AUTH_KEY, token)
+}
+export function clearAuthToken(): void {
+  localStorage.removeItem(AUTH_KEY)
+}
+
+/** Thrown when an authenticated request is rejected — the caller should clear the session. */
+export class UnauthorizedError extends Error {}
+
+function authHeaders(): Record<string, string> {
+  const token = getAuthToken()
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+async function errorMessage(res: Response, fallback: string): Promise<string> {
+  const body = (await res.json().catch(() => null)) as { error?: string } | null
+  return body?.error ?? fallback
+}
+
+export interface AccountUser {
+  readonly id: number
+  readonly email: string
+  readonly displayName: string
+}
+
+export interface LoginResponse {
+  readonly authToken: string
+  readonly user: AccountUser
+}
+
+// ----- Auth -----
+
+/** Request a magic-link sign-in email. Resolves on success regardless of whether the email exists. */
+export async function requestLogin(email: string): Promise<void> {
+  const res = await fetch('/api/auth/request-login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+  if (!res.ok) throw new Error(await errorMessage(res, `Sign-in request failed (${res.status})`))
+}
+
+/** Exchange a magic-link token for a durable auth token + the account. */
+export async function verifyLogin(token: string): Promise<LoginResponse> {
+  const res = await fetch('/api/auth/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  })
+  if (!res.ok) throw new Error(await errorMessage(res, 'This sign-in link is invalid or expired'))
+  return (await res.json()) as LoginResponse
+}
+
+/** Fetch the current account, or null if not signed in / accounts disabled. */
+export async function fetchMe(): Promise<AccountUser | null> {
+  if (!getAuthToken()) return null
+  const res = await fetch('/api/auth/me', { headers: authHeaders() })
+  if (res.status === 401) return null
+  if (!res.ok) return null
+  return (await res.json()) as AccountUser
+}
+
+// ----- Saved decks -----
+
+export interface DeckSummary {
+  readonly id: number
+  readonly name: string
+  readonly format?: string
+  readonly updatedAt: string
+}
+
+export interface DeckDetail extends DeckSummary {
+  readonly deck: SharedDeck
+}
+
+export async function listDecks(): Promise<DeckSummary[]> {
+  const res = await fetch('/api/account/decks', { headers: authHeaders() })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok) throw new Error(`Failed to load decks (${res.status})`)
+  return (await res.json()) as DeckSummary[]
+}
+
+export async function getDeck(id: number): Promise<DeckDetail> {
+  const res = await fetch(`/api/account/decks/${id}`, { headers: authHeaders() })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok) throw new Error(`Failed to load deck (${res.status})`)
+  return (await res.json()) as DeckDetail
+}
+
+export async function saveDeck(deck: SharedDeck): Promise<DeckDetail> {
+  const res = await fetch('/api/account/decks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(deck),
+  })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok) throw new Error(`Failed to save deck (${res.status})`)
+  return (await res.json()) as DeckDetail
+}
+
+export async function deleteDeck(id: number): Promise<void> {
+  const res = await fetch(`/api/account/decks/${id}`, { method: 'DELETE', headers: authHeaders() })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok && res.status !== 404) throw new Error(`Failed to delete deck (${res.status})`)
+}
+
+// ----- Stats -----
+
+export interface AccountStats {
+  readonly games: number
+  readonly wins: number
+  readonly losses: number
+  readonly winRate: number
+}
+
+export async function fetchStats(): Promise<AccountStats> {
+  const res = await fetch('/api/account/stats/me', { headers: authHeaders() })
+  if (res.status === 401) throw new UnauthorizedError()
+  if (!res.ok) throw new Error(`Failed to load stats (${res.status})`)
+  return (await res.json()) as AccountStats
+}

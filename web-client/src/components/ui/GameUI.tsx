@@ -17,6 +17,8 @@ import { SetPickerModal } from './SetPickerModal'
 import { JoinQrModal } from './JoinQrModal'
 import { buildJoinUrl } from '@/utils/joinLink'
 import { labelForFormat } from '@/utils/deckLegality'
+import { useAuthStore } from '@/store/authStore'
+import { DeckMigrationPrompt } from '@/components/auth/DeckMigrationPrompt'
 import styles from './GameUI.module.css'
 
 type GameMode = 'normal' | 'tournament'
@@ -129,6 +131,12 @@ function ConnectionOverlay({
   const onlinePlayers = useGameStore((state) => state.onlinePlayers)
   const spectateGame = useGameStore((state) => state.spectateGame)
   const setPendingSpectateGameId = useGameStore((state) => state.setPendingSpectateGameId)
+  const authUser = useAuthStore((state) => state.user)
+  const authStatus = useAuthStore((state) => state.status)
+  const authInit = useAuthStore((state) => state.init)
+  useEffect(() => {
+    if (authStatus === 'idle') void authInit()
+  }, [authStatus, authInit])
 
   const confirmName = () => {
     if (playerName.trim()) {
@@ -410,6 +418,8 @@ function ConnectionOverlay({
                 </button>
               </div>
 
+              <DeckMigrationPrompt />
+
               <div className={styles.secondaryButtonRow}>
                 <button
                   onClick={() => navigate('/deckbuilder')}
@@ -437,6 +447,12 @@ function ConnectionOverlay({
                     LLM Tournament
                   </button>
                 )}
+                <button
+                  onClick={() => navigate('/profile')}
+                  className={styles.secondaryButton}
+                >
+                  {authUser ? authUser.displayName : 'Sign in'}
+                </button>
                 <button
                   onClick={() => setShowReplays(true)}
                   className={styles.secondaryButton}
