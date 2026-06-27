@@ -200,16 +200,32 @@ class CastZoneResolver(
             val permCard = state.getEntity(permId)?.get<CardComponent>() ?: continue
             val permDef = cardRegistry.getCard(permCard.cardDefinitionId) ?: continue
             for (sa in permDef.script.staticAbilities) {
-                if (sa !is MayCastFromGraveyard) continue
-                if (sa.duringYourTurnOnly && !state.isActiveTurnFor(playerId)) continue
-                if (predicateEvaluator.matches(
-                        state, state.projectedState, cardId, sa.filter,
-                        PredicateContext(controllerId = playerId)
-                    )
-                ) return true
+                if (mayCastFromGraveyardGrantApplies(state, playerId, cardId, sa)) return true
             }
         }
+        // Durational grants (e.g. Forgotten Cellar's "cast spells from your graveyard this turn")
+        // recorded in grantedStaticAbilities, anchored to a permanent the player controls.
+        for (grant in state.grantedStaticAbilities) {
+            val anchor = state.getEntity(grant.entityId) ?: continue
+            val controller = anchor.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
+            if (controller != playerId) continue
+            if (mayCastFromGraveyardGrantApplies(state, playerId, cardId, grant.ability)) return true
+        }
         return false
+    }
+
+    private fun mayCastFromGraveyardGrantApplies(
+        state: GameState,
+        playerId: EntityId,
+        cardId: EntityId,
+        sa: com.wingedsheep.sdk.scripting.StaticAbility
+    ): Boolean {
+        if (sa !is MayCastFromGraveyard) return false
+        if (sa.duringYourTurnOnly && !state.isActiveTurnFor(playerId)) return false
+        return predicateEvaluator.matches(
+            state, state.projectedState, cardId, sa.filter,
+            PredicateContext(controllerId = playerId)
+        )
     }
 
     /**

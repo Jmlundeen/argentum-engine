@@ -527,6 +527,24 @@ object ZoneMovementUtils {
             }
         }
 
+        // Granted (durational) replacement effects — e.g. Forgotten Cellar's "if a card would be
+        // put into your graveyard from anywhere this turn, exile it instead". Recorded in
+        // GameState.grantedReplacementEffects with the granting controller, and read here
+        // alongside permanents' printed replacement effects.
+        for (grant in state.grantedReplacementEffects) {
+            val effect = grant.replacement
+            if (effect !is RedirectZoneChange) continue
+
+            val event = effect.appliesTo
+            if (event !is com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent) continue
+
+            if (event.to != null && event.to != toZone) continue
+            if (event.from != null && event.from != fromZone) continue
+            if (!matchesZoneChangeFilter(state, entityId, container, event.filter, grant.controllerId)) continue
+
+            return ZoneChangeRedirectResult(effect.newDestination)
+        }
+
         return ZoneChangeRedirectResult(toZone)
     }
 
