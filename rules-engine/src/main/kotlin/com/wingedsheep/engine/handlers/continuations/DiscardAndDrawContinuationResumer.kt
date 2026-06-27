@@ -29,7 +29,13 @@ class DiscardAndDrawContinuationResumer(
         }
 
         val result = ZoneTransitionService.discardCards(state, continuation.playerId, response.selectedCards)
-        return checkForMore(result.state, result.events)
+        // The hand-size discard (CR 514.1) interrupted the cleanup step: performCleanupStep
+        // early-returned to ask for this discard before performing the CR 514.2 turn-based
+        // actions. Finish them now — otherwise marked damage (notably deathtouch damage that an
+        // expiring "until end of turn" indestructible had suppressed) persists into the next turn
+        // and kills the creature on the following turn's state-based-action check.
+        val cleanedState = CleanupPhaseManager.applyCleanupTurnBasedActions(result.state)
+        return checkForMore(cleanedState, result.events)
     }
 
     fun resumeEachPlayerDiscardsOrLoseLife(

@@ -66,6 +66,15 @@ data object CastFromHandComponent : Component
 data object CastFromGraveyardComponent : Component
 
 /**
+ * Marks a permanent as having been cast from a library (e.g. an ongoing "you may cast … from
+ * the top of your library" permission). Added when a spell resolves with castFromZone == LIBRARY.
+ * Used by riders that care whether an entering creature was cast from the library (e.g. Mikey &
+ * Don: "if you cast a creature spell this way, it enters with an additional +1/+1 counter").
+ */
+@Serializable
+data object CastFromLibraryComponent : Component
+
+/**
  * Marks a permanent that entered the battlefield directly from a graveyard via a
  * reanimation effect (not via casting). Added in the battlefield-entry path when
  * the zone transition's fromZone is GRAVEYARD. Used by triggers that care whether

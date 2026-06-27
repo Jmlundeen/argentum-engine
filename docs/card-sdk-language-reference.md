@@ -4170,9 +4170,13 @@ answer it and would silently return `false`.
 - `WasCastFromHand` — cast specifically from hand.
 - `WasCastFromZone(zone)` — cast from a specific zone. For resolving spells it reads the spell's
   cast-origin; for a permanent already on the battlefield it falls back to the cast-origin marker
-  stamped as it entered (`HAND` → `CastFromHandComponent`, `GRAVEYARD` → `CastFromGraveyardComponent`),
-  so it can gate an entering permanent's own replacement effect (Hundred-Battle Veteran: "enters with
-  a finality counter if cast from your graveyard").
+  stamped as it entered (`HAND` → `CastFromHandComponent`, `GRAVEYARD` → `CastFromGraveyardComponent`,
+  `LIBRARY` → `CastFromLibraryComponent`), so it can gate an entering permanent's own replacement
+  effect (Hundred-Battle Veteran: "enters with a finality counter if cast from your graveyard") or a
+  *non-self* `EntersWithCounters` (`selfOnly = false`), whose condition is evaluated against the
+  entering creature — Leonardo, Sewer Samurai ("creatures you cast from your graveyard enter with a
+  finality counter") and Mikey & Don ("creatures you cast from the top of your library enter with an
+  extra +1/+1 counter", `WasCastFromZone(Zone.LIBRARY)`).
 - `WasKicked` — cast with kicker / multikicker / offspring (i.e. an `OptionalAdditionalCost` with `branchesEffect = true` whose extra cost was paid). FlashKicker payments are intentionally invisible to this condition.
 - `SneakCostWasPaid` — the source was cast for its `Sneak` cost (CR 702.190 — mana + returning an unblocked attacker). Reads the durable `ChoiceSlot.SNEAK` flag on a resolved permanent, falling back to the resolution context for a non-permanent spell's own effect. Backs riders like Leonardo, Leader in Blue and The Last Ronin's Technique.
 - `NoManaSpentToCast` — "it wasn't cast or no mana was spent to cast it": the standard free-cast

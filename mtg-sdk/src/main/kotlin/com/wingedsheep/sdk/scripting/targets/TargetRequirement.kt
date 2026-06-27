@@ -452,6 +452,35 @@ data class TargetOther(
 }
 
 /**
+ * Return a copy of this requirement whose maximum [count] is narrowed to [newCount], clamping
+ * [minCount] down so it never exceeds the new maximum. A no-op when [newCount] already equals
+ * [count].
+ *
+ * Used when a chosen target set is smaller than a requirement's declared maximum (a partially
+ * filled "up to N" slot). The flattened target↔requirement index walks
+ * (`StackResolver.getRequirementForTargetIndex`, `EffectContext.buildNamedTargets`) advance by
+ * `count`, so an over-wide requirement would absorb a *later* slot's targets and validate them
+ * against the wrong filter. Shrinking the requirement to the targets actually chosen keeps those
+ * walks aligned.
+ */
+fun TargetRequirement.withCount(newCount: Int): TargetRequirement {
+    if (newCount == count) return this
+    val clampedMin = minOf(minCount, newCount)
+    return when (this) {
+        is TargetPlayer -> copy(count = newCount)
+        is TargetOpponent -> copy(count = newCount)
+        is AnyTarget -> copy(count = newCount, minCount = clampedMin)
+        is TargetCreatureOrPlayer -> copy(count = newCount)
+        is TargetOpponentOrPlaneswalker -> copy(count = newCount)
+        is TargetPlayerOrPlaneswalker -> copy(count = newCount)
+        is TargetCreatureOrPlaneswalker -> copy(count = newCount)
+        is TargetSpellOrPermanent -> copy(count = newCount)
+        is TargetObject -> copy(count = newCount, minCount = clampedMin)
+        is TargetOther -> copy(baseRequirement = baseRequirement.withCount(newCount))
+    }
+}
+
+/**
  * Create a copy of this TargetRequirement with the given id set.
  * Used by the DSL to stamp an id onto requirements passed to target(name, requirement).
  */

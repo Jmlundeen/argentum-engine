@@ -152,45 +152,11 @@ class CleanupPhaseManager(
             )
         }
 
-        // Remove damage from all permanents on the battlefield (Rule 514.2).
-        // Includes vehicles that reverted from creature status this turn — their damage
-        // (and P/T from the expired floating effect) must be cleared.
-        val battlefield = newState.getBattlefield().toSet()
-        val permanentsWithDamage = newState.entities.filter { (entityId, container) ->
-            entityId in battlefield && container.has<DamageComponent>()
-        }.keys
-
-        for (entityId in permanentsWithDamage) {
-            newState = newState.updateEntity(entityId) { it.without<DamageComponent>() }
-        }
-
-        // Remove MustAttackThisTurnComponent from all creatures (Walking Desecration effect)
-        val creaturesWithMustAttack = newState.entities.filter { (_, container) ->
-            container.has<MustAttackThisTurnComponent>()
-        }.keys
-        for (entityId in creaturesWithMustAttack) {
-            newState = newState.updateEntity(entityId) { it.without<MustAttackThisTurnComponent>() }
-        }
-
-        // Remove CanAttackDespiteDefenderThisTurnComponent (Krotiq Nestguard's "can attack
-        // this turn as though it didn't have defender" activated ability).
-        val creaturesWithCanAttackDespiteDefender = newState.entities.filter { (_, container) ->
-            container.has<CanAttackDespiteDefenderThisTurnComponent>()
-        }.keys
-        for (entityId in creaturesWithCanAttackDespiteDefender) {
-            newState = newState.updateEntity(entityId) { it.without<CanAttackDespiteDefenderThisTurnComponent>() }
-        }
-
-        // Close any open miracle windows (CR 702.94 — the chance to cast for the miracle cost lasts
-        // only the turn the card was drawn).
-        val cardsWithMiracleWindow = newState.entities.filter { (_, container) ->
-            container.has<com.wingedsheep.engine.state.components.identity.MiracleWindowComponent>()
-        }.keys
-        for (entityId in cardsWithMiracleWindow) {
-            newState = newState.updateEntity(entityId) {
-                it.without<com.wingedsheep.engine.state.components.identity.MiracleWindowComponent>()
-            }
-        }
+        // CR 514.2 turn-based actions: remove marked damage and end the per-turn markers that
+        // expire with the cleanup step. The hand-size discard (CR 514.1) above early-returns
+        // *before* this point; its continuation re-runs the same actions via
+        // [applyCleanupTurnBasedActions], so this block must stay side-effect-equivalent there.
+        newState = applyCleanupTurnBasedActions(newState)
 
         // No priority during cleanup (normally)
         newState = newState.copy(priorityPlayerId = null)
@@ -925,5 +891,65 @@ class CleanupPhaseManager(
         }
 
         return newState
+    }
+
+    companion object {
+        /**
+         * Apply the CR 514.2 turn-based cleanup actions: remove all marked damage from
+         * permanents and end the per-turn combat/miracle markers that expire with the cleanup
+         * step. Extracted from [performCleanupStep] so it can run in *both* cleanup paths.
+         *
+         * [performCleanupStep] performs the CR 514.1 hand-size discard first, and when a discard
+         * is required it early-returns to ask the player — *before* these 514.2 actions. That
+         * pause is resumed by [com.wingedsheep.engine.core.HandSizeDiscardContinuation], whose
+         * resumer must call this to finish the step. If it doesn't, marked damage survives into
+         * the next turn — most visibly deathtouch damage that an expiring "until end of turn"
+         * indestructible (e.g. Saved by the Shell) had been suppressing, which then kills the
+         * creature on the following turn's state-based-action check.
+         */
+        fun applyCleanupTurnBasedActions(state: GameState): GameState {
+            var newState = state
+
+            // Remove damage from all permanents on the battlefield (Rule 514.2).
+            // Includes vehicles that reverted from creature status this turn — their damage
+            // (and P/T from the expired floating effect) must be cleared.
+            val battlefield = newState.getBattlefield().toSet()
+            val permanentsWithDamage = newState.entities.filter { (entityId, container) ->
+                entityId in battlefield && container.has<DamageComponent>()
+            }.keys
+            for (entityId in permanentsWithDamage) {
+                newState = newState.updateEntity(entityId) { it.without<DamageComponent>() }
+            }
+
+            // Remove MustAttackThisTurnComponent from all creatures (Walking Desecration effect)
+            val creaturesWithMustAttack = newState.entities.filter { (_, container) ->
+                container.has<MustAttackThisTurnComponent>()
+            }.keys
+            for (entityId in creaturesWithMustAttack) {
+                newState = newState.updateEntity(entityId) { it.without<MustAttackThisTurnComponent>() }
+            }
+
+            // Remove CanAttackDespiteDefenderThisTurnComponent (Krotiq Nestguard's "can attack
+            // this turn as though it didn't have defender" activated ability).
+            val creaturesWithCanAttackDespiteDefender = newState.entities.filter { (_, container) ->
+                container.has<CanAttackDespiteDefenderThisTurnComponent>()
+            }.keys
+            for (entityId in creaturesWithCanAttackDespiteDefender) {
+                newState = newState.updateEntity(entityId) { it.without<CanAttackDespiteDefenderThisTurnComponent>() }
+            }
+
+            // Close any open miracle windows (CR 702.94 — the chance to cast for the miracle cost lasts
+            // only the turn the card was drawn).
+            val cardsWithMiracleWindow = newState.entities.filter { (_, container) ->
+                container.has<com.wingedsheep.engine.state.components.identity.MiracleWindowComponent>()
+            }.keys
+            for (entityId in cardsWithMiracleWindow) {
+                newState = newState.updateEntity(entityId) {
+                    it.without<com.wingedsheep.engine.state.components.identity.MiracleWindowComponent>()
+                }
+            }
+
+            return newState
+        }
     }
 }

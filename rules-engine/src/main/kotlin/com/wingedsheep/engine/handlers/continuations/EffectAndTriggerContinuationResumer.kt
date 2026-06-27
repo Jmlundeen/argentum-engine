@@ -3,12 +3,15 @@ package com.wingedsheep.engine.handlers.continuations
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
 import com.wingedsheep.engine.handlers.effects.composite.asMayDecide
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.Gate
+import com.wingedsheep.sdk.scripting.targets.TargetRequirement
+import com.wingedsheep.sdk.scripting.targets.withCount
 import java.util.UUID
 
 /**
@@ -69,8 +72,26 @@ class EffectAndTriggerContinuationResumer(
             return ExecutionResult.error(state, "Expected target selection response for triggered ability")
         }
 
-        val selectedTargets = response.selectedTargets.flatMap { (_, targetIds) ->
-            targetIds.map { entityId -> entityIdToChosenTarget(state, entityId) }
+        // Build the chosen-targets list in requirement-slot order, keeping it PARALLEL to the
+        // requirements that actually received a target. A declined "up to one" slot (empty list)
+        // drops out of BOTH lists together, so a later target never shifts forward into an earlier
+        // requirement's position. Without this, exiling only a creature with Don & Leo, Problem
+        // Solvers (declining the "up to one artifact" slot) validated the creature against the
+        // artifact requirement at resolution and fizzled with "all targets invalid" (CR 608.2b).
+        //
+        // Each kept requirement is also narrowed (`withCount`) to the number of targets actually
+        // chosen for its slot: the downstream index walks (StackResolver.getRequirementForTargetIndex,
+        // EffectContext.buildNamedTargets) advance by `count`, so a partially filled "up to two"
+        // slot left at its declared max would absorb the next slot's target into its own range and
+        // validate it against the wrong filter.
+        val orderedSlots = response.selectedTargets.entries.sortedBy { it.key }
+        val selectedTargets = mutableListOf<ChosenTarget>()
+        val alignedRequirements = mutableListOf<TargetRequirement>()
+        for ((slotIndex, targetIds) in orderedSlots) {
+            if (targetIds.isEmpty()) continue
+            targetIds.forEach { entityId -> selectedTargets.add(entityIdToChosenTarget(state, entityId)) }
+            continuation.targetRequirements.getOrNull(slotIndex)
+                ?.let { alignedRequirements.add(it.withCount(targetIds.size)) }
         }
 
         // Zero-target resolution path. Two cases:
@@ -160,7 +181,7 @@ class EffectAndTriggerContinuationResumer(
         )
 
         val stackResult = services.stackResolver.putTriggeredAbility(
-            state, abilityComponent, selectedTargets, continuation.targetRequirements
+            state, abilityComponent, selectedTargets, alignedRequirements
         )
 
         if (!stackResult.isSuccess) {

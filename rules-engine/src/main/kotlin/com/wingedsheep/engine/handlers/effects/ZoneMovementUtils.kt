@@ -312,6 +312,7 @@ object ZoneMovementUtils {
             .without<SummoningSicknessComponent>()
             .without<CastFromHandComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.CastFromLibraryComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.EnteredFromGraveyardComponent>()
             .without<WarpedComponent>()
             .without<EvokedComponent>()

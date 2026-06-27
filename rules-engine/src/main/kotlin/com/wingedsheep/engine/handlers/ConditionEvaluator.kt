@@ -84,6 +84,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasCast
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone
 import com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent
+import com.wingedsheep.engine.state.components.battlefield.CastFromLibraryComponent
 import com.wingedsheep.sdk.scripting.conditions.SacrificedPermanentHadSubtype
 import com.wingedsheep.sdk.scripting.conditions.SacrificedPermanentWasLegendary
 import com.wingedsheep.sdk.scripting.conditions.YouSacrificedPermanentThisWay
@@ -957,6 +958,7 @@ class ConditionEvaluator(
         return when (condition.zone) {
             Zone.HAND -> entity.has<CastFromHandComponent>()
             Zone.GRAVEYARD -> entity.has<CastFromGraveyardComponent>()
+            Zone.LIBRARY -> entity.has<CastFromLibraryComponent>()
             else -> false
         }
     }

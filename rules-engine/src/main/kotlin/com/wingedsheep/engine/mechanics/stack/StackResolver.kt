@@ -1124,6 +1124,12 @@ class StackResolver(
                 updated = updated.with(com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent)
             }
 
+            // Track if this permanent was cast from a library (e.g. "cast from the top of your
+            // library" permissions — Mikey & Don's +1/+1 rider on creatures cast this way).
+            if (spellComponent.castFromZone == Zone.LIBRARY) {
+                updated = updated.with(com.wingedsheep.engine.state.components.battlefield.CastFromLibraryComponent)
+            }
+
             // Carry the cast-time choices durably onto the permanent (CR 601.2b choices ride the
             // stable entity onto the battlefield) so triggered/activated abilities can read "the X
             // / color / type / kicked-ness this was cast with" via DynamicAmount.CastX /
