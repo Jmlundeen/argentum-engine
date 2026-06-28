@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.stats
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.registry.PrintingRegistry
 import com.wingedsheep.sdk.core.CardType
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.jdbc.core.JdbcTemplate
@@ -39,9 +40,9 @@ data class DeckCardEntry(val cardName: String, val copies: Int)
 
 /**
  * One card line enriched with the registry metadata the client needs to render a deck the polished
- * way (group by type, draw a mana curve, colour the pips) — so the deck viewer doesn't have to load
- * the full card catalog just to know a card's cost/type/colour. Field names match the client's
- * `DeckStatsCard` shape so `computeDeckStats` consumes them directly.
+ * way (group by type, draw a mana curve, colour the pips, show the art on hover) — so the deck viewer
+ * doesn't have to load the full card catalog just to know a card's cost/type/colour/image. Field names
+ * match the client's `DeckStatsCard` shape so `computeDeckStats` consumes them directly.
  */
 data class GameDeckCard(
     val cardName: String,
@@ -52,6 +53,12 @@ data class GameDeckCard(
     val cardTypes: List<String>,
     /** The card's own colours as enum names (e.g. ["WHITE","BLUE"]); empty = colourless/unresolved. */
     val colors: List<String>,
+    /**
+     * Direct CDN art URL for the card's default printing, resolved the same way as the deckbuilder
+     * catalog ([CardsController]). `null` when the card can't be resolved, in which case the client
+     * falls back to a Scryfall name lookup — slower and rate-limited, so we send this up front.
+     */
+    val imageUri: String?,
 )
 
 /** One seat's recorded deck within a finished game, for the recent-games deck viewer. */
@@ -143,6 +150,7 @@ class StatsQueryService(
     private val jdbc: JdbcTemplate,
     private val deckProfiler: DeckProfiler,
     private val cardRegistry: CardRegistry,
+    private val printingRegistry: PrintingRegistry,
 ) {
 
     // ---- Per-user ----------------------------------------------------------------------------
@@ -454,6 +462,11 @@ class StatsQueryService(
                     cmc = card?.cmc ?: 0,
                     cardTypes = card?.typeLine?.cardTypes?.map { it.name } ?: emptyList(),
                     colors = card?.colors?.map { it.name } ?: emptyList(),
+                    // Prefer the default printing's art (mirrors CardsController), falling back to the
+                    // canonical metadata image — so the deck viewer loads from the CDN directly.
+                    imageUri = card?.let {
+                        printingRegistry.defaultPrinting(it.name)?.imageUri ?: it.metadata.imageUri
+                    },
                 )
             }
 

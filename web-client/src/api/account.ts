@@ -263,6 +263,11 @@ export interface GameDeckCard {
   readonly cardTypes: string[]
   /** The card's own colours as enum names, e.g. `["WHITE","BLUE"]`; empty = colourless. */
   readonly colors: string[]
+  /**
+   * Direct CDN art URL for the card's default printing, resolved server-side (like the deckbuilder
+   * catalog). `null` when unresolved, in which case the preview falls back to a Scryfall name lookup.
+   */
+  readonly imageUri: string | null
 }
 
 /** One seat's recorded deck within a finished game. */

@@ -70,7 +70,7 @@ function groupByType(cards: GameDeckCard[]): TypeGroup[] {
     })
 }
 
-type HoverState = { name: string; pos: { x: number; y: number } } | null
+type HoverState = { name: string; imageUri: string | null; pos: { x: number; y: number } } | null
 
 /**
  * The body of a single deck: colour pips, mana curve, and the cards grouped by type. Used standalone
@@ -121,8 +121,8 @@ export function DeckCardBody({ cards }: { cards: GameDeckCard[] }) {
                 <li
                   key={c.cardName}
                   style={styles.cardRow}
-                  onMouseEnter={(e) => setHover({ name: c.cardName, pos: { x: e.clientX, y: e.clientY } })}
-                  onMouseMove={(e) => setHover({ name: c.cardName, pos: { x: e.clientX, y: e.clientY } })}
+                  onMouseEnter={(e) => setHover({ name: c.cardName, imageUri: c.imageUri, pos: { x: e.clientX, y: e.clientY } })}
+                  onMouseMove={(e) => setHover({ name: c.cardName, imageUri: c.imageUri, pos: { x: e.clientX, y: e.clientY } })}
                   onMouseLeave={() => setHover(null)}
                 >
                   <span style={styles.copies}>{c.copies}</span>
@@ -134,7 +134,7 @@ export function DeckCardBody({ cards }: { cards: GameDeckCard[] }) {
         ))}
       </div>
 
-      {hover && <HoverCardPreview name={hover.name} imageUri={null} pos={hover.pos} />}
+      {hover && <HoverCardPreview name={hover.name} imageUri={hover.imageUri} pos={hover.pos} />}
     </div>
   )
 }
