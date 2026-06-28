@@ -2,7 +2,7 @@
 
 **Set Size:** 286 draft/booster cards (excluding basic lands beyond the set's own, tokens, and special variants)
 **Release Date:** November 21, 2025
-**Implemented:** 46 / 286  (16%)
+**Implemented:** 47 / 286  (16%)
 **Engine gap analysis:** [`tla-engine-gaps.md`](tla-engine-gaps.md)
 
 ## Mechanics needed to complete the set
@@ -345,7 +345,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Wolfbat
 - [ ] Yip Yip!
 - [ ] Yue, the Moon Spirit
-- [ ] Yuyan Archers
+- [x] Yuyan Archers
 - [ ] Zhao, Ruthless Admiral
 - [ ] Zhao, the Moon Slayer
 - [ ] Zuko's Conviction
