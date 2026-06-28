@@ -481,7 +481,7 @@ const styles: Record<string, React.CSSProperties> = {
   title: { margin: '4px 0 0', color: '#fff', fontSize: 28 },
   muted: { margin: 0, color: '#888', fontSize: 14 },
   subtle: { margin: '0 0 8px', color: '#777', fontSize: 12 },
-  overviewRow: { display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'stretch' },
+  overviewRow: { display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' },
   tiles: { display: 'flex', gap: 12, flexWrap: 'wrap', flex: '2 1 360px' },
   tile: {
     flex: '1 1 110px',
