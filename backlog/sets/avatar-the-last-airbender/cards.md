@@ -184,7 +184,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Haru, Hidden Talent
 - [ ] Heartless Act
 - [ ] Hei Bai, Spirit of Balance
-- [ ] Hermitic Herbalist
+- [x] Hermitic Herbalist
 - [ ] Hog-Monkey
 - [ ] Honest Work
 - [ ] How to Start a Riot
