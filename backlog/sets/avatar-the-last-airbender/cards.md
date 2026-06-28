@@ -176,7 +176,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Giant Koi
 - [x] Glider Kids
 - [ ] Glider Staff
-- [ ] Gran-Gran
+- [x] Gran-Gran
 - [ ] Great Divide Guide
 - [ ] Guru Pathik
 - [ ] Hakoda, Selfless Commander
