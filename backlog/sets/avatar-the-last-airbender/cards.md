@@ -216,7 +216,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Leaves from the Vine
 - [x] Lightning Strike
 - [ ] Lo and Li, Twin Tutors
-- [ ] Long Feng, Grand Secretariat
+- [x] Long Feng, Grand Secretariat
 - [ ] Lost Days
 - [ ] Mai, Jaded Edge
 - [x] Mai, Scornful Striker
