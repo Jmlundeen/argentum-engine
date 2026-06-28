@@ -268,6 +268,12 @@ definitions construct these through the facade, e.g. `Costs.additional.Sacrifice
 - `Costs.additional.PayLifePerTarget(amountPerTarget)` — "this spell costs N life more to cast for
   each target." Pair with an unbounded `TargetCreature(unlimited = true)` etc.; the engine
   auto-pays `amountPerTarget × action.targets.size` at cast resolution (Phyrexian Purge).
+- `Costs.additional.PayLifeEqualToManaValueOfSpell` — auto-pays life equal to the cast spell's own
+  mana value. The substitute cost for "pay life equal to its mana value rather than pay its mana cost"
+  (Valgavoth, Terror Eater; Bolas's Citadel-style effects). Pair it with a play-from-exile grant whose
+  mana cost is waived — `GrantMayCastFromLinkedExile(withoutPayingManaCost = true, additionalCost =
+  Costs.additional.PayLifeEqualToManaValueOfSpell)` — so the only cost paid is the life. The amount is
+  read from the cast card's mana value, checked at cast time (CR 119.4 — must have at least that much life).
 - `Costs.additional.ExileFromGraveyardOrPay(exileCount, alternativeManaCost, filter = Filters.Any)`
   — "as an additional cost to cast this spell, exile N cards from your graveyard or pay {mana}"
   (Soaring Stoneglider: "exile two cards from your graveyard or pay {1}{W}"). The sibling of the
@@ -3607,6 +3613,16 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   your graveyard". Lands are *played*, not cast, so they need the lands permission separately. This
   grants permission over *other* cards in your graveyard from a battlefield permanent — for a card
   that grants permission to cast *itself* from a zone, use `MayCastSelfFromZones`.
+- `GrantMayCastFromLinkedExile(filter = Nonland, duringYourTurnOnly = false, additionalCost = null, ownedByYou = false, withoutPayingManaCost = false, oncePerTurn = false, maxManaValue = null, exiledThisTurnOnly = false)`
+  — "you may cast cards exiled with this permanent" — reads the source's `LinkedExileComponent` (Rona,
+  Disciple of Gix; Maralen, Fae Ascendant; Dawnhand Dissident). Casting spells from linked exile is
+  enumerated by `CastFromZoneEnumerator.enumerateLinkedExile`; the cast path deliberately skips lands.
+  For the "pay life equal to its mana value rather than pay its mana cost" shape (Valgavoth, Terror
+  Eater), set `withoutPayingManaCost = true` (waives the mana) and `additionalCost =
+  Costs.additional.PayLifeEqualToManaValueOfSpell` (substitutes the life). When `filter` admits lands
+  (e.g. `GameObjectFilter.Any`, no `IsNonland` predicate), the permission also covers *playing* land
+  cards from the linked exile — surfaced by `PlayLandEnumerator` and authorized by `PlayLandHandler`
+  (lands cost no life). Pair with a `RedirectZoneChange(linkToSource = true)` to fill the exile pile.
 - `GraveyardCreaturesHaveSneak(cost)` — "Creature cards in your graveyard have sneak `cost`. You may
   cast creature spells from your graveyard using their sneak abilities." (Ninja Teen level 3.) While
   the controller has this static active, their graveyard creature cards become castable via the
@@ -3823,9 +3839,11 @@ composite abilities).
 
 - `Ward(amount)` — opponent pays a mana cost to target this (CR 702.21). Non-mana costs use
   `KeywordAbility.Ward(WardCost.X)`: `WardCost.Mana`, `WardCost.Life(n)`, `WardCost.Discard(n, random, filter)`,
-  and `WardCost.Sacrifice(filter)` ("Ward—Sacrifice a Food", Ygra). For sacrifice ward, the opponent
-  chooses which matching permanent(s) they control to sacrifice (declining counters their spell); valid
-  fodder is matched against projected state, so subtypes granted by continuous effects count.
+  and `WardCost.Sacrifice(filter, count = 1)` ("Ward—Sacrifice a Food", Ygra; "Ward—Sacrifice three
+  nonland permanents" with `count = 3`, Valgavoth, Terror Eater, via `KeywordAbility.wardSacrifice(filter, count)`).
+  For sacrifice ward, the opponent chooses which `count` matching permanent(s) they control to sacrifice
+  (selecting fewer, or controlling fewer than `count`, counters their spell); valid fodder is matched
+  against projected state, so subtypes granted by continuous effects count.
   Composite costs ("Ward—{2}, Pay 2 life", Gisa, the Hellraiser) use
   `KeywordAbility.wardComposite(WardCost.Mana("{2}"), WardCost.Life(2))` → `WardCost.Composite(parts)`.
   The components are charged one at a time in order; the spell/ability resolves only if every
@@ -5425,6 +5443,18 @@ replacementEffect {
   "three or more lands total". The parallel "fast land" cycle (Blooming Marsh — "two or fewer other lands")
   uses an `LTE`-direction `Compare(AggregateBattlefield(You, Land), LTE, Fixed(3))`. `payLifeCost` renders
   the "you may pay N life; if you don't, it enters tapped" variant.
+- `RedirectZoneChange(newDestination, appliesTo, linkToSource = false)` — redirect a zone change to a
+  different destination (Rest in Peace / Leyline of the Void: graveyard → exile). `appliesTo` is an
+  `EventPattern.ZoneChangeEvent(filter, from?, to?)`; the `filter`'s `controllerPredicate` scopes it
+  (e.g. `OwnedByOpponent` for Leyline). When `linkToSource = true` and `newDestination = Zone.EXILE`,
+  each redirected card is added to the source permanent's `LinkedExileComponent`, so the source can
+  later reference — and grant playing of — the cards it exiled. Valgavoth, Terror Eater pairs it with
+  `GrantMayCastFromLinkedExile`: "If a card you didn't control would be put into an opponent's graveyard
+  from anywhere, exile it instead" is `RedirectZoneChange(newDestination = Zone.EXILE, linkToSource =
+  true, appliesTo = ZoneChangeEvent(to = Zone.GRAVEYARD, filter = GameObjectFilter(cardPredicates =
+  listOf(CardPredicate.IsNontoken), controllerPredicate = ControllerPredicate.And(listOf(OwnedByOpponent,
+  Not(ControlledByYou))))))`. The redirect (and link) is honored across every graveyard path: SBA deaths,
+  mill/discard/destroy (`ZoneTransitionService`), spell resolution, counters, and fizzles (`StackResolver`).
 - `ReplacementEffect.IfYouDoBranchEffect(...)` — branch on "if you do" replacement.
 - `OnEnterRunEffect(effect)` — generic "as ~ enters the battlefield, run [effect]". The wrapped effect
   executes via the normal effect-executor pipeline at entry time (so `EffectTarget.Self` resolves to

@@ -20169,6 +20169,79 @@
     ]
 }
 
+// Valgavoth, Terror Eater
+{
+    "name": "Valgavoth, Terror Eater",
+    "manaCost": "{6}{B}{B}{B}",
+    "typeLine": "Legendary Creature — Elder Demon",
+    "oracleText": "Flying, lifelink\nWard—Sacrifice three nonland permanents.\nIf a card you didn't control would be put into an opponent's graveyard from anywhere, exile it instead.\nDuring your turn, you may play cards exiled with Valgavoth. If you cast a spell this way, pay life equal to its mana value rather than pay its mana cost.",
+    "creatureStats": {
+        "power": 9,
+        "toughness": 9
+    },
+    "keywords": [
+        "FLYING",
+        "LIFELINK",
+        "WARD"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ward",
+            "cost": {
+                "type": "WardCost.Sacrifice",
+                "filter": "nonland permanent",
+                "count": 3
+            }
+        }
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantMayCastFromLinkedExile",
+                "filter": {},
+                "duringYourTurnOnly": true,
+                "additionalCost": "PayLifeEqualToManaValueOfSpell",
+                "withoutPayingManaCost": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "RedirectZoneChange",
+                "newDestination": "Exile",
+                "appliesTo": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsNontoken"
+                        ],
+                        "controllerPredicate": {
+                            "type": "ControllerAnd",
+                            "predicates": [
+                                "OwnedByOpponent",
+                                {
+                                    "type": "ControllerNot",
+                                    "predicate": "ControlledByYou"
+                                }
+                            ]
+                        }
+                    },
+                    "to": "Graveyard"
+                },
+                "linkToSource": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "120",
+        "rarity": "MYTHIC",
+        "artist": "Antonio José Manzanedo",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/7/7740ff55-67bb-409e-90f7-2c2c8b8c770a.jpg?1726286296"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Vanish from Sight
 {
     "name": "Vanish from Sight",
