@@ -134,7 +134,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Earth Kingdom Jailer
 - [x] Earth Kingdom Protectors
 - [ ] Earth Kingdom Soldier
-- [ ] Earth Rumble
+- [x] Earth Rumble
 - [ ] Earth Rumble Wrestlers
 - [x] Earth Village Ruffians
 - [x] Earthbender Ascension

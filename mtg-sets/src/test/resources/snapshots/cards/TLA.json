@@ -3384,6 +3384,133 @@
     ]
 }
 
+// Earth Rumble
+{
+    "name": "Earth Rumble",
+    "manaCost": "{3}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Earthbend 2. When you do, up to one target creature you control fights target creature an opponent controls. (To earthbend 2, target land you control becomes a 0/0 creature with haste that's still a land. Put two +1/+1 counters on it. When it dies or is exiled, return it to the battlefield tapped. Creatures that fight each deal damage equal to their power to the other.)",
+    "script": {
+        "spellEffect": {
+            "type": "ReflexiveTrigger",
+            "action": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "AnimateLand",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target land you control"
+                        },
+                        "power": 0,
+                        "toughness": 0,
+                        "duration": "Permanent"
+                    },
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "HASTE",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target land you control"
+                        },
+                        "duration": "Permanent"
+                    },
+                    {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 2,
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target land you control"
+                        }
+                    },
+                    {
+                        "type": "GrantTriggeredAbility",
+                        "ability": {
+                            "id": "ability_1",
+                            "trigger": {
+                                "type": "ZoneChangeEvent",
+                                "from": "Battlefield"
+                            },
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveToZone",
+                                        "target": "Self",
+                                        "destination": "Battlefield",
+                                        "placement": "Tapped",
+                                        "fromZone": "Graveyard"
+                                    },
+                                    {
+                                        "type": "MoveToZone",
+                                        "target": "Self",
+                                        "destination": "Battlefield",
+                                        "placement": "Tapped",
+                                        "fromZone": "Exile"
+                                    }
+                                ]
+                            },
+                            "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target land you control"
+                        },
+                        "duration": "Permanent"
+                    }
+                ]
+            },
+            "optional": false,
+            "reflexiveEffect": {
+                "type": "Fight",
+                "target1": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
+                "target2": {
+                    "type": "ContextTarget",
+                    "index": 1
+                }
+            },
+            "reflexiveTargetRequirements": [
+                {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    }
+                }
+            ],
+            "descriptionOverride": "Earthbend 2. When you do, up to one target creature you control fights target creature an opponent controls."
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "land ctrl:you"
+                },
+                "id": "target land you control"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "174",
+        "rarity": "UNCOMMON",
+        "artist": "Olena Richards",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/2/62730505-56f1-4043-a8b9-4fb7bc508b47.jpg?1764121183"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Earth Village Ruffians
 {
     "name": "Earth Village Ruffians",
