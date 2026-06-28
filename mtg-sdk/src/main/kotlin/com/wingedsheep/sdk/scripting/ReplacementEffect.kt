@@ -605,6 +605,47 @@ data class ModifyDrawAmount(
 }
 
 /**
+ * Modify how many cards a player mills (CR 701.13). Additive: a [modifier] of `+4` makes a
+ * player who would mill N instead mill `N + 4`; negative values reduce the mill (clamped to ≥ 0
+ * by the caller). Applied at the mill announcement, once per mill instruction, exactly like
+ * [ModifyDrawAmount] — so a paused-and-resumed mill never double-modifies.
+ *
+ * The [appliesTo] [EventPattern.MillEvent] gates which player's mills are affected relative to
+ * the source's controller (`Player.You` / `Player.EachOpponent` / `Player.Each`). [restrictions]
+ * are additional [Condition]s evaluated against the milling player as controller; ALL must hold.
+ *
+ * Example — The Water Crystal: "If an opponent would mill one or more cards, they mill that many
+ * cards plus four instead" → `ModifyMillAmount(4, appliesTo = MillEvent(Player.EachOpponent))`.
+ */
+@SerialName("ModifyMillAmount")
+@Serializable
+data class ModifyMillAmount(
+    val modifier: Int,
+    val restrictions: List<Condition> = emptyList(),
+    override val appliesTo: EventPattern = EventPattern.MillEvent()
+) : ReplacementEffect {
+    override val description: String = buildString {
+        val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
+        if (restrictionDesc.isNotEmpty()) {
+            append(restrictionDesc.replaceFirstChar { it.uppercase() })
+            append(", if ")
+        } else {
+            append("If ")
+        }
+        append(appliesTo.description)
+        append(", they mill that many cards plus $modifier instead")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
+        val anyChanged = newAppliesTo !== appliesTo ||
+            newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
+        return if (anyChanged) copy(appliesTo = newAppliesTo, restrictions = newRestrictions) else this
+    }
+}
+
+/**
  * Replace drawing with another effect.
  * Example: Underrealm Lich (look at 3, put 1 in hand, rest in graveyard)
  */

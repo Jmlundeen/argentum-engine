@@ -254,6 +254,20 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     }
 
     /**
+     * When a player would mill one or more cards (CR 701.13). Used by
+     * [com.wingedsheep.sdk.scripting.ModifyMillAmount] to adjust the count at the mill
+     * announcement (e.g. The Water Crystal: "If an opponent would mill one or more cards,
+     * they mill that many cards plus four instead").
+     */
+    @SerialName("MillEvent")
+    @Serializable
+    data class MillEvent(
+        val player: Player = Player.You
+    ) : EventPattern {
+        override val description: String = "${player.description} would mill one or more cards"
+    }
+
+    /**
      * Fires on a `CardsDrawnEvent` when the drawing player's per-turn draw count
      * crosses the specified threshold (CR 121.2 — each card drawn is an individual
      * draw, so a single multi-card draw fires at most once when the Nth card lands

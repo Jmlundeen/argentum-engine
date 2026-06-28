@@ -5561,6 +5561,19 @@ replacementEffect {
   use a source-relative condition instead. Use for "if you would draw one or more cards, you draw
   that many cards plus N instead" (Quantum Riddler:
   `ModifyDrawAmount(modifier = 1, restrictions = listOf(Conditions.CardsInHandAtMost(1)), appliesTo = DrawEvent(player = Player.You))`).
+- `ModifyMillAmount(modifier, restrictions, appliesTo)` — modify the number of cards a *mill* announces
+  by a fixed amount (the mill twin of `ModifyDrawAmount`): a player who would mill N instead mills
+  `N + modifier`, clamped to ≥ 0. `appliesTo` is an `EventPattern.MillEvent` whose `player` filter
+  (`Player.You` / `Player.EachOpponent` / `Player.Each`) gates which players' mills are affected,
+  relative to the source's controller. `restrictions` (a `List<Condition>`, ALL must hold, evaluated
+  against the milling player as controller) gates *when* it applies. Applied **once** per mill
+  instruction at the announcement site (`GatherCardsExecutor`'s `CardSource.TopOfLibrary(isMill = true)`
+  branch, which only the `Patterns.Library.mill(...)` pipeline sets — scry / surveil / exile-top /
+  look-at-top gathers leave `isMill = false` and are never affected), so a paused-and-resumed mill
+  never double-modifies. A base mill of 0 is left untouched ("would mill one or more cards"). Multiple
+  instances sum. Use for "if an opponent would mill one or more cards, they mill that many cards plus
+  four instead" (The Water Crystal:
+  `ModifyMillAmount(modifier = 4, appliesTo = EventPattern.MillEvent(player = Player.EachOpponent))`).
 - `ModifyLifeGain(multiplier, modifier, appliesTo, restrictions)` — modify life gain by a multiplicative *and/or*
   additive factor: `gained = (original * multiplier) + modifier`, clamped to ≥ 0. `appliesTo` is a `LifeGainEvent`
   whose `player` filter (default `Player.Each`) gates which players the replacement applies to. `restrictions`

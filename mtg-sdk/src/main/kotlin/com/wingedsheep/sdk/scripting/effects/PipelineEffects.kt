@@ -28,12 +28,19 @@ sealed interface CardSource {
 
     /**
      * Top N cards of a player's library.
+     *
+     * [isMill] marks this gather as the library half of a *mill* (top N → graveyard), so the
+     * count site applies `ModifyMillAmount` replacement effects (CR 701.13 "mill that many plus
+     * four instead"). Only the `Patterns.Library.mill(...)` pipeline sets this; other top-N
+     * gathers (scry, surveil, exile-top, look-at-top) leave it `false` so they are never affected
+     * by mill-amount replacements.
      */
     @SerialName("TopOfLibrary")
     @Serializable
     data class TopOfLibrary(
         val count: DynamicAmount,
-        val player: Player = Player.You
+        val player: Player = Player.You,
+        val isMill: Boolean = false
     ) : CardSource {
         override val description: String = "the top ${count.description} cards of ${player.possessive} library"
     }

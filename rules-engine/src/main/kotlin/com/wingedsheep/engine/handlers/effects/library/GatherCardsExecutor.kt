@@ -52,7 +52,14 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
                 val playerIds = resolvePlayers(source.player, context, state)
                     ?: return EffectResult.error(state, "Could not resolve player for GatherCards")
                 playerIds.flatMap { playerId ->
-                    state.getZone(ZoneKey(playerId, Zone.LIBRARY)).take(count)
+                    // For a mill, apply ModifyMillAmount replacement effects to the announced
+                    // count per milling player (CR 701.13 — "mill that many plus four instead").
+                    val effectiveCount = if (source.isMill) {
+                        MillAmountModifier.apply(state, playerId, count)
+                    } else {
+                        count
+                    }
+                    state.getZone(ZoneKey(playerId, Zone.LIBRARY)).take(effectiveCount)
                 }
             }
 

@@ -2096,7 +2096,8 @@
                                     "player": "TriggeringPlayer",
                                     "zone": "Hand"
                                 },
-                                "player": "TriggeringPlayer"
+                                "player": "TriggeringPlayer",
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },

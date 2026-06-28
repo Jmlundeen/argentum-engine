@@ -924,6 +924,8 @@ class StaticAbilityHandler(
             is com.wingedsheep.sdk.scripting.PreventDraw,
             is com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect,
             is com.wingedsheep.sdk.scripting.ModifyDrawAmount,
+            // Mill:
+            is com.wingedsheep.sdk.scripting.ModifyMillAmount,
             // Counter placement:
             is com.wingedsheep.sdk.scripting.ModifyCounterPlacement,
             is com.wingedsheep.sdk.scripting.DoubleCounterPlacement,

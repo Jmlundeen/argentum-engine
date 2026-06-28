@@ -5417,7 +5417,8 @@
                                         "count": {
                                             "type": "Fixed",
                                             "amount": 3
-                                        }
+                                        },
+                                        "isMill": true
                                     },
                                     "storeAs": "milled"
                                 },
@@ -7420,7 +7421,8 @@
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 1
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -13582,7 +13584,8 @@
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 3
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -13941,7 +13944,8 @@
                                     "player": {
                                         "type": "ContextPlayer",
                                         "index": 0
-                                    }
+                                    },
+                                    "isMill": true
                                 },
                                 "storeAs": "milled"
                             },
@@ -14454,7 +14458,8 @@
                         "player": {
                             "type": "ContextPlayer",
                             "index": 0
-                        }
+                        },
+                        "isMill": true
                     },
                     "storeAs": "milled"
                 },
@@ -14554,7 +14559,8 @@
                                     "type": "Fixed",
                                     "amount": 4
                                 },
-                                "player": "DefendingPlayer"
+                                "player": "DefendingPlayer",
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },

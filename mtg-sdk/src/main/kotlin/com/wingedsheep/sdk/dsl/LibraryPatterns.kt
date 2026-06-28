@@ -626,7 +626,7 @@ object LibraryPatterns {
         return CompositeEffect(
             listOf(
                 GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(count, player),
+                    source = CardSource.TopOfLibrary(count, player, isMill = true),
                     storeAs = "milled"
                 ),
                 MoveCollectionEffect(

@@ -238,11 +238,14 @@ so a land // spell Adventure offers *both* "play the land" (PlayLandEnumerator) 
   DFC-combine mechanic. Needs a meld layout + the "exile both, return the combined back face" flow. *(Ragnarok itself
   is castable/returnable today; only the meld path is missing.)*
 - **"Damage you'd deal is doubled" / stagger** (Lightning, Army of One; Kuja's Flare Star; The Earth Crystal counter
-  doubling; The Wind Crystal lifegain doubling; The Water Crystal mill doubling) — replacement effects that **scale
-  outgoing damage / counters / life / mill by ×2**. The counter-doubling and damage-doubling one-shots exist; confirm
+  doubling; The Wind Crystal lifegain doubling) — replacement effects that **scale
+  outgoing damage / counters / life / mill**. The counter-doubling and damage-doubling one-shots exist; confirm
   a *continuous* "your sources deal double damage to a tagged player until your next turn" replacement (Lightning's
   Stagger) and the various ×2 static replacements compose, else add the missing replacement variants. *(Mirrors the
-  TLA "damage-amplification replacement" gap.)*
+  TLA "damage-amplification replacement" gap.)* **The Water Crystal is now implemented** — its "an opponent
+  mills that many cards plus four instead" is the additive `ModifyMillAmount` replacement (twin of `ModifyDrawAmount`),
+  applied at the mill announcement in `GatherCardsExecutor` via the new `CardSource.TopOfLibrary.isMill` flag +
+  `EventPattern.MillEvent`.
 - **Y'shtola / Gogo copy-an-ability** — Gogo, Master of Mimicry ("Copy target activated or triggered ability you
   control X times") needs ability-on-stack copying with X. Verify `CopyAbility` support; likely a gap for the
   targeted-ability-copy-X-times shape.

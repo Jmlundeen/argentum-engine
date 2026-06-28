@@ -92,6 +92,9 @@ class TriggerMatcher(
             is EventPattern.DrawEvent -> {
                 event is CardsDrawnEvent && matchesPlayer(trigger.player, event.playerId, controllerId)
             }
+            // MillEvent is a replacement-only pattern (ModifyMillAmount); it never matches a
+            // triggered ability. Applied at the mill announcement by MillAmountModifier.
+            is EventPattern.MillEvent -> false
             is EventPattern.NthCardDrawnEvent -> {
                 // Fires on CardsDrawnEvent when the drawing player's per-turn draw count
                 // crosses the threshold inside this batch. The component is incremented

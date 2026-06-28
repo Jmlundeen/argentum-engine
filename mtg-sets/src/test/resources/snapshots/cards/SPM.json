@@ -4784,7 +4784,8 @@
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 2
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },

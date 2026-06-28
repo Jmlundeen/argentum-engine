@@ -12374,7 +12374,8 @@
                                             "entity": "RingBearer",
                                             "numericProperty": "Power"
                                         },
-                                        "player": "Each"
+                                        "player": "Each",
+                                        "isMill": true
                                     },
                                     "storeAs": "milled"
                                 },
@@ -12686,7 +12687,8 @@
                                                                 "name": "influence"
                                                             }
                                                         }
-                                                    }
+                                                    },
+                                                    "isMill": true
                                                 },
                                                 "storeAs": "milled"
                                             },
@@ -12787,7 +12789,8 @@
                                 "player": {
                                     "type": "ContextPlayer",
                                     "index": 0
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -14745,7 +14748,8 @@
                                         "type": "Fixed",
                                         "amount": 2
                                     },
-                                    "player": "EachOpponent"
+                                    "player": "EachOpponent",
+                                    "isMill": true
                                 },
                                 "storeAs": "milled"
                             },
@@ -17198,7 +17202,8 @@
                                 "player": {
                                     "type": "ContextPlayer",
                                     "index": 0
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -17849,7 +17854,8 @@
                                         "player": {
                                             "type": "ContextPlayer",
                                             "index": 0
-                                        }
+                                        },
+                                        "isMill": true
                                     },
                                     "storeAs": "milled"
                                 },

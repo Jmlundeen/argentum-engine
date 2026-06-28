@@ -4837,7 +4837,8 @@
                                         "count": {
                                             "type": "Fixed",
                                             "amount": 2
-                                        }
+                                        },
+                                        "isMill": true
                                     },
                                     "storeAs": "milled"
                                 },
@@ -6950,7 +6951,8 @@
                                     "player": "You",
                                     "tracker": "LIFE_GAINED"
                                 },
-                                "player": "EachOpponent"
+                                "player": "EachOpponent",
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -7914,7 +7916,8 @@
                                 "player": {
                                     "type": "ContextPlayer",
                                     "index": 0
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -13888,7 +13891,8 @@
                                         "count": {
                                             "type": "Fixed",
                                             "amount": 3
-                                        }
+                                        },
+                                        "isMill": true
                                     },
                                     "storeAs": "milled"
                                 },
@@ -15813,7 +15817,8 @@
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 5
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -16721,6 +16726,95 @@
         "imageUri": "https://cards.scryfall.io/normal/front/d/c/dc420e79-c483-474f-97cd-e9c6a636c306.jpg?1748706782"
     },
     "colorIdentityOverride": []
+}
+
+// The Water Crystal
+{
+    "name": "The Water Crystal",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "Blue spells you cast cost {1} less to cast.\nIf an opponent would mill one or more cards, they mill that many cards plus four instead.\n{4}{U}{U}, {T}: Each opponent mills cards equal to the number of cards in your hand.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{U}{U}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Count",
+                                    "player": "You",
+                                    "zone": "Hand"
+                                },
+                                "player": "EachOpponent",
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": "EachOpponent"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "blue"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "ModifyMillAmount",
+                "modifier": 4,
+                "appliesTo": {
+                    "type": "MillEvent",
+                    "player": "EachOpponent"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "85",
+        "rarity": "RARE",
+        "artist": "Pablo Mendoza",
+        "flavorText": "\"Crystal of water, may you regain your light.\"\n—Aria Benett",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e0af8436-797b-4e1f-b21a-d8e93701c3c9.jpg?1748706080"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // The Wind Crystal

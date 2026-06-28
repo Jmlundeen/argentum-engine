@@ -4285,7 +4285,8 @@
                                     "count": {
                                         "type": "Fixed",
                                         "amount": 2
-                                    }
+                                    },
+                                    "isMill": true
                                 },
                                 "storeAs": "milled"
                             },
@@ -10943,7 +10944,8 @@
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 4
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -15708,7 +15710,8 @@
                                         "player": {
                                             "type": "ContextPlayer",
                                             "index": 0
-                                        }
+                                        },
+                                        "isMill": true
                                     },
                                     "storeAs": "milled"
                                 },
@@ -21907,7 +21910,8 @@
                                     "count": {
                                         "type": "Fixed",
                                         "amount": 3
-                                    }
+                                    },
+                                    "isMill": true
                                 },
                                 "storeAs": "milled"
                             },

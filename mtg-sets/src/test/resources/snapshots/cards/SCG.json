@@ -790,7 +790,8 @@
                         "player": {
                             "type": "ContextPlayer",
                             "index": 0
-                        }
+                        },
+                        "isMill": true
                     },
                     "storeAs": "milled"
                 },

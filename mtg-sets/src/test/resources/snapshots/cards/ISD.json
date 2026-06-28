@@ -164,7 +164,8 @@
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 4
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
@@ -3159,7 +3160,8 @@
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 2
-                                }
+                                },
+                                "isMill": true
                             },
                             "storeAs": "milled"
                         },
