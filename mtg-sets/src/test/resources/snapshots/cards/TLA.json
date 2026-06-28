@@ -3509,6 +3509,104 @@
     ]
 }
 
+// Fire Lord Zuko
+{
+    "name": "Fire Lord Zuko",
+    "manaCost": "{R}{W}{B}",
+    "typeLine": "Legendary Creature — Human Noble Ally",
+    "oracleText": "Firebending X, where X is Fire Lord Zuko's power. (Whenever this creature attacks, add X {R}. This mana lasts until end of combat.)\nWhenever you cast a spell from exile and whenever a permanent you control enters from exile, put a +1/+1 counter on each creature you control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Source",
+                        "numericProperty": "Power"
+                    },
+                    "expiry": "END_OF_COMBAT"
+                },
+                "descriptionOverride": "Firebending X, where X is Fire Lord Zuko's power. Whenever this creature attacks, add X {R}. This mana lasts until end of combat."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "requires": [
+                        {
+                            "type": "SpellCastFromZone",
+                            "zone": "Exile"
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 1,
+                        "target": "Self"
+                    }
+                },
+                "descriptionOverride": "Whenever you cast a spell from exile, put a +1/+1 counter on each creature you control."
+            },
+            {
+                "id": "ability_3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "ctrl:you",
+                    "from": "Exile",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 1,
+                        "target": "Self"
+                    }
+                },
+                "descriptionOverride": "Whenever a permanent you control enters from exile, put a +1/+1 counter on each creature you control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "221",
+        "rarity": "RARE",
+        "artist": "Jo Cordisco",
+        "flavorText": "\"Today, this war is finally over!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e62d3bcc-7bb4-42be-90a9-caf3c1caa29d.jpg?1764121603"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE",
+        "BLACK"
+    ]
+}
+
 // Fire Sages
 {
     "name": "Fire Sages",
