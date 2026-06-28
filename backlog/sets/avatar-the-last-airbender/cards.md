@@ -210,7 +210,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Knowledge Seeker
 - [ ] Koh, the Face Stealer
 - [x] Kyoshi Battle Fan
-- [ ] Kyoshi Island Plaza
+- [x] Kyoshi Island Plaza
 - [x] Kyoshi Village
 - [x] Kyoshi Warriors
 - [x] Leaves from the Vine
