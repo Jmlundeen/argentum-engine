@@ -170,7 +170,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Foggy Swamp Vinebender
 - [ ] Foggy Swamp Visions
 - [ ] Forecasting Fortune Teller
-- [ ] Forest
+- [x] Forest
 - [ ] Gather the White Lotus
 - [x] Geyser Leaper
 - [ ] Giant Koi
@@ -195,7 +195,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Iroh's Demonstration
 - [ ] Iroh, Grand Lotus
 - [ ] Iroh, Tea Master
-- [ ] Island
+- [x] Island
 - [ ] It'll Quench Ya!
 - [x] Jasmine Dragon Tea Shop
 - [x] Jeong Jeong's Deserters
@@ -230,7 +230,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Momo, Friendly Flier
 - [ ] Momo, Playful Pet
 - [ ] Mongoose Lizard
-- [ ] Mountain
+- [x] Mountain
 - [x] North Pole Gates
 - [ ] North Pole Patrol
 - [ ] Northern Air Temple
@@ -246,7 +246,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Phoenix Fleet Airship
 - [x] Pillar Launch
 - [ ] Pirate Peddlers
-- [ ] Plains
+- [x] Plains
 - [ ] Planetarium of Wan Shi Tong
 - [ ] Platypus-Bear
 - [x] Pretending Poxbearers
@@ -290,7 +290,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Suki, Kyoshi Warrior
 - [ ] Sun Warriors
 - [x] Sun-Blessed Peak
-- [ ] Swamp
+- [x] Swamp
 - [ ] Swampsnare Trap
 - [ ] Team Avatar
 - [ ] Teo, Spirited Glider
