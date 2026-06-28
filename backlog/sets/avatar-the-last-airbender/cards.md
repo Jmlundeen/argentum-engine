@@ -154,7 +154,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Fire Nation Cadets
 - [x] Fire Nation Engineer
 - [ ] Fire Nation Palace
-- [ ] Fire Nation Raider
+- [x] Fire Nation Raider
 - [x] Fire Nation Warship
 - [x] Fire Navy Trebuchet
 - [x] Fire Sages

@@ -4628,6 +4628,56 @@
     ]
 }
 
+// Fire Nation Raider
+{
+    "name": "Fire Nation Raider",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "Raid — When this creature enters, if you attacked this turn, create a Clue token. (It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Clue"
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PLAYER_ATTACKED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Raid — When this creature enters, if you attacked this turn, create a Clue token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "135",
+        "artist": "Tubaki Halsame",
+        "flavorText": "In the Fire Nation's eyes, the world was theirs and they would let the world know it.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/d/ede1bbdb-c726-46e3-aaf1-b8cf2be2c341.jpg?1764120927"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Fire Nation Warship
 {
     "name": "Fire Nation Warship",
