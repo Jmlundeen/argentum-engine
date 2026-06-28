@@ -10468,6 +10468,57 @@
     ]
 }
 
+// Walltop Sentries
+{
+    "name": "Walltop Sentries",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Human Soldier Ally",
+    "oracleText": "Reach, deathtouch\nWhen this creature dies, if there's a Lesson card in your graveyard, you gain 2 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "REACH",
+        "DEATHTOUCH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "triggerCondition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Graveyard",
+                    "filter": "Lesson"
+                },
+                "descriptionOverride": "When this creature dies, if there's a Lesson card in your graveyard, you gain 2 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "202",
+        "artist": "Boell Oyino",
+        "flavorText": "\"That drill shall not reach Ba Sing Se! This is what we trained for!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/5/e55f1c63-58f6-4e2b-aaeb-f2d5faca47a2.jpg?1764122900"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Wandering Musicians
 {
     "name": "Wandering Musicians",

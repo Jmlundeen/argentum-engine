@@ -328,7 +328,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Unlucky Cabbage Merchant
 - [ ] Vengeful Villagers
 - [x] Vindictive Warden
-- [ ] Walltop Sentries
+- [x] Walltop Sentries
 - [ ] Wan Shi Tong, Librarian
 - [x] Wandering Musicians
 - [ ] War Balloon
