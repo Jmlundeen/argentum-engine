@@ -277,6 +277,19 @@ sealed interface Modification {
     }
 
     /**
+     * Add the creature type chosen as the source entered (resolved dynamically from the
+     * source's CastChoicesComponent) as a subtype, in addition to the affected entity's
+     * other types. The chosen-value counterpart to [AddSubtype], mirroring [AddChosenColor].
+     * Used by Leyline of Transformation: "Creatures you control are the chosen type in
+     * addition to their other types." If the source has no chosen creature type, no
+     * modification is applied.
+     */
+    @Serializable
+    data object AddChosenSubtype : Modification {
+        override val layer get() = Layer.TYPE
+    }
+
+    /**
      * Add every creature type to the affected entity, in addition to its other
      * subtypes. Used for cards that say "is all creature types" without granting
      * the Changeling keyword (e.g., Stalactite Dagger).

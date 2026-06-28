@@ -29,6 +29,35 @@ data class GrantSubtype(
 }
 
 /**
+ * Grants the creature type chosen as the source entered (resolved from the source's
+ * `CastChoicesComponent`) to a group, in addition to their other types. The chosen-value
+ * counterpart to [GrantSubtype], mirroring [GrantChosenColor]'s relationship to [GrantColor].
+ * Used by Leyline of Transformation: "Creatures you control are the chosen type in addition
+ * to their other types."
+ *
+ * This is a Layer 4 (type-changing) continuous effect. If the source has no chosen creature
+ * type, no subtype is added.
+ *
+ * Note: as a static ability projected through the layer system, it affects only permanents on
+ * the battlefield. The "creature spells you control and creature cards you own that aren't on
+ * the battlefield" clause of effects like Leyline of Transformation is not modeled — the engine
+ * does not project types onto non-battlefield zones (see the card's definition for detail).
+ *
+ * @property filter Which permanents are affected (typically `AllCreaturesYouControl`).
+ */
+@SerialName("GrantChosenSubtype")
+@Serializable
+data class GrantChosenSubtype(
+    val filter: GroupFilter = GroupFilter.source()
+) : StaticAbility {
+    override val description: String = "${filter.description} are the chosen type in addition to their other types"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
  * Grants every creature type to the target, in addition to its existing types,
  * without granting the Changeling keyword. Used for cards like Stalactite Dagger:
  * "Equipped creature ... is all creature types." The card text doesn't say

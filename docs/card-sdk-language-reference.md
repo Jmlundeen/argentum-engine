@@ -3155,6 +3155,16 @@ staticAbility {
 - `GrantCardType(cardType, filter)` / `RemoveCardType(cardType, filter)` — Layer 4 type-changing statics that add or
   remove a card type (e.g. `"CREATURE"`). `RemoveCardType` backs Impending's "isn't a creature while it has a time
   counter" (wrapped in a `ConditionalStaticAbility`); reuse it for any "it's no longer a [type]" effect.
+- `GrantSubtype(subtype, filter)` — Layer 4 type-changing static that adds a **fixed** creature subtype to the group,
+  in addition to their other types ("is a Knight in addition to its other types"). (Dub)
+- `GrantChosenSubtype(filter)` — Layer 4 type-changing static that adds the creature type **chosen as the source
+  entered** (read from the source's `CastChoicesComponent`) to the group, in addition to their other types. Chosen-value
+  counterpart to `GrantSubtype`, mirroring `GrantChosenColor`/`GrantColor`; pair with
+  `EntersWithChoice(ChoiceType.CREATURE_TYPE)`. This is the Conspiracy / Xenograft mechanic ("Creatures you control are
+  the chosen type in addition to their other types"). Affects only **battlefield** permanents — type-changing statics
+  are projected through the layer system, which iterates the battlefield, so the "creature spells you control and
+  creature cards you own that aren't on the battlefield" half of effects like Leyline of Transformation is not modeled
+  (the engine has no type projection for the stack/hand/graveyard/library/exile). (Leyline of Transformation)
 - `TransformPermanent(setCardTypes, setSubtypes, setColors?, clearSubtypes, filter)` — Layer 4/5 "becomes a whole new
   identity" (Sugar Coat, Darksteel Mutation). A non-empty `setSubtypes` replaces all subtypes; an empty `setSubtypes`
   leaves subtypes alone **unless** `clearSubtypes = true`, which replaces them with none ("has no subtypes" — the
