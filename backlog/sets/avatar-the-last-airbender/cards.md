@@ -113,7 +113,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Cat-Owl
 - [ ] Combustion Man
 - [x] Combustion Technique
-- [ ] Compassionate Healer
+- [x] Compassionate Healer
 - [x] Corrupt Court Official
 - [ ] Crashing Wave
 - [ ] Crescent Island Temple
