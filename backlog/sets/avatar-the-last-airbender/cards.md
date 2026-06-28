@@ -2,7 +2,7 @@
 
 **Set Size:** 286 draft/booster cards (excluding basic lands beyond the set's own, tokens, and special variants)
 **Release Date:** November 21, 2025
-**Implemented:** 48 / 286  (17%)
+**Implemented:** 49 / 286  (17%)
 **Engine gap analysis:** [`tla-engine-gaps.md`](tla-engine-gaps.md)
 
 ## Mechanics needed to complete the set
@@ -91,7 +91,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Azula, Cunning Usurper
 - [ ] Azula, On the Hunt
 - [x] Ba Sing Se
-- [ ] Badgermole
+- [x] Badgermole
 - [x] Badgermole Cub
 - [ ] Barrels of Blasting Jelly
 - [ ] Beetle-Headed Merchants

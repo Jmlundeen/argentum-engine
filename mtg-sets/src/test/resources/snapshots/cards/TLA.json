@@ -243,6 +243,133 @@
     ]
 }
 
+// Badgermole
+{
+    "name": "Badgermole",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Badger Mole",
+    "oracleText": "When this creature enters, earthbend 2. (Target land you control becomes a 0/0 creature with haste that's still a land. Put two +1/+1 counters on it. When it dies or is exiled, return it to the battlefield tapped.)\nCreatures you control with +1/+1 counters on them have trample.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AnimateLand",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land you control"
+                            },
+                            "power": 0,
+                            "toughness": 0,
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land you control"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 2,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land you control"
+                            }
+                        },
+                        {
+                            "type": "GrantTriggeredAbility",
+                            "ability": {
+                                "id": "ability_2",
+                                "trigger": {
+                                    "type": "ZoneChangeEvent",
+                                    "from": "Battlefield"
+                                },
+                                "effect": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Graveyard"
+                                        },
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Exile"
+                                        }
+                                    ]
+                                },
+                                "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land you control"
+                            },
+                            "duration": "Permanent"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "land ctrl:you"
+                    },
+                    "id": "target land you control"
+                },
+                "descriptionOverride": "When this creature enters, earthbend 2."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "TRAMPLE",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "HasCounter",
+                                "counterType": "+1/+1"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "166",
+        "artist": "Matteo Bassini",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/a/aabbd420-b7fc-496f-9168-bad823d51d9e.jpg?1764121134"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Badgermole Cub
 {
     "name": "Badgermole Cub",
