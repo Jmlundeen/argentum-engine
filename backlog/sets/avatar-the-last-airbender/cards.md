@@ -118,7 +118,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Crashing Wave
 - [ ] Crescent Island Temple
 - [ ] Cruel Administrator
-- [ ] Cunning Maneuver
+- [x] Cunning Maneuver
 - [x] Curious Farm Animals
 - [x] Cycle of Renewal
 - [ ] Dai Li Agents
