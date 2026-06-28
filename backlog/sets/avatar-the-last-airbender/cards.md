@@ -310,7 +310,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] The Unagi of Kyoshi Island
 - [x] The Walls of Ba Sing Se
 - [ ] Tiger-Dillo
-- [ ] Tiger-Seal
+- [x] Tiger-Seal
 - [ ] Tolls of War
 - [ ] Toph, Hardheaded Teacher
 - [ ] Toph, the Blind Bandit
