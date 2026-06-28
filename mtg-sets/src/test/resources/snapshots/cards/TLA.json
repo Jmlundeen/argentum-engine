@@ -7618,6 +7618,58 @@
     ]
 }
 
+// United Front
+{
+    "name": "United Front",
+    "manaCost": "{X}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create X 1/1 white Ally creature tokens, then put a +1/+1 counter on each creature you control.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CreateToken",
+                    "count": "XValue",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Ally"
+                    ]
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 1,
+                        "target": "Self"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "MYTHIC",
+        "artist": "Mengxuan Li",
+        "flavorText": "\"When this is finished, the Avatar will have defeated the Fire Lord, we will have control of the Fire Nation capital, and this war will be over!\"\n—Hakoda",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/3/d347caf8-0c12-401f-9e33-9978cb347f89.jpg?1764120154"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Wandering Musicians
 {
     "name": "Wandering Musicians",

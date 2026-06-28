@@ -324,7 +324,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Ty Lee, Artful Acrobat
 - [ ] Ty Lee, Chi Blocker
 - [ ] Uncle Iroh
-- [ ] United Front
+- [x] United Front
 - [ ] Unlucky Cabbage Merchant
 - [ ] Vengeful Villagers
 - [ ] Vindictive Warden
