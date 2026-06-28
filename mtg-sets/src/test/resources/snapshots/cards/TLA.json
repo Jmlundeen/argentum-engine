@@ -3680,6 +3680,68 @@
     ]
 }
 
+// Redirect Lightning
+{
+    "name": "Redirect Lightning",
+    "manaCost": "{R}",
+    "typeLine": "Instant — Lesson",
+    "oracleText": "As an additional cost to cast this spell, pay 5 life or pay {2}.\nChange the target of target spell or ability with a single target.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": "ChangeTarget",
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {},
+                                "zone": "Stack"
+                            }
+                        }
+                    ],
+                    "description": "Pay 5 life — change the target of target spell or ability with a single target",
+                    "additionalCosts": [
+                        {
+                            "type": "AdditionalAtom",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": 5
+                            }
+                        }
+                    ]
+                },
+                {
+                    "effect": "ChangeTarget",
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {},
+                                "zone": "Stack"
+                            }
+                        }
+                    ],
+                    "description": "Pay {2} — change the target of target spell or ability with a single target",
+                    "additionalManaCost": "{2}"
+                }
+            ],
+            "countsAsModalSpell": false
+        }
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "rarity": "RARE",
+        "artist": "Toni Infante",
+        "flavorText": "\"A Waterbender lets their defense become their offense, turning their opponent's energy against them. I learned a way to do this with lightning.\"\n—Iroh",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/b/2b5b14a7-1fdd-4efc-b197-cadfa7f7c860.jpg?1764121040"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Rumble Arena
 {
     "name": "Rumble Arena",
