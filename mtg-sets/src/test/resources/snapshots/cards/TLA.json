@@ -3012,6 +3012,60 @@
     ]
 }
 
+// First-Time Flyer
+{
+    "name": "First-Time Flyer",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Human Pilot Ally",
+    "oracleText": "Flying\nThis creature gets +1/+1 as long as there's a Lesson card in your graveyard.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 1,
+                    "toughnessBonus": 1,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "Lesson"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "artist": "Mizutametori",
+        "flavorText": "Aang offered ancient Air Nomad wisdom to the newest generation of glider riders: Keep your mouth closed, so you don't swallow any bugs.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/a/ea22d29d-3a62-4ae2-91d5-21a678be9b48.jpg?1764120222"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Foggy Bottom Swamp
 {
     "name": "Foggy Bottom Swamp",
