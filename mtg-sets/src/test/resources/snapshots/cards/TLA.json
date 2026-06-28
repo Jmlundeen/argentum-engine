@@ -6578,6 +6578,95 @@
     "colorIdentityOverride": []
 }
 
+// Sandbender Scavengers
+{
+    "name": "Sandbender Scavengers",
+    "manaCost": "{W}{B}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "Whenever you sacrifice another permanent, put a +1/+1 counter on this creature.\nWhen this creature dies, you may exile it. When you do, return target creature card with mana value less than or equal to this creature's power from your graveyard to the battlefield.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "permanent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever you sacrifice another permanent, put a +1/+1 counter on this creature."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Exile"
+                    },
+                    "reflexiveEffect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Battlefield"
+                    },
+                    "reflexiveTargetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        {
+                                            "type": "ManaValueAtMostDynamic",
+                                            "amount": {
+                                                "type": "EntityProperty",
+                                                "entity": "Source",
+                                                "numericProperty": "Power"
+                                            }
+                                        }
+                                    ],
+                                    "controllerPredicate": "OwnedByYou"
+                                },
+                                "zone": "Graveyard"
+                            }
+                        }
+                    ],
+                    "descriptionOverride": "You may exile this creature. When you do, return target creature card with mana value less than or equal to this creature's power from your graveyard to the battlefield."
+                },
+                "descriptionOverride": "When this creature dies, you may exile it. When you do, return target creature card with mana value less than or equal to this creature's power from your graveyard to the battlefield."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "239",
+        "rarity": "RARE",
+        "artist": "Alexander Forssberg",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/b/9bfe0f7c-6dac-41d4-a013-109445158a5e.jpg?1764121769"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
 // Seismic Sense
 {
     "name": "Seismic Sense",
