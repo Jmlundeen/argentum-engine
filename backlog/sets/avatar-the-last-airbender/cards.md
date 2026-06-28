@@ -106,7 +106,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Bumi Bash
 - [ ] Bumi, King of Three Trials
 - [ ] Bumi, Unleashed
-- [ ] Buzzard-Wasp Colony
+- [x] Buzzard-Wasp Colony
 - [x] Callous Inspector
 - [ ] Canyon Crawler
 - [x] Cat-Gator

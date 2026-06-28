@@ -1984,6 +1984,76 @@
     ]
 }
 
+// Buzzard-Wasp Colony
+{
+    "name": "Buzzard-Wasp Colony",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Bird Insect",
+    "oracleText": "Flying\nWhen this creature enters, you may sacrifice an artifact or creature. If you do, draw a card.\nWhenever another creature you control dies, if it had counters on it, put its counters on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": "creature|artifact"
+                        }
+                    },
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "descriptionOverride": "When this creature enters, you may sacrifice an artifact or creature. If you do, draw a card."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "MoveAllLastKnownCounters",
+                    "target": "Self"
+                },
+                "triggerCondition": "TriggeringEntityHadCounters",
+                "descriptionOverride": "Whenever another creature you control dies, if it had counters on it, put its counters on this creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "88",
+        "rarity": "UNCOMMON",
+        "artist": "Thomas Chamberlain-Keen",
+        "flavorText": "What doesn't survive the Si Wong Desert assures that the buzzard-wasps do.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/2/42d83229-0555-4361-8964-4b525c825843.jpg?1764120607"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Callous Inspector
 {
     "name": "Callous Inspector",
