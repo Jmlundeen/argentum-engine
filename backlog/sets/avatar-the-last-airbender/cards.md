@@ -75,7 +75,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Abandoned Air Temple
 - [x] Accumulate Wisdom
 - [x] Agna Qel'a
-- [ ] Air Nomad Legacy
+- [x] Air Nomad Legacy
 - [ ] Airbender Ascension
 - [ ] Airbender's Reversal
 - [ ] Airbending Lesson
