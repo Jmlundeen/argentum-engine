@@ -727,6 +727,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   resolution rather than a fixed integer, pass `dynamicCount = <DynamicAmount>` instead of `count` — the executor
   evaluates it (coerced to ≥ 0) and creates that many tokens (Lobelia Sackville-Baggins, LTR: "create X Treasure
   tokens, where X is the exiled card's power", via `DynamicAmount.EntityProperty(Target(0), Power)`).
+  **Colored** predefined tokens (a token has no mana cost, so its printed color is a color indicator, CR 204):
+  set `colorIdentity = "<symbols>"` on the token's `CardDefinition` — both predefined-token executors read
+  `colorIdentityOverride ?: colors` for the token's color (a bare `colors` is mana-cost-derived and would be
+  colorless). Example: the `Frog` token (`PredefinedTokens.Frog`, a 1/1 green Frog created by Quina, Qu Gourmet).
   For an *inline* token (not a registered `CardDefinition`) that has its own abilities, the raw
   `CreateTokenEffect` constructor exposes `staticAbilities`, `triggeredAbilities`, **and**
   `activatedAbilities` — each list is granted to every created token at resolution (permanent
@@ -5544,7 +5548,8 @@ replacementEffect {
   creation event, and the extra tokens are added once per qualifying event, not once per token. The added
   tokens bypass the same replacement pass so a Map added for an artifact-token event does not recursively
   trigger itself. Used by Worldwalker Helm (`TokenCreationEvent(You, Artifact)`, add `Map`, `inheritTapped = true`)
-  and Peregrin Took (`additionalTokenType = "Food"`, "those tokens plus an additional Food token are created instead").
+  and Peregrin Took (`additionalTokenType = "Food"`, "those tokens plus an additional Food token are created instead")
+  and Quina, Qu Gourmet (`additionalTokenType = "Frog"`, default `appliesTo` = any token you create, adds a 1/1 green Frog).
 - `EntersAsCopy(optional, copyFilter, copyFromZone, filterByTotalManaSpent, additionalSubtypes, additionalKeywords, nameOverride, powerOverride, toughnessOverride, exileCopiedCard)` —
   "enter as a copy of …". As the permanent resolves, the controller picks an object matching
   `copyFilter` and the permanent enters as a copy (Rule 707 copiable values), with any overrides

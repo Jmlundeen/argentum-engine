@@ -492,6 +492,26 @@ object PredefinedTokens {
     }
 
     /**
+     * Frog token — a vanilla 1/1 green creature (Quina, Qu Gourmet).
+     *
+     * Its green color comes from a color indicator (CR 204), stored here via the
+     * `colorIdentity` DSL setter → `colorIdentityOverride`. Tokens have no mana cost,
+     * so the token-creation executors read the override for the printed color (a plain
+     * `CardDefinition.colors` would be empty/colorless without a mana cost).
+     */
+    val Frog = card("Frog") {
+        typeLine = "Creature — Frog"
+        colorIdentity = "G"
+        power = 1
+        toughness = 1
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/e/3/e3c84944-23b8-40d7-9b25-c746b08b4dc4.jpg?1748704089"
+            artist = "Daniel Correia"
+        }
+    }
+
+    /**
      * All predefined token definitions.
      * Register these in the CardRegistry so token abilities are resolved.
      */
@@ -513,6 +533,7 @@ object PredefinedTokens {
         Drone,
         Everywhere,
         Munitions,
-        Mutagen
+        Mutagen,
+        Frog
     )
 }

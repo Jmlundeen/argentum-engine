@@ -232,6 +232,17 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     supported("WouldPutACardOrTokenInAPlayersGraveyardFromAnywhere", "replaceable event: any card/token to any graveyard from anywhere")
     supported("ExileItInstead", "replacement action: exile instead of going to the graveyard")
 
+    // "If one or more tokens would be created under your control, those tokens plus a <token>
+    // are created instead" (Peregrin Took, Worldwalker Helm, Quina, Qu Gourmet). Maps to the
+    // CreateAdditionalToken replacement. Capability-only — the emitter declines (SCAFFOLD)
+    // because the IR describes the added token inline (P/T/color/subtype) while the SDK
+    // references a predefined token by name, a card-specific mapping we won't render lossily.
+    composed(
+        "ReplaceAnyNumberOfTokensWouldBeCreated",
+        "CreateAdditionalToken (those tokens plus an extra named token)",
+        composes = listOf("CreateAdditionalToken"),
+    )
+
     // "You have no maximum hand size for the rest of the game" (Wisdom of Ages) — the nested
     // _PlayerEffect of a CreatePlayerEffect(You) resolution action. Renders to the one-shot
     // player-scoped `RemoveMaximumHandSize` effect (distinct from the battlefield-only

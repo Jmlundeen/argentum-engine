@@ -11226,6 +11226,66 @@
     ]
 }
 
+// Quina, Qu Gourmet
+{
+    "name": "Quina, Qu Gourmet",
+    "manaCost": "{2}{G}",
+    "typeLine": "Legendary Creature — Qu",
+    "oracleText": "If one or more tokens would be created under your control, those tokens plus a 1/1 green Frog creature token are created instead.\n{2}, Sacrifice a Frog: Put a +1/+1 counter on Quina.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature Frog"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "CreateAdditionalToken",
+                "additionalTokenType": "Frog"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "194",
+        "rarity": "UNCOMMON",
+        "artist": "Fajareka Setiawan",
+        "flavorText": "\"World only have two things: Things you can eat and things you no can eat.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4f352b5e-9731-4a8e-b872-db5d3bf32211.jpg?1748706489"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Quistis Trepe
 {
     "name": "Quistis Trepe",

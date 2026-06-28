@@ -193,7 +193,10 @@ object TokenCreationReplacementHelper {
                         typeLine = cardDef.typeLine,
                         baseStats = cardDef.creatureStats,
                         baseKeywords = cardDef.keywords,
-                        colors = cardDef.colors,
+                        // Tokens have no mana cost, so a colored token's printed color lives in
+                        // its color indicator (CR 204), stored as colorIdentityOverride. Fall
+                        // back to mana-cost-derived colors for tokens without an override.
+                        colors = cardDef.colorIdentityOverride ?: cardDef.colors,
                         ownerId = tokenControllerId,
                         imageUri = cardDef.metadata.imageUri
                     )
