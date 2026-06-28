@@ -663,11 +663,27 @@ class ConnectionHandler(
         /** Minimum seconds a player must be disconnected before they can be kicked */
         const val KICK_MINIMUM_DISCONNECT_SECONDS = 120
 
+        /**
+         * Mana cost string for the sealed/draft deckbuilder. A split card (Rooms, fused split
+         * cards) has no single printed cost — its top-level [CardDefinition.manaCost] is empty —
+         * so we join each face's cost with " // " (e.g. "{U} // {4}{U}"). The client renders that
+         * with a slash separator, and its mana-curve / land-suggestion logic sums the pips across
+         * both halves (a split card's mana value while not on the stack is the combined mana value
+         * of its halves). Null when the card has no printed cost at all (e.g. lands).
+         */
+        private fun sealedManaCost(card: com.wingedsheep.sdk.model.CardDefinition): String? {
+            if (card.layout == com.wingedsheep.sdk.model.CardLayout.SPLIT && card.cardFaces.isNotEmpty()) {
+                return card.cardFaces.joinToString(" // ") { it.manaCost.toString() }
+                    .takeIf { it.isNotBlank() }
+            }
+            return if (card.manaCost.symbols.isEmpty()) null else card.manaCost.toString()
+        }
+
         fun cardToSealedCardInfo(card: com.wingedsheep.sdk.model.CardDefinition): ServerMessage.SealedCardInfo {
             val backFace = card.backFace
             return ServerMessage.SealedCardInfo(
                 name = card.name,
-                manaCost = if (card.manaCost.symbols.isEmpty()) null else card.manaCost.toString(),
+                manaCost = sealedManaCost(card),
                 typeLine = card.typeLine.toString(),
                 rarity = card.metadata.rarity.name,
                 imageUri = card.metadata.imageUri,
@@ -682,7 +698,8 @@ class ConnectionHandler(
                 backFaceImageUri = backFace?.metadata?.imageUri,
                 colorIdentity = card.colorIdentity.map { it.name },
                 setCode = card.setCode,
-                collectorNumber = card.metadata.collectorNumber
+                collectorNumber = card.metadata.collectorNumber,
+                layout = card.layout.name
             )
         }
     }

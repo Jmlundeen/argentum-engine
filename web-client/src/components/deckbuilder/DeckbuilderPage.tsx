@@ -25,7 +25,7 @@ import { ManaCost, ManaSymbol } from '@/components/ui/ManaSymbols'
 import { HoverCardPreview } from '@/components/ui/HoverCardPreview'
 import { useDfcHoverFlip } from '@/components/ui/useDfcHoverFlip'
 import { SetIcon } from '@/components/ui/SetIcon'
-import { getCardImageUrl, getScryfallArtCropUrl } from '@/utils/cardImages'
+import { getCardImageUrl, getScryfallArtCropUrl, splitImageRotateDeg } from '@/utils/cardImages'
 import { rarityColor } from '@/components/draft/RarityBadge'
 import {
   parseQuery,
@@ -3823,15 +3823,6 @@ function CardTextFallback({ card }: { card: CardSummary }) {
 
 function resolveImageUrl(card: CardSummary): string {
   return getCardImageUrl(card.name, card.imageUri ?? null, 'normal')
-}
-
-/**
- * Split-layout cards (Pain // Suffering, Rooms like Unholy Annex // Ritual Chamber) have a
- * single image that's printed sideways, so the hover preview rotates it 90° to read landscape.
- * Mirrors the game-board treatment in CardPreview.tsx.
- */
-function splitImageRotateDeg(card: { layout?: string } | null | undefined): 0 | 90 {
-  return card?.layout === 'SPLIT' ? 90 : 0
 }
 
 /**

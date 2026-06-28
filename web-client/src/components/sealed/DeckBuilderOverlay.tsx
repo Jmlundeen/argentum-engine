@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useGameStore, type DeckBuildingState } from '@/store/gameStore.ts'
 import type { SealedCardInfo } from '@/types'
 import { useResponsive } from '@/hooks/useResponsive.ts'
-import { getCardImageUrl } from '@/utils/cardImages.ts'
+import { getCardImageUrl, splitImageRotateDeg } from '@/utils/cardImages.ts'
 import { playableWithinColors } from '@/utils/manaCost.ts'
 import { ManaSymbol, ManaCost } from '../ui/ManaSymbols'
 import { HoverCardPreview } from '../ui/HoverCardPreview'
@@ -1377,6 +1377,7 @@ function DeckBuilder({ state }: { state: DeckBuildingState }) {
           pos={hoverPos}
           rulings={hoveredCard.rulings}
           overlay={dfc.hint}
+          imageRotateDeg={splitImageRotateDeg(hoveredCard)}
         />
       )}
 
