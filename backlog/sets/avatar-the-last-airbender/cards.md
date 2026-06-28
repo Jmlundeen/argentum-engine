@@ -200,7 +200,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Jasmine Dragon Tea Shop
 - [x] Jeong Jeong's Deserters
 - [ ] Jeong Jeong, the Deserter
-- [ ] Jet's Brainwashing
+- [x] Jet's Brainwashing
 - [ ] Jet, Freedom Fighter
 - [ ] Joo Dee, One of Many
 - [ ] June, Bounty Hunter

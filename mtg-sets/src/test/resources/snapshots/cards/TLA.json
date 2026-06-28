@@ -2447,6 +2447,92 @@
     ]
 }
 
+// Jet's Brainwashing
+{
+    "name": "Jet's Brainwashing",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Kicker {3} (You may pay an additional {3} as you cast this spell.)\nTarget creature can't block this turn. If this spell was kicked, gain control of that creature until end of turn, untap it, and it gains haste until end of turn.\nCreate a Clue token. (It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+    "keywordAbilities": [
+        {
+            "type": "Kicker",
+            "manaCost": "{3}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CantBlockTargetCreatures",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": "WasKicked"
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GainControl",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                },
+                                "duration": "EndOfTurn"
+                            },
+                            {
+                                "type": "TapUntap",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                },
+                                "tap": false
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Clue"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "143",
+        "rarity": "UNCOMMON",
+        "artist": "Enishi",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/1/b17e8bdb-4b91-4a9d-bfe1-8a55f0bd040b.jpg?1764120981"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Kyoshi Village
 {
     "name": "Kyoshi Village",
