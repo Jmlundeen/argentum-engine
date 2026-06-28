@@ -3393,6 +3393,74 @@
     ]
 }
 
+// White Lotus Hideout
+{
+    "name": "White Lotus Hideout",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast a Lesson or Shrine spell.\n{1}, {T}: Add one mana of any color.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "restriction": {
+                        "type": "SubtypeSpellsOnly",
+                        "subtypes": [
+                            "Lesson",
+                            "Shrine"
+                        ]
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "281",
+        "rarity": "UNCOMMON",
+        "artist": "Luc Courtois",
+        "flavorText": "\"The White Lotus opens wide to those who know her secrets.\"\n—Fung, White Lotus member",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/4/24d1e22c-0d99-4ed5-94f0-fd055fd8e2be.jpg?1764122044"
+    },
+    "colorIdentityOverride": []
+}
+
 // White Lotus Reinforcements
 {
     "name": "White Lotus Reinforcements",

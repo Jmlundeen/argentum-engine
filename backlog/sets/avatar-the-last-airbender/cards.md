@@ -339,7 +339,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Waterbending Lesson
 - [ ] Waterbending Scroll
 - [ ] Watery Grasp
-- [ ] White Lotus Hideout
+- [x] White Lotus Hideout
 - [x] White Lotus Reinforcements
 - [ ] White Lotus Tile
 - [ ] Wolfbat
