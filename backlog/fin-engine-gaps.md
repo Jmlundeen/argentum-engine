@@ -325,3 +325,34 @@ Deferred (need `add-feature`, not pure authoring):
   `lastKnownSourceCounters` capture (snapshot the self-sacrificed source's P/T, or add a
   `DynamicAmount.LastKnownSourcePower`). Note: **Cinder Shade (INV)** and **Ghitu Fire-Eater (ULG)**
   share this latent gap.
+
+## Implementation pass — 2026-06-28 (add-card batch)
+
+Implemented (all pure authoring, no engine change):
+- **The Prima Vista** (#64) — Vehicle; Flying + Crew 2 + "whenever you cast a noncreature spell, if
+  at least four mana was spent, this becomes an artifact creature until end of turn"
+  (`Triggers.YouCastNoncreature` + `Conditions.TriggeringSpellManaSpentAtLeast(4)` intervening-if →
+  `Effects.BecomeCreature(Self, 5/3, EndOfTurn)`).
+- **The Gold Saucer** (#279) — `Land — Town`; taps for {C}; "{2},{T}: flip a coin, on a win create a
+  Treasure" (`FlipCoinEffect(wonEffect = Effects.CreateTreasure(1))`); "{3},{T}, Sacrifice two
+  artifacts: Draw a card" (`Costs.SacrificeMultiple(2, GameObjectFilter.Artifact)`).
+- **Eden, Seat of the Sanctum** (#277) — `Land — Town`; taps for {C}; "{5},{T}: Mill two, then you may
+  sacrifice Eden. When you do, return another target permanent card from your graveyard to your hand"
+  (`ReflexiveTriggerEffect` with `optional = true`; the reflexive target is chosen after the sacrifice,
+  so `excludeSelf = true` models "another").
+- **Jenova, Ancient Calamity** (#228) — combat trigger puts +1/+1 counters equal to its power on up to
+  one other target creature, which becomes a Mutant (`AddDynamicCountersEffect` + `Effects.AddCreatureType`);
+  "whenever a Mutant you control dies during your turn, draw cards equal to its power"
+  (`Triggers.leavesBattlefield` filtered to Mutants + `Conditions.IsYourTurn` + `DynamicAmounts.triggeringPower`).
+
+Deferred (needs `add-feature`, not pure authoring):
+- **The Lunar Whale** (#60) — Vehicle; Flying/Crew 1 + "you may look at the top card" + "as long as it
+  attacked this turn, you may play the top card of your library." The look-at-top and the conditional
+  *cast* permission compose today via `LookAtTopOfLibrary` and
+  `ConditionalStaticAbility(PlayFromTopOfLibrary, Conditions.SourceAttackedThisTurn)`, **but playing a
+  *land* from the top is blocked**: `PlayLandHandler.hasPlayFromTopOfLibrary` only matches a bare
+  `PlayFromTopOfLibrary` static and never unwraps `ConditionalStaticAbility` (it special-cases only
+  `MayPlayLandsFromGraveyard`). Fix is a small reusable engine change — unwrap
+  `ConditionalStaticAbility` around `PlayFromTopOfLibrary`/`PlayLandsAndCastFilteredFromTopOfLibrary`
+  in `PlayLandHandler` (and mirror in `CastPermissionUtils.hasPlayFromTopOfLibrary`), evaluating the
+  gating condition — exactly like the existing graveyard-play conditional handling.
