@@ -123,7 +123,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Cycle of Renewal
 - [ ] Dai Li Agents
 - [x] Dai Li Indoctrination
-- [ ] Day of Black Sun
+- [x] Day of Black Sun
 - [x] Deadly Precision
 - [ ] Deserter's Disciple
 - [ ] Destined Confrontation

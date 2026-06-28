@@ -2010,6 +2010,76 @@
     ]
 }
 
+// Day of Black Sun
+{
+    "name": "Day of Black Sun",
+    "manaCost": "{X}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each creature with mana value X or less loses all abilities until end of turn. Destroy those creatures.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    "ManaValueAtMostX"
+                                ]
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "RemoveAllAbilities",
+                        "target": "Self"
+                    }
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        "ManaValueAtMostX"
+                                    ]
+                                }
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "94",
+        "rarity": "RARE",
+        "artist": "Matteo Bassini",
+        "flavorText": "The solar eclipse robbed Firebenders of their ability to firebend, giving Team Avatar an eight-minute window to storm the capital and defeat the Fire Lord.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0e24797-3e45-4c2b-b4b0-1ef44d42eaee.jpg?1764120649"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Deadly Precision
 {
     "name": "Deadly Precision",
