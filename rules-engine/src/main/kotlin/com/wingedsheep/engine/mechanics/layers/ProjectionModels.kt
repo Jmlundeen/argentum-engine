@@ -283,9 +283,18 @@ sealed interface Modification {
      * Used by Leyline of Transformation: "Creatures you control are the chosen type in
      * addition to their other types." If the source has no chosen creature type, no
      * modification is applied.
+     *
+     * Layer 4 projection only ever touches battlefield permanents, so the two cross-zone
+     * flags ([includeControlledSpells], [includeOwnedCardsOutsideBattlefield]) are not read
+     * by [EffectApplicator]; they are read by [StateProjector] to register entries in
+     * [ProjectedState.crossZoneSubtypeGrants], which the non-battlefield subtype read-sites
+     * consult. See [com.wingedsheep.sdk.scripting.GrantChosenSubtype].
      */
     @Serializable
-    data object AddChosenSubtype : Modification {
+    data class AddChosenSubtype(
+        val includeControlledSpells: Boolean = false,
+        val includeOwnedCardsOutsideBattlefield: Boolean = false
+    ) : Modification {
         override val layer get() = Layer.TYPE
     }
 

@@ -600,7 +600,10 @@ class StaticAbilityHandler(
             }
             is GrantChosenSubtype -> {
                 ContinuousEffectData(
-                    modification = Modification.AddChosenSubtype,
+                    modification = Modification.AddChosenSubtype(
+                        includeControlledSpells = ability.includeControlledSpells,
+                        includeOwnedCardsOutsideBattlefield = ability.includeOwnedCardsOutsideBattlefield
+                    ),
                     affectsFilter = convertGroupFilter(ability.filter)
                 )
             }

@@ -2,6 +2,7 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.OptionChosenResponse
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
 import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
@@ -15,11 +16,13 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.ChoiceSlot
+import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 private val projector = StateProjector()
+private val predicateEvaluator = PredicateEvaluator()
 
 /**
  * Scenarios for Leyline of Transformation (DSK) — the new [com.wingedsheep.sdk.scripting.GrantChosenSubtype]
@@ -137,5 +140,118 @@ class LeylineOfTransformationScenarioTest : FunSpec({
         val projected = projector.project(driver.state)
         projected.hasSubtype(bearId, "Goblin") shouldBe true
         projected.hasSubtype(bearId, "Bear") shouldBe true
+    }
+
+    // ---- Cross-zone clause: "creature spells you control and creature cards you own that
+    //      aren't on the battlefield are the chosen type." ----
+
+    test("a creature card you own in your graveyard is the chosen type") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Forest" to 20, "Mountain" to 20), skipMulligans = true)
+        val activePlayer = driver.activePlayer!!
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val leyline = driver.putPermanentOnBattlefield(activePlayer, "Leyline of Transformation")
+        driver.replaceState(driver.state.updateEntity(leyline) { c ->
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
+        })
+
+        val gyBear = driver.putCardInGraveyard(activePlayer, "Test Bear")
+        val state = driver.state
+        val projected = projector.project(state)
+
+        // The graveyard Bear counts as a Goblin for type-matters checks (e.g. "Zombie card in graveyard").
+        projected.crossZoneGrantedSubtypes(state, gyBear) shouldBe setOf("Goblin")
+        predicateEvaluator.matchesCardPredicate(
+            state, projected, gyBear, CardPredicate.HasSubtype(Subtype("Goblin"))
+        ) shouldBe true
+        // Still a Bear too.
+        predicateEvaluator.matchesCardPredicate(
+            state, projected, gyBear, CardPredicate.HasSubtype(Subtype("Bear"))
+        ) shouldBe true
+    }
+
+    test("a creature card in an OPPONENT's graveyard is not the chosen type (you own)") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Forest" to 20, "Mountain" to 20), skipMulligans = true)
+        val activePlayer = driver.activePlayer!!
+        val opponent = driver.getOpponent(activePlayer)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val leyline = driver.putPermanentOnBattlefield(activePlayer, "Leyline of Transformation")
+        driver.replaceState(driver.state.updateEntity(leyline) { c ->
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
+        })
+
+        val theirGyBear = driver.putCardInGraveyard(opponent, "Test Bear")
+        val state = driver.state
+        val projected = projector.project(state)
+
+        projected.crossZoneGrantedSubtypes(state, theirGyBear) shouldBe emptySet()
+        predicateEvaluator.matchesCardPredicate(
+            state, projected, theirGyBear, CardPredicate.HasSubtype(Subtype("Goblin"))
+        ) shouldBe false
+    }
+
+    test("a creature spell you control on the stack is the chosen type") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Forest" to 20, "Mountain" to 20), skipMulligans = true)
+        val activePlayer = driver.activePlayer!!
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val leyline = driver.putPermanentOnBattlefield(activePlayer, "Leyline of Transformation")
+        driver.replaceState(driver.state.updateEntity(leyline) { c ->
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
+        })
+
+        // Cast a Bear creature spell — it sits on the stack.
+        val spell = driver.putCardInHand(activePlayer, "Test Bear")
+        driver.giveMana(activePlayer, Color.GREEN, 2)
+        driver.castSpell(activePlayer, spell)
+
+        val state = driver.state
+        val spellId = state.stack.last()
+        val projected = projector.project(state)
+
+        projected.crossZoneGrantedSubtypes(state, spellId) shouldBe setOf("Goblin")
+        predicateEvaluator.matchesCardPredicate(
+            state, projected, spellId, CardPredicate.HasSubtype(Subtype("Goblin"))
+        ) shouldBe true
+    }
+
+    test("a non-creature card you own outside the battlefield is NOT granted the type") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Forest" to 20, "Mountain" to 20), skipMulligans = true)
+        val activePlayer = driver.activePlayer!!
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val leyline = driver.putPermanentOnBattlefield(activePlayer, "Leyline of Transformation")
+        driver.replaceState(driver.state.updateEntity(leyline) { c ->
+            c.with(CastChoicesComponent(chosen = mapOf(ChoiceSlot.CREATURE_TYPE to ChoiceValue.TextChoice("Goblin"))))
+        })
+
+        // A land card in the graveyard is not a creature card, so the grant must not touch it.
+        val gyLand = driver.putCardInGraveyard(activePlayer, "Forest")
+        val state = driver.state
+        val projected = projector.project(state)
+
+        projected.crossZoneGrantedSubtypes(state, gyLand) shouldBe emptySet()
+        predicateEvaluator.matchesCardPredicate(
+            state, projected, gyLand, CardPredicate.HasSubtype(Subtype("Goblin"))
+        ) shouldBe false
+    }
+
+    test("no Leyline on the battlefield means no cross-zone grant (overlay is empty)") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Forest" to 20, "Mountain" to 20), skipMulligans = true)
+        val activePlayer = driver.activePlayer!!
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val gyBear = driver.putCardInGraveyard(activePlayer, "Test Bear")
+        val state = driver.state
+        val projected = projector.project(state)
+
+        projected.crossZoneSubtypeGrants shouldBe emptyList()
+        projected.crossZoneGrantedSubtypes(state, gyBear) shouldBe emptySet()
     }
 })

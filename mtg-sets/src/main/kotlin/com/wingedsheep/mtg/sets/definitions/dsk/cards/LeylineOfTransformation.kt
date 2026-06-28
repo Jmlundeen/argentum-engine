@@ -20,16 +20,16 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  *
  * `leyline()` adds the "begin the game on the battlefield" opening-hand marker (CR 103.6).
  * [EntersWithChoice] locks in the chosen creature type (CR 614 as-it-enters choice), and
- * [GrantChosenSubtype] is the Layer 4 (type-changing) static ability that adds that chosen
- * type to creatures you control — the Conspiracy / Xenograft mechanic.
+ * [GrantChosenSubtype] is the type-changing static ability that adds that chosen type to:
+ *  - creatures you control (battlefield) — Layer 4 projection via the `filter`;
+ *  - `includeControlledSpells` — creature spells you control on the stack;
+ *  - `includeOwnedCardsOutsideBattlefield` — creature cards you own in hand/library/graveyard/
+ *    exile/command.
  *
- * Limitation: the "creature spells you control and creature cards you own that aren't on the
- * battlefield are the chosen type" clause is NOT modeled. The engine projects type-changing
- * continuous effects only onto battlefield permanents (StateProjector iterates the
- * battlefield), so a chosen-type grant cannot reach the stack, hand, graveyard, library, or
- * exile. Implementing that would require type projection across every non-battlefield zone —
- * a broad, cross-cutting capability that no card in the engine currently exercises. The
- * battlefield clause (by far the dominant gameplay function) is fully faithful.
+ * The last two clauses are honored by the cross-zone subtype-grant overlay on `ProjectedState`,
+ * which every non-battlefield subtype read-site consults — so a Leyline-granted type drives
+ * type-matters checks everywhere (e.g. "target Zombie spell", "return target Zombie card from
+ * your graveyard"). This is the full Conspiracy / Xenograft mechanic.
  */
 val LeylineOfTransformation = card("Leyline of Transformation") {
     manaCost = "{2}{U}{U}"
@@ -44,7 +44,11 @@ val LeylineOfTransformation = card("Leyline of Transformation") {
     replacementEffect(EntersWithChoice(ChoiceType.CREATURE_TYPE))
 
     staticAbility {
-        ability = GrantChosenSubtype(filter = GroupFilter.AllCreaturesYouControl)
+        ability = GrantChosenSubtype(
+            filter = GroupFilter.AllCreaturesYouControl,
+            includeControlledSpells = true,
+            includeOwnedCardsOutsideBattlefield = true
+        )
     }
 
     metadata {

@@ -10346,7 +10346,9 @@
                 "type": "GrantChosenSubtype",
                 "filter": {
                     "baseFilter": "creature ctrl:you"
-                }
+                },
+                "includeControlledSpells": true,
+                "includeOwnedCardsOutsideBattlefield": true
             }
         ],
         "replacementEffects": [

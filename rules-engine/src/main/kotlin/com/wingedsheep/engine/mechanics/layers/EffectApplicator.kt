@@ -143,6 +143,9 @@ internal class EffectApplicator(
                     values.subtypes.add(mod.subtype)
                 }
                 is Modification.AddChosenSubtype -> {
+                    // The cross-zone flags on the modification are read by StateProjector to build
+                    // ProjectedState.crossZoneSubtypeGrants; Layer 4 projection here only ever
+                    // touches battlefield permanents, so they're irrelevant to this branch.
                     val chosenType = state.getEntity(effect.sourceId)
                         ?.chosenCreatureType()
                     if (chosenType != null) {
