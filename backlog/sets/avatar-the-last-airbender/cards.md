@@ -251,7 +251,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Platypus-Bear
 - [x] Pretending Poxbearers
 - [x] Price of Freedom
-- [ ] Professor Zei, Anthropologist
+- [x] Professor Zei, Anthropologist
 - [ ] Rabaroo Troop
 - [ ] Ran and Shaw
 - [ ] Raucous Audience
