@@ -9861,6 +9861,130 @@
     ]
 }
 
+// Sandbenders' Storm
+{
+    "name": "Sandbenders' Storm",
+    "manaCost": "{3}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Destroy target creature with power 4 or greater.\n• Earthbend 3. (Target land you control becomes a 0/0 creature with haste that's still a land. Put three +1/+1 counters on it. When it dies or is exiled, return it to the battlefield tapped.)",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature pow>=4"
+                            },
+                            "id": "target creature with power 4 or greater"
+                        }
+                    ],
+                    "description": "Destroy target creature with power 4 or greater"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AnimateLand",
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "power": 0,
+                                "toughness": 0,
+                                "duration": "Permanent"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "duration": "Permanent"
+                            },
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 3,
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            },
+                            {
+                                "type": "GrantTriggeredAbility",
+                                "ability": {
+                                    "id": "ability_1",
+                                    "trigger": {
+                                        "type": "ZoneChangeEvent",
+                                        "from": "Battlefield"
+                                    },
+                                    "effect": {
+                                        "type": "Composite",
+                                        "effects": [
+                                            {
+                                                "type": "MoveToZone",
+                                                "target": "Self",
+                                                "destination": "Battlefield",
+                                                "placement": "Tapped",
+                                                "fromZone": "Graveyard"
+                                            },
+                                            {
+                                                "type": "MoveToZone",
+                                                "target": "Self",
+                                                "destination": "Battlefield",
+                                                "placement": "Tapped",
+                                                "fromZone": "Exile"
+                                            }
+                                        ]
+                                    },
+                                    "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                                },
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "duration": "Permanent"
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "land ctrl:you"
+                            },
+                            "id": "target land you control"
+                        }
+                    ],
+                    "description": "Earthbend 3"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "artist": "Robin Har",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/3/b3bf4a25-4329-4318-870a-2b06aa620dc4.jpg?1774855638"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Seismic Sense
 {
     "name": "Seismic Sense",
