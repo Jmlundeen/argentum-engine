@@ -263,7 +263,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Rockalanche
 - [x] Rocky Rebuke
 - [ ] Rough Rhino Cavalry
-- [ ] Rowdy Snowballers
+- [x] Rowdy Snowballers
 - [ ] Ruinous Waterbending
 - [x] Rumble Arena
 - [ ] Saber-Tooth Moose-Lion
