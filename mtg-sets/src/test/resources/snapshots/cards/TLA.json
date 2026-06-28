@@ -2587,6 +2587,75 @@
     ]
 }
 
+// Energybending
+{
+    "name": "Energybending",
+    "manaCost": "{2}",
+    "typeLine": "Instant — Lesson",
+    "oracleText": "Lands you control gain all basic land types until end of turn.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "land ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddSubtype",
+                                "subtype": "Plains",
+                                "target": "Self"
+                            },
+                            {
+                                "type": "AddSubtype",
+                                "subtype": "Island",
+                                "target": "Self"
+                            },
+                            {
+                                "type": "AddSubtype",
+                                "subtype": "Swamp",
+                                "target": "Self"
+                            },
+                            {
+                                "type": "AddSubtype",
+                                "subtype": "Mountain",
+                                "target": "Self"
+                            },
+                            {
+                                "type": "AddSubtype",
+                                "subtype": "Forest",
+                                "target": "Self"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "2",
+        "rarity": "UNCOMMON",
+        "artist": "Hisashi Momose",
+        "flavorText": "\"Darkness thrives in the void, but always yields to purifying light.\"\n—The Lion-Turtle",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/c/6c085441-e023-4032-89a0-d24ce5060ac3.jpg?1778833146"
+    },
+    "colorIdentityOverride": []
+}
+
 // Enter the Avatar State
 {
     "name": "Enter the Avatar State",
