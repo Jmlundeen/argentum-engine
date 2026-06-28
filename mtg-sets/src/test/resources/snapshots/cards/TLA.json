@@ -5508,6 +5508,85 @@
     ]
 }
 
+// Origin of Metalbending
+{
+    "name": "Origin of Metalbending",
+    "manaCost": "{1}{G}",
+    "typeLine": "Instant — Lesson",
+    "oracleText": "Choose one —\n• Destroy target artifact or enchantment.\n• Put a +1/+1 counter on target creature you control. It gains indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy it.)",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target artifact or enchantment"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "artifact|enchantment"
+                            },
+                            "id": "target artifact or enchantment"
+                        }
+                    ],
+                    "description": "Destroy target artifact or enchantment."
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 1,
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                }
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "INDESTRUCTIBLE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            },
+                            "id": "target creature you control"
+                        }
+                    ],
+                    "description": "Put a +1/+1 counter on target creature you control. It gains indestructible until end of turn."
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "187",
+        "artist": "Pauline Voss",
+        "flavorText": "Metal is just earth that has been purified and refined.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/5/25749f9a-260d-4bdc-bd28-429c12faa4a5.jpg?1764121273"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Ozai's Cruelty
 {
     "name": "Ozai's Cruelty",

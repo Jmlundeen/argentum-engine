@@ -237,7 +237,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Obsessive Pursuit
 - [x] Octopus Form
 - [x] Omashu City
-- [ ] Origin of Metalbending
+- [x] Origin of Metalbending
 - [ ] Ostrich-Horse
 - [ ] Otter-Penguin
 - [x] Ozai's Cruelty
