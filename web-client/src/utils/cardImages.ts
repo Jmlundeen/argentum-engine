@@ -19,6 +19,15 @@ export const MANIFEST_FACE_DOWN_IMAGE_URL = 'https://cards.scryfall.io/normal/fr
 export const CARD_BACK_IMAGE_URL = 'https://backs.scryfall.io/normal/2/2/222b7a3b-2321-4d4c-af19-19338b134971.jpg?1677416389'
 
 /**
+ * Degrees to rotate a card's hover preview image. Split-layout cards (Pain // Suffering, Rooms
+ * like Unholy Annex // Ritual Chamber — CR 709.5) are printed sideways, so their single portrait
+ * image is rotated 90° to landscape. Everything else stays upright.
+ */
+export function splitImageRotateDeg(card: { layout?: string } | null | undefined): 0 | 90 {
+  return card?.layout === 'SPLIT' ? 90 : 0
+}
+
+/**
  * Get the image URL for a card.
  *
  * Uses the provided imageUri if available (from card metadata),

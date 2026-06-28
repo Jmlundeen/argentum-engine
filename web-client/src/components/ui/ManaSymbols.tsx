@@ -68,15 +68,27 @@ export function ManaSymbol({ symbol, size = 14 }: { symbol: string; size?: numbe
 export function ManaCost({ cost, size = 14, gap = 1 }: { cost: string | null; size?: number; gap?: number }) {
   if (!cost) return null
 
-  const symbols = cost.match(/\{([^}]+)\}/g)
-  if (!symbols || symbols.length === 0) return null
+  // Split cards (Rooms, fused split cards) carry both halves' costs joined by "//"
+  // (e.g. "{U} // {4}{U}"). Render each half's symbols with a slash divider between them.
+  const halves = cost
+    .split('//')
+    .map((half) => half.match(/\{([^}]+)\}/g) ?? [])
+    .filter((symbols) => symbols.length > 0)
+  if (halves.length === 0) return null
 
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap }}>
-      {symbols.map((match, i) => {
-        const inner = match.slice(1, -1)
-        return <ManaSymbol key={i} symbol={inner} size={size} />
-      })}
+      {halves.map((symbols, hi) => (
+        <span key={hi} style={{ display: 'inline-flex', alignItems: 'center', gap }}>
+          {hi > 0 && (
+            <span style={{ opacity: 0.6, margin: '0 2px', fontSize: Math.round(size * 0.85) }}>//</span>
+          )}
+          {symbols.map((match, i) => {
+            const inner = match.slice(1, -1)
+            return <ManaSymbol key={i} symbol={inner} size={size} />
+          })}
+        </span>
+      ))}
     </span>
   )
 }

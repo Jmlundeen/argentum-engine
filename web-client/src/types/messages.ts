@@ -1135,6 +1135,12 @@ export interface SealedCardInfo {
    */
   readonly setCode?: string | null
   readonly collectorNumber?: string | null
+  /**
+   * Printed layout code ('NORMAL', 'SPLIT', 'ADVENTURE', …). Split cards (Pain // Suffering,
+   * Rooms like Unholy Annex // Ritual Chamber) are 'SPLIT' — the deckbuilder rotates their
+   * hover preview 90° to landscape since the single image is printed sideways.
+   */
+  readonly layout?: string
 }
 
 /**

@@ -339,7 +339,13 @@ sealed interface ServerMessage {
         // player saves a drafted/sealed deck to their library (otherwise the save falls back to
         // the card's default printing). Either may be null for test cards lacking metadata.
         val setCode: String? = null,
-        val collectorNumber: String? = null
+        val collectorNumber: String? = null,
+        /**
+         * Printed layout (`NORMAL`, `SPLIT`, `ADVENTURE`, …). Lets the sealed/draft deckbuilder
+         * rotate split cards (Rooms like Unholy Annex // Ritual Chamber, Pain // Suffering) to
+         * landscape in the hover preview, since their single image is printed sideways.
+         */
+        val layout: String = "NORMAL"
     )
 
     /**
