@@ -132,7 +132,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Earth King's Lieutenant
 - [ ] Earth Kingdom General
 - [ ] Earth Kingdom Jailer
-- [ ] Earth Kingdom Protectors
+- [x] Earth Kingdom Protectors
 - [ ] Earth Kingdom Soldier
 - [ ] Earth Rumble
 - [ ] Earth Rumble Wrestlers
