@@ -146,7 +146,7 @@ class StatsQueryService(private val jdbc: JdbcTemplate) {
         LEFT JOIN users u ON u.id = opp.user_id
         WHERE me.user_id = ?
         GROUP BY COALESCE(u.display_name, opp.player_name), opp.user_id
-        ORDER BY wins + losses DESC, opponent ASC
+        ORDER BY count(*) DESC, opponent ASC
         """.trimIndent(),
         { rs, _ ->
             HeadToHead(
