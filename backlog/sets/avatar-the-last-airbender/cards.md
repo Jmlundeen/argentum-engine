@@ -67,7 +67,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 ## Card checklist
 
 - [ ] Aang's Iceberg
-- [ ] Aang's Journey
+- [x] Aang's Journey
 - [ ] Aang, Swift Savior
 - [ ] Aang, at the Crossroads
 - [ ] Aang, the Last Airbender
