@@ -78,6 +78,20 @@ class BreOfClanStoutarmTest : ScenarioTestBase() {
                 )
             )
         )
+        // A cheap *sorcery* (MV 1 ≤ 3 life gained). Casting it during the end step proves the cast
+        // ignores type-based timing restrictions (CR 601 / the printed ruling) — a sorcery normally
+        // can't be cast then. It also targets, so it covers sorcery + the ChooseTargets path together.
+        cardRegistry.register(
+            CardDefinition.sorcery(
+                name = "Searing Sorcery",
+                manaCost = ManaCost.parse("{R}"),
+                oracleText = "Searing Sorcery deals 2 damage to target creature.",
+                script = CardScript.spell(
+                    effect = DealDamageEffect(2, EffectTarget.ContextTarget(0)),
+                    TargetObject(filter = TargetFilter(GameObjectFilter.Creature))
+                )
+            )
+        )
 
         context("Bre of Clan Stoutarm — end-step impulse") {
 
@@ -171,6 +185,40 @@ class BreOfClanStoutarmTest : ScenarioTestBase() {
                 }
                 withClue("Tiny Bolt went to its owner's graveyard after resolving") {
                     game.isInGraveyard(1, "Tiny Bolt") shouldBe true
+                }
+            }
+
+            test("mana value ≤ life gained: a sorcery can be cast for free at the end step (timing ignored)") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardOnBattlefield(1, "Bre of Clan Stoutarm")
+                    .withCardInHand(1, "Healing Salve")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(1, "Searing Sorcery")
+                    .withCardOnBattlefield(2, "Cheap Ogre") // the creature the sorcery will kill
+                    .withLandsOnBattlefield(1, "Plains", 2)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                game.castSpell(1, "Healing Salve").error shouldBe null
+                game.resolveStack()
+
+                game.passUntilPhase(Phase.ENDING, Step.END)
+                game.resolveStack()
+                // A sorcery normally can't be cast in the end step — accepting here proves the
+                // free cast ignores the type's timing restriction.
+                game.answerYesNo(true)
+                val ogre = game.findPermanent("Cheap Ogre")
+                    ?: error("Cheap Ogre should be on the battlefield as a target")
+                game.selectTargets(listOf(ogre))
+                game.resolveStack()
+
+                withClue("The sorcery resolved (2 damage) → Cheap Ogre died") {
+                    game.isOnBattlefield("Cheap Ogre") shouldBe false
+                }
+                withClue("The sorcery went to its owner's graveyard after resolving") {
+                    game.isInGraveyard(1, "Searing Sorcery") shouldBe true
                 }
             }
 
