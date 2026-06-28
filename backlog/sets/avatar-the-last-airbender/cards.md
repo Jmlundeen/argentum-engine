@@ -350,5 +350,5 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Zhao, the Moon Slayer
 - [x] Zuko's Conviction
 - [ ] Zuko's Exile
-- [ ] Zuko, Conflicted
+- [x] Zuko, Conflicted
 - [ ] Zuko, Exiled Prince
