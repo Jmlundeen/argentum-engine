@@ -261,7 +261,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Rebellious Captives
 - [x] Redirect Lightning
 - [ ] Rockalanche
-- [ ] Rocky Rebuke
+- [x] Rocky Rebuke
 - [ ] Rough Rhino Cavalry
 - [ ] Rowdy Snowballers
 - [ ] Ruinous Waterbending

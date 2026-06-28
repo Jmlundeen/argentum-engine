@@ -6461,6 +6461,57 @@
     ]
 }
 
+// Rocky Rebuke
+{
+    "name": "Rocky Rebuke",
+    "manaCost": "{1}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature you control deals damage equal to its power to target creature an opponent controls.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "EntityProperty",
+                "entity": "Target",
+                "numericProperty": "Power"
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "creature an opponent controls"
+            },
+            "damageSource": {
+                "type": "BoundVariable",
+                "name": "creature you control"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "creature you control"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:opponent"
+                },
+                "id": "creature an opponent controls"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "193",
+        "artist": "Hokyoung Kim",
+        "flavorText": "\"I am the greatest Earthbender in the world; don't you two dunderheads ever forget it!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/2/52fd910f-6d42-41f5-a4be-f375aa254ea2.jpg?1764121313"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Rumble Arena
 {
     "name": "Rumble Arena",
