@@ -11363,6 +11363,116 @@
     ]
 }
 
+// The Boulder, Ready to Rumble
+{
+    "name": "The Boulder, Ready to Rumble",
+    "manaCost": "{3}{G}",
+    "typeLine": "Legendary Creature — Human Warrior Performer",
+    "oracleText": "Whenever The Boulder attacks, earthbend X, where X is the number of creatures you control with power 4 or greater. (Target land you control becomes a 0/0 creature with haste that's still a land. Put X +1/+1 counters on it. When it dies or is exiled, return it to the battlefield tapped.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AnimateLand",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land you control"
+                            },
+                            "power": 0,
+                            "toughness": 0,
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land you control"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "AddDynamicCounters",
+                            "counterType": "+1/+1",
+                            "amount": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "creature pow>=4"
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land you control"
+                            }
+                        },
+                        {
+                            "type": "GrantTriggeredAbility",
+                            "ability": {
+                                "id": "ability_2",
+                                "trigger": {
+                                    "type": "ZoneChangeEvent",
+                                    "from": "Battlefield"
+                                },
+                                "effect": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Graveyard"
+                                        },
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Exile"
+                                        }
+                                    ]
+                                },
+                                "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land you control"
+                            },
+                            "duration": "Permanent"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "land ctrl:you"
+                    },
+                    "id": "target land you control"
+                },
+                "descriptionOverride": "Whenever The Boulder attacks, earthbend X, where X is the number of creatures you control with power 4 or greater."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "168",
+        "rarity": "UNCOMMON",
+        "artist": "Thanh Tuấn",
+        "flavorText": "\"The Boulder's gonna win this in a landslide!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/c/ec27a466-5457-44c6-a842-1de7d3788d66.jpg?1764121147"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // The Lion-Turtle
 {
     "name": "The Lion-Turtle",
