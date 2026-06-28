@@ -22,6 +22,7 @@ export function AuthWidget() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const incomingCount = useFriendsStore((s) => s.incoming.length)
+  const onlineCount = useFriendsStore((s) => s.friends.filter((f) => f.online).length)
   const loadFriends = useFriendsStore((s) => s.load)
   const resetFriends = useFriendsStore((s) => s.reset)
   const [loginOpen, setLoginOpen] = useState(false)
@@ -64,6 +65,33 @@ export function AuthWidget() {
             style={{ position: 'relative' }}
           >
             Friends
+            {onlineCount > 0 && (
+              <span
+                aria-label={`${onlineCount} friends online`}
+                title={`${onlineCount} online`}
+                style={{
+                  marginLeft: 6,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#5bd16e',
+                }}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    display: 'inline-block',
+                    width: 7,
+                    height: 7,
+                    borderRadius: 999,
+                    backgroundColor: '#5bd16e',
+                  }}
+                />
+                {onlineCount}
+              </span>
+            )}
             {incomingCount > 0 && (
               <span
                 aria-label={`${incomingCount} pending friend requests`}

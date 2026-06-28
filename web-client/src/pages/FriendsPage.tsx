@@ -23,6 +23,7 @@ export function FriendsPage() {
   const patchUser = useAuthStore((s) => s.patchUser)
 
   const friends = useFriendsStore((s) => s.friends)
+  const onlineFriendCount = friends.filter((f) => f.online).length
   const incoming = useFriendsStore((s) => s.incoming)
   const outgoing = useFriendsStore((s) => s.outgoing)
   const loading = useFriendsStore((s) => s.loading)
@@ -200,7 +201,13 @@ export function FriendsPage() {
           {/* Friends list */}
           <div style={styles.sectionBlock}>
             <h2 style={styles.section}>
-              Your friends {friends.length > 0 && <span style={styles.muted}>({friends.length})</span>}
+              Your friends{' '}
+              {friends.length > 0 && (
+                <span style={styles.muted}>
+                  ({friends.length}
+                  {onlineFriendCount > 0 && <span style={{ color: '#5bd16e' }}> · {onlineFriendCount} online</span>})
+                </span>
+              )}
             </h2>
             {storeError && <p style={styles.error}>{storeError}</p>}
             {friends.length === 0 ? (
