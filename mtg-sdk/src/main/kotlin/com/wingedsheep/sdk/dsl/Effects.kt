@@ -631,7 +631,7 @@ object Effects {
     ): Effect = ExileAndGrantOwnerPlayPermissionEffect(target, opponentCostIncrease)
 
     /** The default Airbend recast cost: {2} (Avatar: The Last Airbender). */
-    private val AIRBEND_COST: ManaCost get() = ManaCost.parse("{2}")
+    private val AIRBEND_COST: ManaCost = ManaCost.parse("{2}")
 
     /**
      * Airbend the spell/ability's chosen target(s) — "Exile it. While it's exiled, its owner may
@@ -2616,10 +2616,15 @@ object Effects {
      * Exile target spell (CR 718, "exile target spell" — Aven Interrupter). Not a counter: it
      * exiles even can't-be-countered spells and fires no "spell was countered" trigger, but the
      * spell still fails to resolve. Pass [makePlotted] = true for "it becomes plotted" (the
-     * card's owner may cast it for free on a later turn). Pair with `Targets.Spell`.
+     * card's owner may cast it for free on a later turn), or [fixedAlternativeManaCost] for the
+     * **Airbend** stack branch ("its owner may cast it for {2} rather than its mana cost" — Aang,
+     * Swift Savior). Pair with `Targets.Spell`.
      */
-    fun ExileTargetSpell(makePlotted: Boolean = false): Effect =
-        ExileTargetSpellEffect(makePlotted = makePlotted)
+    fun ExileTargetSpell(
+        makePlotted: Boolean = false,
+        fixedAlternativeManaCost: ManaCost? = null
+    ): Effect =
+        ExileTargetSpellEffect(makePlotted = makePlotted, fixedAlternativeManaCost = fixedAlternativeManaCost)
 
     /**
      * Counter target spell unless its controller pays a mana cost.

@@ -19,10 +19,8 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CounterDestination
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
-import com.wingedsheep.sdk.scripting.effects.CounterTargetSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import io.kotest.core.spec.style.FunSpec
@@ -78,21 +76,42 @@ class AirbendScenarioTest : FunSpec({
             )
             effect = ConditionalEffect(
                 condition = Conditions.TargetIsSpellOnStack(0),
-                effect = CounterEffect(
-                    targetSource = CounterTargetSource.Chosen,
-                    counterDestination = CounterDestination.Exile(
-                        ownerControls = true,
-                        fixedAlternativeManaCost = ManaCost.parse("{2}")
-                    )
-                ),
+                // Spell branch: airbend "exiles it" (not a counter) — Effects.ExileTargetSpell.
+                effect = Effects.ExileTargetSpell(fixedAlternativeManaCost = ManaCost.parse("{2}")),
                 elseEffect = Effects.Airbend()
             )
         }
     }
 
+    // {W} sorcery: "Airbend all creatures." Exercises Effects.AirbendAll (battlefield gather).
+    val airbendAllTester = card("Airbend All Tester") {
+        manaCost = "{W}"
+        colorIdentity = "W"
+        typeLine = "Sorcery"
+        oracleText = "Airbend all creatures."
+        spell {
+            // excludeSelf = false: the sorcery itself isn't a creature, but be explicit that every
+            // creature (both players') is gathered.
+            effect = Effects.AirbendAll(GameObjectFilter.Creature, excludeSelf = false)
+        }
+    }
+
+    // {1}{G} creature that can't be countered — proves airbending a spell is "exile it", not a
+    // counter, so it works on can't-be-countered spells.
+    val uncounterableBears = card("Uncounterable Bears") {
+        manaCost = "{1}{G}"
+        colorIdentity = "G"
+        typeLine = "Creature — Bear"
+        power = 2
+        toughness = 2
+        cantBeCountered = true
+    }
+
     fun createDriver(): GameTestDriver {
         val driver = GameTestDriver()
-        driver.registerCards(TestCards.all + listOf(airbendTester, airbendOrSpellTester))
+        driver.registerCards(
+            TestCards.all + listOf(airbendTester, airbendOrSpellTester, airbendAllTester, uncounterableBears)
+        )
         return driver
     }
 
@@ -172,7 +191,7 @@ class AirbendScenarioTest : FunSpec({
         driver.state.getEntity(bears)?.get<PlayWithFixedAlternativeManaCostComponent>().shouldBeNull()
     }
 
-    test("airbending a spell counters and exiles it, and its owner may recast it for {2}") {
+    test("airbending a spell exiles it from the stack, and its owner may recast it for {2}") {
         val driver = createDriver()
         driver.initMirrorMatch(deck = Deck.of("Plains" to 40), skipMulligans = true, startingLife = 20)
         val me = driver.activePlayer!!
@@ -199,10 +218,10 @@ class AirbendScenarioTest : FunSpec({
                 paymentStrategy = PaymentStrategy.AutoPay
             )
         )
-        driver.bothPass() // resolve the airbend instant: counter + exile the Bears spell
-        driver.bothPass() // the Bears spell is gone (countered), nothing resolves
+        driver.bothPass() // resolve the airbend instant: exile the Bears spell from the stack
+        driver.bothPass() // the Bears spell is gone (exiled), nothing resolves
 
-        // Countered and exiled to its OWNER's exile (not graveyard); off the stack.
+        // Exiled to its OWNER's exile (not graveyard); off the stack.
         driver.state.stack.shouldNotContain(bearsOnStack)
         driver.state.getZone(ZoneKey(me, Zone.EXILE)) shouldContain bearsOnStack
         driver.state.getZone(ZoneKey(me, Zone.GRAVEYARD)) shouldNotContain bearsOnStack
@@ -212,5 +231,65 @@ class AirbendScenarioTest : FunSpec({
         ownerAction.shouldNotBeNull()
         ownerAction.manaCostString shouldBe "{2}"
         castAction(driver, opp, bearsOnStack).shouldBeNull()
+    }
+
+    test("airbending a spell that can't be countered still exiles it (airbend is not a counter)") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Plains" to 40), skipMulligans = true, startingLife = 20)
+        val me = driver.activePlayer!!
+        val opp = driver.getOpponent(me)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        // I cast Uncounterable Bears ({1}{G}, can't be countered); the opponent airbends the spell.
+        repeat(2) { driver.putLandOnBattlefield(me, "Plains") }
+        driver.giveMana(me, com.wingedsheep.sdk.core.Color.GREEN, 1)
+        driver.giveColorlessMana(me, 1)
+        val bearsSpell = driver.putCardInHand(me, "Uncounterable Bears")
+        driver.putLandOnBattlefield(opp, "Plains") // {W} for the airbend instant
+        val airbend = driver.putCardInHand(opp, "Airbend Or Spell Tester")
+
+        driver.submitSuccess(CastSpell(playerId = me, cardId = bearsSpell, paymentStrategy = PaymentStrategy.AutoPay))
+        driver.passPriority(me)
+        val bearsOnStack = driver.state.stack.first()
+
+        driver.submitSuccess(
+            CastSpell(
+                playerId = opp,
+                cardId = airbend,
+                targets = listOf(ChosenTarget.Spell(bearsOnStack)),
+                paymentStrategy = PaymentStrategy.AutoPay
+            )
+        )
+        driver.bothPass() // resolve the airbend instant
+        driver.bothPass()
+
+        // Despite "can't be countered", the spell is exiled from the stack (it leaves and never
+        // resolves) — because airbend says "exile it", not "counter it".
+        driver.state.stack.shouldNotContain(bearsOnStack)
+        driver.state.getZone(ZoneKey(me, Zone.EXILE)) shouldContain bearsOnStack
+        driver.state.getZone(ZoneKey(me, Zone.BATTLEFIELD)) shouldNotContain bearsOnStack
+        castAction(driver, me, bearsOnStack)?.manaCostString shouldBe "{2}"
+    }
+
+    test("Effects.AirbendAll exiles every creature to its owner with a {2} recast") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Plains" to 40), skipMulligans = true, startingLife = 20)
+        val me = driver.activePlayer!!
+        val opp = driver.getOpponent(me)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val myBears = driver.putCreatureOnBattlefield(me, "Grizzly Bears")
+        val oppBears = driver.putCreatureOnBattlefield(opp, "Grizzly Bears")
+        val spell = driver.putCardInHand(me, "Airbend All Tester")
+        driver.putLandOnBattlefield(me, "Plains") // {W}
+
+        driver.submitSuccess(CastSpell(playerId = me, cardId = spell, paymentStrategy = PaymentStrategy.AutoPay))
+        driver.bothPass()
+
+        // Each creature lands in its own owner's exile; each owner may recast theirs for {2}.
+        driver.state.getZone(ZoneKey(me, Zone.EXILE)) shouldContain myBears
+        driver.state.getZone(ZoneKey(opp, Zone.EXILE)) shouldContain oppBears
+        castAction(driver, me, myBears)?.manaCostString shouldBe "{2}"
+        castAction(driver, opp, oppBears)?.manaCostString shouldBe "{2}"
     }
 })

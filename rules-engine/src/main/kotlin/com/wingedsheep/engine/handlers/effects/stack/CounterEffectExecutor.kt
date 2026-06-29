@@ -106,9 +106,7 @@ class CounterEffectExecutor(
             CounterTarget.Spell -> when (val dest = effect.counterDestination) {
                 CounterDestination.Graveyard -> resolver.counterSpell(state, entityId)
                 is CounterDestination.Exile -> resolver.counterSpellToExile(
-                    state, entityId, dest.grantFreeCast, context.controllerId,
-                    ownerControls = dest.ownerControls,
-                    fixedAlternativeManaCost = dest.fixedAlternativeManaCost
+                    state, entityId, dest.grantFreeCast, context.controllerId
                 )
             }
             CounterTarget.SpellOrAbility -> error("unreachable — resolved above")

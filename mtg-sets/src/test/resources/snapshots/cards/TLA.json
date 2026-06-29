@@ -268,12 +268,8 @@
                         "condition": "TargetIsSpellOnStack"
                     },
                     "then": {
-                        "type": "Counter",
-                        "counterDestination": {
-                            "type": "CounterDestination.Exile",
-                            "ownerControls": true,
-                            "fixedAlternativeManaCost": "{2}"
-                        }
+                        "type": "ExileTargetSpell",
+                        "fixedAlternativeManaCost": "{2}"
                     },
                     "otherwise": {
                         "type": "Composite",

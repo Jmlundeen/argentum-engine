@@ -12,9 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
-import com.wingedsheep.sdk.scripting.effects.CounterDestination
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
-import com.wingedsheep.sdk.scripting.effects.CounterTargetSource
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -40,11 +37,12 @@ import com.wingedsheep.sdk.scripting.targets.TargetOther
  * The "airbend … target creature **or spell**" is the airbend STACK branch. The single target is a
  * cross-zone union ([TargetFilter.anyOf] of a battlefield creature and a stack spell), and the effect
  * branches on whether the chosen target is a spell ([Conditions.TargetIsSpellOnStack]): a spell is
- * countered and exiled with its owner granted the {2} recast
- * ([CounterDestination.Exile]`(ownerControls, fixedAlternativeManaCost)`); a permanent takes the
- * normal [Effects.Airbend] exile path. Both grant the *owner* a fixed-{2} may-play from exile via the
- * same `PlayWithFixedAlternativeManaCostComponent`. The transform is a Waterbend-cost activated
- * ability (`hasWaterbend`).
+ * *exiled from the stack* — airbend says "exile it", not "counter it", so it uses
+ * [Effects.ExileTargetSpell]`(fixedAlternativeManaCost = {2})` (the Aven Interrupter primitive),
+ * which works on can't-be-countered spells and fires no "spell was countered" trigger; a permanent
+ * takes the normal [Effects.Airbend] exile path. Both grant the *owner* a fixed-{2} may-play from
+ * exile via the same `PlayWithFixedAlternativeManaCostComponent`. The transform is a Waterbend-cost
+ * activated ability (`hasWaterbend`).
  */
 private val AangAndLaOceansFury = card("Aang and La, Ocean's Fury") {
     manaCost = ""
@@ -101,14 +99,10 @@ private val AangSwiftSaviorFront = card("Aang, Swift Savior") {
         )
         effect = ConditionalEffect(
             condition = Conditions.TargetIsSpellOnStack(0),
-            // Spell branch: counter it, exile it, owner may recast for {2}.
-            effect = CounterEffect(
-                targetSource = CounterTargetSource.Chosen,
-                counterDestination = CounterDestination.Exile(
-                    ownerControls = true,
-                    fixedAlternativeManaCost = ManaCost.parse("{2}")
-                )
-            ),
+            // Spell branch: airbend "exiles it" — this is NOT a counter (so it works on spells that
+            // can't be countered and fires no "spell was countered" trigger). Exile the spell from
+            // the stack; its owner may recast it for {2} via the same fixed-alternative-cost grant.
+            effect = Effects.ExileTargetSpell(fixedAlternativeManaCost = ManaCost.parse("{2}")),
             // Permanent branch: the normal airbend exile + {2}-recast-to-owner.
             elseEffect = Effects.Airbend()
         )

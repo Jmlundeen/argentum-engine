@@ -12,8 +12,9 @@
 > counter**, the **Nth-card-drawn** and **Surveil** triggers, **`PERMANENTS_SACRIFICED`**, **dynamic
 > Earthbend**, and the **spell-level Waterbend additional cost** (incl. **waterbend {X}**).
 >
-> The **airbend stack branch** (airbend *a spell* — counter + exile + {2}-recast-to-owner, via
-> `CounterDestination.Exile(ownerControls, fixedAlternativeManaCost)` + `Conditions.TargetIsSpellOnStack`)
+> The **airbend stack branch** (airbend *a spell* — *exile* from the stack + {2}-recast-to-owner; not
+> a counter, so it works on can't-be-countered spells — via
+> `Effects.ExileTargetSpell(fixedAlternativeManaCost)` + `Conditions.TargetIsSpellOnStack`)
 > is also built, which completed **Aang, Swift Savior**. The 3 remaining Airbend cards are each blocked
 > by a *distinct* further gap (not the keyword): **Avatar's Wrath** needs a **cast-zone restriction**
 > (Tier-3 §D) atop `AirbendAll`; **The Legend of Yangchen** is blocked by its Saga **chapter I** ("each
