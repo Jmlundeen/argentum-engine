@@ -2750,6 +2750,79 @@
     ]
 }
 
+// Spirit Water Revival
+{
+    "name": "Spirit Water Revival",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, you may waterbend {6}. (While paying a waterbend cost, you can tap your artifacts and creatures to help. Each one pays for {1}.)\nDraw two cards. If this spell's additional cost was paid, instead shuffle your graveyard into your library, draw seven cards, and you have no maximum hand size for the rest of the game.\nExile Spirit Water Revival.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": "WaterbendWasPaid"
+            },
+            "then": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Graveyard"
+                                },
+                                "storeAs": "graveyardCards"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "graveyardCards",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Shuffled"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 7
+                        }
+                    },
+                    "RemoveMaximumHandSize"
+                ]
+            },
+            "otherwise": {
+                "type": "DrawCards",
+                "count": {
+                    "type": "Fixed",
+                    "amount": 2
+                }
+            }
+        },
+        "spellWaterbend": {
+            "amount": 6,
+            "optional": true
+        },
+        "selfExileOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "rarity": "RARE",
+        "artist": "Enishi",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/c/0c019e76-c88e-4d1b-a546-0f4e462ef44a.jpg?1764120466"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Sun-Blessed Peak
 {
     "name": "Sun-Blessed Peak",

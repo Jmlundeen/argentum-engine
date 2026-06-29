@@ -297,7 +297,7 @@ up by Airbend, not Firebending).
 - [x] Southern Air Temple
 - [ ] Sozin's Comet
 - [x] Sparring Dummy
-- [ ] Spirit Water Revival
+- [x] Spirit Water Revival
 - [x] Suki, Courageous Rescuer
 - [x] Suki, Kyoshi Warrior
 - [x] Sun Warriors
