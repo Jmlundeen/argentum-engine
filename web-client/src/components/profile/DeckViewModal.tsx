@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import type React from 'react'
 import { type GameDecks, fetchGameDecks } from '@/api/account'
 import { GameDeckColumns } from '@/components/deck/GameDeckView'
+import { SaveGameDeckButton } from '@/components/profile/SaveGameDeckButton'
 
 export function DeckViewModal({
   gameId,
@@ -51,7 +52,10 @@ export function DeckViewModal({
           <p style={styles.muted}>No decklist was recorded for this game.</p>
         ) : (
           <div style={styles.columnsWrap}>
-            <GameDeckColumns participants={decks.participants} />
+            <GameDeckColumns
+              participants={decks.participants}
+              renderActions={(p) => <SaveGameDeckButton participant={p} endedAt={decks.endedAt} />}
+            />
           </div>
         )}
       </div>

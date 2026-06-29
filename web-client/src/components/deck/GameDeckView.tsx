@@ -139,9 +139,21 @@ export function DeckCardBody({ cards }: { cards: GameDeckCard[] }) {
   )
 }
 
-/** One seat in a game's deck view: a header (name / result / colours) above its {@link DeckCardBody}. */
-export function SeatDeckColumn({ p }: { p: GameDeckParticipant }) {
+/**
+ * One seat in a game's deck view: a header (name / result / colours) above its {@link DeckCardBody}.
+ * `renderActions` is an optional slot for per-seat controls (e.g. a "Save deck" button) — the
+ * recent-games modal supplies one; the admin viewer leaves it unset. Keeping it a render prop lets
+ * this component stay a pure renderer with no save-store dependency.
+ */
+export function SeatDeckColumn({
+  p,
+  renderActions,
+}: {
+  p: GameDeckParticipant
+  renderActions?: (p: GameDeckParticipant) => React.ReactNode
+}) {
   const total = p.cards.reduce((sum, c) => sum + c.copies, 0)
+  const actions = renderActions?.(p)
   return (
     <div style={styles.col}>
       <div style={styles.colHead}>
@@ -155,17 +167,24 @@ export function SeatDeckColumn({ p }: { p: GameDeckParticipant }) {
         <span>{p.colors ? colorLabel(p.colors) : 'Colourless'}</span>
         <span style={styles.dim}>· {total} cards</span>
       </div>
+      {actions ? <div style={styles.actions}>{actions}</div> : null}
       <DeckCardBody cards={p.cards} />
     </div>
   )
 }
 
 /** Both seats' decks side by side — the body of the recent-games / admin deck modal. */
-export function GameDeckColumns({ participants }: { participants: GameDeckParticipant[] }) {
+export function GameDeckColumns({
+  participants,
+  renderActions,
+}: {
+  participants: GameDeckParticipant[]
+  renderActions?: (p: GameDeckParticipant) => React.ReactNode
+}) {
   return (
     <div style={styles.columns}>
       {participants.map((p, i) => (
-        <SeatDeckColumn key={`${p.playerName}-${i}`} p={p} />
+        <SeatDeckColumn key={`${p.playerName}-${i}`} p={p} {...(renderActions ? { renderActions } : {})} />
       ))}
     </div>
   )
@@ -187,6 +206,7 @@ const styles: Record<string, React.CSSProperties> = {
   resultTag: { fontSize: 12, fontWeight: 700 },
   aiTag: { color: '#888', fontSize: 11 },
   colMeta: { display: 'flex', alignItems: 'center', gap: 6, color: '#bbb', fontSize: 12, margin: '6px 0 4px' },
+  actions: { margin: '2px 0 4px' },
   dim: { color: '#777' },
   body: { display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 },
   pips: { display: 'flex', flexWrap: 'wrap', gap: 10 },
