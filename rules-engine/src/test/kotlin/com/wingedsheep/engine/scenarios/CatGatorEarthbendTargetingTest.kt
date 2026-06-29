@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -42,8 +43,11 @@ class CatGatorEarthbendTargetingTest : FunSpec({
 
         val forest = driver.putLandOnBattlefield(you, "Forest")
 
-        // Before animation: a plain Forest is NOT a legal "any target".
+        // Before animation: a plain Forest is NOT a legal "any target",
+        // nor a legal "target creature or planeswalker".
         targetFinder.findLegalTargets(driver.state, AnyTarget(), controllerId = you)
+            .contains(forest) shouldBe false
+        targetFinder.findLegalTargets(driver.state, TargetCreatureOrPlaneswalker(), controllerId = you)
             .contains(forest) shouldBe false
 
         // Earthbend the Forest into a creature-land.
@@ -52,9 +56,11 @@ class CatGatorEarthbendTargetingTest : FunSpec({
         driver.castSpell(you, lesson, listOf(forest)).isSuccess shouldBe true
         driver.bothPass()
 
-        // After animation: the Forest is a creature in projection, so "any target"
-        // (Cat-Gator's ETB) can now legally target it.
+        // After animation: the Forest is a creature in projection, so both "any target"
+        // (Cat-Gator's ETB) and "target creature or planeswalker" can now legally target it.
         targetFinder.findLegalTargets(driver.state, AnyTarget(), controllerId = you)
+            .contains(forest) shouldBe true
+        targetFinder.findLegalTargets(driver.state, TargetCreatureOrPlaneswalker(), controllerId = you)
             .contains(forest) shouldBe true
     }
 })

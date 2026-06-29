@@ -193,10 +193,13 @@ class TargetFinder(
         val battlefield = state.getBattlefield()
         for (entityId in battlefield) {
             val container = state.getEntity(entityId) ?: continue
-            val cardComponent = container.get<CardComponent>() ?: continue
+            if (!container.has<CardComponent>()) continue
             val entityController = container.get<ControllerComponent>()?.playerId
 
-            if (!cardComponent.isPlaneswalker) continue
+            // Read the PROJECTED type line, not the printed one, so a permanent that
+            // becomes a planeswalker via a continuous effect is offered (CR 115.4 /
+            // projection rule), consistent with findAnyTargets.
+            if (!projected.isPlaneswalker(entityId)) continue
 
             // Check hexproof/shroud
             if (projected.hasKeyword(entityId, Keyword.HEXPROOF) && entityController != controllerId) continue
@@ -229,10 +232,13 @@ class TargetFinder(
         val battlefield = state.getBattlefield()
         for (entityId in battlefield) {
             val container = state.getEntity(entityId) ?: continue
-            val cardComponent = container.get<CardComponent>() ?: continue
+            if (!container.has<CardComponent>()) continue
             val entityController = container.get<ControllerComponent>()?.playerId
 
-            if (!cardComponent.isPlaneswalker) continue
+            // Read the PROJECTED type line, not the printed one, so a permanent that
+            // becomes a planeswalker via a continuous effect is offered (CR 115.4 /
+            // projection rule), consistent with findAnyTargets.
+            if (!projected.isPlaneswalker(entityId)) continue
 
             // Check hexproof/shroud
             if (projected.hasKeyword(entityId, Keyword.HEXPROOF) && entityController != controllerId) continue
