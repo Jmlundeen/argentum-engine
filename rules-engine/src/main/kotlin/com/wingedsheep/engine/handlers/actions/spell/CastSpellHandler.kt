@@ -544,6 +544,16 @@ class CastSpellHandler(
             }
         }
 
+        // Apply spell-level waterbend additional cost (Avatar: The Last Airbender). Adds the
+        // waterbend amount {N} (or {X}) as generic mana; the tapped artifacts/creatures in
+        // alternativePayment reduce that generic below, capped at N.
+        if (cardDef != null && !playForFree) {
+            val waterbendAmount = spellWaterbendAmount(cardDef, action)
+            if (waterbendAmount > 0) {
+                effectiveCost = effectiveCost + ManaCost.parse("{$waterbendAmount}")
+            }
+        }
+
         // Apply runtime mana tax from exile permissions (e.g., Soul Partition).
         if (!playForFree) {
             val runtimeCostIncrease = state.getEntity(action.cardId)
@@ -581,11 +591,23 @@ class CastSpellHandler(
             effectiveCost
         }
 
+        // Account for spell-level waterbend (Avatar): tapped artifacts/creatures reduce the
+        // waterbend generic, capped at the waterbend amount.
+        val costAfterWaterbend = if (cardDef != null && !playForFree && action.alternativePayment != null &&
+            action.alternativePayment.waterbendPermanents.isNotEmpty()
+        ) {
+            alternativePaymentHandler.calculateReducedCostForWaterbend(
+                costAfterAltPayment, action.alternativePayment, spellWaterbendAmount(cardDef, action)
+            )
+        } else {
+            costAfterAltPayment
+        }
+
         // Validate payment. For an X-cost Harmonize cast where a creature is tapped, the
         // creature's power reduces generic mana — and {X} is generic (TDM release notes) —
         // so the leftover reduction beyond any printed generic comes off the X mana paid.
         val paymentXValue = harmonizePaymentXValue(state, action, cardDef, effectiveCost)
-        val paymentError = validatePayment(state, action, costAfterAltPayment, paymentXValue)
+        val paymentError = validatePayment(state, action, costAfterWaterbend, paymentXValue)
         if (paymentError != null) {
             return paymentError
         }
@@ -713,6 +735,21 @@ class CastSpellHandler(
      * validly-tapped creature, mirroring [AlternativePaymentHandler.applyHarmonize]'s guards
      * so validation, payment, and the actual tap stay consistent.
      */
+    /**
+     * The waterbend amount this cast adds to its mana cost (Avatar: The Last Airbender), or 0 when
+     * the spell has no waterbend additional cost, or its *optional* cost was declined. For
+     * "waterbend {X}" the amount is the cast-time X ([CastSpell.xValue]).
+     */
+    private fun spellWaterbendAmount(
+        cardDef: com.wingedsheep.sdk.model.CardDefinition,
+        action: CastSpell,
+    ): Int {
+        val wb = cardDef.script.spellWaterbend ?: return 0
+        val paid = !wb.optional || action.wasWaterbendPaid
+        if (!paid) return 0
+        return if (wb.isX) (action.xValue ?: 0) else wb.amount
+    }
+
     private fun harmonizePaymentXValue(
         state: GameState,
         action: CastSpell,
@@ -1756,6 +1793,15 @@ class CastSpellHandler(
             }
         }
 
+        // Apply spell-level waterbend additional cost (Avatar: The Last Airbender) — add the
+        // waterbend {N}/{X} as generic mana; tapped artifacts/creatures reduce it below.
+        if (cardDef != null && !playForFreeInExecute) {
+            val waterbendAmount = spellWaterbendAmount(cardDef, action)
+            if (waterbendAmount > 0) {
+                effectiveCost = effectiveCost + ManaCost.parse("{$waterbendAmount}")
+            }
+        }
+
         // Apply runtime mana tax from exile permissions (e.g., Soul Partition).
         if (!playForFreeInExecute) {
             val runtimeCostIncrease = currentState.getEntity(action.cardId)
@@ -2308,6 +2354,22 @@ class CastSpellHandler(
             events.addAll(altPaymentResult.events)
         }
 
+        // Apply spell-level waterbend (Avatar): tap the chosen artifacts/creatures, each paying
+        // {1} of the waterbend generic, bounded by the waterbend amount.
+        if (cardDef != null && action.alternativePayment != null &&
+            action.alternativePayment.waterbendPermanents.isNotEmpty()
+        ) {
+            val waterbendAmount = spellWaterbendAmount(cardDef, action)
+            if (waterbendAmount > 0) {
+                val waterbendResult = alternativePaymentHandler.applyWaterbendForSpell(
+                    currentState, effectiveCost, action.alternativePayment, action.playerId, waterbendAmount
+                )
+                effectiveCost = waterbendResult.reducedCost
+                currentState = waterbendResult.newState
+                events.addAll(waterbendResult.events)
+            }
+        }
+
         // Build spell context for conditional mana restrictions
         val spellContext = SpellPaymentContext(
             isInstantOrSorcery = cardComponent.typeLine.isInstant || cardComponent.typeLine.isSorcery,
@@ -2614,6 +2676,9 @@ class CastSpellHandler(
             additionalCostPayXLifeAmount = payXLifeAmount,
             wasKicked = action.wasKicked,
             wasBlightPaid = (action.additionalCostPayment?.blightTargets?.isNotEmpty() == true),
+            // True when the spell's waterbend additional cost was paid (Avatar) — mandatory costs
+            // always, optional "you may waterbend {N}" only when the player elected it.
+            wasWaterbendPaid = cardDef?.script?.spellWaterbend?.let { !it.optional || action.wasWaterbendPaid } == true,
             wasWarped = wasWarped,
             wasEvoked = wasEvoked,
             wasImpending = wasImpending,

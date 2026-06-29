@@ -113,6 +113,12 @@ export interface CastSpellAction {
   readonly alternativeCostType?: string
   /** Whether to cast this spell with kicker */
   readonly wasKicked?: boolean
+  /**
+   * Whether the spell's optional waterbend additional cost was elected (Avatar: The Last
+   * Airbender). Set by the server on the paid cast variant; preserved through the pipeline so the
+   * resolving effect can branch on `WaterbendWasPaid`.
+   */
+  readonly wasWaterbendPaid?: boolean
   /** Pre-chosen damage distribution for DividedDamageEffect spells (target ID -> damage amount) */
   readonly damageDistribution?: Record<EntityId, number>
   /**

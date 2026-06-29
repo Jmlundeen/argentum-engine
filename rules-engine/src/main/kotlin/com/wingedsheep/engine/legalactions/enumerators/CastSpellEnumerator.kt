@@ -382,6 +382,19 @@ class CastSpellEnumerator : ActionEnumerator {
                 effectiveCost = effectiveCost + ManaCost.parse(exileOrPayCost.alternativeManaCost)
             }
 
+            // Spell-level waterbend additional cost (Avatar: The Last Airbender). The {X} shape
+            // (Crashing Wave, Foggy Swamp Visions) needs a cast-time X prompt not yet wired here, so
+            // only fixed-amount waterbend is surfaced. A *mandatory* waterbend amount is always part
+            // of the cost; the tap-to-help reduction is reflected in the affordability check below.
+            val spellWaterbend = cardDef.script.spellWaterbend?.takeUnless { it.isX }
+            val mandatoryWaterbend = spellWaterbend != null && !spellWaterbend.optional
+            val waterbendPermanents = if (spellWaterbend != null) {
+                context.costUtils.findWaterbendPermanents(state, playerId)
+            } else emptyList()
+            if (mandatoryWaterbend) {
+                effectiveCost = effectiveCost + ManaCost.parse("{${spellWaterbend!!.amount}}")
+            }
+
             // Check mana affordability (including Convoke/Delve if available).
             // Convoke and Delve can be printed on the card or granted at runtime by a
             // battlefield permanent (e.g., Eirdu's "Creature spells you cast have convoke.").
@@ -418,6 +431,14 @@ class CastSpellEnumerator : ActionEnumerator {
             } else if (hasDelve && delveCards != null && delveCards.isNotEmpty()) {
                 context.manaSolver.canPay(state, playerId, effectiveCost, spellContext = spellContext, precomputedSources = cachedSources) ||
                     context.costUtils.canAffordWithDelve(state, playerId, effectiveCost, delveCards, precomputedSources = cachedSources)
+            } else if (mandatoryWaterbend) {
+                // effectiveCost already includes the mandatory waterbend {N}; taps can cover up to {N}.
+                context.manaSolver.canPay(state, playerId, effectiveCost, spellContext = spellContext, precomputedSources = cachedSources) ||
+                    context.costUtils.canAffordWithWaterbend(
+                        state, playerId, effectiveCost,
+                        waterbendPermanents.take(spellWaterbend!!.amount),
+                        precomputedSources = cachedSources
+                    )
             } else {
                 context.manaSolver.canPay(state, playerId, effectiveCost, spellContext = spellContext, precomputedSources = cachedSources)
             }
@@ -1378,7 +1399,63 @@ class CastSpellEnumerator : ActionEnumerator {
         // --- Casualty ---
         enumerateCasualty(context, hand, result)
 
-        return result
+        return applySpellWaterbendMetadata(context, result)
+    }
+
+    /**
+     * Post-process: surface the spell-level waterbend additional cost (Avatar: The Last Airbender)
+     * on the cast actions already enumerated. A *mandatory* waterbend cost (whose {N} is already
+     * folded into the action's cost and affordability upstream) just gains the tap metadata and the
+     * `wasWaterbendPaid` flag. An *optional* "you may waterbend {N}" keeps its no-waterbend action
+     * and gains a second, paid variant costing {N} more — offered only when affordable with mana
+     * plus up to {N} taps. The `{X}` shape (Crashing Wave, Foggy Swamp Visions) needs a cast-time X
+     * prompt and is not surfaced here yet.
+     */
+    private fun applySpellWaterbendMetadata(
+        context: EnumerationContext,
+        actions: List<LegalAction>
+    ): List<LegalAction> {
+        val state = context.state
+        val out = mutableListOf<LegalAction>()
+        for (la in actions) {
+            val cs = la.action as? CastSpell
+            val wb = if (cs != null && la.actionType == "CastSpell") {
+                val name = state.getEntity(cs.cardId)?.get<CardComponent>()?.name
+                name?.let { context.cardRegistry.getCard(it) }?.script?.spellWaterbend?.takeUnless { it.isX }
+            } else null
+            if (cs == null || wb == null) {
+                out.add(la)
+                continue
+            }
+            val perms = context.costUtils.findWaterbendPermanents(state, cs.playerId)
+            if (!wb.optional) {
+                // Mandatory: {N} is already in la.manaCostString; attach tap metadata + paid flag.
+                out.add(la.copy(
+                    hasWaterbend = true,
+                    waterbendPermanents = perms,
+                    action = cs.copy(wasWaterbendPaid = true)
+                ))
+            } else {
+                // Optional: keep the unpaid action, then add a paid variant when affordable.
+                out.add(la)
+                val baseCost = la.manaCostString?.let { ManaCost.parse(it) }
+                if (!la.affordable || baseCost == null) continue
+                val paidCost = baseCost + ManaCost.parse("{${wb.amount}}")
+                val affordablePaid = context.costUtils.canAffordWithWaterbend(
+                    state, cs.playerId, paidCost, perms.take(wb.amount),
+                    precomputedSources = context.availableManaSources
+                )
+                if (!affordablePaid) continue
+                out.add(la.copy(
+                    description = la.description + " (waterbend {${wb.amount}})",
+                    manaCostString = paidCost.toString(),
+                    hasWaterbend = true,
+                    waterbendPermanents = perms,
+                    action = cs.copy(wasWaterbendPaid = true)
+                ))
+            }
+        }
+        return out
     }
 
     /**

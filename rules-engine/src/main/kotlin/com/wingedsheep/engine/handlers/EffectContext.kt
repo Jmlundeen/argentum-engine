@@ -87,6 +87,12 @@ data class EffectContext(
     val wasKicked: Boolean = false,
     /** True if the spell's optional Blight additional cost was paid (BlightOrPay path chosen). */
     val wasBlightPaid: Boolean = false,
+    /**
+     * True if the spell's waterbend additional cost was paid (Avatar: The Last Airbender) —
+     * mandatory always, optional "you may waterbend {N}" only when elected. Read by
+     * `WaterbendWasPaid`.
+     */
+    val wasWaterbendPaid: Boolean = false,
     /** True if the spell was cast for its sneak cost (CR 702.190). Read by `SneakCostWasPaid`. */
     val wasSneaked: Boolean = false,
     // --- Cast-time state ---

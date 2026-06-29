@@ -423,17 +423,53 @@ class AlternativePaymentHandler(
     }
 
     /**
+     * Apply a waterbend payment for a **spell's** additional waterbend cost (Avatar: The Last
+     * Airbender — "As an additional cost to cast this spell, waterbend {N}"). Identical to the
+     * ability variant but the reduction is bounded by [maxGenericReduction] — the waterbend amount
+     * N — so the taps pay only the waterbend portion of the cost and never the spell's own generic
+     * mana. The caller adds {N} generic to the spell's cost first, so capping at N leaves at least
+     * the spell's printed generic to be paid with real mana (CR: "for each generic mana in that
+     * cost").
+     */
+    fun applyWaterbendForSpell(
+        state: GameState,
+        cost: ManaCost,
+        payment: AlternativePaymentChoice,
+        playerId: EntityId,
+        maxGenericReduction: Int
+    ): AlternativePaymentResult {
+        if (payment.waterbendPermanents.isEmpty() || maxGenericReduction <= 0) {
+            return AlternativePaymentResult(cost, state, emptyList())
+        }
+        return applyWaterbend(state, cost, payment.waterbendPermanents, playerId, maxGenericReduction)
+    }
+
+    /**
      * Calculate the reduced cost after a waterbend payment for an activated ability,
      * without mutating state. Used during validation/affordability.
      */
     fun calculateReducedCostForWaterbend(
         cost: ManaCost,
         payment: AlternativePaymentChoice
+    ): ManaCost = calculateReducedCostForWaterbend(cost, payment, Int.MAX_VALUE)
+
+    /**
+     * Calculate the reduced cost after a waterbend payment, capping the generic reduction at
+     * [maxGenericReduction] (the waterbend amount for a spell-level cost; [Int.MAX_VALUE] for an
+     * ability whose whole cost is the waterbend cost). Used during validation/affordability.
+     */
+    fun calculateReducedCostForWaterbend(
+        cost: ManaCost,
+        payment: AlternativePaymentChoice,
+        maxGenericReduction: Int
     ): ManaCost {
         var reducedCost = cost
+        var applied = 0
         for (i in 0 until payment.waterbendPermanents.size) {
+            if (applied >= maxGenericReduction) break
             if (reducedCost.genericAmount <= 0) break
             reducedCost = reduceGenericCost(reducedCost, 1)
+            applied++
         }
         return reducedCost
     }
@@ -449,10 +485,12 @@ class AlternativePaymentHandler(
         state: GameState,
         cost: ManaCost,
         waterbendPermanents: Set<EntityId>,
-        playerId: EntityId
+        playerId: EntityId,
+        maxGenericReduction: Int = Int.MAX_VALUE
     ): AlternativePaymentResult {
         var currentState = state
         var reducedCost = cost
+        var applied = 0
         val events = mutableListOf<GameEvent>()
 
         val battlefieldZone = ZoneKey(playerId, Zone.BATTLEFIELD)
@@ -461,7 +499,9 @@ class AlternativePaymentHandler(
         val projected = state.projectedState
 
         for (permanentId in waterbendPermanents) {
-            // Bound by the generic mana in the cost (CR: "for each generic mana in that cost").
+            // Bound by the generic mana in the cost (CR: "for each generic mana in that cost") and,
+            // for a spell-level cost, by the waterbend amount [maxGenericReduction].
+            if (applied >= maxGenericReduction) break
             if (reducedCost.genericAmount <= 0) break
             if (permanentId !in currentState.getZone(battlefieldZone)) continue
             val container = currentState.getEntity(permanentId) ?: continue
@@ -476,6 +516,7 @@ class AlternativePaymentHandler(
             currentState = tappedState
             tapEvent?.let(events::add)
             reducedCost = reduceGenericCost(reducedCost, 1)
+            applied++
         }
 
         return AlternativePaymentResult(reducedCost, currentState, events)

@@ -326,6 +326,7 @@ class CardBuilder(private val name: String) {
     internal val activatedAbilities: MutableList<ActivatedAbility> = mutableListOf()
     internal val staticAbilities: MutableList<StaticAbility> = mutableListOf()
     private val additionalCosts: MutableList<AdditionalCost> = mutableListOf()
+    private var spellWaterbend: SpellWaterbendCost? = null
     private val replacementEffects: MutableList<ReplacementEffect> = mutableListOf()
     private val classLevelsList: MutableList<ClassLevelAbility> = mutableListOf()
     private val sagaChaptersList: MutableList<SagaChapterAbility> = mutableListOf()
@@ -548,6 +549,20 @@ class CardBuilder(private val name: String) {
      */
     fun additionalCost(cost: AdditionalCost) {
         additionalCosts.add(cost)
+    }
+
+    /**
+     * Declare a spell-level **waterbend** additional cost (Avatar: The Last Airbender) —
+     * *"As an additional cost to cast this spell, [you may] waterbend {N}."* See
+     * [SpellWaterbendCost].
+     *
+     * @param amount The fixed waterbend amount N. Ignored when [isX].
+     * @param optional `you may waterbend {N}` — when paid, stamps [ChoiceSlot.WATERBEND_PAID] so the
+     *   effect can branch via `Conditions.WaterbendWasPaid`.
+     * @param isX `waterbend {X}` — the amount is the cast-time X (also feeds the effect's X).
+     */
+    fun waterbendCost(amount: Int = 0, optional: Boolean = false, isX: Boolean = false) {
+        spellWaterbend = SpellWaterbendCost(amount = amount, optional = optional, isX = isX)
     }
 
     // =========================================================================
@@ -790,6 +805,7 @@ class CardBuilder(private val name: String) {
             staticAbilities = staticAbilities.toList(),
             replacementEffects = replacementEffects.toList(),
             additionalCosts = additionalCosts.toList(),
+            spellWaterbend = spellWaterbend,
             auraTarget = auraTarget,
             castRestrictions = spellBuilder?.restrictions ?: emptyList(),
             castTimeCreatureTypeChoice = castTimeCreatureTypeChoice,

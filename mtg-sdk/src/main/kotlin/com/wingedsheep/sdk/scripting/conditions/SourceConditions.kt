@@ -259,6 +259,23 @@ data object BlightWasPaid : Condition {
 }
 
 /**
+ * Condition: "If this spell's additional cost was paid" — for the optional spell-level
+ * **waterbend** additional cost (Avatar: The Last Airbender).
+ *
+ * True when the source spell was cast with its optional `you may waterbend {N}` cost paid
+ * (e.g. Ruinous Waterbending, Spirit Water Revival, Secret of Bloodbending). Pairs with
+ * [com.wingedsheep.sdk.scripting.SpellWaterbendCost] (`optional = true`) and the durable
+ * [com.wingedsheep.sdk.scripting.ChoiceSlot.WATERBEND_PAID] flag the engine stamps on a resolved
+ * permanent, plus the `wasWaterbendPaid` flag carried in the resolution context for a non-permanent
+ * spell.
+ */
+@SerialName("WaterbendWasPaid")
+@Serializable
+data object WaterbendWasPaid : Condition {
+    override val description: String = "this spell's additional cost was paid"
+}
+
+/**
  * Condition: "If {W}{W} was spent to cast it" (mana-spent gating)
  * Used for Lorwyn Incarnation cycle (Catharsis, Deceit, Emptiness, etc.)
  * where ETB triggers are gated on specific mana colors spent to cast.
