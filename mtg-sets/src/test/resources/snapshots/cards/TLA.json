@@ -6843,6 +6843,71 @@
     ]
 }
 
+// Invasion Tactics
+{
+    "name": "Invasion Tactics",
+    "manaCost": "{4}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, creatures you control get +2/+2 until end of turn.\nWhenever one or more Allies you control deal combat damage to a player, draw a card.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": "Self"
+                    }
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "OneOrMoreDealCombatDamageToPlayerEvent",
+                    "sourceFilter": "creature Ally"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "183",
+        "rarity": "UNCOMMON",
+        "artist": "Eduardo Francisco",
+        "flavorText": "\"Your moment of truth isn't gonna be in front of some map. It's gonna to be out there on the battlefield.\"\n—Aang",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/27c6330d-49f6-4707-b4d4-d1411fa422eb.jpg?1764121242"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Iroh's Demonstration
 {
     "name": "Iroh's Demonstration",
