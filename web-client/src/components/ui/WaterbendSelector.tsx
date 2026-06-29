@@ -118,7 +118,7 @@ export function WaterbendSelector() {
 
   if (!waterbendSelectionState) return null
 
-  const { cardName, selectedPermanents, actionInfo } = waterbendSelectionState
+  const { cardName, selectedPermanents, actionInfo, maxTaps } = waterbendSelectionState
 
   const manaNeeded = totalManaNeeded(symbolsAfterPool)
   const manaFromSources = totalManaAvailable(actionInfo.availableManaSources, tappedIds)
@@ -127,7 +127,14 @@ export function WaterbendSelector() {
   return (
     <div style={styles.bar}>
       <span style={styles.label}>
-        Waterbend <strong>{cardName}</strong>
+        {/* Card name first, then the waterbend prompt in parentheses with the amount {N} rendered
+            as a proper mana pip (not literal "{N}" text): e.g. "Ruinous Waterbending (waterbend {4})". */}
+        <strong>{cardName}</strong>
+        <span style={{ display: 'inline-flex', alignItems: 'center', marginLeft: 6 }}>
+          <span style={{ marginRight: 3 }}>(waterbend</span>
+          <ManaSymbol symbol={String(maxTaps)} size={16} />
+          <span>)</span>
+        </span>
       </span>
       <span style={styles.divider} />
       <span style={styles.costLabel}>Cost:</span>

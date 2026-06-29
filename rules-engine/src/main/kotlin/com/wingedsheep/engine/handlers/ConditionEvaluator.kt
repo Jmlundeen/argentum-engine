@@ -114,6 +114,7 @@ import com.wingedsheep.sdk.scripting.conditions.NoManaSpentToCastEntered
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid
+import com.wingedsheep.sdk.scripting.conditions.WaterbendWasPaid
 import com.wingedsheep.sdk.scripting.conditions.SourceIsRingBearer
 import com.wingedsheep.sdk.scripting.conditions.YouChoseOtherCreatureAsRingBearer
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
@@ -389,6 +390,7 @@ class ConditionEvaluator(
             is WasKicked -> ifResolution { evaluateWasKicked(state, it) }
             is SneakCostWasPaid -> ifResolution { evaluateSneakCostWasPaid(state, it) }
             is BlightWasPaid -> ifResolution { it.wasBlightPaid }
+            is WaterbendWasPaid -> ifResolution { evaluateWaterbendWasPaid(state, it) }
             is ManaSpentToCastIncludes -> ifResolution { evaluateManaSpentToCastIncludes(state, condition, it) }
             is NoManaSpentToCast -> ifResolution { evaluateNoManaSpentToCast(state, it) }
             is NoManaSpentToCastEntered -> ifResolution { evaluateNoManaSpentToCastEntered(state, it) }
@@ -1049,6 +1051,19 @@ class ConditionEvaluator(
         // Fall back to the resolution context (a non-permanent spell's own resolving effect,
         // e.g. The Last Ronin's Technique reading "if this spell's sneak cost was paid").
         return context.wasSneaked
+    }
+
+    private fun evaluateWaterbendWasPaid(state: GameState, context: EffectContext): Boolean {
+        // Durable bag on the resolved permanent first (e.g. a creature cast with optional
+        // waterbend whose ongoing ability reads the flag); fall back to the resolution context for
+        // a non-permanent spell's own resolving effect (Ruinous Waterbending, Spirit Water Revival).
+        val sourceId = context.sourceId ?: return context.wasWaterbendPaid
+        val flagged = state.getEntity(sourceId)
+            ?.get<CastChoicesComponent>()
+            ?.chosen
+            ?.containsKey(ChoiceSlot.WATERBEND_PAID) == true
+        if (flagged) return true
+        return context.wasWaterbendPaid
     }
 
     /** Compare the value locked into [slot] on [entity]'s cast-choices bag to [value] as text. */

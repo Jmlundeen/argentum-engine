@@ -23,6 +23,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasCastFromHand as WasCastFromHa
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone as WasCastFromZoneCondition
 import com.wingedsheep.sdk.scripting.conditions.WasKicked as WasKickedCondition
 import com.wingedsheep.sdk.scripting.conditions.BlightWasPaid as BlightWasPaidCondition
+import com.wingedsheep.sdk.scripting.conditions.WaterbendWasPaid as WaterbendWasPaidCondition
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid as SneakCostWasPaidCondition
 import com.wingedsheep.sdk.scripting.conditions.CastChoiceMade as CastChoiceMadeCondition
 import com.wingedsheep.sdk.scripting.conditions.CastChoiceIs as CastChoiceIsCondition
@@ -712,6 +713,15 @@ object Conditions {
      */
     val BlightWasPaid: ConditionInterface =
         BlightWasPaidCondition
+
+    /**
+     * If this spell's optional **waterbend** additional cost was paid
+     * ([com.wingedsheep.sdk.scripting.SpellWaterbendCost] with `optional = true`, Avatar: The Last
+     * Airbender). Used for cards like Ruinous Waterbending and Spirit Water Revival whose effect
+     * changes when "you may waterbend {N}" was paid.
+     */
+    val WaterbendWasPaid: ConditionInterface =
+        WaterbendWasPaidCondition
 
     /**
      * If a value was locked in for [slot] when the source was cast / as it entered

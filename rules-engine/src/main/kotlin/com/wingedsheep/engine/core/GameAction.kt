@@ -67,6 +67,16 @@ data class CastSpell(
     val additionalCostPayment: AdditionalCostPayment? = null,
     val castFaceDown: Boolean = false,
     val wasKicked: Boolean = false,
+    /**
+     * Whether the spell's *optional* waterbend additional cost was elected (Avatar: The Last
+     * Airbender — [com.wingedsheep.sdk.scripting.SpellWaterbendCost] with `optional = true`).
+     * Always `false` for spells with no optional waterbend cost, and irrelevant for a *mandatory*
+     * waterbend cost (always paid). When true, the handler adds the waterbend amount to the cost,
+     * applies [alternativePayment]'s `waterbendPermanents` toward it, and stamps the
+     * [com.wingedsheep.sdk.scripting.ChoiceSlot.WATERBEND_PAID] flag so the effect can branch via
+     * `Conditions.WaterbendWasPaid`.
+     */
+    val wasWaterbendPaid: Boolean = false,
     val damageDistribution: Map<EntityId, Int>? = null,
     val useAlternativeCost: Boolean = false,
     val chosenModes: List<Int> = emptyList(),

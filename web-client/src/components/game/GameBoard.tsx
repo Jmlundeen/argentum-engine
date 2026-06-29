@@ -72,6 +72,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   const delveSelectionState = useGameStore((state) => state.delveSelectionState)
   const tapForPowerSelectionState = useGameStore((state) => state.tapForPowerSelectionState)
   const manaSelectionState = useGameStore((state) => state.manaSelectionState)
+  // A multi-phase cast/activation in progress (convoke, waterbend, harmonize, targeting, …). While
+  // one is mid-flight the player must finish or cancel it, not pass priority / move to combat.
+  const pipelineState = useGameStore((state) => state.pipelineState)
   const cancelManaSelection = useGameStore((state) => state.cancelManaSelection)
   const { executeAction } = useInteraction()
 
@@ -731,10 +734,12 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           outlineOffset: isHijacked ? -2 : 0,
           boxShadow: isHijacked ? '0 0 14px rgba(168, 85, 247, 0.35)' : 'none',
           background: isHijacked ? 'rgba(76, 29, 149, 0.18)' : 'transparent',
-          // Affected player's hand is inert during hijack — let clicks fall through.
-          pointerEvents: isHijacked ? 'none' : undefined,
+          // Affected player's hand is inert during hijack — let clicks fall through. The hand is
+          // also inert while a cast/activation pipeline is in progress (e.g. paying a waterbend or
+          // mana cost): you must finish or cancel the current cast before starting another.
+          pointerEvents: (isHijacked || pipelineState != null) ? 'none' : undefined,
           // Controller can still see their own hand but cannot act with it during V's turn.
-          opacity: isHijacking ? 0.6 : 1,
+          opacity: isHijacking ? 0.6 : (pipelineState != null ? 0.6 : 1),
           filter: isHijacking ? 'saturate(0.6)' : 'none',
           transition: 'box-shadow 0.2s, outline-color 0.2s, opacity 0.2s',
         }}
@@ -771,7 +776,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           <CardRow
             zoneId={hand(playerId)}
             faceDown={false}
-            interactive={!isHijacked}
+            // Inert during hijack and while a cast/activation pipeline is in progress (e.g. paying
+            // a waterbend or mana cost) — the CardRow re-enables pointer events on its cards, so the
+            // wrapper's pointerEvents:none isn't enough; gate interactivity at the component level.
+            interactive={!isHijacked && pipelineState == null}
             ghostCards={isHijacked ? [] : ghostCards}
           />
         ) : null}
@@ -779,7 +787,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
 
       {/* Floating pass/resolve button (bottom-right) - always present, disabled when unavailable */}
       {!spectatorMode && viewingPlayer && !isInManaSelectionMode && !isInCounterDistMode && (() => {
-        const passEnabled = canAct && !isHijacked && !isInCombatMode && !isInDistributeMode && !isInCounterDistMode && !isInManaSelectionMode && !delveSelectionState && !tapForPowerSelectionState && !targetingState
+        const passEnabled = canAct && !isHijacked && !isInCombatMode && !isInDistributeMode && !isInCounterDistMode && !isInManaSelectionMode && !delveSelectionState && !tapForPowerSelectionState && !targetingState && !pipelineState
         return (
           <div style={{
             position: 'fixed',

@@ -59,6 +59,15 @@ enum class ChoiceSlot {
     BLIGHT_AMOUNT,
 
     /**
+     * Whether the spell's optional **waterbend** additional cost was paid when cast (Avatar: The
+     * Last Airbender, e.g. Ruinous Waterbending / Spirit Water Revival). A present value means
+     * "you may waterbend {N}" was paid. Read back through
+     * [com.wingedsheep.sdk.scripting.conditions.WaterbendWasPaid]. Pairs with
+     * [com.wingedsheep.sdk.scripting.SpellWaterbendCost] (`optional = true`).
+     */
+    WATERBEND_PAID,
+
+    /**
      * An opponent chosen as the object entered, stored as a [ChoiceValue.EntityChoice]
      * carrying the player entity id (e.g. Jihad "as this enchantment enters, choose
      * a color and an opponent"). Read back through the

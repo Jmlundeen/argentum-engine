@@ -36,6 +36,10 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
   pipelineState: null,
 
   startPipeline: (actionInfo, options) => {
+    // Refuse to start a new cast/activation while one is already in progress — you must finish or
+    // cancel the current pipeline (e.g. the waterbend tap step) first. Guards against casting a
+    // second spell from hand mid-cast even if some interaction path slips past the UI gating.
+    if (get().pipelineState != null) return
     const autoTapEnabled = options?.forceManualTap ? false : get().autoTapEnabled
     const phases = computePhases(actionInfo, { autoTapEnabled })
 

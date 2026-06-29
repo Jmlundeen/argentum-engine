@@ -141,6 +141,16 @@ data class CardScript(
     val additionalCosts: List<AdditionalCost> = emptyList(),
 
     /**
+     * A spell-level **waterbend** additional cost (Avatar: The Last Airbender) —
+     * *"As an additional cost to cast this spell, [you may] waterbend {N}."* Kept separate from
+     * [additionalCosts] because waterbend is paid through the alternative-payment channel
+     * ([com.wingedsheep.sdk.scripting.AlternativePaymentChoice.waterbendPermanents], tapping
+     * artifacts/creatures), not the additional-cost payment continuation. See
+     * [com.wingedsheep.sdk.scripting.SpellWaterbendCost].
+     */
+    val spellWaterbend: SpellWaterbendCost? = null,
+
+    /**
      * For Aura spells, defines what the aura can enchant.
      * If set, this permanent is an Aura that attaches to valid targets.
      * Example: TargetCreature() for "Enchant creature"

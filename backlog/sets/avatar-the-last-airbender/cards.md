@@ -2,16 +2,17 @@
 
 **Set Size:** 286 draft/booster cards (excluding basic lands beyond the set's own, tokens, and special variants)
 **Release Date:** November 21, 2025
-**Implemented:** 226 / 286
+**Implemented:** 231 / 286
 **Engine gap analysis:** [`tla-engine-gaps.md`](tla-engine-gaps.md)
 
-> **Status (June 2026):** 226/286 implemented. Every card buildable on the *current* engine has been
-> added — the 60 remaining all need new engine/SDK work first (see the gap analysis). Since the
+> **Status (June 2026):** 231/286 implemented. Every card buildable on the *current* engine has been
+> added — the 55 remaining all need new engine/SDK work first (see the gap analysis). Since the
 > original gap doc was written, **Firebending**, the **Vigilance keyword counter**, the
-> **Nth-card-drawn** and **Surveil** triggers, **`PERMANENTS_SACRIFICED`**, and **dynamic Earthbend**
-> all landed, which unlocked the bulk of the set. The headline holdouts are now **Airbend**,
-> **Exhaust**, **Foretell**, the **Fire counter** type, **spell-level Waterbend** costs,
-> **granting/conditional Firebending**, and a handful of Tier-3 one-offs.
+> **Nth-card-drawn** and **Surveil** triggers, **`PERMANENTS_SACRIFICED`**, **dynamic Earthbend**,
+> and the **spell-level Waterbend additional cost** (including **waterbend {X}**) all landed, which
+> unlocked the bulk of the set. The headline holdouts are now **Airbend**, **Exhaust**, **Foretell**,
+> the **Fire counter** type, the remaining **Waterbend cost shapes** (Ward—Waterbend, Exhaust—Waterbend,
+> waterbend-as-alternative-cast), **granting/conditional Firebending**, and a handful of Tier-3 one-offs.
 
 ## Mechanics needed to complete the set
 
@@ -26,7 +27,7 @@ up by Airbend, not Firebending).
 | Mechanic | Total | Remaining | Notes |
 |----------|------:|----------:|-------|
 | Earthbend | 28 | 6 | Target land you control becomes a 0/0 haste creature-land; put N +1/+1 counters on it. ✅ built (`Effects.Earthbend`, incl. dynamic X). |
-| Waterbend | 25 | 15 | Convoke+improvise-style alt cost (tap artifacts/creatures to help pay). 🟡 **activated-ability** cost ✅ (`hasWaterbend = true`); **spell / ETB additional-cost** shapes ❌ still needed. |
+| Waterbend | 25 | 10 | Convoke+improvise-style alt cost (tap artifacts/creatures to help pay). ✅ **activated-ability** cost (`hasWaterbend = true`) and **spell-level additional cost** (incl. **waterbend {X}**) both built. ❌ still needed: **Ward—Waterbend**, **Exhaust—Waterbend**, and **waterbend-as-alternative-cast** (Hama). |
 | Firebending | 28 | 14 | Attack-triggered combat-duration red mana. ✅ built — `firebending(n)` keyword + dynamic versions hand-wired via `AddManaEffect(…, ManaExpiry.END_OF_COMBAT)`. ❌ still missing: **granting** firebending to others / **conditional** "has firebending as long as …" / "gains firebending until EOT". |
 | Airbend | 11 | 11 | Exile target nonland permanent; owner may recast it for {2}. ❌ keyword **not built**. |
 | Exhaust | 8 | 8 | Activated ability usable only once per game. ❌ keyword **not built**. |
@@ -35,9 +36,9 @@ up by Airbend, not Firebending).
 
 | Keyword | Total | Remaining |
 |---------|------:|----------:|
-| Flying | 26 | 11 |
+| Flying | 26 | 10 |
 | Vigilance | 15 | 2 |
-| Scry | 10 | 3 |
+| Scry | 10 | 2 |
 | Flash | 9 | 5 |
 | Transform | 8 | 5 |
 | Mill | 8 | 1 |
@@ -54,7 +55,7 @@ up by Airbend, not Firebending).
 | Trample | 5 | 3 |
 | Kicker | 4 | 0 |
 | Defender | 4 | 0 |
-| Ward | 3 | 2 |
+| Ward | 3 | 1 |
 | Deathtouch | 3 | 0 |
 | Raid | 3 | 0 |
 | Flashback | 3 | 0 |
@@ -109,7 +110,7 @@ up by Airbend, not Firebending).
 - [x] Beetle-Headed Merchants
 - [x] Beifong's Bounty Hunters
 - [ ] Bender's Waterskin
-- [ ] Benevolent River Spirit
+- [x] Benevolent River Spirit
 - [ ] Bitter Work
 - [x] Boar-q-pine
 - [x] Boiling Rock Prison
@@ -127,7 +128,7 @@ up by Airbend, not Firebending).
 - [x] Combustion Technique
 - [x] Compassionate Healer
 - [x] Corrupt Court Official
-- [ ] Crashing Wave
+- [x] Crashing Wave
 - [x] Crescent Island Temple
 - [x] Cruel Administrator
 - [x] Cunning Maneuver
@@ -180,7 +181,7 @@ up by Airbend, not Firebending).
 - [x] Foggy Swamp Hunters
 - [x] Foggy Swamp Spirit Keeper
 - [x] Foggy Swamp Vinebender
-- [ ] Foggy Swamp Visions
+- [x] Foggy Swamp Visions
 - [x] Forecasting Fortune Teller
 - [x] Forest
 - [x] Gather the White Lotus
@@ -276,7 +277,7 @@ up by Airbend, not Firebending).
 - [x] Rocky Rebuke
 - [ ] Rough Rhino Cavalry
 - [x] Rowdy Snowballers
-- [ ] Ruinous Waterbending
+- [x] Ruinous Waterbending
 - [x] Rumble Arena
 - [x] Saber-Tooth Moose-Lion
 - [x] Sandbender Scavengers
@@ -297,7 +298,7 @@ up by Airbend, not Firebending).
 - [x] Southern Air Temple
 - [ ] Sozin's Comet
 - [x] Sparring Dummy
-- [ ] Spirit Water Revival
+- [x] Spirit Water Revival
 - [x] Suki, Courageous Rescuer
 - [x] Suki, Kyoshi Warrior
 - [x] Sun Warriors

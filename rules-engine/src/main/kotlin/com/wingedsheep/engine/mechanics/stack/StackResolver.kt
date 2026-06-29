@@ -118,6 +118,7 @@ class StackResolver(
         additionalCostPayXLifeAmount: Int? = null,
         wasKicked: Boolean = false,
         wasBlightPaid: Boolean = false,
+        wasWaterbendPaid: Boolean = false,
         wasWarped: Boolean = false,
         wasEvoked: Boolean = false,
         wasImpending: Boolean = false,
@@ -178,6 +179,7 @@ class StackResolver(
                 xValue = xValue,
                 wasKicked = wasKicked,
                 wasBlightPaid = wasBlightPaid,
+                wasWaterbendPaid = wasWaterbendPaid,
                 chosenModes = chosenModes,
                 modeTargetsOrdered = modeTargetsOrdered,
                 modeTargetRequirements = modeTargetRequirements,
@@ -1158,6 +1160,14 @@ class StackResolver(
                         com.wingedsheep.engine.state.components.battlefield.ChoiceValue.Flag
                     )
                 }
+                // Waterbend (Avatar): durably mark a permanent cast with its (optional) waterbend
+                // cost paid so Conditions.WaterbendWasPaid reads it for the permanent's whole life.
+                if (spellComponent.wasWaterbendPaid) {
+                    bag = bag.withChoice(
+                        com.wingedsheep.sdk.scripting.ChoiceSlot.WATERBEND_PAID,
+                        com.wingedsheep.engine.state.components.battlefield.ChoiceValue.Flag
+                    )
+                }
                 if (spellComponent.additionalCostBlightAmount > 0) {
                     bag = bag.withChoice(
                         com.wingedsheep.sdk.scripting.ChoiceSlot.BLIGHT_AMOUNT,
@@ -1545,6 +1555,7 @@ class StackResolver(
                 manaSpentOnXByColor = spellComponent.manaSpentOnXByColor,
                 wasKicked = spellComponent.wasKicked,
                 wasBlightPaid = spellComponent.wasBlightPaid,
+                wasWaterbendPaid = spellComponent.wasWaterbendPaid,
                 wasSneaked = spellComponent.wasSneaked,
                 sacrificedPermanents = spellComponent.sacrificedPermanents,
                 discardedAsCostCards = spellComponent.discardedAsCostCards,

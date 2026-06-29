@@ -444,18 +444,22 @@ class MiscContinuationResumer(
         var newState = state
         val events = mutableListOf<GameEvent>()
 
-        // Remove counters from source
-        val sourceCounters = newState.getEntity(continuation.sourceId)
-            ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
-            ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
+        // Remove counters from the source — only for the "move counters from this creature" shape.
+        // The "distribute N new counters among …" shape (removeFromSource = false) creates the
+        // counters on the recipients without taking any from the source.
+        if (continuation.removeFromSource) {
+            val sourceCounters = newState.getEntity(continuation.sourceId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
+                ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
 
-        newState = newState.updateEntity(continuation.sourceId) { container ->
-            container.with(sourceCounters.withRemoved(counterType, totalMoved))
+            newState = newState.updateEntity(continuation.sourceId) { container ->
+                container.with(sourceCounters.withRemoved(counterType, totalMoved))
+            }
+
+            val sourceName = newState.getEntity(continuation.sourceId)
+                ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name ?: ""
+            events.add(CountersRemovedEvent(continuation.sourceId, continuation.counterType, totalMoved, sourceName))
         }
-
-        val sourceName = newState.getEntity(continuation.sourceId)
-            ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name ?: ""
-        events.add(CountersRemovedEvent(continuation.sourceId, continuation.counterType, totalMoved, sourceName))
 
         // Add counters to each target (applying replacement effects like Hardened Scales)
         for ((targetId, amount) in distribution) {

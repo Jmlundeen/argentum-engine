@@ -1990,6 +1990,58 @@
     ]
 }
 
+// Benevolent River Spirit
+{
+    "name": "Benevolent River Spirit",
+    "manaCost": "{U}{U}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "As an additional cost to cast this spell, waterbend {5}. (While paying a waterbend cost, you can tap your artifacts and creatures to help. Each one pays for {1}.)\nFlying, ward {2} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)\nWhen this creature enters, scry 2.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING",
+        "WARD"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ward",
+            "cost": {
+                "type": "WardCost.Mana",
+                "manaCost": "{2}"
+            }
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Scry",
+                    "count": 2
+                }
+            }
+        ],
+        "spellWaterbend": {
+            "amount": 5
+        }
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "UNCOMMON",
+        "artist": "Mizutametori",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/f/7ffb79cd-d170-4047-89c8-6e85188f30da.jpg?1764120194"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Boar-q-pine
 {
     "name": "Boar-q-pine",
@@ -2743,6 +2795,60 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Crashing Wave
+{
+    "name": "Crashing Wave",
+    "manaCost": "{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, waterbend {X}. (While paying a waterbend cost, you can tap your artifacts and creatures to help. Each one pays for {1}.)\nTap up to X target creatures, then distribute three stun counters among any number of tapped creatures your opponents control. (If a permanent with a stun counter would become untapped, remove one from it instead.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "TapUntap",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    }
+                },
+                {
+                    "type": "DistributeCountersAmongFiltered",
+                    "totalCounters": 3,
+                    "counterType": "stun",
+                    "filter": "creature tapped ctrl:opponent"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "dynamicMaxCount": "XValue"
+            }
+        ],
+        "spellWaterbend": {
+            "isX": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "47",
+        "rarity": "UNCOMMON",
+        "artist": "Mitori",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/f/9fd02eb4-1ef5-4a14-89a8-b25e720e8016.jpg?1764120208"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -6361,6 +6467,70 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Foggy Swamp Visions
+{
+    "name": "Foggy Swamp Visions",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, waterbend {X}. (While paying a waterbend cost, you can tap your artifacts and creatures to help. Each one pays for {1}.)\nExile X target creature cards from graveyards. For each creature card exiled this way, create a token that's a copy of it. At the beginning of your next end step, sacrifice those tokens.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": "ChosenTargets",
+                    "storeAs": "exiled"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "exiled",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    },
+                    "storeMovedAs": "exiled"
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Collection",
+                        "collection": "exiled"
+                    },
+                    "body": {
+                        "type": "CreateTokenCopyOfTarget",
+                        "target": "Self",
+                        "sacrificeAtStep": "END"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature",
+                    "zone": "Graveyard"
+                },
+                "dynamicMaxCount": "XValue"
+            }
+        ],
+        "spellWaterbend": {
+            "isX": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "102",
+        "rarity": "RARE",
+        "artist": "Hori Airi",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/a/3a46deaa-88f7-4eec-aa99-b85073847918.jpg?1764120708"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -11645,6 +11815,81 @@
     ]
 }
 
+// Ruinous Waterbending
+{
+    "name": "Ruinous Waterbending",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Sorcery — Lesson",
+    "oracleText": "As an additional cost to cast this spell, you may waterbend {4}. (While paying a waterbend cost, you can tap your artifacts and creatures to help. Each one pays for {1}.)\nAll creatures get -2/-2 until end of turn. If this spell's additional cost was paid, whenever a creature dies this turn, you gain 1 life.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature"
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "target": "Self"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": "WaterbendWasPaid"
+                    },
+                    "then": {
+                        "type": "CreateDelayedTrigger",
+                        "effect": {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        "trigger": {
+                            "event": {
+                                "type": "ZoneChangeEvent",
+                                "filter": "creature",
+                                "from": "Battlefield",
+                                "to": "Graveyard"
+                            },
+                            "binding": "ANY"
+                        }
+                    }
+                }
+            ]
+        },
+        "spellWaterbend": {
+            "amount": 4,
+            "optional": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "118",
+        "rarity": "UNCOMMON",
+        "artist": "Yuu Fujiki",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/3/53161747-c82b-41e8-90ea-7791ea262a85.jpg?1764120817"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Rumble Arena
 {
     "name": "Rumble Arena",
@@ -12978,6 +13223,79 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Spirit Water Revival
+{
+    "name": "Spirit Water Revival",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, you may waterbend {6}. (While paying a waterbend cost, you can tap your artifacts and creatures to help. Each one pays for {1}.)\nDraw two cards. If this spell's additional cost was paid, instead shuffle your graveyard into your library, draw seven cards, and you have no maximum hand size for the rest of the game.\nExile Spirit Water Revival.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": "WaterbendWasPaid"
+            },
+            "then": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Graveyard"
+                                },
+                                "storeAs": "graveyardCards"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "graveyardCards",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Shuffled"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 7
+                        }
+                    },
+                    "RemoveMaximumHandSize"
+                ]
+            },
+            "otherwise": {
+                "type": "DrawCards",
+                "count": {
+                    "type": "Fixed",
+                    "amount": 2
+                }
+            }
+        },
+        "spellWaterbend": {
+            "amount": 6,
+            "optional": true
+        },
+        "selfExileOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "rarity": "RARE",
+        "artist": "Enishi",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/c/0c019e76-c88e-4d1b-a546-0f4e462ef44a.jpg?1764120466"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

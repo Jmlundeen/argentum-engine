@@ -3,10 +3,10 @@
 Cross-reference of the remaining (unimplemented) TLA cards against the engine's actual capabilities.
 Generated to scope what must be built before the set can be completed.
 
-> ## ⚠️ Status update — June 2026: now 226 / 286 (79%)
+> ## ⚠️ Status update — June 2026: now 231 / 286 (81%)
 >
 > **Most of this document's Tier-1/Tier-2 gaps have since been closed.** Every TLA card buildable on
-> the current engine has been implemented; the **60 cards still missing all need new engine/SDK work**.
+> the current engine has been implemented; the **55 cards still missing all need new engine/SDK work**.
 > What changed since the original write-up (✅ = now built, so the cards it gated are done):
 >
 > - ✅ **Firebending** — `firebending(n)` keyword + attack-triggered combat-duration mana
@@ -14,6 +14,9 @@ Generated to scope what must be built before the set can be completed.
 >   `DynamicAmount`. *(Was Tier-1 §2 ❌.)*
 > - ✅ **Waterbend — activated abilities** (`hasWaterbend = true` on `activatedAbility`). *(Tier-1 §1
 >   🟡 → the activated half is done.)*
+> - ✅ **Waterbend — spell-level additional cost**, including **waterbend {X}** (`waterbendCost(...)` /
+>   `waterbendCost(isX = true)` on a spell). Unlocked Benevolent River Spirit, Ruinous Waterbending,
+>   Spirit Water Revival, Foggy Swamp Visions, and Crashing Wave. *(Tier-1 §1 — the spell half is now done.)*
 > - ✅ **Vigilance keyword counter** (`CounterType.VIGILANCE` + `KEYWORD_COUNTER_MAP`). *(Was §5.)*
 > - ✅ **Nth-card-drawn trigger** (`Triggers.NthCardDrawn`) + cards-drawn-this-turn conditions. *(Was §6.)*
 > - ✅ **Surveil trigger** (`WheneverYouSurveil` / `WheneverYouScryOrSurveil`). *(Was §7.)*
@@ -21,11 +24,13 @@ Generated to scope what must be built before the set can be completed.
 > - ✅ **Dynamic Earthbend** (`Effects.Earthbend` accepts a `DynamicAmount` for X) + **Sagas /
 >   Transform DFCs** proven across the set (incl. saga→creature transform).
 >
-> **The genuine remaining gaps** (what's still blocking the last 60 cards):
+> **The genuine remaining gaps** (what's still blocking the last 55 cards):
 > - ❌ **Airbend** keyword (~11 cards) — exile + recast-for-{2} fixed-alternative-cost may-play.
 > - ❌ **Exhaust** keyword (8 cards) — once-per-game activation tracker surviving zone changes.
-> - ❌ **Spell-level / ETB Waterbend** additional cost (~11 cards) — the convoke+improvise alt-payment
->   declarable on *spells*, not just activated abilities.
+> - 🟡 **Remaining Waterbend cost shapes** (~9 cards) — the plain spell-level additional cost (incl.
+>   waterbend {X}) is now built; still open are **Ward — Waterbend** (The Unagi of Kyoshi Island),
+>   **Exhaust — Waterbend** (Invasion Submersible), in-resolution "may pay a waterbend cost"
+>   (Waterbending Lesson), and **waterbend-as-alternative-cast** (Hama, the Bloodbender).
 > - ❌ **Granting / conditional Firebending** — "target creature gains firebending N", "has
 >   firebending as long as …".
 > - ❌ **Fire counter** type (Fated Firepower, War Balloon).
@@ -53,9 +58,10 @@ Per signature mechanic (implemented / total): **Earthbend 5/27**, **Firebending 
 
 TLA is built around **four "bending" keyword families** (Earthbend, Waterbend, Firebending, Airbend)
 plus a returning **Exhaust** keyword and a pervasive **"second card drawn each turn"** sub-theme.
-*(Update: Earthbend, Firebending, the draw-count theme, and activated-ability Waterbend are now all
-built — see the status banner above. Airbend, Exhaust, and spell-level Waterbend remain the headline
-work.)* Once those primitives land, the large majority of the remaining cards (standard creatures,
+*(Update: Earthbend, Firebending, the draw-count theme, and both activated-ability and spell-level
+Waterbend (incl. waterbend {X}) are now all built — see the status banner above. Airbend, Exhaust, and
+the remaining Waterbend cost shapes (Ward—Waterbend, Exhaust—Waterbend, waterbend-as-alternative-cast)
+remain the headline work.)* Once those primitives land, the large majority of the remaining cards (standard creatures,
 dual lands, sieges, sagas, lords, modal removal, cycling cards, Food/token makers) are buildable —
 and indeed most now are.
 
@@ -334,12 +340,13 @@ RemoveAllAbilities + SetStats + SetCreatureSubtypes + grant-mana-ability composi
 
 **Done since this analysis** (✅ no longer on the list): Earthbend (incl. dynamic X), Firebending (§2),
 Vigilance counter (§5), Nth-card-drawn (§6), Surveil (§7), sacrificed-this-turn count (§8),
-activated-ability Waterbend (§1). The set is now at **226/286**; the order below covers only what's left.
+activated-ability Waterbend (§1), and spell-level Waterbend additional cost incl. waterbend {X} (the §1
+spell half). The set is now at **231/286**; the order below covers only what's left.
 
 1. **Airbend** (§3) — fixed-alternative-cost may-play + stack-spell exile branch. **~11 cards** — the
    single highest-leverage remaining keyword.
-2. **Spell-level / ETB Waterbend** additional cost (the §1 half still open) — generalize the
-   convoke+improvise alt-payment so it's declarable on *spells*, not just activated abilities. **~11 cards.**
+2. **Remaining Waterbend cost shapes** (the §1 leftovers) — Ward — Waterbend, Exhaust — Waterbend,
+   in-resolution "may pay a waterbend cost", and waterbend-as-alternative-cast (Hama). **~9 cards.**
 3. **Exhaust** (§4) — once-per-game activation tracker surviving zone changes. **8 cards.**
 4. **Granting / conditional Firebending** — "gains firebending N until EOT" / "has firebending as long
    as …" (the §2 leftover); plus the **Fire counter** type (§B + War Balloon) and **Foretell** (§G).
@@ -349,4 +356,5 @@ activated-ability Waterbend (§1). The set is now at **226/286**; the order belo
    self-scoped untap, shared-creature-type cross-target, flash-rider on play-from-exile) — as the
    relevant legendaries / rares come up.
 
-Airbend, spell-Waterbend, and Exhaust together gate the large majority of the remaining 60 cards.
+Airbend, the remaining Waterbend cost shapes, and Exhaust together gate the large majority of the
+remaining 55 cards.

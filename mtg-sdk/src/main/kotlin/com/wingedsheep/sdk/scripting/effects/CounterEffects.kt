@@ -2,6 +2,7 @@ package com.wingedsheep.sdk.scripting.effects
 
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -349,6 +350,34 @@ data class DistributeCountersAmongTargetsEffect(
 ) : Effect {
     override val description: String =
         "Distribute $totalCounters $counterType counter${if (totalCounters != 1) "s" else ""} among targets"
+}
+
+/**
+ * Distribute a fixed number of *new* counters among permanents matching [filter], chosen at
+ * resolution (NOT the spell's declared targets). The eligible group is resolved when the effect
+ * resolves, then the controller picks how to split [totalCounters] among them (each chosen recipient
+ * gets at least [minPerTarget] — 0 models "among any number of"). No-op when nothing matches.
+ *
+ * Distinct from [DistributeCountersAmongTargetsEffect] (which uses the spell's targets) and from
+ * [DistributeCountersFromSelfEffect] (which *moves* existing counters off the source). Used by
+ * Crashing Wave: "distribute three stun counters among any number of tapped creatures your opponents
+ * control" — `DistributeCountersAmongFilteredEffect(3, Counters.STUN, Creature.tapped().opponentControls())`.
+ *
+ * @property totalCounters How many counters to place in total.
+ * @property counterType The counter to place (e.g. [Counters.STUN]).
+ * @property filter Which permanents are eligible to receive counters (resolved at execution).
+ * @property minPerTarget Minimum counters a chosen recipient must receive (0 = "any number of").
+ */
+@SerialName("DistributeCountersAmongFiltered")
+@Serializable
+data class DistributeCountersAmongFilteredEffect(
+    val totalCounters: Int,
+    val counterType: String = Counters.PLUS_ONE_PLUS_ONE,
+    val filter: GameObjectFilter = GameObjectFilter.Creature,
+    val minPerTarget: Int = 0,
+) : Effect {
+    override val description: String =
+        "Distribute $totalCounters $counterType counter${if (totalCounters != 1) "s" else ""} among ${filter.description}s"
 }
 
 /**
