@@ -2,17 +2,24 @@
 
 **Set Size:** 286 draft/booster cards (excluding basic lands beyond the set's own, tokens, and special variants)
 **Release Date:** November 21, 2025
-**Implemented:** 232 / 286
+**Implemented:** 239 / 286
 **Engine gap analysis:** [`tla-engine-gaps.md`](tla-engine-gaps.md)
 
-> **Status (June 2026):** 232/286 implemented. Every card buildable on the *current* engine has been
-> added — the 54 remaining all need new engine/SDK work first (see the gap analysis). Since the
-> original gap doc was written, **Firebending**, the **Vigilance keyword counter**, the
-> **Nth-card-drawn** and **Surveil** triggers, **`PERMANENTS_SACRIFICED`**, **dynamic Earthbend**,
-> and the **spell-level Waterbend additional cost** (including **waterbend {X}**) all landed, which
-> unlocked the bulk of the set. The headline holdouts are now **Airbend**, **Exhaust**, **Foretell**,
-> the **Fire counter** type, the remaining **Waterbend cost shapes** (Ward—Waterbend, Exhaust—Waterbend,
-> waterbend-as-alternative-cast), **granting/conditional Firebending**, and a handful of Tier-3 one-offs.
+> **Status (June 2026):** 239/286 implemented. The **Airbend** keyword (permanent form) is now built —
+> a fixed-alternative-cost may-play-from-exile primitive (`Effects.Airbend` / `Effects.AirbendAll`),
+> which unlocked Airbending Lesson, Glider Staff, Aang the Last Airbender, Airbender Ascension,
+> Airbender's Reversal, and both Appa. Earlier work landed **Firebending**, the **Vigilance keyword
+> counter**, the **Nth-card-drawn** and **Surveil** triggers, **`PERMANENTS_SACRIFICED`**, **dynamic
+> Earthbend**, and the **spell-level Waterbend additional cost** (incl. **waterbend {X}**).
+>
+> Remaining Airbend cards are each blocked by a *distinct* further gap (not the core keyword):
+> **Aang, Swift Savior** needs the **airbend stack branch** (airbend *a spell* — counter + exile +
+> {2}-recast-to-owner); **Avatar's Wrath** needs a **cast-zone restriction** (Tier-3 §D) atop
+> `AirbendAll`; **The Legend of Yangchen** is blocked by its Saga **chapter I** ("each player chooses
+> up to one permanent … exile those" — no each-player-chooses-permanent primitive yet), not by
+> airbend; **Avatar Aang** needs **all-four-bending action events** + a **{W}{U}{B}{R}{G} cost
+> reduction**. Other headline holdouts: **Exhaust**, **Foretell**, the **Fire counter** type, the
+> remaining **Waterbend cost shapes**, **granting/conditional Firebending**, and Tier-3 one-offs.
 
 ## Mechanics needed to complete the set
 
