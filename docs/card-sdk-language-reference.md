@@ -3826,10 +3826,25 @@ ability — feed the matching count `DynamicAmount` to `genericCostReduction`.
 **`ActivationRestriction`**
 
 - `MaxPerTurn(n)` — at most N activations per turn.
-- `OnlyOnce` — once per game.
+- `OncePerTurn` — once each turn (resets at end of turn).
+- `Once` — *"Activate only once"* (CR): once per the **lifetime of this object**, tracked on the
+  permanent entity via `AbilityActivatedEverComponent`. Per CR 400.7 / 403.4 a permanent that leaves
+  and re-enters the battlefield is a *new object*, so its `Once` ability may be activated again — this
+  is **not** "once per game". Backs the **Exhaust** keyword (below).
 - `OnlyIfCondition(c)` — condition gate.
 - `OnlyDuringYourTurn` / `DuringPhase(p)` / `DuringStep(s)` / `BeforeStep(s)` — timing gates (compose
   via `All(...)`, e.g. `All(DuringStep(UPKEEP), OnlyDuringYourTurn)` for "only during your upkeep").
+
+**Exhaust** (Avatar: The Last Airbender, returning from Edge of Eternities; CR 702.177) — *not a
+keyword-line keyword*; a marker flag on an activated ability. *"Exhaust — [cost]: [effect]"* means
+*"[cost]: [effect]. Activate only once."* Set `isExhaust = true` in the `activatedAbility { }` block.
+That (a) renders the *"Exhaust — "* prefix on the ability's `description` (in printed order, so an
+"Exhaust — Waterbend {N}" ability reads correctly) and (b) **auto-adds `ActivationRestriction.Once`**
+to the ability's restrictions, so the keyword marker and its once-per-object enforcement can't drift
+apart. No game-scoped tracker is needed — `Once`'s per-object lifetime (above) is exactly Exhaust's
+rules semantics, so a permanent re-entering the battlefield may activate its exhaust ability again.
+Compose freely with other restrictions, e.g. `restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)`
+alongside `isExhaust = true` for "Exhaust — …: … Activate only during your turn." (Bitter Work).
 
 **Loyalty abilities**
 
