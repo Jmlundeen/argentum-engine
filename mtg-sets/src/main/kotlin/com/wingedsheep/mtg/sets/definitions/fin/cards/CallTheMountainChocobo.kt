@@ -44,6 +44,7 @@ val CallTheMountainChocobo = card("Call the Mountain Chocobo") {
                 toughness = 2,
                 colors = setOf(Color.GREEN),
                 creatureTypes = setOf("Bird"),
+                imageUri = "https://cards.scryfall.io/normal/front/1/f/1fbc471d-5948-47fc-b7cc-81cc13a4cd15.jpg?1748704082",
                 triggeredAbilities = listOf(
                     TriggeredAbility.create(
                         trigger = Triggers.entersBattlefield(
