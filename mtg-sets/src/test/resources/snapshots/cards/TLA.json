@@ -239,6 +239,160 @@
     "colorIdentityOverride": []
 }
 
+// Aang, Swift Savior
+{
+    "name": "Aang, Swift Savior",
+    "manaCost": "{1}{W}{U}",
+    "typeLine": "Legendary Creature — Human Avatar Ally",
+    "oracleText": "Flash\nFlying\nWhen Aang enters, airbend up to one other target creature or spell. (Exile it. While it's exiled, its owner may cast it for {2} rather than its mana cost.)\nWaterbend {8}: Transform Aang.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLASH",
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": "TargetIsSpellOnStack"
+                    },
+                    "then": {
+                        "type": "ExileTargetSpell",
+                        "fixedAlternativeManaCost": "{2}"
+                    },
+                    "otherwise": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": "ChosenTargets",
+                                "storeAs": "airbendChosen"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "airbendChosen",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "storeMovedAs": "airbendExiled"
+                            },
+                            {
+                                "type": "GrantMayPlayFromExile",
+                                "from": "airbendExiled",
+                                "expiry": "Permanent",
+                                "ownerControls": true,
+                                "fixedAlternativeManaCost": "{2}"
+                            }
+                        ]
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOther",
+                    "baseRequirement": {
+                        "type": "TargetObject",
+                        "optional": true,
+                        "filter": {
+                            "baseFilter": "creature",
+                            "alternatives": [
+                                {
+                                    "baseFilter": {},
+                                    "zone": "Stack"
+                                }
+                            ]
+                        }
+                    },
+                    "id": "up to one other target creature or spell"
+                },
+                "descriptionOverride": "When Aang enters, airbend up to one other target creature or spell."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{8}"
+                    }
+                },
+                "effect": "Transform",
+                "hasWaterbend": true
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Aang and La, Ocean's Fury",
+        "manaCost": "",
+        "typeLine": "Legendary Creature — Avatar Spirit Ally",
+        "oracleText": "Reach, trample\nWhenever Aang and La attack, put a +1/+1 counter on each tapped creature you control.",
+        "creatureStats": {
+            "power": 5,
+            "toughness": 5
+        },
+        "keywords": [
+            "REACH",
+            "TRAMPLE"
+        ],
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": "AttackEvent",
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature tapped ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": "Self"
+                        }
+                    },
+                    "descriptionOverride": "Whenever Aang and La attack, put a +1/+1 counter on each tapped creature you control."
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "204",
+            "rarity": "RARE",
+            "artist": "Tetsuko",
+            "imageUri": "https://cards.scryfall.io/normal/back/8/2/82866a0e-485a-4f7e-8c49-f7d9ff3f4ad4.jpg?1778914119"
+        },
+        "colorIdentityOverride": [
+            "WHITE",
+            "BLUE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "204",
+        "rarity": "RARE",
+        "artist": "Tetsuko",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/82866a0e-485a-4f7e-8c49-f7d9ff3f4ad4.jpg?1778914119"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
+    ]
+}
+
 // Aang, at the Crossroads
 {
     "name": "Aang, at the Crossroads",
@@ -453,6 +607,98 @@
         "GREEN",
         "WHITE",
         "BLUE"
+    ]
+}
+
+// Aang, the Last Airbender
+{
+    "name": "Aang, the Last Airbender",
+    "manaCost": "{3}{W}",
+    "typeLine": "Legendary Creature — Human Avatar Ally",
+    "oracleText": "Flying\nWhen Aang enters, airbend up to one other target nonland permanent. (Exile it. While it's exiled, its owner may cast it for {2} rather than its mana cost.)\nWhenever you cast a Lesson spell, Aang gains lifelink until end of turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "airbendChosen"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "airbendChosen",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "storeMovedAs": "airbendExiled"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "airbendExiled",
+                            "expiry": "Permanent",
+                            "ownerControls": true,
+                            "fixedAlternativeManaCost": "{2}"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetOther",
+                    "baseRequirement": {
+                        "type": "TargetObject",
+                        "optional": true,
+                        "filter": {
+                            "baseFilter": "nonland permanent"
+                        }
+                    },
+                    "id": "up to one other target nonland permanent"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Lesson"
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "LIFELINK",
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "4",
+        "rarity": "UNCOMMON",
+        "artist": "Yueko",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/4/245e008c-e073-443f-9592-6f628c0026ec.jpg?1764119893"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -889,6 +1135,298 @@
     ]
 }
 
+// Airbender Ascension
+{
+    "name": "Airbender Ascension",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, airbend up to one target creature.\nWhenever a creature you control enters, put a quest counter on this enchantment.\nAt the beginning of your end step, if this enchantment has four or more quest counters on it, exile up to one target creature you control, then return it to the battlefield under its owner's control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "airbendChosen"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "airbendChosen",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "storeMovedAs": "airbendExiled"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "airbendExiled",
+                            "expiry": "Permanent",
+                            "ownerControls": true,
+                            "fixedAlternativeManaCost": "{2}"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "up to one target creature"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "quest",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever a creature you control enters, put a quest counter on this enchantment."
+            },
+            {
+                "id": "ability_3",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "Source",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": {
+                                        "type": "Named",
+                                        "name": "quest"
+                                    }
+                                }
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 4
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "SelectTarget",
+                                "requirement": {
+                                    "type": "TargetObject",
+                                    "optional": true,
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "storeAs": "flickered"
+                            },
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "PipelineTarget",
+                                    "collectionName": "flickered"
+                                },
+                                "destination": "Exile"
+                            },
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "PipelineTarget",
+                                    "collectionName": "flickered"
+                                },
+                                "destination": "Battlefield"
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, if this enchantment has four or more quest counters on it, exile up to one target creature you control, then return it to the battlefield under its owner's control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "RARE",
+        "artist": "Shiren",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/99a90d13-891c-45cc-b1d5-6080ebae5862.jpg?1764119907"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Airbender's Reversal
+{
+    "name": "Airbender's Reversal",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant — Lesson",
+    "oracleText": "Choose one —\n• Destroy target attacking creature.\n• Airbend target creature you control. (Exile it. While it's exiled, its owner may cast it for {2} rather than its mana cost.)",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature attacking"
+                            }
+                        }
+                    ],
+                    "description": "Destroy target attacking creature"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": "ChosenTargets",
+                                "storeAs": "airbendChosen"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "airbendChosen",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "storeMovedAs": "airbendExiled"
+                            },
+                            {
+                                "type": "GrantMayPlayFromExile",
+                                "from": "airbendExiled",
+                                "expiry": "Permanent",
+                                "ownerControls": true,
+                                "fixedAlternativeManaCost": "{2}"
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            }
+                        }
+                    ],
+                    "description": "Airbend target creature you control"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "rarity": "UNCOMMON",
+        "artist": "Kotakan",
+        "flavorText": "Aang employed the typical Airbender tactics against Zuko: avoid and evade.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/b/6b7078e4-2892-4b5f-83ab-90369e0d6dba.jpg?1764119914"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Airbending Lesson
+{
+    "name": "Airbending Lesson",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant — Lesson",
+    "oracleText": "Airbend target nonland permanent. (Exile it. While it's exiled, its owner may cast it for {2} rather than its mana cost.)\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "airbendChosen"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "airbendChosen",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "storeMovedAs": "airbendExiled"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "airbendExiled",
+                            "expiry": "Permanent",
+                            "ownerControls": true,
+                            "fixedAlternativeManaCost": "{2}"
+                        }
+                    ]
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "nonland permanent"
+                },
+                "id": "target nonland permanent"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "artist": "Pisukev",
+        "flavorText": "\"Very interesting move, young one.\"\n—Monk Gyatso",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/2/e2bcd0a6-e94d-4a21-a334-a57459c1b8cc.jpg?1764119921"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Airship Engine Room
 {
     "name": "Airship Engine Room",
@@ -1041,6 +1579,273 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Appa, Loyal Sky Bison
+{
+    "name": "Appa, Loyal Sky Bison",
+    "manaCost": "{4}{W}{W}",
+    "typeLine": "Legendary Creature — Bison Ally",
+    "oracleText": "Flying\nWhenever Appa enters or attacks, choose one —\n• Target creature you control gains flying until end of turn.\n• Airbend another target nonland permanent you control. (Exile it. While it's exiled, its owner may cast it for {2} rather than its mana cost.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "GrantKeyword",
+                                "keyword": "FLYING",
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                }
+                            ],
+                            "description": "Target creature you control gains flying until end of turn"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": "ChosenTargets",
+                                        "storeAs": "airbendChosen"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "airbendChosen",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Exile"
+                                        },
+                                        "storeMovedAs": "airbendExiled"
+                                    },
+                                    {
+                                        "type": "GrantMayPlayFromExile",
+                                        "from": "airbendExiled",
+                                        "expiry": "Permanent",
+                                        "ownerControls": true,
+                                        "fixedAlternativeManaCost": "{2}"
+                                    }
+                                ]
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetOther",
+                                    "baseRequirement": {
+                                        "type": "TargetObject",
+                                        "filter": {
+                                            "baseFilter": "nonland permanent ctrl:you"
+                                        }
+                                    }
+                                }
+                            ],
+                            "description": "Airbend another target nonland permanent you control"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever Appa enters or attacks, choose one — Target creature you control gains flying until end of turn; or airbend another target nonland permanent you control."
+            },
+            {
+                "id": "ability_2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "GrantKeyword",
+                                "keyword": "FLYING",
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                }
+                            ],
+                            "description": "Target creature you control gains flying until end of turn"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": "ChosenTargets",
+                                        "storeAs": "airbendChosen"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "airbendChosen",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Exile"
+                                        },
+                                        "storeMovedAs": "airbendExiled"
+                                    },
+                                    {
+                                        "type": "GrantMayPlayFromExile",
+                                        "from": "airbendExiled",
+                                        "expiry": "Permanent",
+                                        "ownerControls": true,
+                                        "fixedAlternativeManaCost": "{2}"
+                                    }
+                                ]
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetOther",
+                                    "baseRequirement": {
+                                        "type": "TargetObject",
+                                        "filter": {
+                                            "baseFilter": "nonland permanent ctrl:you"
+                                        }
+                                    }
+                                }
+                            ],
+                            "description": "Airbend another target nonland permanent you control"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever Appa enters or attacks, choose one — Target creature you control gains flying until end of turn; or airbend another target nonland permanent you control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "9",
+        "rarity": "UNCOMMON",
+        "artist": "Tomoyo Asatani",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/9/a9b2a843-c6fe-4d19-801e-1538e4381ab0.jpg?1764119928"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Appa, Steadfast Guardian
+{
+    "name": "Appa, Steadfast Guardian",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Legendary Creature — Bison Ally",
+    "oracleText": "Flash\nFlying\nWhen Appa enters, airbend any number of other target nonland permanents you control. (Exile them. While each one is exiled, its owner may cast it for {2} rather than its mana cost.)\nWhenever you cast a spell from exile, create a 1/1 white Ally creature token.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLASH",
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "airbendChosen"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "airbendChosen",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "storeMovedAs": "airbendExiled"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "airbendExiled",
+                            "expiry": "Permanent",
+                            "ownerControls": true,
+                            "fixedAlternativeManaCost": "{2}"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetOther",
+                    "baseRequirement": {
+                        "type": "TargetObject",
+                        "unlimited": true,
+                        "filter": {
+                            "baseFilter": "nonland permanent ctrl:you"
+                        }
+                    },
+                    "id": "any number of other target nonland permanents you control"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "requires": [
+                        {
+                            "type": "SpellCastFromZone",
+                            "zone": "Exile"
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Ally"
+                    ]
+                },
+                "descriptionOverride": "Whenever you cast a spell from exile, create a 1/1 white Ally creature token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "10",
+        "rarity": "MYTHIC",
+        "artist": "Maël Ollivier-Henry",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/829d91e9-4878-4e55-a262-ac0d55b65d4e.jpg?1764119935"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -6790,6 +7595,111 @@
         "artist": "ikeda_cpt",
         "flavorText": "The Fire Nation never expected the Earth Kingdom to take to the skies.",
         "imageUri": "https://cards.scryfall.io/normal/front/0/6/0613afb5-4cee-4132-8adf-404767ed8d07.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Glider Staff
+{
+    "name": "Glider Staff",
+    "manaCost": "{2}{W}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "When this Equipment enters, airbend up to one target creature. (Exile it. While it's exiled, its owner may cast it for {2} rather than its mana cost.)\nEquipped creature gets +1/+1 and has flying.\nEquip {2}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "airbendChosen"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "airbendChosen",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "storeMovedAs": "airbendExiled"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "airbendExiled",
+                            "expiry": "Permanent",
+                            "ownerControls": true,
+                            "fixedAlternativeManaCost": "{2}"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "up to one target creature"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "FLYING"
+            }
+        ]
+    },
+    "equipCost": "{2}",
+    "metadata": {
+        "collectorNumber": "22",
+        "rarity": "UNCOMMON",
+        "artist": "Eduardo Francisco",
+        "flavorText": "More tools than weapons, gliders were used by Air Nomads to harness wind currents for travel.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/5/7517f2eb-a24d-49f6-82bf-08de55d3789a.jpg?1764120022"
     },
     "colorIdentityOverride": [
         "WHITE"

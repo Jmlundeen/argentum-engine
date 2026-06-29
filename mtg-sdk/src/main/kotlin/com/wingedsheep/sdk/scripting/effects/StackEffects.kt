@@ -222,15 +222,26 @@ data class CounterEffect(
  *   it gains the plotted designation and a permanent free-cast-on-a-later-turn permission. Pairs
  *   with [com.wingedsheep.sdk.scripting.effects.MakePlottedEffect]'s owner-controls semantics, but
  *   reads its subject from the stack instead of a gathered collection.
+ * @property fixedAlternativeManaCost When non-null, the exiled card's **owner** may cast it from
+ *   exile for this *fixed* mana cost (e.g. `{2}`) instead of its printed cost, for as long as it
+ *   stays exiled — the spell-on-stack form of the **Airbend** keyword (Aang, Swift Savior:
+ *   "airbend … target … spell"). Reuses `PlayWithFixedAlternativeManaCostComponent`, the same
+ *   primitive the permanent [com.wingedsheep.sdk.dsl.Effects.Airbend] uses; mutually exclusive with
+ *   [makePlotted]. Because this is "exile it", not "counter it", it works on spells that can't be
+ *   countered (see [exileSpell]'s non-counter semantics).
  */
 @SerialName("ExileTargetSpell")
 @Serializable
 data class ExileTargetSpellEffect(
-    val makePlotted: Boolean = false
+    val makePlotted: Boolean = false,
+    val fixedAlternativeManaCost: ManaCost? = null
 ) : Effect {
     override val description: String = buildString {
         append("Exile target spell")
         if (makePlotted) append(". It becomes plotted")
+        if (fixedAlternativeManaCost != null) {
+            append(". Its owner may cast it for $fixedAlternativeManaCost rather than its mana cost")
+        }
     }
 }
 

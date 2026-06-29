@@ -39,6 +39,13 @@ class ExileTargetSpellExecutor(
         if (spellId !in state.stack) return EffectResult.success(state)
 
         val resolver = StackResolver(cardRegistry = cardRegistry)
-        return EffectResult.from(resolver.exileSpell(state, spellId, effect.makePlotted))
+        return EffectResult.from(
+            resolver.exileSpell(
+                state,
+                spellId,
+                makePlotted = effect.makePlotted,
+                fixedAlternativeManaCost = effect.fixedAlternativeManaCost
+            )
+        )
     }
 }

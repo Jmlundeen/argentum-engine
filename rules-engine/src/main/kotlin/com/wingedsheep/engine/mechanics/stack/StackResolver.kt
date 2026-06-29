@@ -264,6 +264,7 @@ class StackResolver(
                 updated = updated.without<PlayWithoutPayingCostComponent>()
             }
             updated = updated.without<com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComponent>()
+            updated = updated.without<com.wingedsheep.engine.state.components.identity.PlayWithFixedAlternativeManaCostComponent>()
             updated
         }
         // Drop this card from one-shot may-play grants. Permanent grants survive
@@ -1751,6 +1752,7 @@ class StackResolver(
                 .without<TargetsComponent>()
                 .without<com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent>()
                 .without<com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComponent>()
+                .without<com.wingedsheep.engine.state.components.identity.PlayWithFixedAlternativeManaCostComponent>()
                 .without<ExileAfterResolveComponent>()
         }
         newState = newState.removeMayPlayPermissionsForCard(spellId)
@@ -2375,7 +2377,8 @@ class StackResolver(
         val exileZone = ZoneKey(ownerId, Zone.EXILE)
         newState = newState.addToZone(exileZone, spellId)
 
-        // Remove stack components and optionally grant free cast
+        // Remove stack components and optionally grant the counter's controller a free recast
+        // (Kheru Spellsnatcher).
         newState = newState.updateEntity(spellId) { c ->
             var updated = c.without<SpellOnStackComponent>().without<TargetsComponent>()
             if (grantFreeCast) {
@@ -2426,11 +2429,18 @@ class StackResolver(
      * free-cast-on-a-later-turn permission gated by [SourcePlottedOnPriorTurn], granted to the
      * card's **owner** (CR 718.2 / the reminder text: "Its owner may cast it as a sorcery on a
      * later turn without paying its mana cost"), and a [CardPlottedEvent] is emitted.
+     *
+     * When [fixedAlternativeManaCost] is non-null the exiled card's **owner** gets a permanent
+     * may-play permission and a [PlayWithFixedAlternativeManaCostComponent], letting them recast it
+     * for that fixed cost instead of its printed cost for as long as it stays exiled — the
+     * spell-on-stack form of the **Airbend** keyword (Aang, Swift Savior). Mutually exclusive with
+     * [makePlotted].
      */
     fun exileSpell(
         state: GameState,
         spellId: EntityId,
-        makePlotted: Boolean
+        makePlotted: Boolean,
+        fixedAlternativeManaCost: com.wingedsheep.sdk.core.ManaCost? = null
     ): ExecutionResult {
         if (spellId !in state.stack) {
             return ExecutionResult.error(state, "Spell not on stack: $spellId")
@@ -2457,9 +2467,45 @@ class StackResolver(
 
         if (makePlotted) {
             newState = applyPlottedToExiledCard(newState, spellId, ownerId, cardComponent?.name ?: "Unknown", events)
+        } else if (fixedAlternativeManaCost != null) {
+            newState = applyFixedAltCostToExiledCard(newState, spellId, ownerId, fixedAlternativeManaCost)
         }
 
         return ExecutionResult.success(newState, events)
+    }
+
+    /**
+     * Grant the **owner** of a card already sitting in their exile a permanent may-play permission
+     * plus a [PlayWithFixedAlternativeManaCostComponent], so they may recast it for [fixedCost]
+     * instead of its printed cost for as long as it stays exiled. The spell-on-stack tail of the
+     * **Airbend** keyword; mirrors [applyPlottedToExiledCard] but with a fixed alternative cost
+     * rather than a free, plotted-on-a-later-turn cast.
+     */
+    private fun applyFixedAltCostToExiledCard(
+        state: GameState,
+        cardId: EntityId,
+        ownerId: EntityId,
+        fixedCost: com.wingedsheep.sdk.core.ManaCost,
+    ): GameState {
+        var newState = state.updateEntity(cardId) { c ->
+            c.with(
+                com.wingedsheep.engine.state.components.identity.PlayWithFixedAlternativeManaCostComponent(
+                    controllerId = ownerId,
+                    fixedCost = fixedCost
+                )
+            )
+        }
+        val (permId, stateWithPerm) = newState.newEntity()
+        newState = stateWithPerm.addMayPlayPermission(
+            MayPlayPermission(
+                id = permId,
+                cardIds = setOf(cardId),
+                controllerId = ownerId,
+                permanent = true,
+                timestamp = newState.timestamp,
+            )
+        )
+        return newState
     }
 
     /**

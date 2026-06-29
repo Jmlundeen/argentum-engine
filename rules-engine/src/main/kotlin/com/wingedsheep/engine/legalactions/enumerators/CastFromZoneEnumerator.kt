@@ -18,6 +18,7 @@ import com.wingedsheep.engine.state.permissions.hasMayPlayFor
 import com.wingedsheep.engine.state.components.player.MayCastCreaturesFromGraveyardWithForageComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithAdditionalCostComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComponent
+import com.wingedsheep.engine.state.components.identity.PlayWithFixedAlternativeManaCostComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.sdk.core.Keyword
@@ -407,10 +408,20 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     } else {
                         cardComponent.manaCost
                     }
-                    var effectiveCost = if (permissions.any { it.withAnyManaType }) {
-                        baseEffectiveCost.relaxColors()
+                    // Airbend: a fixed alternative cost ({2}) is paid *instead of* the printed
+                    // cost — it replaces the base. A generic tax (Soul Partition / Thalia-style
+                    // cost increase) is not part of what it replaces, so it still applies on top.
+                    val runtimeFixedAltCost = container.get<PlayWithFixedAlternativeManaCostComponent>()
+                        ?.takeIf { it.controllerId == playerId }
+                    val baseCost = if (!playForFree && runtimeFixedAltCost != null) {
+                        runtimeFixedAltCost.fixedCost
                     } else {
                         baseEffectiveCost
+                    }
+                    var effectiveCost = if (permissions.any { it.withAnyManaType }) {
+                        baseCost.relaxColors()
+                    } else {
+                        baseCost
                     }
                     if (!playForFree && runtimeCostIncrease != null) {
                         effectiveCost = effectiveCost + ManaCost.parse("{${runtimeCostIncrease.amount}}")

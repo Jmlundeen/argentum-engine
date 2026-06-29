@@ -2,17 +2,26 @@
 
 **Set Size:** 286 draft/booster cards (excluding basic lands beyond the set's own, tokens, and special variants)
 **Release Date:** November 21, 2025
-**Implemented:** 232 / 286
+**Implemented:** 240 / 286
 **Engine gap analysis:** [`tla-engine-gaps.md`](tla-engine-gaps.md)
 
-> **Status (June 2026):** 232/286 implemented. Every card buildable on the *current* engine has been
-> added — the 54 remaining all need new engine/SDK work first (see the gap analysis). Since the
-> original gap doc was written, **Firebending**, the **Vigilance keyword counter**, the
-> **Nth-card-drawn** and **Surveil** triggers, **`PERMANENTS_SACRIFICED`**, **dynamic Earthbend**,
-> and the **spell-level Waterbend additional cost** (including **waterbend {X}**) all landed, which
-> unlocked the bulk of the set. The headline holdouts are now **Airbend**, **Exhaust**, **Foretell**,
-> the **Fire counter** type, the remaining **Waterbend cost shapes** (Ward—Waterbend, Exhaust—Waterbend,
-> waterbend-as-alternative-cast), **granting/conditional Firebending**, and a handful of Tier-3 one-offs.
+> **Status (June 2026):** 240/286 implemented. The **Airbend** keyword (permanent form) is now built —
+> a fixed-alternative-cost may-play-from-exile primitive (`Effects.Airbend` / `Effects.AirbendAll`),
+> which unlocked Airbending Lesson, Glider Staff, Aang the Last Airbender, Airbender Ascension,
+> Airbender's Reversal, and both Appa. Earlier work landed **Firebending**, the **Vigilance keyword
+> counter**, the **Nth-card-drawn** and **Surveil** triggers, **`PERMANENTS_SACRIFICED`**, **dynamic
+> Earthbend**, and the **spell-level Waterbend additional cost** (incl. **waterbend {X}**).
+>
+> The **airbend stack branch** (airbend *a spell* — *exile* from the stack + {2}-recast-to-owner; not
+> a counter, so it works on can't-be-countered spells — via
+> `Effects.ExileTargetSpell(fixedAlternativeManaCost)` + `Conditions.TargetIsSpellOnStack`)
+> is also built, which completed **Aang, Swift Savior**. The 3 remaining Airbend cards are each blocked
+> by a *distinct* further gap (not the keyword): **Avatar's Wrath** needs a **cast-zone restriction**
+> (Tier-3 §D) atop `AirbendAll`; **The Legend of Yangchen** is blocked by its Saga **chapter I** ("each
+> player chooses up to one permanent … exile those" — no each-player-chooses-permanent primitive yet),
+> not by airbend; **Avatar Aang** needs **all-four-bending action events** + a **{W}{U}{B}{R}{G} cost
+> reduction**. Other headline holdouts: **Exhaust**, **Foretell**, the **Fire counter** type, the
+> remaining **Waterbend cost shapes**, **granting/conditional Firebending**, and Tier-3 one-offs.
 
 ## Mechanics needed to complete the set
 
@@ -29,7 +38,7 @@ up by Airbend, not Firebending).
 | Earthbend | 28 | 6 | Target land you control becomes a 0/0 haste creature-land; put N +1/+1 counters on it. ✅ built (`Effects.Earthbend`, incl. dynamic X). |
 | Waterbend | 25 | 10 | Convoke+improvise-style alt cost (tap artifacts/creatures to help pay). ✅ **activated-ability** cost (`hasWaterbend = true`) and **spell-level additional cost** (incl. **waterbend {X}**) both built. ❌ still needed: **Ward—Waterbend**, **Exhaust—Waterbend**, and **waterbend-as-alternative-cast** (Hama). |
 | Firebending | 28 | 14 | Attack-triggered combat-duration red mana. ✅ built — `firebending(n)` keyword + dynamic versions hand-wired via `AddManaEffect(…, ManaExpiry.END_OF_COMBAT)`. ❌ still missing: **granting** firebending to others / **conditional** "has firebending as long as …" / "gains firebending until EOT". |
-| Airbend | 11 | 11 | Exile target nonland permanent; owner may recast it for {2}. ❌ keyword **not built**. |
+| Airbend | 11 | 3 | Exile target permanent; owner may recast it for {2}. ✅ built — `Effects.Airbend` / `Effects.AirbendAll` (fixed-alternative-cost may-play from exile) + the spell stack branch (`Effects.ExileTargetSpell(fixedAlternativeManaCost)` + `Conditions.TargetIsSpellOnStack` — *exile* from the stack, not a counter, so it bypasses can't-be-countered). ❌ remaining 3 blocked by *other* gaps: cast-zone restriction (Avatar's Wrath), each-player-choose Saga chapter (Yangchen), four-bend events + {WUBRG} reduction (Avatar Aang). |
 | Exhaust | 8 | 8 | Activated ability usable only once per game. ❌ keyword **not built**. |
 
 ### Other keywords present (evergreen + returning)
@@ -81,21 +90,21 @@ up by Airbend, not Firebending).
 
 - [x] Aang's Iceberg
 - [x] Aang's Journey
-- [ ] Aang, Swift Savior
+- [x] Aang, Swift Savior
 - [x] Aang, at the Crossroads
-- [ ] Aang, the Last Airbender
+- [x] Aang, the Last Airbender
 - [x] Abandon Attachments
 - [x] Abandoned Air Temple
 - [x] Accumulate Wisdom
 - [x] Agna Qel'a
 - [x] Air Nomad Legacy
-- [ ] Airbender Ascension
-- [ ] Airbender's Reversal
-- [ ] Airbending Lesson
+- [x] Airbender Ascension
+- [x] Airbender's Reversal
+- [x] Airbending Lesson
 - [x] Airship Engine Room
 - [x] Allies at Last
-- [ ] Appa, Loyal Sky Bison
-- [ ] Appa, Steadfast Guardian
+- [x] Appa, Loyal Sky Bison
+- [x] Appa, Steadfast Guardian
 - [ ] Avatar Aang
 - [x] Avatar Destiny
 - [x] Avatar Enthusiasts
@@ -188,7 +197,7 @@ up by Airbend, not Firebending).
 - [x] Geyser Leaper
 - [x] Giant Koi
 - [x] Glider Kids
-- [ ] Glider Staff
+- [x] Glider Staff
 - [x] Gran-Gran
 - [x] Great Divide Guide
 - [x] Guru Pathik

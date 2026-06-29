@@ -85,6 +85,26 @@ internal fun BridgeBuilder.manaCountersAndState() {
     composed("Earthbend", "Effects.Earthbend: AnimateLand + GrantKeyword(haste) + AddCounters + GrantTriggeredAbility(return)",
         composes = listOf("AnimateLand", "GrantKeyword", "AddCounters", "GrantTriggeredAbility", "MoveToZone"))
 
+    // Airbend (TLA keyword action): "Exile target permanent. While it's exiled, its owner may cast it
+    // for {2} rather than its mana cost." Composed wholesale by Effects.Airbend (no Keyword.AIRBEND) —
+    // gather the chosen target(s), move them to exile, then grant the owner a may-play permission with
+    // a fixed {2} alternative mana cost. Target-agnostic: the card's TargetRequirement supplies the
+    // shape ("up to one", "any number of", "another", "you control"). The IR `AirbendPermanent` action
+    // renders as a bare `Effects.Airbend()`; the surrounding Targeted envelope declares the target.
+    composed("AirbendPermanent", "Effects.Airbend: GatherCards(ChosenTargets) + MoveCollection(EXILE) + GrantMayPlayFromExile(ownerControls, fixedAlternativeManaCost {2})",
+        composes = listOf("GatherCards", "MoveCollection", "GrantMayPlayFromExile"))
+
+    // Airbend the spell-on-stack form (Aang, Swift Savior — "airbend … target creature or spell"):
+    // *exile* the spell from the stack to its owner's exile and grant the owner the same fixed-{2}
+    // recast, via Effects.ExileTargetSpell(fixedAlternativeManaCost). This is NOT a counter — airbend
+    // says "exile it", so it bypasses can't-be-countered and fires no "spell was countered" trigger
+    // (the Aven Interrupter exileSpell primitive, reusing PlayWithFixedAlternativeManaCostComponent).
+    // The full card pairs this with a cross-zone "creature or spell" target + a TargetIsSpellOnStack
+    // branch; the emitter leaves the combined shape to scaffold, but the capability is supported, so
+    // score it coverable.
+    composed("AirbendSpell", "Effects.ExileTargetSpell(fixedAlternativeManaCost {2}) — exile the spell from the stack to owner's exile (not a counter), owner may recast for {2}",
+        composes = listOf("ExileSpell", "GrantMayPlayFromExile"))
+
     effect("RegeneratePermanent", "Regenerate", UNIVERSAL)
     // "<permanent> becomes prepared" (Secrets of Strixhaven — Leech Collector's trigger). Maps to the
     // BecomePrepared effect; the enters-prepared flavour is the PREPARED keyword + PREPARE layout.
