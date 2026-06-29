@@ -6089,6 +6089,64 @@
     ]
 }
 
+// Foggy Swamp Vinebender
+{
+    "name": "Foggy Swamp Vinebender",
+    "manaCost": "{3}{G}",
+    "typeLine": "Creature — Human Plant Ally",
+    "oracleText": "This creature can't be blocked by creatures with power 2 or less.\nWaterbend {5}: Put a +1/+1 counter on this creature. Activate only during your turn. (While paying a waterbend cost, you can tap your artifacts and creatures to help. Each one pays for {1}.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{5}"
+                    }
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "restrictions": [
+                    "OnlyDuringYourTurn"
+                ],
+                "hasWaterbend": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "PowerAtMost",
+                            "max": 2
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "180",
+        "artist": "Maël Ollivier-Henry",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/78a75317-94f7-47a4-b4da-5a027fa73248.jpg?1764121222"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Forecasting Fortune Teller
 {
     "name": "Forecasting Fortune Teller",
