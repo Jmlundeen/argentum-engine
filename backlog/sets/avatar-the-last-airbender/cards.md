@@ -163,7 +163,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] Firebending Student
 - [x] First-Time Flyer
 - [ ] Flexible Waterbender
-- [ ] Flopsie, Bumi's Buddy
+- [x] Flopsie, Bumi's Buddy
 - [x] Foggy Bottom Swamp
 - [x] Foggy Swamp Hunters
 - [x] Foggy Swamp Spirit Keeper

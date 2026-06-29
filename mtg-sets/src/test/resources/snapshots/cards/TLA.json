@@ -5683,6 +5683,64 @@
     ]
 }
 
+// Flopsie, Bumi's Buddy
+{
+    "name": "Flopsie, Bumi's Buddy",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Legendary Creature — Ape Goat",
+    "oracleText": "When Flopsie enters, put a +1/+1 counter on each creature you control.\nEach creature you control with power 4 or greater can't be blocked by more than one creature.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 1,
+                        "target": "Self"
+                    }
+                },
+                "descriptionOverride": "When Flopsie enters, put a +1/+1 counter on each creature you control."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedByMoreThan",
+                "maxBlockers": 1,
+                "filter": {
+                    "baseFilter": "creature pow>=4 ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "179",
+        "rarity": "UNCOMMON",
+        "artist": "Alexandr Leskinen",
+        "flavorText": "\"Oh, that's a good boy! Yes, who has a soft belly?\"\n—Bumi, King of Omashu",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/082f4abc-c09f-42cf-977f-060875dfd411.jpg?1764121216"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Foggy Bottom Swamp
 {
     "name": "Foggy Bottom Swamp",
