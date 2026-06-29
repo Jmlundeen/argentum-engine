@@ -1597,6 +1597,104 @@
     ]
 }
 
+// Appa, Steadfast Guardian
+{
+    "name": "Appa, Steadfast Guardian",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Legendary Creature — Bison Ally",
+    "oracleText": "Flash\nFlying\nWhen Appa enters, airbend any number of other target nonland permanents you control. (Exile them. While each one is exiled, its owner may cast it for {2} rather than its mana cost.)\nWhenever you cast a spell from exile, create a 1/1 white Ally creature token.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLASH",
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "ChosenTargets",
+                            "storeAs": "airbendChosen"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "airbendChosen",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "storeMovedAs": "airbendExiled"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "airbendExiled",
+                            "expiry": "Permanent",
+                            "ownerControls": true,
+                            "fixedAlternativeManaCost": "{2}"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetOther",
+                    "baseRequirement": {
+                        "type": "TargetObject",
+                        "unlimited": true,
+                        "filter": {
+                            "baseFilter": "nonland permanent ctrl:you"
+                        }
+                    },
+                    "id": "any number of other target nonland permanents you control"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "requires": [
+                        {
+                            "type": "SpellCastFromZone",
+                            "zone": "Exile"
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Ally"
+                    ]
+                },
+                "descriptionOverride": "Whenever you cast a spell from exile, create a 1/1 white Ally creature token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "10",
+        "rarity": "MYTHIC",
+        "artist": "Maël Ollivier-Henry",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/829d91e9-4878-4e55-a262-ac0d55b65d4e.jpg?1764119935"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Avatar Destiny
 {
     "name": "Avatar Destiny",
