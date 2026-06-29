@@ -351,4 +351,4 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Zuko's Conviction
 - [ ] Zuko's Exile
 - [x] Zuko, Conflicted
-- [ ] Zuko, Exiled Prince
+- [x] Zuko, Exiled Prince
