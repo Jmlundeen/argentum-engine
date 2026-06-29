@@ -173,7 +173,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Forest
 - [x] Gather the White Lotus
 - [x] Geyser Leaper
-- [ ] Giant Koi
+- [x] Giant Koi
 - [x] Glider Kids
 - [ ] Glider Staff
 - [x] Gran-Gran
