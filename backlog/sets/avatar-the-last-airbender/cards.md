@@ -266,7 +266,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [x] Rowdy Snowballers
 - [ ] Ruinous Waterbending
 - [x] Rumble Arena
-- [ ] Saber-Tooth Moose-Lion
+- [x] Saber-Tooth Moose-Lion
 - [x] Sandbender Scavengers
 - [x] Sandbenders' Storm
 - [ ] Secret Tunnel

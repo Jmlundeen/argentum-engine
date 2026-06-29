@@ -11085,6 +11085,45 @@
     "colorIdentityOverride": []
 }
 
+// Saber-Tooth Moose-Lion
+{
+    "name": "Saber-Tooth Moose-Lion",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Creature — Elk Cat",
+    "oracleText": "Reach\nForestcycling {2}",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "keywords": [
+        "REACH"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{2}",
+            "searchFilter": {
+                "cardPredicates": [
+                    {
+                        "type": "HasSubtype",
+                        "subtype": "Forest"
+                    }
+                ]
+            },
+            "displayPrefix": "Forestcycling"
+        }
+    ],
+    "metadata": {
+        "collectorNumber": "194",
+        "artist": "Shiren",
+        "flavorText": "Foo Foo Cuddlypoops didn't look much like a saber-tooth moose-lion to Sokka, but his mother certainly did.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/1/b15f302d-c451-4e79-a5af-75ee3ba4cadf.jpg?1764121320"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Sandbender Scavengers
 {
     "name": "Sandbender Scavengers",
