@@ -174,6 +174,13 @@ Auth tokens are stateless HMAC-SHA256-signed (a minimal JWT shape) so REST calls
 authenticate. The token also links the in-game identity to the account so finished games count toward
 the account's stats.
 
+When a signed-in connect handshake carries that token, `ConnectionHandler.linkAccount` stamps the
+account id onto the `PlayerIdentity` **and** overwrites its `playerName` with the account's current
+profile display name. The server is therefore authoritative over the in-game name for signed-in
+players — the client-sent name is only a fallback for guests — so the name set on the profile (and
+any later change to it) is what opponents and spectators see. The token itself carries only
+`uid`/`email`/`exp`, so the display name is looked up from the `users` table at connect time.
+
 ## Admin access
 
 The admin dashboard accepts **two** credentials, resolved by `AdminAuthService`:

@@ -2,6 +2,7 @@ package com.wingedsheep.gameserver.handler
 
 import com.wingedsheep.gameserver.ai.AiGameManager
 import com.wingedsheep.gameserver.auth.AuthSupport
+import com.wingedsheep.gameserver.auth.MagicLinkService
 import com.wingedsheep.gameserver.friends.FriendPresenceBroadcaster
 import org.springframework.beans.factory.ObjectProvider
 import com.wingedsheep.gameserver.lobby.LobbyState
@@ -33,6 +34,7 @@ class ConnectionHandler(
     private val boosterGenerator: BoosterGenerator,
     // Present only when accounts are enabled; resolved lazily so this handler stays usable without it.
     private val authSupport: ObjectProvider<AuthSupport>,
+    private val magicLinkService: ObjectProvider<MagicLinkService>,
     private val friendPresenceBroadcaster: ObjectProvider<FriendPresenceBroadcaster>,
 ) {
     private val logger = LoggerFactory.getLogger(ConnectionHandler::class.java)
@@ -40,6 +42,22 @@ class ConnectionHandler(
     /** Resolve the durable account id from a connect message's auth token, or null if absent/invalid. */
     private fun resolveAccountUserId(authToken: String?): UUID? =
         authToken?.let { authSupport.ifAvailable?.userOrNull(it)?.userId }
+
+    /**
+     * Link the signed-in account (if any) behind [authToken] to [identity]: stamp its [userId] and
+     * adopt the account's current profile display name as the identity's player name. The server is
+     * authoritative over the display name for signed-in players — the client-sent name is only a
+     * fallback for guests — so games use the name the player set on their profile, not a stale name
+     * carried over from a guest session. No-op when accounts are disabled or the token is
+     * absent/invalid (guest play keeps its connect name).
+     */
+    private fun linkAccount(identity: PlayerIdentity, authToken: String?) {
+        val userId = resolveAccountUserId(authToken) ?: return
+        identity.userId = userId
+        magicLinkService.ifAvailable?.findUser(userId)?.displayName
+            ?.takeIf { it.isNotBlank() }
+            ?.let { identity.playerName = it }
+    }
 
     /** Tell a signed-in identity's friends that its visible-online state changed (no-op for guests). */
     private fun broadcastFriendPresence(identity: PlayerIdentity) {
@@ -73,8 +91,9 @@ class ConnectionHandler(
             val existingIdentity = sessionRegistry.getIdentityByToken(token)
             logger.info("Token lookup result: ${if (existingIdentity != null) "found identity for ${existingIdentity.playerName}" else "no identity found"}")
             if (existingIdentity != null) {
-                // Re-link the account in case the player signed in since their last connect.
-                resolveAccountUserId(message.authToken)?.let { existingIdentity.userId = it }
+                // Re-link the account in case the player signed in (or changed their display name)
+                // since their last connect — this also refreshes the identity's name from the profile.
+                linkAccount(existingIdentity, message.authToken)
                 // Refresh the IP — the player may be reconnecting from a different network.
                 clientIpOf(session)?.let { existingIdentity.clientIp = it }
                 handleReconnect(session, existingIdentity)
@@ -87,19 +106,21 @@ class ConnectionHandler(
             playerId = playerId,
             playerName = message.playerName
         ).apply {
-            userId = resolveAccountUserId(message.authToken)
+            // Adopt the signed-in account's profile name (if any) before the identity is used for a
+            // game; falls back to the client-sent name for guests.
+            linkAccount(this, message.authToken)
             clientIp = clientIpOf(session)
         }
 
         val playerSession = PlayerSession(
             webSocketSession = session,
             playerId = playerId,
-            playerName = message.playerName
+            playerName = identity.playerName
         )
 
         sessionRegistry.register(identity, session, playerSession)
 
-        logger.info("Player connected: ${message.playerName} (${playerId.value}), token: ${identity.token}")
+        logger.info("Player connected: ${identity.playerName} (${playerId.value}), token: ${identity.token}")
         sender.send(session, ServerMessage.Connected(
             playerId.value,
             identity.token,
