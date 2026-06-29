@@ -2,65 +2,77 @@
 
 **Set Size:** 286 draft/booster cards (excluding basic lands beyond the set's own, tokens, and special variants)
 **Release Date:** November 21, 2025
-**Implemented:** 52 / 286  (18%)
+**Implemented:** 226 / 286
 **Engine gap analysis:** [`tla-engine-gaps.md`](tla-engine-gaps.md)
+
+> **Status (June 2026):** 226/286 implemented. Every card buildable on the *current* engine has been
+> added — the 60 remaining all need new engine/SDK work first (see the gap analysis). Since the
+> original gap doc was written, **Firebending**, the **Vigilance keyword counter**, the
+> **Nth-card-drawn** and **Surveil** triggers, **`PERMANENTS_SACRIFICED`**, and **dynamic Earthbend**
+> all landed, which unlocked the bulk of the set. The headline holdouts are now **Airbend**,
+> **Exhaust**, **Foretell**, the **Fire counter** type, **spell-level Waterbend** costs,
+> **granting/conditional Firebending**, and a handful of Tier-3 one-offs.
 
 ## Mechanics needed to complete the set
 
-The set is built around four **"bending" keyword families** plus a returning **Exhaust** keyword. Counts below are over all 286 cards — *total* with the mechanic / *remaining* still unimplemented.
+The set is built around four **"bending" keyword families** plus a returning **Exhaust** keyword.
+Counts below are over the 286 draft cards — *total* with the mechanic / *remaining* still
+unimplemented. Remaining counts overlap: a still-missing card may be blocked by a *different*
+mechanic than the row it appears under (e.g. a Firebending creature that also uses Airbend is held
+up by Airbend, not Firebending).
 
 ### Signature / set-defining mechanics
 
 | Mechanic | Total | Remaining | Notes |
 |----------|------:|----------:|-------|
-| Earthbend | 27 | 22 | Target land you control becomes a 0/0 haste creature-land; put N +1/+1 counters on it. ✅ engine-supported (`Effects.Earthbend`). |
-| Waterbend | 24 | 23 | Alternative cost: tap your artifacts/creatures to help pay a waterbend cost. 🟡 activated abilities done; spell/ETB shapes pending. |
-| Firebending | 21 | 19 | Whenever this creature attacks, add N red mana lasting until end of combat. ❌ new keyword. |
-| Airbend | 10 | 10 | Exile target nonland permanent; owner may recast it for {2}. ❌ new keyword. |
-| Exhaust | 8 | 8 | Activated ability usable only once per game. ❌ returning keyword, not yet built. |
+| Earthbend | 28 | 6 | Target land you control becomes a 0/0 haste creature-land; put N +1/+1 counters on it. ✅ built (`Effects.Earthbend`, incl. dynamic X). |
+| Waterbend | 25 | 15 | Convoke+improvise-style alt cost (tap artifacts/creatures to help pay). 🟡 **activated-ability** cost ✅ (`hasWaterbend = true`); **spell / ETB additional-cost** shapes ❌ still needed. |
+| Firebending | 28 | 14 | Attack-triggered combat-duration red mana. ✅ built — `firebending(n)` keyword + dynamic versions hand-wired via `AddManaEffect(…, ManaExpiry.END_OF_COMBAT)`. ❌ still missing: **granting** firebending to others / **conditional** "has firebending as long as …" / "gains firebending until EOT". |
+| Airbend | 11 | 11 | Exile target nonland permanent; owner may recast it for {2}. ❌ keyword **not built**. |
+| Exhaust | 8 | 8 | Activated ability usable only once per game. ❌ keyword **not built**. |
 
 ### Other keywords present (evergreen + returning)
 
 | Keyword | Total | Remaining |
 |---------|------:|----------:|
-| Flying | 26 | 22 |
-| Vigilance | 15 | 12 |
-| Scry | 10 | 8 |
-| Flash | 9 | 8 |
-| Transform | 8 | 8 |
-| Mill | 8 | 8 |
-| Reach | 8 | 8 |
-| Prowess | 7 | 6 |
-| Menace | 6 | 6 |
-| Equip | 5 | 4 |
-| Food | 5 | 5 |
-| Enchant | 5 | 5 |
-| Landcycling | 5 | 5 |
-| Typecycling | 5 | 5 |
-| Cycling | 5 | 5 |
-| Crew | 5 | 4 |
-| Trample | 5 | 5 |
-| Kicker | 4 | 4 |
-| Defender | 4 | 3 |
-| Ward | 3 | 3 |
-| Deathtouch | 3 | 3 |
-| Raid | 3 | 3 |
-| Flashback | 3 | 3 |
+| Flying | 26 | 11 |
+| Vigilance | 15 | 2 |
+| Scry | 10 | 3 |
+| Flash | 9 | 5 |
+| Transform | 8 | 5 |
+| Mill | 8 | 1 |
+| Reach | 8 | 1 |
+| Prowess | 7 | 2 |
+| Menace | 6 | 2 |
+| Equip | 5 | 2 |
+| Food | 5 | 1 |
+| Enchant | 5 | 1 |
+| Landcycling | 5 | 0 |
+| Typecycling | 5 | 0 |
+| Cycling | 5 | 0 |
+| Crew | 5 | 1 |
+| Trample | 5 | 3 |
+| Kicker | 4 | 0 |
+| Defender | 4 | 0 |
+| Ward | 3 | 2 |
+| Deathtouch | 3 | 0 |
+| Raid | 3 | 0 |
+| Flashback | 3 | 0 |
 | Haste | 3 | 1 |
-| First strike | 2 | 1 |
-| Landfall | 2 | 2 |
-| Lifelink | 2 | 1 |
-| Fight | 2 | 2 |
-| Plainscycling | 1 | 1 |
-| Islandcycling | 1 | 1 |
-| Swampcycling | 1 | 1 |
-| Surveil | 1 | 1 |
-| Mountaincycling | 1 | 1 |
+| First strike | 2 | 0 |
+| Landfall | 2 | 0 |
+| Lifelink | 2 | 0 |
+| Fight | 2 | 1 |
+| Plainscycling | 1 | 0 |
+| Islandcycling | 1 | 0 |
+| Swampcycling | 1 | 0 |
+| Surveil | 1 | 0 |
+| Mountaincycling | 1 | 0 |
 | Foretell | 1 | 1 |
-| Affinity | 1 | 1 |
-| Forestcycling | 1 | 1 |
+| Affinity | 1 | 0 |
+| Forestcycling | 1 | 0 |
 
-**Sagas:** 7 total / 7 remaining (chapter abilities — engine-supported).
+**Sagas:** 7 total / 3 remaining (chapter abilities + final-chapter transform — ✅ engine-supported).
 
 ---
 

@@ -1,27 +1,63 @@
 # Avatar: The Last Airbender — Engine Gap Analysis
 
-Cross-reference of the **242 remaining (unimplemented) TLA cards** against the engine's actual
-capabilities (SDK reference + source verification, June 2026). Generated to scope what must be
-built before the set can be completed.
+Cross-reference of the remaining (unimplemented) TLA cards against the engine's actual capabilities.
+Generated to scope what must be built before the set can be completed.
 
-**Status:** 44 / 286 implemented (15%). Card list from `scripts/card-status --cards TLA`. Oracle text
-pulled from Scryfall (`set:tla`, 286 unique cards; full payload in `bolav/tla_full.json`).
+> ## ⚠️ Status update — June 2026: now 226 / 286 (79%)
+>
+> **Most of this document's Tier-1/Tier-2 gaps have since been closed.** Every TLA card buildable on
+> the current engine has been implemented; the **60 cards still missing all need new engine/SDK work**.
+> What changed since the original write-up (✅ = now built, so the cards it gated are done):
+>
+> - ✅ **Firebending** — `firebending(n)` keyword + attack-triggered combat-duration mana
+>   (`AddManaEffect(…, ManaExpiry.END_OF_COMBAT)`); dynamic "Firebending X" hand-wired with a
+>   `DynamicAmount`. *(Was Tier-1 §2 ❌.)*
+> - ✅ **Waterbend — activated abilities** (`hasWaterbend = true` on `activatedAbility`). *(Tier-1 §1
+>   🟡 → the activated half is done.)*
+> - ✅ **Vigilance keyword counter** (`CounterType.VIGILANCE` + `KEYWORD_COUNTER_MAP`). *(Was §5.)*
+> - ✅ **Nth-card-drawn trigger** (`Triggers.NthCardDrawn`) + cards-drawn-this-turn conditions. *(Was §6.)*
+> - ✅ **Surveil trigger** (`WheneverYouSurveil` / `WheneverYouScryOrSurveil`). *(Was §7.)*
+> - ✅ **Permanents-sacrificed-this-turn** count (`DynamicAmount.PERMANENTS_SACRIFICED`). *(Was §8.)*
+> - ✅ **Dynamic Earthbend** (`Effects.Earthbend` accepts a `DynamicAmount` for X) + **Sagas /
+>   Transform DFCs** proven across the set (incl. saga→creature transform).
+>
+> **The genuine remaining gaps** (what's still blocking the last 60 cards):
+> - ❌ **Airbend** keyword (~11 cards) — exile + recast-for-{2} fixed-alternative-cost may-play.
+> - ❌ **Exhaust** keyword (8 cards) — once-per-game activation tracker surviving zone changes.
+> - ❌ **Spell-level / ETB Waterbend** additional cost (~11 cards) — the convoke+improvise alt-payment
+>   declarable on *spells*, not just activated abilities.
+> - ❌ **Granting / conditional Firebending** — "target creature gains firebending N", "has
+>   firebending as long as …".
+> - ❌ **Fire counter** type (Fated Firepower, War Balloon).
+> - ❌ **Foretell** keyword (Sozin's Comet).
+> - ❌ **Tier-3 one-offs** (§A–I below, mostly still open): Koh ability-copy, Ozai mana-color
+>   conversion, Secret of Bloodbending player-hijack, Bumi restricted extra-combat, Honest Work
+>   rename, Iroh Grand Lotus whole-graveyard flashback, Zhao land-type override, plus assorted
+>   one-off dynamic amounts / selection restrictions surfaced while implementing
+>   (capped counter-removal, total-power / total-mana-value selection caps, largest-shared-type
+>   count, owner≠controller count, keyword-projection onto stack spells, self-scoped untap,
+>   shared-creature-type cross-target, flash-rider on play-from-exile, …).
+>
+> The detailed analysis below is preserved as originally written; treat the ✅ items above as resolved.
+
+---
+
+**Original analysis (June 2026, at 44 / 286).** Card list from `scripts/card-status --cards TLA`.
+Oracle text pulled from Scryfall (`set:tla`, 286 unique cards; full payload in `bolav/tla_full.json`).
 The full per-card checklist lives alongside this file in [`cards.md`](cards.md).
 
 Per signature mechanic (implemented / total): **Earthbend 5/27**, **Firebending 2/21**,
-**Waterbend 1/24**, **Airbend 0/10**, **Exhaust 0/8**, **Vigilance counter 3/15**. The handful of
-Firebending/Waterbend cards already shipped lean on hand-wired approximations or avoid the gated cost —
-the keyword primitives below are still the real work.
+**Waterbend 1/24**, **Airbend 0/10**, **Exhaust 0/8**, **Vigilance counter 3/15**.
 
 ## Bottom line
 
 TLA is built around **four "bending" keyword families** (Earthbend, Waterbend, Firebending, Airbend)
 plus a returning **Exhaust** keyword and a pervasive **"second card drawn each turn"** sub-theme.
-Of the four bending mechanics, **only Earthbend is already built** — it landed earlier as a composed
-facade (`Effects.Earthbend`) and is proven across spell / ETB / activated-ability shapes. The other
-three bending keywords, Exhaust, and the draw-count theme are the real work. Once those Tier-1/Tier-2
-primitives land, the large majority of the remaining cards (standard creatures, dual lands, sieges,
-sagas, lords, modal removal, cycling cards, Food/token makers) are buildable today.
+*(Update: Earthbend, Firebending, the draw-count theme, and activated-ability Waterbend are now all
+built — see the status banner above. Airbend, Exhaust, and spell-level Waterbend remain the headline
+work.)* Once those primitives land, the large majority of the remaining cards (standard creatures,
+dual lands, sieges, sagas, lords, modal removal, cycling cards, Food/token makers) are buildable —
+and indeed most now are.
 
 ### Already supported — no new engine work
 
@@ -91,7 +127,15 @@ set — **declarable as a cost on activated/loyalty/transform abilities and on s
 legal-action/client surfacing that mirrors Convoke's tap step.
 → Aang (transform), Avatar Kuruk (extra turn), Secret of Bloodbending, ~21 others.
 
-### 2. Firebending N — ❌ GAP (≈21 cards)
+### 2. Firebending N — ✅ DONE (built since this analysis)
+
+> Built: `firebending(n)` keyword (`FirebendingDsl.kt`) wires the attack trigger →
+> `AddManaEffect(Color.RED, n, expiry = ManaExpiry.END_OF_COMBAT)`; combat-duration mana is emptied at
+> end of combat. Dynamic "Firebending X" (X = power / creature count) is hand-wired with a
+> `DynamicAmount`. **Still open:** *granting* firebending to another creature, and *conditional*
+> "has firebending as long as …" / "gains firebending until end of turn". Original gap analysis follows.
+
+#### (original) Firebending N — ❌ GAP (≈21 cards)
 
 A static keyword on creatures: *"Whenever a creature with firebending N attacks, add {N}{R}. This
 mana lasts until end of combat."* — an attack-triggered ritual that produces **combat-duration mana**.
@@ -150,13 +194,22 @@ plus the "Exhaust —" display tag.
 
 ## Tier 2 — Small recurring primitives (cheap, scattered unlocks)
 
-### 5. Vigilance keyword counter — 🟡 one-line fix (15 cards)
+### 5. Vigilance keyword counter — ✅ DONE (built since this analysis)
+
+> Built: `CounterType.VIGILANCE` + `StateProjector.KEYWORD_COUNTER_MAP` entry. Original note follows.
+
+#### (original) Vigilance keyword counter — 🟡 one-line fix (15 cards)
 
 The keyword-counter system exists, but **`VIGILANCE` is absent** from both `CounterType` and
 `StateProjector.KEYWORD_COUNTER_MAP` (`StateProjector.kt:49`). Vigilance is TLA's most-used keyword
 counter. Add the enum value + map entry (and `MENACE` alongside if any menace-counter card appears).
 
-### 6. "Nth card drawn this turn" trigger + draw-count condition — ❌ GAP (high frequency)
+### 6. "Nth card drawn this turn" trigger + draw-count condition — ✅ DONE (built since this analysis)
+
+> Built: `Triggers.NthCardDrawn(n, player)` (mirrors `NthSpellCast`) + cards-drawn-this-turn
+> condition / dynamic amount, surfacing the existing `CardsDrawnThisTurnComponent`. Original note follows.
+
+#### (original) "Nth card drawn this turn" trigger + draw-count condition — ❌ GAP (high frequency)
 
 A pervasive sub-theme: *"Whenever you draw your second card each turn …"*, *"Whenever an opponent draws
 their second card each turn …"*, and static gates like *"as long as you've drawn two or more cards this
@@ -170,14 +223,23 @@ dynamic amount. Plumbing is already in place — this is a surface-it task, not 
 → The Unagi of Kyoshi Island, Raven Eagle, Otter-Penguin, Tiger-Seal, Wolfbat, Messenger Hawk,
   Obsessive Pursuit, and more.
 
-### 7. Surveil trigger — ❌ GAP (≥1 card)
+### 7. Surveil trigger — ✅ DONE (built since this analysis)
+
+> Built: `Triggers.WheneverYouSurveil` + combined `WheneverYouScryOrSurveil`. Original note follows.
+
+#### (original) Surveil trigger — ❌ GAP (≥1 card)
 
 `Triggers.WheneverYouScry` exists but there is **no `WheneverYouSurveil`** (surveil is a distinct
 keyword). Needs a surveil trigger (mirror of the scry one), ideally a combined "whenever you scry or
 surveil".
 → Planetarium of Wan Shi Tong ("whenever you scry **or** surveil … once each turn, free-cast top card").
 
-### 8. "Permanents sacrificed this turn" count tracker — ❌ GAP (≥1 card)
+### 8. "Permanents sacrificed this turn" count tracker — ✅ DONE (built since this analysis)
+
+> Built: `DynamicAmount.PERMANENTS_SACRIFICED` (backed by `PermanentsSacrificedThisTurnComponent`).
+> Powers Obsessive Pursuit and the "sacrificed a permanent this turn" boolean siblings. Original note follows.
+
+#### (original) "Permanents sacrificed this turn" count tracker — ❌ GAP (≥1 card)
 
 `TurnTracker` has `FOOD_SACRIFICED` (boolean) and `CREATURES_DIED`, but **no running count of all
 permanents sacrificed this turn** as a `DynamicAmount`. "Whenever you sacrifice another permanent"
@@ -270,16 +332,21 @@ RemoveAllAbilities + SetStats + SetCreatureSubtypes + grant-mana-ability composi
 
 ## Recommended build order
 
-1. **Earthbend is done.** Start with **Vigilance keyword counter** (§5, one line) and the
-   **Nth-card-drawn trigger + draw-count condition** (§6) — both are cheap surface-it tasks that unlock
-   ~20 scattered cards.
-2. **Waterbend** (§1) and **Firebending** (§2) — the two biggest lifts; together they gate ~45 cards.
-   Waterbend = a combined convoke+improvise alt-payment declarable as an ability/spell cost; Firebending
-   = combat-duration mana + attack-trigger keyword.
-3. **Airbend** (§3) — fixed-alternative-cost may-play + stack-spell exile branch (~10 cards).
-4. **Exhaust** (§4) — once-per-game activation tracker (8 cards, several also Waterbend-gated).
-5. **Surveil trigger** (§7) + **sacrificed-this-turn count** (§8) — small.
-6. **Tier-3 one-offs** (§A–I) as the relevant legendaries / rares come up.
+**Done since this analysis** (✅ no longer on the list): Earthbend (incl. dynamic X), Firebending (§2),
+Vigilance counter (§5), Nth-card-drawn (§6), Surveil (§7), sacrificed-this-turn count (§8),
+activated-ability Waterbend (§1). The set is now at **226/286**; the order below covers only what's left.
 
-The four bending keywords (Tier 1) cover the bulk of remaining cards; Earthbend already being built means
-the green earth-matters cards are largely ready once the shared supporting effects are filled in.
+1. **Airbend** (§3) — fixed-alternative-cost may-play + stack-spell exile branch. **~11 cards** — the
+   single highest-leverage remaining keyword.
+2. **Spell-level / ETB Waterbend** additional cost (the §1 half still open) — generalize the
+   convoke+improvise alt-payment so it's declarable on *spells*, not just activated abilities. **~11 cards.**
+3. **Exhaust** (§4) — once-per-game activation tracker surviving zone changes. **8 cards.**
+4. **Granting / conditional Firebending** — "gains firebending N until EOT" / "has firebending as long
+   as …" (the §2 leftover); plus the **Fire counter** type (§B + War Balloon) and **Foretell** (§G).
+5. **Tier-3 one-offs** (§A–I) and the assorted dynamic-amount / selection-restriction primitives surfaced
+   during implementation (capped counter-removal, total-power & total-mana-value selection caps,
+   largest-shared-creature-type count, owner≠controller count, keyword-projection onto stack spells,
+   self-scoped untap, shared-creature-type cross-target, flash-rider on play-from-exile) — as the
+   relevant legendaries / rares come up.
+
+Airbend, spell-Waterbend, and Exhaust together gate the large majority of the remaining 60 cards.
