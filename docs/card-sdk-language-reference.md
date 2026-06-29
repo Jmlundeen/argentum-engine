@@ -623,7 +623,9 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `RemoveAllCounters(target)` — wipe every counter.
 - `RemoveAllCountersOfType(type, target)` — wipe one kind.
 - `MoveAllLastKnownCounters(target)` — Hooded Hydra / Essence Channeler — move every counter kind from source's
-  last-known state.
+  last-known state. Reads the dies/leaves trigger map (`triggerLastKnownCounters`) first, falling back to the
+  cost-sacrifice map (`lastKnownSourceCounters`) so it also works from an activated ability whose source was
+  sacrificed/exiled as a cost (Zack Fair).
 - `MoveCountersEachKindMissing(source, destination)` — Goldberry, River-Daughter (ability A) — for each counter
   kind on `source` that `destination` does not already have, move one of that kind from `source` onto
   `destination`. Deterministic, no player choice; kinds the destination already has are left untouched.
@@ -1657,6 +1659,14 @@ effect = Effects.Pipeline {
   Backs "manifest dread X times, then put X +1/+1 counters on each of those creatures" (Valgavoth's
   Onslaught): `RepeatDynamicTimes(XValue, manifestDread(markEntered = true))` →
   `gather(EnteredViaThisResolution)` → `AddCountersToCollection(+1/+1, XValue)`.
+- `CardSource.LastKnownEquipmentAttachedToSource` — the Equipment that was attached to the source the
+  moment a self-sacrifice / self-exile cost moved it off the battlefield (CR 112.7a), read off
+  `EffectContext.lastKnownSourceAttachments` (captured before the cost wiped the source's attachment
+  list) and restricted to permanents still on the battlefield that are still Equipment. The host has
+  gone by resolution, so the live attachment index is empty — only the captured snapshot identifies
+  them. Backs "attach an Equipment that was attached to it to that creature" (Zack Fair):
+  `gather(LastKnownEquipmentAttachedToSource)` → `chooseExactly(1)` (auto-resolves with one, no-op
+  with none) → `AttachTargetEquipmentToCreature(PipelineTarget(chosen), target)`.
 
 A card needing a genuinely **new step semantic** (a new capture kind, a new decision shape) still
 adds the `Effect` + executor first (`add-feature`); the builder only composes the existing

@@ -2127,6 +2127,7 @@ class StackResolver(
             tappedEntitySnapshots = abilityComponent.tappedEntitySnapshots,
             lastKnownSourceCounters = abilityComponent.lastKnownSourceCounters,
             lastKnownSourceSnapshot = abilityComponent.lastKnownSourceSnapshot,
+            lastKnownSourceAttachments = abilityComponent.lastKnownSourceAttachments,
             pipeline = PipelineState(namedTargets = EffectContext.buildNamedTargets(activatedReqs, alignedActivatedTargets))
         )
 

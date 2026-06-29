@@ -207,6 +207,15 @@ data class ActivatedAbilityOnStackComponent(
      * pre-sacrifice power. Null when the cost did not sacrifice/exile the source.
      */
     val lastKnownSourceSnapshot: EntitySnapshot? = null,
+    /**
+     * Entity ids of the Equipment/Auras that were attached to the source when a self-sacrifice /
+     * self-exile cost was paid (CR 112.7a). Captured before the cost wipes the source's
+     * `AttachmentsComponent`; read at resolution via
+     * [com.wingedsheep.engine.handlers.EffectContext.lastKnownSourceAttachments] so
+     * [com.wingedsheep.sdk.scripting.effects.CardSource.LastKnownEquipmentAttachedToSource] can
+     * re-attach "an Equipment that was attached to it" (Zack Fair).
+     */
+    val lastKnownSourceAttachments: List<EntityId> = emptyList(),
     /** Optional human-readable description from `ActivatedAbility.descriptionOverride`,
      *  used when displaying the ability on the stack instead of the auto-generated effect text. */
     val descriptionOverride: String? = null,

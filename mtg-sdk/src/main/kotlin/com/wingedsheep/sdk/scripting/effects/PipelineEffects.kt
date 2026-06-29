@@ -296,6 +296,25 @@ sealed interface CardSource {
     data object EnteredViaThisResolution : CardSource {
         override val description: String = "permanents put onto the battlefield this way"
     }
+
+    /**
+     * The Equipment that was attached to the effect's source the moment a self-sacrifice / self-exile
+     * cost moved it off the battlefield (CR 112.7a last-known information). Read off
+     * [com.wingedsheep.engine.handlers.EffectContext.lastKnownSourceAttachments] — the source's
+     * attachment list captured before the cost was paid — and restricted to permanents that are
+     * *still on the battlefield and still Equipment*, since an Equipment that has since left (or
+     * stopped being Equipment) can't be attached. The host has already gone, so the live attachment
+     * index is empty by resolution; only the captured snapshot identifies them.
+     *
+     * Backs "attach an Equipment that was attached to it to that creature" (Zack Fair): gather the
+     * Equipment, [SelectFromCollectionEffect] picks one when more than one qualifies, then
+     * [com.wingedsheep.sdk.scripting.effects.AttachTargetEquipmentToCreatureEffect] re-attaches it.
+     */
+    @SerialName("LastKnownEquipmentAttachedToSource")
+    @Serializable
+    data object LastKnownEquipmentAttachedToSource : CardSource {
+        override val description: String = "an Equipment that was attached to it"
+    }
 }
 
 /**

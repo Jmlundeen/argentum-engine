@@ -143,6 +143,16 @@ data class EffectContext(
      */
     val lastKnownSourceSnapshot: EntitySnapshot? = null,
     /**
+     * Entity ids of the permanents (Equipment/Auras) that were attached to the source the moment a
+     * self-sacrifice / self-exile cost moved it off the battlefield (CR 112.7a). Captured before the
+     * cost is paid, while the source still carries its `AttachmentsComponent`. Read by
+     * [com.wingedsheep.sdk.scripting.effects.CardSource.LastKnownEquipmentAttachedToSource] so an
+     * effect can "attach an Equipment that was attached to it to that creature" (Zack Fair) after the
+     * source — and its live attachment index — are gone. Empty when the cost did not sacrifice/exile
+     * the source or it had no attachments.
+     */
+    val lastKnownSourceAttachments: List<EntityId> = emptyList(),
+    /**
      * LKI snapshots (Rule 112.7a) for entities chosen via an additional cost
      * step like [com.wingedsheep.sdk.scripting.AdditionalCost.ChooseEntity]
      * with `captureSnapshot = true`. Indexed by entity id via

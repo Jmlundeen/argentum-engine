@@ -19425,6 +19425,127 @@
     ]
 }
 
+// Zack Fair
+{
+    "name": "Zack Fair",
+    "manaCost": "{W}",
+    "typeLine": "Legendary Creature — Human Soldier",
+    "oracleText": "Zack Fair enters with a +1/+1 counter on it.\n{1}, Sacrifice Zack Fair: Target creature you control gains indestructible until end of turn. Put Zack Fair's counters on that creature and attach an Equipment that was attached to Zack Fair to that creature.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "INDESTRUCTIBLE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "creature you control"
+                            }
+                        },
+                        {
+                            "type": "MoveAllLastKnownCounters",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "creature you control"
+                            }
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": "LastKnownEquipmentAttachedToSource",
+                            "storeAs": "gathered2"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered2",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected3",
+                            "prompt": "Choose an Equipment that was attached to Zack Fair to attach",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "AttachTargetEquipmentToCreature",
+                            "equipmentTarget": {
+                                "type": "PipelineTarget",
+                                "collectionName": "selected3"
+                            },
+                            "creatureTarget": {
+                                "type": "BoundVariable",
+                                "name": "creature you control"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ]
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 1,
+                "selfOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "UNCOMMON",
+        "artist": "Yoshio Sugiura",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f21f9161-5945-40da-8da0-446f6a4a1c23.jpg?1748705924",
+        "rulings": [
+            {
+                "date": "2025-06-06",
+                "text": "Zack Fair's last ability puts all counters that were on Zack Fair onto the target creature, not just its +1/+1 counters."
+            },
+            {
+                "date": "2025-06-06",
+                "text": "Zack Fair's last ability doesn't cause you to move counters from Zack Fair onto the target creature. Rather, you put the same number of each kind of counter Zack Fair had when it was sacrificed onto the target creature."
+            },
+            {
+                "date": "2025-06-06",
+                "text": "In some unusual cases, you may end up putting the appropriate counters on more than one permanent. For example, if you control The Ozolith when Zack Fair's last ability resolves, you'll put the appropriate counters onto both The Ozolith and the target creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Zanarkand, Ancient Metropolis
 {
     "name": "Zanarkand, Ancient Metropolis",

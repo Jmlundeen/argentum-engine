@@ -35,8 +35,13 @@ class MoveAllLastKnownCountersExecutor : EffectExecutor<MoveAllLastKnownCounters
         val targetId = context.resolveTarget(effect.target, state)
             ?: return EffectResult.error(state, "No valid target for moved counters")
 
-        val lastKnown = context.triggerLastKnownCounters
-        if (lastKnown.isNullOrEmpty()) {
+        // Dies/leaves triggers carry the last-known counter map on triggerLastKnownCounters; an
+        // activated ability whose source was sacrificed/exiled as a cost (Zack Fair) carries the
+        // same map on lastKnownSourceCounters (captured before the cost wiped them, CR 112.7a). Read
+        // the trigger map first, falling back to the cost-sacrifice map so both shapes work.
+        val lastKnown = context.triggerLastKnownCounters?.takeIf { it.isNotEmpty() }
+            ?: context.lastKnownSourceCounters
+        if (lastKnown.isEmpty()) {
             return EffectResult.success(state, emptyList())
         }
 

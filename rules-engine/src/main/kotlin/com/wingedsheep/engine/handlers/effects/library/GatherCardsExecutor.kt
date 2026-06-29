@@ -256,6 +256,20 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
                     ?: emptyList()
             }
 
+            is CardSource.LastKnownEquipmentAttachedToSource -> {
+                // CR 112.7a — the Equipment attached to the source captured before a self-sacrifice /
+                // self-exile cost moved it off the battlefield. Restrict to permanents still on the
+                // battlefield that are still Equipment: one that has since left (or stopped being an
+                // Equipment) can't be attached. Last-known info identifies them, it doesn't resurrect
+                // them or change what they currently are.
+                val battlefield = state.getBattlefield().toSet()
+                context.lastKnownSourceAttachments.filter { id ->
+                    id in battlefield &&
+                        state.projectedState.getSubtypes(id)
+                            .any { it.equals("Equipment", ignoreCase = true) }
+                }
+            }
+
             is CardSource.EnteredViaThisResolution -> {
                 // Permanents this resolving spell/ability put onto the battlefield, identified by the
                 // EnteredViaAbilityComponent stamp (markEnteredViaSourceAbility) referencing this

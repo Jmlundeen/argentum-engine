@@ -46,9 +46,15 @@ Verified against source (file:line). These appear across the remaining FIN cards
   Shantotto, Vivi (the whole "magic-counter" sub-theme).
 - **Equip** — `equipAbility("{N}")` (`CardBuilder.kt:515`) + `AttachEquipmentExecutor`; **attach-to-target as a
   spell/triggered effect** — `Effects.AttachTargetEquipmentToCreature(...)` (`Effects.kt:3048`,
-  `AttachTargetEquipmentToCreatureExecutor`), covering Weapons Vendor, Beatrix, Gilgamesh, Zack Fair.
+  `AttachTargetEquipmentToCreatureExecutor`), covering Weapons Vendor, Beatrix, Gilgamesh.
   **Raubahn, Bull of Ala Mhigo is implemented** (attack trigger reuses that effect; "up to one target Equipment"
   is an optional target, declining/illegal attach is a no-op).
+  **Zack Fair is implemented** — its "attach an Equipment that was attached to it" needed *more* than the plain
+  attach effect: the source is sacrificed as a cost, so the Equipment is gathered via new last-known information
+  (`CardSource.LastKnownEquipmentAttachedToSource` ← `EffectContext.lastKnownSourceAttachments`, captured before
+  the cost), `chooseExactly(1)` picks one when several qualify, then `AttachTargetEquipmentToCreature` re-attaches
+  it; `MoveAllLastKnownCounters` now also reads the cost-sacrifice counter map. Also fixed a CR 704.5n ordering
+  bug where the leave-marker SBA would tear the re-attachment back off.
 - **Dynamic ward cost ("Ward—Pay life equal to ~")** — `KeywordAbility.wardLife(DynamicAmount)` →
   `WardCost.DynamicLife`, resolved at ward-trigger resolution (CR 702.21b) with last-known power if the source
   has left (CR 112.7a). Implemented for Raubahn, Bull of Ala Mhigo.

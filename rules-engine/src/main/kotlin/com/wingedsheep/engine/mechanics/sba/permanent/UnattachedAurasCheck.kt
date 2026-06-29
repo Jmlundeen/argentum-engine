@@ -57,9 +57,19 @@ class UnattachedAurasCheck : StateBasedActionCheck {
                     newState = result.newState
                     events.addAll(result.events)
                 } else {
-                    newState = cleanupReverseAttachmentLink(newState, entityId)
-                    newState = newState.updateEntity(entityId) { c ->
-                        c.without<AttachedToComponent>()
+                    // CR 704.5n: an Equipment whose host left becomes unattached but stays on the
+                    // battlefield. Only force the unattach when it's still pointing at the host that
+                    // left (or is already unattached) — the marker exists for the blink case where the
+                    // host returns under the same EntityId. If an effect has *re-attached* it to a
+                    // different permanent in the meantime (e.g. Zack Fair attaches "an Equipment that
+                    // was attached to it" to another creature as it's sacrificed), leave that new
+                    // attachment in place; the legality checks below validate the new host instead.
+                    val current = container.get<AttachedToComponent>()
+                    if (current == null || current.targetId == hostLeft.lastKnownHostId) {
+                        newState = cleanupReverseAttachmentLink(newState, entityId)
+                        newState = newState.updateEntity(entityId) { c ->
+                            c.without<AttachedToComponent>()
+                        }
                     }
                 }
                 continue

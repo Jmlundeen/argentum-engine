@@ -854,6 +854,18 @@ class ActivateAbilityHandler(
                 captureEntitySnapshots(listOf(action.sourceId), currentState.projectedState).firstOrNull()
             } else null
 
+        // Snapshot the entity ids attached to the source before a self-exile / self-sacrifice cost
+        // moves it off the battlefield (CR 112.7a). The host's live AttachmentsComponent is gone by
+        // resolution, so capture it now — read via CardSource.LastKnownEquipmentAttachedToSource to
+        // re-attach "an Equipment that was attached to it" (Zack Fair). Mirrors lastKnownSourceCounters.
+        val lastKnownSourceAttachments: List<EntityId> =
+            if (costExilesOrSacrificesSelf(effectiveCost)) {
+                currentState.getEntity(action.sourceId)
+                    ?.get<com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent>()
+                    ?.attachedIds
+                    ?: emptyList()
+            } else emptyList()
+
         // When using Explicit payment, mana sources were already tapped above —
         // strip the Mana portion so payAbilityCost doesn't try to deduct from the pool.
         // When convoke was applied, replace the mana portion with the reduced cost.
@@ -1308,6 +1320,7 @@ class ActivateAbilityHandler(
             tappedEntitySnapshots = tappedSnapshots,
             lastKnownSourceCounters = lastKnownSourceCounters,
             lastKnownSourceSnapshot = lastKnownSourceSnapshot,
+            lastKnownSourceAttachments = lastKnownSourceAttachments,
             descriptionOverride = ability.descriptionOverride,
             abilityIdentity = com.wingedsheep.sdk.scripting.AbilityIdentity(
                 cardComponent.cardDefinitionId, ability.id
