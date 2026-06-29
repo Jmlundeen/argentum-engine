@@ -334,7 +334,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] War Balloon
 - [x] Wartime Protestors
 - [x] Water Tribe Captain
-- [ ] Water Tribe Rallier
+- [x] Water Tribe Rallier
 - [ ] Waterbender Ascension
 - [ ] Waterbending Lesson
 - [x] Waterbending Scroll
