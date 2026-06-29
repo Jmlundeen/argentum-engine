@@ -15,6 +15,7 @@ import {
   clearDeckState,
 } from './shared'
 import { createMessageHandlers } from './handlers'
+import { useAuthStore } from '@/store/authStore'
 
 export interface ConnectionSliceState {
   connectionStatus: ConnectionStatus
@@ -98,7 +99,13 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
       // Spectator sessions connect tokenless (fresh identity every time) so a new spectate tab
       // never reconnects as an existing identity and gets its old spectating game restored.
       const token = spectator ? undefined : (urlToken ?? localStorage.getItem('argentum-token') ?? undefined)
-      const connectName = spectator ? playerName : (localStorage.getItem('argentum-player-name') ?? playerName)
+      // When signed in, the account's profile display name is the source of truth for the player's
+      // name — prefer it over a (possibly stale) locally-stored name so games show the profile name.
+      // The server is authoritative and re-applies this too, but sending it keeps the local UI aligned.
+      const accountName = useAuthStore.getState().user?.displayName?.trim() || undefined
+      const connectName = spectator
+        ? playerName
+        : (accountName ?? localStorage.getItem('argentum-player-name') ?? playerName)
       // Durable account token (magic-link login) links this session to the account for stats.
       const authToken = spectator ? undefined : (localStorage.getItem('argentum-auth') ?? undefined)
       getWebSocket()?.send(createConnectMessage(connectName, token, authToken))

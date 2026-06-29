@@ -14,11 +14,20 @@ import java.util.concurrent.ScheduledFuture
 class PlayerIdentity(
     val token: String = UUID.randomUUID().toString(),
     val playerId: EntityId,
-    val playerName: String,
+    playerName: String,
     val isAi: Boolean = false,
     /** LLM model override for AI players, null otherwise. Persisted alongside the lobby. */
     val aiModelOverride: String? = null
 ) {
+    /**
+     * Display name shown to opponents and spectators. For a signed-in player this is the account's
+     * profile display name — the server overwrites it whenever the account is (re)linked (see
+     * `ConnectionHandler.linkAccount`), so the name set on the profile is authoritative for games.
+     * Guests keep the name they connected with.
+     */
+    @Volatile
+    var playerName: String = playerName
+
     /** Account id this identity is signed in as (from magic-link auth), or null for guest play. */
     @Volatile
     var userId: UUID? = null
