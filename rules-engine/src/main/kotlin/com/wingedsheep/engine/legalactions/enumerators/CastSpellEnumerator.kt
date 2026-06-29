@@ -1467,6 +1467,10 @@ class CastSpellEnumerator : ActionEnumerator {
                     hasWaterbend = true,
                     waterbendPermanents = perms,
                     waterbendAmount = waterbendCap,
+                    // The unpaid action's auto-tap preview was solved for the cheaper base cost;
+                    // it would pre-select too few lands for the paid {base+N}. Clear it so the
+                    // client recomputes the preview against the higher paid cost.
+                    autoTapPreview = null,
                     action = cs.copy(wasWaterbendPaid = true)
                 ))
             }

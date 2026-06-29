@@ -734,10 +734,12 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           outlineOffset: isHijacked ? -2 : 0,
           boxShadow: isHijacked ? '0 0 14px rgba(168, 85, 247, 0.35)' : 'none',
           background: isHijacked ? 'rgba(76, 29, 149, 0.18)' : 'transparent',
-          // Affected player's hand is inert during hijack — let clicks fall through.
-          pointerEvents: isHijacked ? 'none' : undefined,
+          // Affected player's hand is inert during hijack — let clicks fall through. The hand is
+          // also inert while a cast/activation pipeline is in progress (e.g. paying a waterbend or
+          // mana cost): you must finish or cancel the current cast before starting another.
+          pointerEvents: (isHijacked || pipelineState != null) ? 'none' : undefined,
           // Controller can still see their own hand but cannot act with it during V's turn.
-          opacity: isHijacking ? 0.6 : 1,
+          opacity: isHijacking ? 0.6 : (pipelineState != null ? 0.6 : 1),
           filter: isHijacking ? 'saturate(0.6)' : 'none',
           transition: 'box-shadow 0.2s, outline-color 0.2s, opacity 0.2s',
         }}
