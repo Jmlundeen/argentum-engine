@@ -301,7 +301,7 @@ The set is built around four **"bending" keyword families** plus a returning **E
 - [ ] The Last Agni Kai
 - [ ] The Legend of Kuruk
 - [x] The Legend of Kyoshi
-- [ ] The Legend of Roku
+- [x] The Legend of Roku
 - [ ] The Legend of Yangchen
 - [x] The Lion-Turtle
 - [x] The Mechanist, Aerial Artisan

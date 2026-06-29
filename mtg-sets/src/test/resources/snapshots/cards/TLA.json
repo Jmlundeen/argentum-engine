@@ -14131,6 +14131,162 @@
     ]
 }
 
+// The Legend of Roku
+{
+    "name": "The Legend of Roku",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Enchantment — Saga",
+    "oracleText": "(As this Saga enters and after your draw step, add a lore counter.)\nI — Exile the top three cards of your library. Until the end of your next turn, you may play those cards.\nII — Add one mana of any color.\nIII — Exile this Saga, then return it to the battlefield transformed under your control.",
+    "script": {
+        "sagaChapters": [
+            {
+                "chapter": 1,
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            },
+                            "storeAs": "impulseExiled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "impulseExiled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "impulseExiled",
+                            "expiry": {
+                                "type": "UntilControllerStep",
+                                "step": "CLEANUP",
+                                "includeCurrentTurn": false
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "chapter": 2,
+                "effect": "AddManaOfChoice"
+            },
+            {
+                "chapter": 3,
+                "effect": "ExileAndReturnTransformed"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Avatar Roku",
+        "manaCost": "",
+        "typeLine": "Legendary Creature — Avatar",
+        "oracleText": "Firebending 4 (Whenever this creature attacks, add {R}{R}{R}{R}. This mana lasts until end of combat.)\n{8}: Create a 4/4 red Dragon creature token with flying and firebending 4.",
+        "creatureStats": {
+            "power": 4,
+            "toughness": 4
+        },
+        "keywords": [
+            "FIREBENDING"
+        ],
+        "keywordAbilities": [
+            {
+                "type": "Numeric",
+                "keyword": "FIREBENDING",
+                "n": 4
+            }
+        ],
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_1",
+                    "trigger": "AttackEvent",
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "RED",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 4
+                        },
+                        "expiry": "END_OF_COMBAT"
+                    },
+                    "descriptionOverride": "Whenever this creature attacks, add {R}{R}{R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
+                }
+            ],
+            "activatedAbilities": [
+                {
+                    "id": "ability_2",
+                    "cost": {
+                        "type": "CostAtomWrapper",
+                        "atom": {
+                            "type": "AtomMana",
+                            "cost": "{8}"
+                        }
+                    },
+                    "effect": {
+                        "type": "CreateToken",
+                        "power": 4,
+                        "toughness": 4,
+                        "colors": [
+                            "RED"
+                        ],
+                        "creatureTypes": [
+                            "Dragon"
+                        ],
+                        "keywords": [
+                            "FLYING",
+                            "FIREBENDING"
+                        ],
+                        "triggeredAbilities": [
+                            {
+                                "id": "ability_3",
+                                "trigger": "AttackEvent",
+                                "effect": {
+                                    "type": "AddMana",
+                                    "color": "RED",
+                                    "amount": {
+                                        "type": "Fixed",
+                                        "amount": 4
+                                    },
+                                    "expiry": "END_OF_COMBAT"
+                                },
+                                "descriptionOverride": "Whenever this creature attacks, add {R}{R}{R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "145",
+            "rarity": "MYTHIC",
+            "artist": "Song Qijin",
+            "flavorText": "\"You must be decisive.\"",
+            "imageUri": "https://cards.scryfall.io/normal/back/9/5/95f2f5af-d405-4534-8683-5a9001f997b4.jpg?1782135808"
+        },
+        "colorIdentityOverride": [
+            "RED"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "145",
+        "rarity": "MYTHIC",
+        "artist": "Song Qijin",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/5/95f2f5af-d405-4534-8683-5a9001f997b4.jpg?1782135808"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // The Lion-Turtle
 {
     "name": "The Lion-Turtle",
