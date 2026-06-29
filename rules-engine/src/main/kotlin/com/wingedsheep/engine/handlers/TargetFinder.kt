@@ -318,11 +318,13 @@ class TargetFinder(
         val battlefield = state.getBattlefield()
         for (entityId in battlefield) {
             val container = state.getEntity(entityId) ?: continue
-            val cardComponent = container.get<CardComponent>() ?: continue
+            if (!container.has<CardComponent>()) continue
             val entityController = container.get<ControllerComponent>()?.playerId
 
-            // Only creatures and planeswalkers for "any target"
-            if (!cardComponent.typeLine.isCreature && !cardComponent.isPlaneswalker) {
+            // Only creatures and planeswalkers for "any target". Read the PROJECTED
+            // type line, not the printed one, so animated lands (Earthbend) and
+            // face-down 2/2 creatures are valid targets (CR 115.4 / projection rule).
+            if (!projected.isCreature(entityId) && !projected.isPlaneswalker(entityId)) {
                 continue
             }
 
@@ -378,11 +380,13 @@ class TargetFinder(
 
         return battlefield.filter { entityId ->
             val container = state.getEntity(entityId) ?: return@filter false
-            val cardComponent = container.get<CardComponent>() ?: return@filter false
+            if (!container.has<CardComponent>()) return@filter false
             val entityController = container.get<ControllerComponent>()?.playerId
 
-            // Must be creature or planeswalker
-            if (!cardComponent.typeLine.isCreature && !cardComponent.isPlaneswalker) {
+            // Must be creature or planeswalker. Read the PROJECTED type line, not the
+            // printed one, so animated lands (Earthbend) and face-down 2/2 creatures
+            // are valid targets (projection rule, see CR 115.4).
+            if (!projected.isCreature(entityId) && !projected.isPlaneswalker(entityId)) {
                 return@filter false
             }
 
