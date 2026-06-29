@@ -118,7 +118,7 @@ export function WaterbendSelector() {
 
   if (!waterbendSelectionState) return null
 
-  const { cardName, selectedPermanents, actionInfo } = waterbendSelectionState
+  const { cardName, selectedPermanents, actionInfo, maxTaps } = waterbendSelectionState
 
   const manaNeeded = totalManaNeeded(symbolsAfterPool)
   const manaFromSources = totalManaAvailable(actionInfo.availableManaSources, tappedIds)
@@ -127,7 +127,13 @@ export function WaterbendSelector() {
   return (
     <div style={styles.bar}>
       <span style={styles.label}>
-        Waterbend <strong>{cardName}</strong>
+        {/* The waterbend amount {N} (you may tap up to this many permanents, each paying {1}),
+            rendered as a proper mana pip rather than literal "{N}" text. */}
+        Waterbend
+        <span style={{ display: 'inline-flex', alignItems: 'center', margin: '0 4px' }}>
+          <ManaSymbol symbol={String(maxTaps)} size={16} />
+        </span>
+        <strong>{cardName}</strong>
       </span>
       <span style={styles.divider} />
       <span style={styles.costLabel}>Cost:</span>

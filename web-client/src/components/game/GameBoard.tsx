@@ -776,7 +776,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           <CardRow
             zoneId={hand(playerId)}
             faceDown={false}
-            interactive={!isHijacked}
+            // Inert during hijack and while a cast/activation pipeline is in progress (e.g. paying
+            // a waterbend or mana cost) — the CardRow re-enables pointer events on its cards, so the
+            // wrapper's pointerEvents:none isn't enough; gate interactivity at the component level.
+            interactive={!isHijacked && pipelineState == null}
             ghostCards={isHijacked ? [] : ghostCards}
           />
         ) : null}
