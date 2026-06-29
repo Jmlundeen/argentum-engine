@@ -188,7 +188,7 @@ up by Airbend, not Firebending).
 - [x] Geyser Leaper
 - [x] Giant Koi
 - [x] Glider Kids
-- [ ] Glider Staff
+- [x] Glider Staff
 - [x] Gran-Gran
 - [x] Great Divide Guide
 - [x] Guru Pathik
