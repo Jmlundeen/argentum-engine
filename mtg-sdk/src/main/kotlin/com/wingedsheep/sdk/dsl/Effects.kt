@@ -1340,6 +1340,19 @@ object Effects {
         com.wingedsheep.sdk.scripting.effects.DistributeCountersAmongTargetsEffect(totalCounters, counterType, minPerTarget)
 
     /**
+     * Distribute [totalCounters] new counters among permanents matching [filter], chosen at
+     * resolution (not the spell's targets). `minPerTarget = 0` models "among any number of".
+     * Crashing Wave: `DistributeCountersAmongFiltered(3, Counters.STUN, Filters.Creature.tapped().opponentControls())`.
+     */
+    fun DistributeCountersAmongFiltered(
+        totalCounters: Int,
+        counterType: String = Counters.PLUS_ONE_PLUS_ONE,
+        filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
+        minPerTarget: Int = 0,
+    ): Effect =
+        com.wingedsheep.sdk.scripting.effects.DistributeCountersAmongFilteredEffect(totalCounters, counterType, filter, minPerTarget)
+
+    /**
      * Proliferate — choose any number of permanents and/or players with counters,
      * then give each another counter of each kind already there.
      */

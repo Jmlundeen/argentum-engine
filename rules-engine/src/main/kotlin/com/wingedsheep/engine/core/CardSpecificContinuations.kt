@@ -140,7 +140,14 @@ data class DistributeCountersContinuation(
     override val decisionId: String,
     val sourceId: EntityId,
     val controllerId: EntityId,
-    val counterType: String
+    val counterType: String,
+    /**
+     * When true (the "move counters from this creature onto others" shape, e.g. Forgotten Ancient),
+     * the distributed counters are first removed from [sourceId]. When false, the counters are newly
+     * created on the chosen recipients with nothing removed from the source — the "distribute N
+     * counters among …" shape (e.g. Crashing Wave's three stun counters).
+     */
+    val removeFromSource: Boolean = true
 ) : ContinuationFrame
 
 /**
