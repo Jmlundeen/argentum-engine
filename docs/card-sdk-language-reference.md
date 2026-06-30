@@ -3274,7 +3274,7 @@ staticAbility {
   "return target Zombie card from your graveyard", search filters). Leave both flags `false` for battlefield-only effects
   like Xenograft. (Leyline of Transformation)
 - `TransformPermanent(setCardTypes, setSubtypes, setColors?, setName?, clearSubtypes, filter)` — Layer 3/4/5 "becomes a
-  whole new identity" (Sugar Coat, Darksteel Mutation, Witness Protection). A non-empty `setSubtypes` replaces all
+  whole new identity" (Sugar Coat, Darksteel Mutation, Witness Protection, Imprisoned in the Moon). A non-empty `setSubtypes` replaces all
   subtypes; an empty `setSubtypes` leaves subtypes alone **unless** `clearSubtypes = true`, which replaces them with
   none ("has no subtypes" — the Enduring return strips Sheep/Glimmer). `setColors = null` keeps colors. `setName`
   (default `null` = don't change) overwrites the object's name at Layer 3 (CR 612.8 — "loses any names it had and has
