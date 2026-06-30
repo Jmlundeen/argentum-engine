@@ -170,6 +170,25 @@ class TargetValidator {
                     return "Targets must be from a single graveyard"
                 }
             }
+
+            // "... that share a creature type" — every chosen permanent target must hold at least
+            // one creature type in common with all the others (Secret Tunnel). Uses projected
+            // subtypes so granted/changed types count. No-op for single-target requirements; a
+            // target with no creature types (or one off the battlefield) can never share, so the
+            // set is rejected.
+            if (requirement is TargetObject && requirement.sameCreatureType && targetsForReq.size > 1) {
+                val projected = state.projectedState
+                val subtypeSets = targetsForReq.map { target ->
+                    (target as? ChosenTarget.Permanent)
+                        ?.takeIf { it.entityId in state.getBattlefield() }
+                        ?.let { projected.getSubtypes(it.entityId) }
+                        ?: emptySet()
+                }
+                val shared = subtypeSets.reduce { acc, next -> acc intersect next }
+                if (shared.isEmpty()) {
+                    return "Targets must share a creature type"
+                }
+            }
         }
 
         return null

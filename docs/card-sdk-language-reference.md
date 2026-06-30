@@ -1937,6 +1937,14 @@ Every `TargetRequirement` carries count semantics (defaults shown):
   requirements and for non-card targets. E.g.
   `TargetObject(count = 2, optional = true, filter = TargetFilter.CardInGraveyard, sameOwner = true)`
   (Arashin Sunshield).
+- `sameCreatureType = false` — on `TargetObject` / `TargetCreature(...)`; when `true` and the requirement
+  picks more than one target, every chosen **permanent** target must hold at least one creature type in
+  common with all the others ("**two target creatures you control that share a creature type**").
+  Enforced cross-target by `TargetValidator` at cast/activation time using each permanent's *projected*
+  creature subtypes (granted/changed types count); a target with no creature types — or one off the
+  battlefield — can never share, so the set is rejected. A no-op for single-target requirements and for
+  non-permanent targets. E.g. `TargetCreature(count = 2, filter = TargetFilter.CreatureYouControl,
+  sameCreatureType = true)` (Secret Tunnel).
 - `chooser = TargetChooser.Controller` — **who selects this requirement's target(s)**. Set to
   `TargetChooser.Opponent` for "**… of an opponent's choice**" wording (Cuombajj Witches). The chosen
   target is still a real target of *your* spell/ability — announced together with your own targets,

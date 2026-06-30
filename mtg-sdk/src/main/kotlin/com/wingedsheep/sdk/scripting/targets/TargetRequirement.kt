@@ -161,7 +161,8 @@ fun TargetCreature(
     filter: TargetFilter = TargetFilter.Creature,
     id: String? = null,
     dynamicMaxCount: DynamicAmount? = null,
-    sameController: Boolean = false
+    sameController: Boolean = false,
+    sameCreatureType: Boolean = false
 ): TargetObject = TargetObject(
     count = count,
     minCount = minCount,
@@ -170,7 +171,8 @@ fun TargetCreature(
     filter = filter,
     id = id,
     dynamicMaxCount = dynamicMaxCount,
-    sameController = sameController
+    sameController = sameController,
+    sameCreatureType = sameCreatureType
 )
 
 // =============================================================================
@@ -372,7 +374,16 @@ data class TargetObject(
      * Enforced cross-target by `TargetValidator` against each `ChosenTarget.Card`'s owner;
      * a no-op for single-target requirements and for non-card targets. Defaults to false.
      */
-    val sameOwner: Boolean = false
+    val sameOwner: Boolean = false,
+    /**
+     * When true and more than one target is chosen for this requirement, the chosen permanent
+     * targets must all share at least one creature type with one another — "two target creatures
+     * you control that share a creature type" (Secret Tunnel). Enforced cross-target by
+     * `TargetValidator` using each permanent's *projected* creature subtypes (so granted/changed
+     * types via continuous effects count); a no-op for single-target requirements and for
+     * non-permanent targets. Defaults to false.
+     */
+    val sameCreatureType: Boolean = false
 ) : TargetRequirement {
     override val description: String = run {
         val base = if (id != null) {
@@ -405,6 +416,7 @@ data class TargetObject(
         when {
             sameController -> "$base controlled by the same player"
             sameOwner -> "$base from a single graveyard"
+            sameCreatureType -> "$base that share a creature type"
             else -> base
         }
     }
