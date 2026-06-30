@@ -4836,6 +4836,73 @@
     ]
 }
 
+// Destined Confrontation
+{
+    "name": "Destined Confrontation",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player chooses any number of creatures they control with total power 4 or less, then sacrifices all other creatures they control.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Players",
+                "players": "Each"
+            },
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "GatherCards",
+                        "source": {
+                            "type": "ControlledPermanents",
+                            "filter": "creature"
+                        },
+                        "storeAs": "creatures"
+                    },
+                    {
+                        "type": "SelectFromCollection",
+                        "from": "creatures",
+                        "selection": "ChooseAnyNumber",
+                        "storeSelected": "kept",
+                        "storeRemainder": "sacrificed",
+                        "prompt": "Choose any number of creatures you control with total power 4 or less. The rest are sacrificed.",
+                        "selectedLabel": "Keep",
+                        "remainderLabel": "Sacrifice",
+                        "useTargetingUI": true,
+                        "restrictions": [
+                            {
+                                "type": "TotalPowerAtMost",
+                                "max": 4
+                            }
+                        ],
+                        "alwaysPrompt": true
+                    },
+                    {
+                        "type": "MoveCollection",
+                        "from": "sacrificed",
+                        "destination": {
+                            "type": "ToZone",
+                            "zone": "Graveyard"
+                        },
+                        "moveType": "Sacrifice"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "rarity": "UNCOMMON",
+        "artist": "Joshua Raphael",
+        "flavorText": "\"Just you and me, brother. The showdown that was always meant to be.\"\n—Azula",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/4/d4605cf7-03bc-4a7f-b50a-49b83b09b54d.jpg?1764119971"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Diligent Zookeeper
 {
     "name": "Diligent Zookeeper",

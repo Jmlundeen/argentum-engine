@@ -186,6 +186,13 @@ data class SelectCardsDecision(
      * over the cap; the server also trims oversubmits in selection order.
      */
     val maxTotalManaValue: Int? = null,
+    /**
+     * Maximum sum of (projected) power across selected creatures (Destined Confrontation).
+     * null means no cap. A creature with undefined power contributes 0. The UI is expected
+     * to disable creatures whose power would push the running total over the cap; the server
+     * also trims oversubmits in selection order.
+     */
+    val maxTotalPower: Int? = null,
     /** Conditional lower minimums for decisions like "discard two unless one is a creature". */
     val conditionalMinimums: List<ConditionalSelectionMinimum> = emptyList()
 ) : PendingDecision
