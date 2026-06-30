@@ -3664,6 +3664,74 @@
     ]
 }
 
+// Combustion Man
+{
+    "name": "Combustion Man",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Legendary Creature — Human Assassin",
+    "oracleText": "Whenever Combustion Man attacks, destroy target permanent unless its controller has Combustion Man deal damage to them equal to his power.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 6
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ChooseAction",
+                    "choices": [
+                        {
+                            "label": "Have Combustion Man deal damage to you equal to his power",
+                            "effect": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "EntityProperty",
+                                    "entity": "Source",
+                                    "numericProperty": "Power"
+                                },
+                                "target": "TargetController",
+                                "damageSource": "Self"
+                            }
+                        },
+                        {
+                            "label": "Let the permanent be destroyed",
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target permanent"
+                                },
+                                "destination": "Graveyard",
+                                "byDestruction": true
+                            }
+                        }
+                    ],
+                    "player": "TargetController"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "permanent"
+                    },
+                    "id": "target permanent"
+                },
+                "descriptionOverride": "Whenever Combustion Man attacks, destroy target permanent unless its controller has Combustion Man deal damage to them equal to his power."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "127",
+        "rarity": "UNCOMMON",
+        "artist": "Pisukev",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/86f7399d-6876-4e85-ba34-ff1f97dc144a.jpg?1764120875"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Combustion Technique
 {
     "name": "Combustion Technique",
