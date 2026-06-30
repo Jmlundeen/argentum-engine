@@ -364,6 +364,11 @@ function BattlefieldContent({
           }}>
             <GameCard
               card={group.card}
+              // A face-down permanent (morph/manifest) must keep rendering as a card back
+              // even once it gains an attachment — the no-attachment path (CardStack) passes
+              // this too; omitting it here flips an enchanted/equipped morph face-up for its
+              // controller, who receives the real card data + isFaceDown from the server.
+              faceDown={group.card.isFaceDown}
               interactive={interactive}
               battlefield
               isOpponentCard={isOpponent}
