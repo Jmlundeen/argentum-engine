@@ -649,6 +649,16 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                     tapBatchMaxActivations
                 )
 
+                // Forage offers a choice of sub-costs (exile three cards / sacrifice a Food).
+                // [costInfo] holds the primary mode; when both modes are available the emitted
+                // legal action(s) are duplicated below — one per mode — so the player picks which.
+                val forageModes = if (hasForageCost) {
+                    com.wingedsheep.engine.handlers.costs.ForageCostResolver.costInfos(
+                        com.wingedsheep.engine.handlers.costs.ForageCostResolver.Candidates(forageGraveyardCards, forageFoodTargets)
+                    )
+                } else emptyList()
+                val forageEmissionStart = result.size
+
                 // Calculate X cost info for activated abilities with X in their mana cost
                 // or X determined by a variable cost (e.g., RemoveXPlusOnePlusOneCounters).
                 // Use [effectiveCost] so generic-cost reductions (e.g., The Dominion Bracelet,
@@ -828,6 +838,29 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         hasWaterbend = ability.hasWaterbend,
                         waterbendPermanents = abilityWaterbendPermanents
                     ))
+                }
+
+                // When forage can be paid both ways, the emission above used the primary (exile)
+                // mode; emit a sibling legal action for the alternate (sacrifice) mode and label
+                // both with their mode so the action menu offers the choice (the same multi-action
+                // pattern used by the "OrPay" costs). Reuses the client's existing
+                // ExileFromGraveyard / SacrificePermanent cost pickers — no new UI.
+                if (forageModes.size > 1) {
+                    val primaryMode = forageModes[0]
+                    val alternateMode = forageModes[1]
+                    val emitted = result.subList(forageEmissionStart, result.size).toList()
+                    for ((offset, la) in emitted.withIndex()) {
+                        if (la.action !is ActivateAbility || !la.affordable) continue
+                        result[forageEmissionStart + offset] = la.copy(
+                            description = "${la.description} — ${primaryMode.description}"
+                        )
+                        result.add(
+                            la.copy(
+                                description = "${la.description} — ${alternateMode.description}",
+                                additionalCostInfo = alternateMode
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -1087,25 +1120,11 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             )
         }
         if (hasForageCost) {
-            // Prefer the exile path when 3+ cards are in the graveyard — lets the player
-            // pick exactly which cards to exile. Otherwise fall back to sacrificing a Food.
-            if (forageGraveyardCards.size >= 3) {
-                return AdditionalCostData(
-                    description = "Forage — exile 3 cards from your graveyard",
-                    costType = "ExileFromGraveyard",
-                    validExileTargets = forageGraveyardCards,
-                    exileMinCount = 3,
-                    exileMaxCount = 3
-                )
-            }
-            if (forageFoodTargets.isNotEmpty()) {
-                return AdditionalCostData(
-                    description = "Forage — sacrifice a Food",
-                    costType = "SacrificePermanent",
-                    validSacrificeTargets = forageFoodTargets,
-                    sacrificeCount = 1
-                )
-            }
+            // The full per-mode list is emitted as separate legal actions by the caller; this is
+            // just the primary (first available) mode for the single-costInfo slot.
+            return com.wingedsheep.engine.handlers.costs.ForageCostResolver.costInfos(
+                com.wingedsheep.engine.handlers.costs.ForageCostResolver.Candidates(forageGraveyardCards, forageFoodTargets)
+            ).firstOrNull()
         }
         return null
     }

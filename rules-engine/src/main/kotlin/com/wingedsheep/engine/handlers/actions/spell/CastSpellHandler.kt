@@ -215,7 +215,9 @@ class CastSpellHandler(
         castPermissionUtils.reasonCannotCast(state, action.playerId, action.cardId)?.let { return it }
 
         if (hasForageFromGraveyard) {
-            if (!costHandler.canPayAdditionalCost(state, AdditionalCost.Forage, action.playerId)) {
+            // The spell being cast can't be one of the three cards it exiles to pay for itself, so
+            // it's excluded from the forage exile pool here just as it is at payment time.
+            if (!com.wingedsheep.engine.handlers.costs.ForageCostResolver.canPay(state, action.playerId, excludeCardId = action.cardId)) {
                 return "Cannot forage: need 3 other cards in graveyard or a Food"
             }
         }
@@ -2401,6 +2403,24 @@ class CastSpellHandler(
                             }
                         }
                     }
+                    is AdditionalCost.Forage -> {
+                        // Forage as an additional cost to cast (e.g. Feed the Cycle's forage mode).
+                        // Honors the player's mode + card/Food choice via additionalCostPayment,
+                        // falling back to a legal auto-payment otherwise. The spell is cast from
+                        // hand here, so it's not in the exile pool — no exclusion needed.
+                        when (val forageResult = com.wingedsheep.engine.handlers.costs.ForageCostResolver.pay(
+                            currentState, action.playerId,
+                            exileChoices = action.additionalCostPayment.exiledCards,
+                            sacrificeChoices = action.additionalCostPayment.sacrificedPermanents,
+                        )) {
+                            is com.wingedsheep.engine.handlers.costs.ForageCostResolver.Result.Success -> {
+                                currentState = forageResult.state
+                                events.addAll(forageResult.events)
+                            }
+                            is com.wingedsheep.engine.handlers.costs.ForageCostResolver.Result.Failure ->
+                                return ExecutionResult.error(currentState, forageResult.reason)
+                        }
+                    }
                     else -> {}
                 }
             }
@@ -2532,44 +2552,27 @@ class CastSpellHandler(
         }
 
         // Pay forage additional cost when casting a creature from graveyard via
-        // MayCastCreaturesFromGraveyardWithForageComponent (e.g., Osteomancer Adept).
-        // Auto-pay: prefer sacrificing a Food; otherwise exile 3 other graveyard cards.
+        // MayCastCreaturesFromGraveyardWithForageComponent (e.g., Osteomancer Adept). The spell
+        // being cast is excluded from the exile pool — it has left the graveyard for the stack and
+        // can't be one of the three cards it exiles to pay for itself. The player's mode + card/Food
+        // choice (when supplied via additionalCostPayment) is honored; otherwise a legal mode is
+        // auto-paid. See [com.wingedsheep.engine.handlers.costs.ForageCostResolver].
         val isForageCast = zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
             currentState, action.playerId, action.cardId, cardComponent
         ) && action.cardId in currentState.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD))
         if (isForageCast) {
-            val projected = currentState.projectedState
-            val foods = currentState.getBattlefield().filter { permId ->
-                currentState.getEntity(permId) != null &&
-                    projected.getController(permId) == action.playerId &&
-                    projected.hasSubtype(permId, Subtype.FOOD.value)
-            }
-            if (foods.isNotEmpty()) {
-                val foodId = foods.first()
-                val foodContainer = currentState.getEntity(foodId)
-                val foodName = foodContainer?.get<CardComponent>()?.name ?: "Food"
-                val foodController = foodContainer?.get<ControllerComponent>()?.playerId ?: action.playerId
-                currentState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                    .trackPermanentSacrifice(currentState, listOf(foodId), foodController)
-                val transition = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                    .moveToZone(currentState, foodId, Zone.GRAVEYARD)
-                currentState = transition.state
-                events.add(PermanentsSacrificedEvent(foodController, listOf(foodId), listOf(foodName)))
-                events.addAll(transition.events)
-            } else {
-                val graveyardZone = ZoneKey(action.playerId, Zone.GRAVEYARD)
-                val toExile = currentState.getZone(graveyardZone)
-                    .filter { it != action.cardId }
-                    .take(3)
-                if (toExile.size < 3) {
-                    return ExecutionResult.error(currentState, "Cannot forage: need 3 other cards in graveyard or a Food")
+            when (val forageResult = com.wingedsheep.engine.handlers.costs.ForageCostResolver.pay(
+                currentState, action.playerId,
+                exileChoices = action.additionalCostPayment?.exiledCards ?: emptyList(),
+                sacrificeChoices = action.additionalCostPayment?.sacrificedPermanents ?: emptyList(),
+                excludeCardId = action.cardId,
+            )) {
+                is com.wingedsheep.engine.handlers.costs.ForageCostResolver.Result.Success -> {
+                    currentState = forageResult.state
+                    events.addAll(forageResult.events)
                 }
-                for (exileId in toExile) {
-                    val transition = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-                        .moveToZone(currentState, exileId, Zone.EXILE)
-                    currentState = transition.state
-                    events.addAll(transition.events)
-                }
+                is com.wingedsheep.engine.handlers.costs.ForageCostResolver.Result.Failure ->
+                    return ExecutionResult.error(currentState, forageResult.reason)
             }
         }
 

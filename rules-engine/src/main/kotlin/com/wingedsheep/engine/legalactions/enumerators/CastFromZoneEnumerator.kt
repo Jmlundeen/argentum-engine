@@ -1590,14 +1590,6 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
         val graveyardCards = state.getZone(ZoneKey(playerId, Zone.GRAVEYARD))
 
-        // Check if forage can be paid at all (Food on battlefield)
-        val projected = state.projectedState
-        val hasFood = state.getBattlefield().any { permId ->
-            state.getEntity(permId) ?: return@any false
-            projected.getController(permId) == playerId &&
-                projected.hasSubtype(permId, Subtype.FOOD.value)
-        }
-
         for (cardId in graveyardCards) {
             val container = state.getEntity(cardId) ?: continue
             val cardComponent = container.get<CardComponent>() ?: continue
@@ -1607,9 +1599,14 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
 
-            // Don't offer forage if it can't be paid (< 3 other graveyard cards and no Food)
-            val otherGraveyardCards = graveyardCards.filter { it != cardId }
-            if (otherGraveyardCards.size < 3 && !hasFood) continue
+            // Don't offer forage if it can't be paid (< 3 other graveyard cards and no Food).
+            // The card being cast can't be one of the three it exiles, so it's excluded from the
+            // exile pool — both for affordability and for the card-picker the client renders.
+            val forageCandidates = com.wingedsheep.engine.handlers.costs.ForageCostResolver
+                .candidates(state, playerId, excludeCardId = cardId)
+            if (!forageCandidates.canPay) continue
+            val forageModes = com.wingedsheep.engine.handlers.costs.ForageCostResolver.costInfos(forageCandidates)
+            val primaryForageMode = forageModes.firstOrNull()
 
             if (context.cantCastSpell(cardId)) {
                 result.add(
@@ -1636,6 +1633,11 @@ class CastFromZoneEnumerator : ActionEnumerator {
             val costString = effectiveCost.toString()
             val affordable = context.manaSolver.canPay(state, playerId, effectiveCost, precomputedSources = context.availableManaSources)
 
+            // Affordable emissions advertise the forage cost so the client lets the player pick
+            // which cards/Food to forage with (rather than the engine silently taking the first
+            // three). When both modes are payable, a sibling action per mode is emitted below.
+            val forageEmissionStart = result.size
+
             if (affordable) {
                 val targetReqs = buildList {
                     addAll(cardDef.script.targetRequirements)
@@ -1661,7 +1663,8 @@ class CastFromZoneEnumerator : ActionEnumerator {
                                 targetRequirements = if (targetInfos.size > 1) targetInfos else null,
                                 manaCostString = costString,
                                 sourceZone = "GRAVEYARD",
-                                requiresForage = true
+                                requiresForage = true,
+                                additionalCostInfo = primaryForageMode
                             )
                         )
                     }
@@ -1673,7 +1676,8 @@ class CastFromZoneEnumerator : ActionEnumerator {
                             action = CastSpell(playerId, cardId),
                             manaCostString = costString,
                             sourceZone = "GRAVEYARD",
-                            requiresForage = true
+                            requiresForage = true,
+                            additionalCostInfo = primaryForageMode
                         )
                     )
                 }
@@ -1689,6 +1693,25 @@ class CastFromZoneEnumerator : ActionEnumerator {
                         requiresForage = true
                     )
                 )
+            }
+
+            // Emit a sibling action for the alternate forage mode (exile vs. sacrifice a Food) so
+            // the player picks the mode in the action menu, mirroring the activated-ability path.
+            if (affordable && forageModes.size > 1) {
+                val alternateMode = forageModes[1]
+                val emitted = result.subList(forageEmissionStart, result.size).toList()
+                for ((offset, la) in emitted.withIndex()) {
+                    if (la.action !is CastSpell || !la.affordable) continue
+                    result[forageEmissionStart + offset] = la.copy(
+                        description = "${la.description} — ${forageModes[0].description}"
+                    )
+                    result.add(
+                        la.copy(
+                            description = "${la.description} — ${alternateMode.description}",
+                            additionalCostInfo = alternateMode
+                        )
+                    )
+                }
             }
         }
     }

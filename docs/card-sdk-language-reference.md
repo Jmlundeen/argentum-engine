@@ -226,6 +226,17 @@ excluded.
 - `Costs.ExileFromGraveyard(count, filter)` — exile N matching cards from your graveyard.
 - `Costs.ExileXFromGraveyard(filter)` — exile X cards from your graveyard (X = the ability's
   chosen X value).
+- `Costs.Forage()` (ability cost) / `Costs.additional.Forage` (additional cost) — Forage (CR
+  701.61): "exile three cards from your graveyard **or** sacrifice a Food." A *choice* between two
+  sub-costs that belongs to the player. All cost-shaped forage payment is unified in the engine's
+  `ForageCostResolver`: the enumerators surface the available modes as separate legal actions (the
+  same multi-action pattern the "OrPay" costs use — `ExileFromGraveyard` and `SacrificePermanent`
+  cost-info, so the client's existing pickers let the player choose the mode *and* which cards/Food),
+  and payment honors that choice, only auto-paying a legal mode when none was supplied (AI /
+  engine-direct). Used as an activated/mana-ability cost (Camellia, Thornvault Forager), a modal
+  additional cost (Feed the Cycle), and the graveyard-cast permission (Osteomancer Adept, where the
+  card being cast is excluded from the exile pool). For a "you may forage" *effect* (not a cost) use
+  `Patterns.Mechanic.forage(afterEffect?)` instead.
 - `Costs.Craft(filter, minCount = 1)` — Craft material cost (CR 702.167a): exile this permanent
   **and** exile at least `minCount` cards matching `filter` selected from the combined pool of
   permanents you control and cards in your graveyard. Atomic because CR 702.167a pairs the
@@ -1536,7 +1547,10 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
   `GatedEffect(WhenCondition(Not(CollectionContainsMatch("explored", Land))))` over counter + optional
   graveyard move. The gate is "no land revealed" (not "a nonland was revealed") so an empty library still
   yields the counter, per CR 701.44a/b.
-- `forage(afterEffect?)` — Forage cost; choose card-from-hand to play.
+- `forage(afterEffect?)` — Forage as an *effect* ("you may forage"): a `ChooseActionEffect` letting
+  the player choose to exile three cards from their graveyard or sacrifice a Food (each gated by a
+  feasibility check), with `afterEffect` appended to whichever mode is taken (Bushy Bodyguard, Curious
+  Forager). For forage as a *cost*, use `Costs.Forage()` / `Costs.additional.Forage` (§3).
 - `loot(draw?, discard?)` — "draw N, discard M" loop.
 - `rummage(count?)` — discard then draw.
 - `connive(target?)` — draw 1, discard 1, then put a +1/+1 counter on `target` (default Self) if the discard was a nonland (CR 702.166). Also exposed as `Effects.Connive(target)`.
@@ -6007,7 +6021,11 @@ Card authors rarely reference these directly; they are created/updated by the ma
   is `DynamicAmount.Fixed` for "endure 2" or any dynamic value for "endure X" (e.g. Warden of the Grove reads
   `EntityProperty(Source, CounterCount(...))`); `target` defaults to `Self` ("it endures") but takes
   `EffectTarget.TriggeringEntity` when a card endures the creature that triggered it.
-- **Forage** — `Patterns.Mechanic.forage`; cast-from-graveyard permissions need a branch in `CastSpellHandler.validate`.
+- **Forage** — effect form is `Patterns.Mechanic.forage` (`ChooseActionEffect`). All *cost* forms
+  (`Costs.Forage()`, `Costs.additional.Forage`, and the cast-from-graveyard permission) route their
+  payment, candidate-finding, and per-mode legal-action cost-info through the single
+  `ForageCostResolver`, so the player chooses exile-vs-sacrifice and which cards/Food everywhere
+  (CR 701.61).
 - **Blight X** — `Costs.additional.BlightVariable` + `DynamicAmount.AdditionalCostBlightAmount` +
   `Conditions.BlightWasPaid(n)`.
 - **Divvy (Fact-or-Fiction)** — `Patterns.Library.factOrFiction(...)`; `SplitPilesDecision` stays dormant until N > 2.

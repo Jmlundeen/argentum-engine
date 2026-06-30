@@ -2253,10 +2253,19 @@ class CastSpellEnumerator : ActionEnumerator {
         }
 
         val modeCostInfo = if (modeAdditionalCosts != null) {
-            buildAdditionalCostData(
-                modeAdditionalCosts, modeSacrificeTargets, emptyList(),
-                modeExileTargets, modeExileMinCount, modeDiscardTargets, modeDiscardCount
-            )
+            // A forage additional cost on a mode (e.g. Feed the Cycle's forage mode) surfaces the
+            // forage cost picker so the player chooses which cards to exile / Food to sacrifice,
+            // rather than the cost resolving silently. Prefer the exile mode when both are payable.
+            if (modeAdditionalCosts.any { it is AdditionalCost.Forage }) {
+                com.wingedsheep.engine.handlers.costs.ForageCostResolver.costInfos(
+                    com.wingedsheep.engine.handlers.costs.ForageCostResolver.candidates(state, playerId)
+                ).firstOrNull()
+            } else {
+                buildAdditionalCostData(
+                    modeAdditionalCosts, modeSacrificeTargets, emptyList(),
+                    modeExileTargets, modeExileMinCount, modeDiscardTargets, modeDiscardCount
+                )
+            }
         } else {
             cardLevelAdditionalCostInfo
         }
