@@ -6144,6 +6144,260 @@
     ]
 }
 
+// Gilgamesh, Master-at-Arms
+{
+    "name": "Gilgamesh, Master-at-Arms",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Legendary Creature — Human Samurai",
+    "oracleText": "Whenever Gilgamesh enters or attacks, look at the top six cards of your library. You may put any number of Equipment cards from among them onto the battlefield. Put the rest on the bottom of your library in a random order. When you put one or more Equipment onto the battlefield this way, you may attach one of them to a Samurai you control.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 6
+                                }
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "looked",
+                            "selection": "ChooseAnyNumber",
+                            "filter": "artifact Equipment",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
+                            "prompt": "Choose any number of Equipment cards to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield",
+                            "remainderLabel": "Put on the bottom of your library",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "storeMovedAs": "putOntoBattlefield"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "remainder1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        },
+                        {
+                            "type": "ConditionalOnCollection",
+                            "collection": "putOntoBattlefield",
+                            "ifNotEmpty": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "putOntoBattlefield",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "selected5",
+                                        "prompt": "You may choose one of the Equipment put onto the battlefield this way to attach",
+                                        "useTargetingUI": true
+                                    },
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "BattlefieldMatching",
+                                            "filter": "creature Samurai",
+                                            "player": "You"
+                                        },
+                                        "storeAs": "samurai"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "samurai",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "selected7",
+                                        "prompt": "You may choose a Samurai you control to attach it to",
+                                        "useTargetingUI": true
+                                    },
+                                    {
+                                        "type": "AttachTargetEquipmentToCreature",
+                                        "equipmentTarget": {
+                                            "type": "PipelineTarget",
+                                            "collectionName": "selected5"
+                                        },
+                                        "creatureTarget": {
+                                            "type": "PipelineTarget",
+                                            "collectionName": "selected7"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 6
+                                }
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "looked",
+                            "selection": "ChooseAnyNumber",
+                            "filter": "artifact Equipment",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
+                            "prompt": "Choose any number of Equipment cards to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield",
+                            "remainderLabel": "Put on the bottom of your library",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "storeMovedAs": "putOntoBattlefield"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "remainder1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        },
+                        {
+                            "type": "ConditionalOnCollection",
+                            "collection": "putOntoBattlefield",
+                            "ifNotEmpty": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "putOntoBattlefield",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "selected5",
+                                        "prompt": "You may choose one of the Equipment put onto the battlefield this way to attach",
+                                        "useTargetingUI": true
+                                    },
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "BattlefieldMatching",
+                                            "filter": "creature Samurai",
+                                            "player": "You"
+                                        },
+                                        "storeAs": "samurai"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "samurai",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "selected7",
+                                        "prompt": "You may choose a Samurai you control to attach it to",
+                                        "useTargetingUI": true
+                                    },
+                                    {
+                                        "type": "AttachTargetEquipmentToCreature",
+                                        "equipmentTarget": {
+                                            "type": "PipelineTarget",
+                                            "collectionName": "selected5"
+                                        },
+                                        "creatureTarget": {
+                                            "type": "PipelineTarget",
+                                            "collectionName": "selected7"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "139",
+        "rarity": "RARE",
+        "artist": "Lorenzo Mastroianni",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/e/1eb81329-fb7a-4347-b96c-9960a5c48e87.jpg?1782686495",
+        "rulings": [
+            {
+                "date": "2025-06-06",
+                "text": "You can't use the reflexive triggered ability to try to attach an Equipment to a creature if that Equipment can't legally be attached to that creature."
+            },
+            {
+                "date": "2025-06-06",
+                "text": "If you put an Equipment with job select onto the battlefield with Gilgamesh's ability, the job select ability and the reflexive triggered ability will both trigger, and you'll choose the order in which those abilities go on the stack. Regardless of the order chosen, the job select ability will create a Hero token and attach the Equipment to the Hero token after both abilities have resolved."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Giott, King of the Dwarves
 {
     "name": "Giott, King of the Dwarves",
@@ -19432,6 +19686,102 @@
     "colorIdentityOverride": [
         "BLACK",
         "RED"
+    ]
+}
+
+// Vincent Valentine
+{
+    "name": "Vincent Valentine",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Legendary Creature — Assassin",
+    "oracleText": "Whenever a creature an opponent controls dies, put a number of +1/+1 counters on Vincent Valentine equal to that creature's power.\nWhenever Vincent Valentine attacks, you may transform it.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:opponent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddDynamicCounters",
+                    "counterType": "+1/+1",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Triggering",
+                        "numericProperty": "Power"
+                    },
+                    "target": "Self"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": "Transform"
+                }
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Galian Beast",
+        "manaCost": "",
+        "typeLine": "Legendary Creature — Werewolf Beast",
+        "oracleText": "Trample, lifelink\nWhen Galian Beast dies, return it to the battlefield tapped (front face up).",
+        "creatureStats": {
+            "power": 3,
+            "toughness": 2
+        },
+        "keywords": [
+            "TRAMPLE",
+            "LIFELINK"
+        ],
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": {
+                        "type": "ZoneChangeEvent",
+                        "from": "Battlefield",
+                        "to": "Graveyard"
+                    },
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Battlefield",
+                        "placement": "Tapped"
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "125",
+            "rarity": "RARE",
+            "artist": "Norikatsu Miyoshi",
+            "flavorText": "\"This body is... the punishment that's been given to me...\"",
+            "imageUri": "https://cards.scryfall.io/normal/back/0/2/028ef608-acfe-4e9d-90db-eca4411ba78a.jpg?1782686505"
+        },
+        "colorIdentityOverride": [
+            "BLACK"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "125",
+        "rarity": "RARE",
+        "artist": "Norikatsu Miyoshi",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/028ef608-acfe-4e9d-90db-eca4411ba78a.jpg?1782686505"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
