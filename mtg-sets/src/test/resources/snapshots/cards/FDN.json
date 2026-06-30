@@ -356,6 +356,72 @@
     ]
 }
 
+// Battlesong Berserker
+{
+    "name": "Battlesong Berserker",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Human Berserker",
+    "oracleText": "Whenever you attack, target creature you control gets +1/+0 and gains menace until end of turn. (It can't be blocked except by two or more creatures.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "YouAttackEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
+                            }
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "MENACE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "id": "target creature you control"
+                },
+                "descriptionOverride": "Whenever you attack, target creature you control gets +1/+0 and gains menace until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "78",
+        "rarity": "UNCOMMON",
+        "artist": "Mirko Failoni",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/1/a1f8b199-5d62-485f-b1c3-b30aa550595b.jpg?1782689197"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Beast-Kin Ranger
 {
     "name": "Beast-Kin Ranger",
@@ -693,6 +759,45 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Clinquant Skymage
+{
+    "name": "Clinquant Skymage",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Bird Wizard",
+    "oracleText": "Flying\nWhenever you draw a card, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "DrawEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "33",
+        "rarity": "UNCOMMON",
+        "artist": "Kevin Sidharta",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/36012810-0e83-4640-8ba7-7262229f1b84.jpg?1782689236"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -1260,6 +1365,64 @@
     ]
 }
 
+// Felidar Savior
+{
+    "name": "Felidar Savior",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Cat Beast",
+    "oracleText": "Lifelink (Damage dealt by this creature also causes you to gain that much life.)\nWhen this creature enters, put a +1/+1 counter on each of up to two other target creatures you control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "+1/+1",
+                        "count": 1,
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "count": 2,
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you",
+                        "excludeSelf": true
+                    },
+                    "id": "up to two other target creatures you control"
+                },
+                "descriptionOverride": "When this creature enters, put a +1/+1 counter on each of up to two other target creatures you control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "12",
+        "artist": "Ilse Gort",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/d/cd092b14-d72f-4de0-8f19-1338661b9e3b.jpg?1782689256"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Felling Blow
 {
     "name": "Felling Blow",
@@ -1446,6 +1609,56 @@
     ]
 }
 
+// Goblin Boarders
+{
+    "name": "Goblin Boarders",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Goblin Pirate",
+    "oracleText": "Raid — This creature enters with a +1/+1 counter on it if you attacked this turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PLAYER_ATTACKED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "87",
+        "artist": "Filipe Pagliuso",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/4/4409a063-bf2a-4a49-803e-3ce6bd474353.jpg?1782689191"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Goblin Surprise
 {
     "name": "Goblin Surprise",
@@ -1506,6 +1719,65 @@
         "artist": "Kevin Sidharta",
         "flavorText": "\"Hey, your door's broken!\"",
         "imageUri": "https://cards.scryfall.io/normal/front/5/2/527dd5d4-5f72-40bb-8a9d-1f5ac3f81e2e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Gorehorn Raider
+{
+    "name": "Gorehorn Raider",
+    "manaCost": "{4}{R}",
+    "typeLine": "Creature — Minotaur Pirate",
+    "oracleText": "Raid — When this creature enters, if you attacked this turn, this creature deals 2 damage to any target.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "any target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "any target"
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "PLAYER_ATTACKED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "89",
+        "artist": "Warren Mahy",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/78ce6c40-3452-4aa0-a45b-dbfd70f8d220.jpg?1782689188"
     },
     "colorIdentityOverride": [
         "RED"
