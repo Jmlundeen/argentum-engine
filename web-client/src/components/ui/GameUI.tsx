@@ -1805,6 +1805,8 @@ interface HoveredStanding {
   gamesWon: number
   gamesLost: number
   lifeDifferential: number | undefined
+  omwPercent: number | undefined
+  ogwPercent: number | undefined
   tiebreakerReason: string | null | undefined
   rect: DOMRect
 }
@@ -2305,6 +2307,8 @@ function TournamentOverlay({
                   gamesWon: gamesWon,
                   gamesLost: gamesLost,
                   lifeDifferential: standing.lifeDifferential,
+                  omwPercent: standing.omwPercent,
+                  ogwPercent: standing.ogwPercent,
                   tiebreakerReason: standing.tiebreakerReason,
                   rect,
                 })
@@ -2380,11 +2384,23 @@ function TournamentOverlay({
             </div>
             {(hoveredStanding.gamesWon + hoveredStanding.gamesLost) > 0 && (
               <div className={styles.tooltipStat}>
-                <span className={styles.tooltipStatLabel}>Game Record</span>
+                <span className={styles.tooltipStatLabel}>Game Win % (GW%)</span>
                 <span className={styles.tooltipStatValue}>
                   {hoveredStanding.gamesWon}-{hoveredStanding.gamesLost} (
                   {((hoveredStanding.gamesWon / (hoveredStanding.gamesWon + hoveredStanding.gamesLost)) * 100).toFixed(0)}%)
                 </span>
+              </div>
+            )}
+            {hoveredStanding.omwPercent !== undefined && (
+              <div className={styles.tooltipStat}>
+                <span className={styles.tooltipStatLabel}>Opp. Match Win % (OMW%)</span>
+                <span className={styles.tooltipStatValue}>{(hoveredStanding.omwPercent * 100).toFixed(1)}%</span>
+              </div>
+            )}
+            {hoveredStanding.ogwPercent !== undefined && (
+              <div className={styles.tooltipStat}>
+                <span className={styles.tooltipStatLabel}>Opp. Game Win % (OGW%)</span>
+                <span className={styles.tooltipStatValue}>{(hoveredStanding.ogwPercent * 100).toFixed(1)}%</span>
               </div>
             )}
             {hoveredStanding.lifeDifferential !== undefined && (
@@ -2397,12 +2413,12 @@ function TournamentOverlay({
             )}
             {hoveredStanding.tiebreakerReason && hoveredStanding.tiebreakerReason !== 'TIED' && (
               <div className={styles.tooltipTiebreaker}>
-                {hoveredStanding.tiebreakerReason === 'HEAD_TO_HEAD'
-                  ? 'Ranked by head-to-head'
-                  : hoveredStanding.tiebreakerReason === 'H2H_GAMES'
-                    ? 'Ranked by H2H games'
-                    : hoveredStanding.tiebreakerReason === 'LIFE_DIFF'
-                      ? 'Ranked by life diff'
+                {hoveredStanding.tiebreakerReason === 'OMW'
+                  ? "Ranked by opponents' match-win %"
+                  : hoveredStanding.tiebreakerReason === 'GW'
+                    ? 'Ranked by game-win %'
+                    : hoveredStanding.tiebreakerReason === 'OGW'
+                      ? "Ranked by opponents' game-win %"
                       : null}
               </div>
             )}

@@ -1423,8 +1423,14 @@ export interface PlayerStandingInfo {
   readonly gamesWon?: number
   readonly gamesLost?: number
   readonly lifeDifferential?: number
+  /** Opponents' match-win % (0..1), first tiebreaker after match points. */
+  readonly omwPercent?: number
+  /** This player's own game-win % (0..1), second tiebreaker. */
+  readonly gwPercent?: number
+  /** Opponents' game-win % (0..1), third tiebreaker. */
+  readonly ogwPercent?: number
   readonly rank?: number
-  /** Tiebreaker reason: "HEAD_TO_HEAD", "H2H_GAMES", "LIFE_DIFF", "TIED", or null if no tie */
+  /** Tiebreaker reason: "OMW", "GW", "OGW", "TIED", or null if separated on match points. */
   readonly tiebreakerReason?: string | null
 }
 

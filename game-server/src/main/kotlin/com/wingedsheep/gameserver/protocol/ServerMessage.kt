@@ -663,8 +663,14 @@ sealed interface ServerMessage {
         val gamesWon: Int = 0,
         val gamesLost: Int = 0,
         val lifeDifferential: Int = 0,
+        /** Opponents' match-win % (0..1), the first Magic Tournament Rules tiebreaker after points. */
+        val omwPercent: Double = 0.0,
+        /** This player's own game-win % (0..1), the second tiebreaker. */
+        val gwPercent: Double = 0.0,
+        /** Opponents' game-win % (0..1), the third tiebreaker. */
+        val ogwPercent: Double = 0.0,
         val rank: Int = 0,
-        /** Tiebreaker reason: "HEAD_TO_HEAD", "H2H_GAMES", "LIFE_DIFF", "TIED", or null if no tie */
+        /** Tiebreaker reason: "OMW", "GW", "OGW", "TIED", or null if separated on match points. */
         val tiebreakerReason: String? = null
     )
 

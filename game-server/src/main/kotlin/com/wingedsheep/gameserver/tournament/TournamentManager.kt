@@ -23,15 +23,36 @@ data class PlayerStanding(
 }
 
 /**
- * Reason why a player's position was determined by a tiebreaker.
+ * Reason why a player's position was determined by a tiebreaker. The order mirrors the official
+ * Magic Tournament Rules standings tiebreakers (match points, then OMW%, then GW%, then OGW%).
+ * Head-to-head is deliberately *not* used: it is non-transitive (A>B>C>A) and so cannot define a
+ * consistent total order.
  */
 enum class TiebreakerReason {
-    NONE,           // No tie - won on points
-    HEAD_TO_HEAD,   // Won head-to-head matchup
-    H2H_GAMES,      // Won on head-to-head game differential
-    LIFE_DIFF,      // Won on life differential
+    NONE,           // No tie - separated on match points
+    OMW,            // Won on opponents' match-win percentage
+    GW,             // Won on game-win percentage
+    OGW,            // Won on opponents' game-win percentage
     TIED            // True tie - shared position
 }
+
+/**
+ * Pre-computed standings tiebreaker metrics for one player, per the Magic Tournament Rules. Computing
+ * these once up front (rather than via pairwise lookups inside a comparator) keeps the final sort a
+ * pure, transitive comparison over plain numbers — the head-to-head comparator this replaces violated
+ * the total-ordering contract and could sort arbitrarily (or throw) on a head-to-head cycle.
+ *
+ *   omw - mean of each opponent's match-win % (each floored at [TournamentManager.MINIMUM_PERCENTAGE]).
+ *   gw  - this player's own game-win % (not floored; the floor only protects opponents' averages).
+ *   ogw - mean of each opponent's game-win % (each floored at [TournamentManager.MINIMUM_PERCENTAGE]).
+ * Byes are excluded from the opponent list, so they never feed OMW%/OGW%.
+ */
+data class StandingMetrics(
+    val points: Int,
+    val omw: Double,
+    val gw: Double,
+    val ogw: Double
+)
 
 /**
  * A player standing with calculated rank and tiebreaker information.
@@ -86,6 +107,15 @@ class TournamentManager(
     players: List<Pair<EntityId, String>>, // (playerId, playerName)
     private val gamesPerMatch: Int = 1
 ) {
+    companion object {
+        /**
+         * Floor applied to each opponent's percentage when averaging OMW%/OGW% (Magic Tournament Rules:
+         * a contributing match-win/game-win percentage is never treated as below 1/3). Keeps a player
+         * from being dragged down by an opponent who later collapsed.
+         */
+        const val MINIMUM_PERCENTAGE: Double = 1.0 / 3.0
+    }
+
     private val standings = players.associate { (id, name) ->
         id to PlayerStanding(id, name)
     }.toMutableMap()
@@ -335,101 +365,94 @@ class TournamentManager(
     // =========================================================================
 
     /**
-     * Get the head-to-head result between two players.
-     *
-     * @return positive if player1 won more head-to-head matches,
-     *         negative if player2 won more,
-     *         0 if tied
+     * Each player's opponents across all completed, non-bye matches, with repeats preserved (a player
+     * met twice in a `gamesPerMatch > 1` schedule counts twice, so OMW%/OGW% average per match as the
+     * Magic Tournament Rules intend). Byes are excluded entirely.
      */
-    private fun getHeadToHeadResult(player1: EntityId, player2: EntityId): Int {
-        val matches = rounds.flatMap { it.matches }
-            .filter { it.hasPlayers(player1, player2) && it.isComplete && !it.isBye }
+    private fun opponentsByPlayer(): Map<EntityId, List<EntityId>> {
+        val opponents = playerIds.associateWith { mutableListOf<EntityId>() }
+        for (match in rounds.flatMap { it.matches }) {
+            if (!match.isComplete || match.isBye) continue
+            val p2 = match.player2Id ?: continue
+            opponents[match.player1Id]?.add(p2)
+            opponents[p2]?.add(match.player1Id)
+        }
+        return opponents
+    }
 
-        val p1Wins = matches.count { it.winnerId == player1 }
-        val p2Wins = matches.count { it.winnerId == player2 }
+    /** A player's own match-win % = match points / (3 × matches played); 0 with no matches played. */
+    private fun PlayerStanding.matchWinPercentage(): Double {
+        val matchesPlayed = wins + losses + draws
+        return if (matchesPlayed == 0) 0.0 else points.toDouble() / (3.0 * matchesPlayed)
+    }
 
-        return p1Wins.compareTo(p2Wins)
+    /** A player's own game-win % = games won / games played; 0 with no games played. */
+    private fun PlayerStanding.gameWinPercentage(): Double {
+        val gamesPlayed = gamesWon + gamesLost
+        return if (gamesPlayed == 0) 0.0 else gamesWon.toDouble() / gamesPlayed
     }
 
     /**
-     * Get the head-to-head game differential between two players.
-     * This counts individual game wins across all head-to-head matches.
-     *
-     * @return positive if player1 won more games in H2H matches,
-     *         negative if player2 won more,
-     *         0 if tied
+     * Compute the Magic Tournament Rules standings tiebreakers for every player. The opponents' averages
+     * floor each contributing percentage at [MINIMUM_PERCENTAGE] so a player isn't punished for having
+     * faced someone who later collapsed; a player with no completed non-bye matches gets `0.0` for the
+     * opponents' metrics.
      */
-    private fun getHeadToHeadGameDiff(player1: EntityId, player2: EntityId): Int {
-        val matches = rounds.flatMap { it.matches }
-            .filter { it.hasPlayers(player1, player2) && it.isComplete && !it.isBye }
-
-        var p1GameWins = 0
-        var p2GameWins = 0
-
-        for (match in matches) {
-            if (match.player1Id == player1) {
-                p1GameWins += match.player1GameWins
-                p2GameWins += match.player2GameWins
-            } else {
-                // player1 is in the player2Id slot
-                p1GameWins += match.player2GameWins
-                p2GameWins += match.player1GameWins
-            }
+    private fun computeMetrics(): Map<EntityId, StandingMetrics> {
+        val opponents = opponentsByPlayer()
+        return standings.mapValues { (id, standing) ->
+            val opps = opponents[id].orEmpty()
+            val omw = opps.map { maxOf(standings.getValue(it).matchWinPercentage(), MINIMUM_PERCENTAGE) }
+                .averageOrZero()
+            val ogw = opps.map { maxOf(standings.getValue(it).gameWinPercentage(), MINIMUM_PERCENTAGE) }
+                .averageOrZero()
+            StandingMetrics(standing.points, omw = omw, gw = standing.gameWinPercentage(), ogw = ogw)
         }
+    }
 
-        return p1GameWins.compareTo(p2GameWins)
+    private fun List<Double>.averageOrZero(): Double = if (isEmpty()) 0.0 else average()
+
+    /**
+     * Determine which Magic Tournament Rules tiebreaker first separated two adjacent players, given the
+     * already-computed [metrics]. Returns the first metric in MTR order (OMW% → GW% → OGW%) on which the
+     * higher player exceeds the lower; [TiebreakerReason.NONE] if they differ on match points (no tie),
+     * or [TiebreakerReason.TIED] if every metric is equal.
+     */
+    private fun determineTiebreakerUsed(
+        higher: PlayerStanding,
+        lower: PlayerStanding,
+        metrics: Map<EntityId, StandingMetrics>
+    ): TiebreakerReason {
+        val h = metrics.getValue(higher.playerId)
+        val l = metrics.getValue(lower.playerId)
+        return when {
+            h.points != l.points -> TiebreakerReason.NONE
+            h.omw > l.omw -> TiebreakerReason.OMW
+            h.gw > l.gw -> TiebreakerReason.GW
+            h.ogw > l.ogw -> TiebreakerReason.OGW
+            else -> TiebreakerReason.TIED
+        }
     }
 
     /**
-     * Determine which tiebreaker separated two players.
+     * Current standings sorted by the Magic Tournament Rules tiebreaker order:
+     * 1. Match points (wins × 3 + draws)
+     * 2. Opponents' match-win % (OMW%)
+     * 3. Game-win % (GW%)
+     * 4. Opponents' game-win % (OGW%)
      *
-     * @param higher The player ranked higher
-     * @param lower The player ranked lower
-     * @return The tiebreaker reason for the lower player
+     * The comparison is a pure, transitive order over pre-computed numbers, so — unlike the old
+     * head-to-head comparator — it can never violate the sort contract on a head-to-head cycle.
      */
-    private fun determineTiebreakerUsed(higher: PlayerStanding, lower: PlayerStanding): TiebreakerReason {
-        // If points differ, no tiebreaker needed
-        if (higher.points != lower.points) {
-            return TiebreakerReason.NONE
-        }
+    fun getStandings(): List<PlayerStanding> = getStandings(computeMetrics())
 
-        // Check head-to-head
-        val h2hResult = getHeadToHeadResult(higher.playerId, lower.playerId)
-        if (h2hResult > 0) {
-            return TiebreakerReason.HEAD_TO_HEAD
-        }
-
-        // Check head-to-head game differential
-        val h2hGameDiff = getHeadToHeadGameDiff(higher.playerId, lower.playerId)
-        if (h2hGameDiff > 0) {
-            return TiebreakerReason.H2H_GAMES
-        }
-
-        // Check life differential
-        if (higher.lifeDifferential > lower.lifeDifferential) {
-            return TiebreakerReason.LIFE_DIFF
-        }
-
-        // True tie
-        return TiebreakerReason.TIED
-    }
-
-    /**
-     * Get current standings sorted by points with tiebreakers applied.
-     *
-     * Tiebreaker order:
-     * 1. Points (wins × 3 + draws)
-     * 2. Head-to-head result
-     * 3. Head-to-head game differential
-     * 4. Life differential
-     * 5. Tied (shared position)
-     */
-    fun getStandings(): List<PlayerStanding> {
+    private fun getStandings(metrics: Map<EntityId, StandingMetrics>): List<PlayerStanding> {
+        fun key(s: PlayerStanding) = metrics.getValue(s.playerId)
         return standings.values.sortedWith(
-            compareByDescending<PlayerStanding> { it.points }
-                .thenComparator { a, b -> -getHeadToHeadResult(a.playerId, b.playerId) }
-                .thenComparator { a, b -> -getHeadToHeadGameDiff(a.playerId, b.playerId) }
-                .thenByDescending { it.lifeDifferential }
+            compareByDescending<PlayerStanding> { key(it).points }
+                .thenByDescending { key(it).omw }
+                .thenByDescending { key(it).gw }
+                .thenByDescending { key(it).ogw }
         )
     }
 
@@ -438,7 +461,8 @@ class TournamentManager(
      * Players who are truly tied share the same rank.
      */
     fun getRankedStandings(): List<RankedStanding> {
-        val sorted = getStandings()
+        val metrics = computeMetrics()
+        val sorted = getStandings(metrics)
         if (sorted.isEmpty()) return emptyList()
 
         val result = mutableListOf<RankedStanding>()
@@ -453,7 +477,7 @@ class TournamentManager(
                 tiebreakerReason = TiebreakerReason.NONE
             } else {
                 val previous = sorted[i - 1]
-                tiebreakerReason = determineTiebreakerUsed(previous, standing)
+                tiebreakerReason = determineTiebreakerUsed(previous, standing, metrics)
 
                 // Update rank only if truly different (not TIED)
                 if (tiebreakerReason != TiebreakerReason.TIED) {
@@ -471,8 +495,10 @@ class TournamentManager(
      * Get standings as server message format with tiebreaker information.
      */
     fun getStandingsInfo(connectedPlayerIds: Set<EntityId> = emptySet()): List<ServerMessage.PlayerStandingInfo> {
+        val metrics = computeMetrics()
         return getRankedStandings().map { ranked ->
             val s = ranked.standing
+            val m = metrics.getValue(s.playerId)
             ServerMessage.PlayerStandingInfo(
                 playerId = s.playerId.value,
                 playerName = s.playerName,
@@ -484,6 +510,9 @@ class TournamentManager(
                 gamesWon = s.gamesWon,
                 gamesLost = s.gamesLost,
                 lifeDifferential = s.lifeDifferential,
+                omwPercent = m.omw,
+                gwPercent = m.gw,
+                ogwPercent = m.ogw,
                 rank = ranked.rank,
                 tiebreakerReason = if (ranked.tiebreakerReason == TiebreakerReason.NONE) null else ranked.tiebreakerReason.name
             )
