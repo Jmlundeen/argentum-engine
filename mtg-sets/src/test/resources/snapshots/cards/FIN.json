@@ -13947,6 +13947,142 @@
     ]
 }
 
+// Sephiroth, Planet's Heir
+{
+    "name": "Sephiroth, Planet's Heir",
+    "manaCost": "{4}{U}{B}",
+    "typeLine": "Legendary Creature — Human Avatar Soldier",
+    "oracleText": "Vigilance (Attacking doesn't cause this creature to tap.)\nWhen Sephiroth enters, creatures your opponents control get -2/-2 until end of turn.\nWhenever a creature an opponent controls dies, put a +1/+1 counter on Sephiroth.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:opponent"
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "target": "Self"
+                    }
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:opponent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "553",
+        "rarity": "MYTHIC",
+        "artist": "Magali Villeneuve",
+        "flavorText": "\"This is the end... for all of you.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/b/abd73e52-62f0-4e89-9dc6-90ff0bc2a9b7.jpg?1782686131"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
+// Seymour Flux
+{
+    "name": "Seymour Flux",
+    "manaCost": "{4}{B}",
+    "typeLine": "Legendary Creature — Spirit Avatar",
+    "oracleText": "At the beginning of your upkeep, you may pay 1 life. If you do, draw a card and put a +1/+1 counter on Seymour Flux.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayLife",
+                            "amount": 1
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 1,
+                                "target": "Self"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "558",
+        "rarity": "RARE",
+        "artist": "K-SUWABE",
+        "flavorText": "\"Your hope ends here. And your meaningless existence with it.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/5/c5fdc78e-0815-443c-8c26-35387b6f4f37.jpg?1782686125"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Shambling Cie'th
 {
     "name": "Shambling Cie'th",
@@ -16630,6 +16766,83 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// The Earth Crystal
+{
+    "name": "The Earth Crystal",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "Green spells you cast cost {1} less to cast.\nIf one or more +1/+1 counters would be put on a creature you control, twice that many +1/+1 counters are put on that creature instead.\n{4}{G}{G}, {T}: Distribute two +1/+1 counters among one or two target creatures you control.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{G}{G}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "DistributeCountersAmongTargets",
+                    "totalCounters": 2
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "count": 2,
+                        "minCount": 1,
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    }
+                ]
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "green"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "DoubleCounterPlacement",
+                "appliesTo": {
+                    "type": "CounterPlacementEvent",
+                    "counterType": "PlusOnePlusOne",
+                    "recipient": {
+                        "type": "RecipientMatching",
+                        "filter": "creature ctrl:you"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "184",
+        "rarity": "RARE",
+        "artist": "Pablo Mendoza",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/5/d585e218-3dc8-4fbd-8ad2-795fbc9b2155.jpg?1782686462"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
