@@ -22,6 +22,7 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 
 /**
@@ -153,6 +154,31 @@ class ZhaoTheMoonSlayerScenarioTest : FunSpec({
         // The Mountain-ified land taps for {R} (intrinsic Mountain mana ability).
         driver.submitSuccess(ActivateAbility(playerId = me, sourceId = island, abilityId = AbilityId.intrinsicMana('R')))
         driver.pool(me).red shouldBe 1
+    }
+
+    test("regression: the Mountain-ified land's {R} intrinsic ability is OFFERED in legal actions (client can tap it)") {
+        // The bug: SetLandTypesForGroup marks the land lost-all-abilities (Layer 6), which
+        // suppressed the intrinsic Mountain mana ability in the legal-action enumerator — so
+        // the client never showed a tap option even though the handler would accept it. The
+        // effect-SET basic land type must keep its intrinsic mana ability (CR 305.7).
+        val (driver, me) = newGame()
+        val zhao = driver.putPermanentOnBattlefield(me, "Zhao, the Moon Slayer")
+        val island = driver.putLandOnBattlefield(me, "Tropical Island")
+
+        driver.giveColorlessMana(me, 7)
+        val abilityId = ZhaoTheMoonSlayer.activatedAbilities.first().id
+        driver.submitSuccess(ActivateAbility(playerId = me, sourceId = zhao, abilityId = abilityId))
+        driver.resolveAll()
+        driver.conquerorCounters(zhao) shouldBe 1
+
+        val landActions = driver.legalActions(me).filter {
+            val a = it.action
+            a is ActivateAbility && a.sourceId == island
+        }
+        // Exactly the Mountain {R} intrinsic ability is offered — its old Island/Forest
+        // abilities were stripped, and it is not silently dropped.
+        landActions.map { (it.action as ActivateAbility).abilityId }
+            .shouldContainExactly(AbilityId.intrinsicMana('R'))
     }
 
     test("without a conqueror counter, the nonbasic land keeps its identity and taps for its own color") {
