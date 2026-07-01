@@ -1380,7 +1380,8 @@
                                 "zone": "Hand"
                             }
                         },
-                        "ShuffleLibrary"
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
                     ]
                 }
             }
@@ -1491,7 +1492,8 @@
                         },
                         "revealed": true
                     },
-                    "ShuffleLibrary"
+                    "ShuffleLibrary",
+                    "EmitLibrarySearchedEvent"
                 ]
             },
             "otherwise": {
@@ -1527,7 +1529,8 @@
                         },
                         "revealed": true
                     },
-                    "ShuffleLibrary"
+                    "ShuffleLibrary",
+                    "EmitLibrarySearchedEvent"
                 ]
             }
         }
