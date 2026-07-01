@@ -40,7 +40,8 @@ val SkyskipperDuo = card("Skyskipper Duo") {
         val creature = target(
             "other creature you control",
             TargetCreature(
-                filter = TargetFilter(GameObjectFilter.Creature.youControl()),
+                // "one OTHER target creature you control" — Skyskipper Duo can't blink itself
+                filter = TargetFilter(GameObjectFilter.Creature.youControl()).other(),
                 optional = true
             )
         )

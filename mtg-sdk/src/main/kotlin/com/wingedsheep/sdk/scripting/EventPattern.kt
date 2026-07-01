@@ -1874,10 +1874,18 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @SerialName("PermanentsEnteredEvent")
     @Serializable
     data class PermanentsEnteredEvent(
-        val filter: GameObjectFilter = GameObjectFilter.Any
+        val filter: GameObjectFilter = GameObjectFilter.Any,
+        /**
+         * "One or more OTHER …" — the trigger's own source never counts toward the batch,
+         * so the ability doesn't fire off its source's own entry (Valley Questcaller).
+         * Contrast Satoru, the Infiltrator ("Satoru and/or one or more other creatures"),
+         * which deliberately counts itself and leaves this false.
+         */
+        val excludeSource: Boolean = false
     ) : EventPattern {
         override val description: String = buildString {
             append("one or more ")
+            if (excludeSource) append("other ")
             append(describeObjectForEvent(filter))
             append(" you control enter the battlefield")
         }

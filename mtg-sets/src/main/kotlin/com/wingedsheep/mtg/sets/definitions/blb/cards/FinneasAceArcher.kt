@@ -45,7 +45,9 @@ val FinneasAceArcher = card("Finneas, Ace Archer") {
 
         // Put a +1/+1 counter on each other creature you control that's a token or a Rabbit
         // Then if creatures you control have total power 10 or greater, draw a card
-        val tokenOrRabbitFilter = GameObjectFilter.Token or GameObjectFilter.Creature.withSubtype("Rabbit")
+        // "each other CREATURE … that's a token or a Rabbit" — noncreature tokens
+        // (Food, Treasure, …) don't get counters
+        val tokenOrRabbitFilter = GameObjectFilter.Creature.token() or GameObjectFilter.Creature.withSubtype("Rabbit")
         val otherTokenOrRabbitYouControl = GroupFilter(
             baseFilter = tokenOrRabbitFilter.youControl(),
             excludeSelf = true

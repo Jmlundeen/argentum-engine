@@ -1713,9 +1713,16 @@ object Triggers {
      *
      * Example: "Whenever one or more noncreature, nonland permanents you control enter"
      * → OneOrMorePermanentsEnter(GameObjectFilter.Noncreature and GameObjectFilter.Nonland)
+     *
+     * [excludeSource] models "one or more OTHER … you control enter" (Valley Questcaller):
+     * the source's own entry never counts toward the batch. Leave false for wordings that
+     * include the source ("Satoru and/or one or more other creatures…").
      */
-    fun OneOrMorePermanentsEnter(filter: GameObjectFilter = GameObjectFilter.Any): TriggerSpec = TriggerSpec(
-        event = PermanentsEnteredEvent(filter = filter),
+    fun OneOrMorePermanentsEnter(
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        excludeSource: Boolean = false
+    ): TriggerSpec = TriggerSpec(
+        event = PermanentsEnteredEvent(filter = filter, excludeSource = excludeSource),
         binding = TriggerBinding.ANY
     )
 

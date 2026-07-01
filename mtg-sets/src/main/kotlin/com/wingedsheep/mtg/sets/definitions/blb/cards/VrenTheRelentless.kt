@@ -2,13 +2,14 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
@@ -39,8 +40,9 @@ val VrenTheRelentless = card("Vren, the Relentless") {
         "\"This creature gets +1/+1 for each other Rat you control,\" where X is the number " +
         "of creatures that were exiled under your opponents' control this turn."
 
-    // Ward {2} — keyword display only; ward mechanic not yet enforced by engine
-    keywords(Keyword.WARD)
+    // Ward {2} — enforced: spells/abilities an opponent controls that target Vren are
+    // countered unless that player pays {2}
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     // Replacement effect: if a creature an opponent controls would die, exile it instead
     replacementEffect(

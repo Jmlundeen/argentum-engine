@@ -3076,9 +3076,12 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   Triggering permanent is `EffectTarget.TriggeringEntity`. Stalwart Successor shape.
 - `CountersPlacedOnThis` — "whenever you put one or more counters on ~" (any kind, SELF-bound).
   Aragorn, Company Leader.
-- `OneOrMorePermanentsEnter(filter?)` — batched ETB trigger; fires at most once per event batch
-  (CR 603.3b). The `filter`'s controller predicate scopes which players' permanents count: no
-  predicate means "you control" (default), `.opponentControls()` scopes to your opponents. The
+- `OneOrMorePermanentsEnter(filter?, excludeSource?)` — batched ETB trigger; fires at most once per
+  event batch (CR 603.3b). The `filter`'s controller predicate scopes which players' permanents
+  count: no predicate means "you control" (default), `.opponentControls()` scopes to your opponents.
+  `excludeSource = true` models "one or more **other** … you control enter" — the source's own entry
+  never counts toward the batch (Valley Questcaller); leave it false for wordings that include the
+  source ("Satoru and/or one or more other creatures…"). The
   matching members of the batch are exposed to the payoff as the pipeline collection
   `PipelineState.TRIGGER_CAPTURED_COLLECTION` — iterate them with
   `ForEachInCollectionEffect(PipelineState.TRIGGER_CAPTURED_COLLECTION, body)` where the body uses
