@@ -18599,6 +18599,203 @@
     ]
 }
 
+// The Legend of Yangchen
+{
+    "name": "The Legend of Yangchen",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Enchantment — Saga",
+    "oracleText": "(As this Saga enters and after your draw step, add a lore counter.)\nI — Starting with you, each player chooses up to one permanent with mana value 3 or greater from among permanents your opponents control. Exile those permanents.\nII — You may have target opponent draw three cards. If you do, draw three cards.\nIII — Exile this Saga, then return it to the battlefield transformed under your control.",
+    "script": {
+        "sagaChapters": [
+            {
+                "chapter": 1,
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "permanent mv>=3 ctrl:opponent"
+                            },
+                            "storeAs": "yangchenPool"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "yangchenPool",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "yangchenControllerPick",
+                            "storeRemainder": "yangchenRemaining",
+                            "prompt": "Choose up to one permanent with mana value 3 or greater from among permanents your opponents control",
+                            "selectedLabel": "Exile",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "yangchenRemaining",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "chooser": "Opponent",
+                            "storeSelected": "yangchenOpponentPick",
+                            "prompt": "Choose up to one permanent with mana value 3 or greater from among permanents your opponents control",
+                            "selectedLabel": "Exile",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "yangchenControllerPick",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "yangchenOpponentPick",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "chapter": 2,
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            },
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            }
+                        ]
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                }
+            },
+            {
+                "chapter": 3,
+                "effect": "ExileAndReturnTransformed"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Avatar Yangchen",
+        "manaCost": "",
+        "typeLine": "Legendary Creature — Avatar",
+        "oracleText": "Flying\nWhenever you cast your second spell each turn, airbend up to one other target nonland permanent. (Exile it. While it's exiled, its owner may cast it for {2} rather than its mana cost.)",
+        "creatureStats": {
+            "power": 4,
+            "toughness": 5
+        },
+        "keywords": [
+            "FLYING"
+        ],
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_1",
+                    "trigger": {
+                        "type": "NthSpellCastEvent",
+                        "nthSpell": 2,
+                        "player": "You"
+                    },
+                    "binding": "ANY",
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": "ChosenTargets",
+                                "storeAs": "airbendChosen"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "airbendChosen",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "storeMovedAs": "airbendExiled"
+                            },
+                            {
+                                "type": "GrantMayPlayFromExile",
+                                "from": "airbendExiled",
+                                "expiry": "Permanent",
+                                "ownerControls": true,
+                                "fixedAlternativeManaCost": "{2}"
+                            }
+                        ]
+                    },
+                    "targetRequirement": {
+                        "type": "TargetOther",
+                        "baseRequirement": {
+                            "type": "TargetObject",
+                            "optional": true,
+                            "filter": {
+                                "baseFilter": "nonland permanent"
+                            }
+                        },
+                        "id": "up to one other target nonland permanent"
+                    },
+                    "descriptionOverride": "Whenever you cast your second spell each turn, airbend up to one other target nonland permanent."
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "27",
+            "rarity": "MYTHIC",
+            "artist": "Kuno",
+            "flavorText": "\"Selfless duty calls you to sacrifice your own spiritual needs and do whatever it takes to protect the world.\"",
+            "imageUri": "https://cards.scryfall.io/normal/back/a/6/a60e8f23-90b2-4bc6-bd54-a95055556389.jpg?1764120067"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "27",
+        "rarity": "MYTHIC",
+        "artist": "Kuno",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/6/a60e8f23-90b2-4bc6-bd54-a95055556389.jpg?1764120067"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // The Lion-Turtle
 {
     "name": "The Lion-Turtle",
