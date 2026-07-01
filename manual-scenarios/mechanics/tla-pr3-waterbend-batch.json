@@ -17,18 +17,29 @@
       {"name": "Mountain"},
       {"name": "Plains"},
       {"name": "Plains"},
-      {"name": "Swamp"}
+      {"name": "Swamp"},
+      {"name": "Llanowar Elves"},
+      {"name": "Llanowar Elves"},
+      {"name": "Llanowar Elves"},
+      {"name": "Llanowar Elves"},
+      {"name": "Birds of Paradise"},
+      {"name": "Birds of Paradise"},
+      {"name": "Birds of Paradise"},
+      {"name": "Birds of Paradise"}    
     ],
     "graveyard": [],
     "library": ["Island", "Mountain", "Plains"]
   },
   "player2": {
     "lifeTotal": 20,
-    "hand": [],
+    "hand": ["Honest Work", "Opt"],
     "battlefield": [
       {"name": "Island"},
       {"name": "Island"},
+      {"name": "Island"},
+      {"name": "Island"},
       {"name": "Grizzly Bears"},
+      {"name": "Hill Giant"},
       {"name": "Gray Ogre"}
     ],
     "graveyard": [],
@@ -40,6 +51,5 @@
   "player1StopAtSteps": [],
   "player2StopAtSteps": [],
   "player1OpponentStopAtSteps": [],
-  "player2OpponentStopAtSteps": [],
-  "mode": "SELF"
+  "player2OpponentStopAtSteps": []
 }
