@@ -3889,6 +3889,21 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   your graveyard". Lands are *played*, not cast, so they need the lands permission separately. This
   grants permission over *other* cards in your graveyard from a battlefield permanent — for a card
   that grants permission to cast *itself* from a zone, use `MayCastSelfFromZones`.
+- `GraveyardCardsHaveFlashback(filter, cost = null, duringYourTurnOnly = false)` — a **whole-graveyard
+  flashback grant** (CR 702.34): a continuous static that grants flashback to *every* card in the
+  controller's graveyard matching `filter` (not a single-card grant like `Effects.GrantFlashback` /
+  Archmage's Newt). `cost = null` means "flashback cost equal to that card's mana cost"; pass a
+  `ManaCost` for a fixed cost. `duringYourTurnOnly = true` gates the grant to the controller's turn.
+  A matching card is castable from the graveyard for the flashback cost and is exiled on resolution,
+  exactly like printed flashback — all four read sites (enumeration, cast cost, permission, and the
+  stack resolver's exile-on-resolution clause) route through the shared `FlashbackGrants.effectiveFlashback`
+  resolver, which now also scans the battlefield for this static (matching on the card's
+  zone-independent characteristics, so it resolves the same whether the card is still in the
+  graveyard or already on the stack). Used by Iroh, Grand Lotus: one grant for
+  `InstantOrSorcery.notSubtype(Lesson)` with `cost = null` ("each non-Lesson instant and sorcery card
+  in your graveyard has flashback … equal to that card's mana cost") and one for
+  `InstantOrSorcery.withSubtype(Lesson)` with `cost = {1}` ("each Lesson card in your graveyard has
+  flashback {1}"), both `duringYourTurnOnly = true`.
 - `GrantMayCastFromLinkedExile(filter = Nonland, duringYourTurnOnly = false, additionalCost = null, ownedByYou = false, withoutPayingManaCost = false, oncePerTurn = false, maxManaValue = null, exiledThisTurnOnly = false)`
   — "you may cast cards exiled with this permanent" — reads the source's `LinkedExileComponent` (Rona,
   Disciple of Gix; Maralen, Fae Ascendant; Dawnhand Dissident). Casting spells from linked exile is

@@ -1145,8 +1145,11 @@ class CastFromZoneEnumerator : ActionEnumerator {
             val cardComponent = container.get<CardComponent>() ?: continue
             val cardDef = context.cardRegistry.getCard(cardComponent.cardDefinitionId) ?: continue
 
-            // Flashback may be printed on the card or granted at runtime (Archmage's Newt).
-            val flashback = FlashbackGrants.effectiveFlashback(state, cardId, cardDef) ?: continue
+            // Flashback may be printed, granted per-entity (Archmage's Newt), or granted to the
+            // whole graveyard by a battlefield static (Iroh, Grand Lotus).
+            val flashback = FlashbackGrants.effectiveFlashback(
+                state, cardId, cardDef, playerId, context.cardRegistry, context.predicateEvaluator
+            ) ?: continue
 
             // Check timing: instants at instant speed, sorceries at sorcery speed
             val isInstant = cardComponent.typeLine.isInstant

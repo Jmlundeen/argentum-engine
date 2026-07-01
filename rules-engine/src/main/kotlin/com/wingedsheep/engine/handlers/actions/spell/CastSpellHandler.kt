@@ -420,8 +420,11 @@ class CastSpellHandler(
         } else if (faceManaCostOverride != null && cardDef != null) {
             costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, faceManaCostOverride, action.playerId)
         } else if (action.useAlternativeCost && cardDef != null) {
-            // Check flashback cost first (printed on the card, or granted at runtime by Archmage's Newt).
-            val flashbackAbility = FlashbackGrants.effectiveFlashback(state, action.cardId, cardDef)
+            // Check flashback cost first (printed, granted per-entity by Archmage's Newt, or
+            // granted to the whole graveyard by a battlefield static — Iroh, Grand Lotus).
+            val flashbackAbility = FlashbackGrants.effectiveFlashback(
+                state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
+            )
             // Harmonize may be printed on the card or granted at runtime (Songcrafter Mage).
             val harmonizeAbility = HarmonizeGrants.effectiveHarmonize(state, action.cardId, cardDef)
             // Each branch is gated by [CastSpell.altAllows] so an explicit player choice (e.g.
@@ -1706,8 +1709,11 @@ class CastSpellHandler(
         } else if (faceManaCostOverrideExecute != null && cardDef != null) {
             costCalculator.calculateEffectiveCostWithAlternativeBase(currentState, cardDef, faceManaCostOverrideExecute, action.playerId)
         } else if (action.useAlternativeCost && cardDef != null) {
-            // Check flashback cost first (printed on the card, or granted at runtime by Archmage's Newt).
-            val flashbackAbility = FlashbackGrants.effectiveFlashback(currentState, action.cardId, cardDef)
+            // Check flashback cost first (printed, granted per-entity by Archmage's Newt, or
+            // granted to the whole graveyard by a battlefield static — Iroh, Grand Lotus).
+            val flashbackAbility = FlashbackGrants.effectiveFlashback(
+                currentState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
+            )
             // Harmonize may be printed on the card or granted at runtime (Songcrafter Mage).
             val harmonizeAbility = HarmonizeGrants.effectiveHarmonize(currentState, action.cardId, cardDef)
             // Branches gated by [CastSpell.altAllows] — mirrors validate(); honors the player's

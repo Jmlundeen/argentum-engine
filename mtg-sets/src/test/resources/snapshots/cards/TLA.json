@@ -9895,6 +9895,84 @@
     ]
 }
 
+// Iroh, Grand Lotus
+{
+    "name": "Iroh, Grand Lotus",
+    "manaCost": "{3}{G}{U}{R}",
+    "typeLine": "Legendary Creature — Human Noble Ally",
+    "oracleText": "Firebending 2 (Whenever this creature attacks, add {R}{R}. Until end of combat, you don't lose this mana as steps and phases end.)\nDuring your turn, each non-Lesson instant and sorcery card in your graveyard has flashback. The flashback cost is equal to that card's mana cost. (You may cast a card from your graveyard for its flashback cost. Then exile it.)\nDuring your turn, each Lesson card in your graveyard has flashback {1}.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FIREBENDING"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "FIREBENDING",
+            "n": 2
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "expiry": "END_OF_COMBAT"
+                },
+                "descriptionOverride": "Whenever this creature attacks, add {R}{R}. Until end of combat, you don't lose this mana as steps and phases end."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GraveyardCardsHaveFlashback",
+                "filter": {
+                    "cardPredicates": [
+                        {
+                            "type": "Or",
+                            "predicates": [
+                                "IsInstant",
+                                "IsSorcery"
+                            ]
+                        },
+                        {
+                            "type": "NotSubtype",
+                            "subtype": "Lesson"
+                        }
+                    ]
+                },
+                "duringYourTurnOnly": true
+            },
+            {
+                "type": "GraveyardCardsHaveFlashback",
+                "filter": "instant|sorcery Lesson",
+                "cost": "{1}",
+                "duringYourTurnOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "227",
+        "rarity": "RARE",
+        "artist": "Fahmi Fauzi",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/7/879b73d3-4552-4fdc-baee-c4d097ae9a4f.jpg?1764121663"
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Iroh, Tea Master
 {
     "name": "Iroh, Tea Master",
