@@ -3262,6 +3262,12 @@ object Effects {
         PreventDamageEffect(scope = PreventionScope.CombatOnly)
 
     /**
+     * Prevent all combat damage that would be dealt to [target] this turn (Fleeting Flight).
+     */
+    fun PreventAllCombatDamageTo(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
+        PreventDamageEffect(target = target, scope = PreventionScope.CombatOnly, duration = duration)
+
+    /**
      * Prevent all combat damage that would be dealt by creatures matching a filter.
      */
     fun PreventCombatDamageFrom(source: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter, duration: Duration = Duration.EndOfTurn): Effect =
