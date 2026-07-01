@@ -4,30 +4,34 @@
   "player1": {
     "lifeTotal": 20,
     "hand": [
-      "Earthen Ally",
+      "War Balloon",
+      "Fire Nation Palace",
+      "Fire Nation Cadets",
       "Bender's Waterskin",
-      "Wan Shi Tong, Librarian",
-      "Secret Tunnel",
-      "Fire Nation Palace"
+      "Wan Shi Tong, Librarian"
     ],
     "battlefield": [
-      {"name": "Forest"},
       {"name": "Island"},
       {"name": "Island"},
       {"name": "Island"},
-      {"name": "Island"}
+      {"name": "Mountain"},
+      {"name": "Mountain"},
+      {"name": "Mountain"}
     ],
     "graveyard": [],
-    "library": ["Forest", "Island", "Mountain"]
+    "library": ["Island", "Mountain", "Forest"]
   },
   "player2": {
     "lifeTotal": 20,
     "hand": [],
     "battlefield": [
-      {"name": "Grizzly Bears"}
+      {"name": "Island"},
+      {"name": "Island"},
+      {"name": "Grizzly Bears"},
+      {"name": "Gray Ogre"}
     ],
     "graveyard": [],
-    "library": ["Plains", "Swamp", "Island"]
+    "library": ["Island", "Plains", "Forest"]
   },
   "phase": "PRECOMBAT_MAIN",
   "activePlayer": 1,
@@ -35,5 +39,6 @@
   "player1StopAtSteps": [],
   "player2StopAtSteps": [],
   "player1OpponentStopAtSteps": [],
-  "player2OpponentStopAtSteps": []
+  "player2OpponentStopAtSteps": [],
+  "mode": "SELF"
 }
