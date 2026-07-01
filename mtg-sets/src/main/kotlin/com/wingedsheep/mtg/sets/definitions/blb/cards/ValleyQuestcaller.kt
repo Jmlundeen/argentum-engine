@@ -1,15 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -35,15 +32,11 @@ val ValleyQuestcaller = card("Valley Questcaller") {
     )
     val valleyCreatureFilter = GameObjectFilter.Creature.youControl().withAnyOfSubtypes(valleySubtypes)
 
-    // Triggered: whenever one or more other matching creatures ETB under your control, scry 1
+    // Triggered: whenever one or more other matching creatures ETB under your control, scry 1.
+    // Batched (CR 603.3b): simultaneous entries yield a single scry, and Questcaller's own
+    // entry doesn't count ("other") — but it does trigger off others entering alongside it.
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = valleyCreatureFilter,
-                to = Zone.BATTLEFIELD
-            ),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.OneOrMorePermanentsEnter(valleyCreatureFilter, excludeSource = true)
         effect = Patterns.Library.scry(1)
     }
 

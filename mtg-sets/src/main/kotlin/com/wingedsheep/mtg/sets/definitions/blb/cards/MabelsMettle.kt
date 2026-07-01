@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.targets.TargetOther
 
 /**
  * Mabel's Mettle {1}{W}
@@ -21,7 +22,8 @@ val MabelsMettle = card("Mabel's Mettle") {
 
     spell {
         val primary = target("target creature", Targets.Creature)
-        val secondary = target("up to one other target creature", TargetCreature(optional = true))
+        // "other target creature" — must differ from the first target (CR 601.2c)
+        val secondary = target("up to one other target creature", TargetOther(TargetCreature(optional = true)))
         effect = Effects.ModifyStats(2, 2, primary)
             .then(Effects.ModifyStats(1, 1, secondary))
     }

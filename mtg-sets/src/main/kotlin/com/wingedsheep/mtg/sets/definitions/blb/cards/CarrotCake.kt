@@ -15,10 +15,6 @@ import com.wingedsheep.sdk.model.Rarity
  * When this artifact enters and when you sacrifice it, create a 1/1 white
  * Rabbit creature token and scry 1.
  * {2}, {T}, Sacrifice this artifact: You gain 3 life.
- *
- * Note: "When you sacrifice it" is approximated using the Dies trigger
- * (battlefield → graveyard with SELF binding). This covers sacrifice cases
- * and also destroy, which is slightly broader than oracle text specifies.
  */
 val CarrotCake = card("Carrot Cake") {
     manaCost = "{1}{W}"
@@ -40,9 +36,10 @@ val CarrotCake = card("Carrot Cake") {
         effect = createRabbitAndScry
     }
 
-    // When you sacrifice it — same effect (create Rabbit token + scry 1)
+    // When you sacrifice it — same effect (create Rabbit token + scry 1).
+    // Sacrifice only: destruction or other battlefield→graveyard moves must not trigger this.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.Sacrificed
         effect = createRabbitAndScry
     }
 

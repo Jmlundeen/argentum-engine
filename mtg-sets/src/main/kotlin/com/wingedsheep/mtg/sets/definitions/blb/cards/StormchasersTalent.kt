@@ -3,11 +3,11 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Stormchaser's Talent {U}
@@ -43,11 +43,14 @@ val StormchasersTalent = card("Stormchaser's Talent") {
         )
     }
 
-    // Level 2: When this becomes level 2, return target instant or sorcery from graveyard to hand
+    // Level 2: When this becomes level 2, return target instant or sorcery from YOUR graveyard to hand
     classLevel(2, "{3}{U}") {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
-            val card = target("instant or sorcery card in a graveyard", Targets.InstantOrSorceryInGraveyard)
+            val card = target(
+                "instant or sorcery card in your graveyard",
+                TargetObject(filter = TargetFilter.InstantOrSorceryInYourGraveyard)
+            )
             effect = Effects.ReturnToHand(card)
         }
     }

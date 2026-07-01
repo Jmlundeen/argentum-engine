@@ -30,11 +30,10 @@ val WarSqueak = card("War Squeak") {
     auraTarget = Targets.Creature
 
     // When this Aura enters, target creature an opponent controls can't block this turn.
-    // Using CantAttackOrBlock as closest available effect (slightly stronger than card text)
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target = Targets.CreatureOpponentControls
-        effect = Effects.CantAttackOrBlock(EffectTarget.ContextTarget(0))
+        effect = Effects.CantBlock(EffectTarget.ContextTarget(0))
     }
 
     // Enchanted creature gets +1/+1

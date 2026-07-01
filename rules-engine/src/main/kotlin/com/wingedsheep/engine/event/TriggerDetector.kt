@@ -2284,6 +2284,8 @@ class TriggerDetector(
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsNonartifact -> !info.cardComponent.typeLine.isArtifact
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsPermanent -> info.cardComponent.typeLine.isPermanent
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtype -> info.cardComponent.typeLine.hasSubtype(predicate.subtype)
+                    is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasAnyOfSubtypes ->
+                        predicate.subtypes.any { info.cardComponent.typeLine.hasSubtype(it) }
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsArtifact -> info.cardComponent.typeLine.isArtifact
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsEnchantment -> info.cardComponent.typeLine.isEnchantment
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsToken -> info.isToken
@@ -2322,9 +2324,12 @@ class TriggerDetector(
 
                 // The permanents in this batch matching both the card filter and the controller
                 // scope — these "caused" the trigger and are exposed to the payoff (CR 603.3b
-                // groups them into a single batch trigger).
+                // groups them into a single batch trigger). "One or more OTHER …" wordings
+                // (excludeSource) never count the trigger's own source entering.
                 val matching = enters.filter { info ->
-                    controllerMatches(info.controllerId) && matchesCardPredicates(info, trigger.filter)
+                    (!trigger.excludeSource || info.entityId != entry.entityId) &&
+                        controllerMatches(info.controllerId) &&
+                        matchesCardPredicates(info, trigger.filter)
                 }
 
                 if (matching.isNotEmpty()) {

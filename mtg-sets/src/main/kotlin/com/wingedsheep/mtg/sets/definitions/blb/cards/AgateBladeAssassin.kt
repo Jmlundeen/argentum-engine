@@ -29,7 +29,7 @@ val AgateBladeAssassin = card("Agate-Blade Assassin") {
         trigger = Triggers.Attacks
         effect = Effects.Composite(
             listOf(
-                LoseLifeEffect(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+                LoseLifeEffect(1, EffectTarget.PlayerRef(Player.DefendingPlayer)),
                 GainLifeEffect(1, EffectTarget.Controller)
             )
         )
