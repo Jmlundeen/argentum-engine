@@ -3943,6 +3943,15 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
     grant. (Cascade-style granted keywords are instead modelled as a `youCastSpell(...)`-triggered `Effects.Cascade`
     on the granter — see **Quandrix, the Proof** / Wildsear, Scouring Maw — since cascade is a cast trigger, not a
     cost keyword.)
+  - **Damage keywords on the spell object** (LIFELINK) — the noncombat-damage path (`DamageUtils.dealDamageToTarget`)
+    now also consults `GrantedKeywordResolver` for the spell *source's* current controller, so
+    "`<type>` spells you control have lifelink" is honored when a matching spell deals damage → its controller
+    gains that much life (**Lo and Li, Twin Tutors** → `GrantKeywordToOwnSpells(LIFELINK, Any.withSubtype("Lesson"))`,
+    validated with a burn Lesson like Ozai's Cruelty). Static keyword projection only reaches battlefield permanents,
+    so a *spell* granted lifelink is invisible to `projected.hasKeyword`; the damage site reads the grant directly
+    (the same shape as the existing wither-on-spell check, which reads `SpellGrantedKeywordsComponent`). One-shot
+    per-spell grants (`GrantKeywordToSpellEffect` → `SpellGrantedKeywordsComponent`, e.g. a copy that gains lifelink)
+    feed the same check.
 - `MayCastWithoutPayingManaCost(controllerOnly = false, firstSpellOfTurnOnly = false, spellFilter = Any, oncePerTurn = false, fromExileOnly = false)` — a
   battlefield permission to cast a spell without paying its mana cost (CR 118.9). Composable
   gates: `controllerOnly = true` restricts the benefit to the source's controller ("you" wording);

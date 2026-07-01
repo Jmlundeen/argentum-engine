@@ -11194,6 +11194,97 @@
     ]
 }
 
+// Lo and Li, Twin Tutors
+{
+    "name": "Lo and Li, Twin Tutors",
+    "manaCost": "{4}{B}",
+    "typeLine": "Legendary Creature — Human Advisor",
+    "oracleText": "When Lo and Li enter, search your library for a Lesson or Noble card, reveal it, put it into your hand, then shuffle.\nNoble creatures you control and Lesson spells you control have lifelink.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "Lesson|Noble"
+                            },
+                            "storeAs": "searchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "LIFELINK",
+                "filter": {
+                    "baseFilter": "creature Noble ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeywordToOwnSpells",
+                "keyword": "LIFELINK",
+                "spellFilter": {
+                    "cardPredicates": [
+                        {
+                            "type": "HasSubtype",
+                            "subtype": "Lesson"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "108",
+        "rarity": "UNCOMMON",
+        "artist": "AKAGI",
+        "flavorText": "\"Almost perfect,\" Lo began. Li finished, \"One hair out of place.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cba9260d-ef07-4429-99f9-6004cc1fea0f.jpg?1764120747"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Long Feng, Grand Secretariat
 {
     "name": "Long Feng, Grand Secretariat",
