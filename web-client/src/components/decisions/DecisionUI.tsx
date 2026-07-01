@@ -26,9 +26,16 @@ import { ManaSourceSelectionUI } from './ManaSourceSelectionUI'
 import styles from './DecisionUI.module.css'
 
 /**
- * Check if all legal targets in a ChooseTargetsDecision are players.
+ * Check if a ChooseTargetsDecision is a single player-only requirement.
+ *
+ * Only then is the simple auto-submit [PlayerTargetingUI] banner appropriate. A decision with more
+ * than one target requirement (e.g. Iroh, Tea Master: "target opponent" + "target permanent you
+ * control") must route to [BattlefieldTargetingUI], which walks each requirement in turn and drives
+ * player-orb selection through decisionSelectionState — [PlayerTargetingUI] can only collect a lone
+ * player slot and would strand the remaining requirements.
  */
 function isPlayerOnlyTargeting(decision: ChooseTargetsDecision, playerIds: EntityId[]): boolean {
+  if (decision.targetRequirements.length !== 1) return false
   const legalTargets = decision.legalTargets[0] ?? []
   if (legalTargets.length === 0) return false
   return legalTargets.every((targetId) => playerIds.includes(targetId))
