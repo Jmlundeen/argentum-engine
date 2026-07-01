@@ -2,13 +2,18 @@ package com.wingedsheep.engine.mechanics.sba.permanent
 
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.cleanupReverseAttachmentLink
+import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.sba.SbaOrder
 import com.wingedsheep.engine.mechanics.sba.SbaZoneMovementHelper
 import com.wingedsheep.engine.mechanics.sba.StateBasedActionCheck
+import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentHostLeftComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.GrantProtection
 
 /**
  * 704.5m - An Aura attached to an illegal object/player or not attached goes to graveyard.
@@ -23,8 +28,17 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
  *              into a 0/0 Robot artifact creature by Tezzeret, Cruel Captain's emblem.
  * 704.5p - A battle or creature attached to an object or player becomes unattached but
  *          remains on the battlefield.
+ *
+ * Protection (CR 702.16c/d): a permanent with protection from a quality can't be enchanted by
+ * Auras (put into their owners' graveyards as a state-based action) or equipped by Equipment
+ * (becomes unattached, stays on the battlefield) that have the stated quality. This covers
+ * protection gained *after* the attachment landed — targeting-time protection is enforced by
+ * `TargetValidator`. An attachment whose own printed ability grants that very protection to
+ * its host is exempt ("This effect doesn't remove this Aura", the Ward cycle).
  */
-class UnattachedAurasCheck : StateBasedActionCheck {
+class UnattachedAurasCheck(
+    private val cardRegistry: CardRegistry
+) : StateBasedActionCheck {
     override val name = "704.5m/n/p Unattached Auras"
     override val order = SbaOrder.UNATTACHED_AURAS
 
@@ -128,10 +142,68 @@ class UnattachedAurasCheck : StateBasedActionCheck {
                     newState = newState.updateEntity(entityId) { c ->
                         c.without<AttachedToComponent>()
                     }
+                } else if (
+                    hostProtectedFromAttachmentColor(projected, entityId, cardComponent, attachedTo.targetId)
+                ) {
+                    // CR 702.16c/d: the host has protection from one of this attachment's colors
+                    // (gained after the attachment landed — e.g. White Ward's pro-white sends an
+                    // already-attached Holy Strength to the graveyard). Aura -> owner's graveyard
+                    // (704.5m); Equipment -> unattaches, stays on the battlefield (704.5n).
+                    if (isAura) {
+                        val result = SbaZoneMovementHelper.putPermanentInGraveyard(
+                            newState, entityId, cardComponent,
+                            lastKnownAttachedTo = attachedTo.targetId
+                        )
+                        newState = result.newState
+                        events.addAll(result.events)
+                    } else {
+                        newState = cleanupReverseAttachmentLink(newState, entityId)
+                        newState = newState.updateEntity(entityId) { c ->
+                            c.without<AttachedToComponent>()
+                        }
+                    }
                 }
             }
         }
 
         return ExecutionResult.success(newState, events)
+    }
+
+    /**
+     * True when the attached permanent's host has protection from one of the attachment's
+     * (projected) colors, CR 702.16c/d. An attachment whose own printed [GrantProtection]
+     * grants that color's protection is exempt — the Ward cycle's "This effect doesn't remove
+     * this Aura". (Approximation: the exemption is per-color rather than per-effect, so two
+     * same-color Wards on one host both survive where strict rules would remove each via the
+     * other's effect — an untracked-provenance corner case.)
+     */
+    private fun hostProtectedFromAttachmentColor(
+        projected: ProjectedState,
+        attachmentId: EntityId,
+        attachmentCard: CardComponent,
+        hostId: EntityId
+    ): Boolean {
+        val colors = projected.getColors(attachmentId)
+        if (colors.isEmpty()) return false
+        val statics = cardRegistry.getCard(attachmentCard.cardDefinitionId)
+            ?.staticAbilities
+            .orEmpty()
+        // Dynamic protection grants (chosen color, colors of controlled permanents) can cover
+        // any color at any time — exempt the attachment from protection-removal entirely
+        // (Pledge of Loyalty's "This effect doesn't remove Pledge of Loyalty").
+        if (statics.any {
+                it is com.wingedsheep.sdk.scripting.GrantProtectionFromControlledColors ||
+                    it is com.wingedsheep.sdk.scripting.GrantProtectionFromChosenColorToGroup
+            }
+        ) return false
+        val selfGrantedColors: Set<Color> = statics
+            .filterIsInstance<GrantProtection>()
+            .map { it.color }
+            .toSet()
+        return Color.entries.any { color ->
+            color.name in colors &&
+                color !in selfGrantedColors &&
+                projected.hasKeyword(hostId, "PROTECTION_FROM_${color.name}")
+        }
     }
 }

@@ -41,7 +41,7 @@ val IslandFishJasconius = card("Island Fish Jasconius") {
     }
 
     staticAbility {
-        ability = CantAttackUnless(Conditions.OpponentControlsLandType("Island"))
+        ability = CantAttackUnless(Conditions.DefendingPlayerControlsLandType("Island"))
     }
 
     stateTriggeredAbility {

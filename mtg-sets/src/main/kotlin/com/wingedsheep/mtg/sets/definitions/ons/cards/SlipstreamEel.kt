@@ -23,7 +23,7 @@ val SlipstreamEel = card("Slipstream Eel") {
     oracleText = "Slipstream Eel can't attack unless defending player controls an Island.\nCycling {1}{U}"
 
     staticAbility {
-        ability = CantAttackUnless(Conditions.OpponentControlsLandType("Island"))
+        ability = CantAttackUnless(Conditions.DefendingPlayerControlsLandType("Island"))
     }
 
     keywordAbility(KeywordAbility.cycling("{1}{U}"))

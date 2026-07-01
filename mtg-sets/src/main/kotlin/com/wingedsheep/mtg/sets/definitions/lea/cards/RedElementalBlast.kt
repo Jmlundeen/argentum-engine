@@ -4,9 +4,12 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
@@ -24,8 +27,16 @@ val RedElementalBlast = card("Red Elemental Blast") {
     typeLine = "Instant"
     oracleText = "Choose one —\n• Counter target blue spell.\n• Destroy target blue permanent."
     spell {
-        val t = target("target", TargetSpell())
-        effect = CounterEffect()
+        modal(chooseCount = 1) {
+            mode("Counter target blue spell") {
+                val t = target("target", TargetSpell(filter = TargetFilter.SpellOnStack.withColor(Color.BLUE)))
+                effect = Effects.CounterSpell()
+            }
+            mode("Destroy target blue permanent") {
+                val t = target("target", TargetPermanent(filter = TargetFilter.Permanent.withColor(Color.BLUE)))
+                effect = Effects.Destroy(t)
+            }
+        }
     }
     metadata {
         rarity = Rarity.COMMON

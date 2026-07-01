@@ -29,7 +29,7 @@ val MerchantShip = card("Merchant Ship") {
         "When you control no Islands, sacrifice this creature."
 
     staticAbility {
-        ability = CantAttackUnless(Conditions.OpponentControlsLandType("Island"))
+        ability = CantAttackUnless(Conditions.DefendingPlayerControlsLandType("Island"))
     }
 
     triggeredAbility {

@@ -24,7 +24,7 @@ val UrzasMine = card("Urza's Mine") {
         cost = Costs.Tap
         effect = ConditionalEffect(
             condition = Conditions.All(
-                Conditions.YouControl(GameObjectFilter.Land.named("Urza's Power-Plant")),
+                Conditions.YouControl(GameObjectFilter.Land.named("Urza's Power Plant")),
                 Conditions.YouControl(GameObjectFilter.Land.named("Urza's Tower"))
             ),
             effect = Effects.AddColorlessMana(2),

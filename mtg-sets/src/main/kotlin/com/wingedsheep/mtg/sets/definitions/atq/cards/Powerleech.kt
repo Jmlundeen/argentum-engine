@@ -17,9 +17,12 @@ import com.wingedsheep.sdk.scripting.references.Player
  *
  * Same "tap / activate an artifact" punisher template as Haunting Wind, but scoped to opponents'
  * artifacts and rewarding the enchantment's controller with life instead of dealing damage:
- *  - tap half: [Triggers.becomesTapped] over `Artifact.opponentControls()`.
- *  - ability half: [Triggers.activatesAbilityWithoutTap] with [Player.EachOpponent] and the same
- *    opponent-controlled artifact filter ("an opponent activates an artifact's ability").
+ *  - tap half: [Triggers.becomesTapped] over `Artifact.opponentControls()` ("an artifact an
+ *    opponent controls becomes tapped").
+ *  - ability half: [Triggers.activatesAbilityWithoutTap] with [Player.EachOpponent] and NO
+ *    controller restriction on the artifact — oracle only requires that "an opponent activates
+ *    an artifact's ability", so an opponent activating an any-player ability of an artifact
+ *    you control (e.g. Armageddon Clock) also triggers it.
  *
  * The reward is [Effects.GainLife] for the controller (default target), so no triggering-entity
  * reference is needed.
@@ -42,7 +45,7 @@ val Powerleech = card("Powerleech") {
     triggeredAbility {
         trigger = Triggers.activatesAbilityWithoutTap(
             player = Player.EachOpponent,
-            sourceFilter = GameObjectFilter.Artifact.opponentControls()
+            sourceFilter = GameObjectFilter.Artifact
         )
         effect = Effects.GainLife(1)
     }

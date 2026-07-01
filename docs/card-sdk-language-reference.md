@@ -4431,7 +4431,7 @@ answer it and would silently return `false`.
 - `OpponentControlsMoreCreatures` — an opponent outpaces you.
 - `OpponentControlsMoreLands` — an opponent has more lands.
 - `OpponentHasMoreCardsInHand` — an opponent has more cards in hand than you (compares opponents' hand size to yours). Used by Beza, the Bounding Spring and Joined Researchers.
-- `OpponentControlsLandType(type)` — opponent controls land of a type.
+- `DefendingPlayerControlsLandType(type)` — the defending player controls a land of a type (CantAttackUnless template; defender-relative, not any-opponent).
 - `CompareAmounts(left, operator, right)` — generic numeric comparison of two `DynamicAmount`s with a
   `ComparisonOperator.{LT,LTE,EQ,NEQ,GT,GTE}` (composes the underlying `Compare` condition). The facade
   entry point for any "if amount X (relation) amount Y" intervening-if or static gate. Used by Taii

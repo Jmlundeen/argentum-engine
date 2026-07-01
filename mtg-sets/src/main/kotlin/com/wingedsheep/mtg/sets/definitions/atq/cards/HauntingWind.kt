@@ -23,7 +23,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    [EffectTarget.ControllerOfTriggeringEntity].
  *  - the ability half ([Triggers.activatesAbilityWithoutTap]) — keys on the literal "without {T}
  *    in its activation cost" wording (not "isn't a mana ability"), so a non-{T} mana ability also
- *    fires it. "That artifact's controller" is the activating player ([Player.TriggeringPlayer]).
+ *    fires it. "That artifact's controller" is the controller of the activated artifact
+ *    ([EffectTarget.ControllerOfTriggeringEntity]) — not the activating player, which differs
+ *    when a non-controller activates (e.g. Armageddon Clock's any-player ability).
  */
 val HauntingWind = card("Haunting Wind") {
     manaCost = "{3}{B}"
@@ -46,7 +48,7 @@ val HauntingWind = card("Haunting Wind") {
             player = Player.Each,
             sourceFilter = GameObjectFilter.Artifact
         )
-        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
+        effect = Effects.DealDamage(1, EffectTarget.ControllerOfTriggeringEntity)
     }
 
     metadata {

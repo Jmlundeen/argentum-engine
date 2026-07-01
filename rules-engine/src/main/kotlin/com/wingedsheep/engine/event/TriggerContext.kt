@@ -274,7 +274,13 @@ data class TriggerContext(
                     triggeringPlayerId = event.chooserId
                 )
                 is AbilityActivatedEvent -> TriggerContext(
-                    triggeringEntityId = event.abilityEntityId,
+                    // The ability's stack entity — copy effects target it (Ertha Jo's
+                    // CopyTargetSpellOrAbility(TriggeringEntity)). "That artifact's controller"
+                    // reads resolve THROUGH it: ControllerOfTriggeringEntity falls through the
+                    // ActivatedAbilityOnStackComponent to the source permanent's controller.
+                    // A non-{T} mana ability never reaches the stack (abilityEntityId == null),
+                    // so fall back to the source permanent directly (Haunting Wind).
+                    triggeringEntityId = event.abilityEntityId ?: event.sourceId,
                     triggeringPlayerId = event.controllerId
                 )
                 is AbilityTriggeredEvent -> TriggerContext(

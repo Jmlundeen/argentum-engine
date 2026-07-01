@@ -4,11 +4,13 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 
@@ -28,7 +30,7 @@ val NorthernPaladin = card("Northern Paladin") {
     toughness = 3
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}{W}"), Costs.Tap)
-        val t = target("target", TargetPermanent())
+        val t = target("target", TargetPermanent(filter = TargetFilter.Permanent.withColor(Color.BLACK)))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
     metadata {

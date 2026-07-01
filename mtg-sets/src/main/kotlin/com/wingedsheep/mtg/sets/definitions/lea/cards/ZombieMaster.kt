@@ -47,7 +47,7 @@ val ZombieMaster = card("Zombie Master") {
                 cost = Costs.Mana("{B}"),
                 effect = RegenerateEffect(EffectTarget.Self)
             ),
-            filter = GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE), excludeSelf = true)
+            filter = GroupFilter(GameObjectFilter.Permanent.withSubtype(Subtype.ZOMBIE), excludeSelf = true)
         )
     }
     metadata {

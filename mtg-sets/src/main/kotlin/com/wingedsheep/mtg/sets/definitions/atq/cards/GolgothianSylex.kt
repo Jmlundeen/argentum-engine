@@ -15,9 +15,10 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  *
  * `SacrificeAll` over the set-membership filter: every nontoken permanent whose card was
  * *originally printed* in ATQ (`originallyPrintedInSet("ATQ")`, canonical set code — reprints
- * still match), excluding Golgothian Sylex itself (it is an ATQ artifact, so without the
- * self-exclusion it would sacrifice itself). Each matching permanent is sacrificed by its own
- * controller (CR 701.21), routed to its owner's graveyard; tokens never match the filter.
+ * still match), including Golgothian Sylex itself (its name was originally printed in ATQ and
+ * the oracle text has no self-exclusion, so it sacrifices itself). Each matching permanent is
+ * sacrificed by its own controller (CR 701.17), routed to its owner's graveyard; tokens never
+ * match the filter.
  */
 val GolgothianSylex = card("Golgothian Sylex") {
     manaCost = "{4}"
@@ -28,8 +29,7 @@ val GolgothianSylex = card("Golgothian Sylex") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
         effect = Effects.SacrificeAll(
-            filter = GameObjectFilter.Permanent.nontoken().originallyPrintedInSet("ATQ"),
-            excludeTriggering = true
+            filter = GameObjectFilter.Permanent.nontoken().originallyPrintedInSet("ATQ")
         )
         description = "{1}, {T}: Each nontoken permanent with a name originally printed in the Antiquities expansion is sacrificed by its controller."
     }

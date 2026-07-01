@@ -68,8 +68,17 @@ object TargetResolutionUtils {
         if (effectTarget is EffectTarget.ControllerOfTriggeringEntity) {
             val triggerId = context.triggeringEntityId ?: return null
             val entity = state.getEntity(triggerId) ?: return null
-            return entity.get<ControllerComponent>()?.playerId
-                ?: entity.get<CardComponent>()?.ownerId
+            entity.get<ControllerComponent>()?.playerId?.let { return it }
+            // An activated ability's stack entity is a bare container with no
+            // ControllerComponent. "That artifact's controller" (Haunting Wind, Artifact
+            // Possession) means the controller of the ability's SOURCE permanent — fall
+            // through to it, or to the ability's own controller as last-known information
+            // if the source has left the battlefield.
+            entity.get<com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent>()?.let { ability ->
+                return state.getEntity(ability.sourceId)?.get<ControllerComponent>()?.playerId
+                    ?: ability.controllerId
+            }
+            return entity.get<CardComponent>()?.ownerId
         }
         if (effectTarget is EffectTarget.AttachedToTriggeringPermanent) {
             // The triggering entity is the attachment (Aura/Equipment) that became attached; the
@@ -99,13 +108,16 @@ object TargetResolutionUtils {
             ?: context.targets.firstOrNull()?.toEntityId()
 
     /**
-     * The defending player for the ability's source, per CR 802.2a: read from the
-     * source's attack assignment (a creature attacking a planeswalker defends against
-     * that planeswalker's controller). When the source has already left combat (e.g.
-     * it died dealing combat damage), the trigger event's player is last-known
-     * information for "deals combat damage to a player" triggers.
+     * The defending player for the ability's source, per CR 802.2a: an explicitly bound
+     * defender (attack-declaration legality checks bind [EffectContext.defendingPlayerId]
+     * before the attacker has an `AttackingComponent`), else read from the source's attack
+     * assignment (a creature attacking a planeswalker defends against that planeswalker's
+     * controller). When the source has already left combat (e.g. it died dealing combat
+     * damage), the trigger event's player is last-known information for "deals combat
+     * damage to a player" triggers.
      */
     fun resolveDefendingPlayer(context: EffectContext, state: GameState): EntityId? {
+        context.defendingPlayerId?.let { return it }
         val defenderId = context.sourceId
             ?.let { state.getEntity(it)?.get<AttackingComponent>()?.defenderId }
         if (defenderId != null) {

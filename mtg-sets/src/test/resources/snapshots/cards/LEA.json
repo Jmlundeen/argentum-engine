@@ -288,17 +288,46 @@
     "typeLine": "Instant",
     "oracleText": "Choose one —\n• Counter target red spell.\n• Destroy target red permanent.",
     "script": {
-        "spellEffect": "Counter",
-        "targetRequirements": [
-            {
-                "type": "TargetObject",
-                "filter": {
-                    "baseFilter": {},
-                    "zone": "Stack"
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": "Counter",
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "red",
+                                "zone": "Stack"
+                            },
+                            "id": "target"
+                        }
+                    ],
+                    "description": "Counter target red spell"
                 },
-                "id": "target"
-            }
-        ]
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "permanent red"
+                            },
+                            "id": "target"
+                        }
+                    ],
+                    "description": "Destroy target red permanent"
+                }
+            ]
+        }
     },
     "metadata": {
         "collectorNumber": "49",
@@ -727,7 +756,7 @@
                     {
                         "type": "TargetObject",
                         "filter": {
-                            "baseFilter": {},
+                            "baseFilter": "green",
                             "zone": "Stack"
                         },
                         "id": "target"
@@ -2214,7 +2243,7 @@
                     {
                         "type": "TargetObject",
                         "filter": {
-                            "baseFilter": {},
+                            "baseFilter": "black",
                             "zone": "Stack"
                         },
                         "id": "target"
@@ -2763,7 +2792,7 @@
                     {
                         "type": "TargetObject",
                         "filter": {
-                            "baseFilter": "permanent"
+                            "baseFilter": "permanent black"
                         },
                         "id": "target"
                     }
@@ -3014,17 +3043,46 @@
     "typeLine": "Instant",
     "oracleText": "Choose one —\n• Counter target blue spell.\n• Destroy target blue permanent.",
     "script": {
-        "spellEffect": "Counter",
-        "targetRequirements": [
-            {
-                "type": "TargetObject",
-                "filter": {
-                    "baseFilter": {},
-                    "zone": "Stack"
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": "Counter",
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "blue",
+                                "zone": "Stack"
+                            },
+                            "id": "target"
+                        }
+                    ],
+                    "description": "Counter target blue spell"
                 },
-                "id": "target"
-            }
-        ]
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "permanent blue"
+                            },
+                            "id": "target"
+                        }
+                    ],
+                    "description": "Destroy target blue permanent"
+                }
+            ]
+        }
     },
     "metadata": {
         "collectorNumber": "169",
@@ -3086,7 +3144,7 @@
             {
                 "type": "TargetObject",
                 "filter": {
-                    "baseFilter": {},
+                    "baseFilter": "own:you",
                     "zone": "Graveyard"
                 },
                 "id": "target"
@@ -3168,7 +3226,7 @@
             {
                 "type": "TargetObject",
                 "filter": {
-                    "baseFilter": "creature"
+                    "baseFilter": "creature blocking"
                 },
                 "id": "target"
             }
@@ -3674,7 +3732,11 @@
             {
                 "type": "TargetObject",
                 "filter": {
-                    "baseFilter": {},
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "ManaValueEqualsX"
+                        ]
+                    },
                     "zone": "Stack"
                 },
                 "id": "target"
@@ -4832,7 +4894,7 @@
                     }
                 },
                 "filter": {
-                    "baseFilter": "creature Zombie",
+                    "baseFilter": "permanent Zombie",
                     "excludeSelf": true
                 }
             }
