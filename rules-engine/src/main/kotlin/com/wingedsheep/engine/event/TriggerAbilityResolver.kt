@@ -81,6 +81,10 @@ class TriggerAbilityResolver(
         // Generate ward triggered abilities from intrinsic keyword abilities and GrantWard
         val wardAbilities = getWardTriggeredAbilities(entityId, cardDefinitionId, state)
 
+        // Flanking (CR 702.25) is a keyword-derived triggered ability, synthesized for any
+        // creature that has the keyword (intrinsic or granted).
+        val flankingAbilities = getFlankingTriggeredAbilities(entityId, state)
+
         val ringBearerAbilities = getRingBearerAbilities(entityId, state)
 
         // A suspended card (CR 702.62) gains the owner's-upkeep countdown-and-cast ability
@@ -90,7 +94,8 @@ class TriggerAbilityResolver(
         val paradigmAbilities = getParadigmTriggeredAbilities(entityId, state)
 
         val allGranted = grantedAbilities + staticGrantedAbilities + attachedGrantedAbilities +
-            selfGrantedAbilities + wardAbilities + ringBearerAbilities + suspendAbilities + paradigmAbilities
+            selfGrantedAbilities + wardAbilities + flankingAbilities + ringBearerAbilities +
+            suspendAbilities + paradigmAbilities
         val combined = if (allGranted.isNotEmpty()) base + allGranted else base
 
         // Apply text replacement if the entity has one
@@ -234,6 +239,11 @@ class TriggerAbilityResolver(
         val wardAbilities = if (hasLostAbilities) emptyList()
             else getWardTriggeredAbilities(entityId, cardDefinitionId, state)
 
+        // Flanking (CR 702.25) — keyword-derived triggered ability. Projected keyword check
+        // already accounts for lost-all-abilities, but guard for symmetry with the other grants.
+        val flankingAbilities = if (hasLostAbilities) emptyList()
+            else getFlankingTriggeredAbilities(entityId, state)
+
         // The Ring emblem's abilities belong to the emblem (a player object), not the creature, so
         // they survive "loses all abilities" effects on the Ring-bearer (CR 701.54c).
         val ringBearerAbilities = getRingBearerAbilities(entityId, state)
@@ -242,7 +252,8 @@ class TriggerAbilityResolver(
         val paradigmAbilities = getParadigmTriggeredAbilities(entityId, state)
 
         val allGranted = grantedAbilities + staticGrantedAbilities + attachedGrantedAbilities +
-            selfGrantedAbilities + wardAbilities + ringBearerAbilities + suspendAbilities + paradigmAbilities
+            selfGrantedAbilities + wardAbilities + flankingAbilities + ringBearerAbilities +
+            suspendAbilities + paradigmAbilities
         val combined = if (allGranted.isNotEmpty()) base + allGranted else base
 
         val textReplacement = state.getEntity(entityId)?.get<TextReplacementComponent>()
@@ -562,6 +573,22 @@ class TriggerAbilityResolver(
         }
         return result
     }
+
+    /**
+     * Flanking (CR 702.25b) as a keyword-derived triggered ability. Any creature that has
+     * [Keyword.FLANKING] — intrinsically printed or granted — gets the synthesized
+     * [com.wingedsheep.sdk.scripting.Flanking.blockedByNonFlankerTrigger], the same way ward and
+     * suspend abilities are derived rather than authored per card. The projected keyword check
+     * respects "loses all abilities" (the keyword is stripped in projection) and any effect that
+     * grants flanking. The trigger's own "becomes blocked by a creature without flanking" filter
+     * excludes flanking blockers (CR 702.25c).
+     */
+    private fun getFlankingTriggeredAbilities(entityId: EntityId, state: GameState): List<TriggeredAbility> =
+        if (state.projectedState.hasKeyword(entityId, com.wingedsheep.sdk.core.Keyword.FLANKING)) {
+            listOf(com.wingedsheep.sdk.scripting.Flanking.blockedByNonFlankerTrigger)
+        } else {
+            emptyList()
+        }
 
     private fun createWardTriggeredAbility(cost: WardCost, source: String): TriggeredAbility {
         return TriggeredAbility(

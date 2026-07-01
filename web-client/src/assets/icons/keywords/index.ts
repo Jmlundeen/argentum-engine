@@ -7,6 +7,7 @@
  */
 import persistSvgUrl from './persist.svg'
 import bandingSvgUrl from './banding.svg'
+import flankingSvgUrl from './flanking.svg'
 import questCounterSvgUrl from '../counters/quest.svg'
 import hourglassCounterSvgUrl from '../counters/hourglass.svg'
 
@@ -14,6 +15,7 @@ import hourglassCounterSvgUrl from '../counters/hourglass.svg'
 export const keywordSvgIcon: Record<string, string> = {
   PERSIST: persistSvgUrl,
   BANDING: bandingSvgUrl,
+  FLANKING: flankingSvgUrl,
 }
 
 /** Maps engine CounterType names to local SVG URLs (used when mana-font has no glyph or we prefer custom art). */
@@ -63,7 +65,7 @@ export const displayableKeywords = new Set([
   'SHROUD', 'INDESTRUCTIBLE', 'DEFENDER', 'MENACE', 'FEAR',
   'PROWESS', 'WARD', 'INTIMIDATE', 'INFECT',
   'WITHER', 'TOXIC', 'CANT_BE_BLOCKED', 'CHANGELING',
-  'PERSIST', 'BANDING',
+  'PERSIST', 'BANDING', 'FLANKING',
 ])
 
 /** Maps engine CounterType to mana-font counter class suffixes */

@@ -4005,13 +4005,23 @@ alongside `isExhaust = true` for "Exhaust — …: … Activate only during your
 > "discard X"); (3) *exile-by-color-count* — the `manaValueAtMostColorsSpent(EntityReference.Source)`
 > target predicate (Sundering Archaic). Author the printed "Converge — …" text into `oracleText`.
 
+> **Flanking** (CR 702.25 — bare `Keyword.FLANKING`, no builder). A keyword-derived *triggered*
+> ability: "Whenever this creature becomes blocked by a creature without flanking, that blocking
+> creature gets -1/-1 until end of turn." Cards just declare `keywords(Keyword.FLANKING)`; the engine
+> synthesizes [`Flanking.blockedByNonFlankerTrigger`](../mtg-sdk/src/main/kotlin/com/wingedsheep/sdk/scripting/Flanking.kt)
+> for any creature that has the keyword (intrinsic or granted) via
+> `TriggerAbilityResolver.getFlankingTriggeredAbilities`, the same derive-don't-author pattern used
+> by ward and suspend. The trigger's `BecomesBlockedEvent(filter = Creature.withoutKeyword(FLANKING))`
+> fires once per non-flanking blocker with that blocker as the triggering entity, so each blocker
+> independently takes -1/-1; a blocker that also has flanking is excluded (CR 702.25c).
+
 **`Keyword` enum (display-level)**
 
 Flying, Menace, Intimidate, Fear, Shadow, Horsemanship, all basic landwalks (Plainswalk … Forestwalk), Desertwalk
 (nonbasic landwalk variant — `Keyword.DESERTWALK`, keyed off `Subtype.DESERT`), Nonbasic landwalk
 (`Keyword.NONBASIC_LANDWALK` — unblockable while the defending player controls any non-basic land;
 `LandwalkRule` checks `typeLine.isLand && !isBasicLand`; Trailblazer's Boots), First Strike, Double
-Strike, Trample, Deathtouch, Lifelink, Vigilance, Reach, Provoke, Flanking, Defender, Indestructible, Hexproof, Shroud, Haste,
+Strike, Trample, Deathtouch, Lifelink, Vigilance, Reach, Provoke, Defender, Indestructible, Hexproof, Shroud, Haste,
 Flash, Prowess, Flurry, Changeling, Convoke, Delve, Affinity, Storm, Flashback, Harmonize, Evoke, Sneak, Ninjutsu, Impending, Conspire, Casualty, Miracle, Hideaway, Cascade, Plot,
 Offspring, Persist, Enduring, Ascend, Wither, Toxic, Eerie, Vivid, Fateful Bite, … (display-only — engine effect lives in handlers or
 composite abilities).
