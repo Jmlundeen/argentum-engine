@@ -5329,6 +5329,102 @@
     "colorIdentityOverride": []
 }
 
+// Exdeath, Void Warlock
+{
+    "name": "Exdeath, Void Warlock",
+    "manaCost": "{1}{B}{G}",
+    "typeLine": "Legendary Creature — Spirit Warlock",
+    "oracleText": "When Exdeath enters, you gain 3 life.\nAt the beginning of your end step, if there are six or more permanent cards in your graveyard, transform Exdeath.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": "Transform",
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "permanent"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 6
+                    }
+                }
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Neo Exdeath, Dimension's End",
+        "manaCost": "",
+        "typeLine": "Legendary Creature — Spirit Avatar",
+        "oracleText": "Trample\nNeo Exdeath's power is equal to the number of permanent cards in your graveyard.",
+        "creatureStats": {
+            "power": {
+                "type": "Dynamic",
+                "source": {
+                    "type": "Count",
+                    "player": "You",
+                    "zone": "Graveyard",
+                    "filter": "permanent"
+                }
+            },
+            "toughness": 3
+        },
+        "keywords": [
+            "TRAMPLE"
+        ],
+        "metadata": {
+            "collectorNumber": "220",
+            "rarity": "UNCOMMON",
+            "artist": "Jessica Fong",
+            "flavorText": "\"All memories . . . dimensions . . . existence . . . All that is shall be returned to nothing.\"",
+            "imageUri": "https://cards.scryfall.io/normal/back/1/b/1b4bab87-4000-461d-8b58-d34928fee305.jpg?1782686429"
+        },
+        "colorIdentityOverride": [
+            "BLACK",
+            "GREEN"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "220",
+        "rarity": "UNCOMMON",
+        "artist": "Jessica Fong",
+        "flavorText": "\"Mwa-hahahaha! Witness what befalls those who stand against me!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1b4bab87-4000-461d-8b58-d34928fee305.jpg?1782686429"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Fang, Fearless l'Cie
 {
     "name": "Fang, Fearless l'Cie",
@@ -14858,6 +14954,169 @@
     ]
 }
 
+// Sin, Spira's Punishment
+{
+    "name": "Sin, Spira's Punishment",
+    "manaCost": "{4}{B}{G}{U}",
+    "typeLine": "Legendary Creature — Leviathan Avatar",
+    "oracleText": "Flying\nWhenever Sin enters or attacks, exile a permanent card from your graveyard at random, then create a tapped token that's a copy of that card. If the exiled card is a land card, repeat this process.",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "RepeatWhile",
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Graveyard",
+                                    "filter": "permanent"
+                                },
+                                "storeAs": "sinGraveyardPool"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "sinGraveyardPool",
+                                "selection": {
+                                    "type": "Random",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "sinChosen"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "sinChosen",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "storeMovedAs": "sinExiled"
+                            },
+                            {
+                                "type": "CreateTokenCopyOfTarget",
+                                "target": {
+                                    "type": "PipelineTarget",
+                                    "collectionName": "sinExiled"
+                                },
+                                "tapped": true
+                            }
+                        ]
+                    },
+                    "repeatCondition": {
+                        "type": "WhileCondition",
+                        "condition": {
+                            "type": "CollectionContainsMatch",
+                            "collection": "sinExiled",
+                            "filter": "land"
+                        }
+                    }
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "RepeatWhile",
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Graveyard",
+                                    "filter": "permanent"
+                                },
+                                "storeAs": "sinGraveyardPool"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "sinGraveyardPool",
+                                "selection": {
+                                    "type": "Random",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "sinChosen"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "sinChosen",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "storeMovedAs": "sinExiled"
+                            },
+                            {
+                                "type": "CreateTokenCopyOfTarget",
+                                "target": {
+                                    "type": "PipelineTarget",
+                                    "collectionName": "sinExiled"
+                                },
+                                "tapped": true
+                            }
+                        ]
+                    },
+                    "repeatCondition": {
+                        "type": "WhileCondition",
+                        "condition": {
+                            "type": "CollectionContainsMatch",
+                            "collection": "sinExiled",
+                            "filter": "land"
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "242",
+        "rarity": "RARE",
+        "artist": "John Tedrick",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/5/659be746-bd31-4a70-8cec-7798da78b0b5.jpg?1782686408",
+        "rulings": [
+            {
+                "date": "2025-06-06",
+                "text": "If the copied card has {X} in its mana cost, X is 0."
+            },
+            {
+                "date": "2025-06-06",
+                "text": "The token copies exactly what was printed on the original card and nothing else. It doesn't copy any information about the object the card was before it was put into your graveyard."
+            },
+            {
+                "date": "2025-06-06",
+                "text": "If a card copied by the token had any \"when [this permanent] enters\" abilities, the token also has those abilities, and they'll trigger when it's created."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN",
+        "BLUE"
+    ]
+}
+
 // Slash of Light
 {
     "name": "Slash of Light",
@@ -19939,6 +20198,185 @@
     "colorIdentityOverride": [
         "BLACK",
         "RED"
+    ]
+}
+
+// Venat, Heart of Hydaelyn
+{
+    "name": "Venat, Heart of Hydaelyn",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Legendary Creature — Elder Wizard",
+    "oracleText": "Whenever you cast a legendary spell, draw a card. This ability triggers only once each turn.\nHero's Sundering — {7}, {T}: Exile target nonland permanent. Transform Venat. Activate only as a sorcery.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsLegendary"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "oncePerTurn": true
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{7}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "nonland permanent"
+                            },
+                            "destination": "Exile"
+                        },
+                        "Transform"
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "nonland permanent"
+                        },
+                        "id": "nonland permanent"
+                    }
+                ],
+                "timing": "SorcerySpeed"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Hydaelyn, the Mothercrystal",
+        "manaCost": "",
+        "typeLine": "Legendary Creature — God",
+        "oracleText": "Indestructible\nBlessing of Light — At the beginning of combat on your turn, put a +1/+1 counter on another target creature you control. Until your next turn, it gains indestructible. If that creature is legendary, draw a card.",
+        "creatureStats": {
+            "power": 4,
+            "toughness": 4
+        },
+        "keywords": [
+            "INDESTRUCTIBLE"
+        ],
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": {
+                        "type": "StepEvent",
+                        "step": "BEGIN_COMBAT"
+                    },
+                    "binding": "ANY",
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 1,
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "creature"
+                                }
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "INDESTRUCTIBLE",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "creature"
+                                },
+                                "duration": "UntilYourNextTurn"
+                            },
+                            {
+                                "type": "Gated",
+                                "gate": {
+                                    "type": "Gate.WhenCondition",
+                                    "condition": {
+                                        "type": "EntityMatches",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
+                                        "filter": {
+                                            "cardPredicates": [
+                                                "IsLegendary"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "then": {
+                                    "type": "DrawCards",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you",
+                            "excludeSelf": true
+                        },
+                        "id": "creature"
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "39",
+            "rarity": "RARE",
+            "artist": "Colin Boyer",
+            "flavorText": "\"For the sake of all, I beseech thee: deliver us from this fate!\"",
+            "imageUri": "https://cards.scryfall.io/normal/back/2/6/2625c00d-0a51-4481-bf36-cf13a2546242.jpg?1782686568"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "RARE",
+        "artist": "Colin Boyer",
+        "flavorText": "\"Show me your strength of will!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/2625c00d-0a51-4481-bf36-cf13a2546242.jpg?1782686568"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
