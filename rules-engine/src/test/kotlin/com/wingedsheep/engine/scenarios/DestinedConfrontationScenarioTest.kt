@@ -4,6 +4,7 @@ import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tla.cards.DestinedConfrontation
+import com.wingedsheep.mtg.sets.definitions.tla.cards.ZhaoRuthlessAdmiral
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
@@ -48,7 +49,8 @@ class DestinedConfrontationScenarioTest : FunSpec({
         val driver = GameTestDriver()
         driver.registerCards(
             TestCards.all + listOf(
-                DestinedConfrontation, powerOne, powerTwo, powerThree, powerFour, powerFive
+                DestinedConfrontation, ZhaoRuthlessAdmiral,
+                powerOne, powerTwo, powerThree, powerFour, powerFive
             )
         )
         driver.initMirrorMatch(deck = Deck.of("Plains" to 40), startingLife = 20)
@@ -163,6 +165,52 @@ class DestinedConfrontationScenarioTest : FunSpec({
         battlefield.contains(oneB) shouldBe false
         driver.getGraveyard(me).contains(four) shouldBe true
         driver.getGraveyard(me).contains(oneB) shouldBe true
+    }
+
+    // Regression: a per-permanent sacrifice trigger (Zhao's "whenever you sacrifice another
+    // permanent") firing during the CASTER's iteration used to drop the OPPONENT's sacrificed
+    // collection — the deferred PendingTriggersContinuation was inserted between the opponent's
+    // SelectFromCollection producer and its MoveCollection consumer, so the consumer resumed with an
+    // empty collection and the opponent kept everything. Both players must still sacrifice correctly.
+    test("Zhao in play: the caster's sacrifice trigger does not swallow the opponent's sacrifice") {
+        val driver = createDriver()
+        val me = driver.activePlayer!!
+        val opponent = driver.getOpponent(me)
+
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        // Caster: Zhao (3, kept) + a 5-power bear (sacrificed → fires Zhao's per-permanent trigger).
+        val zhao = driver.putCreatureOnBattlefield(me, "Zhao, Ruthless Admiral")
+        val myFive = driver.putCreatureOnBattlefield(me, "Power Five Bear")
+
+        // Opponent: a 2 (kept) and a 5 (must be sacrificed). This is the one the bug used to spare.
+        val oppTwo = driver.putCreatureOnBattlefield(opponent, "Power Two Bear")
+        val oppFive = driver.putCreatureOnBattlefield(opponent, "Power Five Bear")
+
+        val spell = driver.putCardInHand(me, "Destined Confrontation")
+        driver.castAndResolve(
+            caster = me,
+            spellId = spell,
+            keepByPlayer = mapOf(
+                me to listOf(zhao),
+                opponent to listOf(oppTwo)
+            )
+        )
+
+        val battlefield = driver.state.getBattlefield().toSet()
+
+        // Kept creatures survive.
+        battlefield.contains(zhao) shouldBe true
+        battlefield.contains(oppTwo) shouldBe true
+
+        // Both sacrifices went through — the opponent's 5 is gone despite Zhao firing on the caster's.
+        battlefield.contains(myFive) shouldBe false
+        battlefield.contains(oppFive) shouldBe false
+        driver.getGraveyard(me).contains(myFive) shouldBe true
+        driver.getGraveyard(opponent).contains(oppFive) shouldBe true
+
+        // And Zhao's trigger actually resolved: sacrificing one permanent pumped it +1/+0 → 4/4.
+        driver.state.projectedState.getPower(zhao) shouldBe 4
     }
 
     test("a single creature with power greater than 4 is never a legal keep and is sacrificed") {
