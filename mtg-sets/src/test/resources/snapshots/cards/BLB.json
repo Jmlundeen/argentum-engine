@@ -6060,7 +6060,13 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
-                    "filter": "creature ctrl:you",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            "ToughnessGreaterThanPower"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
                     "to": "Battlefield"
                 },
                 "binding": "ANY",

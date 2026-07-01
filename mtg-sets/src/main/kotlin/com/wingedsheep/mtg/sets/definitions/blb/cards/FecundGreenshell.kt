@@ -39,10 +39,6 @@ import com.wingedsheep.sdk.dsl.Effects
  * Whenever this creature or another creature you control with toughness greater
  * than its power enters, look at the top card of your library. If it's a land
  * card, you may put it onto the battlefield tapped. Otherwise, put it into your hand.
- *
- * Note: The ETB trigger is simplified to fire for any creature you control entering
- * (including self). The "toughness greater than power" filter is not yet supported
- * as a CardPredicate, so this is a minor approximation.
  */
 val FecundGreenshell = card("Fecund Greenshell") {
     manaCost = "{3}{G}{G}"
@@ -66,13 +62,12 @@ val FecundGreenshell = card("Fecund Greenshell") {
         )
     }
 
-    // ETB: look at top card, if land may put onto battlefield tapped, else hand
-    // Simplified trigger: fires for any creature you control entering (toughness > power
-    // restriction not yet supported as a predicate)
+    // ETB: whenever this or another creature you control with toughness greater than
+    // its power enters, look at the top card, if land may put onto battlefield tapped, else hand
     triggeredAbility {
         trigger = TriggerSpec(
             event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.youControl(),
+                filter = GameObjectFilter.Creature.youControl().toughnessGreaterThanPower(),
                 to = Zone.BATTLEFIELD
             ),
             binding = TriggerBinding.ANY
