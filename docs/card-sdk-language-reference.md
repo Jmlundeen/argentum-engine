@@ -640,9 +640,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `RemoveCounters(type, count, target)` — remove N counters.
 - `RemoveAnyNumberOfCounters(target)` — player removes 0 or more (one prompt per counter kind, no total cap).
 - `RemoveCountersUpTo(maxCount, target)` — player removes **up to `maxCount` counters total across all
-  kinds**. The budget-capped sibling of `RemoveAnyNumberOfCounters`: one `ChooseNumber` prompt per kind,
-  each capped at `min(kind's count, remaining budget)`; prompting stops once the budget is spent. Used by
-  Heartless Act's "Remove up to three counters from target creature."
+  kinds**. The budget-capped form of `RemoveAnyNumberOfCounters` — the *same* `RemoveAnyNumberOfCountersEffect`
+  with `maxTotal` set, not a separate effect: one `ChooseNumber` prompt per kind, each capped at
+  `min(kind's count, remaining budget)`; prompting stops once the budget is spent. Used by Heartless Act's
+  "Remove up to three counters from target creature."
 - `ConvertCountersToTokensEffect(counterType = +1/+1, tokenFactory)` — "remove any number of `counterType`
   counters from this permanent; for each removed, create one token." Prompts for `0..(count on source)`,
   removes that many, then mints exactly that many tokens from `tokenFactory` (its own `count` is ignored).
@@ -1938,11 +1939,12 @@ Every `TargetRequirement` carries count semantics (defaults shown):
   `TargetObject(count = 2, optional = true, filter = TargetFilter.CardInGraveyard, sameOwner = true)`
   (Arashin Sunshield).
 - `sameCreatureType = false` — on `TargetObject` / `TargetCreature(...)`; when `true` and the requirement
-  picks more than one target, every chosen **permanent** target must hold at least one creature type in
-  common with all the others ("**two target creatures you control that share a creature type**").
-  Enforced cross-target by `TargetValidator` at cast/activation time using each permanent's *projected*
-  creature subtypes (granted/changed types count); a target with no creature types — or one off the
-  battlefield — can never share, so the set is rejected. A no-op for single-target requirements and for
+  picks more than one target, the chosen **permanent** targets must all share at least one creature type
+  ("**two target creatures you control that share a creature type**"). Enforced cross-target by
+  `TargetValidator` at cast/activation time as the **intersection** of every target's *projected* creature
+  subtypes being non-empty — i.e. a single creature type common to the *whole* set, which for 3+ targets is
+  stricter than pairwise sharing (granted/changed types count). A target with no creature types — or one off
+  the battlefield — can never share, so the set is rejected. A no-op for single-target requirements and for
   non-permanent targets. E.g. `TargetCreature(count = 2, filter = TargetFilter.CreatureYouControl,
   sameCreatureType = true)` (Secret Tunnel).
 - `chooser = TargetChooser.Controller` — **who selects this requirement's target(s)**. Set to

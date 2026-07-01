@@ -18,11 +18,14 @@ import kotlin.reflect.KClass
 /**
  * Executor for [RemoveAnyNumberOfCountersEffect].
  *
- * "Remove any number of counters from target creature you control."
+ * "Remove any number of counters from target creature you control." — and, with the effect's
+ * `maxTotal` set, its budget-capped form "Remove up to N counters from target creature"
+ * (Heartless Act).
  *
- * Enumerates each counter kind currently on the target and prompts the controller
- * with a [ChooseNumberDecision] (0..count) per kind, sequentially. The continuation
- * applies each chosen amount and queues the next prompt.
+ * Enumerates each counter kind currently on the target and prompts the controller with a
+ * [ChooseNumberDecision] per kind, sequentially. Each prompt's cap is that kind's count, further
+ * clamped to the remaining `maxTotal` budget when one is set. The continuation applies each chosen
+ * amount, decrements the budget, and queues the next prompt while counters (and budget) remain.
  */
 class RemoveAnyNumberOfCountersExecutor : EffectExecutor<RemoveAnyNumberOfCountersEffect> {
 
@@ -33,6 +36,9 @@ class RemoveAnyNumberOfCountersExecutor : EffectExecutor<RemoveAnyNumberOfCounte
         effect: RemoveAnyNumberOfCountersEffect,
         context: EffectContext
     ): EffectResult {
+        val maxTotal = effect.maxTotal
+        if (maxTotal != null && maxTotal <= 0) return EffectResult.success(state, emptyList())
+
         val targetId = context.resolveTarget(effect.target)
             ?: return EffectResult.success(state, emptyList())
 
@@ -49,8 +55,10 @@ class RemoveAnyNumberOfCountersExecutor : EffectExecutor<RemoveAnyNumberOfCounte
         val targetName = targetEntity.get<CardComponent>()?.name ?: ""
         val sourceName = context.sourceId?.let { state.getEntity(it)?.get<CardComponent>()?.name }
 
-        val (firstType, firstMax) = present.first()
+        val (firstType, firstCount) = present.first()
         val remaining = present.drop(1)
+        // Clamp the first prompt to the total budget when one is in force.
+        val firstMax = maxTotal?.let { minOf(firstCount, it) } ?: firstCount
 
         val decisionId = UUID.randomUUID().toString()
         val decision = ChooseNumberDecision(
@@ -75,7 +83,8 @@ class RemoveAnyNumberOfCountersExecutor : EffectExecutor<RemoveAnyNumberOfCounte
             remainingCounterTypes = remaining,
             targetName = targetName,
             sourceId = context.sourceId,
-            sourceName = sourceName
+            sourceName = sourceName,
+            remainingBudget = maxTotal
         )
 
         val newState = state

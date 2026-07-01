@@ -8546,8 +8546,8 @@
                 },
                 {
                     "effect": {
-                        "type": "RemoveCountersUpTo",
-                        "maxCount": 3
+                        "type": "RemoveAnyNumberOfCounters",
+                        "maxTotal": 3
                     },
                     "targetRequirements": [
                         {

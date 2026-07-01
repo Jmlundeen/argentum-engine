@@ -156,10 +156,16 @@ data class DistributeCountersContinuation(
  * issues one decision per counter kind currently on the target; on resume,
  * the response is applied and the next kind (if any) is prompted.
  *
+ * When [remainingBudget] is non-null, a *total* cap is in force (`maxTotal` on the effect —
+ * Heartless Act's "remove up to N counters"): each prompt is capped at `min(kindCount, budget)`,
+ * the budget is decremented on resume, and prompting stops once it hits zero. Null means no cap
+ * ("remove any number").
+ *
  * @property targetId The permanent whose counters are being removed
  * @property controllerId The player making the choices
  * @property currentCounterType The counter kind the active decision is for
  * @property currentMaxAmount Cap shown to the player (0..currentMaxAmount)
+ * @property remainingBudget Counters still removable in total after the active decision, or null for no cap
  * @property remainingCounterTypes Pending (counterType, maxAmount) prompts
  * @property targetName Display name for follow-up prompts
  * @property sourceId Source emitting the effect (for prompt context)
@@ -175,30 +181,8 @@ data class RemoveAnyNumberOfCountersContinuation(
     val remainingCounterTypes: List<Pair<String, Int>>,
     val targetName: String,
     val sourceId: EntityId?,
-    val sourceName: String?
-) : ContinuationFrame
-
-/**
- * Resume after the controller picks how many counters of one kind to remove under a *total*
- * budget cap (the capped sibling of [RemoveAnyNumberOfCountersContinuation]). The executor for
- * `RemoveCountersUpToEffect` issues one decision per counter kind, each capped at
- * `min(kindCount, remainingBudget)`. On resume, the chosen amount is removed, the budget is
- * decremented, and the next kind is prompted only while budget remains. (Heartless Act.)
- *
- * @property remainingBudget Counters still removable in total after the active decision resolves.
- */
-@Serializable
-data class RemoveCountersUpToContinuation(
-    override val decisionId: String,
-    val targetId: EntityId,
-    val controllerId: EntityId,
-    val currentCounterType: String,
-    val currentMaxAmount: Int,
-    val remainingBudget: Int,
-    val remainingCounterTypes: List<Pair<String, Int>>,
-    val targetName: String,
-    val sourceId: EntityId?,
-    val sourceName: String?
+    val sourceName: String?,
+    val remainingBudget: Int? = null
 ) : ContinuationFrame
 
 /**

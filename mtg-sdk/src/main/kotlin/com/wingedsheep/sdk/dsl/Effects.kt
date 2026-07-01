@@ -1347,12 +1347,12 @@ object Effects {
 
     /**
      * Remove up to [maxCount] counters total (across all kinds) from a target permanent. The
-     * controller chooses how many of each kind to remove, capped at [maxCount] counters in total
-     * (the budget-capped sibling of [RemoveAnyNumberOfCounters]). Used by Heartless Act's
-     * "Remove up to three counters from target creature".
+     * controller chooses how many of each kind to remove, capped at [maxCount] counters in total —
+     * the budget-capped form of [RemoveAnyNumberOfCounters] (same effect, with `maxTotal` set).
+     * Used by Heartless Act's "Remove up to three counters from target creature".
      */
     fun RemoveCountersUpTo(maxCount: Int, target: EffectTarget = EffectTarget.ContextTarget(0)): Effect =
-        com.wingedsheep.sdk.scripting.effects.RemoveCountersUpToEffect(maxCount, target)
+        com.wingedsheep.sdk.scripting.effects.RemoveAnyNumberOfCountersEffect(target, maxTotal = maxCount)
 
     /**
      * Move one counter of each kind on [source] that [destination] does not already have,

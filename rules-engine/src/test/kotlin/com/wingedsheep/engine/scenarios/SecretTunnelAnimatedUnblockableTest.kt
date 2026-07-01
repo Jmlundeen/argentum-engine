@@ -140,7 +140,7 @@ class SecretTunnelAnimatedUnblockableTest : FunSpec({
         val tunnel = driver.putCardInHand(driver.player1, "Secret Tunnel")
         driver.playLand(driver.player1, tunnel).error shouldBe null
 
-        withClue("the REAL play-from-hand ETB path (ZoneTransitionService) must bake the land's static so its 'can't be blocked' projects") {
+        withClue("the REAL play-from-hand path (PlayLandHandler, which lands take instead of ZoneTransitionService) must bake the land's static so its 'can't be blocked' projects") {
             driver.state.projectedState.hasKeyword(tunnel, AbilityFlag.CANT_BE_BLOCKED) shouldBe true
         }
     }

@@ -25,9 +25,10 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * land isn't a creature, but honored if it's ever animated. The activated ability uses a single
  * two-target requirement with [TargetObject.sameCreatureType] (count = 2), so the two chosen
  * creatures you control must share at least one (projected) creature type with each other — the
- * cross-target legality is enforced by `TargetValidator`. Each chosen creature is granted
- * [CantBeBlocked] until end of turn via [Effects.GrantStaticAbility] on `ContextTarget(0)` and
- * `ContextTarget(1)`.
+ * cross-target legality is enforced by `TargetValidator`. [ForEachTargetEffect] then rebinds
+ * `ContextTarget(0)` to each chosen creature in turn and grants it "can't be blocked" until end of
+ * turn via [GrantKeywordEffect] (the IcyBlast idiom — see the inline note on why a single
+ * `GrantStaticAbility` over the two targets does not iterate correctly here).
  */
 val SecretTunnel = card("Secret Tunnel") {
     manaCost = ""
