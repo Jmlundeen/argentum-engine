@@ -2659,7 +2659,7 @@
                     "space": {
                         "type": "IterationSpace.Group",
                         "filter": {
-                            "baseFilter": "creature"
+                            "baseFilter": "artifact|creature|enchantment"
                         }
                     },
                     "body": {
