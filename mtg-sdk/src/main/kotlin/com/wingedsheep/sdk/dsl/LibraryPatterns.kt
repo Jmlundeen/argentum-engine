@@ -458,7 +458,8 @@ object LibraryPatterns {
         }
 
         // Fire "Whenever a player searches their library" triggers (CR 701.23) after the search
-        // completes. Per CR 701.23f the event fires even when no card was found.
+        // completes. Searching is the act of looking through the zone (CR 701.23a) and finding a
+        // card is not required (CR 701.23b), so the event fires even when no card was found.
         effects.add(EmitLibrarySearchedEventEffect)
 
         return CompositeEffect(effects)

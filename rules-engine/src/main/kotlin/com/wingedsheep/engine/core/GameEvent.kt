@@ -322,9 +322,10 @@ data class ManifestedDreadEvent(
 /**
  * A player just searched their library (CR 701.23). Fires once per search, after the found
  * cards have been moved and the library shuffled. Drives "Whenever a player searches their
- * library" triggers (Wan Shi, Librarian); see
- * [com.wingedsheep.sdk.scripting.EventPattern.SearchLibraryEvent]. Per CR 701.23f any ability
- * that triggers on a library being searched still fires even when no card was found.
+ * library" triggers (Wan Shi Tong, Librarian); see
+ * [com.wingedsheep.sdk.scripting.EventPattern.SearchLibraryEvent]. Searching is the act of looking
+ * through the zone (CR 701.23a) and finding a card is not required (CR 701.23b), so any ability that
+ * triggers on a library being searched still fires even when no card was found.
  *
  * @property playerId The player whose library was searched (the searcher).
  * @property sourceName The card/ability that caused the search (for display).

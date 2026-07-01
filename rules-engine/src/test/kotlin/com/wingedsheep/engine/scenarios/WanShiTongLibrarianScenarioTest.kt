@@ -15,7 +15,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 /**
- * Wan Shi, Librarian (TLA #78) — {X}{U}{U} Legendary Bird Spirit, 1/1.
+ * Wan Shi Tong, Librarian (TLA #78) — {X}{U}{U} Legendary Bird Spirit, 1/1.
  *
  * "Flash
  *  Flying, vigilance

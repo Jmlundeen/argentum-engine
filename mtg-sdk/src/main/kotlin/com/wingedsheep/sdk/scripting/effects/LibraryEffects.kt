@@ -115,7 +115,8 @@ data class EmitManifestedDreadEventEffect(
  *
  * The searching player is the effect's controller at resolution time — for a per-player
  * `ForEachPlayer` search (each player searches their own library) that controller is rebound to
- * each iterated player, so the event carries the correct searcher. Per CR 701.23f the event still
+ * each iterated player, so the event carries the correct searcher. Searching is the act of looking
+ * through the zone (CR 701.23a) and finding a card is not required (CR 701.23b), so the event still
  * fires when no card was found.
  *
  * Card authors should not use this directly; it is wired into the search primitives.

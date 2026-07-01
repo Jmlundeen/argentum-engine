@@ -18,7 +18,8 @@ import kotlin.reflect.KClass
  *
  * The searching player is [EffectContext.controllerId]. For a per-player `ForEachPlayer` search
  * (each player searches their own library) that id is rebound to each iterated player, so the
- * event carries the correct searcher. Per CR 701.23f the event still fires when no card was found.
+ * event carries the correct searcher. Searching is the act of looking through the zone (CR 701.23a)
+ * and finding a card is not required (CR 701.23b), so the event still fires when no card was found.
  */
 class EmitLibrarySearchedEventExecutor : EffectExecutor<EmitLibrarySearchedEventEffect> {
 

@@ -2972,8 +2972,9 @@ Triggers.youCastSpell(
   / `eachPlayerSearchesLibrary`) via the internal `EmitLibrarySearchedEventEffect` tail — so every
   tutor, fetch, and basic-land search drives it; no card has to opt in. Under a `ForEachPlayer`
   search the tail's controller is rebound to each iterated player, so the event names the correct
-  searcher. Per CR 701.23f the trigger fires even when no card was found. The opponent-scoped
-  variant is used by **Wan Shi, Librarian** ("Whenever an opponent searches their library, put a
+  searcher. Since searching is the act of looking through the zone (CR 701.23a) and finding a card is
+  not required (CR 701.23b), the trigger fires even when no card was found. The opponent-scoped
+  variant is used by **Wan Shi Tong, Librarian** ("Whenever an opponent searches their library, put a
   +1/+1 counter on him and draw a card").
 
 ### Manifest Dread

@@ -27,9 +27,10 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The opponent-search clause is the engine's new
  * [Triggers.WheneverAnOpponentSearchesTheirLibrary] (CR 701.23) — every tutor / fetch / basic-land
- * search an opponent resolves fires the auto-emitted `LibrarySearchedEvent`; per CR 701.23f it
- * fires even when the opponent finds nothing. The controller's own searches are not opponents', so
- * they never trigger it.
+ * search an opponent resolves fires the auto-emitted `LibrarySearchedEvent`; since searching is the
+ * act of looking (CR 701.23a) and finding a card is not required (CR 701.23b), it fires even when
+ * the opponent finds nothing. The controller's own searches are not opponents', so they never
+ * trigger it.
  */
 val WanShiTongLibrarian = card("Wan Shi Tong, Librarian") {
     manaCost = "{X}{U}{U}"

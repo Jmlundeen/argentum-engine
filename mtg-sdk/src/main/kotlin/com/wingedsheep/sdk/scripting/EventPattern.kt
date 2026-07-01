@@ -483,9 +483,10 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
 
     /**
      * Whenever [player] searches their library (CR 701.23). Fires once per search, after the found
-     * cards have moved and the library has shuffled. Per CR 701.23f the trigger fires even when no
-     * card was found. Scope it with [Player.EachOpponent] for "Whenever an opponent searches their
-     * library" (Wan Shi, Librarian) or [Player.You] for "Whenever you search your library".
+     * cards have moved and the library has shuffled. Searching is the act of looking through the
+     * zone (CR 701.23a) and finding a card is not required (CR 701.23b), so the trigger fires even
+     * when no card was found. Scope it with [Player.EachOpponent] for "Whenever an opponent searches
+     * their library" (Wan Shi Tong, Librarian) or [Player.You] for "Whenever you search your library".
      *
      * Emitted automatically by the search primitives ([com.wingedsheep.sdk.dsl.LibraryPatterns
      * .searchLibrary] / `searchMultipleZones` / `eachPlayerSearchesLibrary`) — every tutor, fetch,

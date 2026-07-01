@@ -1836,8 +1836,8 @@ object Triggers {
      * Whenever you search your library (CR 701.23). Fires once per search, after the found cards
      * have moved and the library has shuffled. Emitted automatically by every search primitive
      * (`Patterns.Library.searchLibrary` / `searchMultipleZones` / `eachPlayerSearchesLibrary`), so
-     * every tutor / fetch / basic-land search drives it. Per CR 701.23f it fires even if nothing
-     * was found.
+     * every tutor / fetch / basic-land search drives it. Searching is the act of looking (CR 701.23a)
+     * and finding a card is not required (CR 701.23b), so it fires even if nothing was found.
      */
     val WheneverYouSearchYourLibrary: TriggerSpec = TriggerSpec(
         event = SearchLibraryEvent(Player.You),
@@ -1846,8 +1846,9 @@ object Triggers {
 
     /**
      * Whenever an opponent searches their library (CR 701.23) — the opponent-scoped twin of
-     * [WheneverYouSearchYourLibrary]. Used by Wan Shi, Librarian. Fires once per opponent search,
-     * after it resolves; per CR 701.23f it fires even if the opponent found nothing.
+     * [WheneverYouSearchYourLibrary]. Used by Wan Shi Tong, Librarian. Fires once per opponent
+     * search, after it resolves; since searching is the act of looking (CR 701.23a) and finding is
+     * not required (CR 701.23b), it fires even if the opponent found nothing.
      */
     val WheneverAnOpponentSearchesTheirLibrary: TriggerSpec = TriggerSpec(
         event = SearchLibraryEvent(Player.EachOpponent),
