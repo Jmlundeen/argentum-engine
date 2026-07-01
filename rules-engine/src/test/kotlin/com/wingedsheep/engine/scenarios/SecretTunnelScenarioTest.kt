@@ -34,6 +34,21 @@ class SecretTunnelScenarioTest : ScenarioTestBase() {
     init {
         context("Secret Tunnel") {
 
+            test("the printed 'this land can't be blocked' projects CANT_BE_BLOCKED onto the land itself") {
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withLandsOnBattlefield(1, "Secret Tunnel", 1)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val tunnel = game.findPermanent("Secret Tunnel")!!
+
+                withClue("the self-scoped CantBeBlocked() static must project the keyword even while it's a non-creature land") {
+                    game.state.projectedState.hasKeyword(tunnel, AbilityFlag.CANT_BE_BLOCKED) shouldBe true
+                }
+            }
+
             test("{T}: Add {C} produces one colorless mana") {
                 val game = scenario()
                     .withPlayers("Player1", "Player2")

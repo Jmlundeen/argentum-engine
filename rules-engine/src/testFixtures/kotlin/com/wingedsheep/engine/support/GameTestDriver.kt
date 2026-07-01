@@ -951,6 +951,15 @@ class GameTestDriver {
             container = container.with(com.wingedsheep.engine.state.components.identity.CantBeCounteredComponent)
         }
 
+        // Bake continuous + replacement effects from the land's static abilities, mirroring
+        // putPermanentOnBattlefield/putCreatureOnBattlefield (and the real ETB path in
+        // ZoneTransitionService). Without this, a land with a printed static (e.g. Secret Tunnel's
+        // "this land can't be blocked", man-land/Urborg statics) contributes zero continuous effects
+        // and the projector never sees the ability — a silent false negative.
+        val staticAbilityHandler = com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(cardRegistry)
+        container = staticAbilityHandler.addContinuousEffectComponent(container, cardDef)
+        container = staticAbilityHandler.addReplacementEffectComponent(container, cardDef)
+
         _state = _state.withEntity(cardId, container)
 
         // Add to battlefield
