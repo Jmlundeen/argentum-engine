@@ -25,7 +25,7 @@ val DeepSeaSerpent = card("Deep-Sea Serpent") {
     power = 5
     toughness = 5
     staticAbility {
-        ability = CantAttackUnless(Conditions.OpponentControlsLandType("Island"))
+        ability = CantAttackUnless(Conditions.DefendingPlayerControlsLandType("Island"))
     }
     metadata {
         rarity = Rarity.UNCOMMON

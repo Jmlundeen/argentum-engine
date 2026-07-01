@@ -196,11 +196,14 @@ object Conditions {
         )
 
     /**
-     * If opponent controls a land of a specific subtype.
-     * Used for CantAttackUnless (e.g. Deep-Sea Serpent, Slipstream Eel).
+     * If the defending player controls a land of a specific subtype (resolved per
+     * attack declaration via the defender bound into the evaluation context). Used
+     * for CantAttackUnless (e.g. Deep-Sea Serpent, Slipstream Eel, Dandân) — oracle
+     * for these reads "unless defending player controls an Island", so in multiplayer
+     * the check is against the player being attacked, not any opponent.
      */
-    fun OpponentControlsLandType(landType: String): ConditionInterface =
-        Exists(Player.EachOpponent, Zone.BATTLEFIELD, GameObjectFilter.Land.withSubtype(landType))
+    fun DefendingPlayerControlsLandType(landType: String): ConditionInterface =
+        Exists(Player.DefendingPlayer, Zone.BATTLEFIELD, GameObjectFilter.Land.withSubtype(landType))
 
     /**
      * If an opponent controls a creature.

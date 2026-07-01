@@ -608,7 +608,7 @@ internal fun EmitCtx.staticAbilityExpr(ruleName: String, ruleNode: JsonObject): 
         "CantAttackUnlessDefendingPlayer" -> {  // Deep-Sea Serpent: defender must control an Island
             val subs = subtypes(ruleNode)
             if (subs.isEmpty()) return null
-            return call("CantAttackUnless", arg(call("Conditions.OpponentControlsLandType", arg("\"${subs[0]}\""))))
+            return call("CantAttackUnless", arg(call("Conditions.DefendingPlayerControlsLandType", arg("\"${subs[0]}\""))))
         }
         "MustBlockAttacker" -> return call("MustBlock")
         // "This creature must be blocked if able" (Fear of Being Hunted) — the unconditional

@@ -274,7 +274,12 @@ data class TriggerContext(
                     triggeringPlayerId = event.chooserId
                 )
                 is AbilityActivatedEvent -> TriggerContext(
-                    triggeringEntityId = event.abilityEntityId,
+                    // The permanent whose ability was activated — NOT the ability's stack entity
+                    // (a bare container with no ControllerComponent/CardComponent, so "that
+                    // artifact's controller" reads via EffectTarget.ControllerOfTriggeringEntity
+                    // would silently resolve to null; Haunting Wind / Artifact Possession).
+                    // TriggerMatcher keys its matching off event.sourceId/abilityEntityId directly.
+                    triggeringEntityId = event.sourceId,
                     triggeringPlayerId = event.controllerId
                 )
                 is AbilityTriggeredEvent -> TriggerContext(

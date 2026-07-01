@@ -662,6 +662,15 @@ class ConditionEvaluator(
             is Player.ChosenOpponent -> listOfNotNull(
                 ctx.sourceId?.let { state.getEntity(it)?.chosenOpponent() }
             )
+            // Defender-relative conditions (CantAttackUnless "defending player controls…"):
+            // the defender is bound into the EffectContext by the attack legality check, or
+            // read from the source's attack assignment once combat is underway. No defender
+            // in scope -> empty (the condition fails rather than leaking to other players).
+            is Player.DefendingPlayer -> listOfNotNull(
+                (ctx as? Resolution)?.effectContext?.let {
+                    com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.resolveDefendingPlayer(it, state)
+                }
+            )
             else -> controllerId?.let { listOf(it) } ?: emptyList()
         }
 

@@ -24,7 +24,7 @@ val Regrowth = card("Regrowth") {
     typeLine = "Sorcery"
     oracleText = "Return target card from your graveyard to your hand."
     spell {
-        val t = target("target", TargetObject(filter = TargetFilter.CardInGraveyard))
+        val t = target("target", TargetObject(filter = TargetFilter.CardInGraveyard.ownedByYou()))
         effect = Effects.Move(t, Zone.HAND)
     }
     metadata {

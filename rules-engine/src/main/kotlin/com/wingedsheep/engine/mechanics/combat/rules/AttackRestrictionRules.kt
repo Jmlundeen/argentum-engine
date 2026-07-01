@@ -171,6 +171,7 @@ class CantAttackUnlessDefenderRule : AttackDefenderRule {
         val effectContext = EffectContext(
             sourceId = ctx.attackerId,
             controllerId = ctx.attackingPlayer,
+            defendingPlayerId = defendingPlayer,
         )
         if (!conditionEvaluator.evaluate(ctx.state, restriction.condition, effectContext)) {
             return "${cardComponent.name} ${restriction.description}"

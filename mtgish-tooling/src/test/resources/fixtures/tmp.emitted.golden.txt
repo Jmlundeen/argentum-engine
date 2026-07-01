@@ -9726,7 +9726,7 @@ val SeaMonster = card("Sea Monster") {
     power = 6
     toughness = 6
     staticAbility {
-        ability = CantAttackUnless(Conditions.OpponentControlsLandType("Island"))
+        ability = CantAttackUnless(Conditions.DefendingPlayerControlsLandType("Island"))
     }
     metadata {
         rarity = Rarity.COMMON

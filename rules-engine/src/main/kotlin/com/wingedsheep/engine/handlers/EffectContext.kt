@@ -196,6 +196,15 @@ data class EffectContext(
     val triggeringPlayerId: EntityId? = null,
     /** The spell or ability that targeted a permanent (for ward triggers) */
     val targetingSourceEntityId: EntityId? = null,
+    /**
+     * The defending player for a per-defender combat legality check (CR 508.1 attack
+     * declaration). Bound by [com.wingedsheep.engine.mechanics.combat.rules.CantAttackUnlessDefenderRule]
+     * so `Player.DefendingPlayer` conditions ("can't attack unless defending player controls
+     * an Island") evaluate against the player actually being attacked — the source has no
+     * `AttackingComponent` yet at declaration time, so the attack-time resolution path can't
+     * supply it.
+     */
+    val defendingPlayerId: EntityId? = null,
     /** Power of the triggering entity the moment it left the battlefield (dies/leaves triggers) */
     val triggerLastKnownPower: Int? = null,
     /** Toughness of the triggering entity the moment it left the battlefield (dies/leaves triggers) */

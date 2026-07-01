@@ -25,7 +25,7 @@ val UrzasTower = card("Urza's Tower") {
         effect = ConditionalEffect(
             condition = Conditions.All(
                 Conditions.YouControl(GameObjectFilter.Land.named("Urza's Mine")),
-                Conditions.YouControl(GameObjectFilter.Land.named("Urza's Power-Plant"))
+                Conditions.YouControl(GameObjectFilter.Land.named("Urza's Power Plant"))
             ),
             effect = Effects.AddColorlessMana(3),
             elseEffect = Effects.AddColorlessMana(1)

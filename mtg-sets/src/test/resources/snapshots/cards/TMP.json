@@ -2157,7 +2157,7 @@
                 "type": "CantAttackUnless",
                 "condition": {
                     "type": "Exists",
-                    "player": "EachOpponent",
+                    "player": "DefendingPlayer",
                     "zone": "Battlefield",
                     "filter": "land Island"
                 }

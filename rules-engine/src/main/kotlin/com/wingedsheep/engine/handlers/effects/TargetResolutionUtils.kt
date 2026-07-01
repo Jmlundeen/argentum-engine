@@ -99,13 +99,16 @@ object TargetResolutionUtils {
             ?: context.targets.firstOrNull()?.toEntityId()
 
     /**
-     * The defending player for the ability's source, per CR 802.2a: read from the
-     * source's attack assignment (a creature attacking a planeswalker defends against
-     * that planeswalker's controller). When the source has already left combat (e.g.
-     * it died dealing combat damage), the trigger event's player is last-known
-     * information for "deals combat damage to a player" triggers.
+     * The defending player for the ability's source, per CR 802.2a: an explicitly bound
+     * defender (attack-declaration legality checks bind [EffectContext.defendingPlayerId]
+     * before the attacker has an `AttackingComponent`), else read from the source's attack
+     * assignment (a creature attacking a planeswalker defends against that planeswalker's
+     * controller). When the source has already left combat (e.g. it died dealing combat
+     * damage), the trigger event's player is last-known information for "deals combat
+     * damage to a player" triggers.
      */
     fun resolveDefendingPlayer(context: EffectContext, state: GameState): EntityId? {
+        context.defendingPlayerId?.let { return it }
         val defenderId = context.sourceId
             ?.let { state.getEntity(it)?.get<AttackingComponent>()?.defenderId }
         if (defenderId != null) {

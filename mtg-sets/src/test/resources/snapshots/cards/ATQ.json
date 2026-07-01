@@ -1873,9 +1873,7 @@
                                             "setCode": "ATQ"
                                         }
                                     ]
-                                },
-                                "excludeSelf": true,
-                                "excludeTriggering": true
+                                }
                             },
                             "storeAs": "sacrificeAll_gathered"
                         },
@@ -1992,10 +1990,7 @@
                         "type": "Fixed",
                         "amount": 1
                     },
-                    "target": {
-                        "type": "PlayerRef",
-                        "player": "TriggeringPlayer"
-                    }
+                    "target": "ControllerOfTriggeringEntity"
                 }
             }
         ]
@@ -2853,7 +2848,7 @@
                 "trigger": {
                     "type": "AbilityActivatedEvent",
                     "player": "EachOpponent",
-                    "sourceFilter": "artifact ctrl:opponent",
+                    "sourceFilter": "artifact",
                     "requireNoTapInCost": true
                 },
                 "binding": "ANY",
@@ -4529,7 +4524,7 @@
                                     "type": "Exists",
                                     "player": "You",
                                     "zone": "Battlefield",
-                                    "filter": "land name:Urza's Power-Plant"
+                                    "filter": "land name:Urza's Power Plant"
                                 },
                                 {
                                     "type": "Exists",
@@ -4711,7 +4706,7 @@
                                     "type": "Exists",
                                     "player": "You",
                                     "zone": "Battlefield",
-                                    "filter": "land name:Urza's Power-Plant"
+                                    "filter": "land name:Urza's Power Plant"
                                 }
                             ]
                         }

@@ -33,7 +33,7 @@ val VodalianSerpent = card("Vodalian Serpent") {
     keywordAbility(KeywordAbility.kicker("{2}"))
 
     staticAbility {
-        ability = CantAttackUnless(Conditions.OpponentControlsLandType("Island"))
+        ability = CantAttackUnless(Conditions.DefendingPlayerControlsLandType("Island"))
     }
 
     triggeredAbility {

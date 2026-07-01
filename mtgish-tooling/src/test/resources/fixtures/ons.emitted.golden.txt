@@ -10865,7 +10865,7 @@ val SlipstreamEel = card("Slipstream Eel") {
     power = 6
     toughness = 6
     staticAbility {
-        ability = CantAttackUnless(Conditions.OpponentControlsLandType("Island"))
+        ability = CantAttackUnless(Conditions.DefendingPlayerControlsLandType("Island"))
     }
     keywordAbility(KeywordAbility.cycling("{1}{U}"))
     metadata {

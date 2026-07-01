@@ -15,7 +15,7 @@ class PermanentSbaModule(
         PlaneswalkerLoyaltyCheck(),
         LegendRuleCheck(decisionHandler),
         CounterAnnihilationCheck(),
-        UnattachedAurasCheck(),
+        UnattachedAurasCheck(cardRegistry),
         SagaSacrificeCheck(cardRegistry),
         CommanderZoneChoiceCheck(decisionHandler),
     )
