@@ -226,6 +226,11 @@ sealed interface ManaRestriction {
      *   - `allowSpells=false, allowAbilities=true`  — Steelswarm Operator's second ability
      *   - `allowSpells=true,  allowAbilities=true`  — hypothetical "spells or abilities" mana
      *
+     * [negated] flips the type test: "cast non[cardType] spells [or activate abilities of
+     * non[cardType] sources]" — e.g. The Emperor of Palamecia's "Spend this mana only to cast
+     * a noncreature spell" is `CardTypeSpellsOrAbilitiesOnly(CardType.CREATURE, negated = true)`.
+     * Only the type membership is negated; the allowSpells/allowAbilities gating is unchanged.
+     *
      * Per the printed ruling, "[cardType] source" includes any object with that card type in
      * any zone (battlefield, hand, graveyard, etc.) — the engine evaluates source type from
      * the activating source's [com.wingedsheep.sdk.core.TypeLine] (plus projected types for
@@ -237,6 +242,7 @@ sealed interface ManaRestriction {
         val cardType: CardType,
         val allowSpells: Boolean = true,
         val allowAbilities: Boolean = false,
+        val negated: Boolean = false,
     ) : ManaRestriction {
         init {
             require(allowSpells || allowAbilities) {
@@ -246,9 +252,10 @@ sealed interface ManaRestriction {
 
         override val description: String = buildString {
             append("Spend this mana only to ")
+            val typeName = (if (negated) "non" else "") + cardType.displayName.lowercase()
             val clauses = buildList {
-                if (allowSpells) add("cast ${cardType.displayName.lowercase()} spells")
-                if (allowAbilities) add("activate abilities of ${cardType.displayName.lowercase()} sources")
+                if (allowSpells) add("cast $typeName spells")
+                if (allowAbilities) add("activate abilities of $typeName sources")
             }
             append(clauses.joinToString(" or "))
         }

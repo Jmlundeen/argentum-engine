@@ -5336,9 +5336,12 @@ restriction matches the spell context.
   hand (exile, graveyard, top of library, command zone, …). Mm'menon, the Right Hand's
   granted artifact mana ability. Generalizes `CastFromExileOnly` by allowing all non-hand
   origins instead of exile alone; rejects ability activations.
-- `ManaRestriction.CardTypeSpellsOrAbilitiesOnly(cardType, allowSpells?, allowAbilities?)` —
+- `ManaRestriction.CardTypeSpellsOrAbilitiesOnly(cardType, allowSpells?, allowAbilities?, negated?)` —
   Steelswarm Operator shape. Use `cardType = CardType.ENCHANTMENT, allowSpells = true` for
-  "spend only to cast an enchantment spell."
+  "spend only to cast an enchantment spell." `negated = true` flips the type test for the
+  "non[type]" wordings — The Emperor of Palamecia's "Spend this mana only to cast a noncreature
+  spell" is `CardTypeSpellsOrAbilitiesOnly(CardType.CREATURE, negated = true)`; only the type
+  membership is negated, the allowSpells/allowAbilities gating is unchanged.
 - `ManaRestriction.AbilityActivationOnly` — only ability activations (any activated ability of
   any source). Satisfied by `SpellPaymentContext.isAbilityActivation`; unlike
   `CardTypeSpellsOrAbilitiesOnly`, the ability's source card type doesn't matter. Compose with

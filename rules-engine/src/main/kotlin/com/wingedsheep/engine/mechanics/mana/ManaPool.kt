@@ -86,8 +86,8 @@ fun ManaRestriction.isSatisfiedBy(context: SpellPaymentContext): Boolean = when 
         !context.isAbilityActivation &&
             subtypes.any { sub -> context.subtypes.any { it.equals(sub, ignoreCase = true) } }
     is ManaRestriction.CardTypeSpellsOrAbilitiesOnly ->
-        if (context.isAbilityActivation) allowAbilities && cardType in context.abilitySourceCardTypes
-        else allowSpells && cardType in context.cardTypes
+        if (context.isAbilityActivation) allowAbilities && (cardType in context.abilitySourceCardTypes) != negated
+        else allowSpells && (cardType in context.cardTypes) != negated
 }
 
 @Serializable
