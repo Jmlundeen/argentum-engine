@@ -81,7 +81,7 @@ object FlashbackGrants {
         val cardComponent = state.getEntity(cardId)?.get<CardComponent>() ?: return null
         val context = PredicateContext(controllerId = controllerId)
         // Controlled view (not the ownership-keyed zone map) so the grant follows whoever controls
-        // the granter — CR 109.4: "you" in an ability refers to the object's controller.
+        // the granter — CR 109.5: "you" in an ability refers to the object's controller.
         for (granterId in state.controlledBattlefield(controllerId)) {
             val def = state.getEntity(granterId)?.get<CardComponent>()
                 ?.let { cardRegistry.getCard(it.cardDefinitionId) } ?: continue
