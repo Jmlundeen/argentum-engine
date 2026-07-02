@@ -1421,6 +1421,27 @@ class StackResolver(
         newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
             .place(newState, controllerId, spellId)
 
+        // Global "[filter] enter tapped" replacements sourced from OTHER battlefield permanents
+        // (Authority of the Consuls — "Creatures your opponents control enter tapped"). The
+        // self-only EntersTapped handled earlier covers a permanent's own printed clause; a
+        // permanent cast normally must ALSO be tapped by another permanent's global
+        // PermanentsEnterTapped, matching the PlayLand (PlayLandHandler) and moveToZone /
+        // reanimation (ZoneTransitionService) paths that already consult it. Checked after the
+        // entity is on the battlefield so its controller/type resolve for the filter. CR 614: an
+        // applicable "enters untapped" replacement still wins, and a self-EntersTapped that already
+        // tapped it stands. Sneak sets its own tapped-and-attacking state below, so skip it here.
+        if (cardDef != null && !spellComponent.castFaceDown && !spellComponent.wasSneaked) {
+            val alreadyTapped = newState.getEntity(spellId)?.has<TappedComponent>() == true
+            val entersUntapped = com.wingedsheep.engine.handlers.effects.EnterUntappedReplacements
+                .entersUntapped(newState, spellId, controllerId)
+            if (!alreadyTapped && !entersUntapped &&
+                com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
+                    .entersTapped(newState, spellId, controllerId)
+            ) {
+                newState = newState.updateEntity(spellId) { c -> c.with(TappedComponent) }
+            }
+        }
+
         // Sneak (CR 702.190b / 506.3a): a permanent spell whose sneak cost was paid enters
         // tapped and attacking the same player or planeswalker the returned unblocked creature
         // was attacking. A non-creature permanent can't attack, so it just enters tapped (506.3a).
@@ -1612,7 +1633,9 @@ class StackResolver(
                 // — Songcrafter Mage): a graveyard cast exiles on resolution instead of returning
                 // to the graveyard.
                 val pausedFlashbackExile = spellComponent.castFromZone == Zone.GRAVEYARD &&
-                    (FlashbackGrants.effectiveFlashback(state, spellId, pausedCardDef) != null ||
+                    (FlashbackGrants.effectiveFlashback(
+                        state, spellId, pausedCardDef, spellComponent.casterId, cardRegistry, predicateEvaluator
+                    ) != null ||
                         HarmonizeGrants.effectiveHarmonize(state, spellId, pausedCardDef) != null)
                 val pausedExileAfterResolveComp = effectResult.state.getEntity(spellId)?.get<ExileAfterResolveComponent>()
                 val pausedExileAfterResolve = pausedExileAfterResolveComp != null
@@ -1729,7 +1752,9 @@ class StackResolver(
         // Songcrafter Mage): a graveyard cast exiles on resolution instead of returning to the
         // graveyard.
         val flashbackExile = spellComponent.castFromZone == Zone.GRAVEYARD &&
-            (FlashbackGrants.effectiveFlashback(state, spellId, cardDef) != null ||
+            (FlashbackGrants.effectiveFlashback(
+                state, spellId, cardDef, spellComponent.casterId, cardRegistry, predicateEvaluator
+            ) != null ||
                 HarmonizeGrants.effectiveHarmonize(state, spellId, cardDef) != null)
         val exileAfterResolveComp = newState.getEntity(spellId)?.get<ExileAfterResolveComponent>()
         val exileAfterResolve = exileAfterResolveComp != null
@@ -1918,7 +1943,9 @@ class StackResolver(
         // Songcrafter Mage): a graveyard cast exiles on resolution instead of returning to the
         // graveyard.
         val flashbackExile = spellComponent.castFromZone == Zone.GRAVEYARD &&
-            (FlashbackGrants.effectiveFlashback(state, spellId, cardDef) != null ||
+            (FlashbackGrants.effectiveFlashback(
+                state, spellId, cardDef, spellComponent.casterId, cardRegistry, predicateEvaluator
+            ) != null ||
                 HarmonizeGrants.effectiveHarmonize(state, spellId, cardDef) != null)
         val exileAfterResolveComp = state.getEntity(spellId)?.get<ExileAfterResolveComponent>()
         // Goliath Daydreamer-style components only exile on actual resolution; if the spell

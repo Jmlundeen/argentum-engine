@@ -39,6 +39,54 @@
     ]
 }
 
+// Authority of the Consuls
+{
+    "name": "Authority of the Consuls",
+    "manaCost": "{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Creatures your opponents control enter tapped.\nWhenever a creature an opponent controls enters, you gain 1 life.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:opponent",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "PermanentsEnterTapped",
+                "appliesTo": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:opponent",
+                    "to": "Battlefield"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "5",
+        "rarity": "RARE",
+        "artist": "Lake Hurwitz",
+        "flavorText": "Citizens are free to do as they wish, within the confines of the Consulate's laws.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/2/324b2f55-1e09-490e-8f7e-bfde85a91ac4.jpg?1782711627"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Brazen Scourge
 {
     "name": "Brazen Scourge",

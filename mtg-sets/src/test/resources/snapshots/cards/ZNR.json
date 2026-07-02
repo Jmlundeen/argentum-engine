@@ -60,6 +60,63 @@
     ]
 }
 
+// Gnarlid Colony
+{
+    "name": "Gnarlid Colony",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Beast",
+    "oracleText": "Kicker {2}{G} (You may pay an additional {2}{G} as you cast this spell.)\nIf this creature was kicked, it enters with two +1/+1 counters on it.\nEach creature you control with a +1/+1 counter on it has trample. (It can deal excess combat damage to the player or planeswalker it's attacking.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywordAbilities": [
+        {
+            "type": "Kicker",
+            "manaCost": "{2}{G}"
+        }
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "TRAMPLE",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "HasCounter",
+                                "counterType": "+1/+1"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 2,
+                "selfOnly": true,
+                "condition": "WasKicked"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "185",
+        "artist": "Izzy",
+        "flavorText": "Where mana flows, the gnarlids follow.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/3/7327289d-eed8-44b1-8495-7172e2b49d5f.jpg?1782706243"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Highborn Vampire
 {
     "name": "Highborn Vampire",

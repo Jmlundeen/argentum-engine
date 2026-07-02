@@ -57,6 +57,52 @@
     ]
 }
 
+// Devout Decree
+{
+    "name": "Devout Decree",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Exile target creature or planeswalker that's black or red. Scry 1. (Look at the top card of your library. You may put that card on the bottom.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature or planeswalker that's black or red"
+                    },
+                    "destination": "Exile"
+                },
+                {
+                    "type": "Scry",
+                    "count": 1
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|planeswalker black|red"
+                },
+                "id": "target creature or planeswalker that's black or red"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "13",
+        "rarity": "UNCOMMON",
+        "artist": "Zoltan Boros",
+        "flavorText": "\"It is not punishment. I am simply making things as they should be.\"\n—Sephara, Sky's Blade",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/d/2dcde8fe-d4a4-4c6e-926e-c4a1b45045e4.jpg?1782708383"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Empyrean Eagle
 {
     "name": "Empyrean Eagle",
