@@ -137,9 +137,11 @@ class BumiKingOfThreeTrialsScenarioTest : ScenarioTestBase() {
             // Scry mode's player target (two players → an explicit target decision).
             game.selectTargets(listOf(game.player1Id)).error shouldBe null
 
-            // Scry pauses to reorder the top of the library; keep everything on top.
+            // Scry pauses mid-resolution: first choose none of the looked-at cards to put on
+            // the bottom, then keep the remaining cards in their current order on top.
             game.getPendingDecision().shouldNotBeNull()
             game.skipSelection()
+            game.keepLibraryOrder()
 
             // The Earthbend mode survived the scry pause and now demands its land target.
             val afterScry = game.getPendingDecision()
