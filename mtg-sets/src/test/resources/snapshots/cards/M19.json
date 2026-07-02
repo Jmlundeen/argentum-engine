@@ -101,6 +101,55 @@
     ]
 }
 
+// Diamond Mare
+{
+    "name": "Diamond Mare",
+    "manaCost": "{2}",
+    "typeLine": "Artifact Creature — Horse",
+    "oracleText": "As this creature enters, choose a color.\nWhenever you cast a spell of the chosen color, you gain 1 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "SharesChosenColorWithSource"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Whenever you cast a spell of the chosen color, you gain 1 life."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "COLOR"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "231",
+        "rarity": "UNCOMMON",
+        "artist": "Alayna Danner",
+        "flavorText": "When it passes, rainbows follow.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/ca600b3f-2c70-489b-b218-6e3245b90114.jpg?1782709481"
+    }
+}
+
 // Exclusion Mage
 {
     "name": "Exclusion Mage",

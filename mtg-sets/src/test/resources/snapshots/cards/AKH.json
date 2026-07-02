@@ -1,3 +1,37 @@
+// Enigma Drake
+{
+    "name": "Enigma Drake",
+    "manaCost": "{1}{U}{R}",
+    "typeLine": "Creature — Drake",
+    "oracleText": "Flying\nEnigma Drake's power is equal to the number of instant and sorcery cards in your graveyard.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "Count",
+                "player": "You",
+                "zone": "Graveyard",
+                "filter": "instant|sorcery"
+            }
+        },
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "metadata": {
+        "collectorNumber": "198",
+        "rarity": "UNCOMMON",
+        "artist": "Steve Argyle",
+        "flavorText": "Many initiates believe it possesses secrets known only to Kefnet himself. Many have become meals trying to learn them.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/66286631-c16e-410c-b963-25cfe8005d8f.jpg?1782711097"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Galestrike
 {
     "name": "Galestrike",
