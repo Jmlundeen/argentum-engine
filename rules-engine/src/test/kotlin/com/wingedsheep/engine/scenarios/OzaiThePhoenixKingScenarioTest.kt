@@ -66,6 +66,42 @@ class OzaiThePhoenixKingScenarioTest : FunSpec({
         driver.pool(opponent).total shouldBe 0
     }
 
+    test("firebending mana becomes red when combat ends instead of being lost, while Ozai is out") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Mountain" to 40))
+        val active = driver.activePlayer!!
+        val opponent = driver.getOpponent(active)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        driver.putCreatureOnBattlefield(active, "Ozai, the Phoenix King")
+
+        // Both players hold 4 combat-duration (firebending) red mana — Ozai's controller and the
+        // opponent, who controls no Ozai. This is the END_OF_COMBAT mana that CombatManager.endCombat
+        // discards on entering the postcombat main phase.
+        driver.giveRestrictedMana(
+            active, Color.RED, 4,
+            com.wingedsheep.sdk.scripting.effects.ManaRestriction.AnySpend,
+            com.wingedsheep.sdk.scripting.effects.ManaExpiry.END_OF_COMBAT
+        )
+        driver.giveRestrictedMana(
+            opponent, Color.RED, 4,
+            com.wingedsheep.sdk.scripting.effects.ManaRestriction.AnySpend,
+            com.wingedsheep.sdk.scripting.effects.ManaExpiry.END_OF_COMBAT
+        )
+
+        // Cross the end of combat (endCombat runs on entering POSTCOMBAT_MAIN).
+        driver.passPriorityUntil(Step.POSTCOMBAT_MAIN)
+
+        // Ozai's controller: the firebending mana became four plain red mana instead of being lost,
+        // so it survives combat as ordinary red mana (no longer combat-restricted).
+        driver.pool(active).red shouldBe 4
+        driver.pool(active).total shouldBe 4
+        driver.pool(active).restrictedMana.size shouldBe 0
+
+        // Opponent controls no Ozai — their combat-duration mana was discarded as normal.
+        driver.pool(opponent).total shouldBe 0
+    }
+
     test("Ozai has flying and indestructible only while you have six or more unspent mana") {
         val driver = createDriver()
         driver.initMirrorMatch(deck = Deck.of("Mountain" to 40))

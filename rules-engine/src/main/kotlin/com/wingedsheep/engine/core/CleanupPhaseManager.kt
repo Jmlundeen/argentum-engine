@@ -80,7 +80,6 @@ import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.DamagePersistsThroughCleanup
-import com.wingedsheep.sdk.scripting.ConvertEmptyingManaToRed
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.PreventManaPoolEmptying
 
@@ -394,26 +393,6 @@ class CleanupPhaseManager(
     }
 
     /**
-     * Players who control a permanent with the [ConvertEmptyingManaToRed] static ability
-     * (Ozai, the Phoenix King: "If you would lose unspent mana, that mana becomes red instead").
-     * At the mana-empty point their pool is converted to red rather than emptied. Controller is
-     * read from projected state so a control-changed Ozai converts for its new controller.
-     */
-    private fun playersConvertingEmptyingManaToRed(state: GameState): Set<EntityId> {
-        val registry = cardRegistry
-        val projected = state.projectedState
-        val result = mutableSetOf<EntityId>()
-        for (entityId in state.getBattlefield()) {
-            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
-            val cardDef = registry.getCard(card.cardDefinitionId) ?: continue
-            if (cardDef.script.staticAbilities.any { it is ConvertEmptyingManaToRed }) {
-                projected.getController(entityId)?.let { result.add(it) }
-            }
-        }
-        return result
-    }
-
-    /**
      * Clean up end-of-turn effects.
      *
      * This is called at the end of each turn and handles:
@@ -496,7 +475,7 @@ class CleanupPhaseManager(
         // their whole pool turned into that many red mana instead of emptied — CR 500.5 / 703.4q
         // (unspent mana empties as each step and phase ends), replaced here per CR 614.
         if (!isManaPoolEmptyingPrevented(newState)) {
-            val convertToRedPlayers = playersConvertingEmptyingManaToRed(newState)
+            val convertToRedPlayers = playersConvertingEmptyingManaToRed(newState, cardRegistry)
             for (playerId in newState.turnOrder) {
                 newState = newState.updateEntity(playerId) { container ->
                     val manaPool = container.get<ManaPoolComponent>()

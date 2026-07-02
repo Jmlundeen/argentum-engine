@@ -120,6 +120,23 @@ data class ManaPoolComponent(
         copy(restrictedMana = restrictedMana.filterNot { it.expiry == expiry })
 
     /**
+     * Convert every restricted-mana entry whose expiry matches [expiry] into an equal amount of
+     * plain red mana instead of discarding it (Ozai, the Phoenix King: firebending mana that would
+     * be lost as combat ends "becomes red instead", CR 614). The converted mana drops its combat
+     * expiry and spend restriction — it is ordinary red mana that persists until the next mana-loss
+     * point (end-of-turn cleanup, where Ozai's static converts it to red again). Ordinary mana and
+     * other-expiry restricted entries are untouched; a pool with no matching entries is unchanged.
+     */
+    fun convertExpiredToRed(expiry: ManaExpiry): ManaPoolComponent {
+        val expiring = restrictedMana.count { it.expiry == expiry }
+        if (expiring == 0) return this
+        return copy(
+            red = red + expiring,
+            restrictedMana = restrictedMana.filterNot { it.expiry == expiry }
+        )
+    }
+
+    /**
      * Empty the mana pool.
      */
     fun empty(): ManaPoolComponent = ManaPoolComponent()
