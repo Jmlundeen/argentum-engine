@@ -374,3 +374,37 @@ Resolved (was deferred):
   evaluate the gate against the granting permanent (mirroring the existing graveyard-play / equip
   conditional handling), so the land-play and spell-cast paths both honor the "attacked this turn"
   gate. Scenario test: `TheLunarWhaleScenarioTest`.
+
+## Implementation pass — 2026-07-03 (add-card batch)
+
+Implemented (pure authoring, no engine change):
+- **Sidequest: Catch a Fish** (#31) — `Enchantment // Land` transform DFC. Front upkeep ability is a
+  look-top → may-take → reflexive pipeline: `Effects.Pipeline { gather(TopOfLibrary(1)); chooseUpTo(1,
+  filter = Artifact or Creature); ifNotEmpty(kept) { toHand(kept); run(CreateFood()); run(TransformEffect(Self)) } }`
+  — the `ifNotEmpty` gate reproduces "if you put a card into your hand this way" exactly (a declined or
+  non-matching top card leaves the card on top and the enchantment un-transformed, per the 2025-06-06
+  ruling). The back **Cooking Campsite** is a colorless `Land`: `{T}: Add {W}` mana ability + a
+  sorcery-speed `{3},{T}, Sacrifice an artifact` activated ability that puts a +1/+1 counter on each
+  creature you control (`ForEachInGroup(Creature.youControl()) { AddCounters(PLUS_ONE_PLUS_ONE) }`).
+  Scenario test: `SidequestCatchAFishScenarioTest` (take → Food + transform; land top → no take, no Food,
+  no transform).
+
+Screened but deferred (each needs `add-feature`, not pure authoring — confirmed against source):
+- **Kain, Traitorous Dragoon** — "that player (the one dealt combat damage) gains control of Kain … you
+  draw/treasure/lose that many": no EffectTarget/Player for the damaged player as a `newController` on the
+  non-batch `DealsCombatDamageToPlayer` trigger, and no triggering-combat-damage-amount `DynamicAmount`.
+- **Firion, Wild Rose Warrior** — "create a token copy of the entering Equipment, except it has [equip-cost
+  reduction static]": `CreateTokenCopyOfTargetEffect` grants added *keywords/activated/triggered* abilities
+  but has no `addedStaticAbilities`, and equip-cost-reduction isn't a grantable static on a token copy.
+- **Emet-Selch, Unsundered** — back "During your turn, you may play cards from your graveyard" needs a
+  conditional (your-turn) wrapper the graveyard-play readers don't unwrap (only the top-of-library readers
+  do, via The Lunar Whale's fix), plus a controller-scoped "cards → exile instead of graveyard" replacement
+  (Rest in Peace's is all-players).
+- **Sidequest: Play Blitzball** — end-of-combat "if a player was dealt 6+ combat damage this turn"
+  condition doesn't exist (only a legendary-creature-specific variant), and there's no "transform this,
+  then attach it to a creature you control" effect.
+- The remaining missing FIN cards are the documented Tier-3 one-offs (Ultima → *End the turn*; Ultima,
+  Origin of Oblivion → blight land-strip; The Masamune → trigger-doubling; Gogo → copy-ability-N-times;
+  Joshua → any-number total-MV reanimation; Edgar → coin-flip-win replacement; Esper Origins →
+  spell-becomes-permanent; Kefka/Sephiroth/Zenos/Terra transform backs → per-card chapter/emblem/win-rider
+  primitives). All are `add-feature` scope.

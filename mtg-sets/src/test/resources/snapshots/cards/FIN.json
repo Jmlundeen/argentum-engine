@@ -16319,6 +16319,166 @@
     ]
 }
 
+// Sidequest: Catch a Fish
+{
+    "name": "Sidequest: Catch a Fish",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of your upkeep, look at the top card of your library. If it's an artifact or creature card, you may reveal it and put it into your hand. If you put a card into your hand this way, create a Food token and transform this enchantment.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "artifact|creature",
+                            "storeSelected": "selected1",
+                            "prompt": "You may reveal this card and put it into your hand",
+                            "selectedLabel": "Put into your hand",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "ConditionalOnCollection",
+                            "collection": "selected1",
+                            "ifNotEmpty": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "selected1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Hand"
+                                        },
+                                        "revealed": true
+                                    },
+                                    {
+                                        "type": "CreatePredefinedToken",
+                                        "tokenType": "Food"
+                                    },
+                                    "Transform"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Cooking Campsite",
+        "manaCost": "",
+        "typeLine": "Land",
+        "oracleText": "{T}: Add {W}.\n{3}, {T}, Sacrifice an artifact: Put a +1/+1 counter on each creature you control. Activate only as a sorcery.",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_2",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "WHITE"
+                    },
+                    "timing": "ManaAbility",
+                    "isManaAbility": true
+                },
+                {
+                    "id": "ability_3",
+                    "cost": {
+                        "type": "CostComposite",
+                        "costs": [
+                            {
+                                "type": "CostAtomWrapper",
+                                "atom": {
+                                    "type": "AtomMana",
+                                    "cost": "{3}"
+                                }
+                            },
+                            "CostTap",
+                            {
+                                "type": "CostAtomWrapper",
+                                "atom": {
+                                    "type": "AtomSacrifice",
+                                    "filter": "artifact"
+                                }
+                            }
+                        ]
+                    },
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 1,
+                            "target": "Self"
+                        }
+                    },
+                    "timing": "SorcerySpeed"
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "31",
+            "rarity": "UNCOMMON",
+            "artist": "Gal Or",
+            "flavorText": "\"Seeing how you enjoy fishing, you should learn how to prepare your catch.\"\n—Ignis Scientia",
+            "imageUri": "https://cards.scryfall.io/normal/back/b/d/bdb5452e-d97f-409b-91d0-2664f39b09b8.jpg?1782686574"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "31",
+        "rarity": "UNCOMMON",
+        "artist": "Gal Or",
+        "flavorText": "\"I am Noctis, Prince of Lucis and King of Fishing!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bdb5452e-d97f-409b-91d0-2664f39b09b8.jpg?1782686574",
+        "rulings": [
+            {
+                "date": "2025-06-06",
+                "text": "You don't have to reveal the card even if it's an artifact or creature card. You may choose not to reveal it and instead leave it on top of your library."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Sidequest: Hunt the Mark
 {
     "name": "Sidequest: Hunt the Mark",
