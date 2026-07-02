@@ -248,6 +248,71 @@
     ]
 }
 
+// Archmage of Runes
+{
+    "name": "Archmage of Runes",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Creature — Giant Wizard",
+    "oracleText": "Instant and sorcery spells you cast cost {1} less to cast.\nWhenever you cast an instant or sorcery spell, draw a card.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 6
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsInstant",
+                                    "IsSorcery"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Whenever you cast an instant or sorcery spell, draw a card."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "instant|sorcery"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "30",
+        "rarity": "RARE",
+        "artist": "Kai Carpenter",
+        "flavorText": "He's so intent on his study that others think him frozen in place.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/3/334b5018-2da9-49f1-9d09-83d312ecfb02.jpg?1782689239"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Armasaur Guide
 {
     "name": "Armasaur Guide",
