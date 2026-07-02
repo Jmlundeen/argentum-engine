@@ -36,7 +36,9 @@ tasks.withType<Test>().configureEach {
     }
 
     // Forward the anti-hang guard tunables (see TestHangGuard) so they can be set from the CLI.
-    for (prop in listOf("testTimeoutSeconds", "testHardTimeoutSeconds")) {
+    // Also forward the opt-in flags for the heavy replay-divergence fuzzer (ReplayDivergenceReproTest),
+    // which is skipped in CI and only runs when `runReproTests=true` is passed on the CLI.
+    for (prop in listOf("testTimeoutSeconds", "testHardTimeoutSeconds", "runReproTests", "reproGames", "reproSet")) {
         System.getProperty(prop)?.let { systemProperty(prop, it) }
     }
 

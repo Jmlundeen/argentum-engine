@@ -26,18 +26,26 @@ import kotlin.time.Duration.Companion.minutes
  * reconstruction reaches `1 + actions.size` frames with no mid-replay divergence. A failure here is
  * exactly the "only part of the replay was saved" symptom: a recorded action that no longer applies
  * on re-simulation makes [ReplayReconstructor] stop early.
+ *
+ * This is a heavy fuzzer (dozens of real, decision-heavy games) — far too slow for the PR critical
+ * path, so the whole spec is **skipped in CI**. It is opt-in: run it locally with
+ * `-DrunReproTests=true` (optionally `-DreproGames=N -DreproSet=EOE,...`) when investigating a
+ * replay-truncation regression. The fast, deterministic reconstruction/no-truncation guard that
+ * still runs on every PR lives in [CompactReplayReconstructionTest].
  */
 class ReplayDivergenceReproTest : ScenarioTestBase() {
 
     private fun mockWs(id: String): WebSocketSession =
         mockk(relaxed = true) { every { this@mockk.id } returns id }
 
+    private val reproEnabled = System.getProperty("runReproTests")?.toBoolean() == true
     private val numGames = System.getProperty("reproGames")?.toIntOrNull() ?: 5
     private val setCodes = (System.getProperty("reproSet")?.split(",")
         ?: listOf("EOE", "TDM", "DFT", "BLB", "DSK", "MOM"))
 
     init {
-        test("recorded games reconstruct to the full frame stream (no truncation)").config(timeout = 60.minutes) {
+        test("recorded games reconstruct to the full frame stream (no truncation)")
+            .config(enabledIf = { reproEnabled }, timeout = 60.minutes) {
             val enumerator = LegalActionEnumerator.create(cardRegistry)
             val reconstructor = ReplayReconstructor(cardRegistry, null)
             val rng = Random(0x5EED)
@@ -124,7 +132,8 @@ class ReplayDivergenceReproTest : ScenarioTestBase() {
         // separately and re-applied during reconstruction. Without that, the reconstructed game starts
         // with no yields, pauses for a trigger the live game auto-answered, and truncates. This pins the
         // recording + re-application of yields directly.
-        test("a persistent yield set mid-game is captured and reproduced on reconstruction") {
+        test("a persistent yield set mid-game is captured and reproduced on reconstruction")
+            .config(enabledIf = { reproEnabled }) {
             val session = GameSession(cardRegistry = cardRegistry, maxPlayers = 2)
             val p1 = EntityId.of("yield-p1")
             val p2 = EntityId.of("yield-p2")
