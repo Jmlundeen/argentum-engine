@@ -441,6 +441,16 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `TakeExtraTurn(target, loseAtEndStep?)` — target takes an extra turn after this one (Time Walk, Lost Isle Calling).
   Set `loseAtEndStep = true` for "...you lose the game at the beginning of that turn's end step" (Last Chance, Final
   Fortune). Prevented by the `PreventExtraTurns` replacement (Ugin's Nexus).
+- `EndTheTurn` — end the current turn (CR 720): Ultima ("Destroy all artifacts and creatures. End the turn."),
+  Time Stop, Sundial of the Infinite, Discontinuity. When it resolves the whole stack is exiled (including the
+  source and any triggered abilities the resolution queued — even ones that can't be countered — so those never
+  reach the stack, CR 720.1c), creatures are removed from combat, and the game skips straight to the cleanup step
+  (discard to maximum hand size, marked damage wears off, "this turn" / "until end of turn" effects end) before the
+  next turn begins. Takes no target — it always ends the active player's turn. Modeled as a two-step effect: the
+  executor records an `EndTheTurnRequestedComponent` on the active player, and `PassPriorityHandler` runs the
+  sequence via `TurnManager.performEndTheTurn` once the current resolution finishes (so it can exile the *rest* of
+  the stack and drop the pending triggers). Compose after a board wipe with
+  `Effects.Composite(listOf(Effects.DestroyAll(...), Effects.EndTheTurn))`.
 - `ForceExileMultiZone(count, target)` — exile from hand/battlefield/graveyard combined (Lich's Mastery shape).
 
 ### Cards (draw / discard)

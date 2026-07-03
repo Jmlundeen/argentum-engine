@@ -3386,6 +3386,14 @@ object Effects {
     val AddMainPhase: Effect = com.wingedsheep.sdk.scripting.effects.AddMainPhaseEffect
 
     /**
+     * End the turn (CR 720): exile the whole stack (including this source) and any pending
+     * triggers, remove creatures from combat, then skip straight to the cleanup step (discard to
+     * maximum hand size, damage wears off, "until end of turn" effects end) and begin the next
+     * turn. Used for Ultima ("Destroy all artifacts and creatures. End the turn."), Time Stop, etc.
+     */
+    val EndTheTurn: Effect = com.wingedsheep.sdk.scripting.effects.EndTheTurnEffect
+
+    /**
      * Give the controller [amount] additional upkeep steps after the current phase
      * (Obeka, Splitter of Seconds). Each is a beginning phase containing only an upkeep step
      * (untap and draw skipped, CR 500.10); they occur after any additional combat phases (CR 500.8).

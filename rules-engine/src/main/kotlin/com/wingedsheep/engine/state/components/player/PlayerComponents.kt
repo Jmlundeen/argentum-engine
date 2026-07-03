@@ -1165,6 +1165,20 @@ data object WasDealtCombatDamageByLegendaryCreatureThisTurnComponent : Component
 data class SkipNextTurnComponent(val turns: Int = 1) : Component
 
 /**
+ * Marks that an "end the turn" effect (CR 720) has resolved this turn and the end-the-turn
+ * sequence still needs to run. Placed on the active player when [EndTheTurnEffect] resolves; the
+ * executor cannot end the turn itself (it has no access to the turn machinery and the rest of the
+ * stack has not finished resolving), so it records the request and [PassPriorityHandler] carries
+ * out the sequence via [TurnManager.performEndTheTurn] once the current resolution completes.
+ *
+ * @property sourceId The spell/ability that caused the turn to end. CR 720.1a exiles it along with
+ *   the rest of the stack, so it is moved to exile rather than left in the graveyard. Null when the
+ *   source is unknown (defensive — the sequence still runs).
+ */
+@Serializable
+data class EndTheTurnRequestedComponent(val sourceId: EntityId? = null) : Component
+
+/**
  * Tracks a Mindslaver-style "you control target opponent during their next turn" effect.
  *
  * Lifecycle:

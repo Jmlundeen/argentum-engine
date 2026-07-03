@@ -21950,6 +21950,60 @@
     ]
 }
 
+// Ultima
+{
+    "name": "Ultima",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy all artifacts and creatures. End the turn. (Exile all spells and abilities from the stack, including this card. The player whose turn it is discards down to their maximum hand size. Damage wears off, and \"this turn\" and \"until end of turn\" effects end.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "artifact|creature"
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                },
+                "EndTheTurn"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "rarity": "RARE",
+        "artist": "Gintas Galvanauskas",
+        "flavorText": "\"Such devastation ... this was not my intention!\"\n—Gaius van Baelsar",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/9/39504a0e-f63f-4907-afd7-c4492f6b8a3b.jpg?1782686568",
+        "rulings": [
+            {
+                "date": "2025-06-06",
+                "text": "Ending the turn happens in order: (1) all spells and abilities on the stack are exiled, including the dies triggers from destroying all artifacts and creatures and Ultima itself, even ones that can't be countered; (2) attacking and blocking creatures are removed from combat; (3) state-based actions are checked, no player gets priority, and no triggered abilities are put onto the stack; (4) the game skips straight to the cleanup step, which happens in its entirety."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Ultima Weapon
 {
     "name": "Ultima Weapon",

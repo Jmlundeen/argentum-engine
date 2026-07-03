@@ -21,6 +21,7 @@ import com.wingedsheep.engine.state.components.combat.BlockersDeclaredThisCombat
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.state.components.player.CreaturesDiedThisTurnComponent
+import com.wingedsheep.engine.state.components.player.EndTheTurnRequestedComponent
 import com.wingedsheep.engine.state.components.player.NonTokenCreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
@@ -194,6 +195,17 @@ class PassPriorityHandler(
             return result
         }
 
+        // CR 720: an "end the turn" effect (e.g. Final Fantasy's Ultima) resolved. Divert to the
+        // end-the-turn sequence instead of the normal trigger/SBA/priority flow — the triggers
+        // detected from this resolution (dies triggers from a preceding board wipe, etc.) are
+        // intentionally dropped and never put on the stack (CR 720.1c).
+        val endTheTurnPlayer = result.newState.activePlayerId
+        if (endTheTurnPlayer != null &&
+            result.newState.getEntity(endTheTurnPlayer)?.has<EndTheTurnRequestedComponent>() == true
+        ) {
+            return endTheTurn(result.newState, result.events)
+        }
+
         // Track nontoken creature deaths from resolution events
         val trackedState = trackNonTokenCreatureDeaths(result.newState, result.events)
 
@@ -269,6 +281,68 @@ class PassPriorityHandler(
         return ExecutionResult.success(
             postPollState.withPriority(stackItemController),
             combinedEvents
+        )
+    }
+
+    /**
+     * Run the "end the turn" sequence (CR 720) triggered by an [EndTheTurnRequestedComponent] that
+     * was set while [state]'s current spell/ability resolved. [TurnManager.performEndTheTurn] exiles
+     * the rest of the stack, removes creatures from combat and skips to the cleanup step + next turn;
+     * this method then fires only the freshly-begun turn's step/phase triggers (e.g. "at the
+     * beginning of your upkeep"). Battlefield event triggers from the end-the-turn actions and the
+     * preceding resolution are intentionally NOT processed (CR 720.1c).
+     */
+    private fun endTheTurn(state: GameState, resolutionEvents: List<GameEvent>): ExecutionResult {
+        val endResult = turnManager.performEndTheTurn(state)
+        val priorEvents = resolutionEvents + endResult.events
+
+        if (endResult.isPaused) {
+            return ExecutionResult.paused(endResult.newState, endResult.pendingDecision!!, priorEvents)
+        }
+        if (!endResult.isSuccess || endResult.newState.gameOver) {
+            return ExecutionResult.success(endResult.newState, priorEvents)
+        }
+
+        var currentState = endResult.newState
+        val stepChangedEvent = priorEvents.filterIsInstance<StepChangedEvent>().lastOrNull()
+            ?: return ExecutionResult.success(
+                currentState.withPriority(currentState.activePlayerId),
+                priorEvents
+            )
+
+        val (delayedTriggers, consumedIds) = triggerDetector.detectDelayedTriggers(currentState, stepChangedEvent.newStep)
+        if (consumedIds.isNotEmpty()) {
+            currentState = currentState.removeDelayedTriggers(consumedIds)
+        }
+        val triggers = delayedTriggers.toMutableList()
+        currentState.activePlayerId?.let { activePlayer ->
+            triggers.addAll(
+                triggerDetector.detectPhaseStepTriggers(currentState, stepChangedEvent.newStep, activePlayer)
+            )
+        }
+
+        val statePollResult = stateTriggerPoller.poll(currentState)
+        currentState = statePollResult.newState
+        triggers.addAll(statePollResult.pendingTriggers)
+
+        if (triggers.isNotEmpty()) {
+            val triggerResult = triggerProcessor.processTriggers(currentState, triggers)
+            if (triggerResult.isPaused) {
+                return ExecutionResult.paused(
+                    triggerResult.state,
+                    triggerResult.pendingDecision!!,
+                    priorEvents + triggerResult.events
+                )
+            }
+            return ExecutionResult.success(
+                triggerResult.newState.withPriority(currentState.activePlayerId),
+                priorEvents + triggerResult.events
+            )
+        }
+
+        return ExecutionResult.success(
+            currentState.withPriority(currentState.activePlayerId),
+            priorEvents
         )
     }
 

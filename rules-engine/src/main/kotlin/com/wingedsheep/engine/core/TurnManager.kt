@@ -29,6 +29,9 @@ import com.wingedsheep.engine.state.components.player.PlayerTurnHijackedComponen
 import com.wingedsheep.engine.state.components.player.PlayerTurnsTakenComponent
 import com.wingedsheep.engine.state.components.player.SkipCombatPhasesComponent
 import com.wingedsheep.engine.state.components.player.SkipNextTurnComponent
+import com.wingedsheep.engine.state.components.player.EndTheTurnRequestedComponent
+import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
+import com.wingedsheep.engine.mechanics.stack.StackResolver
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -687,6 +690,144 @@ class TurnManager(
             advanceResult.newState,
             turnResult.events + untapResult.events + goadEvents + advanceResult.events
         )
+    }
+
+    /**
+     * Carry out an "end the turn" effect (CR 720). Invoked by
+     * [com.wingedsheep.engine.handlers.actions.priority.PassPriorityHandler] once the spell or
+     * ability that requested it (via [EndTheTurnRequestedComponent]) has finished resolving.
+     *
+     * In order (CR 720.1):
+     *  - **a.** every spell and ability still on the stack is exiled — spells go to exile, abilities
+     *    cease to exist — and the source of the effect is exiled too;
+     *  - **c.** state-based actions are checked once; no triggered abilities are put on the stack —
+     *    the caller drops the triggers detected from the resolution/board-wipe events and diverts
+     *    here instead of processing them;
+     *  - **b.** all creatures and players are removed from combat;
+     *  - **d.** the game skips straight to the cleanup step, which runs as normal (CR 720.2): the
+     *    active player discards down to their maximum hand size, marked damage wears off, and
+     *    "until end of turn" / "this turn" effects end — then the turn ends into the next turn.
+     *
+     * The cleanup + turn-end reuse the same machinery as a natural cleanup step, so if the active
+     * player is over their maximum hand size this returns paused for the discard, and the game
+     * advances CLEANUP → next turn once the discard resolves (mirrors [advanceStep]'s CLEANUP path).
+     */
+    fun performEndTheTurn(state: GameState): ExecutionResult {
+        val activePlayer = state.activePlayerId
+            ?: return ExecutionResult.error(state, "No active player")
+
+        val request = state.getEntity(activePlayer)?.get<EndTheTurnRequestedComponent>()
+        var newState = state.updateEntity(activePlayer) { it.without<EndTheTurnRequestedComponent>() }
+        val events = mutableListOf<GameEvent>()
+
+        // CR 720.1c: state-based actions are checked. (Creatures destroyed by a preceding board
+        // wipe are already handled by that effect; this catches any other pending SBA.)
+        val sbaResult = sbaChecker.checkAndApply(newState)
+        if (sbaResult.isPaused) {
+            return ExecutionResult.paused(sbaResult.newState, sbaResult.pendingDecision!!, events + sbaResult.events)
+        }
+        newState = sbaResult.newState
+        events.addAll(sbaResult.events)
+        if (newState.gameOver) {
+            return ExecutionResult.success(newState.copy(priorityPlayerId = null), events)
+        }
+
+        // CR 720.1a: exile every remaining spell and ability on the stack. Snapshot the ids first
+        // because exiling mutates the stack.
+        val resolver = StackResolver(cardRegistry = cardRegistry)
+        for (entityId in newState.stack.toList()) {
+            if (entityId !in newState.stack) continue
+            val onStack = newState.getEntity(entityId) ?: continue
+            val result = if (onStack.has<SpellOnStackComponent>()) {
+                resolver.exileSpell(newState, entityId, makePlotted = false)
+            } else {
+                // Triggered / activated abilities on the stack simply cease to exist.
+                resolver.counterAbility(newState, entityId)
+            }
+            if (result.isSuccess) {
+                newState = result.newState
+                events.addAll(result.events)
+            }
+        }
+
+        // CR 720.1a: the source spell/ability is exiled along with the rest of the stack. After its
+        // resolution a spell source has been put into its owner's graveyard — move it to exile.
+        request?.sourceId?.let { sourceId ->
+            val (movedState, moveEvents) = moveSourceToExile(newState, sourceId)
+            newState = movedState
+            events.addAll(moveEvents)
+        }
+
+        // CR 720.1b: remove all creatures and players from combat.
+        if (newState.phase == Phase.COMBAT) {
+            val endCombatResult = combatManager.endCombat(newState)
+            if (endCombatResult.isSuccess) {
+                newState = endCombatResult.newState
+                events.addAll(endCombatResult.events)
+            }
+        }
+
+        // CR 720.1d / 720.2: skip straight to the cleanup step (bypassing the end step and any queued
+        // additional end steps), run its turn-based actions, then end the turn. Mirrors the
+        // Step.CLEANUP branch of [advanceStep] so hand-size discard and end-of-turn cleanup behave
+        // identically.
+        newState = newState.copy(
+            step = Step.CLEANUP,
+            phase = Phase.ENDING,
+            priorityPlayerId = null,
+            priorityPassedBy = emptySet()
+        )
+        events.add(PhaseChangedEvent(Phase.ENDING))
+        events.add(StepChangedEvent(Step.CLEANUP))
+
+        val cleanupResult = cleanupPhaseManager.performCleanupStep(newState)
+        if (cleanupResult.isPaused) {
+            // Over max hand size: pause for the discard. The HandSizeDiscardContinuation finishes the
+            // cleanup turn-based actions, then the game advances CLEANUP → next turn (advanceStep).
+            return ExecutionResult.paused(
+                cleanupResult.newState,
+                cleanupResult.pendingDecision!!,
+                events + cleanupResult.events
+            )
+        }
+        if (cleanupResult.error != null) {
+            return ExecutionResult.error(cleanupResult.newState, cleanupResult.error!!)
+        }
+        newState = cleanupResult.newState
+        events.addAll(cleanupResult.events)
+
+        val endTurnResult = endTurn(newState)
+        if (endTurnResult.isPaused) {
+            return ExecutionResult.paused(
+                endTurnResult.newState,
+                endTurnResult.pendingDecision!!,
+                events + endTurnResult.events
+            )
+        }
+        return ExecutionResult.success(endTurnResult.newState, events + endTurnResult.events)
+    }
+
+    /**
+     * Move an "end the turn" source from its owner's graveyard to exile (CR 720.1a). Best-effort:
+     * if the source is not currently in a graveyard (e.g. it was a token or an ability that already
+     * ceased to exist) it is left untouched.
+     */
+    private fun moveSourceToExile(state: GameState, sourceId: EntityId): Pair<GameState, List<GameEvent>> {
+        val currentKey = state.zones.entries.firstOrNull { (_, ids) -> sourceId in ids }?.key
+            ?: return state to emptyList()
+        if (currentKey.zoneType != Zone.GRAVEYARD) return state to emptyList()
+        val card = state.getEntity(sourceId)?.get<CardComponent>()
+        val ownerId = card?.ownerId ?: currentKey.ownerId
+        val exileKey = ZoneKey(ownerId, Zone.EXILE)
+        val movedState = state.moveToZone(sourceId, currentKey, exileKey)
+        val event = ZoneChangeEvent(
+            entityId = sourceId,
+            entityName = card?.name ?: "",
+            fromZone = Zone.GRAVEYARD,
+            toZone = Zone.EXILE,
+            ownerId = ownerId
+        )
+        return movedState to listOf(event)
     }
 
     /**

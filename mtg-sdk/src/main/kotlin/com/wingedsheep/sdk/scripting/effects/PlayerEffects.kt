@@ -208,6 +208,30 @@ data class TakeExtraTurnEffect(
 }
 
 /**
+ * End the turn (CR 720). Used for Time Stop, Sundial of the Infinite, Discontinuity, and
+ * Final Fantasy's Ultima ("Destroy all artifacts and creatures. End the turn.").
+ *
+ * When this resolves, in order (CR 720.1):
+ *  - every spell and ability on the stack is exiled, **including the source of this effect**;
+ *  - triggered abilities that would have gone on the stack from the events so far (e.g. the dies
+ *    triggers from a preceding board wipe) are discarded, never put on the stack (CR 720.1c);
+ *  - creatures and players are removed from combat;
+ *  - the game skips straight to the cleanup step — the active player discards down to their
+ *    maximum hand size, marked damage wears off, and "this turn" / "until end of turn" effects end;
+ *  - then the turn ends normally and the next turn begins.
+ *
+ * This is a turn-structure effect: the executor only records the request (see the engine's
+ * `EndTheTurnRequestedComponent`); the actual end-the-turn sequence runs after the current
+ * resolution completes so it can exile the rest of the stack and suppress the pending triggers.
+ * It takes no target — it always ends the current turn regardless of who controls the effect.
+ */
+@SerialName("EndTheTurn")
+@Serializable
+data object EndTheTurnEffect : Effect {
+    override val description: String = "End the turn"
+}
+
+/**
  * Prevent the target player from playing lands for the rest of this turn.
  * Sets the player's remaining land drops to 0.
  * Defaults to the controller (e.g. Rock Jockey); pass a [EffectTarget.PlayerRef]
