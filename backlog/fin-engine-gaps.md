@@ -432,3 +432,12 @@ stale on both:
     Permanent, ability = "whenever a creature dies, target opponent loses 1 / you gain 1")` (Death Frenzy
     precedent). Covered by `SephirothFabledSoldierScenarioTest` (drain, fourth-resolution transform,
     emblem still draining post-transform).
+- **Edgar, King of Figaro** — implemented; needed one small, reusable engine addition (closes the §10
+  coin-flip-win gap). The ETB "draw a card for each artifact you control" is pure authoring; the
+  Two-Headed Coin static is a new `WinCoinFlips(firstFlipEachTurn)` static ability — a coin-flip
+  **result replacement** (CR 705.3, not a Rule 613 layer effect). The three coin-flip executors query
+  it through a shared `CoinFlipModifiers` utility (mirroring `LifeGainModifiers`); a per-player
+  `FlippedCoinsThisTurnComponent` (cleared at cleanup) implements the "first time each turn" gate. The
+  primitive is general: `firstFlipEachTurn = false` gives a plain "you win all coin flips". Covered by
+  `EdgarKingOfFigaroScenarioTest` (forced first-flip win via The Gold Saucer, the once-per-turn gate,
+  and the artifact-count ETB draw).

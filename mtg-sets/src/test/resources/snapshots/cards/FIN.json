@@ -5729,6 +5729,54 @@
     "colorIdentityOverride": []
 }
 
+// Edgar, King of Figaro
+{
+    "name": "Edgar, King of Figaro",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Legendary Creature — Human Artificer Noble",
+    "oracleText": "When Edgar enters, draw a card for each artifact you control.\nTwo-Headed Coin — The first time you flip one or more coins each turn, those coins come up heads and you win those flips.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "artifact"
+                    }
+                },
+                "descriptionOverride": "When Edgar enters, draw a card for each artifact you control."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "WinCoinFlips",
+                "firstFlipEachTurn": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "51",
+        "rarity": "RARE",
+        "artist": "Jake Murray",
+        "flavorText": "\"Sabin...let's settle this with the toss of a coin.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/5/950ee302-5512-43c5-ac7c-b2b06f4177bf.jpg?1782686557"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Eject
 {
     "name": "Eject",
