@@ -9446,6 +9446,208 @@
     ]
 }
 
+// Joshua, Phoenix's Dominant
+{
+    "name": "Joshua, Phoenix's Dominant",
+    "manaCost": "{1}{R}{W}",
+    "typeLine": "Legendary Creature — Human Noble Wizard",
+    "oracleText": "When Joshua enters, discard up to two cards, then draw that many cards.\n{3}{R}{W}, {T}: Exile Joshua, then return it to the battlefield transformed under its owner's control. Activate only as a sorcery.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Discard up to two cards"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "VariableReference",
+                                "variableName": "discarded_count"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When Joshua enters, discard up to two cards, then draw that many cards."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{R}{W}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": "ExileAndReturnTransformed",
+                "timing": "SorcerySpeed"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Phoenix, Warden of Fire",
+        "manaCost": "",
+        "typeLine": "Legendary Enchantment Creature — Saga Phoenix",
+        "oracleText": "(As this Saga enters and after your draw step, add a lore counter.)\nI, II — Rising Flames — Phoenix deals 2 damage to each opponent.\nIII — Flames of Rebirth — Return any number of target creature cards with total mana value 6 or less from your graveyard to the battlefield. Exile Phoenix, then return it to the battlefield (front face up).\nFlying, lifelink",
+        "creatureStats": {
+            "power": 4,
+            "toughness": 4
+        },
+        "keywords": [
+            "FLYING",
+            "LIFELINK"
+        ],
+        "script": {
+            "sagaChapters": [
+                {
+                    "chapter": 1,
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": {
+                            "type": "PlayerRef",
+                            "player": "EachOpponent"
+                        }
+                    }
+                },
+                {
+                    "chapter": 2,
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": {
+                            "type": "PlayerRef",
+                            "player": "EachOpponent"
+                        }
+                    }
+                },
+                {
+                    "chapter": 3,
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Graveyard",
+                                    "filter": "creature"
+                                },
+                                "storeAs": "graveyardCreatures"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "graveyardCreatures",
+                                "selection": "ChooseAnyNumber",
+                                "storeSelected": "toBattlefield",
+                                "prompt": "Return any number of creature cards with total mana value 6 or less to the battlefield",
+                                "selectedLabel": "Return to the battlefield",
+                                "restrictions": [
+                                    {
+                                        "type": "TotalManaValueAtMost",
+                                        "max": 6
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "toBattlefield",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield"
+                                }
+                            },
+                            {
+                                "type": "ExileAndReturnTransformed",
+                                "returnAs": "FRONT"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "229",
+            "rarity": "RARE",
+            "artist": "Lius Lasahido",
+            "imageUri": "https://cards.scryfall.io/normal/back/4/5/457fdbb9-5439-460f-8e37-176f8919362c.jpg?1782686420"
+        },
+        "colorIdentityOverride": [
+            "RED",
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "229",
+        "rarity": "RARE",
+        "artist": "Lius Lasahido",
+        "flavorText": "\"In ashen grip, let ember glow, to kindle flames anew.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/5/457fdbb9-5439-460f-8e37-176f8919362c.jpg?1782686420",
+        "rulings": [
+            {
+                "date": "2025-06-06",
+                "text": "You can choose to discard no cards when Joshua's first ability resolves. If you do, you won't draw any cards."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}
+
 // Judge Magister Gabranth
 {
     "name": "Judge Magister Gabranth",
