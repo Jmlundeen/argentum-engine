@@ -207,6 +207,126 @@
     ]
 }
 
+// Arbiter of Woe
+{
+    "name": "Arbiter of Woe",
+    "manaCost": "{4}{B}{B}",
+    "typeLine": "Creature — Demon",
+    "oracleText": "As an additional cost to cast this spell, sacrifice a creature.\nFlying\nWhen this creature enters, each opponent discards a card and loses 2 life. You draw a card and gain 2 life.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Players",
+                                "players": "EachOpponent"
+                            },
+                            "body": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Hand"
+                                        },
+                                        "storeAs": "hand"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "hand",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "discarded"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "discarded",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Discard"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Players",
+                                "players": "EachOpponent"
+                            },
+                            "body": {
+                                "type": "LoseLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                },
+                                "target": "Controller"
+                            }
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, each opponent discards a card and loses 2 life. You draw a card and gain 2 life."
+            }
+        ],
+        "additionalCosts": [
+            {
+                "type": "AdditionalAtom",
+                "atom": {
+                    "type": "AtomSacrifice",
+                    "filter": "creature"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "UNCOMMON",
+        "artist": "Jim Pavelec",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/2/b2496c4a-df03-4583-bd76-f98ed5cb61ee.jpg?1782689217"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Arcane Epiphany
 {
     "name": "Arcane Epiphany",
@@ -596,6 +716,93 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Billowing Shriekmass
+{
+    "name": "Billowing Shriekmass",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "Flying\nWhen this creature enters, mill three cards. (Put the top three cards of your library into your graveyard.)\nThreshold — This creature gets +2/+1 as long as there are seven or more cards in your graveyard.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 2,
+                    "toughnessBonus": 1,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "56",
+        "rarity": "UNCOMMON",
+        "artist": "Brent Hollowell",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/b/7b3587a9-0667-4d53-807b-c437bcb1d7b3.jpg?1782689217"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -1733,6 +1940,46 @@
     ]
 }
 
+// Erudite Wizard
+{
+    "name": "Erudite Wizard",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "Whenever you draw your second card each turn, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "NthCardDrawnEvent",
+                    "nthCard": 2
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever you draw your second card each turn, put a +1/+1 counter on this creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "artist": "Ioannis Fiore",
+        "flavorText": "\"Pretty baubles and gilded palaces may appeal to the egotist, but true wealth comes only through knowledge.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/9273c417-0fcd-4273-b24e-afff76336d0c.jpg?1782689234"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Exemplar of Light
 {
     "name": "Exemplar of Light",
@@ -2729,6 +2976,88 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// High-Society Hunter
+{
+    "name": "High-Society Hunter",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Creature — Vampire Noble",
+    "oracleText": "Flying\nWhenever this creature attacks, you may sacrifice another creature. If you do, put a +1/+1 counter on this creature.\nWhenever another nontoken creature dies, draw a card.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "SacrificeTarget",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "another creature"
+                                }
+                            },
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 1,
+                                "target": "Self"
+                            }
+                        ]
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you",
+                        "excludeSelf": true
+                    },
+                    "id": "another creature"
+                },
+                "descriptionOverride": "Whenever this creature attacks, you may sacrifice another creature. If you do, put a +1/+1 counter on this creature."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature nontoken",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Whenever another nontoken creature dies, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "61",
+        "rarity": "RARE",
+        "artist": "Daneen Wilkerson",
+        "flavorText": "\"You've been a marvelous servant. Consider this your final assignment.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/1/51da4a4b-ea12-4169-a7cf-eb4427f13e84.jpg?1782689213"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
