@@ -562,3 +562,24 @@ data class PlayerTurnedPermanentFaceUpThisTurn(val player: Player = Player.You) 
         "if ${player.description} turned a permanent face up this turn"
 }
 
+
+/**
+ * Condition: "a player was dealt [amount] or more combat damage this turn" — true when ANY single
+ * player (existential, including you) has accumulated at least [amount] combat damage this turn.
+ *
+ * Backed by the per-player `CombatDamageReceivedThisTurnComponent` running total (incremented at
+ * the two combat-damage-to-a-player sites in `CombatDamageManager`, cleared at the turn boundary).
+ * Board-derived, so it reads the same at resolution and under projection.
+ *
+ * Deliberately NOT the summing `DynamicAmount.TurnTracking(Player.Each, …)` path: that adds every
+ * player's combat damage together (7 total across two players would falsely satisfy "6 or more"),
+ * whereas this asks whether some *one* player crossed the threshold. Used by Sidequest: Play
+ * Blitzball's end-of-combat transform ("if a player was dealt 6 or more combat damage this turn").
+ */
+@SerialName("AnyPlayerDealtCombatDamageThisTurnAtLeast")
+@Serializable
+data class AnyPlayerDealtCombatDamageThisTurnAtLeast(
+    val amount: Int
+) : Condition {
+    override val description: String = "if a player was dealt $amount or more combat damage this turn"
+}

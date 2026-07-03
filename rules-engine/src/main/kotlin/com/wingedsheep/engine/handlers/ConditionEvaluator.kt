@@ -38,6 +38,7 @@ import com.wingedsheep.engine.state.components.player.InAdditionalCombatPhaseCom
 import com.wingedsheep.engine.state.components.player.InAdditionalEndStepComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.PlayerTurnsTakenComponent
+import com.wingedsheep.engine.state.components.player.CombatDamageReceivedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.WasDealtCombatDamageThisTurnComponent
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
@@ -52,6 +53,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouControlMostOfChosenType
 import com.wingedsheep.sdk.scripting.conditions.AllConditions
 import com.wingedsheep.sdk.scripting.conditions.AnyCondition
 import com.wingedsheep.sdk.scripting.conditions.APlayerLifeAtMost
+import com.wingedsheep.sdk.scripting.conditions.AnyPlayerDealtCombatDamageThisTurnAtLeast
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.NumberMatches
 import com.wingedsheep.sdk.scripting.conditions.NumberProperty
@@ -197,6 +199,13 @@ class ConditionEvaluator(
             // CR 805 — "your turn" is the active team's turn for every member of that team.
             is IsYourTurn -> ctx.controllerId?.let { state.isActiveTurnFor(it) } ?: false
             is IsNotYourTurn -> ctx.controllerId?.let { !state.isActiveTurnFor(it) } ?: false
+
+            // Existential over all players: does some single player's combat-damage-received running
+            // total reach the threshold? Board-derived (reads a per-player accumulator), so it works
+            // identically at resolution and under projection. Not the summing TurnTracking path.
+            is AnyPlayerDealtCombatDamageThisTurnAtLeast -> state.turnOrder.any { playerId ->
+                (state.getEntity(playerId)?.get<CombatDamageReceivedThisTurnComponent>()?.amount ?: 0) >= condition.amount
+            }
 
             // Board-derived (current step + active player), so it works identically at resolution
             // and under projection — used as a ConditionalStaticAbility gate (Zurgo's end step).

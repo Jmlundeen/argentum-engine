@@ -1151,6 +1151,24 @@ data object PutCounterOnCreatureThisTurnComponent : Component
 data object WasDealtCombatDamageThisTurnComponent : Component
 
 /**
+ * Accumulates the total *combat* damage dealt to a player this turn. Distinct from
+ * [DamageReceivedThisTurnComponent] (which counts all damage, combat and non-combat) and from the
+ * boolean [WasDealtCombatDamageThisTurnComponent] marker — this carries the running amount so a
+ * threshold ("6 or more combat damage") can be tested. Only actually-dealt damage is accumulated
+ * (prevented/redirected-to-zero damage never reaches the two combat-damage-to-a-player sites in
+ * [com.wingedsheep.engine.mechanics.combat.CombatDamageManager] where it is incremented, mirroring
+ * the boolean marker exactly). Cleared at end of turn by CleanupPhaseManager.
+ *
+ * Backs the "a player was dealt N or more combat damage this turn" condition (Sidequest: Play
+ * Blitzball), read via
+ * [com.wingedsheep.sdk.dsl.Conditions.aPlayerWasDealtCombatDamageThisTurnAtLeast].
+ */
+@Serializable
+data class CombatDamageReceivedThisTurnComponent(
+    val amount: Int = 0
+) : Component
+
+/**
  * Marks a player as having been dealt combat damage by a legendary creature this turn.
  * Cleared at end of turn by CleanupPhaseManager.
  * Backs the DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE turn tracker

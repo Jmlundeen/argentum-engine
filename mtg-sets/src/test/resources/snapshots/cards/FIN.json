@@ -17275,6 +17275,156 @@
     ]
 }
 
+// Sidequest: Play Blitzball
+{
+    "name": "Sidequest: Play Blitzball",
+    "manaCost": "{2}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of combat on your turn, target creature you control gets +2/+0 until end of turn.\nAt the end of combat on your turn, if a player was dealt 6 or more combat damage this turn, transform this enchantment, then attach it to a creature you control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "BEGIN_COMBAT"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "id": "target"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END_COMBAT"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        "Transform",
+                        {
+                            "type": "SelectTarget",
+                            "requirement": {
+                                "type": "TargetObject",
+                                "filter": {
+                                    "baseFilter": "creature ctrl:you"
+                                }
+                            },
+                            "storeAs": "host"
+                        },
+                        {
+                            "type": "ConditionalOnCollection",
+                            "collection": "host",
+                            "ifNotEmpty": {
+                                "type": "AttachEquipment",
+                                "target": {
+                                    "type": "PipelineTarget",
+                                    "collectionName": "host"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "triggerCondition": {
+                    "type": "AnyPlayerDealtCombatDamageThisTurnAtLeast",
+                    "amount": 6
+                }
+            }
+        ]
+    },
+    "backFace": {
+        "name": "World Champion, Celestial Weapon",
+        "manaCost": "",
+        "typeLine": "Legendary Artifact — Equipment",
+        "oracleText": "Double Overdrive — Equipped creature gets +2/+0 and has double strike.\nEquip {3}",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_3",
+                    "cost": {
+                        "type": "CostAtomWrapper",
+                        "atom": {
+                            "type": "AtomMana",
+                            "cost": "{3}"
+                        }
+                    },
+                    "effect": {
+                        "type": "AttachEquipment",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "creature you control"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            },
+                            "id": "creature you control"
+                        }
+                    ],
+                    "timing": "SorcerySpeed",
+                    "isEquipAbility": true
+                }
+            ],
+            "staticAbilities": [
+                {
+                    "type": "ModifyStats",
+                    "powerBonus": 2,
+                    "toughnessBonus": 0
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "DOUBLE_STRIKE"
+                }
+            ]
+        },
+        "equipCost": "{3}",
+        "metadata": {
+            "collectorNumber": "158",
+            "rarity": "UNCOMMON",
+            "artist": "Ittoku",
+            "flavorText": "\"Sorry for making you wait, Yuna. I had some promises to keep, ya?\"",
+            "imageUri": "https://cards.scryfall.io/normal/back/3/1/31e2ad37-73cf-4858-8a3a-fc1165cd21a7.jpg?1782686482"
+        },
+        "colorIdentityOverride": [
+            "RED"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "158",
+        "rarity": "UNCOMMON",
+        "artist": "Ittoku",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/31e2ad37-73cf-4858-8a3a-fc1165cd21a7.jpg?1782686482"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Sidequest: Raise a Chocobo
 {
     "name": "Sidequest: Raise a Chocobo",

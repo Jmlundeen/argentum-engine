@@ -5649,6 +5649,17 @@ of `AddMana`. The engine empties pools at end of turn, so:
   turn). Powers "an opponent was dealt combat damage by a legendary creature this turn" — Blitzball —
   via `Compare(TurnTracking(EachOpponent, DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE), GTE, 1)`
   (facade `Conditions.AnOpponentWasDealtCombatDamageByLegendaryCreatureThisTurn`).
+
+For a *combat-damage-amount threshold* that is existential over players — "a player was dealt N or
+more combat damage this turn" — use the dedicated condition
+`Conditions.aPlayerWasDealtCombatDamageThisTurnAtLeast(n)`
+(`AnyPlayerDealtCombatDamageThisTurnAtLeast`), NOT a `TurnTracking` tracker. It reads a per-player
+running total (`CombatDamageReceivedThisTurnComponent`, accumulated at the two combat-damage-to-a-
+player sites in `CombatDamageManager` and cleared at the turn boundary) and returns true when *some
+single* player crossed the threshold. The tracker path would instead sum every player's combat
+damage together (`TurnTracking(Player.Each, …)` sums), which would falsely satisfy the threshold on
+the combined total. Backs Sidequest: Play Blitzball ("if a player was dealt 6 or more combat damage
+this turn").
 - `COUNTERS_PUT_ON_CREATURE` — counters placed.
 - `LANDS_PLAYED` — lands the player explicitly played this turn (from-hand land drops only,
   derived from `LandDropsComponent`).

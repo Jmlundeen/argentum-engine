@@ -1183,6 +1183,19 @@ object Conditions {
             player = Player.EachOpponent,
         )
 
+    /**
+     * If a player was dealt [amount] or more combat damage this turn — existential over *all*
+     * players (including you): true when some single player's combat-damage-received running total
+     * reaches the threshold. Used by Sidequest: Play Blitzball ("if a player was dealt 6 or more
+     * combat damage this turn").
+     *
+     * Deliberately not a `trackerAtLeast(…, Player.Each)` helper: that path sums every player's
+     * combat damage together, which would falsely satisfy the threshold when the total across
+     * players reaches it but no single player did.
+     */
+    fun aPlayerWasDealtCombatDamageThisTurnAtLeast(amount: Int): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.AnyPlayerDealtCombatDamageThisTurnAtLeast(amount)
+
     // =========================================================================
     // Candidate-player target restrictions (CR 115)
     // =========================================================================
