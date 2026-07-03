@@ -391,6 +391,9 @@ class CleanupPhaseManager(
      * handled instead by `CombatManager.endCombat`, since it lasts until end of combat, not step end.
      */
     fun emptyManaPools(state: GameState): GameState {
+        // Runs on every step/phase boundary; almost always every pool is already empty (no mana
+        // floated), so skip the battlefield scans below in that common case.
+        if (state.turnOrder.all { state.getEntity(it)?.get<ManaPoolComponent>()?.isEmpty != false }) return state
         if (isManaPoolEmptyingPrevented(state)) return state
         var newState = state
         val convertToRedPlayers = playersConvertingEmptyingManaToRed(state, cardRegistry)
@@ -505,9 +508,10 @@ class CleanupPhaseManager(
             newState = newState.copy(activeCounterPlacementModifiers = remainingCounterModifiers)
         }
 
-        // 2. Empty mana pools as this (cleanup) step ends — the last of the per-step/phase emptyings
-        // (CR 500.5 / 703.4q). The RetainUnspentManaComponent marker (The Last Agni Kai) still keeps
-        // its colours here; the marker itself is cleared in step 4 below.
+        // 2. Empty mana pools as this (cleanup) step ends — one of the per-step/phase emptyings
+        // (CR 500.5 / 703.4q; if cleanup grants priority, advanceStep empties once more, idempotently).
+        // The RetainUnspentManaComponent marker (The Last Agni Kai) still keeps its colours here; the
+        // marker itself is cleared in step 4 below.
         newState = emptyManaPools(newState)
 
         // 3. Reset per-turn trackers (land drops reset at start of turn, but clean up here too)
