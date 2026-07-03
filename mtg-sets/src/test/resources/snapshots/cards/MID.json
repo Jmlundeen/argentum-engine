@@ -1388,6 +1388,69 @@
     ]
 }
 
+// Stromkirk Bloodthief
+{
+    "name": "Stromkirk Bloodthief",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Vampire Rogue",
+    "oracleText": "At the beginning of your end step, if an opponent lost life this turn, put a +1/+1 counter on target Vampire you control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target Vampire you control"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature Vampire ctrl:you"
+                    },
+                    "id": "target Vampire you control"
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "EachOpponent",
+                        "tracker": "LIFE_LOST"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "rarity": "UNCOMMON",
+        "artist": "Caroline Gariba",
+        "flavorText": "With House Voldaren ascendant, some members of the Stromkirk line took it upon themselves to \"borrow\" from the blood tithes.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/a/fa819123-bf13-44ea-9a6e-06c8ab023e44.jpg?1782703653"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // The Meathook Massacre
 {
     "name": "The Meathook Massacre",
