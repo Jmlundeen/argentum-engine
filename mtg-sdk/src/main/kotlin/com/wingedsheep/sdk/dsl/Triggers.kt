@@ -1571,6 +1571,16 @@ object Triggers {
     )
 
     /**
+     * Whenever an opponent loses life (Kefka, Ruler of Ruin). Pair with a
+     * `triggerCondition = Conditions.IsYourTurn` gate for "during your turn" riders, and read the
+     * amount via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST)`.
+     */
+    val AnyOpponentLosesLife: TriggerSpec = TriggerSpec(
+        event = LifeLossEvent(Player.EachOpponent),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * Whenever you gain or lose life.
      * Used for cards like Moonstone Harbinger.
      */
