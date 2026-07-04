@@ -3092,6 +3092,7 @@ Triggers.youCastSpell(
 - `AnyPlayerGainsLife` — anyone gains life.
 - `YouLoseLife` — you lose any life.
 - `AnyPlayerLosesLife` — anyone loses life.
+- `AnOpponentLosesLife` — an opponent loses life (fires per opponent life-loss event; read the amount via `ContextPropertyKey.TRIGGER_LIFE_LOST`). Bloodthirsty Conqueror.
 - `YouGainOrLoseLife` — combined life-change.
 
 ### The Ring

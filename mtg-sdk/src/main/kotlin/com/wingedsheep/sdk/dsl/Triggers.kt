@@ -1571,6 +1571,17 @@ object Triggers {
     )
 
     /**
+     * Whenever an opponent loses life. Fires once per life-loss event of any opponent
+     * (CR "whenever" per-event templating). The lost amount is exposed via
+     * [com.wingedsheep.sdk.scripting.values.ContextPropertyKey.TRIGGER_LIFE_LOST].
+     * Used by cards like Bloodthirsty Conqueror.
+     */
+    val AnOpponentLosesLife: TriggerSpec = TriggerSpec(
+        event = LifeLossEvent(Player.EachOpponent),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * Whenever you gain or lose life.
      * Used for cards like Moonstone Harbinger.
      */
