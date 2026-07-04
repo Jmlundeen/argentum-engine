@@ -142,6 +142,51 @@
     ]
 }
 
+// Gnarlback Rhino
+{
+    "name": "Gnarlback Rhino",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Rhino",
+    "oracleText": "Trample\nWhenever you cast a spell that targets this creature, draw a card.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "requires": [
+                        "SpellTargetsSource"
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "300",
+        "rarity": "UNCOMMON",
+        "artist": "YW Tang",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68a69558-aca0-413d-9762-2fa115b44abd.jpg?1782708186"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Rapacious Dragon
 {
     "name": "Rapacious Dragon",

@@ -90,3 +90,104 @@
         "GREEN"
     ]
 }
+
+// Hoarding Dragon
+{
+    "name": "Hoarding Dragon",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhen this creature enters, you may search your library for an artifact card, exile it, then shuffle.\nWhen this creature dies, you may put the exiled card into its owner's hand.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "artifact"
+                            },
+                            "storeAs": "hoardSearchable"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hoardSearchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "hoardFound",
+                            "prompt": "Search for an artifact card to exile"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "hoardFound",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            },
+                            "linkToSource": true
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "optional": true
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "FromLinkedExile",
+                            "storeAs": "hoardExiled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "hoardExiled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                },
+                "optional": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "144",
+        "rarity": "RARE",
+        "artist": "Matt Cavotta",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/f/1f8b6932-e62d-4d38-bd0e-9ab8d4a56762.jpg?1782715390"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
