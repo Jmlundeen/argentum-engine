@@ -441,3 +441,29 @@ stale on both:
   primitive is general: `firstFlipEachTurn = false` gives a plain "you win all coin flips". Covered by
   `EdgarKingOfFigaroScenarioTest` (forced first-flip win via The Gold Saucer, the once-per-turn gate,
   and the artifact-count ETB draw).
+
+## Implementation pass — 2026-07-05 (Terra, Magical Adept + two engine additions)
+
+- **Terra, Magical Adept // Esper Terra** — implemented (295/300). The front ETB (mill five, put up to
+  one enchantment milled this way into hand) and the Trance `ExileAndReturnTransformed` into the Esper
+  Terra Summon-Saga back are pure authoring (CacheGrab / Clive-Ifrit precedents). Chapter IV (`AddMana`
+  ×5 colors + `ExileAndReturnTransformed(FRONT)`) is authoring too; it exile-returns front face up before
+  the CR 714.4 final-chapter sacrifice applies, like the Dominant eikons. Two small, reusable engine
+  additions unblocked chapters I–III:
+  - **`AddCountersUpTo(counterType, max, target)`** (`Effects.AddCountersUpTo`) — the additive,
+    single-kind, player-chosen mirror of `RemoveAnyNumberOfCounters`: one `ChooseNumberDecision` (0..max),
+    then placement through the normal `AddCounters` chokepoint (honors placement replacements + Saga
+    chapter triggers). Chapter I–III's "if it's a Saga, put up to three lore counters on it" composes as
+    `ConditionalEffect(CollectionContainsMatch(CREATED_TOKENS, Enchantment.withSubtype(SAGA)),
+    AddCountersUpTo(LORE, 3, PipelineTarget(CREATED_TOKENS)))`. mtgish bridge: `UptoNumberCountersOfTypeOnPermanent`
+    → `AddCountersUpTo` (capability-only; player-choice shape stays SCAFFOLD). Tested by
+    `AddCountersUpToScenarioTest`.
+  - **Token copies of a Saga now enter as Sagas (CR 714.2b/714.3a)** — the `CreateTokenCopyOf*` executors
+    (target/source/chosen/equipped) route through the shared `ZoneMovementUtils.applySagaEntryIfNeeded`
+    hook (`BattlefieldEntry.place`, the ad-hoc insertion path, skips enters-with-counters setup), so a
+    token copy of a Saga gains a `SagaComponent`, its on-enter lore counter (chapter I triggers), and
+    accrues lore each turn. Previously such tokens were inert. Tested by `TokenCopyOfSagaEntryScenarioTest`
+    (generally) and `TerraMagicalAdeptScenarioTest` (via the card). Covered by `TerraMagicalAdeptScenarioTest`
+    (ETB mill-take, Trance transform, chapter copy with/without the Saga lore prompt).
+- Remaining missing FIN cards (5): Emet-Selch, Unsundered; Esper Origins; Gogo, Master of Mimicry;
+  Ultima, Origin of Oblivion; Zenos yae Galvus — all still `add-feature` scope (see Tier-3 above).

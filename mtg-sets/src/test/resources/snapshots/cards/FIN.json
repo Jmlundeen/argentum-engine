@@ -20721,6 +20721,374 @@
     ]
 }
 
+// Terra, Magical Adept
+{
+    "name": "Terra, Magical Adept",
+    "manaCost": "{1}{R}{G}",
+    "typeLine": "Legendary Creature — Human Wizard Warrior",
+    "oracleText": "When Terra enters, mill five cards. Put up to one enchantment card milled this way into your hand.\nTrance — {4}{R}{G}, {T}: Exile Terra, then return it to the battlefield transformed under its owner's control. Activate only as a sorcery.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 5
+                                        },
+                                        "isMill": true
+                                    },
+                                    "storeAs": "milled"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "milled",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "milled",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "enchantment",
+                            "storeSelected": "selected",
+                            "prompt": "You may put an enchantment card milled this way into your hand",
+                            "selectedLabel": "Put in hand",
+                            "remainderLabel": "Leave in graveyard",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{R}{G}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": "ExileAndReturnTransformed",
+                "timing": "SorcerySpeed"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Esper Terra",
+        "manaCost": "",
+        "typeLine": "Legendary Enchantment Creature — Saga Wizard",
+        "oracleText": "(As this Saga enters and after your draw step, add a lore counter.)\nI, II, III — Create a token that's a copy of target nonlegendary enchantment you control. It gains haste. If it's a Saga, put up to three lore counters on it. Sacrifice it at the beginning of your next end step.\nIV — Add {W}{W}, {U}{U}, {B}{B}, {R}{R}, and {G}{G}. Exile Esper Terra, then return it to the battlefield (front face up).",
+        "creatureStats": {
+            "power": 6,
+            "toughness": 6
+        },
+        "keywords": [
+            "FLYING"
+        ],
+        "script": {
+            "sagaChapters": [
+                {
+                    "chapter": 1,
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "CreateTokenCopyOfTarget",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "enchantment"
+                                },
+                                "addedKeywords": [
+                                    "HASTE"
+                                ],
+                                "sacrificeAtStep": "END",
+                                "sacrificeOnlyOnControllersTurn": true
+                            },
+                            {
+                                "type": "Gated",
+                                "gate": {
+                                    "type": "Gate.WhenCondition",
+                                    "condition": {
+                                        "type": "CollectionContainsMatch",
+                                        "collection": "createdTokens",
+                                        "filter": "enchantment Saga"
+                                    }
+                                },
+                                "then": {
+                                    "type": "AddCountersUpTo",
+                                    "counterType": "lore",
+                                    "max": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    },
+                                    "target": {
+                                        "type": "PipelineTarget",
+                                        "collectionName": "createdTokens"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsEnchantment",
+                                    "IsNonlegendary"
+                                ],
+                                "controllerPredicate": "ControlledByYou"
+                            }
+                        },
+                        "id": "enchantment"
+                    }
+                },
+                {
+                    "chapter": 2,
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "CreateTokenCopyOfTarget",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "enchantment"
+                                },
+                                "addedKeywords": [
+                                    "HASTE"
+                                ],
+                                "sacrificeAtStep": "END",
+                                "sacrificeOnlyOnControllersTurn": true
+                            },
+                            {
+                                "type": "Gated",
+                                "gate": {
+                                    "type": "Gate.WhenCondition",
+                                    "condition": {
+                                        "type": "CollectionContainsMatch",
+                                        "collection": "createdTokens",
+                                        "filter": "enchantment Saga"
+                                    }
+                                },
+                                "then": {
+                                    "type": "AddCountersUpTo",
+                                    "counterType": "lore",
+                                    "max": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    },
+                                    "target": {
+                                        "type": "PipelineTarget",
+                                        "collectionName": "createdTokens"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsEnchantment",
+                                    "IsNonlegendary"
+                                ],
+                                "controllerPredicate": "ControlledByYou"
+                            }
+                        },
+                        "id": "enchantment"
+                    }
+                },
+                {
+                    "chapter": 3,
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "CreateTokenCopyOfTarget",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "enchantment"
+                                },
+                                "addedKeywords": [
+                                    "HASTE"
+                                ],
+                                "sacrificeAtStep": "END",
+                                "sacrificeOnlyOnControllersTurn": true
+                            },
+                            {
+                                "type": "Gated",
+                                "gate": {
+                                    "type": "Gate.WhenCondition",
+                                    "condition": {
+                                        "type": "CollectionContainsMatch",
+                                        "collection": "createdTokens",
+                                        "filter": "enchantment Saga"
+                                    }
+                                },
+                                "then": {
+                                    "type": "AddCountersUpTo",
+                                    "counterType": "lore",
+                                    "max": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    },
+                                    "target": {
+                                        "type": "PipelineTarget",
+                                        "collectionName": "createdTokens"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsEnchantment",
+                                    "IsNonlegendary"
+                                ],
+                                "controllerPredicate": "ControlledByYou"
+                            }
+                        },
+                        "id": "enchantment"
+                    }
+                },
+                {
+                    "chapter": 4,
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddMana",
+                                "color": "WHITE",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            {
+                                "type": "AddMana",
+                                "color": "BLUE",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            {
+                                "type": "AddMana",
+                                "color": "BLACK",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            {
+                                "type": "AddMana",
+                                "color": "RED",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            {
+                                "type": "AddMana",
+                                "color": "GREEN",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            {
+                                "type": "ExileAndReturnTransformed",
+                                "returnAs": "FRONT"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "245",
+            "rarity": "MYTHIC",
+            "artist": "Clare Wong",
+            "imageUri": "https://cards.scryfall.io/normal/back/f/b/fbd447aa-588d-4c4d-925e-a7d3bdf6a65c.jpg?1782686407",
+            "rulings": [
+                {
+                    "date": "2025-06-06",
+                    "text": "Esper Terra's fourth chapter ability isn't a mana ability. It uses the stack and can be responded to."
+                },
+                {
+                    "date": "2025-06-06",
+                    "text": "The token copies exactly what was printed on the original enchantment. It doesn't copy counters, Auras/Equipment, or non-copy effects. If the copied enchantment has {X} in its mana cost, X is 0."
+                }
+            ]
+        },
+        "colorIdentityOverride": [
+            "WHITE",
+            "BLUE",
+            "BLACK",
+            "RED",
+            "GREEN"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "245",
+        "rarity": "MYTHIC",
+        "artist": "Clare Wong",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/b/fbd447aa-588d-4c4d-925e-a7d3bdf6a65c.jpg?1782686407"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
 // The Crystal's Chosen
 {
     "name": "The Crystal's Chosen",
