@@ -516,6 +516,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `ExileUntilLeaves(target)` — linked exile; returns when source leaves the battlefield.
 - `ExileWithAurasNotingCounters(target = ContextTarget(0))` / `ReturnNotedExileTappedWithAuras()` — the state-preserving "blink that remembers counters and Auras" pair (Tawnos's Coffin). The exile half exiles the target creature **and all Auras attached to it** (all linked to the source via `LinkedExileComponent`) and records the creature's identity + its `kind→count` counter snapshot on the source via `NotedExileComponent` (captures the Auras *before* exiling the creature, so the unattached-Aura SBA can't pre-empt them). The return half (a no-op when nothing is noted, so it's safe to fire from **both** a `LeavesBattlefield` and a `BecomesUntapped` trigger — whichever fires first returns the cards) returns the noted creature **tapped under its owner's control** with the noted counters restored, then returns the linked Auras attached to it; Auras that can't legally re-attach go to their owners' graveyards via the CR 704.5m unattached-Aura SBA (the "If you don't …" fallback). `NotedExileComponent` is preserved across the source's own zone change (like `LinkedExileComponent`) so the leaves-the-battlefield return still reads it, and stripped on battlefield re-entry (Rule 400.7).
 - `ExileLinkedToSource(target)` — exile a target **permanently** and record it in the source's linked-exile pile (`LinkedExileComponent`). Unlike `ExileUntilLeaves` there's no automatic return — the link just lets later abilities reference the exiled card (Territory Forge's "this permanent has all activated abilities of the exiled card").
+- `RecordChosenLinkedExile(from)` — stamp the source's `ChosenLinkedExileComponent` with the first card in the pipeline collection `from` (its "last chosen card"). Pair after a `SelectFromCollection` over `CardSource.FromLinkedExile()` so a `HasAbilitiesOfChosenLinkedExiledCard` static ability grants the source that card's activated and triggered abilities (Koh, the Face Stealer's "Pay 1 life: Choose a creature card exiled with Koh").
 - `ExileGroupAndLink(filter, storeAs?)` — exile all matching permanents into source's linked exile pile.
 - `ExileFromTopRepeating(count, repeatCondition)` — keep exiling top cards while a condition holds.
 - `ExileLibraryUntilManaValue(manaValue)` — exile from library until mana value ≤ N.
@@ -993,7 +994,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `Effects.SkipNextTurn(target = Controller, count = Fixed(1))` (`SkipNextTurnEffect`) — target skips their next `count` turns. `count` is a `DynamicAmount`, so it can read a pipeline value (e.g. a coin-flip tally via `DynamicAmount.VariableReference`). Skips accumulate on a `SkipNextTurnComponent(turns)`, decremented one turn per the player's turn-start; a resolved count of 0 is a no-op. Used by Lethal Vapors (one turn) and **Ral Zarek, Guest Lecturer** (skip N turns where N = heads).
 - `Effects.FlipCoins(count, storeHeadsAs = "heads")` (`FlipCoinsEffect`) — flip `count` coins and store the number of heads under `storeHeadsAs` in the pipeline (`storedNumbers`) so a later sub-effect in the same composite can scale off it via `DynamicAmount.VariableReference`. The general "flip N coins, count heads" primitive (CR 705); unlike `FlipCoinEffect` (branch on win/lose) and `FlipTwoCoinsEffect` (branch on combined outcome) it only tallies. Each flip emits a `CoinFlipEvent`. **Ral Zarek, Guest Lecturer**'s ultimate composes `FlipCoins(5, "heads")` then `SkipNextTurn(target, count = VariableReference("heads"))`.
 - `Effects.SkipNextDrawStep(target = Controller)` (`SkipNextDrawStepEffect`) — target skips their next draw step. Adds a one-shot `SkipDrawStepComponent` marker consumed by `DrawPhaseManager.performDrawStep` (Elfhame Sanctuary's "you skip your draw step this turn").
-- `HijackNextTurnEffect(target)` — you control target's next turn.
+- `Effects.HijackNextTurn(target)` / `Effects.HijackNextCombatPhase(target)` (`HijackNextTurnEffect(target, scope)`, `scope` = `HijackScope.NextTurn` | `NextCombatPhase`) — Mindslaver-style: you make all decisions for the target player during their next whole turn, or during their next combat phase only. Moves *input authority* only (resource/permanent/spell ownership stays with the affected player); reuses `PlayerTurnHijackedComponent` + `GameState.actorFor`, so hand visibility and legal-action routing follow automatically. A scheduled hijack waits through skipped turns/combat phases and engages on the next one the player actually takes. Turn scope engages at turn start and clears at end-of-turn cleanup (**The Dominion Bracelet**); combat scope engages at beginning of combat and clears when that one combat phase ends — extra combat phases are not controlled (**Secret of Bloodbending**, whose optional waterbend upgrades combat→turn via `ConditionalEffect(Conditions.WaterbendWasPaid, HijackNextTurn, elseEffect = HijackNextCombatPhase)`).
 - `GrantCantBeBlockedByChosenColorEffect(target, duration)` — unblockable except by chosen color.
 - `Effects.GrantCantBeBlockedExceptBy(target, blockerFilter, duration = EndOfTurn)` (`GrantCantBeBlockedExceptByEffect`) —
   the floating, one-shot grant of "can't be blocked except by creatures matching `blockerFilter`". The dynamic
@@ -3092,9 +3093,7 @@ Triggers.youCastSpell(
 - `AnyPlayerGainsLife` — anyone gains life.
 - `YouLoseLife` — you lose any life.
 - `AnyPlayerLosesLife` — anyone loses life.
-- `AnyOpponentLosesLife` — an opponent loses life (Kefka, Ruler of Ruin). Pair with
-  `triggerCondition = Conditions.IsYourTurn` for "during your turn" and read the amount via
-  `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST)`.
+- `AnOpponentLosesLife` — an opponent loses life (fires per opponent life-loss event; read the amount via `ContextPropertyKey.TRIGGER_LIFE_LOST`). Bloodthirsty Conqueror; Kefka, Ruler of Ruin (pair with `triggerCondition = Conditions.IsYourTurn` for "during your turn").
 - `YouGainOrLoseLife` — combined life-change.
 
 ### The Ring
@@ -3817,6 +3816,19 @@ staticAbility {
       `HasAllActivatedAbilitiesOfLinkedExiledCard(GroupFilter.AllCreaturesYouControl.withCounter(Counters.PLUS_ONE_PLUS_ONE), creatureCardsOnly = true)`).
     - `creatureCardsOnly = true` restricts the source pile to *creature* cards (the exiled card's
       printed type), for the "all **creature** cards exiled with" wording.
+- `HasAbilitiesOfChosenLinkedExiledCard(grantActivated = true, grantTriggered = true)` — the source
+  permanent has all **activated and/or triggered abilities of the single card it most recently *chose***
+  from its linked-exile pile (its "last chosen card", stamped by
+  `Effects.RecordChosenLinkedExile(from)`). The self-scoped, one-card, activated-**and**-triggered
+  sibling of `HasAllActivatedAbilitiesOfLinkedExiledCard`: it reads the source's
+  `ChosenLinkedExileComponent` and re-reads it live, so re-choosing a different exiled card swaps which
+  abilities the source has. Granted abilities use the source as their own source (`{T}`/self-references
+  bind to it). Use the two flags to grant activated abilities, triggered abilities, or both; it never
+  grants static, keyword, or replacement abilities. Pair with `Effects.ExileLinkedToSource(target)` to
+  fill the pile, then a `SelectFromCollection` over `CardSource.FromLinkedExile()` +
+  `Effects.RecordChosenLinkedExile(...)` to choose. (Koh, the Face Stealer — "Pay 1 life: Choose a
+  creature card exiled with Koh. Koh has all activated and triggered abilities of the last chosen card"
+  → `HasAbilitiesOfChosenLinkedExiledCard()`.)
 - `SuppressEntersTriggers(filter = GameObjectFilter.Creature)` — permanents matching `filter`
   entering the battlefield don't cause abilities to trigger (CR 603.6 enters-the-battlefield
   triggers). Suppresses both the entering permanent's *own* ETB triggers and any other permanent's
@@ -6492,13 +6504,33 @@ Card authors rarely reference these directly; they are created/updated by the ma
 - **Airbend a spell** (the stack branch — Aang, Swift Savior: "airbend up to one other target creature **or spell**").
   The single target is a cross-zone union — `TargetFilter.anyOf(TargetFilter.Creature, TargetFilter.SpellOnStack)` (the
   same union machinery as Sorceress's Schemes). Branch on whether the chosen target is a spell with
-  `Conditions.TargetIsSpellOnStack(0)`: the spell branch is
-  `Effects.ExileTargetSpell(fixedAlternativeManaCost = {2})` — airbend's reminder says "**exile it**", not "counter it",
-  so it reuses the Aven Interrupter `exileSpell` primitive: it removes the spell from the stack to its *owner's* exile
-  **even if the spell can't be countered**, fires **no** `SpellCounteredEvent`, and grants the **owner** the same
-  fixed-{2} may-play (reusing `PlayWithFixedAlternativeManaCostComponent`). The permanent branch is the normal
-  `Effects.Airbend()`. *(The "whenever you airbend" action trigger remains tracked separately; see the TLA gap
-  analysis.)*
+  `Conditions.TargetIsSpellOnStack(0)`: the spell branch is `Effects.AirbendSpell(cost = {2})` — airbend's reminder
+  says "**exile it**", not "counter it", so it reuses the Aven Interrupter `exileSpell` primitive: it removes the spell
+  from the stack to its *owner's* exile **even if the spell can't be countered**, fires **no** `SpellCounteredEvent`, and
+  grants the **owner** the same fixed-{2} may-play (reusing `PlayWithFixedAlternativeManaCostComponent`). The permanent
+  branch is the normal `Effects.Airbend()`. Both branches fire the "whenever you airbend" trigger below once an object is
+  actually exiled (CR 701.65b). (`Effects.AirbendSpell` is `Effects.ExileTargetSpell` with `emitAirbend = true`; use the
+  plain `ExileTargetSpell` — no bend — for a non-airbend exile like Aven Interrupter.)
+- **"Whenever you waterbend, earthbend, firebend, or airbend" (the four-bend event) + "all four this turn"** —
+  `Triggers.YouBend(types = BendType.ALL)` fires once per bend of any element in `types` the controller performs
+  (Avatar Aang uses all four; pass a subset like `setOf(BendType.EARTH)` for a single-element variant). Backed by a
+  `BendPerformedEvent(playerId, bendType)` emitted at each of the four keyword actions, per CR 701.65b / 701.66b /
+  701.67c / 702.189b:
+  - **earthbend** and **airbend** compose `Effects.EmitBend(BendType.EARTH/AIR)` into their pipelines
+    (`Effects.Earthbend`, `Effects.Airbend`/`AirbendAll`); airbend emits only when ≥1 object was exiled (gated on the
+    `airbendExiled` collection, CR 701.65b). Airbending a **spell** (`Effects.AirbendSpell`, the stack branch) emits the
+    same `BendType.AIR` from `ExileTargetSpellExecutor` once the spell is exiled.
+  - **firebending** emits `BendType.FIRE` when its attack trigger resolves (folded into `firebendingAttackTrigger`), so
+    both printed `firebending(n)` and `Effects.GrantFirebending` fire it.
+  - **waterbend** emits `BendType.WATER` engine-side when the waterbend cost is *paid* — in `CastSpellHandler` /
+    `ActivateAbilityHandler`, ungated on how it was paid (CR 701.67c), so paying entirely with mana still fires it.
+  Each emit also folds the element into the player's `BendsThisTurnComponent` (a `Set<BendType>`, reset for every player
+  at the start of each turn). Read the count of *distinct* bends this turn via
+  `DynamicAmount.TurnTracking(Player.You, TurnTracker.DISTINCT_BENDS)` (0–4); "if you've done all four this turn" is
+  `Conditions.CompareAmounts(TurnTracking(You, DISTINCT_BENDS), ComparisonOperator.GTE, DynamicAmount.Fixed(4))`.
+  `Effects.EmitBend(bendType)` is the internal marker effect (executor: `EmitBendEventExecutor`); card authors reach a
+  bend through the keyword-action facades above, not this effect. `BendPerformedEvent` is internal (dropped from the
+  client log).
 - **Endure N** — `Effects.Endure(amount, target = EffectTarget.Self)` composes a `ModalEffect.chooseOne` of
   AddDynamicCounters (N +1/+1 counters on the enduring permanent) and a single N/N white Spirit `CreateTokenEffect`
   (no fake keyword — endure is always the effect of a triggered/activated ability, resolved at resolution time). `amount`

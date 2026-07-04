@@ -95,7 +95,15 @@ enum class TurnTracker {
      * `GameState.permanentsSacrificedThisTurn` cost-reduction counter. Powers "if you sacrificed
      * one or more permanents this turn, ... deals that much damage" (Sawblade Skinripper).
      */
-    PERMANENTS_SACRIFICED;
+    PERMANENTS_SACRIFICED,
+    /**
+     * Number of *distinct* elemental bending keyword actions ([com.wingedsheep.sdk.core.BendType]:
+     * waterbend, earthbend, firebend, airbend) the player has performed this turn — 0 through 4.
+     * Backed by `BendsThisTurnComponent`, reset to empty for every player at the start of each
+     * turn. `Compare(TurnTracking(You, DISTINCT_BENDS), GTE, Fixed(4))` powers "if you've done all
+     * four this turn" (Avatar Aang, CR 701.65–701.67 / 702.189).
+     */
+    DISTINCT_BENDS;
 
     fun descriptionFor(player: Player): String = when (this) {
         CREATURES_DIED -> "the number of creatures that died under ${player.possessive} control this turn"
@@ -119,6 +127,7 @@ enum class TurnTracker {
         CARDS_DRAWN -> "the number of cards ${player.description} have drawn this turn"
         CARDS_PUT_INTO_EXILE -> "the number of cards put into exile this turn"
         PERMANENTS_SACRIFICED -> "the number of permanents ${player.description} sacrificed this turn"
+        DISTINCT_BENDS -> "the number of different ways ${player.description} bent this turn"
     }
 }
 

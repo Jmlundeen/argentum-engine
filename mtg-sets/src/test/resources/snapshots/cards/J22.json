@@ -1,3 +1,65 @@
+// Mild-Mannered Librarian
+{
+    "name": "Mild-Mannered Librarian",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Human",
+    "oracleText": "{3}{G}: This creature becomes a Werewolf. Put two +1/+1 counters on it and you draw a card. Activate only once.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "SetCreatureSubtypes",
+                            "subtypes": [
+                                "Werewolf"
+                            ]
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 2,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "restrictions": [
+                    "Once"
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "41",
+        "rarity": "UNCOMMON",
+        "artist": "Justyna Dura",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/e/3eee6f29-ef06-47f6-99af-fb0ff88f09d0.jpg?1782699338"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Suspicious Shambler
 {
     "name": "Suspicious Shambler",

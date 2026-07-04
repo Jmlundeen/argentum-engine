@@ -506,6 +506,11 @@ class DynamicAmountEvaluator(
                             ?.get<com.wingedsheep.engine.state.components.player.PermanentsSacrificedThisTurnComponent>()
                             ?.count ?: 0
                     }
+                    TurnTracker.DISTINCT_BENDS -> playerIds.sumOf { playerId ->
+                        state.getEntity(playerId)
+                            ?.get<com.wingedsheep.engine.state.components.player.BendsThisTurnComponent>()
+                            ?.types?.size ?: 0
+                    }
                 }
             }
 

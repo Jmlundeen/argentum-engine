@@ -57,6 +57,48 @@
     ]
 }
 
+// Brineborn Cutthroat
+{
+    "name": "Brineborn Cutthroat",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Merfolk Pirate",
+    "oracleText": "Flash (You may cast this spell any time you could cast an instant.)\nWhenever you cast a spell during an opponent's turn, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "SpellCastEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "triggerCondition": "IsNotYourTurn",
+                "descriptionOverride": "Whenever you cast a spell during an opponent's turn, put a +1/+1 counter on this creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "UNCOMMON",
+        "artist": "Caio Monteiro",
+        "flavorText": "\"I always attack from where their spyglasses can't see.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/0857765f-afd7-418a-a93b-c0bd1b1f037e.jpg?1782708357"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Devout Decree
 {
     "name": "Devout Decree",
@@ -139,6 +181,102 @@
     "colorIdentityOverride": [
         "WHITE",
         "BLUE"
+    ]
+}
+
+// Gnarlback Rhino
+{
+    "name": "Gnarlback Rhino",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Rhino",
+    "oracleText": "Trample\nWhenever you cast a spell that targets this creature, draw a card.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "requires": [
+                        "SpellTargetsSource"
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "300",
+        "rarity": "UNCOMMON",
+        "artist": "YW Tang",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68a69558-aca0-413d-9762-2fa115b44abd.jpg?1782708186"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Goblin Smuggler
+{
+    "name": "Goblin Smuggler",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Goblin Rogue",
+    "oracleText": "Haste (This creature can attack and {T} as soon as it comes under your control.)\n{T}: Another target creature with power 2 or less can't be blocked this turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "CANT_BE_BLOCKED",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature pow<=2",
+                            "excludeSelf": true
+                        },
+                        "id": "target"
+                    }
+                ],
+                "descriptionOverride": "Another target creature with power 2 or less can't be blocked this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "144",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "\"I am but a humble traveler. I have no taste for sneakery nor thiefiness.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/5/95dc1a65-271c-455a-ae0c-f652444a53ac.jpg?1782708292"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -491,6 +629,68 @@
         "artist": "Cristi Balanescu",
         "flavorText": "The strength of the one is the strength of the many.",
         "imageUri": "https://cards.scryfall.io/normal/front/b/d/bd7d6112-ffb2-41d8-98ed-1a7b22841dfd.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Twinblade Paladin
+{
+    "name": "Twinblade Paladin",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "Whenever you gain life, put a +1/+1 counter on this creature.\nAs long as you have 25 or more life, this creature has double strike. (It deals both first-strike and regular combat damage.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "Whenever you gain life, put a +1/+1 counter on this creature."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "DOUBLE_STRIKE",
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "LifeTotal",
+                        "player": "You"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 25
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "285",
+        "rarity": "UNCOMMON",
+        "artist": "Jana Schirmer",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/6397d426-00e0-44da-b23c-44ccea65f5aa.jpg?1782708196"
     },
     "colorIdentityOverride": [
         "WHITE"
