@@ -16367,6 +16367,7 @@
                                                 "amount": 1
                                             }
                                         },
+                                        "chooser": "ControllerOfTarget",
                                         "storeSelected": "found"
                                     },
                                     {
