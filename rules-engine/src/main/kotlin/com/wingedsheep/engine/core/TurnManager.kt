@@ -18,6 +18,7 @@ import com.wingedsheep.engine.state.components.player.AdditionalUpkeepStepsCompo
 import com.wingedsheep.engine.state.components.player.InAdditionalUpkeepStepComponent
 import com.wingedsheep.engine.state.components.player.AdditionalEndStepsComponent
 import com.wingedsheep.engine.state.components.player.InAdditionalEndStepComponent
+import com.wingedsheep.engine.state.components.player.BendsThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CardsDrawnThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CardsPutIntoExileThisTurnComponent
 import com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent
@@ -139,6 +140,8 @@ class TurnManager(
                     .with(CardsPutIntoExileThisTurnComponent(count = 0))
                     .with(ManaSpentOnSpellsThisTurnComponent(totalSpent = 0))
                     .with(EquipActivationsThisTurnComponent(count = 0))
+                    // Distinct bends reset each turn for every player ("this turn" is per game-turn).
+                    .with(BendsThisTurnComponent(types = emptySet()))
             }
         }
 

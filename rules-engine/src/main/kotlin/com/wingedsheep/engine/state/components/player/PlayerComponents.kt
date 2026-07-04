@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.state.components.player
 
 import com.wingedsheep.engine.state.Component
+import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.core.Keyword
@@ -1033,6 +1034,18 @@ data object SacrificedFoodThisTurnComponent : Component
  */
 @Serializable
 data class PermanentsSacrificedThisTurnComponent(val count: Int = 0) : Component
+
+/**
+ * The set of distinct elemental bending keyword actions ([BendType]: waterbend, earthbend,
+ * firebend, airbend) this player has performed this turn (CR 701.65–701.67 / 702.189). Folded in by
+ * `BendEvents.record` whenever the player bends, and reset to empty for every player at the start of
+ * each turn by `TurnManager`.
+ *
+ * Read via `TurnTracker.DISTINCT_BENDS` (the set's size, 0–4); `Compare(TurnTracking(You,
+ * DISTINCT_BENDS), GTE, Fixed(4))` backs "if you've done all four this turn" (Avatar Aang).
+ */
+@Serializable
+data class BendsThisTurnComponent(val types: Set<BendType> = emptySet()) : Component
 
 /**
  * Tracks whether a permanent entered the battlefield face down under this player's control during

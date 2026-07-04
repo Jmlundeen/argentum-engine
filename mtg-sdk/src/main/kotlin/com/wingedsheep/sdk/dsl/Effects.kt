@@ -1,6 +1,7 @@
 package com.wingedsheep.sdk.dsl
 
 import com.wingedsheep.sdk.core.AbilityFlag
+import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
@@ -63,7 +64,10 @@ import com.wingedsheep.sdk.scripting.effects.CantCastSpellsEffect
 import com.wingedsheep.sdk.scripting.effects.CantCastSpellsFromNonHandZonesEffect
 import com.wingedsheep.sdk.scripting.effects.CantPlayCardsFromHandEffect
 import com.wingedsheep.sdk.scripting.effects.PreventLandPlaysThisTurnEffect
+import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.ConditionalEffect
+import com.wingedsheep.sdk.scripting.effects.EmitBendEventEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachInGroupEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.CopyCardIntoCollectionEffect
@@ -748,6 +752,12 @@ object Effects {
             expiry = MayPlayExpiry.Permanent,
             ownerControls = true,
             fixedAlternativeManaCost = cost
+        ),
+        // CR 701.65b: airbending fires "whenever you airbend" only if one or more objects were
+        // actually exiled (an "up to one" airbend that chose nothing exiles nothing → no bend).
+        ConditionalEffect(
+            condition = CollectionContainsMatch("airbendExiled"),
+            effect = EmitBendEventEffect(BendType.AIR)
         )
     ))
 
@@ -785,8 +795,33 @@ object Effects {
             expiry = MayPlayExpiry.Permanent,
             ownerControls = true,
             fixedAlternativeManaCost = cost
+        ),
+        // CR 701.65b: fire "whenever you airbend" only if one or more objects were exiled.
+        ConditionalEffect(
+            condition = CollectionContainsMatch("airbendExiled"),
+            effect = EmitBendEventEffect(BendType.AIR)
         )
     ))
+
+    /**
+     * Airbend a *spell on the stack* — the stack-zone sibling of [Airbend] ("airbend … target …
+     * spell", Aang, Swift Savior). Exiles the targeted spell (not a counter: works on can't-be-
+     * countered spells and fires no "spell was countered" trigger) and grants its **owner** a fixed
+     * [cost] recast from exile, then fires "whenever you airbend" — but only if the spell was
+     * actually exiled (CR 701.65b). Pair with a spell target; branch to it from a creature-or-spell
+     * effect via [com.wingedsheep.sdk.dsl.Conditions.TargetIsSpellOnStack].
+     */
+    fun AirbendSpell(cost: ManaCost = AIRBEND_COST): Effect =
+        ExileTargetSpellEffect(fixedAlternativeManaCost = cost, emitAirbend = true)
+
+    /**
+     * Emit a "you bent" notification of [bendType] for the resolving effect's controller — fires
+     * [com.wingedsheep.sdk.dsl.Triggers.YouBend] triggers and records the type in the player's
+     * per-turn distinct-bend set. Wired into [Earthbend] / [Airbend] and the firebending attack
+     * trigger; card authors normally reach a bend through those, not this facade (CR 701.65b /
+     * 701.66b / 702.189b). Waterbend is emitted engine-side at cost payment (CR 701.67c).
+     */
+    fun EmitBend(bendType: BendType): Effect = EmitBendEventEffect(bendType)
 
     /**
      * Exile all cards in each opponent's graveyard.
@@ -3772,6 +3807,8 @@ object Effects {
             GrantKeywordEffect(Keyword.HASTE, target, Duration.Permanent),
             AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
             GrantTriggeredAbilityEffect(earthbendReturnTapped(), target, Duration.Permanent),
+            // CR 701.66b: earthbending fires "whenever you earthbend" once the effect resolves.
+            EmitBendEventEffect(BendType.EARTH),
         ))
 
     /**
@@ -3786,6 +3823,8 @@ object Effects {
             GrantKeywordEffect(Keyword.HASTE, target, Duration.Permanent),
             AddDynamicCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
             GrantTriggeredAbilityEffect(earthbendReturnTapped(), target, Duration.Permanent),
+            // CR 701.66b: earthbending fires "whenever you earthbend" once the effect resolves.
+            EmitBendEventEffect(BendType.EARTH),
         ))
 
     /**
