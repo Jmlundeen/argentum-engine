@@ -143,6 +143,178 @@
     ]
 }
 
+// Demolition Field
+{
+    "name": "Demolition Field",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{2}, {T}, Sacrifice this land: Destroy target nonbasic land an opponent controls. That land's controller may search their library for a basic land card, put it onto the battlefield, then shuffle. You may search your library for a basic land card, put it onto the battlefield, then shuffle.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target nonbasic land an opponent controls"
+                            },
+                            "destination": "Graveyard",
+                            "byDestruction": true
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Players",
+                                "players": {
+                                    "type": "ControllerOf",
+                                    "targetDescription": "the destroyed land"
+                                }
+                            },
+                            "body": {
+                                "type": "Gated",
+                                "gate": "Gate.MayDecide",
+                                "then": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "GatherCards",
+                                            "source": {
+                                                "type": "FromZone",
+                                                "zone": "Library",
+                                                "filter": "basicland"
+                                            },
+                                            "storeAs": "searchable"
+                                        },
+                                        {
+                                            "type": "SelectFromCollection",
+                                            "from": "searchable",
+                                            "selection": {
+                                                "type": "ChooseUpTo",
+                                                "count": {
+                                                    "type": "Fixed",
+                                                    "amount": 1
+                                                }
+                                            },
+                                            "storeSelected": "found"
+                                        },
+                                        {
+                                            "type": "MoveCollection",
+                                            "from": "found",
+                                            "destination": {
+                                                "type": "ToZone",
+                                                "zone": "Battlefield"
+                                            }
+                                        },
+                                        "ShuffleLibrary",
+                                        "EmitLibrarySearchedEvent"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Library",
+                                            "filter": "basicland"
+                                        },
+                                        "storeAs": "searchable"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "searchable",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "found"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "found",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield"
+                                        }
+                                    },
+                                    "ShuffleLibrary",
+                                    "EmitLibrarySearchedEvent"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsLand",
+                                    {
+                                        "type": "Not",
+                                        "predicate": "IsBasicLand"
+                                    }
+                                ],
+                                "controllerPredicate": "ControlledByOpponent"
+                            }
+                        },
+                        "id": "target nonbasic land an opponent controls"
+                    }
+                ],
+                "descriptionOverride": "{2}, {T}, Sacrifice this land: Destroy target nonbasic land an opponent controls. That land's controller may search their library for a basic land card, put it onto the battlefield, then shuffle. You may search your library for a basic land card, put it onto the battlefield, then shuffle."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "260",
+        "rarity": "UNCOMMON",
+        "artist": "Kamila Szutenberg",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/9/d9c88546-13c9-4d7e-a618-cb2ccd1dbc0f.jpg?1782699688"
+    },
+    "colorIdentityOverride": []
+}
+
 // Flow of Knowledge
 {
     "name": "Flow of Knowledge",
