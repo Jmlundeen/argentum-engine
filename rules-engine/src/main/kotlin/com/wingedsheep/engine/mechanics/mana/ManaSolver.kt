@@ -42,6 +42,7 @@ import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.ManaSpellRider
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.AdditionalManaOnSourceTap
+import com.wingedsheep.sdk.scripting.TappedForManaType
 import com.wingedsheep.sdk.scripting.AdditionalManaOnTap
 import com.wingedsheep.sdk.scripting.DampLandManaProduction
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
@@ -86,6 +87,13 @@ data class ManaSource(
      * as the fallback color for any bonus left unspent.
      */
     val bonusManaIsAnyColor: Boolean = false,
+    /**
+     * Extra *colorless* {C} mana produced per tap by an [AdditionalManaOnSourceTap] whose bonus is
+     * colorless (Ultima's "tap a land for {C}, add an additional {C}"). Kept separate from
+     * [bonusManaPerTap]/[bonusManaColor] because colorless is not a [Color]; floated as a colorless
+     * [BonusManaEntry] when the source is tapped, so it can pay {C}/generic pips or land in the pool.
+     */
+    val bonusManaColorlessPerTap: Int = 0,
     /** Mana spending restriction (e.g., "only for instant/sorcery"). Null = unrestricted. */
     val restriction: ManaRestriction? = null,
     /**
@@ -400,6 +408,19 @@ class ManaSolver(
                         restriction = null,
                         anyColor = source.bonusManaIsAnyColor,
                         // Genuinely-extra mana, not in `manaProduced` — count it when spent.
+                        countsTowardSpent = true,
+                    )
+                )
+            }
+            // Colorless tap-bonus (Ultima's "tap a land for {C}, add an additional {C}"). Floated as
+            // a colorless entry so it can pay {C}/generic pips or float to the pool.
+            if (source.bonusManaColorlessPerTap > 0) {
+                bonusManaPool.add(
+                    BonusManaEntry(
+                        color = Color.WHITE,
+                        amount = source.bonusManaColorlessPerTap,
+                        restriction = null,
+                        colorless = true,
                         countsTowardSpent = true,
                     )
                 )
@@ -1590,6 +1611,7 @@ class ManaSolver(
     ): ManaSource {
         var totalBonus = 0
         var bonusColor: Color? = null
+        var totalColorlessBonus = 0
 
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
@@ -1598,6 +1620,15 @@ class ManaSolver(
 
             for (staticAbility in cardDef.script.staticAbilities) {
                 val onSourceTap = staticAbility as? AdditionalManaOnSourceTap ?: continue
+
+                // Gate on the produced-mana type. At solve time the produced type is inferred from
+                // what the source can supply: COLORLESS applies only to a source that produces {C},
+                // COLORED only to one that produces a color.
+                when (onSourceTap.whenProducing) {
+                    TappedForManaType.ANY -> {}
+                    TappedForManaType.COLORLESS -> if (!source.producesColorless) continue
+                    TappedForManaType.COLORED -> if (source.producesColors.isEmpty()) continue
+                }
 
                 val staticController = state.projectedState.getController(entityId) ?: continue
 
@@ -1617,6 +1648,15 @@ class ManaSolver(
                 val amount = dynamicAmountEvaluator.evaluate(state, onSourceTap.amount, effectContext)
                 if (amount <= 0) continue
 
+                // A colorless bonus arises when the ability adds {C}: either it's explicitly gated to
+                // colorless taps, or it's a mirror (color = null) over a colorless-only source.
+                val isColorlessBonus = onSourceTap.color == null &&
+                    (onSourceTap.whenProducing == TappedForManaType.COLORLESS || source.producesColors.isEmpty())
+                if (isColorlessBonus) {
+                    totalColorlessBonus += amount
+                    continue
+                }
+
                 // Resolve the bonus color: explicit color wins; null means mirror the source's produced color.
                 val resolvedColor = onSourceTap.color ?: source.producesColors.firstOrNull() ?: continue
                 totalBonus += amount
@@ -1624,10 +1664,11 @@ class ManaSolver(
             }
         }
 
-        return if (totalBonus > 0) {
+        return if (totalBonus > 0 || totalColorlessBonus > 0) {
             source.copy(
                 bonusManaPerTap = source.bonusManaPerTap + totalBonus,
-                bonusManaColor = source.bonusManaColor ?: bonusColor
+                bonusManaColor = source.bonusManaColor ?: bonusColor,
+                bonusManaColorlessPerTap = source.bonusManaColorlessPerTap + totalColorlessBonus
             )
         } else {
             source

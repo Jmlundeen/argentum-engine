@@ -271,10 +271,13 @@ so a land // spell Adventure offers *both* "play the land" (PlayLandEnumerator) 
 - **Half-rounded-down sacrifice / mill** (Zodiark "sacrifices half … rounded down"; Jidoor "mills half their
   library") — `DynamicAmount.Divide(..., roundUp=false)` exists (used by Cecil); confirm it feeds a
   "each player sacrifices N of their choice" and mill-half. Likely supported once wired.
-- **Blight counter that strips land types/abilities + replaces with "{T}: Add {C}"** (Ultima, Origin of Oblivion) —
-  `BLIGHT` counter exists; the **continuous type/ability-stripping driven by a blight counter on a land** is the new
-  piece (Layer 4/6 overwrite gated on a counter). Plus "whenever you tap a land for {C}, add an additional {C}"
-  (a mana-doubling replacement on colorless taps).
+- ~~**Blight counter that strips land types/abilities + replaces with "{T}: Add {C}"** (Ultima, Origin of Oblivion)~~ —
+  ✅ IMPLEMENTED. New `Duration.WhileAffectedHasCounter(counterType)` — a source-independent (CR 611.2b), counter-keyed
+  "for as long as" duration wired into `StateProjector` (per-frame gate), `EndedDurationExpiryCheck` (one-way latch +
+  granted-ability prune), and `CleanupPhaseManager`. The transform reuses `BecomeArtifactEffect` (now with nullable
+  `cardTypes` = keep card types, per the "keeps artifact/supertypes" ruling). The mana ability = `AdditionalManaOnSourceTap`
+  with a new `whenProducing = TappedForManaType.COLORLESS` gate ("tap a land **for {C}**"), gated on all three mana paths
+  (manual tap, color-choice mirror, auto-pay `ManaSolver` with a colorless bonus float).
 - **Win/lose-the-game riders** (Zenos → Shinryu "when the chosen player loses the game, you win"; Summon: Primal Odin
   II grants "deals combat damage → that player loses the game") — confirm `Effects.WinTheGame` / `LoseTheGame` and a
   "chosen player loses → you win" linked trigger exist.
@@ -479,8 +482,8 @@ stale on both:
   `Conditions.TriggeringPlayerIs(Player.ChosenOpponent)` + `Effects.WinGame()`. Also fixed
   `TriggerMatcher.filterByTriggerCondition` to thread `triggeringPlayerId` into the intervening-if
   context (previously null). Covered by `ZenosYaeGalvusScenarioTest` (incl. a 3-player win-con pod).
-- Remaining missing FIN cards (1): Ultima, Origin of Oblivion — still `add-feature` scope (see Tier-3
-  above). (Emet-Selch, Unsundered; Gogo, Master of Mimicry; and Esper Origins are now implemented.)
+- Remaining missing FIN cards (0): **the set is now 100% complete.** (Ultima, Origin of Oblivion;
+  Emet-Selch, Unsundered; Gogo, Master of Mimicry; and Esper Origins are now all implemented.)
 - Esper Origins ✅ — implemented via a new `CardScript.returnTransformedFromGraveyardOnResolve` flag
   (`spell { returnTransformedFromGraveyard(CounterType.FINALITY) }`): a graveyard-cast spell resolves
   onto the battlefield transformed with a finality counter (destination derived from `castFromZone` in

@@ -62,7 +62,26 @@ enum class CounterType {
     DOOM,
     POSSESSION,
     FIRE,
-    CONQUEROR
+    CONQUEROR;
+
+    companion object {
+        /**
+         * Maps a counter-type *name* — as stored on effects/durations, i.e. a `Counters.*`
+         * string constant (e.g. `"blight"`, `"+1/+1"`) — to its [CounterType], or `null` if
+         * it doesn't correspond to a known counter. Handles the two symbolic names (`+1/+1`,
+         * `-1/-1`) and otherwise upper-cases and swaps spaces for underscores to match the
+         * enum constant. Mirrors the inline parse used by `StatePredicate.HasCounter`.
+         */
+        fun fromName(name: String): CounterType? = when (name) {
+            "+1/+1" -> PLUS_ONE_PLUS_ONE
+            "-1/-1" -> MINUS_ONE_MINUS_ONE
+            else -> try {
+                valueOf(name.uppercase().replace(' ', '_'))
+            } catch (_: IllegalArgumentException) {
+                null
+            }
+        }
+    }
 }
 
 /**

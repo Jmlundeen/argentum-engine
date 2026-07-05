@@ -142,8 +142,12 @@ data class BecomeCreatureEffect(
  * resulting permanent is exactly the named artifact, nothing more.
  *
  * @property target The permanent to transform
- * @property cardTypes Card types to set, replacing all existing ones (e.g. `setOf("ARTIFACT")`)
- * @property subtypes Subtypes to set, replacing all existing ones (e.g. `setOf("Treasure")`)
+ * @property cardTypes Card types to set, replacing all existing ones (e.g. `setOf("ARTIFACT")`).
+ *   `null` keeps the permanent's existing card types unchanged — used when only subtypes/abilities
+ *   change (Ultima's blighted land "loses all land types and abilities" but stays a land and keeps
+ *   any other card types such as artifact, per its ruling).
+ * @property subtypes Subtypes to set, replacing all existing ones (e.g. `setOf("Treasure")`;
+ *   `emptySet()` strips all subtypes — "loses all land types")
  * @property colors Colors to set (`emptySet()` = colorless, the default; `null` = keep existing)
  * @property loseAllAbilities Whether the permanent loses all printed/granted-via-projection abilities
  * @property grantedAbility A single activated ability the transformed permanent gains (e.g. the
@@ -156,7 +160,7 @@ data class BecomeCreatureEffect(
 @Serializable
 data class BecomeArtifactEffect(
     val target: EffectTarget = EffectTarget.ContextTarget(0),
-    val cardTypes: Set<String> = setOf("ARTIFACT"),
+    val cardTypes: Set<String>? = setOf("ARTIFACT"),
     val subtypes: Set<String> = emptySet(),
     val colors: Set<com.wingedsheep.sdk.core.Color>? = emptySet(),
     val loseAllAbilities: Boolean = true,
@@ -167,7 +171,7 @@ data class BecomeArtifactEffect(
         append("${target.description} becomes ")
         if (colors?.isEmpty() == true) append("a colorless ")
         if (subtypes.isNotEmpty()) append(subtypes.joinToString(" "))
-        if (cardTypes.isNotEmpty()) {
+        if (!cardTypes.isNullOrEmpty()) {
             if (subtypes.isNotEmpty()) append(" ")
             append(cardTypes.joinToString(" ") { it.lowercase() })
         }

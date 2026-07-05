@@ -69,6 +69,7 @@ import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.AdditionalManaOnSourceTap
+import com.wingedsheep.sdk.scripting.TappedForManaType
 import com.wingedsheep.sdk.scripting.ReplaceLandManaColor
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.engine.core.LandTappedForManaEvent
@@ -2158,6 +2159,9 @@ class ActivateAbilityHandler(
             for (staticAbility in cardDef.script.staticAbilities) {
                 val onSourceTap = staticAbility as? AdditionalManaOnSourceTap ?: continue
 
+                // Gate on the produced-mana type ("tap a land for {C}" only fires on a colorless tap).
+                if (!producedManaMatches(onSourceTap.whenProducing, producedColor, producedColorless)) continue
+
                 val staticController = currentState.projectedState.getController(entityId) ?: continue
 
                 // Filter is evaluated from the static-ability controller's perspective so
@@ -2222,6 +2226,20 @@ class ActivateAbilityHandler(
         }
 
         return AdditionalManaResult(currentState, events)
+    }
+
+    /**
+     * Whether a tap that produced [producedColor] (colored) or [producedColorless] (colorless)
+     * satisfies an [AdditionalManaOnSourceTap]'s [TappedForManaType] gate.
+     */
+    private fun producedManaMatches(
+        whenProducing: TappedForManaType,
+        producedColor: Color?,
+        producedColorless: Boolean
+    ): Boolean = when (whenProducing) {
+        TappedForManaType.ANY -> true
+        TappedForManaType.COLORLESS -> producedColorless
+        TappedForManaType.COLORED -> producedColor != null
     }
 
     /**

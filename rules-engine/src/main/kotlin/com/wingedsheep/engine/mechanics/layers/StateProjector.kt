@@ -564,6 +564,17 @@ class StateProjector(
                 validAffectedEntities = validAffectedEntities.filterTo(LinkedHashSet()) { it == attachedTo }
             }
 
+            // "for as long as it has a [X] counter on it" (Ultima, Origin of Oblivion): keep only
+            // affected entities that currently carry the counter. Per-frame gate; the latch-off is
+            // in EndedDurationExpiryCheck so removing then re-adding the counter can't resurrect it.
+            (floating.duration as? Duration.WhileAffectedHasCounter)?.let { dur ->
+                val counterType = CounterType.fromName(dur.counterType)
+                validAffectedEntities = if (counterType == null) LinkedHashSet()
+                    else validAffectedEntities.filterTo(LinkedHashSet()) { id ->
+                        (state.getEntity(id)?.get<CountersComponent>()?.getCount(counterType) ?: 0) > 0
+                    }
+            }
+
             // The per-affected-entity power gate for
             // [Duration.WhileSourceTappedAndAffectedPowerAtMostSource] is deferred to a
             // post-Layer-7 fix-up in [project] — we can't compare projected power here

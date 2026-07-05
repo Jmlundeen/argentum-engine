@@ -23837,6 +23837,101 @@
     "colorIdentityOverride": []
 }
 
+// Ultima, Origin of Oblivion
+{
+    "name": "Ultima, Origin of Oblivion",
+    "manaCost": "{5}",
+    "typeLine": "Legendary Creature — God",
+    "oracleText": "Flying\nWhenever Ultima attacks, put a blight counter on target land. For as long as that land has a blight counter on it, it loses all land types and abilities and has \"{T}: Add {C}.\"\nWhenever you tap a land for {C}, add an additional {C}.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "blight",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land"
+                            }
+                        },
+                        {
+                            "type": "BecomeArtifact",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target land"
+                            },
+                            "cardTypes": null,
+                            "colors": null,
+                            "grantedAbility": {
+                                "id": "ability_2",
+                                "cost": "CostTap",
+                                "effect": {
+                                    "type": "AddColorlessMana",
+                                    "amount": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "isManaAbility": true,
+                                "descriptionOverride": "{T}: Add {C}."
+                            },
+                            "duration": {
+                                "type": "WhileAffectedHasCounter",
+                                "counterType": "blight"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "land"
+                    },
+                    "id": "target land"
+                },
+                "descriptionOverride": "Whenever Ultima attacks, put a blight counter on target land. For as long as that land has a blight counter on it, it loses all land types and abilities and has \"{T}: Add {C}.\""
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "AdditionalManaOnSourceTap",
+                "sourceFilter": "land ctrl:you",
+                "whenProducing": "COLORLESS"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "2",
+        "rarity": "RARE",
+        "artist": "Russell Lu",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/5/d55a4c02-1aa4-454c-9041-84937377a53b.jpg?1782686600",
+        "rulings": [
+            {
+                "date": "2025-06-06",
+                "text": "The affected land keeps any other card types (such as artifact) and supertypes (such as basic or legendary) when it loses its land types."
+            },
+            {
+                "date": "2025-06-06",
+                "text": "Ultima's last ability is a triggered mana ability. It doesn't use the stack and can't be responded to."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Ultimecia, Temporal Threat
 {
     "name": "Ultimecia, Temporal Threat",

@@ -9,9 +9,11 @@ import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.sba.SbaOrder
 import com.wingedsheep.engine.mechanics.sba.StateBasedActionCheck
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 
@@ -54,10 +56,19 @@ class EndedDurationExpiryCheck : StateBasedActionCheck {
     override val order = SbaOrder.DURATION_EXPIRY
 
     override fun check(state: GameState): ExecutionResult {
-        if (state.floatingEffects.isEmpty()) return ExecutionResult.success(state)
+        // A counter-keyed granted ability (Ultima's granted "{T}: Add {C}", stored in
+        // grantedActivatedAbilities, not as a floating effect) must be pruned the moment its
+        // land loses the blight counter — otherwise a de-blighted land reverts its types but
+        // keeps the mana ability. This latch is one-way by nature: the grant is never re-added.
+        val prunedState = pruneCounterKeyedGrants(state)
+
+        if (prunedState.floatingEffects.isEmpty()) {
+            return if (prunedState === state) ExecutionResult.success(state)
+            else ExecutionResult.success(prunedState)
+        }
 
         val events = mutableListOf<GameEvent>()
-        var current = state
+        var current = prunedState
 
         // Internal fixpoint: pruning one effect can change the projected power/controller that
         // gates another, so re-evaluate until the floating-effect set stops shrinking. Each pass
@@ -146,8 +157,40 @@ class EndedDurationExpiryCheck : StateBasedActionCheck {
                 }
             }
 
+            is Duration.WhileAffectedHasCounter -> {
+                // "for as long as it has a [X] counter on it" (Ultima) — keep only affected
+                // entities that still carry the counter (CR 611.2b). Entities that merely left
+                // the battlefield are kept here and reaped by zone-change cleanup instead, matching
+                // the other per-affected gates.
+                val counterType = CounterType.fromName(floating.duration.counterType) ?: return emptySet()
+                all.filterTo(LinkedHashSet()) { id ->
+                    !state.getBattlefield().contains(id) ||
+                        (state.getEntity(id)?.get<CountersComponent>()?.getCount(counterType) ?: 0) > 0
+                }
+            }
+
             else -> all
         }
+    }
+
+    /**
+     * Drop any [Duration.WhileAffectedHasCounter] granted activated ability whose entity no longer
+     * carries the required counter (or has left the battlefield). Returns the same instance when
+     * nothing changed.
+     */
+    private fun pruneCounterKeyedGrants(state: GameState): GameState {
+        if (state.grantedActivatedAbilities.none { it.duration is Duration.WhileAffectedHasCounter }) {
+            return state
+        }
+        val remaining = state.grantedActivatedAbilities.filter { grant ->
+            val duration = grant.duration
+            if (duration !is Duration.WhileAffectedHasCounter) return@filter true
+            if (!state.getBattlefield().contains(grant.entityId)) return@filter false
+            val counterType = CounterType.fromName(duration.counterType) ?: return@filter false
+            (state.getEntity(grant.entityId)?.get<CountersComponent>()?.getCount(counterType) ?: 0) > 0
+        }
+        return if (remaining.size == state.grantedActivatedAbilities.size) state
+        else state.copy(grantedActivatedAbilities = remaining)
     }
 
     private fun sourceTapped(state: GameState, sourceId: EntityId?): Boolean =
