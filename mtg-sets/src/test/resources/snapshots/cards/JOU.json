@@ -66,6 +66,51 @@
     ]
 }
 
+// Dictate of Kruphix
+{
+    "name": "Dictate of Kruphix",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "Flash (You may cast this spell any time you could cast an instant.)\nAt the beginning of each player's draw step, that player draws an additional card.",
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "DRAW",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "rarity": "RARE",
+        "artist": "Daarken",
+        "flavorText": "\"Knowledge is cruel. It will break your heart and test your allegiances. Are you certain you want this curse?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/8/e8e7916c-f39a-48a0-a47d-7e83ebf028fa.jpg?1782713429"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Heroes' Bane
 {
     "name": "Heroes' Bane",
