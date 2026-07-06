@@ -742,6 +742,39 @@
     "colorIdentityOverride": []
 }
 
+// Cartographer's Companion
+{
+    "name": "Cartographer's Companion",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Gnome",
+    "oracleText": "When this creature enters, create a Map token. (It's an artifact with \"{1}, {T}, Sacrifice this token: Target creature you control explores. Activate only as a sorcery.\")",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Map"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "248",
+        "artist": "Chuck Lukacs",
+        "flavorText": "Ever since the Fomori's attempt long ago to extinguish Chimil's light, the Oltec have taken extensive measures to never get lost in the Core.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/b/dbd8115e-4cb3-49b6-b74f-8fcfa28c6404.jpg?1782694413"
+    }
+}
+
 // Cenote Scout
 {
     "name": "Cenote Scout",

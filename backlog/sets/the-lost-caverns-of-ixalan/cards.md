@@ -44,7 +44,7 @@
 - [ ] Captain Storm, Cosmium Raider
 - [x] Captivating Cave
 - [x] Careening Mine Cart
-- [ ] Cartographer's Companion
+- [x] Cartographer's Companion
 - [ ] Cavern Stomper
 - [x] Cavern of Souls
 - [ ] Cavernous Maw
