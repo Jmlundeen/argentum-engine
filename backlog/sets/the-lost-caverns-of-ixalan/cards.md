@@ -90,7 +90,7 @@
 - [ ] Echo of Dusk
 - [ ] Echoing Deeps
 - [ ] Enterprising Scallywag
-- [ ] Envoy of Okinec Ahau
+- [x] Envoy of Okinec Ahau
 - [ ] Etali's Favor
 - [ ] Explorer's Cache
 - [ ] Fabrication Foundry

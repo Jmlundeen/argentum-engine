@@ -1564,6 +1564,51 @@
     ]
 }
 
+// Envoy of Okinec Ahau
+{
+    "name": "Envoy of Okinec Ahau",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Cat Advisor",
+    "oracleText": "{4}{W}: Create a 1/1 colorless Gnome artifact creature token.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Gnome"
+                    ],
+                    "artifactToken": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "11",
+        "artist": "Zoltan Boros",
+        "flavorText": "Though wary of each other at first, the Malamet and the Oltec found a common enemy in the mycoids. They began to share glyph knowledge and other crafting secrets.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/6/96de0741-9270-4118-bb8e-f3480c75a582.jpg?1782694605"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Family Reunion
 {
     "name": "Family Reunion",
