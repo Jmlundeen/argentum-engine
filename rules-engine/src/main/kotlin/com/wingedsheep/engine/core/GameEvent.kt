@@ -903,11 +903,12 @@ data class CountersAddedEvent(
     val firstThisTurn: Boolean = false,
     /**
      * The player who *put* these counters, per CR 122.6a — the controller of the effect that
-     * placed them, or (for a permanent entering with counters) that permanent's controller.
-     * Drives "Whenever **you** put one or more counters on a creature" triggers
-     * ([com.wingedsheep.sdk.scripting.EventPattern.CountersPlacedEvent.placedBy]). `null` when the
-     * emitting path doesn't attribute a placer (e.g. moving counters between permanents); a null
-     * placer never matches a placer-restricted trigger.
+     * placed them, that permanent's controller (for a permanent entering with counters), the mover's
+     * controller (CR 122.5: moving a counter "puts" it on the destination), or the damage source's
+     * controller (wither, CR 702.80). Drives "Whenever **you** put one or more counters on a
+     * creature" triggers ([com.wingedsheep.sdk.scripting.EventPattern.CountersPlacedEvent.placedBy]).
+     * `null` for the few paths that don't attribute a placer (saga lore counters, poison counters on
+     * players); a null placer never matches a placer-restricted trigger.
      */
     val placedBy: EntityId? = null
 ) : GameEvent

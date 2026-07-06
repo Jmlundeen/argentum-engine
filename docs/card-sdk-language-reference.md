@@ -3249,11 +3249,12 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   *receiving* the counters, `placedBy` constrains the *placer* (CR 122.6a). Use it for
   "Whenever **you** put one or more +1/+1 counters on **a creature**" (recipient unrestricted, so
   the "you put" scope can't come from a `.youControl()` recipient filter) — Earth Kingdom General.
-  The placer is the controller of the placing effect, or (for a permanent entering with counters,
-  CR 122.6) that permanent's controller; placements from paths the engine doesn't attribute a placer
-  to (e.g. *moving* counters) carry no placer and never match a non-null `placedBy`. Default `null`
-  matches any placer. Triggering permanent is `EffectTarget.TriggeringEntity`. Stalwart Successor
-  shape.
+  The placer is the controller of the placing effect, the entering permanent's controller (for a
+  permanent entering with counters, CR 122.6a), the mover's controller (CR 122.5 — *moving* a counter
+  "puts" it on the destination), or the damage source's controller (wither, CR 702.80). A few
+  low-value paths carry no placer (saga lore counters, poison counters on players) and never match a
+  non-null `placedBy`. Default `null` matches any placer. Triggering permanent is
+  `EffectTarget.TriggeringEntity`. Stalwart Successor shape.
 - `CountersPlacedOnThis` — "whenever you put one or more counters on ~" (any kind, SELF-bound).
   Aragorn, Company Leader.
 - `OneOrMorePermanentsEnter(filter?, excludeSource?)` — batched ETB trigger; fires at most once per

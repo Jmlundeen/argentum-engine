@@ -1,9 +1,12 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.CardsSelectedResponse
+import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.tla.cards.EarthKingdomGeneral
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
@@ -56,9 +59,21 @@ class EarthKingdomGeneralTest : FunSpec({
         )
     }
 
+    // Sorcery that proliferates. Proliferate resolves through a select-permanents decision and its
+    // counter placement is emitted from the continuation resumer (a path that formerly carried no
+    // placer) — so this pins that resumed placements are attributed to you (CR 122.5/122.6a).
+    val proliferation = card("Proliferation") {
+        manaCost = "{2}"
+        typeLine = "Sorcery"
+        oracleText = "Proliferate."
+        spell {
+            effect = Effects.Proliferate()
+        }
+    }
+
     fun createDriver(): GameTestDriver {
         val driver = GameTestDriver()
-        driver.registerCards(TestCards.all + listOf(EarthKingdomGeneral, counterInfusion, counterBearer))
+        driver.registerCards(TestCards.all + listOf(EarthKingdomGeneral, counterInfusion, counterBearer, proliferation))
         return driver
     }
 
@@ -148,5 +163,39 @@ class EarthKingdomGeneralTest : FunSpec({
         driver.bothPass()
 
         driver.getLifeTotal(player) shouldBe 22   // still just the first gain
+    }
+
+    test("proliferating a +1/+1 counter onto a creature triggers it (resumed-placement placer)") {
+        val driver = createDriver()
+        driver.initMirrorMatch(deck = Deck.of("Forest" to 40), startingLife = 20)
+        val player = driver.activePlayer!!
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        driver.putCreatureOnBattlefield(player, "Earth Kingdom General")
+        val creature = driver.putCreatureOnBattlefield(player, "Savannah Lions")
+        // Seed one +1/+1 counter directly (no ETB) so proliferate has a kind to add to and the seed
+        // itself doesn't consume the once-per-turn trigger.
+        driver.replaceState(driver.state.updateEntity(creature) { c ->
+            val existing = c.get<CountersComponent>() ?: CountersComponent()
+            c.with(existing.withAdded(CounterType.PLUS_ONE_PLUS_ONE, 1))
+        })
+        val spell = driver.putCardInHand(player, "Proliferation")
+        driver.giveColorlessMana(player, 2)
+
+        driver.castSpell(player, spell)
+        driver.bothPass()   // resolve Proliferation → select-permanents decision
+
+        // Choose the seeded creature; proliferate adds one more +1/+1 counter (placer = you).
+        var guard = 0
+        while (driver.pendingDecision == null && guard < 8) { driver.bothPass(); guard++ }
+        val select = driver.pendingDecision!!
+        driver.submitDecision(player, CardsSelectedResponse(decisionId = select.id, selectedCards = listOf(creature)))
+
+        // Earth Kingdom General's "may gain life" trigger lands and resolves into its yes/no.
+        guard = 0
+        while (driver.pendingDecision == null && guard < 8) { driver.bothPass(); guard++ }
+        driver.submitYesNo(player, true)
+
+        driver.getLifeTotal(player) shouldBe 21   // 20 + 1 counter proliferated on
     }
 })

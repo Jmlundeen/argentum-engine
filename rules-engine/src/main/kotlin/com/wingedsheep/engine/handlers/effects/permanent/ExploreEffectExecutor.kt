@@ -146,6 +146,6 @@ class ExploreEffectExecutor : EffectExecutor<ExploreEffect> {
         val (newState, firstThisTurn) =
             com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(updated, creatureId)
         val name = state.getEntity(creatureId)?.get<CardComponent>()?.name ?: ""
-        return newState to listOf(CountersAddedEvent(creatureId, "PLUS_ONE_PLUS_ONE", count, name, firstThisTurn))
+        return newState to listOf(CountersAddedEvent(creatureId, "PLUS_ONE_PLUS_ONE", count, name, firstThisTurn, placedBy = context.controllerId))
     }
 }
