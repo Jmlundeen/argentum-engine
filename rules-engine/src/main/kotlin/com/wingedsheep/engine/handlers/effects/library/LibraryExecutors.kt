@@ -71,6 +71,7 @@ class LibraryExecutors(
         ExileFromTopRepeatingExecutor(),
         ExileLibraryUntilManaValueExecutor(),
         CascadeExecutor(),
+        DiscoverExecutor(),
         CastFromCollectionWithoutPayingCostExecutor(
             castSpellHandlerProvider = {
                 castSpellHandlerRef.get()

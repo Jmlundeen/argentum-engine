@@ -1,7 +1,10 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.actions.spell.CastSpellHandler
+import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
 import com.wingedsheep.engine.handlers.effects.library.CascadeExecutor
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
@@ -40,6 +43,7 @@ class LibraryAndZoneContinuationResumer(
         resumer(PutOntoBattlefieldAttachedToChosenContinuation::class, ::resumePutOntoBattlefieldAttachedToChosen),
         resumer(PutOnTopOrBottomContinuation::class, ::resumePutOnTopOrBottom),
         resumer(CascadeMayCastContinuation::class, ::resumeCascadeMayCast),
+        resumer(DiscoverMayCastContinuation::class, ::resumeDiscoverMayCast),
         resumer(CastFromCollectionTargetsContinuation::class, ::resumeCastFromCollectionTargets),
         resumer(CastAnyNumberFromCollectionContinuation::class, ::resumeCastAnyNumberFromCollection)
     )
@@ -841,6 +845,123 @@ class LibraryAndZoneContinuationResumer(
         }
 
         return checkForMore(castResult.state, bottomEvents + castResult.events)
+    }
+
+    /**
+     * Resume after the controller answers "cast the discovered card for free, or put it into
+     * your hand?" during a [com.wingedsheep.sdk.scripting.effects.DiscoverEffect] (CR 701.57a).
+     *
+     * In both branches the *other* exiled cards are bottom-randomized first. Then:
+     *  - **Cast** (yes): the discovered card is free-cast by reusing
+     *    [com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect] (so
+     *    target / X / mode prompts flow through the normal cast machinery). If the cast can't
+     *    initiate — no legal target, etc. — the card falls back to the controller's hand, per
+     *    "If you don't cast it, put that card into your hand."
+     *  - **Hand** (no): the discovered card is moved straight to the controller's hand.
+     *
+     * Any [DiscoverMayCastContinuation.thenEffect] then resolves last, with the discovered card
+     * published to [DiscoverMayCastContinuation.storeDiscoveredAs] so it can be read (Hit the
+     * Mother Lode's "…create Treasure tokens equal to the difference"). The follow-up is chained
+     * through [effectRunner], so its own pauses (if any) resume correctly.
+     */
+    fun resumeDiscoverMayCast(
+        state: GameState,
+        continuation: DiscoverMayCastContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is YesNoResponse) {
+            return ExecutionResult.error(state, "Expected yes/no response for discover may-cast")
+        }
+
+        val discovered = continuation.discoveredCardId
+        val others = continuation.exiledCards.filter { it != discovered }
+
+        // Bottom-randomize every other exiled card first (CR 701.57a).
+        var afterBottom = state
+        val bottomEvents = CascadeExecutor.bottomRandomize(
+            state = state,
+            playerId = continuation.playerId,
+            cards = others
+        ) { afterBottom = it }
+
+        val discoveredCollections = continuation.storeDiscoveredAs
+            ?.let { mapOf(it to listOf(discovered)) }
+            ?: emptyMap()
+
+        if (!response.choice) {
+            // Put the discovered card into the controller's hand, then run the follow-up.
+            val moveResult = ZoneMovementUtils.moveCardToZone(afterBottom, discovered, Zone.HAND)
+            var afterHand = afterBottom
+            val leadingEvents = bottomEvents.toMutableList()
+            if (moveResult.isSuccess) {
+                afterHand = moveResult.state
+                leadingEvents.addAll(moveResult.events)
+            }
+            return runDiscoverThenEffect(
+                afterHand, continuation, discoveredCollections, leadingEvents, checkForMore
+            )
+        }
+
+        // Cast branch: free-cast the discovered card (from a private collection), then the follow-up.
+        val castKey = "discover\$cast"
+        val ctx = EffectContext(
+            sourceId = continuation.sourceId,
+            controllerId = continuation.playerId,
+            pipeline = PipelineState.EMPTY.copy(
+                storedCollections = discoveredCollections + (castKey to listOf(discovered))
+            )
+        )
+        val effects = buildList {
+            add(CastFromCollectionWithoutPayingCostEffect(from = castKey))
+            continuation.thenEffect?.let { add(it) }
+        }
+        val result = effectRunner.executeRemainingEffects(afterBottom, effects, ctx)
+        if (result.isPaused) {
+            return ExecutionResult.paused(result.state, result.pendingDecision!!, bottomEvents + result.events)
+        }
+
+        // If the cast couldn't initiate, the discovered card is still in exile — fall back to
+        // hand ("If you don't cast it, put that card into your hand", CR 701.57a).
+        var finalState = result.state
+        val tailEvents = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
+        if (findEntityZone(finalState, discovered)?.zoneType == Zone.EXILE) {
+            val moveResult = ZoneMovementUtils.moveCardToZone(finalState, discovered, Zone.HAND)
+            if (moveResult.isSuccess) {
+                finalState = moveResult.state
+                tailEvents.addAll(moveResult.events)
+            }
+        }
+        return checkForMore(finalState, bottomEvents + result.events + tailEvents)
+    }
+
+    /** Run a discover [DiscoverMayCastContinuation.thenEffect] (if any) with the discovered card published. */
+    private fun runDiscoverThenEffect(
+        state: GameState,
+        continuation: DiscoverMayCastContinuation,
+        discoveredCollections: Map<String, List<EntityId>>,
+        leadingEvents: List<com.wingedsheep.engine.core.GameEvent>,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        val thenEffect = continuation.thenEffect
+            ?: return checkForMore(state, leadingEvents)
+        val ctx = EffectContext(
+            sourceId = continuation.sourceId,
+            controllerId = continuation.playerId,
+            pipeline = PipelineState.EMPTY.copy(storedCollections = discoveredCollections)
+        )
+        val result = effectRunner.executeRemainingEffects(state, listOf(thenEffect), ctx)
+        if (result.isPaused) {
+            return ExecutionResult.paused(result.state, result.pendingDecision!!, leadingEvents + result.events)
+        }
+        return checkForMore(result.state, leadingEvents + result.events)
+    }
+
+    private fun findEntityZone(state: GameState, entityId: EntityId): ZoneKey? {
+        for ((zoneKey, entities) in state.zones) {
+            if (entityId in entities) return zoneKey
+        }
+        return null
     }
 
     /**
