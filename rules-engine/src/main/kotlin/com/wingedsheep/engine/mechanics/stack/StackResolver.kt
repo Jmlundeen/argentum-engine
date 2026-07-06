@@ -454,7 +454,14 @@ class StackResolver(
         state: GameState,
         ability: TriggeredAbilityOnStackComponent,
         targets: List<ChosenTarget> = emptyList(),
-        targetRequirements: List<TargetRequirement> = emptyList()
+        targetRequirements: List<TargetRequirement> = emptyList(),
+        /**
+         * True when this ability fired because its own source creature was declared as an attacker
+         * (a SELF-bound attacks trigger). Stamped onto the emitted [AbilityTriggeredEvent] so
+         * Firebender Ascension's "attacking causes a triggered ability of that creature to trigger"
+         * meta-trigger can key on it.
+         */
+        causedByAttack: Boolean = false
     ): ExecutionResult {
         // Create a new entity for the ability on the stack
         val (abilityId, stateWithId) = state.newEntity()
@@ -474,7 +481,8 @@ class StackResolver(
                 ability.sourceName,
                 ability.controllerId,
                 ability.description,
-                abilityEntityId = abilityId
+                abilityEntityId = abilityId,
+                causedByAttack = causedByAttack
             )
         )
 
@@ -2371,7 +2379,7 @@ class StackResolver(
                     }
                     val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(newState, entityId)
                     newState = afterMark
-                    events.add(CountersAddedEvent(entityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn))
+                    events.add(CountersAddedEvent(entityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn, placedBy = controllerId))
                 }
                 is EntersWithDynamicCounters -> {
                     // Skip "other only" effects when applying to self (e.g., Gev)
@@ -2394,7 +2402,7 @@ class StackResolver(
                         }
                         val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(newState, entityId)
                         newState = afterMark
-                        events.add(CountersAddedEvent(entityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn))
+                        events.add(CountersAddedEvent(entityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn, placedBy = controllerId))
                     }
                 }
                 else -> { /* Other replacement effects handled elsewhere */ }

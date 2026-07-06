@@ -1461,11 +1461,26 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
          * event's own "first counters this turn" flag, mirroring how Valiant uses
          * `firstTimeEachTurn` on [BecomesTargetEvent].
          */
-        val firstTimeEachTurn: Boolean = false
+        val firstTimeEachTurn: Boolean = false,
+        /**
+         * Which player must have *put* the counters, per CR 122.6/122.6a — distinct from [filter],
+         * which constrains the permanent *receiving* them. `null` (default) matches any placer, so
+         * "counters put on a creature you control" is expressed purely via the recipient filter.
+         * Set to [Player.You] for "Whenever **you** put one or more counters on a creature" where
+         * the recipient is unrestricted (Earth Kingdom General) — a placement by an opponent then
+         * doesn't fire it. The placer is the controller of the effect that put the counters, or
+         * (for a permanent entering with counters) that permanent's controller (CR 122.6a).
+         * A placement the engine can't attribute to a placer never matches a non-null selector.
+         */
+        val placedBy: Player? = null
     ) : EventPattern {
         override val description: String = buildString {
             val typeLabel = if (counterType == com.wingedsheep.sdk.core.Counters.ANY) "" else "$counterType "
-            append("one or more ${typeLabel}counters are placed on ")
+            if (placedBy != null) {
+                append("${placedBy.description} put one or more ${typeLabel}counters on ")
+            } else {
+                append("one or more ${typeLabel}counters are placed on ")
+            }
             append(describeObjectForEvent(filter))
             if (firstTimeEachTurn) append(" for the first time this turn")
         }
@@ -1539,6 +1554,55 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
                 }
                 requireNoTapInCost -> append("doesn't have {T} in its activation cost")
                 else -> append("isn't a mana ability")
+            }
+        }
+
+        override fun applyTextReplacement(replacer: TextReplacer): EventPattern {
+            val newFilter = sourceFilter?.applyTextReplacement(replacer)
+            return if (newFilter !== sourceFilter) copy(sourceFilter = newFilter) else this
+        }
+    }
+
+    /**
+     * When a triggered ability is put onto the stack (CR 603.3), scoped by whose ability it is and
+     * — optionally — by what caused it to trigger.
+     *
+     * [player] scopes whose triggered ability counts (its controller): [Player.You] for your own,
+     * [Player.EachOpponent] for an opponent's, etc.
+     *
+     * [requireAttackCause] narrows to the Firebender Ascension clause "a creature you control
+     * attacking causes a triggered ability of that creature to trigger": the ability must be a
+     * per-attacker "whenever this creature attacks" ability (a SELF-bound [AttackEvent]) whose own
+     * source creature was just declared as an attacker. The engine stamps `causedByAttack` on the
+     * emitted `AbilityTriggeredEvent` when it puts such an ability on the stack; a non-attack
+     * trigger (an ETB, a dies, a "deals combat damage") never matches. The triggering ability is
+     * exposed as the triggering entity, so a copy effect can target it via
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity].
+     *
+     * [sourceFilter] optionally restricts which permanent the triggered ability must belong to.
+     * Null = any source (the [player] scope alone applies).
+     */
+    @SerialName("AbilityTriggeredEvent")
+    @Serializable
+    data class AbilityTriggeredEvent(
+        val player: Player = Player.You,
+        val requireAttackCause: Boolean = false,
+        val sourceFilter: GameObjectFilter? = null
+    ) : EventPattern {
+        override val description: String = buildString {
+            if (requireAttackCause) {
+                append("a creature ")
+                append(player.description)
+                append(" control attacking causes a triggered ability of that creature to trigger")
+            } else {
+                append(player.description)
+                append(" put a triggered ability ")
+                if (sourceFilter != null) {
+                    append("of a ")
+                    append(sourceFilter.description)
+                    append(" ")
+                }
+                append("onto the stack")
             }
         }
 

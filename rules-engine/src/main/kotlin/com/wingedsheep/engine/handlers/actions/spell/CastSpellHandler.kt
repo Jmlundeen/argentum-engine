@@ -2293,7 +2293,8 @@ class CastSpellHandler(
                                     counterType = Counters.MINUS_ONE_MINUS_ONE,
                                     amount = additionalCost.blightAmount,
                                     entityName = targetName,
-                                    firstThisTurn = firstThisTurn
+                                    firstThisTurn = firstThisTurn,
+                                    placedBy = action.playerId
                                 ))
                             }
                         }
@@ -2321,7 +2322,8 @@ class CastSpellHandler(
                                     counterType = Counters.MINUS_ONE_MINUS_ONE,
                                     amount = amount,
                                     entityName = targetName,
-                                    firstThisTurn = firstThisTurn
+                                    firstThisTurn = firstThisTurn,
+                                    placedBy = action.playerId
                                 ))
                             }
                         }

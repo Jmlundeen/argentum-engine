@@ -315,6 +315,26 @@ class TriggerMatcher(
                     matchesAbilityTargetConstraint(event.abilityEntityId, targetMatch, sourceId, controllerId, state)
                 } else true
             }
+            is EventPattern.AbilityTriggeredEvent -> {
+                if (event !is AbilityTriggeredEvent) return false
+                if (!matchesPlayer(trigger.player, event.controllerId, controllerId)) return false
+                // "attacking causes a triggered ability of that creature to trigger": only fire for
+                // abilities the engine stamped as attack-caused (SELF-bound attacks triggers).
+                if (trigger.requireAttackCause && !event.causedByAttack) return false
+                // sourceFilter: the permanent whose ability triggered must match (null = any).
+                val sourceFilter = trigger.sourceFilter
+                if (sourceFilter != null) {
+                    val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
+                        controllerId = controllerId,
+                        sourceId = sourceId
+                    )
+                    if (!PredicateEvaluator().matches(
+                            state, state.projectedState, event.sourceId, sourceFilter, predicateContext
+                        )
+                    ) return false
+                }
+                true
+            }
             is EventPattern.CycleEvent -> {
                 event is CardCycledEvent &&
                     matchesPlayer(trigger.player, event.playerId, controllerId) &&
@@ -570,6 +590,12 @@ class TriggerMatcher(
                     !counterTypesMatch(trigger.counterType, event.counterType)) return false
                 // "First time counters this turn" intervening-if (Stalwart Successor).
                 if (trigger.firstTimeEachTurn && !event.firstThisTurn) return false
+                // Placer restriction (CR 122.6a): "Whenever YOU put counters ...". A placement the
+                // engine didn't attribute to a placer (null) never satisfies a non-null selector.
+                trigger.placedBy?.let { placer ->
+                    val placedBy = event.placedBy ?: return false
+                    if (!matchesPlayer(placer, placedBy, controllerId)) return false
+                }
                 // Check filter: the permanent receiving counters must match
                 if (trigger.filter != GameObjectFilter.Any) {
                     val projected = state.projectedState

@@ -10,59 +10,59 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 
 /**
- * Scenario tests for Sandworm (FIN #155).
+ * Scenario tests for Price of Freedom (TLA #149).
  *
- * "{4}{R} Creature — Worm 5/4. Haste. When this creature enters, destroy target land. Its controller
- *  may search their library for a basic land card, put it onto the battlefield tapped, then shuffle."
+ * "{1}{R} Sorcery — Lesson. Destroy target artifact or land an opponent controls. Its controller may
+ *  search their library for a basic land card, put it onto the battlefield tapped, then shuffle.
+ *  Draw a card."
  *
- * Verifies the ETB destroys the targeted land, and that the optional basic-land search is performed
- * by the *destroyed land's controller* (the opponent here), who may accept or decline.
+ * Reproduces the playtest bug where the destroyed land's controller was never allowed to choose a
+ * basic land: the `SelectFromCollectionEffect` defaulted to [Chooser.Controller] (the caster), so the
+ * *opponent* silently made the fetch selection. The fix pins it to [Chooser.ControllerOfTarget]. These
+ * tests assert both the outcome (the victim ramps a tapped basic; the caster draws) and — critically —
+ * that the selection decision belongs to the victim, not the caster.
  */
-class SandwormScenarioTest : ScenarioTestBase() {
+class PriceOfFreedomScenarioTest : ScenarioTestBase() {
 
     init {
-        context("Sandworm") {
+        context("Price of Freedom") {
 
-            test("ETB destroys target land; its controller may fetch a tapped basic land") {
+            test("destroys the target land; its controller chooses and fetches a tapped basic") {
                 val game = scenario()
                     .withPlayers("Caster", "Victim")
-                    .withCardInHand(1, "Sandworm")
-                    .withLandsOnBattlefield(1, "Mountain", 5)
-                    .withLandsOnBattlefield(2, "Plains", 1)
+                    .withCardInHand(1, "Price of Freedom")
+                    .withLandsOnBattlefield(1, "Mountain", 2)
+                    .withLandsOnBattlefield(2, "Swamp", 1)
+                    .withCardInLibrary(1, "Mountain")
                     .withCardInLibrary(2, "Forest")
                     .withCardInLibrary(2, "Island")
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                val victimPlains = game.state.getBattlefield().first { id ->
+                val victimSwamp = game.state.getBattlefield().first { id ->
                     val e = game.state.getEntity(id)
-                    e?.get<CardComponent>()?.name == "Plains" &&
+                    e?.get<CardComponent>()?.name == "Swamp" &&
                         e.get<ControllerComponent>()?.playerId == game.player2Id
                 }
 
-                game.castSpell(1, "Sandworm")
+                game.castSpell(1, "Price of Freedom", victimSwamp)
                 game.resolveStack()
-
-                // ETB trigger needs a land target — choose the opponent's Plains.
-                if (game.hasPendingDecision()) {
-                    game.selectTargets(listOf(victimPlains))
-                    game.resolveStack()
-                }
 
                 // Its controller (player 2) may search — accept.
                 game.hasPendingDecision() shouldBe true
+                game.getPendingDecision()?.playerId shouldBe game.player2Id
                 game.answerYesNo(true)
                 game.resolveStack()
 
-                // The basic-land search must be made by the destroyed land's controller
-                // (player 2), NOT the caster (player 1). Regression guard: a missing
-                // Chooser.ControllerOfTarget silently routed this selection to the caster.
+                // The basic-land selection must be made by the destroyed land's controller
+                // (player 2), NOT the caster (player 1). This is the regression guard: a missing
+                // Chooser.ControllerOfTarget routed the selection to the caster.
                 withClue("Player 2 (the land's controller) should choose the basic land") {
                     game.getPendingDecision()?.playerId shouldBe game.player2Id
                 }
 
-                // Select the Forest from player 2's library.
+                // Player 2 fetches the Forest.
                 if (game.hasPendingDecision()) {
                     val forest = game.state.getLibrary(game.player2Id).first { id ->
                         game.state.getEntity(id)?.get<CardComponent>()?.name == "Forest"
@@ -71,10 +71,10 @@ class SandwormScenarioTest : ScenarioTestBase() {
                     game.resolveStack()
                 }
 
-                withClue("The targeted Plains should be destroyed") {
+                withClue("The targeted Swamp should be destroyed") {
                     game.state.getBattlefield().none { id ->
                         val e = game.state.getEntity(id)
-                        e?.get<CardComponent>()?.name == "Plains" &&
+                        e?.get<CardComponent>()?.name == "Swamp" &&
                             e.get<ControllerComponent>()?.playerId == game.player2Id
                     } shouldBe true
                 }
@@ -91,39 +91,38 @@ class SandwormScenarioTest : ScenarioTestBase() {
                 }
             }
 
-            test("the land's controller may decline the search") {
+            test("the land's controller may decline the search; caster still draws") {
                 val game = scenario()
                     .withPlayers("Caster", "Victim")
-                    .withCardInHand(1, "Sandworm")
-                    .withLandsOnBattlefield(1, "Mountain", 5)
-                    .withLandsOnBattlefield(2, "Plains", 1)
+                    .withCardInHand(1, "Price of Freedom")
+                    .withLandsOnBattlefield(1, "Mountain", 2)
+                    .withLandsOnBattlefield(2, "Swamp", 1)
+                    .withCardInLibrary(1, "Mountain")
                     .withCardInLibrary(2, "Forest")
                     .withActivePlayer(1)
                     .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
                     .build()
 
-                val victimPlains = game.state.getBattlefield().first { id ->
+                val casterHandBefore = game.handSize(1)
+
+                val victimSwamp = game.state.getBattlefield().first { id ->
                     val e = game.state.getEntity(id)
-                    e?.get<CardComponent>()?.name == "Plains" &&
+                    e?.get<CardComponent>()?.name == "Swamp" &&
                         e.get<ControllerComponent>()?.playerId == game.player2Id
                 }
 
-                game.castSpell(1, "Sandworm")
+                game.castSpell(1, "Price of Freedom", victimSwamp)
                 game.resolveStack()
 
-                if (game.hasPendingDecision()) {
-                    game.selectTargets(listOf(victimPlains))
-                    game.resolveStack()
-                }
-
                 game.hasPendingDecision() shouldBe true
+                game.getPendingDecision()?.playerId shouldBe game.player2Id
                 game.answerYesNo(false)
                 game.resolveStack()
 
-                withClue("The targeted Plains should still be destroyed") {
+                withClue("The targeted Swamp should still be destroyed") {
                     game.state.getBattlefield().none { id ->
                         val e = game.state.getEntity(id)
-                        e?.get<CardComponent>()?.name == "Plains" &&
+                        e?.get<CardComponent>()?.name == "Swamp" &&
                             e.get<ControllerComponent>()?.playerId == game.player2Id
                     } shouldBe true
                 }
@@ -131,6 +130,11 @@ class SandwormScenarioTest : ScenarioTestBase() {
                     game.state.getBattlefield().none { id ->
                         game.state.getEntity(id)?.get<CardComponent>()?.name == "Forest"
                     } shouldBe true
+                }
+                // "Draw a card" — the caster (player 1) draws, casting Price of Freedom (−1) then
+                // drawing (+1) nets back to the starting hand size.
+                withClue("The caster should have drawn a card") {
+                    game.handSize(1) shouldBe casterHandBefore
                 }
             }
         }

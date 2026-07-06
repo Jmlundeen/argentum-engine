@@ -460,7 +460,8 @@ class CostHandler(
                         counterType = Counters.MINUS_ONE_MINUS_ONE,
                         amount = cost.amount,
                         entityName = targetName,
-                        firstThisTurn = firstThisTurn
+                        firstThisTurn = firstThisTurn,
+                        placedBy = controllerId
                     )
                 )
                 CostPaymentResult.success(newState, manaPool, events)

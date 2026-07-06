@@ -567,7 +567,7 @@ class MiscContinuationResumer(
 
                 val targetName = newState.getEntity(targetId)
                     ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name ?: ""
-                events.add(CountersAddedEvent(targetId, continuation.counterType, modifiedAmount, targetName, firstThisTurn))
+                events.add(CountersAddedEvent(targetId, continuation.counterType, modifiedAmount, targetName, firstThisTurn, placedBy = continuation.controllerId))
             }
         }
 
@@ -785,7 +785,11 @@ class MiscContinuationResumer(
                             continuation.currentCounterType,
                             modified,
                             continuation.destinationName,
-                            firstThisTurn
+                            firstThisTurn,
+                            // CR 122.5: moving a counter "puts" it onto the destination, so this is a
+                            // placement by the moving effect's controller (drives "whenever you put
+                            // counters" triggers).
+                            placedBy = continuation.controllerId
                         )
                     )
                 }
@@ -934,7 +938,8 @@ class MiscContinuationResumer(
                         com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(counterType),
                         modifiedAmount,
                         entityName,
-                        firstThisTurn
+                        firstThisTurn,
+                        placedBy = continuation.controllerId
                     )
                 )
             }

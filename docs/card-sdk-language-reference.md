@@ -2914,6 +2914,17 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
   `EffectTarget.PlayerRef(Player.TriggeringPlayer)` (the activator); the **ATTACHED** form uses
   `EffectTarget.ControllerOfTriggeringEntity` (the enchanted artifact's controller, exposed by
   `AttachmentTriggerDetector`).
+- `AttackCausesYourCreaturesTriggeredAbility` — **a creature you control attacking causes a triggered ability of that
+  creature to trigger** (Firebender Ascension). Backed by `EventPattern.AbilityTriggeredEvent(player, requireAttackCause,
+  sourceFilter?)`, which matches the engine's `AbilityTriggeredEvent` when a triggered ability is put on the stack.
+  With `requireAttackCause = true` it fires only for a creature's **own** "whenever this creature attacks" ability — a
+  SELF-bound `AttackEvent`. The engine stamps `causedByAttack` on the event in `StackResolver.putTriggeredAbility` (from
+  `TriggerProcessor.isAttackCausedTrigger`) so unrelated in-combat triggers (deals damage, dies, ETB) never match; the
+  SELF binding is what ties the ability to "that [attacking] creature", excluding anthem-style ANY-bound
+  "whenever a creature you control attacks" abilities on other permanents. The triggering ability is exposed as
+  `EffectTarget.TriggeringEntity` (`AbilityTriggeredEvent` sets the triggering entity to the ability on the stack), so a
+  `Effects.CopyTargetTriggeredAbility(EffectTarget.TriggeringEntity)` can copy it and reprompt for new targets (CR
+  707.10c). `sourceFilter` optionally restricts which permanent's ability counts; `player` scopes whose ability it is.
 
 **Other casters.** The same shape, scoped to a different caster via the runtime
 `Player.Each` / `Player.EachOpponent` matching on `SpellCastEvent`. Bind the payoff to the
@@ -3229,12 +3240,21 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   sacrifice **a** permanent" wording that also counts the source itself.
 - `Sacrificed` — source is sacrificed.
 - `PlusOneCountersPlacedOnYourCreature` — Hardened Scales shape (+1/+1 only).
-- `countersPlacedOn(filter = Creature.youControl(), counterType = Counters.ANY, firstTimeEachTurn = true, binding = ANY)`
+- `countersPlacedOn(filter = Creature.youControl(), counterType = Counters.ANY, firstTimeEachTurn = true, binding = ANY, placedBy = null)`
   — fires when counters of any type (`Counters.ANY` wildcard) land on a matching permanent;
   `firstTimeEachTurn` gates it to the first counter placement on *that* permanent this turn
   (engine-tracked via `ReceivedCountersThisTurnComponent`). `binding = SELF` restricts it to the
   source permanent (the `TriggerMatcher.CountersPlacedEvent` branch honors `SELF`/`OTHER`).
-  Triggering permanent is `EffectTarget.TriggeringEntity`. Stalwart Successor shape.
+  `placedBy = Player.You` restricts to counters *you* put — the `filter` constrains the permanent
+  *receiving* the counters, `placedBy` constrains the *placer* (CR 122.6a). Use it for
+  "Whenever **you** put one or more +1/+1 counters on **a creature**" (recipient unrestricted, so
+  the "you put" scope can't come from a `.youControl()` recipient filter) — Earth Kingdom General.
+  The placer is the controller of the placing effect, the entering permanent's controller (for a
+  permanent entering with counters, CR 122.6a), the mover's controller (CR 122.5 — *moving* a counter
+  "puts" it on the destination), or the damage source's controller (wither, CR 702.80). A few
+  low-value paths carry no placer (saga lore counters, poison counters on players) and never match a
+  non-null `placedBy`. Default `null` matches any placer. Triggering permanent is
+  `EffectTarget.TriggeringEntity`. Stalwart Successor shape.
 - `CountersPlacedOnThis` — "whenever you put one or more counters on ~" (any kind, SELF-bound).
   Aragorn, Company Leader.
 - `OneOrMorePermanentsEnter(filter?, excludeSource?)` — batched ETB trigger; fires at most once per

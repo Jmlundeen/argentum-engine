@@ -461,7 +461,16 @@ data class AbilityTriggeredEvent(
     val sourceName: String,
     val controllerId: EntityId,
     val description: String,
-    val abilityEntityId: EntityId? = null
+    val abilityEntityId: EntityId? = null,
+    /**
+     * True when this ability was put on the stack because its own source creature was declared as
+     * an attacker — a per-attacker "whenever this creature attacks" ability (SELF-bound
+     * [com.wingedsheep.sdk.scripting.EventPattern.AttackEvent]). Read by the
+     * [com.wingedsheep.sdk.scripting.EventPattern.AbilityTriggeredEvent] `requireAttackCause`
+     * pattern (Firebender Ascension). Defaults false for every other trigger and for ability copies
+     * (which don't re-fire the meta-trigger).
+     */
+    val causedByAttack: Boolean = false
 ) : GameEvent
 
 /**
@@ -891,7 +900,17 @@ data class CountersAddedEvent(
      * (Stalwart Successor). Computed against the target's [ReceivedCountersThisTurnComponent]
      * before that marker is set; defaults to false for emitters that don't track it.
      */
-    val firstThisTurn: Boolean = false
+    val firstThisTurn: Boolean = false,
+    /**
+     * The player who *put* these counters, per CR 122.6a — the controller of the effect that
+     * placed them, that permanent's controller (for a permanent entering with counters), the mover's
+     * controller (CR 122.5: moving a counter "puts" it on the destination), or the damage source's
+     * controller (wither, CR 702.80). Drives "Whenever **you** put one or more counters on a
+     * creature" triggers ([com.wingedsheep.sdk.scripting.EventPattern.CountersPlacedEvent.placedBy]).
+     * `null` for the few paths that don't attribute a placer (saga lore counters, poison counters on
+     * players); a null placer never matches a placer-restricted trigger.
+     */
+    val placedBy: EntityId? = null
 ) : GameEvent
 
 /**
