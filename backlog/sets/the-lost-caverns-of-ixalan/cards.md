@@ -261,7 +261,7 @@
 - [ ] Thousand Moons Crackshot
 - [ ] Thousand Moons Infantry
 - [ ] Thousand Moons Smithy
-- [ ] Thrashing Brontodon
+- [x] Thrashing Brontodon
 - [ ] Threefold Thunderhulk
 - [ ] Throne of the Grim Captain
 - [ ] Tinker's Tote
