@@ -2099,6 +2099,64 @@
     ]
 }
 
+// Hidden Cataract
+{
+    "name": "Hidden Cataract",
+    "manaCost": "",
+    "typeLine": "Land — Cave",
+    "oracleText": "This land enters tapped.\n{T}: Add {U}.\n{4}{U}, {T}, Sacrifice this land: Discover 4. Activate only as a sorcery.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{U}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Discover",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                },
+                "timing": "SorcerySpeed"
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "273",
+        "artist": "Josu Solano",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/9/69f317fc-f603-45b5-9208-545be4dcbf36.jpg?1782694393"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Hotfoot Gnome
 {
     "name": "Hotfoot Gnome",
