@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 101 / 286
+**Implemented:** 102 / 286
 - [x] Abrade
 - [ ] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -127,7 +127,7 @@
 - [ ] Huatli, Poet of Unity
 - [ ] Hulking Raptor
 - [ ] Hunter's Blowgun
-- [ ] Hurl into History
+- [x] Hurl into History
 - [ ] Idol of the Deep King
 - [ ] In the Presence of Ages
 - [ ] Inti, Seneschal of the Sun

@@ -2676,6 +2676,49 @@
     ]
 }
 
+// Hurl into History
+{
+    "name": "Hurl into History",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target artifact or creature spell. Discover X, where X is that spell's mana value.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                "Counter",
+                {
+                    "type": "Discover",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Target",
+                        "numericProperty": "ManaValue"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact|creature",
+                    "zone": "Stack"
+                },
+                "id": "target artifact or creature spell"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "59",
+        "rarity": "UNCOMMON",
+        "artist": "Eli Minaya",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/5946463a-2240-4376-b6f5-fd6e3a9cc51c.jpg?1782694562"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Ironpaw Aspirant
 {
     "name": "Ironpaw Aspirant",
