@@ -173,7 +173,7 @@
 - [ ] Ojer Pakpatiq, Deepest Epoch
 - [ ] Ojer Taq, Deepest Foundation
 - [x] Oltec Archaeologists
-- [ ] Oltec Cloud Guard
+- [x] Oltec Cloud Guard
 - [x] Orazca Puzzle-Door
 - [ ] Oteclan Landmark
 - [ ] Out of Air

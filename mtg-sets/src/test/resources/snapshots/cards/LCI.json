@@ -2960,6 +2960,51 @@
     ]
 }
 
+// Oltec Cloud Guard
+{
+    "name": "Oltec Cloud Guard",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Human Soldier",
+    "oracleText": "Flying\nWhen this creature enters, create a 1/1 colorless Gnome artifact creature token.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Gnome"
+                    ],
+                    "artifactToken": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "28",
+        "artist": "Evyn Fong",
+        "flavorText": "Many Oltec youth dream of one day joining the elite bat-riding cavalry of the Thousand Moons military force.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/02d68a38-2e0b-401b-b67d-a55e2af5b18d.jpg?1782694589"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Orazca Puzzle-Door
 {
     "name": "Orazca Puzzle-Door",
