@@ -3951,6 +3951,46 @@
     ]
 }
 
+// Seeker of Sunlight
+{
+    "name": "Seeker of Sunlight",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Merfolk Scout",
+    "oracleText": "{2}{G}: This creature explores. Activate only as a sorcery. (Reveal the top card of your library. Put that card into your hand if it's a land. Otherwise, put a +1/+1 counter on this creature, then put the card back or put it into your graveyard.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "Explore",
+                    "target": "Self"
+                },
+                "timing": "SorcerySpeed"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "210",
+        "artist": "Randy Vargas",
+        "flavorText": "\"We weren't fleeing a broken world. We were running toward paradise!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/f/ffcdb10f-4bad-4f89-8e7c-daa5c0c69230.jpg?1782694440"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Seismic Monstrosaur
 {
     "name": "Seismic Monstrosaur",

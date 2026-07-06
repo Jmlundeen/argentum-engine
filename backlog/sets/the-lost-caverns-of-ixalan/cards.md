@@ -217,7 +217,7 @@
 - [x] Scampering Surveyor
 - [x] Screaming Phantom
 - [ ] Scytheclaw Raptor
-- [ ] Seeker of Sunlight
+- [x] Seeker of Sunlight
 - [x] Seismic Monstrosaur
 - [x] Self-Reflection
 - [x] Sentinel of the Nameless City
