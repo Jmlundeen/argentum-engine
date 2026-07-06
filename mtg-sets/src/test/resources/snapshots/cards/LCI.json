@@ -2215,6 +2215,64 @@
     ]
 }
 
+// Hidden Necropolis
+{
+    "name": "Hidden Necropolis",
+    "manaCost": "",
+    "typeLine": "Land — Cave",
+    "oracleText": "This land enters tapped.\n{T}: Add {B}.\n{4}{B}, {T}, Sacrifice this land: Discover 4. Activate only as a sorcery.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{B}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Discover",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                },
+                "timing": "SorcerySpeed"
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "275",
+        "artist": "Svetlin Velinov",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/6/f67fd04f-05da-4418-97de-abeb7346cc69.jpg?1782694392"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Hotfoot Gnome
 {
     "name": "Hotfoot Gnome",
