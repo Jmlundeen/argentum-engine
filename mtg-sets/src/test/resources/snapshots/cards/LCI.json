@@ -6547,6 +6547,68 @@
     ]
 }
 
+// Malamet Veteran
+{
+    "name": "Malamet Veteran",
+    "manaCost": "{4}{G}",
+    "typeLine": "Creature — Cat Warrior",
+    "oracleText": "Trample\nDescend 4 — Whenever this creature attacks, if there are four or more permanent cards in your graveyard, put a +1/+1 counter on target creature.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target creature"
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "permanent"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "201",
+        "artist": "Steve Prescott",
+        "flavorText": "The mightiest Malamet warriors train as titan-killers, elite champions capable of facing down the caverns' most fearsome beasts.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/b/4b9b16b3-1cbd-4b63-85b2-e4053dfc1e93.jpg?1782694449"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Malamet War Scribe
 {
     "name": "Malamet War Scribe",
@@ -7091,6 +7153,109 @@
     ]
 }
 
+// Molten Collapse
+{
+    "name": "Molten Collapse",
+    "manaCost": "{B}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one. If you descended this turn, you may choose both instead. (You descended if a permanent card was put into your graveyard from anywhere.)\n• Destroy target creature or planeswalker.\n• Destroy target noncreature, nonland permanent with mana value 1 or less.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature or planeswalker"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetCreatureOrPlaneswalker",
+                            "id": "target creature or planeswalker"
+                        }
+                    ],
+                    "description": "Destroy target creature or planeswalker"
+                },
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target noncreature, nonland permanent with mana value 1 or less"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {
+                                    "cardPredicates": [
+                                        "IsNonland",
+                                        "IsPermanent",
+                                        {
+                                            "type": "Not",
+                                            "predicate": "IsCreature"
+                                        },
+                                        {
+                                            "type": "ManaValueAtMost",
+                                            "max": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            "id": "target noncreature, nonland permanent with mana value 1 or less"
+                        }
+                    ],
+                    "description": "Destroy target noncreature, nonland permanent with mana value 1 or less"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1,
+            "dynamicChooseCount": {
+                "type": "Conditional",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "DESCENDED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "ifTrue": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "ifFalse": {
+                    "type": "Fixed",
+                    "amount": 1
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "234",
+        "rarity": "RARE",
+        "artist": "Kasia 'Kafis' Zielińska",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/4/2487d124-210b-4808-888c-cd0a78aebd90.jpg?1782694423"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Nurturing Bristleback
 {
     "name": "Nurturing Bristleback",
@@ -7145,6 +7310,50 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Oaken Siren
+{
+    "name": "Oaken Siren",
+    "manaCost": "{1}{U}",
+    "typeLine": "Artifact Creature — Siren Pirate",
+    "oracleText": "Flying, vigilance\n{T}: Add {U}. Spend this mana only to cast an artifact spell or activate an ability of an artifact source.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING",
+        "VIGILANCE"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE",
+                    "restriction": {
+                        "type": "CardTypeSpellsOrAbilitiesOnly",
+                        "cardType": "ARTIFACT",
+                        "allowAbilities": true
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "artist": "Lars Grant-West",
+        "flavorText": "The ship's carpenter adorned the figurehead with a small cosmium gem, never expecting the figurehead to take flight.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d7731ef5-da74-4436-8ee7-01c065cbefae.jpg?1782694558"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -7338,6 +7547,124 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Out of Air
+{
+    "name": "Out of Air",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "This spell costs {2} less to cast if it targets a creature spell.\nCounter target spell.",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "FixedIfAnyTargetMatches",
+                        "amount": 2,
+                        "filter": "creature"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "69",
+        "artist": "Francisco Miyara",
+        "flavorText": "\"The Core is not a simple trove to be plundered by intruders from the surface. It will reject those who do not accord it respect.\"\n—Akal Pakal, First Steward of Oteclan",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/2/c263db55-fcac-4b49-b626-7c8092accfcd.jpg?1782694555"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Over the Edge
+{
+    "name": "Over the Edge",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one —\n• Destroy target artifact or enchantment.\n• Target creature you control explores, then it explores again. (Reveal the top card of your library. Put that card into your hand if it's a land. Otherwise, put a +1/+1 counter on that creature, then put the card back or put it into your graveyard. Then repeat this process.)",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target artifact or enchantment"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "artifact|enchantment"
+                            },
+                            "id": "target artifact or enchantment"
+                        }
+                    ],
+                    "description": "Destroy target artifact or enchantment"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Explore",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                }
+                            },
+                            {
+                                "type": "Explore",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                }
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            },
+                            "id": "target creature you control"
+                        }
+                    ],
+                    "description": "Target creature you control explores, then it explores again"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "205",
+        "artist": "Ryan Valle",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/3/23dddddb-5409-4c28-bf32-e6473f2cc620.jpg?1782694445"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
