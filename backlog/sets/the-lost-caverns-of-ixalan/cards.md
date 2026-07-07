@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 109 / 286
+**Implemented:** 110 / 286
 - [x] Abrade
 - [ ] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -77,7 +77,7 @@
 - [ ] Defossilize
 - [ ] Diamond Pick-Axe
 - [ ] Didact Echo
-- [ ] Digsite Conservator
+- [x] Digsite Conservator
 - [x] Dinotomaton
 - [ ] Dire Flail
 - [x] Disruptor Wanderglyph
