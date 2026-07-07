@@ -1992,6 +1992,46 @@
     "colorIdentityOverride": []
 }
 
+// Geological Appraiser
+{
+    "name": "Geological Appraiser",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "When this creature enters, if you cast it, discover 3.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Discover",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                "triggerCondition": "WasCast"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "UNCOMMON",
+        "artist": "Alix Branwyn",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f9c1a82-695b-4df2-8e51-2d71a62e7baf.jpg?1782694489"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Ghalta, Stampede Tyrant
 {
     "name": "Ghalta, Stampede Tyrant",

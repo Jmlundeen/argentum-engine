@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 104 / 286
+**Implemented:** 105 / 286
 - [x] Abrade
 - [ ] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -100,7 +100,7 @@
 - [ ] Frilled Cave-Wurm
 - [ ] Fungal Fortitude
 - [ ] Gargantuan Leech
-- [ ] Geological Appraiser
+- [x] Geological Appraiser
 - [ ] Get Lost
 - [x] Ghalta, Stampede Tyrant
 - [x] Gishath, Sun's Avatar
