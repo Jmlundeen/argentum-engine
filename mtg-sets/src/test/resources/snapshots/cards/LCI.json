@@ -1866,6 +1866,57 @@
     ]
 }
 
+// Etali's Favor
+{
+    "name": "Etali's Favor",
+    "manaCost": "{2}{R}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature you control\nWhen this Aura enters, discover 3.\nEnchanted creature gets +1/+1 and has trample.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Discover",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "TRAMPLE"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "artist": "Matt Stewart",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6d4075a8-c15d-4078-bf4b-0f85c03fecec.jpg?1782694490"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Family Reunion
 {
     "name": "Family Reunion",

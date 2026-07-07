@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 106 / 286
+**Implemented:** 107 / 286
 - [x] Abrade
 - [ ] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -91,7 +91,7 @@
 - [ ] Echoing Deeps
 - [x] Enterprising Scallywag
 - [x] Envoy of Okinec Ahau
-- [ ] Etali's Favor
+- [x] Etali's Favor
 - [ ] Explorer's Cache
 - [ ] Fabrication Foundry
 - [x] Family Reunion
