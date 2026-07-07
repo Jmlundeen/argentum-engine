@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 136 / 286
+**Implemented:** 141 / 286
 - [x] Abrade
 - [ ] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -74,19 +74,19 @@
 - [x] Deep-Cavern Bat
 - [x] Deepfathom Echo
 - [ ] Deeproot Pilgrimage
-- [ ] Defossilize
-- [ ] Diamond Pick-Axe
-- [ ] Didact Echo
+- [x] Defossilize
+- [x] Diamond Pick-Axe
+- [x] Didact Echo
 - [x] Digsite Conservator
 - [x] Dinotomaton
 - [ ] Dire Flail
 - [x] Disruptor Wanderglyph
-- [ ] Disturbed Slumber
+- [x] Disturbed Slumber
 - [ ] Dowsing Device
 - [ ] Dreadmaw's Ire
 - [x] Dusk Rose Reliquary
 - [x] Earthshaker Dreadmaw
-- [ ] Eaten by Piranhas
+- [x] Eaten by Piranhas
 - [ ] Echo of Dusk
 - [ ] Echoing Deeps
 - [x] Enterprising Scallywag
