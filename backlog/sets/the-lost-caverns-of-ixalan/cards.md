@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 214 / 286
+**Implemented:** 217 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -242,7 +242,7 @@
 - [x] Subterranean Schooner
 - [ ] Sunbird Standard
 - [ ] Sunfire Torch
-- [ ] Sunken Citadel
+- [x] Sunken Citadel
 - [x] Sunshot Militia
 - [x] Swashbuckler's Whip
 - [x] Synapse Necromage
@@ -251,7 +251,7 @@
 - [x] Tectonic Hazard
 - [x] Tendril of the Mycotyrant
 - [x] Terror Tide
-- [ ] The Ancient One
+- [x] The Ancient One
 - [x] The Belligerent
 - [ ] The Enigma Jewel
 - [ ] The Everflowing Well
@@ -288,4 +288,4 @@
 - [x] Waylaying Pirates
 - [x] Zoetic Glyph
 - [x] Zoyowa Lava-Tongue
-- [ ] Zoyowa's Justice
+- [x] Zoyowa's Justice
