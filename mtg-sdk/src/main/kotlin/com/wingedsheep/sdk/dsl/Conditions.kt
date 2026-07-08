@@ -969,10 +969,20 @@ object Conditions {
      * or removed after the permanent entered.
      */
     fun SourceCounterCountAtLeast(counterType: String, count: Int): ConditionInterface =
+        SourceCounterCountAtLeast(CounterTypeFilter.Named(counterType), count)
+
+    /**
+     * While this permanent has [count] or more counters matching [counterType] on it.
+     *
+     * The [CounterTypeFilter] form of [SourceCounterCountAtLeast]; pass [CounterTypeFilter.Any]
+     * for "N or more counters of any kind" gates (Warden of the Inner Sky's "three or more
+     * counters on it"), which sums every counter kind on the source.
+     */
+    fun SourceCounterCountAtLeast(counterType: CounterTypeFilter, count: Int): ConditionInterface =
         Compare(
             DynamicAmount.EntityProperty(
                 EntityReference.Source,
-                EntityNumericProperty.CounterCount(CounterTypeFilter.Named(counterType))
+                EntityNumericProperty.CounterCount(counterType)
             ),
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(count)
