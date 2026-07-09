@@ -983,6 +983,17 @@ class ManaSolver(
             val combinedColors = mutableSetOf<Color>()
             var producesColorless = false
             var maxManaAmount = 1
+            // Extra mana produced by the SAME tap when one mana ability adds more than one mana of
+            // different kinds via a CompositeEffect — Gruul Turf's "{T}: Add {R}{G}" and Mossfire
+            // Valley's "{1}, {T}: Add {R}{G}" are `AddMana(RED).then(AddMana(GREEN))`. `producesColors`
+            // models a *choice* of one color, so it can't hold "R AND G on one tap"; the additional
+            // leaves are folded into the bonus-mana channel that auras already use (the solver knows
+            // how to spend it — see useSource / spendBonusMana / payColoredPipFromAuraBonus). Without
+            // this the second color is dropped and a spell payable only with it (Grumgully {1}{R}{G})
+            // is wrongly reported unaffordable, so the client never highlights it.
+            var extraBonusColor: Color? = null
+            var extraBonusAmount = 0
+            var extraColorlessBonus = 0
             var anyAbilityHasNoPainCost = false
             var minPainAmount = Int.MAX_VALUE
             // Track which accepted abilities required sacrificing the source (e.g. Treasure).
@@ -1139,6 +1150,30 @@ class ManaSolver(
                 // tapping additional sources to cover them.
                 val effectColors = mutableSetOf<Color>()
                 val manaEffect = manaProducingEffect(ability.effect, state, entityId, playerId)
+                // A single tap that adds several mana of different kinds (Gruul Turf: {R}{G}). The
+                // primary leaf below feeds producesColors/maxManaAmount as usual; the *additional*
+                // fixed-color/colorless leaves have no home in the choice-based producesColors set,
+                // so route them through the bonus-mana channel. Only unconditional AddMana/
+                // AddColorlessMana leaves are folded — anything gated/choice-based stays with the
+                // primary path to avoid over-counting.
+                if (ability.effect is CompositeEffect && manaEffect is AddManaEffect) {
+                    var seenPrimary = false
+                    for (leaf in (ability.effect as CompositeEffect).effects) {
+                        when (leaf) {
+                            is AddManaEffect -> {
+                                if (!seenPrimary && leaf === manaEffect) {
+                                    seenPrimary = true // the primary leaf; handled by the `when` below
+                                } else {
+                                    extraBonusColor = extraBonusColor ?: leaf.color
+                                    extraBonusAmount += (leaf.amount as? DynamicAmount.Fixed)?.amount ?: 1
+                                }
+                            }
+                            is AddColorlessManaEffect ->
+                                extraColorlessBonus += (leaf.amount as? DynamicAmount.Fixed)?.amount ?: 1
+                            else -> {}
+                        }
+                    }
+                }
                 val effectRestriction: ManaRestriction? = when (val effect = manaEffect) {
                     is AddManaEffect -> {
                         combinedColors.add(effect.color)
@@ -1283,6 +1318,16 @@ class ManaSolver(
                     null
                 }
 
+                // A multi-mana composite tap ability contributes its extra colored mana as a
+                // bonus alongside a colored source; if the source is otherwise colorless-only
+                // (never happens for the two real cards, but keep it sound) the extra colored
+                // leaf still needs `producesColors` non-empty so its color is spendable.
+                if (extraBonusColor != null && combinedColors.isEmpty()) {
+                    combinedColors.add(extraBonusColor!!)
+                    extraBonusColor = null
+                    extraBonusAmount = maxOf(0, extraBonusAmount - 1)
+                }
+
                 return@mapNotNull ManaSource(
                     entityId = entityId,
                     name = card.name,
@@ -1296,6 +1341,9 @@ class ManaSolver(
                     painAmount = painAmount,
                     canAttack = canAttack,
                     manaAmount = maxManaAmount,
+                    bonusManaPerTap = extraBonusAmount,
+                    bonusManaColor = extraBonusColor,
+                    bonusManaColorlessPerTap = extraColorlessBonus,
                     restriction = sourceRestriction,
                     colorRiders = perColorRiders.mapValues { (_, v) -> v.toSet() },
                     colorRestrictions = restrictedColors,
