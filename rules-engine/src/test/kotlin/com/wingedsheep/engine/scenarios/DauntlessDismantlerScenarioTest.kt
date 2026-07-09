@@ -6,8 +6,12 @@ import com.wingedsheep.engine.core.NumberChosenResponse
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.lci.cards.DauntlessDismantler
+import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -28,9 +32,39 @@ import io.kotest.matchers.types.shouldBeInstanceOf
  */
 class DauntlessDismantlerScenarioTest : FunSpec({
 
+    // A {0} creature whose ETB creates a predefined Map artifact token (noncreature artifact),
+    // exercising the CreatePredefinedTokenExecutor path — the exact Waterwind Scout repro.
+    val mapMaker = card("Map Maker (test)") {
+        manaCost = "{0}"
+        typeLine = "Creature — Scout"
+        power = 1
+        toughness = 1
+        triggeredAbility {
+            trigger = Triggers.EntersBattlefield
+            effect = Effects.CreateMapToken(1)
+        }
+    }
+
+    // A {0} creature whose ETB creates a 1/1 Artifact Creature — Construct token, exercising the
+    // general CreateTokenExecutor path.
+    val constructMaker = card("Construct Maker (test)") {
+        manaCost = "{0}"
+        typeLine = "Creature — Scout"
+        power = 1
+        toughness = 1
+        triggeredAbility {
+            trigger = Triggers.EntersBattlefield
+            effect = Effects.CreateToken(
+                power = 1, toughness = 1, creatureTypes = setOf("Construct"), artifactToken = true,
+            )
+        }
+    }
+
     fun driver(): GameTestDriver {
         val d = GameTestDriver()
-        d.registerCards(TestCards.all + listOf(DauntlessDismantler))
+        d.registerCards(TestCards.all + listOf(DauntlessDismantler, mapMaker, constructMaker))
+        // CreatePredefinedTokenExecutor looks up the Map token definition by name.
+        d.registerCards(PredefinedTokens.allTokens)
         return d
     }
 
@@ -137,5 +171,75 @@ class DauntlessDismantlerScenarioTest : FunSpec({
 
         // Triskelion (MV 6) was NOT destroyed — it survives X=1.
         d.findPermanent(opp, "Triskelion") shouldNotBe null
+    }
+
+    // -------------------------------------------------------------------------
+    // Replacement applies to TOKENS too — "Artifacts your opponents control enter tapped"
+    // taps artifact tokens an opponent creates, not only cast/played artifacts.
+    // -------------------------------------------------------------------------
+
+    /**
+     * The reported bug: an opponent's Map token (created by Waterwind Scout in play) should enter
+     * tapped while player1's Dauntless Dismantler is on the battlefield. Predefined-token path
+     * (CreatePredefinedTokenExecutor).
+     */
+    test("opponent's created Map artifact token enters tapped (replacement applies to tokens)") {
+        val d = driver()
+        d.initMirrorMatch(deck = Deck.of("Plains" to 40), skipMulligans = true, startingPlayer = 1)
+        d.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val active = d.activePlayer!!               // player2 — will create the token
+        val dismantlerOwner = d.getOpponent(active) // player1 — controls Dismantler
+
+        d.putCreatureOnBattlefield(dismantlerOwner, "Dauntless Dismantler")
+
+        // Player2 casts the {0} maker; its ETB creates a Map token under player2 (an opponent of
+        // Dismantler's controller).
+        val makerId = d.putCardInHand(active, "Map Maker (test)")
+        d.castSpell(active, makerId).isSuccess shouldBe true
+        repeat(12) { if (d.pendingDecision != null) d.autoResolveDecision() else d.bothPass() }
+
+        val map = d.findPermanent(active, "Map")!!
+        d.isTapped(map) shouldBe true
+    }
+
+    /**
+     * The general CreateTokenExecutor path: an opponent's artifact-creature token also enters
+     * tapped under Dauntless Dismantler.
+     */
+    test("opponent's created artifact-creature token enters tapped (general token path)") {
+        val d = driver()
+        d.initMirrorMatch(deck = Deck.of("Plains" to 40), skipMulligans = true, startingPlayer = 1)
+        d.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val active = d.activePlayer!!
+        val dismantlerOwner = d.getOpponent(active)
+
+        d.putCreatureOnBattlefield(dismantlerOwner, "Dauntless Dismantler")
+
+        val makerId = d.putCardInHand(active, "Construct Maker (test)")
+        d.castSpell(active, makerId).isSuccess shouldBe true
+        repeat(12) { if (d.pendingDecision != null) d.autoResolveDecision() else d.bothPass() }
+
+        val construct = d.findPermanent(active, "Construct Token")!!
+        d.isTapped(construct) shouldBe true
+    }
+
+    /**
+     * Opponent-scoped: the Dismantler controller's OWN artifact token enters untapped — the
+     * replacement must not over-apply.
+     */
+    test("controller's own created artifact token does NOT enter tapped (opponent-scoped)") {
+        val d = driver()
+        d.initMirrorMatch(deck = Deck.of("Plains" to 40), skipMulligans = true)
+        d.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        val active = d.activePlayer!!  // player1 — controls Dismantler and makes the token
+
+        d.putCreatureOnBattlefield(active, "Dauntless Dismantler")
+
+        val makerId = d.putCardInHand(active, "Map Maker (test)")
+        d.castSpell(active, makerId).isSuccess shouldBe true
+        repeat(12) { if (d.pendingDecision != null) d.autoResolveDecision() else d.bothPass() }
+
+        val map = d.findPermanent(active, "Map")!!
+        d.isTapped(map) shouldBe false
     }
 })

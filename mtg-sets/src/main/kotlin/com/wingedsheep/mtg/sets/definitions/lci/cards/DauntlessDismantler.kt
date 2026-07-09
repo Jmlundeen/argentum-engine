@@ -27,8 +27,8 @@ import com.wingedsheep.sdk.scripting.PermanentsEnterTapped
  *   chosen X value, so X=1 costs three mana ({1}{1}{W}), X=2 costs five mana ({2}{2}{W}), etc.
  *   The destroy filter uses [CardPredicate.ManaValueEqualsX] so exactly the artifacts at the
  *   paid X value are destroyed — across ALL controllers (oracle says "each artifact", not "each
- *   artifact an opponent controls"). The controller sacrifices this creature as part of the cost
- *   (CR 601.2b), so the Dismantler is gone before the effect resolves.
+ *   artifact an opponent controls"). The controller sacrifices this creature as part of the
+ *   activation cost (CR 602.2b), so the Dismantler is gone before the effect resolves.
  */
 val DauntlessDismantler = card("Dauntless Dismantler") {
     manaCost = "{1}{W}"
