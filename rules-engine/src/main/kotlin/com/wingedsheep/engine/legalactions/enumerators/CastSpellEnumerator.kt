@@ -162,6 +162,8 @@ class CastSpellEnumerator : ActionEnumerator {
             var discardCount = 0
             var bounceTargets = emptyList<EntityId>()
             var bounceCount = 0
+            var tapTargets = emptyList<EntityId>()
+            var tapCount = 0
             var beholdTargets = emptyList<EntityId>()
             var beholdCount = 0
             var blightOrPayCost: AdditionalCost.BlightOrPay? = null
@@ -227,7 +229,23 @@ class CastSpellEnumerator : ActionEnumerator {
                             bounceTargets = validBounceTargets
                             bounceCount = atom.count
                         }
-                        // Mana / tap / reveal aren't produced as spell additional costs today.
+                        is CostAtom.TapPermanents -> {
+                            // "As an additional cost to cast this spell, tap [count] untapped
+                            // [filter] you control" (e.g. Guardian of the Great Door). Mirrors the
+                            // ReturnToHand selection model above — permanents you control, chosen by
+                            // the caster — but the payment taps instead of bouncing. Without this
+                            // case the cost fell through to `else -> {}`, so no `AdditionalCostData`
+                            // reached the client: it couldn't prompt for the tap, yet the cast-time
+                            // validator still rejected the empty payment.
+                            val validTapTargets = context.costUtils.findAbilityTapTargets(state, playerId, atom.filter)
+                                .let { if (atom.excludeSelf) it.filter { id -> id != cardId } else it }
+                            if (validTapTargets.size < atom.count) {
+                                canPayAdditionalCosts = false
+                            }
+                            tapTargets = validTapTargets
+                            tapCount = atom.count
+                        }
+                        // Mana / reveal aren't produced as spell additional costs today.
                         else -> {}
                     }
                     is AdditionalCost.SacrificeCreaturesForCostReduction -> {
@@ -556,6 +574,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 additionalCosts, sacrificeTargets, variableSacrificeTargets,
                 exileTargets, exileMinCount, discardTargets, discardCount,
                 bounceTargets, bounceCount,
+                tapTargets, tapCount,
                 beholdTargets, beholdCount,
                 blightVariableCost, blightVariableCreatures, blightVariableMaxX,
                 payXLifeCost, payXLifeMaxX
@@ -2022,6 +2041,8 @@ class CastSpellEnumerator : ActionEnumerator {
         discardCount: Int,
         bounceTargets: List<EntityId> = emptyList(),
         bounceCount: Int = 0,
+        tapTargets: List<EntityId> = emptyList(),
+        tapCount: Int = 0,
         beholdTargets: List<EntityId> = emptyList(),
         beholdCount: Int = 0,
         blightVariableCost: AdditionalCost.BlightVariable? = null,
@@ -2091,6 +2112,14 @@ class CastSpellEnumerator : ActionEnumerator {
                 costType = "ReturnToHand",
                 validBounceTargets = bounceTargets,
                 bounceCount = bounceCount
+            )
+        } else if (tapTargets.isNotEmpty()) {
+            val tapCostAtom = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.TapPermanents }
+            AdditionalCostData(
+                description = tapCostAtom?.description?.replaceFirstChar { it.uppercase() } ?: "Tap permanents you control",
+                costType = "TapPermanents",
+                validTapTargets = tapTargets,
+                tapCount = tapCount
             )
         } else if (beholdTargets.isNotEmpty()) {
             val flatCosts = additionalCosts.flatMap { if (it is AdditionalCost.Composite) it.steps else listOf(it) }

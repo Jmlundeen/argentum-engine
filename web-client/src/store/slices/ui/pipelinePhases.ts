@@ -405,17 +405,19 @@ export function mergeResult(
           return casualtyCreature ? { ...action, casualtyCreature } : action
         }
         const fieldUpdate =
-          costType === 'DiscardCard'
-            ? { discardedCards: selectedTargets }
-            : costType === 'BouncePermanent'
-              ? { bouncedPermanents: selectedTargets }
-              : costType === 'ExileFromGraveyard'
-                ? { exiledCards: selectedTargets }
-                : costType === 'Behold' || costType === 'ChooseEntity'
-                  ? { beheldCards: selectedTargets }
-                  : costType === 'Blight' || costType === 'BlightVariable'
-                    ? { blightTargets: selectedTargets }
-                    : { sacrificedPermanents: selectedTargets }
+          costType === 'TapPermanents'
+            ? { tappedPermanents: selectedTargets }
+            : costType === 'DiscardCard'
+              ? { discardedCards: selectedTargets }
+              : costType === 'BouncePermanent'
+                ? { bouncedPermanents: selectedTargets }
+                : costType === 'ExileFromGraveyard'
+                  ? { exiledCards: selectedTargets }
+                  : costType === 'Behold' || costType === 'ChooseEntity'
+                    ? { beheldCards: selectedTargets }
+                    : costType === 'Blight' || costType === 'BlightVariable'
+                      ? { blightTargets: selectedTargets }
+                      : { sacrificedPermanents: selectedTargets }
         // Spread the existing additionalCostPayment so prior phases' fields
         // (e.g. `blightAmount` from a preceding BlightVariable phase) survive.
         const additionalCostPayment = {

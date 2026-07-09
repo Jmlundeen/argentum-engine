@@ -10,6 +10,8 @@ import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 
 /**
@@ -68,6 +70,39 @@ class GuardianOfTheGreatDoorScenarioTest : ScenarioTestBase() {
                 }
                 withClue("Guardian of the Great Door has flying") {
                     projector.project(game.state).hasKeyword(guardianId, Keyword.FLYING) shouldBe true
+                }
+            }
+
+            test("legal-action enumeration surfaces TapPermanents cost info so the client can prompt") {
+                // Regression: the cast enumerator dropped TapPermanents through an `else -> {}`
+                // branch, so no AdditionalCostData reached the client. The frontend never asked for
+                // the four taps, submitted an empty payment, and the cast-time validator rejected it
+                // with "You must tap 4 …". The enumerator must expose the tap targets like it does
+                // for sacrifice / return-to-hand additional costs.
+                val game = scenario()
+                    .withPlayers("Player1", "Player2")
+                    .withCardInHand(1, "Guardian of the Great Door")
+                    .withLandsOnBattlefield(1, "Plains", 6)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val spellId = game.state.getHand(game.player1Id).first { id ->
+                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Guardian of the Great Door"
+                }
+                val plains = game.state.getBattlefield(game.player1Id).filter { id ->
+                    game.state.getEntity(id)?.get<CardComponent>()?.name == "Plains"
+                }
+
+                val castInfo = game.getLegalActions(1)
+                    .filter { it.actionType == "CastSpell" }
+                    .single { (it.action as? CastSpell)?.cardId == spellId }
+
+                withClue("Cast must expose TapPermanents cost info with the six untapped Plains as targets") {
+                    val costInfo = castInfo.additionalCostInfo.shouldNotBeNull()
+                    costInfo.costType shouldBe "TapPermanents"
+                    costInfo.tapCount shouldBe 4
+                    costInfo.validTapTargets shouldContainAll plains
                 }
             }
 
