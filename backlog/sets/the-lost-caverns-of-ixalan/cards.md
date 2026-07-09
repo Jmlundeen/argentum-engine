@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 156 / 286
+**Implemented:** 161 / 286
 - [x] Abrade
 - [ ] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -129,16 +129,16 @@
 - [x] Hunter's Blowgun
 - [x] Hurl into History
 - [ ] Idol of the Deep King
-- [ ] In the Presence of Ages
+- [x] In the Presence of Ages
 - [ ] Inti, Seneschal of the Sun
 - [ ] Intrepid Paleontologist
 - [ ] Inverted Iceberg
 - [x] Ironpaw Aspirant
-- [ ] Itzquinth, Firstborn of Gishath
-- [ ] Ixalli's Lorekeeper
+- [x] Itzquinth, Firstborn of Gishath
+- [x] Ixalli's Lorekeeper
 - [ ] Jade Seedstones
-- [ ] Jadelight Spelunker
-- [ ] Join the Dead
+- [x] Jadelight Spelunker
+- [x] Join the Dead
 - [ ] Kaslem's Stonetree
 - [ ] Kellan, Daring Traveler
 - [x] Kinjalli's Dawnrunner

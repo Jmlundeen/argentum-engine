@@ -5997,6 +5997,103 @@
     ]
 }
 
+// In the Presence of Ages
+{
+    "name": "In the Presence of Ages",
+    "manaCost": "{2}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Reveal the top four cards of your library. You may put a creature card and/or a land card from among them into your hand. Put the rest into your graveyard.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    },
+                    "storeAs": "top4"
+                },
+                {
+                    "type": "RevealCollection",
+                    "from": "top4"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "top4",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "creature",
+                    "storeSelected": "chosenCreature",
+                    "storeRemainder": "afterCreature",
+                    "prompt": "You may put a creature card into your hand",
+                    "showAllCards": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "afterCreature",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "land",
+                    "storeSelected": "chosenLand",
+                    "storeRemainder": "rest",
+                    "prompt": "You may put a land card into your hand",
+                    "showAllCards": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "chosenCreature",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "chosenLand",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "192",
+        "artist": "Steve Prescott",
+        "flavorText": "\"Finally, those glowing purple bone-monsters are gone and we can get back to the real excitement: archaeology!\"\n—Quintorius Kand",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/7/97b1be22-3177-49af-bb06-42497d717c21.jpg?1782694455"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Ironpaw Aspirant
 {
     "name": "Ironpaw Aspirant",
@@ -6042,6 +6139,246 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Itzquinth, Firstborn of Gishath
+{
+    "name": "Itzquinth, Firstborn of Gishath",
+    "manaCost": "{R}{G}",
+    "typeLine": "Legendary Creature — Dinosaur",
+    "oracleText": "Haste\nWhen Itzquinth enters, you may pay {2}. When you do, target Dinosaur you control deals damage equal to its power to another target creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{2}"
+                        }
+                    },
+                    "then": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "EntityProperty",
+                            "entity": "Target",
+                            "numericProperty": "Power"
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "another target creature"
+                        },
+                        "damageSource": {
+                            "type": "BoundVariable",
+                            "name": "target Dinosaur you control"
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature Dinosaur ctrl:you"
+                    },
+                    "id": "target Dinosaur you control"
+                },
+                "additionalTargetRequirements": [
+                    {
+                        "type": "TargetOther",
+                        "baseRequirement": {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            }
+                        },
+                        "id": "another target creature"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "230",
+        "rarity": "UNCOMMON",
+        "artist": "Lars Grant-West",
+        "flavorText": "\"Dinosaurs have no concept of royalty, but they recognize the scent of the mightiest among them.\"\n—Atla Palani, nest tender",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/1/7112c366-b36a-4bc8-aa64-6bad16bebc39.jpg?1782694426"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
+// Ixalli's Lorekeeper
+{
+    "name": "Ixalli's Lorekeeper",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Human Druid",
+    "oracleText": "{T}: Add one mana of any color. Spend this mana only to cast a Dinosaur spell or activate an ability of a Dinosaur source.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "restriction": {
+                        "type": "SubtypeSpellsOrAbilitiesOnly",
+                        "subtype": "Dinosaur"
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "194",
+        "rarity": "UNCOMMON",
+        "artist": "Ernanda Souza",
+        "flavorText": "\"Did we follow the dinosaurs out of the caverns, or did they follow us? These glyphs could change our entire understanding of our history.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/b/4bc94ded-458d-4458-9c0b-136d825b885d.jpg?1782694453"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Jadelight Spelunker
+{
+    "name": "Jadelight Spelunker",
+    "manaCost": "{X}{G}",
+    "typeLine": "Creature — Merfolk Scout",
+    "oracleText": "When this creature enters, it explores X times. (To have it explore, reveal the top card of your library. Put that card into your hand if it's a land. Otherwise, put a +1/+1 counter on that creature, then put the card back or put it into your graveyard.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "RepeatDynamicTimes",
+                    "amount": "XValue",
+                    "body": {
+                        "type": "Explore",
+                        "target": "Self"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "196",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "flavorText": "The River Heralds found clues to a grand heritage below Ixalan's surface.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68e633d3-47e2-48c5-9be3-574ce5023bf7.jpg?1782694451"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Join the Dead
+{
+    "name": "Join the Dead",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gets -5/-5 until end of turn.\nDescend 4 — That creature gets -10/-10 until end of turn instead if there are four or more permanent cards in your graveyard.",
+    "script": {
+        "spellEffect": {
+            "type": "Gated",
+            "gate": {
+                "type": "Gate.WhenCondition",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "permanent"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            },
+            "then": {
+                "type": "ModifyStats",
+                "powerModifier": {
+                    "type": "Fixed",
+                    "amount": -10
+                },
+                "toughnessModifier": {
+                    "type": "Fixed",
+                    "amount": -10
+                },
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "target creature"
+                }
+            },
+            "otherwise": {
+                "type": "ModifyStats",
+                "powerModifier": {
+                    "type": "Fixed",
+                    "amount": -5
+                },
+                "toughnessModifier": {
+                    "type": "Fixed",
+                    "amount": -5
+                },
+                "target": {
+                    "type": "BoundVariable",
+                    "name": "target creature"
+                }
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "artist": "Olivier Bernard",
+        "flavorText": "The more creatures that plunge to their deaths in the abyss, the more angry Echoes that arise to drag others down.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/5/b5bf6c25-a7d7-40b6-aa19-f852d348967f.jpg?1782694524"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
