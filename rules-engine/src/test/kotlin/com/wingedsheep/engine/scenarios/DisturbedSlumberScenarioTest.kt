@@ -62,6 +62,38 @@ class DisturbedSlumberScenarioTest : FunSpec({
         projected.hasKeyword(forest, Keyword.HASTE) shouldBe true
     }
 
+    test("animated land must be blocked if able — declining to block is illegal") {
+        val driver = createDriver()
+        driver.initMirrorMatch(
+            deck = Deck.of("Forest" to 40),
+            startingLife = 20
+        )
+
+        val p1 = driver.activePlayer!!
+        val p2 = driver.getOpponent(p1)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        val forest = driver.putLandOnBattlefield(p1, "Forest")
+        driver.putCreatureOnBattlefield(p2, "Grizzly Bears")
+        val spell = driver.putCardInHand(p1, "Disturbed Slumber")
+        driver.giveMana(p1, Color.GREEN, 2)
+
+        driver.castSpell(p1, spell, targets = listOf(forest)).isSuccess shouldBe true
+        driver.bothPass()
+
+        // The animated land has haste, so it can attack the turn it was animated.
+        driver.passPriorityUntil(Step.DECLARE_ATTACKERS)
+        driver.declareAttackers(p1, listOf(forest), p2).isSuccess shouldBe true
+        driver.passPriorityUntil(Step.DECLARE_BLOCKERS)
+
+        // p2 controls a Grizzly Bears that can block, so declaring no blockers is illegal.
+        driver.declareBlockers(p2, emptyMap()).isSuccess shouldBe false
+
+        // Blocking the animated land is legal.
+        val bears = driver.findPermanent(p2, "Grizzly Bears")!!
+        driver.declareBlockers(p2, mapOf(bears to listOf(forest))).isSuccess shouldBe true
+    }
+
     test("animated land reverts to a non-creature land at end of turn") {
         val driver = createDriver()
         driver.initMirrorMatch(
