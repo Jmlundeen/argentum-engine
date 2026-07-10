@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 186 / 286
+**Implemented:** 191 / 286
 - [x] Abrade
 - [ ] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -230,16 +230,16 @@
 - [x] Soulcoil Viper
 - [ ] Souls of the Lost
 - [ ] Sovereign Okinec Ahau
-- [ ] Spelunking
+- [x] Spelunking
 - [ ] Spring-Loaded Sawblades
 - [x] Spyglass Siren
-- [ ] Squirming Emergence
+- [x] Squirming Emergence
 - [x] Staggering Size
-- [ ] Stalactite Stalker
+- [x] Stalactite Stalker
 - [ ] Starving Revenant
 - [x] Staunch Crewmate
-- [ ] Stinging Cave Crawler
-- [ ] Subterranean Schooner
+- [x] Stinging Cave Crawler
+- [x] Subterranean Schooner
 - [ ] Sunbird Standard
 - [ ] Sunfire Torch
 - [ ] Sunken Citadel

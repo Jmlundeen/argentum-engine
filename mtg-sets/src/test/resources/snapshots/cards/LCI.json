@@ -10878,6 +10878,103 @@
     ]
 }
 
+// Spelunking
+{
+    "name": "Spelunking",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, draw a card, then you may put a land card from your hand onto the battlefield. If you put a Cave onto the battlefield this way, you gain 4 life.\nLands you control enter untapped.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand",
+                                        "filter": "land"
+                                    },
+                                    "storeAs": "put_candidates"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "put_candidates",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "putting"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "putting",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    }
+                                },
+                                {
+                                    "type": "ConditionalOnCollection",
+                                    "collection": "putting",
+                                    "ifNotEmpty": {
+                                        "type": "GainLife",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 4
+                                        }
+                                    },
+                                    "filter": "land Cave"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this enchantment enters, draw a card, then you may put a land card from your hand onto the battlefield. If you put a Cave onto the battlefield this way, you gain 4 life."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersUntapped",
+                "appliesTo": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "213",
+        "rarity": "UNCOMMON",
+        "artist": "Ernanda Souza",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/3/d3be4257-2316-4a2e-b347-f71c0368a947.jpg?1782694439"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Spyglass Siren
 {
     "name": "Spyglass Siren",
@@ -10914,6 +11011,59 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Squirming Emergence
+{
+    "name": "Squirming Emergence",
+    "manaCost": "{1}{B}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Fathomless descent — Return to the battlefield target nonland permanent card in your graveyard with mana value less than or equal to the number of permanent cards in your graveyard.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "target nonland permanent card in your graveyard with mana value less than or equal to the number of permanent cards in your graveyard"
+            },
+            "destination": "Battlefield"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsNonland",
+                            "IsPermanent",
+                            {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": {
+                                    "type": "Count",
+                                    "player": "You",
+                                    "zone": "Graveyard",
+                                    "filter": "permanent"
+                                }
+                            }
+                        ],
+                        "controllerPredicate": "OwnedByYou"
+                    },
+                    "zone": "Graveyard"
+                },
+                "id": "target nonland permanent card in your graveyard with mana value less than or equal to the number of permanent cards in your graveyard"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "241",
+        "rarity": "RARE",
+        "artist": "Simon Dominic",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/e/8ee16629-f9be-4cdb-bf52-1d640781ee00.jpg?1782694418"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
     ]
 }
 
@@ -10970,6 +11120,123 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Stalactite Stalker
+{
+    "name": "Stalactite Stalker",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Goblin Rogue",
+    "oracleText": "Menace\nAt the beginning of your end step, if you descended this turn, put a +1/+1 counter on this creature. (You descended if a permanent card was put into your graveyard from anywhere.)\n{2}{B}, Sacrifice this creature: Target creature gets -X/-X until end of turn, where X is this creature's power.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "DESCENDED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{B}"
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Multiply",
+                        "amount": {
+                            "type": "EntityProperty",
+                            "entity": "Source",
+                            "numericProperty": "Power"
+                        },
+                        "multiplier": -1
+                    },
+                    "toughnessModifier": {
+                        "type": "Multiply",
+                        "amount": {
+                            "type": "EntityProperty",
+                            "entity": "Source",
+                            "numericProperty": "Power"
+                        },
+                        "multiplier": -1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "RARE",
+        "artist": "Olivier Bernard",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/3/5319c0b1-de54-492a-bdea-85a5a75d693e.jpg?1782694512",
+        "rulings": [
+            {
+                "date": "2023-11-10",
+                "text": "Some cards refer to a player who has \"descended this turn.\" This means that a permanent card has been put into that player's graveyard from anywhere this turn."
+            },
+            {
+                "date": "2023-11-10",
+                "text": "A permanent card is an artifact, battle, creature, enchantment, land, or planeswalker card. Tokens are not cards, and while tokens are put into the graveyard before ceasing to exist, that action doesn't count as a player having descended."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -11051,6 +11318,133 @@
         "artist": "L.A. Draws",
         "flavorText": "\"Leave you? Not a chance. You still owe me money.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/1/4/143e9845-8a11-4fc4-b116-29a929985146.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Stinging Cave Crawler
+{
+    "name": "Stinging Cave Crawler",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Insect Horror",
+    "oracleText": "Deathtouch\nDescend 4 — Whenever this creature attacks, if there are four or more permanent cards in your graveyard, you draw a card and you lose 1 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEATHTOUCH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "permanent"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "124",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "Caverns uninhabited by mycoids are often infested with worse.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/a/6a230208-84ae-4f48-afbd-a0d50596ad27.jpg?1782694510"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Subterranean Schooner
+{
+    "name": "Subterranean Schooner",
+    "manaCost": "{1}{U}",
+    "typeLine": "Artifact — Vehicle",
+    "oracleText": "Whenever this Vehicle attacks, target creature that crewed it this turn explores. (Reveal the top card of your library. Put that card into your hand if it's a land. Otherwise, put a +1/+1 counter on that creature, then put the card back or put it into your graveyard.)\nCrew 1",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "CREW"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "CREW",
+            "n": 1
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Explore",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature that crewed it this turn"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature"
+                            ],
+                            "statePredicates": [
+                                "CrewedOrSaddledSourceThisTurn"
+                            ]
+                        }
+                    },
+                    "id": "target creature that crewed it this turn"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "rarity": "RARE",
+        "artist": "Svetlin Velinov",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/4/94b6881a-b00e-4e90-92e6-602ed8e0e090.jpg?1782694545"
     },
     "colorIdentityOverride": [
         "BLUE"
