@@ -1,9 +1,11 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.core.Zone
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 
@@ -21,8 +23,11 @@ import io.kotest.matchers.shouldBe
  * Aura can enchant a (non-creature) Vehicle, the penalty must land on any attached permanent,
  * not just creatures.
  *
- * The optional self-mill ETB reuses the proven `Patterns.Library.mill(2)` with `optional = true`
- * (same shape as Mineshaft Spider / Deathcap Marionette) and isn't re-exercised here.
+ * The self-mill ETB is `Patterns.Library.mill(2)` with `optional = true` (same shape as
+ * Mineshaft Spider / Deathcap Marionette). The mill tests below are the regression net for the
+ * TriggerProcessor bug where a no-target optional trigger with no `elseEffect` dropped the
+ * `optional` flag and resolved as mandatory — the player must get a yes/no and a "no" must
+ * skip the mill.
  */
 class SongOfStupefactionScenarioTest : ScenarioTestBase() {
 
@@ -78,6 +83,64 @@ class SongOfStupefactionScenarioTest : ScenarioTestBase() {
                 withClue("Only the Forest counts -> -1/-0, so 2/2 becomes 1/2") {
                     game.state.projectedState.getPower(bears) shouldBe 1
                     game.state.projectedState.getToughness(bears) shouldBe 2
+                }
+            }
+
+            test("ETB mill is optional — accepting the prompt mills two cards") {
+                val game = scenario()
+                    .withPlayers("P1", "P2")
+                    .withCardInHand(1, "Song of Stupefaction")
+                    .withLandsOnBattlefield(1, "Island", 2)
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(1, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val bears = game.findPermanent("Grizzly Bears")!!
+                game.castSpell(1, "Song of Stupefaction", targetId = bears).error shouldBe null
+                game.resolveStack()
+
+                withClue("the optional mill must pause on a yes/no prompt, not mill unasked") {
+                    (game.state.pendingDecision != null) shouldBe true
+                    game.state.getZone(ZoneKey(game.player1Id, Zone.GRAVEYARD)).size shouldBe 0
+                }
+
+                game.answerYesNo(true)
+
+                withClue("accepting mills the top two cards") {
+                    game.state.getZone(ZoneKey(game.player1Id, Zone.GRAVEYARD)).size shouldBe 2
+                    game.state.getZone(ZoneKey(game.player1Id, Zone.LIBRARY)).size shouldBe 1
+                }
+            }
+
+            test("ETB mill is optional — declining the prompt mills nothing") {
+                val game = scenario()
+                    .withPlayers("P1", "P2")
+                    .withCardInHand(1, "Song of Stupefaction")
+                    .withLandsOnBattlefield(1, "Island", 2)
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardInLibrary(1, "Forest")
+                    .withCardInLibrary(1, "Forest")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+
+                val bears = game.findPermanent("Grizzly Bears")!!
+                game.castSpell(1, "Song of Stupefaction", targetId = bears).error shouldBe null
+                game.resolveStack()
+
+                withClue("the optional mill must pause on a yes/no prompt") {
+                    (game.state.pendingDecision != null) shouldBe true
+                }
+
+                game.answerYesNo(false)
+
+                withClue("declining leaves the library untouched") {
+                    game.state.getZone(ZoneKey(game.player1Id, Zone.GRAVEYARD)).size shouldBe 0
+                    game.state.getZone(ZoneKey(game.player1Id, Zone.LIBRARY)).size shouldBe 2
                 }
             }
 

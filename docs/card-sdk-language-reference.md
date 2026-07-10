@@ -2584,12 +2584,15 @@ that is **not** cleared at end of turn (it lives on the entity, so re-entering t
 new object — a distinct game object — triggers afresh). Both caps share one detection-time filter and
 collapse simultaneous fires of the same `(source, ability)` to a single instance.
 
-**`optional` + `elseEffect` = "you may [effect]. If you don't, [elseEffect]."** For a **targeted**
-trigger, `optional` lets the player choose 0 targets to decline, and `elseEffect` runs on decline or
-when no legal targets exist (Entrails Feaster: "you may exile a creature card from a graveyard … if
-you don't, tap this"). For a **no-target** trigger the same pair lowers to a
+**`optional` = "you may [effect]"; `elseEffect` adds "If you don't, [elseEffect]."** For a
+**targeted** trigger, `optional` lets the player choose 0 targets to decline, and `elseEffect` runs
+on decline or when no legal targets exist (Entrails Feaster: "you may exile a creature card from a
+graveyard … if you don't, tap this"). A **no-target** optional trigger lowers to a
 `GatedEffect(Gate.MayDecide, then = effect, otherwise = elseEffect)` resolved by the unified gated
-executor — a resolution-time yes/no whose "no" runs `elseEffect`. The may-action's feasibility is
+executor — a resolution-time yes/no whose "no" runs `elseEffect` (or nothing when there is none,
+e.g. Song of Stupefaction's "you may mill two cards"); the wrap is skipped when `effect` already
+carries its own consent gate (a `May*`-gated `GatedEffect`), so an authored `Effects.May` never
+double-prompts. The may-action's feasibility is
 derived from `effect` (a `SacrificeEffect` needs the controller to control a matching permanent), so
 an impossible "may" skips the prompt and runs `elseEffect` directly — the no-target analogue of "no
 legal targets → else" (Yawgmoth Demon: "you may sacrifice an artifact. If you don't, tap this

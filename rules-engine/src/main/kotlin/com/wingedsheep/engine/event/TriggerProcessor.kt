@@ -297,19 +297,24 @@ class TriggerProcessor(
             return processTargetedTrigger(currentState, trigger, targetRequirement)
         }
 
-        // A no-target "you may X. If you don't, Y" (optional + elseEffect) has no target-selection
-        // step to carry the decline through, so the targeted path's may/else handling never runs and
-        // both fields were silently dropped (the latent bug that made Yawgmoth Demon do nothing).
-        // Lower it into the unified GatedEffect(Gate.MayDecide) frame so GatedEffectExecutor owns the
-        // resolution-time yes/no and runs `elseEffect` on decline. Feasibility derived from the
-        // may-action lets an impossible "may" (e.g. "you may sacrifice an artifact" with no artifact)
-        // fall straight to the else with no prompt — the no-target analogue of "no legal targets → else".
-        val elseEffect = ability.elseEffect
-        if (ability.optional && elseEffect != null) {
+        // A no-target optional trigger has no target-selection step to carry the decline through,
+        // so the targeted path's may handling never runs and `optional` (plus any `elseEffect`)
+        // was silently dropped — the trigger resolved as mandatory (the latent bug that made
+        // Yawgmoth Demon do nothing and Song of Stupefaction mill without asking). Lower it into
+        // the unified GatedEffect(Gate.MayDecide) frame so GatedEffectExecutor owns the
+        // resolution-time yes/no and runs `elseEffect` (if any) on decline. Skip the wrap when the
+        // effect already carries its own consent gate (a May* GatedEffect, e.g. `Effects.May` or
+        // an optional mana payment) — double-wrapping would prompt twice. Feasibility derived from
+        // the may-action lets an impossible "may" (e.g. "you may sacrifice an artifact" with no
+        // artifact) fall straight to the else with no prompt — the no-target analogue of
+        // "no legal targets → else".
+        val effectOwnsConsent = (ability.effect as? GatedEffect)?.gate
+            .let { it is Gate.MayDecide || it is Gate.MayPay || it is Gate.MayPayX }
+        if (ability.optional && !effectOwnsConsent) {
             val gated = GatedEffect(
                 gate = Gate.MayDecide(feasibility = impliedMayFeasibility(ability.effect)),
                 then = ability.effect,
-                otherwise = elseEffect
+                otherwise = ability.elseEffect
             )
             return putTriggerOnStack(currentState, trigger, emptyList(), gated)
         }
