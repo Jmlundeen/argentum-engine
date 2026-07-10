@@ -2,9 +2,9 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 206 / 286
+**Implemented:** 211 / 286
 - [x] Abrade
-- [ ] Abuelo's Awakening
+- [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
 - [x] Abyssal Gorestalker
 - [ ] Aclazotz, Deepest Betrayal
@@ -278,14 +278,14 @@
 - [ ] Visage of Dread
 - [x] Vito's Inquisitor
 - [x] Vito, Fanatic of Aclazotz
-- [ ] Volatile Fault
+- [x] Volatile Fault
 - [x] Volatile Wanderglyph
-- [ ] Wail of the Forgotten
+- [x] Wail of the Forgotten
 - [x] Walk with the Ancestors
-- [ ] Warden of the Inner Sky
+- [x] Warden of the Inner Sky
 - [ ] Waterlogged Hulk
 - [x] Waterwind Scout
 - [x] Waylaying Pirates
 - [x] Zoetic Glyph
-- [ ] Zoyowa Lava-Tongue
+- [x] Zoyowa Lava-Tongue
 - [ ] Zoyowa's Justice

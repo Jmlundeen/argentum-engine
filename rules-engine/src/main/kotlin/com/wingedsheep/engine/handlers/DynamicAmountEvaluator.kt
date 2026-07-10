@@ -1030,10 +1030,8 @@ class DynamicAmountEvaluator(
                     spell.manaSpentRed + spell.manaSpentGreen + spell.manaSpentColorless
             }
 
-            is EntityNumericProperty.CounterCount -> {
-                val countersComponent = state.getEntity(entityId)?.get<CountersComponent>() ?: return 0
-                countersComponent.getCount(resolveCounterType(property.counterType))
-            }
+            is EntityNumericProperty.CounterCount ->
+                counterCountOf(state, entityId, property.counterType)
 
             is EntityNumericProperty.AttachmentCount -> {
                 val attachedIds = state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds ?: emptyList()
