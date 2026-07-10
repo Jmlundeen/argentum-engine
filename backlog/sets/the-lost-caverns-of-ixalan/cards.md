@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 161 / 286
+**Implemented:** 166 / 286
 - [x] Abrade
 - [ ] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -150,7 +150,7 @@
 - [ ] Malamet Battle Glyph
 - [x] Malamet Brawler
 - [x] Malamet Scythe
-- [ ] Malamet Veteran
+- [x] Malamet Veteran
 - [x] Malamet War Scribe
 - [x] Malcolm, Alluring Scoundrel
 - [ ] Malicious Eclipse
@@ -164,10 +164,10 @@
 - [x] Miner's Guidewing
 - [x] Mineshaft Spider
 - [x] Mischievous Pup
-- [ ] Molten Collapse
+- [x] Molten Collapse
 - [ ] Nicanzil, Current Conductor
 - [x] Nurturing Bristleback
-- [ ] Oaken Siren
+- [x] Oaken Siren
 - [ ] Ojer Axonil, Deepest Might
 - [ ] Ojer Kaslem, Deepest Growth
 - [ ] Ojer Pakpatiq, Deepest Epoch
@@ -176,8 +176,8 @@
 - [x] Oltec Cloud Guard
 - [x] Orazca Puzzle-Door
 - [ ] Oteclan Landmark
-- [ ] Out of Air
-- [ ] Over the Edge
+- [x] Out of Air
+- [x] Over the Edge
 - [x] Palani's Hatcher
 - [x] Panicked Altisaur
 - [x] Pathfinding Axejaw
