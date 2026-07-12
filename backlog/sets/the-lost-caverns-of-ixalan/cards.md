@@ -139,7 +139,7 @@
 - [ ] Jade Seedstones
 - [x] Jadelight Spelunker
 - [x] Join the Dead
-- [ ] Kaslem's Stonetree
+- [x] Kaslem's Stonetree
 - [ ] Kellan, Daring Traveler
 - [x] Kinjalli's Dawnrunner
 - [ ] Kitesail Larcenist

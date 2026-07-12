@@ -7021,6 +7021,130 @@
     ]
 }
 
+// Kaslem's Stonetree
+{
+    "name": "Kaslem's Stonetree",
+    "manaCost": "{2}{G}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, look at the top six cards of your library. You may put a land card from among them onto the battlefield tapped. Put the rest on the bottom in a random order.\nCraft with Cave {5}{G} ({5}{G}, Exile this artifact, Exile a Cave you control or a Cave card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 6
+                                }
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "looked",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "land",
+                            "storeSelected": "kept",
+                            "storeRemainder": "rest",
+                            "prompt": "You may put a land card onto the battlefield tapped",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "kept",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "rest",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{5}{G}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "Cave",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with Cave — {5}{G}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Kaslem's Strider",
+        "manaCost": "",
+        "typeLine": "Artifact Creature — Golem",
+        "creatureStats": {
+            "power": 5,
+            "toughness": 5
+        },
+        "metadata": {
+            "collectorNumber": "197",
+            "artist": "Victor Adame Minguez",
+            "flavorText": "The Oltec long ago abandoned the caverns to the mycoids, but the Deep Gods still keep watch over the spore-strewn darkness.",
+            "imageUri": "https://cards.scryfall.io/normal/back/7/8/78b1b412-228a-4e05-a4b3-8159ebf54dc6.jpg?1782694451"
+        },
+        "colorIdentityOverride": [
+            "GREEN"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "197",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/78b1b412-228a-4e05-a4b3-8159ebf54dc6.jpg?1782694451"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Kinjalli's Dawnrunner
 {
     "name": "Kinjalli's Dawnrunner",
