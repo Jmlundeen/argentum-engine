@@ -231,7 +231,7 @@
 - [ ] Souls of the Lost
 - [ ] Sovereign Okinec Ahau
 - [x] Spelunking
-- [ ] Spring-Loaded Sawblades
+- [x] Spring-Loaded Sawblades
 - [x] Spyglass Siren
 - [x] Squirming Emergence
 - [x] Staggering Size

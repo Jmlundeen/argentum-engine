@@ -11934,6 +11934,138 @@
     ]
 }
 
+// Spring-Loaded Sawblades
+{
+    "name": "Spring-Loaded Sawblades",
+    "manaCost": "{1}{W}",
+    "typeLine": "Artifact",
+    "oracleText": "Flash\nWhen this artifact enters, it deals 5 damage to target tapped creature an opponent controls.\nCraft with artifact {3}{W} ({3}{W}, Exile this artifact, Exile another artifact you control or an artifact card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "FLASH",
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target tapped creature an opponent controls"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature tapped ctrl:opponent"
+                    },
+                    "id": "target tapped creature an opponent controls"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{W}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "artifact",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with artifact — {3}{W}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Bladewheel Chariot",
+        "manaCost": "",
+        "typeLine": "Artifact — Vehicle",
+        "oracleText": "Tap two other untapped artifacts you control: This Vehicle becomes an artifact creature until end of turn.\nCrew 1 (Tap any number of creatures you control with total power 1 or more: This Vehicle becomes an artifact creature until end of turn.)",
+        "creatureStats": {
+            "power": 5,
+            "toughness": 5
+        },
+        "keywords": [
+            "CREW"
+        ],
+        "keywordAbilities": [
+            {
+                "type": "Numeric",
+                "keyword": "CREW",
+                "n": 1
+            }
+        ],
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_3",
+                    "cost": {
+                        "type": "CostAtomWrapper",
+                        "atom": {
+                            "type": "AtomTapPermanents",
+                            "count": 2,
+                            "filter": "artifact",
+                            "excludeSelf": true
+                        }
+                    },
+                    "effect": {
+                        "type": "BecomeCreature",
+                        "power": {
+                            "type": "Fixed",
+                            "amount": 5
+                        },
+                        "toughness": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    },
+                    "descriptionOverride": "Tap two other untapped artifacts you control: This Vehicle becomes an artifact creature until end of turn."
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "36",
+            "rarity": "UNCOMMON",
+            "artist": "Wayne Reynolds",
+            "imageUri": "https://cards.scryfall.io/normal/back/2/4/24417388-f2bb-4783-bdce-264774531838.jpg?1782694581"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "36",
+        "rarity": "UNCOMMON",
+        "artist": "Wayne Reynolds",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/4/24417388-f2bb-4783-bdce-264774531838.jpg?1782694581"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Spyglass Siren
 {
     "name": "Spyglass Siren",
