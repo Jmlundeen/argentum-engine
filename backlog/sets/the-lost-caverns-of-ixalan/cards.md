@@ -128,7 +128,7 @@
 - [x] Hulking Raptor
 - [x] Hunter's Blowgun
 - [x] Hurl into History
-- [ ] Idol of the Deep King
+- [x] Idol of the Deep King
 - [x] In the Presence of Ages
 - [x] Inti, Seneschal of the Sun
 - [ ] Intrepid Paleontologist
