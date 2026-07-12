@@ -8113,6 +8113,121 @@
     ]
 }
 
+// Oteclan Landmark
+{
+    "name": "Oteclan Landmark",
+    "manaCost": "{W}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, scry 2.\nCraft with artifact {2}{W} ({2}{W}, Exile this artifact, Exile another artifact you control or an artifact card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Scry",
+                    "count": 2
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{W}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "artifact",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with artifact — {2}{W}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Oteclan Levitator",
+        "manaCost": "",
+        "typeLine": "Artifact Creature — Golem",
+        "oracleText": "Flying\nWhenever this creature attacks, target attacking creature without flying gains flying until end of turn.",
+        "creatureStats": {
+            "power": 1,
+            "toughness": 4
+        },
+        "keywords": [
+            "FLYING"
+        ],
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": "AttackEvent",
+                    "effect": {
+                        "type": "GrantKeyword",
+                        "keyword": "FLYING",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "attacking creature without flying"
+                        }
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    {
+                                        "type": "NotKeyword",
+                                        "keyword": "FLYING"
+                                    }
+                                ],
+                                "statePredicates": [
+                                    "IsAttacking"
+                                ]
+                            }
+                        },
+                        "id": "attacking creature without flying"
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "29",
+            "artist": "Warren Mahy",
+            "flavorText": "Dusk Legion invaders sought lone Oltec travelers to prey upon. The Core's guidestones did not approve.",
+            "imageUri": "https://cards.scryfall.io/normal/back/0/9/099a1d1c-72ba-468e-9385-8f93e1fce001.jpg?1782694588"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "29",
+        "artist": "Warren Mahy",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/9/099a1d1c-72ba-468e-9385-8f93e1fce001.jpg?1782694588"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Out of Air
 {
     "name": "Out of Air",

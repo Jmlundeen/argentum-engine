@@ -175,7 +175,7 @@
 - [x] Oltec Archaeologists
 - [x] Oltec Cloud Guard
 - [x] Orazca Puzzle-Door
-- [ ] Oteclan Landmark
+- [x] Oteclan Landmark
 - [x] Out of Air
 - [x] Over the Edge
 - [x] Palani's Hatcher
