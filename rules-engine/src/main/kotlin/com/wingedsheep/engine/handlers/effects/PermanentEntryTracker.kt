@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers.effects
 
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.BattlefieldEntryTimestampComponent
 import com.wingedsheep.engine.state.components.player.EnteredPermanentRecord
 import com.wingedsheep.engine.state.components.player.LandsEnteredUnderControlThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PermanentTypesEnteredBattlefieldThisTurnComponent
@@ -43,10 +44,19 @@ object PermanentEntryTracker {
      * battlefield with its identity components in place).
      */
     fun record(state: GameState, controllerId: EntityId, entityId: EntityId): GameState {
-        val cardTypes = projectedCardTypes(state, entityId)
-        if (cardTypes.isEmpty()) return state
-        val subtypes = state.projectedState.getSubtypes(entityId)
-        return state.updateEntity(controllerId) { container ->
+        // Object-identity stamp (CR 400.7): every battlefield entry funnels through here, so
+        // this is where the entering permanent gets its entry timestamp. Delayed triggers that
+        // track a specific permanent (CR 603.7c) snapshot this value and compare it at
+        // resolution — a mismatch means the entity left and re-entered as a new object.
+        // Distinct entries always differ: the global timestamp ticks at the end of every
+        // resolution, and an entry and re-entry can never share one resolution.
+        val stamped = state.updateEntity(entityId) { container ->
+            container.with(BattlefieldEntryTimestampComponent(state.timestamp))
+        }
+        val cardTypes = projectedCardTypes(stamped, entityId)
+        if (cardTypes.isEmpty()) return stamped
+        val subtypes = stamped.projectedState.getSubtypes(entityId)
+        return stamped.updateEntity(controllerId) { container ->
             val typeMerged = run {
                 val existing = container.get<PermanentTypesEnteredBattlefieldThisTurnComponent>()
                     ?: PermanentTypesEnteredBattlefieldThisTurnComponent()

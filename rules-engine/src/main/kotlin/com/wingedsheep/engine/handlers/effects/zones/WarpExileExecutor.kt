@@ -46,6 +46,20 @@ class WarpExileExecutor : EffectExecutor<WarpExileEffect> {
         // Only exile if the permanent is still on the battlefield
         if (targetId !in state.getBattlefield()) return EffectResult.success(state)
 
+        // CR 603.7c: the delayed trigger tracks the specific object that was warped in. Entity
+        // ids survive zone round-trips in this engine, so a permanent that left the battlefield
+        // and returned (blink) is still findable by id — but it's a new object (CR 400.7) the
+        // trigger must not exile. Detect that via the battlefield-entry timestamp snapshotted
+        // when the trigger was created.
+        if (effect.enteredBattlefieldTimestamp != null) {
+            val currentEntry = container
+                .get<com.wingedsheep.engine.state.components.battlefield.BattlefieldEntryTimestampComponent>()
+                ?.timestamp
+            if (currentEntry != effect.enteredBattlefieldTimestamp) {
+                return EffectResult.success(state)
+            }
+        }
+
         // Use ZoneTransitionService for proper cleanup (strip battlefield components, etc.)
         val transitionResult = ZoneTransitionService.moveToZone(
             state = state,

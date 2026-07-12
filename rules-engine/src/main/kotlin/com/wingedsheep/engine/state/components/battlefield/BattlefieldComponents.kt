@@ -440,6 +440,20 @@ data class TimestampComponent(
 ) : Component
 
 /**
+ * The value of [com.wingedsheep.engine.state.GameState.timestamp] when this permanent
+ * entered the battlefield. Identifies the battlefield *object* (CR 400.7): entity ids
+ * survive zone round-trips in this engine, so a delayed trigger that tracks a specific
+ * permanent (CR 603.7c — e.g. warp's "exile it at the beginning of the next end step")
+ * compares this stamp to detect that the entity left and returned as a new object.
+ * Stamped by [com.wingedsheep.engine.handlers.effects.PermanentEntryTracker.record] on
+ * every battlefield entry; stripped on leave.
+ */
+@Serializable
+data class BattlefieldEntryTimestampComponent(
+    val timestamp: Long
+) : Component
+
+/**
  * Tracks which activated abilities have been activated this turn.
  * Used for "Activate only once each turn" restrictions and planeswalker loyalty abilities (Rule 606.3).
  * Cleared at end of turn by TurnManager.
