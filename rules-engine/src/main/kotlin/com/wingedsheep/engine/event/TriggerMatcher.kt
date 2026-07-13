@@ -493,6 +493,20 @@ class TriggerMatcher(
                     matchesPlayer(trigger.player, event.playerId, controllerId)
                 else -> false
             }
+            is EventPattern.ExploitedEvent -> {
+                if (event !is com.wingedsheep.engine.core.ExploitedEvent) return false
+                // SELF: the exploiter is this permanent (a creature's own "when it exploits" payoff —
+                // though the DSL bakes those into the reflexive, so watchers are the common case).
+                // OTHER: any exploiter but this permanent. ANY: no restriction.
+                if (binding == TriggerBinding.SELF && event.exploiterId != sourceId) return false
+                if (binding == TriggerBinding.OTHER && event.exploiterId == sourceId) return false
+                // "a creature you control exploits ..." scopes on the EXPLOITER's controller.
+                if (!matchesPlayer(trigger.player, event.exploiterControllerId, controllerId)) return false
+                // "exploits a NONTOKEN creature" (Skull Skaab): reject when the sacrificed
+                // permanent was a token (last-known info captured before the zone change).
+                if (trigger.requireNontokenExploited && event.sacrificedWasToken) return false
+                true
+            }
             is EventPattern.BendPerformedEvent -> {
                 event is com.wingedsheep.engine.core.BendPerformedEvent &&
                     event.bendType in trigger.types &&
