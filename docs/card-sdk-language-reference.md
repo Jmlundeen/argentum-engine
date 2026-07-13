@@ -3289,6 +3289,17 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   multiplicity switch on `PermanentsSacrificedEvent` — combine it with `binding = ANY` for the "whenever you
   sacrifice **a** permanent" wording that also counts the source itself.
 - `Sacrificed` — source is sacrificed.
+- `EventPattern.ExploitedEvent(player = Player.You, requireNontokenExploited = false)` — "whenever a creature you control
+  exploits a creature" (CR 702.110b; the sacrifice half of the Exploit keyword). Fires once per exploited creature; the
+  `exploit()` helper appends `EmitExploitedEventEffect` after the exploit sacrifice, so declining the optional sacrifice
+  emits nothing. The **exploiter** identity is selected by the ability's `TriggerBinding` against the event's exploiter:
+  `SELF` = "when **this** creature exploits" (rarely needed — cards bake their self-payoff into the exploit reflexive so
+  it survives self-sacrifice), `ANY` = "whenever **a creature you control** exploits" (Skull Skaab — includes the source's
+  own exploit), `OTHER` = "whenever **another** creature you control exploits". `player` scopes the exploiter's
+  *controller*. `requireNontokenExploited = true` gates on the sacrificed creature being a **nontoken** (Skull Skaab's
+  "exploits a nontoken creature") — a boolean rather than a full `GameObjectFilter` because the exploited creature is
+  gone by the time the event is observed, so only its last-known token-ness (`GameEvent.ExploitedEvent.sacrificedWasToken`,
+  snapshotted before the zone change) is available. See the `Exploit` keyword entry for full wiring.
 - `PlusOneCountersPlacedOnYourCreature` — Hardened Scales shape (+1/+1 only).
 - `countersPlacedOn(filter = Creature.youControl(), counterType = Counters.ANY, firstTimeEachTurn = true, binding = ANY, placedBy = null)`
   — fires when counters of any type (`Counters.ANY` wildcard) land on a matching permanent;
@@ -4411,7 +4422,7 @@ Flying, Menace, Intimidate, Fear, Shadow, Horsemanship, all basic landwalks (Pla
 `LandwalkRule` checks `typeLine.isLand && !isBasicLand`; Trailblazer's Boots), First Strike, Double
 Strike, Trample, Deathtouch, Lifelink, Vigilance, Reach, Provoke, Defender, Indestructible, Hexproof, Shroud, Haste,
 Flash, Prowess, Flurry, Changeling, Convoke, Delve, Affinity, Storm, Flashback, Harmonize, Evoke, Sneak, Ninjutsu, Impending, Conspire, Casualty, Miracle, Hideaway, Cascade, Plot,
-Offspring, Persist, Enduring, Ascend, Wither, Toxic, Eerie, Vivid, Fateful Bite, … (display-only — engine effect lives in handlers or
+Offspring, Persist, Enduring, Ascend, Wither, Toxic, Eerie, Vivid, Fateful Bite, Exploit, … (display-only — engine effect lives in handlers or
 composite abilities).
 
 **Parameterized `KeywordAbility.*`**
@@ -4627,6 +4638,33 @@ composite abilities).
   counter directly: `StateProjector` projects the `DECAYED` keyword + `cantBlock = true`, and `TriggerDetector`
   schedules the end-of-combat self-sacrifice when a decayed-countered creature is declared as an attacker — no
   per-card static/trigger needed for the counter form.
+- `Exploit` — "Exploit (When this creature enters, you may sacrifice a creature.)" (CR 702.110, Dragons of Tarkir;
+  reprinted MH1/MH2/VOW/PIP/MH3). Display-only keyword; wire the behavior with the `card { exploit(onExploit, onExploitTargets) }`
+  builder helper. It adds the keyword plus one `EntersBattlefield` triggered ability whose effect is a
+  `ReflexiveTriggerEffect(optional = true)`:
+  - **action** = `CompositeEffect(SacrificeEffect(GameObjectFilter.Creature, count = 1), EmitExploitedEventEffect)` — an
+    optional "you may sacrifice a creature" (any one creature the controller owns, **including this creature itself** —
+    CR 701.17a scopes sacrifice to the controller, and there is no self-exclusion), immediately followed by
+    `EmitExploitedEventEffect`, which fires an observable `EventPattern.ExploitedEvent` (CR 702.110b). Declining the
+    optional sacrifice sacrifices nothing, so no `ExploitedEvent` is emitted and no payoff fires (satisfies CR 702.110a's "may").
+  - **reflexiveEffect** = the self-bound "when this creature exploits a creature, …" payoff (`onExploit`), or a no-op
+    `CompositeEffect(emptyList())` when `onExploit = null`. Prefer baking a *self-bound* payoff into the reflexive
+    (established while the source is on the battlefield, run "when you do") rather than a separate SELF-bound
+    `ExploitedEvent` trigger: the reflexive path needs no gone-source detection, whereas a SELF-bound `ExploitedEvent`
+    watcher would rely on the sacrifice look-back below.
+  - `onExploitTargets` supplies `reflexiveTargetRequirements` for a **targeted** payoff (Fell Stinger's "target player
+    draws two cards and loses 2 life"), chosen *after* the sacrifice resolves.
+  Examples: Stitched Assistant `exploit(onExploit = scry(1) then draw(1))` (untargeted self-payoff); Fell Stinger
+  `exploit(onExploit = <target player draws 2, loses 2>, onExploitTargets = listOf(Targets.Player))`; Skull Skaab
+  `exploit()` (no self-payoff) **plus** a hand-written broadcast watcher `triggeredAbility { trigger =
+  EventPattern.ExploitedEvent(player = Player.You, requireNontokenExploited = true); effect = <create a 2/2 black Zombie> }`.
+  **Self-exploit look-back (CR 603.10a):** sacrifice triggers "look back in time", so an exploiter's own
+  `ExploitedEvent` watcher (SELF or ANY binding — e.g. Skull Skaab exploiting itself) still fires even though the
+  exploiter is in the graveyard when the event resolves. `TriggerDetector.detectExploitedSelfSacrificeTriggers` supplies
+  this pass by resolving the gone exploiter's last-known abilities from `event.exploiterId`; the main battlefield index
+  scan handles the exploiter-still-present case, and a battlefield-presence guard keeps the two from double-firing.
+  `EmitExploitedEventEffect` is an internal `data object` (no player-facing text) and should not be used directly — it is
+  wired into `exploit()`. See `EventPattern.ExploitedEvent` under Sacrifice triggers for the watcher form.
 - `Job select` — "Job select (When this Equipment enters, create a 1/1 colorless Hero creature token, then attach
   this to it.)" (Final Fantasy). Equipment keyword; display-only. Wire it with the `card { jobSelect() }` builder
   helper, which adds the keyword plus an `EntersBattlefield` triggered ability composing two existing primitives

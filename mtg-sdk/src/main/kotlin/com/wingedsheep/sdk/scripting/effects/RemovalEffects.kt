@@ -175,6 +175,28 @@ data class SacrificeTargetEffect(
 }
 
 /**
+ * Emit an `ExploitedEvent` (CR 702.110b) for each creature the source just sacrificed as its exploit
+ * ability resolved. Appended internally by [com.wingedsheep.sdk.dsl.exploit] immediately after the
+ * exploit [SacrificeEffect] inside the reflexive's action, so `ExploitedEvent` triggers
+ * ([com.wingedsheep.sdk.scripting.EventPattern.ExploitedEvent], e.g. Skull Skaab) fire once per
+ * exploited creature.
+ *
+ * There is no explicit input field: the executor reads the sacrificed creatures' last-known info
+ * (id, name, token-ness) from `EffectContext.sacrificedPermanents`, which the composite executor
+ * threads in from the preceding [SacrificeEffect]. When the optional sacrifice is *declined*, no
+ * creature was sacrificed, so `sacrificedPermanents` is empty and no event is emitted (satisfying
+ * CR 702.110a's "may"). The exploiter is always the ability's source.
+ *
+ * Card authors should not use this directly; it is wired into the `exploit()` helper.
+ */
+@SerialName("EmitExploitedEvent")
+@Serializable
+data object EmitExploitedEventEffect : Effect {
+    // Intentionally blank: this is an internal reflexive-action tail with no player-facing text.
+    override val description: String = ""
+}
+
+/**
  * Force sacrifice effect: Target player sacrifices permanents matching a filter.
  * "Target player sacrifices a creature" (Edict effects)
  */

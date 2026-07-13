@@ -133,6 +133,7 @@ val engineSerializersModule = SerializersModule {
         subclass(LookedAtCardsEvent::class)
         subclass(LoyaltyChangedEvent::class)
         subclass(PermanentsSacrificedEvent::class)
+        subclass(ExploitedEvent::class)
         subclass(StatsModifiedEvent::class)
         subclass(TargetReselectedEvent::class)
         subclass(TurnFaceUpEvent::class)
