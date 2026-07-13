@@ -240,7 +240,7 @@
 - [x] Staunch Crewmate
 - [x] Stinging Cave Crawler
 - [x] Subterranean Schooner
-- [ ] Sunbird Standard
+- [x] Sunbird Standard
 - [ ] Sunfire Torch
 - [x] Sunken Citadel
 - [x] Sunshot Militia

@@ -13423,6 +13423,100 @@
     ]
 }
 
+// Sunbird Standard
+{
+    "name": "Sunbird Standard",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add one mana of any color.\nCraft with one or more {5} ({5}, Exile this artifact, Exile one or more other permanents you control and/or cards from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{5}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": {}
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with one or more — {5}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Sunbird Effigy",
+        "manaCost": "",
+        "typeLine": "Artifact Creature — Bird Construct",
+        "oracleText": "Flying, vigilance, haste\nSunbird Effigy's power and toughness are each equal to the number of colors among the exiled cards used to craft it.\n{T}: For each color among the exiled cards used to craft this creature, add one mana of that color.",
+        "creatureStats": {
+            "power": {
+                "type": "Dynamic",
+                "source": "CraftedMaterialsColorCount"
+            },
+            "toughness": {
+                "type": "Dynamic",
+                "source": "CraftedMaterialsColorCount"
+            }
+        },
+        "keywords": [
+            "FLYING",
+            "VIGILANCE",
+            "HASTE"
+        ],
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_3",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "AddOneManaOfEachColorAmong",
+                        "filter": {},
+                        "colorSource": "CraftedMaterials"
+                    },
+                    "timing": "ManaAbility",
+                    "isManaAbility": true
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "262",
+            "rarity": "UNCOMMON",
+            "artist": "Aldo Domínguez",
+            "imageUri": "https://cards.scryfall.io/normal/back/e/0/e0b6d40a-fded-4625-b03c-765c88d75766.jpg?1782694401"
+        },
+        "colorIdentityOverride": []
+    },
+    "metadata": {
+        "collectorNumber": "262",
+        "rarity": "UNCOMMON",
+        "artist": "Aldo Domínguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e0b6d40a-fded-4625-b03c-765c88d75766.jpg?1782694401"
+    },
+    "colorIdentityOverride": []
+}
+
 // Sunken Citadel
 {
     "name": "Sunken Citadel",
