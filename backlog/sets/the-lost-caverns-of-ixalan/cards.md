@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 217 / 286
+**Implemented:** 222 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -53,7 +53,7 @@
 - [x] Child of the Volcano
 - [x] Chimil, the Inner Sun
 - [x] Chupacabra Echo
-- [ ] Clay-Fired Bricks
+- [x] Clay-Fired Bricks
 - [x] Coati Scavenger
 - [x] Cogwork Wrestler
 - [x] Colossadactyl
@@ -132,14 +132,14 @@
 - [x] In the Presence of Ages
 - [x] Inti, Seneschal of the Sun
 - [ ] Intrepid Paleontologist
-- [ ] Inverted Iceberg
+- [x] Inverted Iceberg
 - [x] Ironpaw Aspirant
 - [x] Itzquinth, Firstborn of Gishath
 - [x] Ixalli's Lorekeeper
 - [ ] Jade Seedstones
 - [x] Jadelight Spelunker
 - [x] Join the Dead
-- [ ] Kaslem's Stonetree
+- [x] Kaslem's Stonetree
 - [ ] Kellan, Daring Traveler
 - [x] Kinjalli's Dawnrunner
 - [ ] Kitesail Larcenist
@@ -175,7 +175,7 @@
 - [x] Oltec Archaeologists
 - [x] Oltec Cloud Guard
 - [x] Orazca Puzzle-Door
-- [ ] Oteclan Landmark
+- [x] Oteclan Landmark
 - [x] Out of Air
 - [x] Over the Edge
 - [x] Palani's Hatcher
@@ -266,7 +266,7 @@
 - [ ] Throne of the Grim Captain
 - [x] Tinker's Tote
 - [ ] Tishana's Tidebinder
-- [ ] Tithing Blade
+- [x] Tithing Blade
 - [ ] Treasure Map
 - [x] Triumphant Chomp
 - [x] Trumpeting Carnosaur

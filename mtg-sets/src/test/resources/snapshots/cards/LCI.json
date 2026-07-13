@@ -2508,6 +2508,165 @@
     ]
 }
 
+// Clay-Fired Bricks
+{
+    "name": "Clay-Fired Bricks",
+    "manaCost": "{1}{W}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, search your library for a basic Plains card, reveal it, put it into your hand, then shuffle. You gain 2 life.\nCraft with artifact {5}{W}{W} ({5}{W}{W}, Exile this artifact, Exile another artifact you control or an artifact card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Library",
+                                        "filter": "basicland Plains"
+                                    },
+                                    "storeAs": "searchable"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "searchable",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "found"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "found",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Hand"
+                                    },
+                                    "revealed": true
+                                },
+                                "ShuffleLibrary",
+                                "EmitLibrarySearchedEvent"
+                            ]
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this artifact enters, search your library for a basic Plains card, reveal it, put it into your hand, then shuffle. You gain 2 life."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{5}{W}{W}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "artifact",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with artifact — {5}{W}{W}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Cosmium Kiln",
+        "manaCost": "",
+        "typeLine": "Artifact",
+        "oracleText": "When this artifact enters, create two 1/1 colorless Gnome artifact creature tokens.\nCreatures you control get +1/+1.",
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": {
+                        "type": "ZoneChangeEvent",
+                        "to": "Battlefield"
+                    },
+                    "effect": {
+                        "type": "CreateToken",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [],
+                        "creatureTypes": [
+                            "Gnome"
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6def709a-53b3-4520-9544-74ab6472d256.jpg?1782731572",
+                        "artifactToken": true
+                    },
+                    "descriptionOverride": "When this artifact enters, create two 1/1 colorless Gnome artifact creature tokens."
+                }
+            ],
+            "staticAbilities": [
+                {
+                    "type": "ModifyStats",
+                    "powerBonus": 1,
+                    "toughnessBonus": 1,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "6",
+            "rarity": "UNCOMMON",
+            "artist": "Steve Ellis",
+            "flavorText": "\"I love the smell of freshly baked gnomes!\"\n—Yelha, Oltec artisan",
+            "imageUri": "https://cards.scryfall.io/normal/back/8/a/8aece300-656b-4e0d-a45f-aa7feaff0a4e.jpg?1782694608"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "UNCOMMON",
+        "artist": "Steve Ellis",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/a/8aece300-656b-4e0d-a45f-aa7feaff0a4e.jpg?1782694608"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Coati Scavenger
 {
     "name": "Coati Scavenger",
@@ -6417,6 +6576,163 @@
     ]
 }
 
+// Inverted Iceberg
+{
+    "name": "Inverted Iceberg",
+    "manaCost": "{1}{U}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, mill a card, then draw a card. (To mill a card, put the top card of your library into your graveyard.)\nCraft with artifact {4}{U}{U} ({4}{U}{U}, Exile this artifact, Exile another artifact you control or an artifact card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        },
+                                        "isMill": true
+                                    },
+                                    "storeAs": "milled"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "milled",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{U}{U}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "artifact",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with artifact — {4}{U}{U}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Iceberg Titan",
+        "manaCost": "",
+        "typeLine": "Artifact Creature — Golem",
+        "oracleText": "Whenever this creature attacks, you may tap or untap target artifact or creature.",
+        "creatureStats": {
+            "power": 6,
+            "toughness": 6
+        },
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": "AttackEvent",
+                    "effect": {
+                        "type": "Gated",
+                        "gate": "Gate.MayDecide",
+                        "then": {
+                            "type": "ChooseAction",
+                            "choices": [
+                                {
+                                    "label": "Tap it",
+                                    "effect": {
+                                        "type": "TapUntap",
+                                        "target": {
+                                            "type": "BoundVariable",
+                                            "name": "target artifact or creature"
+                                        }
+                                    }
+                                },
+                                {
+                                    "label": "Untap it",
+                                    "effect": {
+                                        "type": "TapUntap",
+                                        "target": {
+                                            "type": "BoundVariable",
+                                            "name": "target artifact or creature"
+                                        },
+                                        "tap": false
+                                    }
+                                }
+                            ]
+                        },
+                        "descriptionOverride": "You may tap or untap target artifact or creature"
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature|artifact"
+                        },
+                        "id": "target artifact or creature"
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "60",
+            "artist": "Campbell White",
+            "flavorText": "The force of a blizzard. The rage of a monstrosaur.",
+            "imageUri": "https://cards.scryfall.io/normal/back/a/c/ac5e9a53-cc4f-4ced-8088-5a73d619eae3.jpg?1782694562"
+        },
+        "colorIdentityOverride": [
+            "BLUE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "60",
+        "artist": "Campbell White",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/c/ac5e9a53-cc4f-4ced-8088-5a73d619eae3.jpg?1782694562"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Ironpaw Aspirant
 {
     "name": "Ironpaw Aspirant",
@@ -6702,6 +7018,130 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Kaslem's Stonetree
+{
+    "name": "Kaslem's Stonetree",
+    "manaCost": "{2}{G}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, look at the top six cards of your library. You may put a land card from among them onto the battlefield tapped. Put the rest on the bottom in a random order.\nCraft with Cave {5}{G} ({5}{G}, Exile this artifact, Exile a Cave you control or a Cave card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 6
+                                }
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "looked",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "land",
+                            "storeSelected": "kept",
+                            "storeRemainder": "rest",
+                            "prompt": "You may put a land card onto the battlefield tapped",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "kept",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "rest",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{5}{G}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "Cave",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with Cave — {5}{G}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Kaslem's Strider",
+        "manaCost": "",
+        "typeLine": "Artifact Creature — Golem",
+        "creatureStats": {
+            "power": 5,
+            "toughness": 5
+        },
+        "metadata": {
+            "collectorNumber": "197",
+            "artist": "Victor Adame Minguez",
+            "flavorText": "The Oltec long ago abandoned the caverns to the mycoids, but the Deep Gods still keep watch over the spore-strewn darkness.",
+            "imageUri": "https://cards.scryfall.io/normal/back/7/8/78b1b412-228a-4e05-a4b3-8159ebf54dc6.jpg?1782694451"
+        },
+        "colorIdentityOverride": [
+            "GREEN"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "197",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/78b1b412-228a-4e05-a4b3-8159ebf54dc6.jpg?1782694451"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -7951,6 +8391,121 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Oteclan Landmark
+{
+    "name": "Oteclan Landmark",
+    "manaCost": "{W}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, scry 2.\nCraft with artifact {2}{W} ({2}{W}, Exile this artifact, Exile another artifact you control or an artifact card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Scry",
+                    "count": 2
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{W}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "artifact",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with artifact — {2}{W}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Oteclan Levitator",
+        "manaCost": "",
+        "typeLine": "Artifact Creature — Golem",
+        "oracleText": "Flying\nWhenever this creature attacks, target attacking creature without flying gains flying until end of turn.",
+        "creatureStats": {
+            "power": 1,
+            "toughness": 4
+        },
+        "keywords": [
+            "FLYING"
+        ],
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": "AttackEvent",
+                    "effect": {
+                        "type": "GrantKeyword",
+                        "keyword": "FLYING",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "attacking creature without flying"
+                        }
+                    },
+                    "targetRequirement": {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    {
+                                        "type": "NotKeyword",
+                                        "keyword": "FLYING"
+                                    }
+                                ],
+                                "statePredicates": [
+                                    "IsAttacking"
+                                ]
+                            }
+                        },
+                        "id": "attacking creature without flying"
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "29",
+            "artist": "Warren Mahy",
+            "flavorText": "Dusk Legion invaders sought lone Oltec travelers to prey upon. The Core's guidestones did not approve.",
+            "imageUri": "https://cards.scryfall.io/normal/back/0/9/099a1d1c-72ba-468e-9385-8f93e1fce001.jpg?1782694588"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "29",
+        "artist": "Warren Mahy",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/9/099a1d1c-72ba-468e-9385-8f93e1fce001.jpg?1782694588"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -12963,6 +13518,119 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Tithing Blade
+{
+    "name": "Tithing Blade",
+    "manaCost": "{1}{B}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, each opponent sacrifices a creature of their choice.\nCraft with creature {4}{B} ({4}{B}, Exile this artifact, Exile a creature you control or a creature card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForceSacrifice",
+                    "filter": "creature",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{4}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "creature",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with creature — {4}{B}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Consuming Sepulcher",
+        "manaCost": "",
+        "typeLine": "Artifact",
+        "oracleText": "At the beginning of your upkeep, each opponent loses 1 life and you gain 1 life.",
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": {
+                        "type": "StepEvent",
+                        "step": "UPKEEP"
+                    },
+                    "binding": "ANY",
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "LoseLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "EachOpponent"
+                                }
+                            },
+                            {
+                                "type": "GainLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "128",
+            "artist": "Michael Walsh",
+            "flavorText": "\"Slake my thirst so that we both may be free.\"\n—Faded inscription",
+            "imageUri": "https://cards.scryfall.io/normal/back/d/b/dbaa9a2d-e9fd-4746-a26c-f99ae731f024.jpg?1782694508"
+        },
+        "colorIdentityOverride": [
+            "BLACK"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "128",
+        "artist": "Michael Walsh",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/b/dbaa9a2d-e9fd-4746-a26c-f99ae731f024.jpg?1782694508"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
