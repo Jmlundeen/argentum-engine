@@ -1441,6 +1441,175 @@
     ]
 }
 
+// Braided Net
+{
+    "name": "Braided Net",
+    "manaCost": "{2}{U}",
+    "typeLine": "Artifact",
+    "oracleText": "This artifact enters with three net counters on it.\n{T}, Remove a net counter from this artifact: Tap another target nonland permanent. Its activated abilities can't be activated for as long as it remains tapped.\nCraft with artifact {1}{U}",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostRemoveCounterFromSelf",
+                            "counterType": "net"
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "nonland permanent to tap"
+                            }
+                        },
+                        {
+                            "type": "GrantStaticAbility",
+                            "ability": {
+                                "type": "PreventActivatedAbilities",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsPermanent"
+                                    ],
+                                    "statePredicates": [
+                                        "IsSource"
+                                    ]
+                                }
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "nonland permanent to tap"
+                            },
+                            "duration": "WhileAffectedTapped"
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "nonland permanent",
+                            "excludeSelf": true
+                        },
+                        "id": "nonland permanent to tap"
+                    }
+                ],
+                "descriptionOverride": "{T}, Remove a net counter from this artifact: Tap another target nonland permanent. Its activated abilities can't be activated for as long as it remains tapped."
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{U}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "artifact",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with artifact — {1}{U}"
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "counterType": {
+                    "type": "Named",
+                    "name": "net"
+                },
+                "count": 3,
+                "selfOnly": true
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Braided Quipu",
+        "manaCost": "",
+        "typeLine": "Artifact",
+        "oracleText": "{3}{U}, {T}: Draw a card for each artifact you control, then put this artifact into its owner's library third from the top.",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_3",
+                    "cost": {
+                        "type": "CostComposite",
+                        "costs": [
+                            {
+                                "type": "CostAtomWrapper",
+                                "atom": {
+                                    "type": "AtomMana",
+                                    "cost": "{3}{U}"
+                                }
+                            },
+                            "CostTap"
+                        ]
+                    },
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "AggregateBattlefield",
+                                    "player": "You",
+                                    "filter": "artifact"
+                                }
+                            },
+                            {
+                                "type": "MoveToZone",
+                                "target": "Self",
+                                "destination": "Library",
+                                "positionFromTop": 2
+                            }
+                        ]
+                    },
+                    "descriptionOverride": "{3}{U}, {T}: Draw a card for each artifact you control, then put this artifact into its owner's library third from the top."
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "47",
+            "rarity": "RARE",
+            "artist": "Diego Gisbert",
+            "flavorText": "The Oltec repurpose objects out of reverence rather than scarcity, believing them strengthened by the memory of each past function.",
+            "imageUri": "https://cards.scryfall.io/normal/back/6/8/68a6ede0-6d57-4e29-9e3b-3569ab7f0bcd.jpg?1782694573"
+        },
+        "colorIdentityOverride": [
+            "BLUE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "47",
+        "rarity": "RARE",
+        "artist": "Diego Gisbert",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68a6ede0-6d57-4e29-9e3b-3569ab7f0bcd.jpg?1782694573"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Brazen Blademaster
 {
     "name": "Brazen Blademaster",

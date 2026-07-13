@@ -30,7 +30,7 @@
 - [ ] Bloodthorn Flail
 - [x] Bonehoard Dracosaur
 - [x] Brackish Blunder
-- [ ] Braided Net
+- [x] Braided Net
 - [ ] Brass's Tunnel-Grinder
 - [x] Brazen Blademaster
 - [ ] Breeches, Eager Pillager
