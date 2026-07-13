@@ -14983,6 +14983,164 @@
     ]
 }
 
+// Unstable Glyphbridge
+{
+    "name": "Unstable Glyphbridge",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, if you cast it, for each player, choose a creature with power 2 or less that player controls. Then destroy all creatures except creatures chosen this way.\nCraft with artifact {3}{W}{W} ({3}{W}{W}, Exile this artifact, Exile another artifact you control or an artifact card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "ControlledPermanents",
+                                    "filter": "creature"
+                                },
+                                "storeAs": "playerCreatures"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "playerCreatures",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "chooser": "SourceController",
+                                "filter": "creature pow<=2",
+                                "storeSelected": "spared",
+                                "storeRemainder": "doomed",
+                                "prompt": "Choose a creature with power 2 or less this player controls",
+                                "useTargetingUI": true
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "doomed",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
+                            }
+                        ]
+                    }
+                },
+                "triggerCondition": "WasCast"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{W}{W}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "artifact",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with artifact — {3}{W}{W}"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Sandswirl Wanderglyph",
+        "manaCost": "",
+        "typeLine": "Artifact Creature — Golem",
+        "oracleText": "Flying\nWhenever an opponent casts a spell during their turn, they can't attack you or planeswalkers you control this turn.\nEach opponent who attacked you or a planeswalker you control this turn can't cast spells.",
+        "creatureStats": {
+            "power": 5,
+            "toughness": 3
+        },
+        "keywords": [
+            "FLYING"
+        ],
+        "script": {
+            "triggeredAbilities": [
+                {
+                    "id": "ability_3",
+                    "trigger": {
+                        "type": "SpellCastEvent",
+                        "player": "EachOpponent"
+                    },
+                    "binding": "ANY",
+                    "effect": {
+                        "type": "CantAttackGroup",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature"
+                                ],
+                                "controllerPredicate": "ControlledByActivePlayer"
+                            }
+                        }
+                    },
+                    "triggerCondition": "IsNotYourTurn"
+                }
+            ],
+            "staticAbilities": [
+                {
+                    "type": "PlayersCantCastSpells",
+                    "condition": {
+                        "type": "PlayerAttackedPlayerThisTurn",
+                        "attacker": "AnOpponent"
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "41",
+            "rarity": "RARE",
+            "artist": "Bastien Grivet",
+            "imageUri": "https://cards.scryfall.io/normal/back/d/7/d70f48e7-582c-4dd2-a64e-6fd03fa6b77e.jpg?1782694578"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "41",
+        "rarity": "RARE",
+        "artist": "Bastien Grivet",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d70f48e7-582c-4dd2-a64e-6fd03fa6b77e.jpg?1782694578"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Vanguard of the Rose
 {
     "name": "Vanguard of the Rose",

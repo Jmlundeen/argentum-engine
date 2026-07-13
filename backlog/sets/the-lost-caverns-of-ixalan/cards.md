@@ -273,7 +273,7 @@
 - [ ] Twists and Turns
 - [x] Uchbenbak, the Great Mistake
 - [x] Unlucky Drop
-- [ ] Unstable Glyphbridge
+- [x] Unstable Glyphbridge
 - [x] Vanguard of the Rose
 - [x] Visage of Dread
 - [x] Vito's Inquisitor
