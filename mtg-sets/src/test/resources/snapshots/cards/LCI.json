@@ -4289,6 +4289,210 @@
     ]
 }
 
+// Dire Flail
+{
+    "name": "Dire Flail",
+    "manaCost": "{R}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +2/+0.\nEquip {1}\nCraft with artifact {3}{R}{R} ({3}{R}{R}, Exile this artifact, Exile another artifact you control or an artifact card from your graveyard: Return this card transformed under its owner's control. Craft only as a sorcery.)",
+    "keywords": [
+        "CRAFT"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{R}{R}"
+                            }
+                        },
+                        {
+                            "type": "CostCraft",
+                            "filter": "artifact",
+                            "maxCount": 1
+                        }
+                    ]
+                },
+                "effect": "ReturnSelfFromExileTransformed",
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Craft with artifact — {3}{R}{R}"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 0
+            }
+        ]
+    },
+    "equipCost": "{1}",
+    "backFace": {
+        "name": "Dire Blunderbuss",
+        "manaCost": "",
+        "typeLine": "Artifact — Equipment",
+        "oracleText": "Equipped creature gets +3/+0 and has \"Whenever this creature attacks, you may sacrifice an artifact other than Dire Blunderbuss. When you do, this creature deals damage equal to its power to target creature.\"\nEquip {1}",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_3",
+                    "cost": {
+                        "type": "CostAtomWrapper",
+                        "atom": {
+                            "type": "AtomMana",
+                            "cost": "{1}"
+                        }
+                    },
+                    "effect": {
+                        "type": "AttachEquipment",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "creature you control"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            },
+                            "id": "creature you control"
+                        }
+                    ],
+                    "timing": "SorcerySpeed",
+                    "isEquipAbility": true
+                }
+            ],
+            "staticAbilities": [
+                {
+                    "type": "ModifyStats",
+                    "powerBonus": 3,
+                    "toughnessBonus": 0
+                },
+                {
+                    "type": "GrantTriggeredAbility",
+                    "ability": {
+                        "id": "ability_4",
+                        "trigger": "AttackEvent",
+                        "effect": {
+                            "type": "ReflexiveTrigger",
+                            "action": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "SelectTarget",
+                                        "requirement": {
+                                            "type": "TargetObject",
+                                            "filter": {
+                                                "baseFilter": {
+                                                    "cardPredicates": [
+                                                        "IsArtifact",
+                                                        {
+                                                            "type": "Not",
+                                                            "predicate": {
+                                                                "type": "NameEquals",
+                                                                "name": "Dire Blunderbuss"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "controllerPredicate": "ControlledByYou"
+                                                }
+                                            }
+                                        },
+                                        "storeAs": "toSacrifice"
+                                    },
+                                    {
+                                        "type": "SacrificeTarget",
+                                        "target": {
+                                            "type": "PipelineTarget",
+                                            "collectionName": "toSacrifice"
+                                        }
+                                    }
+                                ]
+                            },
+                            "reflexiveEffect": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "EntityProperty",
+                                    "entity": "Source",
+                                    "numericProperty": "Power"
+                                },
+                                "target": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
+                            },
+                            "reflexiveTargetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature"
+                                    }
+                                }
+                            ],
+                            "descriptionOverride": "You may sacrifice an artifact other than Dire Blunderbuss. When you do, this creature deals damage equal to its power to target creature."
+                        }
+                    }
+                }
+            ]
+        },
+        "equipCost": "{1}",
+        "metadata": {
+            "collectorNumber": "145",
+            "rarity": "RARE",
+            "artist": "Anthony Devine",
+            "flavorText": "\"Thought you were out of my skull-bashin' range, didn't you?\"",
+            "imageUri": "https://cards.scryfall.io/normal/back/0/d/0d2d98ae-fe02-4a86-9e80-7b95e08de21c.jpg?1782694493"
+        },
+        "colorIdentityOverride": [
+            "RED"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "145",
+        "rarity": "RARE",
+        "artist": "Anthony Devine",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/d/0d2d98ae-fe02-4a86-9e80-7b95e08de21c.jpg?1782694493"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Disruptor Wanderglyph
 {
     "name": "Disruptor Wanderglyph",

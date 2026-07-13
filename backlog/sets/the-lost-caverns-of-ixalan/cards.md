@@ -79,7 +79,7 @@
 - [x] Didact Echo
 - [x] Digsite Conservator
 - [x] Dinotomaton
-- [ ] Dire Flail
+- [x] Dire Flail
 - [x] Disruptor Wanderglyph
 - [x] Disturbed Slumber
 - [ ] Dowsing Device
