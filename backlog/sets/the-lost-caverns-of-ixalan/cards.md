@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 237 / 286
+**Implemented:** 239 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -159,13 +159,13 @@
 - [x] Master's Guide-Mural
 - [ ] Matzalantli, the Great Door
 - [x] Mephitic Draught
-- [ ] Merfolk Cave-Diver
+- [x] Merfolk Cave-Diver
 - [x] Might of the Ancestors
 - [x] Miner's Guidewing
 - [x] Mineshaft Spider
 - [x] Mischievous Pup
 - [x] Molten Collapse
-- [ ] Nicanzil, Current Conductor
+- [x] Nicanzil, Current Conductor
 - [x] Nurturing Bristleback
 - [x] Oaken Siren
 - [ ] Ojer Axonil, Deepest Might
