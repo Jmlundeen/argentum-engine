@@ -585,12 +585,32 @@ internal class BlockPhaseManager(
             val attackerCard = attackerContainer.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(attackerCard.cardDefinitionId)
 
-            // Printed "can't be blocked by more than N". cardDef may be null for tokens/copies
-            // without a registered definition — the granted forms below still apply.
+            // Printed "can't be blocked by more than N", including the conditional form
+            // (Akawalli's descend-8 "can't be blocked by more than one creature") — unwrap a
+            // ConditionalStaticAbility and honor it only while its condition currently holds,
+            // mirroring the MustBeBlocked handling in attackersWithMustBeBlockedStatic. cardDef
+            // may be null for tokens/copies without a registered definition — the granted forms
+            // below still apply.
+            val attackerController = state.projectedState.getController(attackerId)
             val staticLimit = cardDef?.staticAbilities
-                ?.filterIsInstance<CantBeBlockedByMoreThan>()
-                ?.filter { it.filter.scope is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self }
-                ?.minOfOrNull { it.maxBlockers }
+                ?.mapNotNull { ability ->
+                    val unwrapped = if (ability is ConditionalStaticAbility) ability.ability else ability
+                    if (unwrapped !is CantBeBlockedByMoreThan) return@mapNotNull null
+                    if (unwrapped.filter.scope !is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self) {
+                        return@mapNotNull null
+                    }
+                    if (ability is ConditionalStaticAbility) {
+                        if (attackerController == null) return@mapNotNull null
+                        if (!conditionEvaluator.evaluate(
+                                state,
+                                ability.condition,
+                                EffectContext(sourceId = attackerId, controllerId = attackerController)
+                            )
+                        ) return@mapNotNull null
+                    }
+                    unwrapped.maxBlockers
+                }
+                ?.minOrNull()
             // Granted static-ability form: e.g. Full Steam Ahead grants CantBeBlockedByMoreThan(1)
             // until end of turn via grantedStaticAbilities.
             val grantedLimit = state.grantedStaticAbilities
