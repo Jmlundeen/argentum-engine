@@ -61,10 +61,9 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *         [GameObjectFilter.Creature] ("you may ... an exiled creature card") → move to
  *         [Zone.BATTLEFIELD] with [ZonePlacement.TappedAndAttacking] under your control (Gishath's
  *         "put ... onto the battlefield tapped and attacking" shape).
- *  - Back-face color: the printed back has a black COLOR INDICATOR (empty mana cost). Color
- *    indicators aren't representable in the SDK; per the Consuming Sepulcher / Dread Osseosaur
- *    convention the back face carries `manaCost = ""` + `colorIdentity = "B"` (a shared LCI
- *    transform-back-face approximation; the projected face reads as colorless, not black).
+ *  - Back-face color: the printed back has a black COLOR INDICATOR (empty mana cost), modelled with
+ *    `colorIndicator = "B"` (CR 204) so the projected face actually reads as black — not the older
+ *    `colorIdentity`-only approximation that left it colourless.
  *
  * Note on client UX for the heterogeneous craft: the legal action ships the *union* of the four
  * slots as one flat material list with min = max = 4, so the overlay lets you pick any four
@@ -111,6 +110,7 @@ private val ThroneOfTheGrimCaptainFront = card("Throne of the Grim Captain") {
 private val TheGrimCaptain = card("The Grim Captain") {
     manaCost = ""
     colorIdentity = "B"
+    colorIndicator = "B" // Printed with a black color indicator, no mana cost (CR 204).
     typeLine = "Legendary Creature — Skeleton Spirit Pirate"
     power = 7
     toughness = 7

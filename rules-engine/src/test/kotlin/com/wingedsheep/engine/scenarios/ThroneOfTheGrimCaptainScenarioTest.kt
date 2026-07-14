@@ -142,6 +142,10 @@ class ThroneOfTheGrimCaptainScenarioTest : FunSpec({
         projected.hasKeyword(throne, Keyword.TRAMPLE) shouldBe true
         projected.hasKeyword(throne, Keyword.LIFELINK) shouldBe true
         projected.hasKeyword(throne, Keyword.HEXPROOF) shouldBe true
+        // The back face's black color indicator (CR 204) makes the transformed permanent black,
+        // even though it has no mana cost.
+        projected.hasColor(throne, Color.BLACK) shouldBe true
+        projected.getColors(throne) shouldBe setOf(Color.BLACK.name)
 
         // Materials exiled and recorded on the returned permanent.
         materials.forEach { driver.getExile(p1).shouldContain(it) }

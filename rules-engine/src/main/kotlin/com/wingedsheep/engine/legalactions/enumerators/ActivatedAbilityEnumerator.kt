@@ -544,7 +544,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                             subCost.slots, allMaterials
                                         ) { materialId, slotFilter ->
                                             context.predicateEvaluator.matches(
-                                                state, state.projectedState, materialId, slotFilter,
+                                                state, projected, materialId, slotFilter,
                                                 com.wingedsheep.engine.handlers.PredicateContext(controllerId = playerId)
                                             )
                                         }

@@ -14874,6 +14874,9 @@
         },
         "colorIdentityOverride": [
             "BLACK"
+        ],
+        "colorIndicator": [
+            "BLACK"
         ]
     },
     "metadata": {

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.costs
 
+import com.wingedsheep.engine.mechanics.BipartiteMatching
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
@@ -14,11 +15,12 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * set of materials can cover every slot is exactly a maximum bipartite matching (slots ↔ distinct
  * materials); every slot must be saturated.
  *
- * This reuses the same Kuhn's augmenting-path routine as
- * [com.wingedsheep.engine.mechanics.combat.BlockPhaseManager]'s must-be-blocked matching. It is a
- * pure function of the `(material, slotFilter) -> Boolean` edge predicate, so both the cost handler
- * (payment / `canPay`, matching against projected state) and the legal-action enumerator (offering
- * the ability) can share one definition of "these materials can satisfy these slots".
+ * The matching itself is the shared [BipartiteMatching] routine (same code as
+ * [com.wingedsheep.engine.mechanics.combat.BlockPhaseManager]'s must-be-blocked matching); this
+ * object just adapts the craft domain (slots as the left side, materials as the right) onto it. It
+ * is a pure function of the `(material, slotFilter) -> Boolean` edge predicate, so both the cost
+ * handler (payment / `canPay`, matching against projected state) and the legal-action enumerator
+ * (offering the ability) can share one definition of "these materials can satisfy these slots".
  */
 object CraftSlotMatching {
 
@@ -33,29 +35,7 @@ object CraftSlotMatching {
         slots: List<GameObjectFilter>,
         materials: List<EntityId>,
         matchesSlot: (EntityId, GameObjectFilter) -> Boolean
-    ): Boolean {
-        if (slots.isEmpty()) return true
-        // Kuhn's augmenting-path matching: give each slot its own material, recursively re-homing
-        // a material's current slot when contested. `matchedMaterialToSlot[m] = s` means material m
-        // is currently assigned to slot index s.
-        val matchedMaterialToSlot = HashMap<EntityId, Int>()
-
-        fun assign(slotIndex: Int, visited: MutableSet<EntityId>): Boolean {
-            for (materialId in materials) {
-                if (!matchesSlot(materialId, slots[slotIndex])) continue
-                if (!visited.add(materialId)) continue
-                val currentSlot = matchedMaterialToSlot[materialId]
-                if (currentSlot == null || assign(currentSlot, visited)) {
-                    matchedMaterialToSlot[materialId] = slotIndex
-                    return true
-                }
-            }
-            return false
-        }
-
-        for (slotIndex in slots.indices) {
-            if (!assign(slotIndex, HashSet())) return false
-        }
-        return true
+    ): Boolean = BipartiteMatching.canSaturateLeft(slots, materials) { slot, material ->
+        matchesSlot(material, slot)
     }
 }

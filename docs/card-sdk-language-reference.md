@@ -42,6 +42,12 @@ section; do not let SDK additions land without a corresponding doc update.
 - `dynamicStats(source, powerOffset?, toughnessOffset?)` — sets both with optional `±` deltas.
 - `startingLoyalty: Int?` — starting loyalty for planeswalkers.
 - `colorIdentity: String?` — override (normally auto-detected). Treated as authoritative in this repo.
+- `colorIndicator: String?` — explicit color indicator (CR 204), e.g. `"B"`. `null` (default) = no
+  indicator; the card's color is its mana-cost colors alone. Set it on a face printed with a color
+  indicator instead of colored mana symbols — most often a transforming DFC back face with an empty
+  mana cost (e.g. The Grim Captain's black back face reads as black despite `manaCost = ""`). The
+  indicated colors combine with any mana-cost colors (CR 202.2) and fold into color identity (CR 903.4).
+  Prefer this over the older `colorIdentity`-only approximation, which left such faces colourless.
 - `auraTarget: TargetRequirement?` — what this Aura enchants. Usually a permanent (`Targets.Creature`),
   but `Targets.Player` makes it an **"enchant player"** Aura: it attaches to a player via
   `AttachedToComponent` (players are entities too), survives state-based actions while that player is in
