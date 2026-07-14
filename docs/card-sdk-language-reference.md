@@ -42,6 +42,12 @@ section; do not let SDK additions land without a corresponding doc update.
 - `dynamicStats(source, powerOffset?, toughnessOffset?)` — sets both with optional `±` deltas.
 - `startingLoyalty: Int?` — starting loyalty for planeswalkers.
 - `colorIdentity: String?` — override (normally auto-detected). Treated as authoritative in this repo.
+- `colorIndicator: String?` — explicit color indicator (CR 204), e.g. `"B"`. `null` (default) = no
+  indicator; the card's color is its mana-cost colors alone. Set it on a face printed with a color
+  indicator instead of colored mana symbols — most often a transforming DFC back face with an empty
+  mana cost (e.g. The Grim Captain's black back face reads as black despite `manaCost = ""`). The
+  indicated colors combine with any mana-cost colors (CR 202.2) and fold into color identity (CR 903.4).
+  Prefer this over the older `colorIdentity`-only approximation, which left such faces colourless.
 - `auraTarget: TargetRequirement?` — what this Aura enchants. Usually a permanent (`Targets.Creature`),
   but `Targets.Player` makes it an **"enchant player"** Aura: it attaches to a player via
   `AttachedToComponent` (players are entities too), survives state-based actions while that player is in
@@ -248,6 +254,18 @@ excluded.
   transformed. Always combined with `Mana(...)` and used with the
   `Effects.ReturnSelfFromExileTransformed` resolution effect (the `card { craft(filter, cost) }`
   helper wires the whole pattern).
+  - **Heterogeneous per-slot craft** — `card { craft(slots = listOf(f1, f2, ...), cost, materialDescription?) }`
+    for crafts that name one material of *each* of several kinds ("Craft with a Dinosaur, a Merfolk, a
+    Pirate, and a Vampire" — Throne of the Grim Captain). Each slot is filled by exactly **one distinct**
+    material, so validating a chosen set is a bipartite perfect-matching problem, not a per-subtype count
+    (a single Merfolk Pirate fills only one slot; four Vampires cannot cover four different subtypes). The
+    built `AbilityCost.Craft` carries the per-slot filters in `slots` plus a union `filter` (`anyOf` of the
+    slots) with `minCount == maxCount == slots.size`, so the flat BF+GY candidate gathering, `canPay`, the
+    legal-action enumerator, and the client material overlay work unchanged; the engine layers the
+    matching check (`CraftSlotMatching`, Kuhn's augmenting-path — same routine as `BlockPhaseManager`) on
+    top in `canPay`, enumeration, and payment. The legal action still ships one flat material list
+    (min = max = slot count); an illegal set that can't fill every slot is rejected at payment time
+    (no per-slot selection UI).
 - `Costs.Composite(c1, c2, ...)` — multiple costs paid together.
 
 **Spell-level alternatives**
@@ -1826,6 +1844,12 @@ effect = Effects.Pipeline {
   `chooseUpTo(1)` → `destroy(...)`.
 - `CardSource.ChosenTargets` — the spell/ability's already-resolved targets.
 - `CardSource.FromLinkedExile(count?)` — the cards in the source's linked-exile pile.
+- `CardSource.CraftedMaterials` — the cards exiled to Craft the source (its
+  `CraftedFromExiledComponent`), restricted to those still in exile. The gather-pipeline twin of
+  `ExiledCardsSource.CRAFTED` (which feeds back-face CDAs/ability grants). Backs The Grim Captain's
+  "put an exiled creature card used to craft it onto the battlefield tapped and attacking":
+  `GatherCards(CraftedMaterials) → SelectFromCollection(ChooseUpTo 1, filter = Creature) →
+  MoveCollection(BATTLEFIELD, ZonePlacement.TappedAndAttacking)`.
 - `CardSource.LastKnownCombatPairedWithSource` — creatures blocking/blocked by the source at the
   moment it last left the battlefield (Abu Ja'far).
 - `CardSource.CreaturesThatSaddledSource` — the creatures that saddled the source Mount this turn

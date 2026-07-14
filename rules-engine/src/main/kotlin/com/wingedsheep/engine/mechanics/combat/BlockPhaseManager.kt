@@ -778,26 +778,13 @@ internal class BlockPhaseManager(
                 return canCreatureBlockAttacker(state, blockerId, attackerId, blockingPlayer, projected)
             }
 
-            // Kuhn's augmenting-path matching: try to give each attacker its own blocker,
-            // recursively re-homing a blocker's current attacker when contested.
-            val matchedAttackerOfBlocker = mutableMapOf<EntityId, EntityId>()
-            fun assignBlocker(attackerId: EntityId, visited: MutableSet<EntityId>): Boolean {
-                for (blockerId in potentialBlockers) {
-                    if (!canHypotheticallyBlock(blockerId, attackerId)) continue
-                    if (!visited.add(blockerId)) continue
-                    val currentAttacker = matchedAttackerOfBlocker[blockerId]
-                    if (currentAttacker == null || assignBlocker(currentAttacker, visited)) {
-                        matchedAttackerOfBlocker[blockerId] = attackerId
-                        return true
-                    }
+            // Maximum bipartite matching (attackers ↔ hypothetically-free blockers): its size is
+            // the most requirements that could be simultaneously obeyed. Shared Kuhn's routine.
+            val matchedAttackerOfBlocker = com.wingedsheep.engine.mechanics.BipartiteMatching
+                .maximumMatching(mustBeBlockedIfAbleAttackers, potentialBlockers) { attackerId, blockerId ->
+                    canHypotheticallyBlock(blockerId, attackerId)
                 }
-                return false
-            }
-
-            var maxSatisfiable = 0
-            for (attackerId in mustBeBlockedIfAbleAttackers) {
-                if (assignBlocker(attackerId, mutableSetOf())) maxSatisfiable++
-            }
+            val maxSatisfiable = matchedAttackerOfBlocker.size
             val satisfied = mustBeBlockedIfAbleAttackers.count { !attackerToBlockers[it].isNullOrEmpty() }
 
             if (satisfied < maxSatisfiable) {

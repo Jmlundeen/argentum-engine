@@ -205,6 +205,7 @@ data class CardDefinition(
     val startingLoyalty: Int? = null,  // For planeswalkers
     val legalFormats: Set<DeckFormat> = emptySet(),  // Formats in which the card is legal (Scryfall-sourced)
     val colorIdentityOverride: Set<Color>? = null,  // Authoritative Scryfall color identity; null = derive from heuristic
+    val colorIndicator: Set<Color>? = null,  // Explicit color indicator (CR 204); null = no indicator, color comes from mana cost
     val layout: CardLayout = CardLayout.NORMAL,
     val cardFaces: List<CardFace> = emptyList()  // Populated for non-NORMAL layouts (e.g. SPLIT Rooms)
 ) {
@@ -216,7 +217,15 @@ data class CardDefinition(
 
     val cmc: Int get() = manaCost.cmc
 
-    val colors: Set<Color> get() = manaCost.colors
+    /**
+     * The object's colors (CR 202.2): the colors of the mana-cost symbols (202.2c) *plus* the
+     * colors of any explicit [colorIndicator] (202.2e / 204.2) — the two combine, they don't
+     * override. A card with an empty mana cost and a black color indicator is exactly black; a
+     * normal card (no indicator) is just its mana-cost colors. Used e.g. by The Grim Captain, whose
+     * transformed back face has no mana cost and a black color indicator.
+     */
+    val colors: Set<Color>
+        get() = if (colorIndicator == null) manaCost.colors else manaCost.colors + colorIndicator
 
     /**
      * Color identity per CR 903.4: the colors of any mana symbols in the card's mana cost or
@@ -235,8 +244,9 @@ data class CardDefinition(
      *    with the basic supertype, so dual lands like Tundra (Land — Plains Island) correctly
      *    pick up both colors.
      *
-     * Not yet modelled: explicit color indicators (rule 204) — there's no field on
-     * [CardDefinition] for them today. When that's added, fold the indicator's colors in here.
+     * An explicit [colorIndicator] (rule 204) contributes its colors here too (CR 903.4), so a
+     * transformed back face like The Grim Captain's — no mana cost, black color indicator — has
+     * black in its color identity.
      *
      * If [colorIdentityOverride] is set (typically from the Scryfall bulk-data sync), that value
      * is authoritative and the heuristic is skipped. Use the override for cards where the
@@ -246,6 +256,7 @@ data class CardDefinition(
         get() {
             colorIdentityOverride?.let { return it }
             val identity = manaCost.colors.toMutableSet()
+            colorIndicator?.let(identity::addAll)
             if (oracleText.isNotBlank()) {
                 for (match in COLOR_SYMBOL_REGEX.findAll(oracleText)) {
                     for (ch in match.groupValues[1]) {

@@ -184,6 +184,16 @@ class CardBuilder(private val name: String) {
     var colorIdentity: String? = null
 
     /**
+     * Explicit color indicator (CR 204) as a string of color symbols, e.g. `"B"` for a black
+     * indicator. `null` (the default) means the card has no color indicator and its color comes
+     * from its mana cost alone. Set this on faces printed with a color indicator instead of colored
+     * mana symbols — most commonly a transforming DFC back face with an empty mana cost (e.g. The
+     * Grim Captain's black back face). The indicated colors combine with any mana-cost colors (CR
+     * 202.2) and are folded into color identity (CR 903.4).
+     */
+    var colorIndicator: String? = null
+
+    /**
      * Power (for creatures). Can be set as Int for fixed stats.
      */
     var power: Int? = null
@@ -850,6 +860,9 @@ class CardBuilder(private val name: String) {
         val parsedColorIdentity: Set<Color>? = colorIdentity?.let { raw ->
             raw.mapNotNullTo(mutableSetOf()) { Color.fromSymbol(it.uppercaseChar()) }
         }
+        val parsedColorIndicator: Set<Color>? = colorIndicator?.let { raw ->
+            raw.mapNotNullTo(mutableSetOf()) { Color.fromSymbol(it.uppercaseChar()) }
+        }
 
         return CardDefinition(
             name = name,
@@ -865,6 +878,7 @@ class CardBuilder(private val name: String) {
             startingLoyalty = startingLoyalty,
             metadata = metadata,
             colorIdentityOverride = parsedColorIdentity,
+            colorIndicator = parsedColorIndicator,
             layout = layout,
             cardFaces = cardFaceList.toList()
         )
