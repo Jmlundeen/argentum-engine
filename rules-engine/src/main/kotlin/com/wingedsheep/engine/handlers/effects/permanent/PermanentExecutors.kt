@@ -4,8 +4,6 @@ import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.ExecutorModule
-import com.wingedsheep.engine.handlers.effects.permanent.ExploreEffectExecutor
-import com.wingedsheep.engine.handlers.effects.permanent.EmitExploredEventExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantActivatedAbilityExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantActivatedAbilityToGroupExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.abilities.GrantFlashbackExecutor
