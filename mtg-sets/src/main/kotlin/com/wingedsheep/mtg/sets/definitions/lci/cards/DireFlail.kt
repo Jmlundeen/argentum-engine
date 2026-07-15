@@ -55,16 +55,12 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *    is the equipped creature; the damage source defaults to it, matching "this creature deals").
  *
  * "an artifact other than Dire Blunderbuss" — CR 201.5a: the name refers only to the specific
- * granting Equipment. A granted *triggered* ability resolves with the equipped creature as its
- * source (not the Equipment), and the engine threads a `granterId` only into granted *activated*
- * abilities, so the granter can't be referenced by entity here. Instead the exclusion is scoped
- * with `.notAttachedToSource()`: the granting Blunderbuss is the Equipment attached to the
- * attacking creature (the source), so this excludes exactly it while leaving a *second* Dire
- * Blunderbuss elsewhere (on another creature or unattached) sacrificable — fixing the corner the
- * old `notNamed("Dire Blunderbuss")` filter mis-handled. Residual, rarer corner: another artifact
- * Equipment/Aura *also* attached to the same creature is likewise excluded (it shouldn't be); the
- * fully-correct fix is an entity-based exclusion once granterId is threaded through granted
- * triggered abilities.
+ * granting Equipment. The engine threads the granting permanent through granted *triggered*
+ * abilities (`PendingTrigger.granterId` → `TriggeredAbilityOnStackComponent.granterId` →
+ * `EffectContext.granterId` → `PredicateContext.granterId`), so the exclusion is the entity-based
+ * `.notGrantingPermanent()`: it excludes *exactly* this granting Blunderbuss and nothing else — a
+ * second Dire Blunderbuss elsewhere and any other Equipment attached to the same creature all stay
+ * sacrificable, matching the printed card in every case.
  */
 
 private val DireFlailFront = card("Dire Flail") {
@@ -129,7 +125,7 @@ private val DireBlunderbuss = card("Dire Blunderbuss") {
                                 filter = TargetFilter(
                                     GameObjectFilter.Artifact
                                         .youControl()
-                                        .notAttachedToSource()
+                                        .notGrantingPermanent()
                                 )
                             ),
                             storeAs = "toSacrifice"

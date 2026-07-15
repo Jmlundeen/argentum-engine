@@ -4795,7 +4795,7 @@
                                                     "statePredicates": [
                                                         {
                                                             "type": "StateNot",
-                                                            "predicate": "IsAttachedToSource"
+                                                            "predicate": "IsGrantingPermanent"
                                                         }
                                                     ],
                                                     "controllerPredicate": "ControlledByYou"

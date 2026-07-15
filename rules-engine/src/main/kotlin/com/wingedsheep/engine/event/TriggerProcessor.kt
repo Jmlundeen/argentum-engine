@@ -715,6 +715,7 @@ class TriggerProcessor(
             effect = effectOverride ?: ability.effect,
             description = ability.description,
             abilityIdentity = state.abilityIdentityOf(trigger.sourceId, ability.id),
+            granterId = trigger.granterId,
             descriptionOverride = ability.descriptionOverride,
             triggerDamageAmount = trigger.triggerContext.damageAmount,
             triggeringEntityId = trigger.triggerContext.triggeringEntityId,

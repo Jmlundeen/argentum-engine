@@ -2570,9 +2570,17 @@ work for abilities-on-stack (which carry no `CardComponent`).
   `AttachedToComponent.targetId == sourceId`. Use it to scope a static ability on the *host* to its own
   attachments — Cloud, Midgar Mercenary's "an Equipment attached to it" via
   `GameObjectFilter.Artifact.withSubtype("Equipment").attachedToSource()`. Source-relative; inert with no
-  source context. Negated builder `notAttachedToSource()` — excludes the source's own attachments, backing
-  "an artifact other than [this granting Equipment]" on a granted triggered ability whose source is the
-  equipped creature (Dire Blunderbuss's "sacrifice an artifact other than Dire Blunderbuss").
+  source context. Negated builder `notAttachedToSource()` — excludes all of the source's own attachments.
+- `IsGrantingPermanent` (negated builder `notGrantingPermanent()`) — matches the *granting permanent* of the
+  resolving ability: the Equipment/Aura/permanent whose `GrantActivatedAbility`/`GrantTriggeredAbility` static
+  granted the ability, read from the evaluation context's `granterId`. For a granted triggered ability the
+  ability's source is the equipped creature but the granter is the Equipment attached to it. Negate for
+  "an artifact other than [this granting Equipment]" exclusions (CR 201.5a) — Dire Blunderbuss's "sacrifice an
+  artifact other than Dire Blunderbuss" uses `GameObjectFilter.Artifact.youControl().notGrantingPermanent()`,
+  excluding *only* the specific granter (a second same-named copy or another attachment stays legal). The
+  granter is threaded to granted triggered abilities via `PendingTrigger.granterId` →
+  `TriggeredAbilityOnStackComponent.granterId` → `EffectContext.granterId` → `PredicateContext.granterId`;
+  false with no granter context (an ungranted ability).
 - `HasGreatestPower` (filter builder `hasGreatestPower()`) / `HasLeastPower` (filter builder
   `hasLeastPower()`) — has the greatest / least projected power among creatures *its controller*
   controls (ties all qualify). Used for "creature with the greatest/least power" target and edict

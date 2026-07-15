@@ -719,13 +719,22 @@ data class GameObjectFilter(
 
     /**
      * Must NOT be an Aura/Equipment attached to the effect's source permanent — the negation of
-     * [attachedToSource]. Backs "an artifact other than [this granting Equipment]"-style
-     * exclusions on a granted triggered ability whose source is the equipped creature: the
-     * granting Equipment is the one attached to that creature, so this excludes it (Dire
-     * Blunderbuss's "sacrifice an artifact other than Dire Blunderbuss").
+     * [attachedToSource].
      */
     fun notAttachedToSource() = copy(
         statePredicates = statePredicates + StatePredicate.Not(StatePredicate.IsAttachedToSource)
+    )
+
+    /**
+     * Must NOT be the *granting permanent* of the resolving ability — excludes exactly the
+     * Equipment/Aura/permanent whose static ability granted the ability (read from the evaluation
+     * context's `granterId`, CR 201.5a). Backs "an artifact other than [this granting Equipment]"
+     * on a granted triggered ability whose source is the equipped creature (Dire Blunderbuss's
+     * "sacrifice an artifact other than Dire Blunderbuss"): unlike [notAttachedToSource] it
+     * excludes only the specific granter, leaving other attachments and same-named copies legal.
+     */
+    fun notGrantingPermanent() = copy(
+        statePredicates = statePredicates + StatePredicate.Not(StatePredicate.IsGrantingPermanent)
     )
 
     /**

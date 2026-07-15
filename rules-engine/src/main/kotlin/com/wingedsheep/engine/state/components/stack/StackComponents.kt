@@ -141,6 +141,14 @@ data class TriggeredAbilityOnStackComponent(
     /** Power of the aura/equipment's attached creature, captured at trigger time; LKI for
      *  "enchanted creature ... its power" reads when the creature has left (CR 608.2h). */
     val enchantedCreatureLastKnownPower: Int? = null,
+    /**
+     * The permanent whose `GrantTriggeredAbility` static granted this triggered ability (an
+     * Equipment/Aura granting the ability to the attached creature). Read at resolution into
+     * [com.wingedsheep.engine.handlers.EffectContext.granterId] so the effect can reference its
+     * granter (CR 201.5a) — e.g. Dire Blunderbuss's "sacrifice an artifact other than Dire
+     * Blunderbuss". Null for the source's own printed abilities.
+     */
+    val granterId: EntityId? = null,
     /** Cards looked at by the scry that fired this trigger (CR 701.18). Null for non-scry triggers. */
     val triggerScryCount: Int? = null,
     /** Damage past lethal dealt to the trigger's creature recipient (CR 120.4a). Null for non-damage triggers. */

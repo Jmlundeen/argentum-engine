@@ -293,7 +293,7 @@ class DireFlailScenarioTest : FunSpec({
         driver.state.getEntity(blunderbuss)?.get<AttachedToComponent>()?.targetId shouldBe courser
     }
 
-    test("a second Dire Blunderbuss (unattached) is a legal sacrifice; the granting one is excluded by attachment") {
+    test("a second Dire Blunderbuss (unattached) is a legal sacrifice; only the granting one is excluded") {
         val driver = setup()
         val p1 = driver.activePlayer!!
         val opponent = driver.getOpponent(p1)
@@ -310,8 +310,8 @@ class DireFlailScenarioTest : FunSpec({
         driver.declareAttackers(p1, listOf(courser), opponent).error shouldBe null
 
         // Under the old `notNamed("Dire Blunderbuss")` filter both copies were excluded, leaving
-        // no fodder — so no sacrifice, no damage. With `.notAttachedToSource()` only the attached
-        // granting copy (b1) is excluded; the unattached b2 is legal fodder.
+        // no fodder — so no sacrifice, no damage. With `.notGrantingPermanent()` only the specific
+        // granting copy (b1) is excluded; the second copy b2 is legal fodder.
         driver.resolveUntilDecision()
         var guard = 0
         while (driver.pendingDecision != null && guard++ < 10) {
@@ -336,6 +336,61 @@ class DireFlailScenarioTest : FunSpec({
         driver.getGraveyard(p1).shouldContain(b2)
         driver.state.getEntity(b1)?.get<AttachedToComponent>()?.targetId shouldBe courser
         driver.findPermanent(opponent, "Test Sturdy Ox") shouldBe null
+    }
+
+    test("only the granter is excluded: another Equipment co-attached to the same creature is still sacrificable") {
+        val driver = setup()
+        val p1 = driver.activePlayer!!
+        val opponent = driver.getOpponent(p1)
+
+        val blunderbuss = driver.craftToBlunderbuss(p1) // the granter
+        val courser = driver.putCreatureOnBattlefield(p1, "Centaur Courser")
+        driver.removeSummoningSickness(courser)
+        driver.equipBlunderbuss(p1, blunderbuss, courser)
+
+        // A second Equipment (a Dire Flail front face) also equipped to the SAME creature.
+        // Under the old `.notAttachedToSource()` filter it was wrongly excluded (attached to the
+        // source); `.notGrantingPermanent()` excludes only the granting Blunderbuss, so it's legal.
+        val coEquip = driver.putPermanentOnBattlefield(p1, "Dire Flail")
+        driver.giveColorlessMana(p1, 1)
+        driver.submit(
+            ActivateAbility(
+                playerId = p1,
+                sourceId = coEquip,
+                abilityId = frontEquipAbilityId(),
+                targets = listOf(ChosenTarget.Permanent(courser))
+            )
+        ).isSuccess shouldBe true
+        driver.bothPass()
+        driver.state.getEntity(coEquip)?.get<AttachedToComponent>()?.targetId shouldBe courser
+
+        val victim = driver.putCreatureOnBattlefield(opponent, "Test Sturdy Ox") // 2/4
+
+        driver.passPriorityUntil(Step.DECLARE_ATTACKERS)
+        driver.declareAttackers(p1, listOf(courser), opponent).error shouldBe null
+
+        driver.resolveUntilDecision()
+        var guard = 0
+        while (driver.pendingDecision != null && guard++ < 10) {
+            when (val d = driver.pendingDecision) {
+                is YesNoDecision -> driver.submitYesNo(p1, true).error shouldBe null
+                is ChooseTargetsDecision -> {
+                    val legal = d.legalTargets[0].orEmpty()
+                    when {
+                        coEquip in legal || blunderbuss in legal ->
+                            driver.submitTargetSelection(p1, listOf(coEquip)).error shouldBe null
+                        else -> driver.submitTargetSelection(p1, listOf(victim)).error shouldBe null
+                    }
+                }
+                is SelectCardsDecision -> driver.submitCardSelection(p1, listOf(coEquip))
+                else -> break
+            }
+            if (driver.pendingDecision == null) driver.drainStack()
+        }
+
+        // The co-attached Dire Flail (not the granter) was sacrificed; the granting Blunderbuss is intact.
+        driver.getGraveyard(p1).shouldContain(coEquip)
+        driver.state.getEntity(blunderbuss)?.get<AttachedToComponent>()?.targetId shouldBe courser
     }
 
     test("negative: craft rejected when the supplied material is a creature, not an artifact") {

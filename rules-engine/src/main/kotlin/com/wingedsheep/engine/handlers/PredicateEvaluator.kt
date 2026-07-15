@@ -1118,6 +1118,7 @@ class PredicateEvaluator {
             // PreventActivatedAbilities form (Braided Net), where the activation-legality
             // check supplies the grant's holder as the source. False with no source context.
             StatePredicate.IsSource -> context?.sourceId == entityId
+            StatePredicate.IsGrantingPermanent -> context?.granterId != null && context.granterId == entityId
 
             // Source-relative — the candidate is the permanent the effect's source is attached
             // to (its enchanted/equipped creature). Read the source's AttachedToComponent and
@@ -1377,6 +1378,13 @@ data class PredicateContext(
     val sourceId: EntityId? = null,
     /** Owner of the entity being evaluated (for graveyard targeting) */
     val ownerId: EntityId? = null,
+    /**
+     * The permanent whose static ability granted the resolving ability (the Equipment/Aura bearing
+     * a `GrantActivatedAbility`/`GrantTriggeredAbility`). Lets a target filter resolve
+     * [StatePredicate.IsGrantingPermanent] — e.g. "an artifact other than [this granting Equipment]"
+     * (Dire Blunderbuss). Null for ungranted abilities.
+     */
+    val granterId: EntityId? = null,
     /** The entity that caused the trigger to fire (for SharesCreatureTypeWithTriggeringEntity) */
     val triggeringEntityId: EntityId? = null,
     /**
@@ -1474,6 +1482,7 @@ data class PredicateContext(
                 targetOpponentId = chosenPlayerTarget,
                 targetPlayerId = chosenPlayerTarget,
                 sourceId = context.sourceId,
+                granterId = context.granterId,
                 triggeringEntityId = context.triggeringEntityId,
                 triggeringPlayerId = context.triggeringPlayerId,
                 affectedEntityId = context.affectedEntityId,

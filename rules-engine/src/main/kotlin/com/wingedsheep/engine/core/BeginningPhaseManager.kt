@@ -425,6 +425,8 @@ class BeginningPhaseManager(
     ): Boolean = when (predicate) {
         // Graveyard-only predicate; untap filters never see a card with the marker.
         StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
+        // No granter context in untap filtering — granter-relative exclusion is resolution-time only.
+        StatePredicate.IsGrantingPermanent -> false
         is StatePredicate.HasCounter -> {
             val countersComponent = container.get<CountersComponent>()
             if (countersComponent == null) {

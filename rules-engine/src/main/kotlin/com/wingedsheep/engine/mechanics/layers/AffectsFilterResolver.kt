@@ -430,6 +430,8 @@ internal class AffectsFilterResolver {
         // its own source, use GroupFilter's Scope.Self instead. Only meaningful in point-of-use
         // checks (activation legality) via PredicateEvaluator. Never match here.
         StatePredicate.IsSource -> false
+        // No granter context during projection — granter-relative exclusion is resolution-time only.
+        StatePredicate.IsGrantingPermanent -> false
         // Source-relative exile linkage (LinkedExileComponent on the effect source). Only
         // meaningful in target/gather-filter contexts via PredicateEvaluator; never match in
         // group-static projection.

@@ -1417,7 +1417,14 @@ class TriggerDetector(
             detectExploitedSelfSacrificeTriggers(state, event, triggers)
         }
 
-        return triggers
+        // Record the granting permanent for any granted triggered ability (Equipment/Aura granting
+        // a trigger to the attached creature), so the resolving effect can reference its granter
+        // (CR 201.5a) via EffectContext.granterId. Cheap: resolveGranterId is O(1) for the
+        // un-attached majority.
+        return triggers.map { trigger ->
+            val granterId = abilityResolver.resolveGranterId(state, trigger.sourceId, trigger.ability.id)
+            if (granterId != null) trigger.copy(granterId = granterId) else trigger
+        }
     }
 
     /**

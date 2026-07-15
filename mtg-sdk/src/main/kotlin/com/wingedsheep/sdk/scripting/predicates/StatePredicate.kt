@@ -544,6 +544,23 @@ sealed interface StatePredicate {
     }
 
     /**
+     * The candidate permanent is the *granting permanent* of the ability being resolved — the
+     * Equipment/Aura/permanent whose static ability granted the currently-resolving activated or
+     * triggered ability (read from the evaluation context's `granterId`). Source-relative to the
+     * grant rather than the ability's own source: for a granted triggered ability the source is
+     * the equipped creature, but the granter is the Equipment attached to it.
+     *
+     * Negate with [Not] for "other than [this granting permanent]" exclusions (CR 201.5a) — e.g.
+     * Dire Blunderbuss's "sacrifice an artifact other than Dire Blunderbuss". False with no
+     * granter context (an ungranted ability).
+     */
+    @SerialName("IsGrantingPermanent")
+    @Serializable
+    data object IsGrantingPermanent : Entity {
+        override val description: String = "the granting permanent"
+    }
+
+    /**
      * The candidate permanent is the permanent the effect's source is attached to — i.e. the
      * creature/permanent enchanted or equipped by the source (read from the source's
      * `AttachedToComponent`). Source-relative: resolves against the source supplied in the
