@@ -2580,7 +2580,13 @@ work for abilities-on-stack (which carry no `CardComponent`).
   excluding *only* the specific granter (a second same-named copy or another attachment stays legal). The
   granter is threaded to granted triggered abilities via `PendingTrigger.granterId` →
   `TriggeredAbilityOnStackComponent.granterId` → `EffectContext.granterId` → `PredicateContext.granterId`;
-  false with no granter context (an ungranted ability).
+  false with no granter context (an ungranted ability). `TriggerDetector.assignGranterIds` stamps the
+  granter on every event-based trigger (`detectTriggers`, including the batch/duplicate detectors) and on
+  phase/step triggers (`detectPhaseStepTriggers`), so a granted attack *or* upkeep trigger is covered;
+  identical co-attached granters are told apart by a per-`(source, ability)` cursor so N fired triggers map
+  1:1 onto the N granters. Not populated for leaves-the-battlefield granted triggers (a granted "dies"
+  ability): the source is already gone when the trigger fires, so the granter can't be recovered from its
+  attachment index — reference the granter by other means there, or scope with `notAttachedToSource()`.
 - `HasGreatestPower` (filter builder `hasGreatestPower()`) / `HasLeastPower` (filter builder
   `hasLeastPower()`) — has the greatest / least projected power among creatures *its controller*
   controls (ties all qualify). Used for "creature with the greatest/least power" target and edict

@@ -355,7 +355,42 @@ class TriggerDetector(
         val filteredTriggers = capOncePerTurnTriggers(state, triggers)
 
         // Rule 603.4: Filter out triggers with unmet intervening-if conditions
-        return matcher.sortByApnapOrder(state, matcher.filterByTriggerCondition(state, filteredTriggers))
+        return matcher.sortByApnapOrder(
+            state,
+            matcher.filterByTriggerCondition(state, assignGranterIds(state, filteredTriggers))
+        )
+    }
+
+    /**
+     * Stamp each granted triggered ability with the permanent that granted it (an Equipment/Aura
+     * granting a trigger to the attached creature), so the resolving effect can reference its
+     * granter (CR 201.5a) via [com.wingedsheep.engine.handlers.EffectContext.granterId] — e.g. Dire
+     * Blunderbuss's "sacrifice an artifact other than Dire Blunderbuss". Applied uniformly to every
+     * event-based path (per-event scan plus the batch/duplicate detectors that append directly to
+     * the trigger list) and to [detectPhaseStepTriggers], so a granted upkeep/step trigger is
+     * covered too — not just the attack-trigger case.
+     *
+     * When several identical granters are attached to the same creature (two copies of the same
+     * Equipment), each fires its own trigger with an identical `abilityId`; a per-`(source, ability)`
+     * cursor hands the granting attachments out in index order so the N triggers map 1:1 onto the N
+     * granters instead of all collapsing onto the first. Triggers beyond the granter count (e.g. a
+     * Panharmonicon-doubled copy) clamp to the last granter, keeping the doubled copy pointed at the
+     * same Equipment. Cheap: [TriggerAbilityResolver.resolveGranterIds] is O(1) for the un-attached
+     * majority.
+     */
+    private fun assignGranterIds(
+        state: GameState,
+        triggers: List<PendingTrigger>
+    ): List<PendingTrigger> {
+        val cursor = HashMap<Pair<EntityId, com.wingedsheep.sdk.scripting.AbilityId>, Int>()
+        return triggers.map { trigger ->
+            val granters = abilityResolver.resolveGranterIds(state, trigger.sourceId, trigger.ability.id)
+            if (granters.isEmpty()) return@map trigger
+            val key = trigger.sourceId to trigger.ability.id
+            val i = cursor.getOrDefault(key, 0)
+            cursor[key] = i + 1
+            trigger.copy(granterId = granters.getOrElse(i) { granters.last() })
+        }
     }
 
     /**
@@ -574,7 +609,10 @@ class TriggerDetector(
         val filteredTriggers = capOncePerTurnTriggers(state, triggers)
 
         // Rule 603.4: Filter out triggers with unmet intervening-if conditions
-        return matcher.sortByApnapOrder(state, matcher.filterByTriggerCondition(state, filteredTriggers))
+        return matcher.sortByApnapOrder(
+            state,
+            matcher.filterByTriggerCondition(state, assignGranterIds(state, filteredTriggers))
+        )
     }
 
     /**
@@ -1417,14 +1455,7 @@ class TriggerDetector(
             detectExploitedSelfSacrificeTriggers(state, event, triggers)
         }
 
-        // Record the granting permanent for any granted triggered ability (Equipment/Aura granting
-        // a trigger to the attached creature), so the resolving effect can reference its granter
-        // (CR 201.5a) via EffectContext.granterId. Cheap: resolveGranterId is O(1) for the
-        // un-attached majority.
-        return triggers.map { trigger ->
-            val granterId = abilityResolver.resolveGranterId(state, trigger.sourceId, trigger.ability.id)
-            if (granterId != null) trigger.copy(granterId = granterId) else trigger
-        }
+        return triggers
     }
 
     /**

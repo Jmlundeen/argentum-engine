@@ -329,16 +329,23 @@ class TriggerAbilityResolver(
      * Triggered abilities granted by Auras/Equipment attached to this entity.
      */
     /**
-     * The permanent whose `GrantTriggeredAbility` static granted the triggered ability [abilityId]
-     * to [entityId], or null when [abilityId] is one of [entityId]'s own printed abilities.
-     * Populates [com.wingedsheep.engine.handlers.EffectContext.granterId] so a granted ability can
-     * reference its granter (CR 201.5a) — e.g. Dire Blunderbuss's "sacrifice an artifact other than
-     * Dire Blunderbuss". Only inspects the entity's own attachments (the Equipment/Aura grant case)
-     * via the maintained [AttachmentsComponent] reverse index, so it is O(1) for the un-attached
+     * The permanents whose `GrantTriggeredAbility` static granted the triggered ability [abilityId]
+     * to [entityId], in attachment (reverse-index) order — empty when [abilityId] is one of
+     * [entityId]'s own printed abilities. Populates
+     * [com.wingedsheep.engine.handlers.EffectContext.granterId] so a granted ability can reference
+     * its granter (CR 201.5a) — e.g. Dire Blunderbuss's "sacrifice an artifact other than Dire
+     * Blunderbuss". Only inspects the entity's own attachments (the Equipment/Aura grant case) via
+     * the maintained [AttachmentsComponent] reverse index, so it is O(1) for the un-attached
      * majority and never scans the whole battlefield.
+     *
+     * Returns a *list* rather than a single id so two identical granters attached to the same
+     * creature (two copies of the same Equipment, granting the same `abilityId`) can be told apart:
+     * the caller matches the N fired triggers 1:1 onto these N granters instead of collapsing them
+     * onto whichever attachment happens to come first.
      */
-    fun resolveGranterId(state: GameState, entityId: EntityId, abilityId: AbilityId): EntityId? {
-        val attachments = state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds ?: return null
+    fun resolveGranterIds(state: GameState, entityId: EntityId, abilityId: AbilityId): List<EntityId> {
+        val attachments = state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds ?: return emptyList()
+        val granters = mutableListOf<EntityId>()
         for (attachmentId in attachments) {
             val container = state.getEntity(attachmentId) ?: continue
             if (container.has<FaceDownComponent>()) continue
@@ -352,10 +359,13 @@ class TriggerAbilityResolver(
                     else -> null
                 } ?: continue
                 if (grant.filter.scope !is Scope.AttachedTo) continue
-                if (grant.ability.id == abilityId) return attachmentId
+                if (grant.ability.id == abilityId) {
+                    granters.add(attachmentId)
+                    break
+                }
             }
         }
-        return null
+        return granters
     }
 
     private fun getAttachedGrantedTriggeredAbilities(entityId: EntityId, state: GameState): List<TriggeredAbility> {

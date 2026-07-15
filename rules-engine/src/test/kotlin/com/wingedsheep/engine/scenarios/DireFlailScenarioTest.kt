@@ -74,11 +74,22 @@ class DireFlailScenarioTest : FunSpec({
         oracleText = ""
     )
 
+    // 0/20 wall: a durable reflexive-damage target that survives repeated hits, so a scenario
+    // with two attack triggers always has a legal creature to point the "deals damage" at.
+    val wall = CardDefinition.creature(
+        name = "Test Big Wall",
+        manaCost = ManaCost.parse("{4}"),
+        subtypes = setOf(Subtype("Wall")),
+        power = 0,
+        toughness = 20,
+        oracleText = ""
+    )
+
     val projector = StateProjector()
 
     fun setup(): GameTestDriver {
         val driver = GameTestDriver()
-        driver.registerCards(TestCards.all + listOf(trinket, ox))
+        driver.registerCards(TestCards.all + listOf(trinket, ox, wall))
         driver.initMirrorMatch(deck = Deck.of("Mountain" to 40), skipMulligans = true)
         return driver
     }
@@ -391,6 +402,63 @@ class DireFlailScenarioTest : FunSpec({
         // The co-attached Dire Flail (not the granter) was sacrificed; the granting Blunderbuss is intact.
         driver.getGraveyard(p1).shouldContain(coEquip)
         driver.state.getEntity(blunderbuss)?.get<AttachedToComponent>()?.targetId shouldBe courser
+    }
+
+    test("two identical granters on one creature are told apart: each excludes only itself, so both can be sacrificed") {
+        val driver = setup()
+        val p1 = driver.activePlayer!!
+        val opponent = driver.getOpponent(p1)
+
+        // Two Dire Blunderbusses, both equipped to the same creature. No other artifact exists.
+        val b1 = driver.craftToBlunderbuss(p1)
+        val b2 = driver.craftToBlunderbuss(p1)
+        val courser = driver.putCreatureOnBattlefield(p1, "Centaur Courser")
+        driver.removeSummoningSickness(courser)
+        driver.equipBlunderbuss(p1, b1, courser)
+        driver.equipBlunderbuss(p1, b2, courser)
+
+        // Durable target: the equipped 3/3 is 9/3 with two Blunderbusses, so the reflexive damage
+        // would kill a small creature and leave the second trigger no legal creature target. A 0/20
+        // wall survives both hits, keeping the test focused on the sacrifice-exclusion behavior.
+        val victim = driver.putCreatureOnBattlefield(opponent, "Test Big Wall") // 0/20
+
+        // Both grants fire an attack trigger (the ability isn't once-per-turn). Each grant excludes
+        // ONLY its own granter, so b1's trigger can sacrifice b2 and b2's trigger can sacrifice b1.
+        // Under the old first-match `granterId` derivation both triggers pinned the granter to
+        // whichever copy sorted first, so after the first sacrifice the second trigger saw no legal
+        // fodder — proving the per-(source, ability) cursor now maps the two triggers 1:1 onto the
+        // two granters.
+        driver.passPriorityUntil(Step.DECLARE_ATTACKERS)
+        driver.declareAttackers(p1, listOf(courser), opponent).error shouldBe null
+
+        driver.resolveUntilDecision()
+        var guard = 0
+        while (driver.pendingDecision != null && guard++ < 20) {
+            when (val d = driver.pendingDecision) {
+                is YesNoDecision -> driver.submitYesNo(p1, true).error shouldBe null
+                is ChooseTargetsDecision -> {
+                    val legal = d.legalTargets[0].orEmpty()
+                    // A Blunderbuss in the legal set means this is the sacrifice-target choice
+                    // (the other copy); otherwise it's the reflexive damage's creature target.
+                    val pick = when {
+                        b1 in legal -> b1
+                        b2 in legal -> b2
+                        else -> victim
+                    }
+                    driver.submitTargetSelection(p1, listOf(pick)).error shouldBe null
+                }
+                is SelectCardsDecision -> {
+                    val pick = d.options.firstOrNull { it == b1 || it == b2 } ?: d.options.first()
+                    driver.submitCardSelection(p1, listOf(pick))
+                }
+                else -> break
+            }
+            if (driver.pendingDecision == null) driver.drainStack()
+        }
+
+        // Both Blunderbusses ended up sacrificed — each trigger found the *other* copy as fodder.
+        driver.getGraveyard(p1).shouldContain(b1)
+        driver.getGraveyard(p1).shouldContain(b2)
     }
 
     test("negative: craft rejected when the supplied material is a creature, not an artifact") {
