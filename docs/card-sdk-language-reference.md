@@ -505,6 +505,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   `DynamicAmount` ("discard X cards, where X is …" — e.g. Converge's Arcane Omens with
   `DynamicAmounts.colorsOfManaSpent()`).
 - `EachOpponentDiscards(count)` — each opponent discards N.
+- `EachOpponentExilesFromHand(count)` — each opponent exiles N cards from their own hand (each chooses their own). Same `ForEachPlayer(EachOpponent)` → Gather → Select → Move pipeline as `EachOpponentDiscards`, but the destination is exile — Mindleech Ghoul.
 - `EachPlayerReturnPermanentToHand()` — each player bounces a permanent.
 - `EachPlayerDrawsForDamageDealtToSource()` — each player draws equal to damage source took this turn.
 - `ReadTheRunes()` — draw N, then discard N (or sacrifice permanents).
@@ -2030,11 +2031,13 @@ can't statically prevent (cross-trigger flows, `Self`-vs-`ContextTarget` inside 
 - `Targets.ActivatedOrTriggeredAbility` / `Targets.ActivatedAbility` — an ability on the stack (Stifle).
 - `Targets.ActivatedOrTriggeredAbilityYouControl` — an activated or triggered ability **you control** on the stack (`TargetFilter.ActivatedOrTriggeredAbilityOnStack.youControl()`). Mana abilities never use the stack, so they're excluded automatically. Pair with `Effects.CopyTargetSpellOrAbility` — **Gogo, Master of Mimicry**.
 - `Targets.SpellOrAbilityWithSingleTarget` — a spell or ability whose single target is changed (Willbender; pair with `Effects.ChangeTarget()`).
+- `Targets.SpellOrAbility` — any spell, activated ability, or triggered ability on the stack (`TargetFilter.SpellOrAbilityOnStack` = any object in the stack zone; mana abilities never use the stack). Pair with `Effects.CounterSpellOrAbility()` — "counter target spell, activated ability, or triggered ability" (Overcharged Amalgam).
 - `Targets.InstantSorcerySpellOrAbility` — one requirement admitting an instant spell, sorcery spell, activated ability, or triggered ability on the stack (`TargetFilter.InstantSorcerySpellOrAbilityOnStack`, a single `CardPredicate.Or`). Pair with `Effects.CopyTargetSpellOrAbility()` — Return the Favor. **Note:** the STACK targeting enumeration (`TargetFinder.findSpellTargets`) offers an ability as a legal target only when the requirement's filter *explicitly names an ability predicate* (anywhere inside `Or`/`And`/`Not`); plain "target spell" filters stay spell-only (CR 112.1 vs 113.3b/c).
 - `Targets.Card` — any card in any zone (e.g. graveyard).
 - `Targets.CreatureOrPlaneswalker` — combined.
 - `Targets.TappedCreature` / `UntappedCreature` — state-restricted.
 - `Targets.InstantOrSorcery` — instant-or-sorcery card.
+- `Targets.InstantOrSorceryInGraveyard` / `Targets.InstantOrSorceryInYourGraveyard` — an instant or sorcery card in a graveyard / **your** graveyard (the latter for "return target instant or sorcery card from your graveyard to your hand" — Repository Skaab; pair with `Effects.ReturnToHand`).
 
 **Chained predicates** — `.youControl()`, `.controlledByOpponent()`, `.opponent()`, `.withSubtype(...)`,
 `.withKeyword(...)`, `.ofColor(...)`, `.tapped()`, `.untapped()`, `.power(n)`, `.minPower(n)`, `.maxPower(n)`,

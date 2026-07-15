@@ -81,6 +81,20 @@ internal fun BridgeBuilder.triggersCostsAndContinuous() {
     // attach-relative duration and exile linkage the emitter does NOT reconstruct, so it declines to
     // SCAFFOLD per the creator's note (chosen/inherited-value shapes). Hand-authored card is ground truth.
     supported("WhenAPermanentBecomesAttached", "trigger: an Aura/Equipment becomes attached (Triggers.becomesAttached) — capability only, emitter scaffolds")
+    // Exploit payoff (CR 702.110b) — "when this creature exploits a creature, …". NOT an engine gap:
+    // the shipped `card { exploit(onExploit, onExploitTargets) }` helper composes the whole mechanic
+    // from primitives (EXPLOIT keyword + an ETB ReflexiveTriggerEffect whose action sacrifices a
+    // creature and fires an observable EventPattern.ExploitedEvent), baking the self-payoff into the
+    // reflexive so it survives self-sacrifice. Broadcast "whenever a creature you control exploits"
+    // watchers use EventPattern.ExploitedEvent directly (Skull Skaab). Capability-only: fusing the
+    // paired Exploit-keyword rule + this trigger back into one exploit() call (recovering owner /
+    // each-opponent / targeted payoff shapes) is exactly the lossy render the fidelity policy declines,
+    // so the emitter leaves it at SCAFFOLD (like WhenAPermanentBecomesAttached). The Exploit keyword
+    // rule itself already scaffolds via `// STRUCTURE needs human wiring: Exploit`. See the Exploit
+    // keyword + ExploitedEvent entries in card-sdk-language-reference.md; hand-authored cards
+    // (VOW Diver Skaab, Graf Reaver, Mindleech Ghoul, Overcharged Amalgam, Repository Skaab,
+    // Rot-Tide Gargantua) are ground truth.
+    supported("WhenAPermanentExploitsAPermanent", "trigger: this creature exploits a creature (exploit payoff — card { exploit(onExploit, onExploitTargets) }) — capability only, emitter scaffolds")
     // OTJ crime (CR 700.10) — "Whenever you commit a crime, …" (Triggers.YouCommitCrime, Marauding Sphinx).
     supported("WhenAPlayerCommitsACrime", "trigger: you commit a crime (Triggers.YouCommitCrime)")
     // "Whenever one or more cards leave your graveyard, …" — batching leave-graveyard trigger

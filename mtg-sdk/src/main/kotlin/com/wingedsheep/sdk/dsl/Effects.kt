@@ -586,6 +586,13 @@ object Effects {
     fun EachOpponentDiscards(count: Int = 1): Effect = HandPatterns.eachOpponentDiscards(count)
 
     /**
+     * Each opponent exiles N cards from their hand (Mindleech Ghoul). Same
+     * ForEachPlayer(EachOpponent) → Gather → Select → Move pipeline as [EachOpponentDiscards], but
+     * the destination is exile; each opponent chooses their own card(s).
+     */
+    fun EachOpponentExilesFromHand(count: Int = 1): Effect = HandPatterns.eachOpponentExilesFromHand(count)
+
+    /**
      * "Any player may [cost]. If a player does, [consequence]."
      * Each player in APNAP order is offered the cost; the first to pay triggers [consequence].
      * (Prowling Pangolin: "any player may sacrifice two creatures. If a player does, sacrifice this.")

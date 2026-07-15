@@ -189,6 +189,11 @@ object Targets {
      */
     val PermanentOpponentControls: TargetRequirement = TargetPermanent(filter = TargetFilter.PermanentOpponentControls)
 
+    /**
+     * Target planeswalker (any player's) — "destroy target planeswalker" (Graf Reaver).
+     */
+    val Planeswalker: TargetRequirement = TargetPermanent(filter = TargetFilter.Planeswalker)
+
     // =========================================================================
     // Combined Targeting
     // =========================================================================
@@ -260,6 +265,13 @@ object Targets {
      */
     val InstantOrSorceryInGraveyard: TargetRequirement =
         TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard)
+
+    /**
+     * Target instant or sorcery card in YOUR graveyard — "return target instant or sorcery card
+     * from your graveyard to your hand" (Repository Skaab).
+     */
+    val InstantOrSorceryInYourGraveyard: TargetRequirement =
+        TargetObject(filter = TargetFilter.InstantOrSorceryInYourGraveyard)
 
     // =========================================================================
     // Spell Targeting
@@ -376,6 +388,16 @@ object Targets {
      * The single-target restriction is enforced at resolution time by the executor.
      */
     val SpellOrAbilityWithSingleTarget: TargetRequirement = TargetObject(
+        filter = TargetFilter.SpellOrAbilityOnStack
+    )
+
+    /**
+     * Target spell, activated ability, or triggered ability on the stack — "counter target spell,
+     * activated ability, or triggered ability" (Overcharged Amalgam). Any object in the stack zone
+     * qualifies; mana abilities never use the stack, so they're excluded automatically. Pair with
+     * [com.wingedsheep.sdk.dsl.Effects.CounterSpellOrAbility].
+     */
+    val SpellOrAbility: TargetRequirement = TargetObject(
         filter = TargetFilter.SpellOrAbilityOnStack
     )
 

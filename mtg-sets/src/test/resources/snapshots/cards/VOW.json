@@ -1659,6 +1659,71 @@
     ]
 }
 
+// Diver Skaab
+{
+    "name": "Diver Skaab",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Creature — Zombie",
+    "oracleText": "Exploit (When this creature enters, you may sacrifice a creature.)\nWhen this creature exploits a creature, target creature's owner puts it on their choice of the top or bottom of their library.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 5
+    },
+    "keywords": [
+        "EXPLOIT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Sacrifice",
+                                "filter": "creature"
+                            },
+                            "EmitExploitedEvent"
+                        ]
+                    },
+                    "reflexiveEffect": {
+                        "type": "PutOnLibraryPositionOfChoice",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    },
+                    "reflexiveTargetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            }
+                        }
+                    ],
+                    "descriptionOverride": "You may sacrifice a creature"
+                },
+                "descriptionOverride": "Exploit (When this creature enters, you may sacrifice a creature.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "56",
+        "rarity": "UNCOMMON",
+        "artist": "Dave Kendall",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/8/38b5fdf4-3884-436f-8066-bc7593e72b02.jpg?1783924897"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Dread Fugue
 {
     "name": "Dread Fugue",
@@ -2593,6 +2658,93 @@
         "collectorNumber": "114",
         "artist": "Jesper Ejsing",
         "imageUri": "https://cards.scryfall.io/normal/front/1/8/18c07288-1c71-4e71-bdf5-910eb583a1d8.jpg?1782703110"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Graf Reaver
+{
+    "name": "Graf Reaver",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Zombie Warrior",
+    "oracleText": "Exploit (When this creature enters, you may sacrifice a creature.)\nWhen this creature exploits a creature, destroy target planeswalker.\nAt the beginning of your upkeep, this creature deals 1 damage to you.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "EXPLOIT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Sacrifice",
+                                "filter": "creature"
+                            },
+                            "EmitExploitedEvent"
+                        ]
+                    },
+                    "reflexiveEffect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "reflexiveTargetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "planeswalker"
+                            }
+                        }
+                    ],
+                    "descriptionOverride": "You may sacrifice a creature"
+                },
+                "descriptionOverride": "Exploit (When this creature enters, you may sacrifice a creature.)"
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "You"
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, this creature deals 1 damage to you."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "115",
+        "rarity": "RARE",
+        "artist": "Dave Kendall",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/b/0bb2103b-3462-4439-a1e1-243a15c5f318.jpg?1783924863"
     },
     "colorIdentityOverride": [
         "BLACK"
@@ -3868,6 +4020,96 @@
     ]
 }
 
+// Mindleech Ghoul
+{
+    "name": "Mindleech Ghoul",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Zombie",
+    "oracleText": "Exploit (When this creature enters, you may sacrifice a creature.)\nWhen this creature exploits a creature, each opponent exiles a card from their hand.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "EXPLOIT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Sacrifice",
+                                "filter": "creature"
+                            },
+                            "EmitExploitedEvent"
+                        ]
+                    },
+                    "reflexiveEffect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Players",
+                            "players": "EachOpponent"
+                        },
+                        "body": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "exiled",
+                                    "prompt": "Choose a card to exile"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "exiled",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Exile"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "descriptionOverride": "You may sacrifice a creature"
+                },
+                "descriptionOverride": "Exploit (When this creature enters, you may sacrifice a creature.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "artist": "Alex Brock",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f5c4e00d-128a-4ddb-9e1b-3ee93121b262.jpg?1783924857"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Moldgraf Millipede
 {
     "name": "Moldgraf Millipede",
@@ -4103,6 +4345,71 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Overcharged Amalgam
+{
+    "name": "Overcharged Amalgam",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Creature — Zombie Horror",
+    "oracleText": "Flash\nFlying\nExploit (When this creature enters, you may sacrifice a creature.)\nWhen this creature exploits a creature, counter target spell, activated ability, or triggered ability.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLASH",
+        "FLYING",
+        "EXPLOIT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Sacrifice",
+                                "filter": "creature"
+                            },
+                            "EmitExploitedEvent"
+                        ]
+                    },
+                    "reflexiveEffect": {
+                        "type": "Counter",
+                        "target": "CounterTarget.SpellOrAbility"
+                    },
+                    "reflexiveTargetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {},
+                                "zone": "Stack"
+                            }
+                        }
+                    ],
+                    "descriptionOverride": "You may sacrifice a creature"
+                },
+                "descriptionOverride": "Exploit (When this creature enters, you may sacrifice a creature.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "71",
+        "rarity": "RARE",
+        "artist": "Mike Jordana",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/b/dbbcd63d-6c25-47a6-a76c-ac53bf12949c.jpg?1783924890"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -4671,6 +4978,72 @@
     ]
 }
 
+// Repository Skaab
+{
+    "name": "Repository Skaab",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Zombie",
+    "oracleText": "Exploit (When this creature enters, you may sacrifice a creature.)\nWhen this creature exploits a creature, return target instant or sorcery card from your graveyard to your hand.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "EXPLOIT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Sacrifice",
+                                "filter": "creature"
+                            },
+                            "EmitExploitedEvent"
+                        ]
+                    },
+                    "reflexiveEffect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Hand"
+                    },
+                    "reflexiveTargetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "instant|sorcery own:you",
+                                "zone": "Graveyard"
+                            }
+                        }
+                    ],
+                    "descriptionOverride": "You may sacrifice a creature"
+                },
+                "descriptionOverride": "Exploit (When this creature enters, you may sacrifice a creature.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "artist": "Olivier Bernard",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7cc22c2a-535a-46b5-817c-da5850abd669.jpg?1783924886"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Resistance Squad
 {
     "name": "Resistance Squad",
@@ -4777,6 +5150,63 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Rot-Tide Gargantua
+{
+    "name": "Rot-Tide Gargantua",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Creature — Zombie Kraken",
+    "oracleText": "Exploit (When this creature enters, you may sacrifice a creature.)\nWhen this creature exploits a creature, each opponent sacrifices a creature of their choice.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "EXPLOIT"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ReflexiveTrigger",
+                    "action": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Sacrifice",
+                                "filter": "creature"
+                            },
+                            "EmitExploitedEvent"
+                        ]
+                    },
+                    "reflexiveEffect": {
+                        "type": "ForceSacrifice",
+                        "filter": "creature",
+                        "target": {
+                            "type": "PlayerRef",
+                            "player": "EachOpponent"
+                        }
+                    },
+                    "descriptionOverride": "You may sacrifice a creature"
+                },
+                "descriptionOverride": "Exploit (When this creature enters, you may sacrifice a creature.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "129",
+        "artist": "Filip Burburan",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/e/1eafefd0-3a9e-400e-8c75-0825aeb2ded1.jpg?1783924850"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
