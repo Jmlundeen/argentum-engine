@@ -59,6 +59,21 @@ data class GameObjectFilter(
     val description: String
         get() = buildDescription()
 
+    /**
+     * The English indefinite article ("a" or "an") for this filter's type name.
+     * Derived from the card predicates' type word (e.g. "artifact", "equipment"),
+     * not from the full [description] — which may include "you control" prefixes
+     * that would give the wrong first letter.
+     */
+    val indefiniteArticle: String
+        get() {
+            val typeWord = cardPredicates.firstOrNull()?.description?.trim()
+                ?: if (anyOf.isNotEmpty()) anyOf.first().indefiniteArticle
+                else description.trim()
+            val first = typeWord.firstOrNull()?.lowercaseChar() ?: return "a"
+            return if (first in "aeiou") "an" else "a"
+        }
+
     private fun buildDescription(): String = buildString {
         controllerPredicate?.let {
             if (it.description.isNotEmpty()) {

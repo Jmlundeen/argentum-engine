@@ -2,12 +2,19 @@ package com.wingedsheep.sdk.dsl
 
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Costs.Composite
+import com.wingedsheep.sdk.dsl.Costs.Mana
+import com.wingedsheep.sdk.dsl.Costs.RemoveCounters
+import com.wingedsheep.sdk.dsl.Costs.RemoveXCounters
+import com.wingedsheep.sdk.dsl.Costs.additional.Behold
+import com.wingedsheep.sdk.dsl.Costs.additional.ExileFromStorage
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.CostZone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PayCost
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Facade object providing convenient access to cost types.
@@ -252,26 +259,49 @@ object Costs {
     // =========================================================================
 
     /**
-     * Remove X +1/+1 counters from among creatures you control.
-     * X is chosen by the player; the engine auto-distributes counter removal.
-     */
-    val RemoveXPlusOnePlusOneCounters: AbilityCost = AbilityCost.RemoveXPlusOnePlusOneCounters
-
-    /**
      * Remove a fixed number of +1/+1 counters from among permanents you control matching
      * [filter]. Use this for fixed-count costs that aren't creature-only (e.g., Iron Spider:
      * "Remove two +1/+1 counters from among artifacts you control"). Use
-     * [RemoveXPlusOnePlusOneCounters] for player-chosen X.
+     * [RemoveXCounters] for player-chosen X.
+     * Delegates to [RemoveCounters].
      */
     fun RemovePlusOnePlusOneCounters(filter: GameObjectFilter, count: Int): AbilityCost =
-        AbilityCost.RemovePlusOnePlusOneCounters(filter, count)
+        AbilityCost.Atom(CostAtom.RemoveCounters("+1/+1", DynamicAmount.Fixed(count), filter))
 
     /**
      * Remove one or more counters of the specified type from this permanent.
      * Used for artifacts with charge/gem counters as activation costs.
+     * Delegates to [RemoveCounters] with [self] = true.
      */
-    fun RemoveCounterFromSelf(counterType: String, count: Int = 1): AbilityCost =
-        AbilityCost.RemoveCounterFromSelf(counterType, count)
+    fun RemoveCounterFromSelf(counterType: String?, count: Int = 1): AbilityCost =
+        AbilityCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), self = true))
+
+    /**
+     * Remove [count] counters of the specified [counterType] (or any type when null)
+     * from among permanents matching [filter] you control. When [counterType] is null
+     * (default), counters of any type may be removed in any combination.
+     *
+     * Examples:
+     * - `Costs.RemoveCounters(count = 2, counterType = "+1/+1", filter = Filters.Artifact)`
+     *   — "Remove two +1/+1 counters from among artifacts you control"
+     * - `Costs.RemoveCounters(count = 3, filter = Filters.Creature)`
+     *   — "Remove three counters from among creatures you control" (any type)
+     */
+    fun RemoveCounters(
+        count: Int = 1,
+        counterType: String? = null,
+        filter: GameObjectFilter = GameObjectFilter.Permanent
+    ): AbilityCost = AbilityCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), filter))
+
+    /**
+     * Remove X counters of any type from among creatures you control.
+     * X is the value chosen for this ability's variable cost.
+     */
+    fun RemoveXCounters(
+            counterType: String? = null,
+            count: DynamicAmount = DynamicAmount.XValue,
+            filter: GameObjectFilter = GameObjectFilter.Permanent
+        ): AbilityCost = AbilityCost.Atom(CostAtom.RemoveCounters(counterType, count, filter))
 
     // =========================================================================
     // Composite Costs
@@ -441,9 +471,16 @@ object Costs {
         /** Group multiple additional costs into one logical cost (steps run in order). */
         fun Composite(steps: List<AdditionalCost>): AdditionalCost = AdditionalCost.Composite(steps)
 
-        /** Remove [totalCount] counters from among creatures you control (Dawnhand Dissident). */
-        fun RemoveCountersFromYourCreatures(totalCount: Int): AdditionalCost =
-            AdditionalCost.RemoveCountersFromYourCreatures(totalCount)
+        /**
+         * Remove [count] counters of the specified [counterType] (or any type when null)
+         * from among permanents matching [filter] you control, as an additional cost to
+         * cast a spell.
+         */
+        fun RemoveCounters(
+            count: Int = 1,
+            counterType: String? = null,
+            filter: GameObjectFilter = GameObjectFilter.Permanent
+        ): AdditionalCost = AdditionalCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), filter))
 
         /** Tap [count] untapped permanents matching [filter] you control. */
         fun TapPermanents(count: Int = 1, filter: GameObjectFilter = GameObjectFilter.Creature): AdditionalCost =
@@ -512,5 +549,15 @@ object Costs {
         /** Tap [count] untapped permanents matching [filter] you control. */
         fun Tap(filter: GameObjectFilter = GameObjectFilter.Any, count: Int = 1): PayCost =
             PayCost.Atom(CostAtom.TapPermanents(count, filter))
+
+        /**
+         * Remove [count] counters of the specified [counterType] (or any type when null)
+         * from among permanents matching [filter] you control.
+         */
+        fun RemoveCounters(
+            count: Int = 1,
+            counterType: String? = null,
+            filter: GameObjectFilter = GameObjectFilter.Permanent
+        ): PayCost = PayCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), filter))
     }
 }

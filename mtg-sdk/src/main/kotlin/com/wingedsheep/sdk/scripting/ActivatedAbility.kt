@@ -1,7 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.effects.Effect
@@ -11,7 +10,6 @@ import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import com.wingedsheep.sdk.dsl.craft
 
 /**
  * An activated ability is an ability that a player can activate by paying a cost.
@@ -358,54 +356,6 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     }
 
     /**
-     * Remove X +1/+1 counters from among creatures you control.
-     * X is chosen by the player when activating the ability.
-     * The engine auto-distributes counter removal across creatures.
-     */
-    @SerialName("CostRemoveXPlusOnePlusOneCounters")
-    @Serializable
-    data object RemoveXPlusOnePlusOneCounters : AbilityCost {
-        override val description: String = "Remove X +1/+1 counters from among creatures you control"
-    }
-
-    /**
-     * Remove a fixed number of +1/+1 counters from among permanents you control matching
-     * a filter. Used for fixed-count costs that aren't creature-only — e.g., Iron Spider,
-     * Stark Upgrade's "Remove two +1/+1 counters from among artifacts you control."
-     *
-     * The player chooses how to distribute the removal across matching permanents. Use
-     * [RemoveXPlusOnePlusOneCounters] instead when the count is a player-chosen X.
-     */
-    @SerialName("CostRemovePlusOnePlusOneCounters")
-    @Serializable
-    data class RemovePlusOnePlusOneCounters(val filter: GameObjectFilter, val count: Int) : AbilityCost {
-        override val description: String =
-            "Remove $count +1/+1 counters from among ${filter.description}s you control"
-
-        override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
-            val newFilter = filter.applyTextReplacement(replacer)
-            return if (newFilter !== filter) copy(filter = newFilter) else this
-        }
-    }
-
-    /**
-     * Remove one or more counters of the specified type from this permanent.
-     * Used for artifacts with charge/gem counters as activation costs.
-     *
-     * @property counterType The type of counter to remove (e.g., "gem", "charge")
-     * @property count Number of counters to remove (defaults to 1)
-     */
-    @SerialName("CostRemoveCounterFromSelf")
-    @Serializable
-    data class RemoveCounterFromSelf(val counterType: String, val count: Int = 1) : AbilityCost {
-        override val description: String = if (count == 1) {
-            "Remove a $counterType counter from this permanent"
-        } else {
-            "Remove $count $counterType counters from this permanent"
-        }
-    }
-
-    /**
      * Forage: exile three cards from your graveyard or sacrifice a Food.
      * Used as an activated ability cost for Bloomburrow cards.
      */
@@ -424,27 +374,6 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     @Serializable
     data class Blight(val amount: Int) : AbilityCost {
         override val description: String = "Blight $amount"
-    }
-
-    /**
-     * Remove N counters of a specific type from among permanents matching a filter you control.
-     * The player distributes which permanents contribute counters toward the total.
-     *
-     * Example: "Remove two +1/+1 counters from among artifacts you control"
-     */
-    @SerialName("CostRemoveCountersFromAmongFilteredPermanents")
-    @Serializable
-    data class RemoveCountersFromAmongFilteredPermanents(
-        val counterType: String,
-        val count: Int,
-        val filter: GameObjectFilter
-    ) : AbilityCost {
-        override val description: String =
-            "Remove $count $counterType counter${if (count == 1) "" else "s"} from among ${filter.description}s you control"
-        override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
-            val newFilter = filter.applyTextReplacement(replacer)
-            return if (newFilter !== filter) copy(filter = newFilter) else this
-        }
     }
 
     /**
