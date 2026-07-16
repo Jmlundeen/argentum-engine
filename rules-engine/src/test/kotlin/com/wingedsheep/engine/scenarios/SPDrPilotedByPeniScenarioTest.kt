@@ -121,6 +121,11 @@ class SPDrPilotedByPeniScenarioTest : FunSpec({
         val handSizeBeforeCombat = driver.getHandSize(p1)
 
         driver.declareAttackers(p1, listOf(spdr, plainBear), p2)
+
+        // Vigilance: SP//dr attacked without tapping; the vanilla bear (no vigilance) is tapped.
+        driver.isTapped(spdr) shouldBe false
+        driver.isTapped(plainBear) shouldBe true
+
         // Actually advance through declare blockers + the combat damage step (resolveStack()
         // alone is a no-op here — right after declaring attackers there's nothing on the stack
         // yet; the trigger only appears once damage is dealt).
