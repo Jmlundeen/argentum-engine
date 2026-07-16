@@ -9175,6 +9175,65 @@
     ]
 }
 
+// Malicious Eclipse
+{
+    "name": "Malicious Eclipse",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "All creatures get -2/-2 until end of turn. If a creature an opponent controls would die this turn, exile it instead.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GrantReplacementEffect",
+                    "replacement": {
+                        "type": "RedirectZoneChange",
+                        "newDestination": "Exile",
+                        "appliesTo": {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature ctrl:opponent",
+                            "from": "Battlefield",
+                            "to": "Graveyard"
+                        }
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature"
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "target": "Self"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "rarity": "UNCOMMON",
+        "artist": "Campbell White",
+        "flavorText": "Aclazotz laughed as the dark shards closed around Chimil, plunging the Core into unnatural darkness. At long last, his bloody reign would begin.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/2796fffa-8cbf-4ec9-91a8-7b6f39fd50ec.jpg?1782694523"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Marauding Brinefang
 {
     "name": "Marauding Brinefang",

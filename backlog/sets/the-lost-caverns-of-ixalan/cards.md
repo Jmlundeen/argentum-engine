@@ -153,7 +153,7 @@
 - [x] Malamet Veteran
 - [x] Malamet War Scribe
 - [x] Malcolm, Alluring Scoundrel
-- [ ] Malicious Eclipse
+- [x] Malicious Eclipse
 - [x] Marauding Brinefang
 - [ ] Market Gnome
 - [x] Master's Guide-Mural
