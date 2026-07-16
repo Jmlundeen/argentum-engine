@@ -4425,17 +4425,27 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   `effectiveSneakCost` are read by `SneakCastEnumerator` (a graveyard loop) and four sites in
   `CastSpellHandler` (zone gate, both cost paths, the enters-tapped/bounce resolution). No
   exile-on-resolution (unlike flashback) — the creature simply moves graveyard → stack → battlefield.
-- `MayCastSelfFromZones(zones, condition = null)` — intrinsic *self* permission: this card may be
-  cast from any of `zones` (graveyard/exile) following normal timing and for its normal mana cost.
-  Squee, the Immortal = `MayCastSelfFromZones(listOf(GRAVEYARD, EXILE))`. When `condition` is
-  non-null the permission is **gated**: it is available only while the condition holds, evaluated in
-  the casting player's context at cast-legality time *and* re-checked when the cast is authorized
-  (so it can't outlive the permission). Undead Sprinter (DSK) = `MayCastSelfFromZones(listOf(GRAVEYARD),
-  condition = Conditions.NonSubtypeCreatureDiedThisTurn(Subtype.ZOMBIE))` for "You may cast this card
-  from your graveyard if a non-Zombie creature died this turn." Pair with an
-  `EntersWithCounters(selfOnly = true, condition = Conditions.WasCastFromGraveyard)` rider to model
-  "if you do, this creature enters with a +1/+1 counter on it" — the counter is tied to the
+- `MayCastSelfFromZones(zones, condition = null, additionalCost = null)` — intrinsic *self*
+  permission: this card may be cast from any of `zones` (graveyard/exile) following normal timing
+  and for its normal mana cost. Squee, the Immortal = `MayCastSelfFromZones(listOf(GRAVEYARD,
+  EXILE))`. When `condition` is non-null the permission is **gated**: it is available only while the
+  condition holds, evaluated in the casting player's context at cast-legality time *and* re-checked
+  when the cast is authorized (so it can't outlive the permission). Undead Sprinter (DSK) =
+  `MayCastSelfFromZones(listOf(GRAVEYARD), condition = Conditions.NonSubtypeCreatureDiedThisTurn(Subtype.ZOMBIE))`
+  for "You may cast this card from your graveyard if a non-Zombie creature died this turn." Pair
+  with an `EntersWithCounters(selfOnly = true, condition = Conditions.WasCastFromGraveyard)` rider to
+  model "if you do, this creature enters with a +1/+1 counter on it" — the counter is tied to the
   graveyard cast (`CastFromGraveyardComponent` stamped on resolution), not to the gate condition.
+  When `additionalCost` is non-null, casting through this permission also requires paying that cost
+  (mirrors `GrantMayCastFromLinkedExile.additionalCost`). Alien Symbiosis (SPM) =
+  `MayCastSelfFromZones(listOf(GRAVEYARD), additionalCost = Costs.additional.DiscardCards(1))` for
+  "You may cast this card from your graveyard by discarding a card in addition to paying its other
+  costs." Wired through `CastZoneResolver.findMayCastSelfFromZoneAbility` (returns the applicable
+  ability so callers can read its `additionalCost`), validated/collected in `CastSpellHandler`
+  alongside the other additional-cost sources, and surfaced to legal-action enumeration in
+  `CastFromZoneEnumerator.enumerateIntrinsicZoneCast` via the same `AdditionalCostData` /
+  `buildLinkedExileAdditionalCostInfo` plumbing used for linked-exile grants (including a
+  `DiscardCard` rendering with `validDiscardTargets`).
 - `GrantWarpToCardsInHand(filter, cost)` — cards in the controller's hand matching `filter` gain
   warp (CR 702.185) with mana cost `cost`. Behaves identically to a printed warp keyword: surfaces a
   "Cast (Warp)" legal action, marks `wasWarped` on resolution, and the post-resolution permanent is

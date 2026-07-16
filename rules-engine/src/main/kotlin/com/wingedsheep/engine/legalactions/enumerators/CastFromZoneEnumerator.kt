@@ -901,6 +901,16 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     )
                     info to canPay
                 }
+                is CostAtom.Discard -> {
+                    val handCards = state.getZone(ZoneKey(playerId, Zone.HAND))
+                    val info = AdditionalCostData(
+                        description = additionalCost.description,
+                        costType = "DiscardCard",
+                        validDiscardTargets = handCards.toList(),
+                        discardCount = atom.count
+                    )
+                    info to (handCards.size >= atom.count)
+                }
                 else -> AdditionalCostData(
                     description = additionalCost.description,
                     costType = "Other"
@@ -939,9 +949,9 @@ class CastFromZoneEnumerator : ActionEnumerator {
                 // The card grants its own cast-from-zone permission only if some MayCastSelfFromZones
                 // names this zone AND its optional condition (e.g. Undead Sprinter's "a non-Zombie
                 // creature died this turn") currently holds in the casting player's context.
-                val hasCastFromZone = cardDef.script.staticAbilities
+                val zoneCastAbility = cardDef.script.staticAbilities
                     .filterIsInstance<MayCastSelfFromZones>()
-                    .any { ability ->
+                    .firstOrNull { ability ->
                         zone in ability.zones && (ability.condition == null ||
                             context.conditionEvaluator.evaluate(
                                 state,
@@ -951,10 +961,16 @@ class CastFromZoneEnumerator : ActionEnumerator {
                                 )
                             ))
                     }
-                if (!hasCastFromZone) continue
+                if (zoneCastAbility == null) continue
 
                 // Only non-land spells (Squee is a creature)
                 if (cardComponent.typeLine.isLand) continue
+
+                // Additional cost bundled with the permission (e.g. Alien Symbiosis: "by
+                // discarding a card in addition to paying its other costs").
+                val (zoneAdditionalCostInfo, canPayZoneAdditionalCost) = buildLinkedExileAdditionalCostInfo(
+                    state, playerId, zoneCastAbility.additionalCost, context.costUtils
+                )
 
                 val sourceZoneName = zone.name
                 if (context.cantCastSpell(cardId)) {
@@ -965,7 +981,8 @@ class CastFromZoneEnumerator : ActionEnumerator {
                             action = CastSpell(playerId, cardId),
                             affordable = false,
                             manaCostString = cardComponent.manaCost.toString(),
-                            sourceZone = sourceZoneName
+                            sourceZone = sourceZoneName,
+                            additionalCostInfo = zoneAdditionalCostInfo
                         )
                     )
                 } else {
@@ -977,7 +994,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     val costString = effectiveCost.toString()
                     val canAfford = context.manaSolver.canPay(state, playerId, effectiveCost, precomputedSources = context.availableManaSources)
 
-                    if (hasCorrectTiming && meetsRestrictions && canAfford) {
+                    if (hasCorrectTiming && meetsRestrictions && canAfford && canPayZoneAdditionalCost) {
                         val targetReqs = buildList {
                             addAll(cardDef.script.targetRequirements)
                             cardDef.script.auraTarget?.let { add(it) }
@@ -1003,7 +1020,8 @@ class CastFromZoneEnumerator : ActionEnumerator {
                                         xConstrainsTargetManaValue = firstInfo.xConstrainsManaValue,
                                         xConstrainsTargetCount = firstInfo.xConstrainsCount,
                                         manaCostString = costString,
-                                        sourceZone = sourceZoneName
+                                        sourceZone = sourceZoneName,
+                                        additionalCostInfo = zoneAdditionalCostInfo
                                     )
                                 )
                             }
@@ -1014,7 +1032,8 @@ class CastFromZoneEnumerator : ActionEnumerator {
                                     description = "Cast ${cardComponent.name}",
                                     action = CastSpell(playerId, cardId),
                                     manaCostString = costString,
-                                    sourceZone = sourceZoneName
+                                    sourceZone = sourceZoneName,
+                                    additionalCostInfo = zoneAdditionalCostInfo
                                 )
                             )
                         }
@@ -1026,7 +1045,8 @@ class CastFromZoneEnumerator : ActionEnumerator {
                                 action = CastSpell(playerId, cardId),
                                 affordable = false,
                                 manaCostString = costString,
-                                sourceZone = sourceZoneName
+                                sourceZone = sourceZoneName,
+                                additionalCostInfo = zoneAdditionalCostInfo
                             )
                         )
                     }

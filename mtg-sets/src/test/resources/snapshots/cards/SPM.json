@@ -58,6 +58,66 @@
     ]
 }
 
+// Alien Symbiosis
+{
+    "name": "Alien Symbiosis",
+    "manaCost": "{1}{B}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +1/+1, has menace, and is a Symbiote in addition to its other types.\nYou may cast this card from your graveyard by discarding a card in addition to paying its other costs.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "MENACE"
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Symbiote",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            },
+            {
+                "type": "MayCastSelfFromZones",
+                "zones": [
+                    "Graveyard"
+                ],
+                "additionalCost": {
+                    "type": "AdditionalAtom",
+                    "atom": "AtomDiscard"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "UNCOMMON",
+        "artist": "JB Casacop",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b898ccb7-758e-4f11-95e0-b412721d8bf9.jpg?1783905348",
+        "rulings": [
+            {
+                "date": "2025-09-19",
+                "text": "You must follow all normal timing rules when casting Alien Symbiosis using its last ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Amazing Acrobatics
 {
     "name": "Amazing Acrobatics",

@@ -344,6 +344,15 @@ class CastSpellHandler(
             if (linkedCostError != null) return linkedCostError
         }
 
+        // Validate a self-referential MayCastSelfFromZones grant's additional cost (e.g. Alien
+        // Symbiosis: "cast this from your graveyard by discarding a card").
+        val mayCastFromZoneAbility = zoneResolver.findMayCastSelfFromZoneAbility(state, action.playerId, action.cardId)
+        val mayCastFromZoneAdditionalCost = mayCastFromZoneAbility?.additionalCost
+        if (mayCastFromZoneAdditionalCost != null) {
+            val zoneCostError = validateAdditionalCosts(state, listOf(mayCastFromZoneAdditionalCost), action)
+            if (zoneCostError != null) return zoneCostError
+        }
+
         // Validate runtime additional costs from PlayWithAdditionalCostComponent (e.g., The Infamous Cruelclaw)
         val runtimeAdditionalCostComponent = state.getEntity(action.cardId)
             ?.get<PlayWithAdditionalCostComponent>()
@@ -2149,6 +2158,11 @@ class CastSpellHandler(
             // "remove three counters from among creatures you control")
             val linkedGranter = zoneResolver.findLinkedExileGranter(currentState, action.playerId, action.cardId)
             linkedGranter?.additionalCost?.let { add(it) }
+
+            // Self-referential MayCastSelfFromZones grant's additional cost (e.g. Alien
+            // Symbiosis' "by discarding a card")
+            zoneResolver.findMayCastSelfFromZoneAbility(currentState, action.playerId, action.cardId)
+                ?.additionalCost?.let { add(it) }
         }
 
         val flattenedAllCosts = reduceChoiceCosts(allAdditionalCosts, currentState, action.playerId, action.additionalCostPayment)
