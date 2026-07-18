@@ -64,6 +64,8 @@ enum class CounterType {
     FIRE,
     CONQUEROR,
     NET,
+    LANDMARK,
+    DREAD,
     SPORE;
 
     companion object {
@@ -244,6 +246,24 @@ object Counters {
      * NOT a keyword counter, so it is intentionally absent from `StateProjector.KEYWORD_COUNTER_MAP`.
      */
     const val NET = "net"
+
+    /**
+     * Landmark counter (LCI — Treasure Map). Passive named counter with no inherent rule of its
+     * own — Treasure Map's activated ability adds one per activation and reads the count (via
+     * `Conditions.SourceCounterCountAtLeast(...)`) to remove three, transform into Treasure Cove,
+     * and make three Treasures.
+     * NOT a keyword counter, so it is intentionally absent from `StateProjector.KEYWORD_COUNTER_MAP`.
+     */
+    const val LANDMARK = "landmark"
+
+    /**
+     * Dread counter (LCI — Grasping Shadows). Passive named counter with no inherent rule of its
+     * own — Grasping Shadows adds one whenever a creature you control attacks alone and reads the
+     * count (via `Conditions.SourceCounterCountAtLeast(...)`) to transform into Shadows' Lair,
+     * whose activated ability spends one (`Costs.RemoveCounterFromSelf(Counters.DREAD, 1)`).
+     * NOT a keyword counter, so it is intentionally absent from `StateProjector.KEYWORD_COUNTER_MAP`.
+     */
+    const val DREAD = "dread"
 
     /**
      * Wildcard sentinel for triggers/events that fire on counters of *any* type, e.g.

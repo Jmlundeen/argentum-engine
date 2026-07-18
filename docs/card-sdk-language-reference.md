@@ -779,6 +779,14 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   none of that kind. The count-fixed counterpart to the interactive `MoveChosenCountersToTarget`.
 - `Counters.ANY` — wildcard counter-type string for "counters of any type" triggers/events (e.g.
   `Triggers.countersPlacedOn`); not a real placeable counter, only a matcher sentinel.
+- **Passive named counters** — flavor counters with no inherent rule; the card that uses one accumulates
+  it (`AddCounters(Counters.X, …)`) and reads the count via `Conditions.SourceCounterCountAtLeast(Counters.X, …)`
+  or `DynamicAmounts.countersOnSelf(…)`, and may spend it as a cost (`Costs.RemoveCounterFromSelf(Counters.X, …)`).
+  Add a new one to both `enum class CounterType` and `object Counters` (SDK) plus the client's passive-counter
+  wiring (`PASSIVE_COUNTER_TYPES`, `passiveCounterBadgeStyle`, `counterManaClass`, `CounterTypeDisplayNames`);
+  keep it out of `StateProjector.KEYWORD_COUNTER_MAP` since it grants no keyword. Recent examples:
+  `Counters.LANDMARK` (Treasure Map — three flip it into Treasure Cove), `Counters.DREAD` (Grasping Shadows —
+  three flip it into Shadows' Lair), `Counters.NET`, `Counters.FIRE`, `Counters.CONQUEROR`.
 - `DistributeCountersFromSelf(type?, count?)` — split source's counters among creatures you control.
 - `DistributeCountersAmongTargets(total, type?, minPerTarget?)` — divvy N counters among chosen targets.
 - `DistributeCountersAmongFiltered(total, type?, filter, minPerTarget?)` — distribute N **new** counters among permanents matching `filter`, chosen at resolution (not the spell's targets); `minPerTarget = 0` models "among any number of". Unlike `DistributeCountersFromSelf` nothing is removed from a source. Crashing Wave: `DistributeCountersAmongFiltered(3, Counters.STUN, Filters.Creature.tapped().opponentControls())` — "distribute three stun counters among any number of tapped creatures your opponents control."
@@ -6611,6 +6619,21 @@ replacementEffect {
   instances sum. Use for "if an opponent would mill one or more cards, they mill that many cards plus
   four instead" (The Water Crystal:
   `ModifyMillAmount(modifier = 4, appliesTo = EventPattern.MillEvent(player = Player.EachOpponent))`).
+- `ModifyExplore(prefixEffect, appliesTo)` — insert an extra effect into an explore (CR 614, CR
+  701.44): replaces "[a matching permanent] explores" with "[prefixEffect], then that permanent
+  explores". `appliesTo` is an `EventPattern.ExploredEvent` whose `filter` scopes which explores are
+  modified, matched against the exploring creature with the **source's controller** as "you" (so
+  `ExploredEvent(GameObjectFilter.Creature.youControl())` = "if a creature you control would
+  explore"); `revealedType` is irrelevant (the replacement runs before the reveal). Like
+  `ReplaceDrawWithEffect`, explore isn't a generic replaceable event — `ExploreEffectExecutor`
+  consults printed `ModifyExplore` on the battlefield directly and, on a match, re-issues the explore
+  as `Composite(prefixEffect, ExploreEffect(sameCreature, replacementsApplied = true))` through the
+  registry recursion, so a pausing prefix (Scry's top/bottom decision) sequences fully before the
+  explore. The `replacementsApplied` guard on the inner `ExploreEffect` stops the same replacement
+  applying twice. Multiple applicable sources chain their prefixes in battlefield order (a faithful
+  APNAP order per CR 616 is unmodeled — no printed card stacks explore modifiers). Twists and Turns:
+  `ModifyExplore(Effects.Scry(1), EventPattern.ExploredEvent(GameObjectFilter.Creature.youControl()))`
+  ("If a creature you control would explore, instead you scry 1, then that creature explores").
 - `ModifyLifeGain(multiplier, modifier, appliesTo, restrictions)` — modify life gain by a multiplicative *and/or*
   additive factor: `gained = (original * multiplier) + modifier`, clamped to ≥ 0. `appliesTo` is a `LifeGainEvent`
   whose `player` filter (default `Player.Each`) gates which players the replacement applies to. `restrictions`
