@@ -59,8 +59,9 @@ class DowsingDeviceScenarioTest : FunSpec({
         driver.state.getEntity(id)?.get<CardComponent>()?.name
 
     // Cast Dowsing Device from hand and resolve its self-enter ETB, targeting [creature] with the
-    // "up to one target" pump. Returns the Dowsing entity.
-    fun castDowsing(driver: GameTestDriver, p1: EntityId, creature: EntityId): EntityId {
+    // "up to one target" pump (or declining the optional target when [creature] is null). Returns
+    // the Dowsing entity.
+    fun castDowsing(driver: GameTestDriver, p1: EntityId, creature: EntityId?): EntityId {
         val dowsing = driver.putCardInHand(p1, "Dowsing Device")
         driver.giveMana(p1, Color.RED, 2) // {1}{R}
         driver.castSpell(p1, dowsing).isSuccess shouldBe true
@@ -71,7 +72,7 @@ class DowsingDeviceScenarioTest : FunSpec({
             val d = driver.pendingDecision
             when {
                 d is ChooseTargetsDecision -> {
-                    driver.submitTargetSelection(p1, listOf(creature))
+                    driver.submitTargetSelection(p1, creature?.let { listOf(it) } ?: emptyList())
                     handledTarget = true
                 }
                 d != null -> driver.autoResolveDecision()
@@ -112,5 +113,22 @@ class DowsingDeviceScenarioTest : FunSpec({
         projected.hasKeyword(bearId, Keyword.HASTE) shouldBe true
         // Only one artifact (the device itself) → no transform.
         cardName(driver, dowsing) shouldBe "Dowsing Device"
+    }
+
+    test("declining the optional target still transforms when you control four or more artifacts") {
+        val driver = setup()
+        val p1 = driver.activePlayer!!
+        // Three artifacts already out; Dowsing Device will be the fourth. No pump target chosen.
+        repeat(3) { driver.putPermanentOnBattlefield(p1, "Test Relic") }
+        val bearId = driver.putCreatureOnBattlefield(p1, "Test Bear")
+
+        val dowsing = castDowsing(driver, p1, creature = null)
+
+        val projected = projector.project(driver.state)
+        // No creature was chosen, so the +1/+0 and haste no-op — the bear is untouched ...
+        projected.getPower(bearId) shouldBe 2
+        projected.hasKeyword(bearId, Keyword.HASTE) shouldBe false
+        // ... but the transform is gated only on the artifact count, so it still flips.
+        cardName(driver, dowsing) shouldBe "Geode Grotto"
     }
 })
