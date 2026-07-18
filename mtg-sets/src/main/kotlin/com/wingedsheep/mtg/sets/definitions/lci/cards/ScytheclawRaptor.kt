@@ -29,6 +29,9 @@ val ScytheclawRaptor = card("Scytheclaw Raptor") {
         // turn check relative to the triggering player, not Scytheclaw's controller.
         triggerCondition = Conditions.Not(Conditions.IsPlayersTurn(Player.TriggeringPlayer))
         effect = Effects.DealDamage(4, EffectTarget.PlayerRef(Player.TriggeringPlayer))
+        // Override the auto-generated text: NotCondition renders "if not (if it's their turn)",
+        // an awkward double-"if". Pin it to the printed oracle wording instead.
+        description = "Whenever a player casts a spell, if it's not their turn, this creature deals 4 damage to them."
     }
 
     metadata {

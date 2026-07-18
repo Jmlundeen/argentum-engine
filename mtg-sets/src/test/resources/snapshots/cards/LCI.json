@@ -13181,7 +13181,8 @@
                         "type": "IsPlayersTurn",
                         "player": "TriggeringPlayer"
                     }
-                }
+                },
+                "descriptionOverride": "Whenever a player casts a spell, if it's not their turn, this creature deals 4 damage to them."
             }
         ]
     },
