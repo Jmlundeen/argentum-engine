@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.engine.mechanics.mana.ManaSource
+import com.wingedsheep.engine.mechanics.mana.paymentSubtypesOf
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 
 /**
@@ -458,7 +459,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 isLegendary = cardComponent.typeLine.isLegendary,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                subtypes = paymentSubtypesOf(cardComponent),
                 cardTypes = cardComponent.typeLine.cardTypes,
             )
 
@@ -1655,7 +1656,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 isLegendary = cardComponent.typeLine.isLegendary,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                subtypes = paymentSubtypesOf(cardComponent),
                 cardTypes = cardComponent.typeLine.cardTypes,
             )
             val canAfford = context.manaSolver.canPay(state, playerId, baseCost, spellContext = spellContext, precomputedSources = context.availableManaSources)
@@ -1764,7 +1765,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 isLegendary = cardComponent.typeLine.isLegendary,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                subtypes = paymentSubtypesOf(cardComponent),
                 cardTypes = cardComponent.typeLine.cardTypes,
             )
             val canAfford = context.manaSolver.canPay(state, playerId, baseCost, spellContext = spellContext, precomputedSources = context.availableManaSources)
@@ -1866,7 +1867,7 @@ class CastSpellEnumerator : ActionEnumerator {
                 isLegendary = cardComponent.typeLine.isLegendary,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                subtypes = paymentSubtypesOf(cardComponent),
                 cardTypes = cardComponent.typeLine.cardTypes,
             )
             val canAffordKickedMana = context.manaSolver.canPay(state, playerId, kickedCost, spellContext = kickedSpellContext, precomputedSources = context.availableManaSources)
@@ -2101,7 +2102,7 @@ class CastSpellEnumerator : ActionEnumerator {
                     isLegendary = cardComponent.typeLine.isLegendary,
                     manaValue = cardComponent.manaCost.cmc,
                     hasXInCost = cleaveCost.hasX,
-                    subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                    subtypes = paymentSubtypesOf(cardComponent),
                     cardTypes = cardComponent.typeLine.cardTypes,
                 )
                 val availableSources = context.manaSolver.getAvailableManaCount(

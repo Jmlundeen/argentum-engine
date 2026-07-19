@@ -39,6 +39,7 @@ import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.engine.mechanics.FlashbackGrants
 import com.wingedsheep.engine.mechanics.HarmonizeGrants
 import com.wingedsheep.engine.mechanics.WarpGrants
+import com.wingedsheep.engine.mechanics.mana.paymentSubtypesOf
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 
@@ -1928,7 +1929,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                 isCreature = cardComponent.typeLine.isCreature,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                subtypes = paymentSubtypesOf(cardComponent),
                 cardTypes = cardComponent.typeLine.cardTypes,
                 // This enumerator only enumerates non-hand-zone casts (command, library, exile,
                 // graveyard, …) — `sourceZone` is never "HAND" here. Mark accordingly so

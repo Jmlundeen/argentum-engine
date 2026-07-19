@@ -25,6 +25,7 @@ import com.wingedsheep.engine.mechanics.HarmonizeGrants
 import com.wingedsheep.engine.mechanics.SneakWindow
 import com.wingedsheep.engine.mechanics.WarpGrants
 import com.wingedsheep.engine.mechanics.MiracleGrants
+import com.wingedsheep.engine.mechanics.mana.paymentSubtypesOf
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.core.PermanentsSacrificedEvent
@@ -950,7 +951,7 @@ class CastSpellHandler(
                 isLegendary = cardComponent.typeLine.isLegendary,
                 manaValue = cardComponent.manaCost.cmc,
                 hasXInCost = cardComponent.manaCost.hasX,
-                subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+                subtypes = paymentSubtypesOf(cardComponent),
                 isFromExile = isCastFromExile(state, action.cardId),
                 isFromHand = isCastFromHand(state, action.cardId),
                 cardTypes = cardComponent.typeLine.cardTypes,
@@ -2601,7 +2602,7 @@ class CastSpellHandler(
             isLegendary = cardComponent.typeLine.isLegendary,
             manaValue = cardComponent.manaCost.cmc,
             hasXInCost = cardComponent.manaCost.hasX,
-            subtypes = cardComponent.typeLine.subtypes.map { it.value }.toSet(),
+            subtypes = paymentSubtypesOf(cardComponent),
             isFromExile = isCastFromExile(currentState, action.cardId),
             isFromHand = isCastFromHand(currentState, action.cardId),
             cardTypes = cardComponent.typeLine.cardTypes,
