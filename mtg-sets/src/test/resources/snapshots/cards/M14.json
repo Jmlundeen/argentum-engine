@@ -232,6 +232,49 @@
     ]
 }
 
+// Rise of the Dark Realms
+{
+    "name": "Rise of the Dark Realms",
+    "manaCost": "{7}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Put all creature cards from all graveyards onto the battlefield under your control.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Graveyard",
+                        "player": "Each",
+                        "filter": "creature"
+                    },
+                    "storeAs": "creatureCardsInAllGraveyards"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "creatureCardsInAllGraveyards",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "rarity": "MYTHIC",
+        "artist": "Michael Komarck",
+        "flavorText": "\"For every living person there are generations of dead. Which realm would you rather rule?\"\n—Liliana Vess",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/073f81e8-8c0c-4430-bd3e-95ed3625340f.jpg?1783939921"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Sporemound
 {
     "name": "Sporemound",
