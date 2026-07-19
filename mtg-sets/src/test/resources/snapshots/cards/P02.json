@@ -388,6 +388,72 @@
     ]
 }
 
+// Sleight of Hand
+{
+    "name": "Sleight of Hand",
+    "manaCost": "{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at the top two cards of your library. Put one of them into your hand and the other on the bottom of your library.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put on bottom"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "46",
+        "artist": "Phil Foglio",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/3/f3405184-dcda-4bb6-ade6-c2a87bc3296d.jpg?1783946484"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Vampiric Spirit
 {
     "name": "Vampiric Spirit",

@@ -2564,6 +2564,43 @@
     ]
 }
 
+// Mintstrosity
+{
+    "name": "Mintstrosity",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Horror",
+    "oracleText": "When this creature dies, create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "100",
+        "artist": "Slawomir Maniak",
+        "flavorText": "If the sugary abominations of Sweettooth Village were ever under someone's control, that time is long past.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/9/d902f154-6fe8-4b97-aa67-4d4696abf887.jpg?1783915104"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Mocking Sprite
 {
     "name": "Mocking Sprite",
@@ -3552,6 +3589,78 @@
     ]
 }
 
+// Spider Food
+{
+    "name": "Spider Food",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy up to one target artifact, enchantment, or creature with flying. Create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "optional": true,
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsArtifact",
+                                            "IsEnchantment"
+                                        ]
+                                    },
+                                    {
+                                        "type": "And",
+                                        "predicates": [
+                                            "IsCreature",
+                                            {
+                                                "type": "HasKeyword",
+                                                "keyword": "FLYING"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "id": "target"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "186",
+        "artist": "Mila Pesic",
+        "flavorText": "To the giant spiders of Dunbarrow, there's little difference between fly and faerie.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/9/b9fd720b-e9c2-4e82-917e-bab6c544afb0.jpg?1783915077"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Stingblade Assassin
 {
     "name": "Stingblade Assassin",
@@ -3608,6 +3717,64 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Stockpiling Celebrant
+{
+    "name": "Stockpiling Celebrant",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Dwarf Knight",
+    "oracleText": "When this creature enters, you may return another target nonland permanent you control to its owner's hand. If you do, scry 2.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target"
+                            },
+                            "destination": "Hand"
+                        },
+                        {
+                            "type": "Scry",
+                            "count": 2
+                        }
+                    ]
+                },
+                "optional": true,
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "nonland permanent ctrl:you",
+                        "excludeSelf": true
+                    },
+                    "id": "target"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "32",
+        "artist": "Raluca Marinescu",
+        "flavorText": "\"What? I'm saving it for later.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/0214ebc6-c59f-4170-8dd2-ce07caa6e6ad.jpg?1783915126"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
