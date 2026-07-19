@@ -2599,6 +2599,14 @@ work for abilities-on-stack (which carry no `CardComponent`).
   grant's holder as source (Braided Net's "Its activated abilities can't be activated for as long
   as it remains tapped"). Inert with no source context, and never matches in group-static
   projection (use `GroupFilter.source()` there) or trigger-gating contexts.
+- `Not(IsSource)` (filter builder `notSourceItself()`) — the negation of `sourceItself()`, and the
+  `GameObjectFilter` counterpart of `GroupFilter`/`TargetFilter`'s `excludeSelf`. Use it wherever
+  "other [permanents]" must be expressed as a bare `GameObjectFilter` rather than a group/target
+  filter — notably a `RecipientFilter.Matching` on a damage replacement: Crystal Barricade's
+  "prevent all noncombat damage that would be dealt to *other* creatures you control" is
+  `PreventDamage(amount = null, appliesTo = DamageEvent(recipient =
+  RecipientFilter.Matching(GameObjectFilter.Creature.youControl().notSourceItself()), damageType =
+  DamageType.NonCombat))`.
 - `IsAttachedToSource` (filter builder `attachedToSource()`) — the *mirror* of `IsAttachedToBySource`:
   matches an Aura/Equipment currently attached **to** the effect's source, read from the candidate's
   `AttachedToComponent.targetId == sourceId`. Use it to scope a static ability on the *host* to its own
