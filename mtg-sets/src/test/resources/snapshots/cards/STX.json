@@ -124,6 +124,83 @@
     "colorIdentityOverride": []
 }
 
+// Deadly Brew
+{
+    "name": "Deadly Brew",
+    "manaCost": "{B}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player sacrifices a creature or planeswalker of their choice. If you sacrificed a permanent this way, you may return another permanent card from your graveyard to your hand.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForceSacrifice",
+                    "filter": "creature|planeswalker",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": "YouSacrificedPermanentThisWay"
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Graveyard",
+                                    "filter": "permanent",
+                                    "excludeSacrificedThisWay": true
+                                },
+                                "storeAs": "eligible"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "eligible",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "chosen",
+                                "prompt": "Choose a permanent card to return to your hand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "chosen",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "176",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Vargas",
+        "flavorText": "\"No one ever asked what was in Dina's concoctions, so long as they worked.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/7/87d33e48-90fc-4aac-b09a-68050bc053b5.jpg?1783927318"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Flamescroll Celebrant
 {
     "name": "Flamescroll Celebrant",

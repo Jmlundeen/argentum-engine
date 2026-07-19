@@ -2664,6 +2664,26 @@
     ]
 }
 
+// Time Stop
+{
+    "name": "Time Stop",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "End the turn. (Exile all spells and abilities, including this spell. The player whose turn it is discards down to their maximum hand size. Damage heals and \"this turn\" and \"until end of turn\" effects end.)",
+    "script": {
+        "spellEffect": "EndTheTurn"
+    },
+    "metadata": {
+        "collectorNumber": "97",
+        "rarity": "RARE",
+        "artist": "Scott M. Fischer",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/9/f968c5e9-12a8-4542-90b4-84e0238fa375.jpg?1783944320"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Time of Need
 {
     "name": "Time of Need",
