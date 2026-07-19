@@ -709,6 +709,18 @@ data class GameObjectFilter(
     )
 
     /**
+     * Must NOT be the effect's source permanent — the negation of [sourceItself], and the
+     * [GameObjectFilter] counterpart of `GroupFilter`/`TargetFilter`'s `excludeSelf`. Needed
+     * wherever "other [permanents]" has to be expressed as a bare `GameObjectFilter` rather
+     * than a group/target filter — e.g. a `RecipientFilter.Matching` on a damage replacement
+     * ("prevent all noncombat damage that would be dealt to *other* creatures you control",
+     * Crystal Barricade).
+     */
+    fun notSourceItself() = copy(
+        statePredicates = statePredicates + StatePredicate.Not(StatePredicate.IsSource)
+    )
+
+    /**
      * Must BE an Aura/Equipment attached to the effect's source permanent — the mirror of
      * [attachedToBySource]. Source-relative — scopes a static ability on the *host* to its own
      * attachments, e.g. Cloud, Midgar Mercenary's "an Equipment attached to it".

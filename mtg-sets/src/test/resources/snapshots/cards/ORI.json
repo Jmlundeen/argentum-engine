@@ -356,6 +356,57 @@
     ]
 }
 
+// Joraga Invocation
+{
+    "name": "Joraga Invocation",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each creature you control gets +3/+3 until end of turn and must be blocked this turn if able.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            },
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "target": "Self"
+                    },
+                    {
+                        "type": "MustBeBlocked",
+                        "target": "Self",
+                        "allCreatures": false
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "183",
+        "rarity": "UNCOMMON",
+        "artist": "Kieran Yanner",
+        "flavorText": "\"A single tree does not a forest make. We are stronger when we stand together.\"\n—Numa, Joraga chieftain",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/5/65c89431-0881-4aa6-ac15-d4c13b075273.jpg?1783938321"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Skyraker Giant
 {
     "name": "Skyraker Giant",
