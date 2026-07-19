@@ -1918,6 +1918,93 @@
     ]
 }
 
+// Frolicking Familiar
+{
+    "name": "Frolicking Familiar",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Otter Wizard",
+    "oracleText": "Flying\nWhenever you cast an instant or sorcery spell, this creature gets +1/+1 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsInstant",
+                                    "IsSorcery"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "226",
+        "rarity": "UNCOMMON",
+        "artist": "Brian Valeza",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/4/64c432d5-4f5b-44ac-9d61-891e78460d58.jpg?1783915065"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ],
+    "layout": "ADVENTURE",
+    "cardFaces": [
+        {
+            "name": "Blow Off Steam",
+            "manaCost": "{R}",
+            "typeLine": "Instant — Adventure",
+            "oracleText": "Blow Off Steam deals 1 damage to any target. (Then exile this card. You may cast the creature later from exile.)",
+            "script": {
+                "spellEffect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "target"
+                    }
+                ]
+            }
+        }
+    ]
+}
+
 // Frostbridge Guard
 {
     "name": "Frostbridge Guard",
@@ -3534,6 +3621,93 @@
     "colorIdentityOverride": []
 }
 
+// Shrouded Shepherd
+{
+    "name": "Shrouded Shepherd",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Spirit Warrior",
+    "oracleText": "When this creature enters, target creature you control gets +2/+2 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "id": "target creature you control"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "236",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Vargas",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/b/ab03c342-2bf4-41bf-8bb8-472d978d238a.jpg?1783915061"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ],
+    "layout": "ADVENTURE",
+    "cardFaces": [
+        {
+            "name": "Cleave Shadows",
+            "manaCost": "{1}{B}",
+            "typeLine": "Sorcery — Adventure",
+            "oracleText": "Creatures your opponents control get -1/-1 until end of turn. (Then exile this card. You may cast the creature later from exile.)",
+            "script": {
+                "spellEffect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:opponent"
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -1
+                        },
+                        "target": "Self"
+                    }
+                }
+            }
+        }
+    ]
+}
+
 // Skewer Slinger
 {
     "name": "Skewer Slinger",
@@ -4016,6 +4190,73 @@
     ]
 }
 
+// Stormkeld Vanguard
+{
+    "name": "Stormkeld Vanguard",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Creature — Giant Warrior",
+    "oracleText": "This creature can't be blocked by creatures with power 2 or less.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 7
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "PowerAtMost",
+                            "max": 2
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "187",
+        "rarity": "UNCOMMON",
+        "artist": "Aldo Domínguez",
+        "flavorText": "He rides like thunder and strikes like lightning.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/a/bacb1fe5-0adf-461f-b698-9d09a8728c63.jpg?1783915077"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ],
+    "layout": "ADVENTURE",
+    "cardFaces": [
+        {
+            "name": "Bear Down",
+            "manaCost": "{1}{G}",
+            "typeLine": "Sorcery — Adventure",
+            "oracleText": "Destroy target artifact or enchantment. (Then exile this card. You may cast the creature later from exile.)",
+            "script": {
+                "spellEffect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact|enchantment"
+                        },
+                        "id": "target"
+                    }
+                ]
+            }
+        }
+    ]
+}
+
 // Stroke of Midnight
 {
     "name": "Stroke of Midnight",
@@ -4333,6 +4574,59 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Two-Headed Hunter
+{
+    "name": "Two-Headed Hunter",
+    "manaCost": "{4}{R}",
+    "typeLine": "Creature — Giant",
+    "oracleText": "Menace",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "metadata": {
+        "collectorNumber": "155",
+        "rarity": "UNCOMMON",
+        "artist": "Filip Burburan",
+        "flavorText": "\"I point, you club!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/70c12e75-7e65-4706-b976-e47835910928.jpg?1783915087"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ],
+    "layout": "ADVENTURE",
+    "cardFaces": [
+        {
+            "name": "Twice the Rage",
+            "manaCost": "{1}{R}",
+            "typeLine": "Instant — Adventure",
+            "oracleText": "Target creature gains double strike until end of turn. (Then exile this card. You may cast the creature later from exile.)",
+            "script": {
+                "spellEffect": {
+                    "type": "GrantKeyword",
+                    "keyword": "DOUBLE_STRIKE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "target creature"
+                    }
+                ]
+            }
+        }
     ]
 }
 
