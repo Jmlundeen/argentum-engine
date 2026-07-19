@@ -1,3 +1,48 @@
+// Extravagant Replication
+{
+    "name": "Extravagant Replication",
+    "manaCost": "{4}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of your upkeep, create a token that's a copy of another target nonland permanent you control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateTokenCopyOfTarget",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "another target nonland permanent you control"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "nonland permanent ctrl:you",
+                        "excludeSelf": true
+                    },
+                    "id": "another target nonland permanent you control"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "25",
+        "rarity": "RARE",
+        "artist": "Pauline Voss",
+        "flavorText": "\"Just one aether tiger? What do I look like, a peasant?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/a/6a6f55d7-d689-43eb-a59a-b8be88269ee6.jpg?1783923371"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Rain of Riches
 {
     "name": "Rain of Riches",
