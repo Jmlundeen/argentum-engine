@@ -5465,6 +5465,10 @@ default to "you" so card authors don't need to pass it explicitly.
   `DynamicAmounts.permanentsSacrificedThisTurn()` amount for "that much" damage (Sawblade Skinripper:
   "At the beginning of your end step, if you sacrificed one or more permanents this turn, this creature
   deals that much damage to any target").
+- `YouDealtRedNoncombatDamageThisTurn(atLeast = 1)` — red sources you controlled dealt at least
+  `atLeast` noncombat damage this turn. `Compare(TurnTracking(Player.You, TurnTracker.RED_NONCOMBAT_DAMAGE_DEALT),
+  GTE, Fixed(atLeast))`, backed by the per-player `RedNoncombatDamageDealtThisTurnComponent`. Gates
+  Temple of Power's transform-back (back of Ojer Axonil, Deepest Might).
 - `GraveyardContains(filter)` — "there is at least one card matching `filter` in your graveyard"
   (`Exists(Player.You, Zone.GRAVEYARD, filter)`). Compose with `Conditions.All`/`Any` for multi-type
   checks, e.g. `All(GraveyardContains(Filters.Instant), GraveyardContains(Filters.Sorcery))` =
@@ -6161,6 +6165,11 @@ this turn").
   counter (which sums every player's sacrifices). Backs `Conditions.YouSacrificedPermanentsThisTurn(atLeast)`
   and `DynamicAmounts.permanentsSacrificedThisTurn(player)` — e.g. Sawblade Skinripper's "if you sacrificed
   one or more permanents this turn, ... deals that much damage".
+- `RED_NONCOMBAT_DAMAGE_DEALT` — total noncombat damage red sources a player controlled dealt this turn
+  (controller-scoped). Backed by the per-player `RedNoncombatDamageDealtThisTurnComponent`, incremented in
+  `DamageUtils.dealDamageToTarget` on the source's controller whenever a red source deals positive noncombat
+  damage, and reset to 0 at end of turn. Backs `Conditions.YouDealtRedNoncombatDamageThisTurn(atLeast)` —
+  Temple of Power's transform gate (back of Ojer Axonil, Deepest Might).
 
 `SubtypeEnteredUnderControlThisTurn(player, subtype, excludeTriggeringEntity?)` /
 `DynamicAmounts.subtypeEnteredUnderControlThisTurn(subtype, player?, excludeTriggeringEntity?)` —
@@ -6403,6 +6412,14 @@ replacementEffect {
   "as long as …, prevent …" statics (Spirit of Resistance: a five-distinct-colors `Compare` gate).
 - `CapDamage(maxAmount, appliesTo)` — clamp matching damage to `maxAmount` (a *replacement* distinct
   from prevent/modify; applied after all amplification). Divine Presence: `CapDamage(3, DamageEvent(recipient = Any))`.
+- `SetMinimumDamage(minAmount = 0, dynamicMinimum?, appliesTo)` — the **floor** mirror of `CapDamage`:
+  raise matching damage *up to* a minimum (larger amounts unchanged; a zero would-be amount is not
+  raised — a source only "deals damage" once it deals a positive amount). `dynamicMinimum` (a
+  `DynamicAmount`, else the flat `minAmount`) is evaluated against the **replacement's source**
+  permanent, like `ModifyDamageAmount.dynamicModifier`. Applied after all amplification/capping. Ojer
+  Axonil, Deepest Might: `SetMinimumDamage(dynamicMinimum = DynamicAmounts.sourcePower(), appliesTo =
+  DamageEvent(recipient = Opponent, source = SourceFilter.Matching(GameObjectFilter.Any.withColor(RED).youControl()),
+  damageType = NonCombat))`.
 - `DoubleDamage(restrictions?, appliesTo)` — double matching damage (Gratuitous Violence, Furnace of
   Rath). `restrictions: List<Condition>` (default empty) gates the doubling on extra conditions
   evaluated against the source's controller — the same pattern as `PreventDamage.restrictions`. The

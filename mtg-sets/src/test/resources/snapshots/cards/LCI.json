@@ -10379,6 +10379,133 @@
     ]
 }
 
+// Ojer Axonil, Deepest Might
+{
+    "name": "Ojer Axonil, Deepest Might",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Legendary Creature — God",
+    "oracleText": "Trample\nIf a red source you control would deal an amount of noncombat damage less than Ojer Axonil's power to an opponent, that source deals damage equal to Ojer Axonil's power instead.\nWhen Ojer Axonil dies, return it to the battlefield tapped and transformed under its owner's control.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "ReturnSelfFromZoneTransformed",
+                    "tapped": true
+                },
+                "descriptionOverride": "When Ojer Axonil dies, return it to the battlefield tapped and transformed under its owner's control."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "SetMinimumDamage",
+                "dynamicMinimum": {
+                    "type": "EntityProperty",
+                    "entity": "Source",
+                    "numericProperty": "Power"
+                },
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "recipient": "RecipientOpponent",
+                    "source": {
+                        "type": "SourceMatching",
+                        "filter": "red ctrl:you"
+                    },
+                    "damageType": "DamageNonCombat"
+                }
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Temple of Power",
+        "manaCost": "",
+        "typeLine": "Land",
+        "oracleText": "(Transforms from Ojer Axonil, Deepest Might.)\n{T}: Add {R}.\n{2}{R}, {T}: Transform this land. Activate only if red sources you controlled dealt 4 or more noncombat damage this turn and only as a sorcery.",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_2",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "RED"
+                    },
+                    "timing": "ManaAbility",
+                    "isManaAbility": true
+                },
+                {
+                    "id": "ability_3",
+                    "cost": {
+                        "type": "CostComposite",
+                        "costs": [
+                            {
+                                "type": "CostAtomWrapper",
+                                "atom": {
+                                    "type": "AtomMana",
+                                    "cost": "{2}{R}"
+                                }
+                            },
+                            "CostTap"
+                        ]
+                    },
+                    "effect": "Transform",
+                    "timing": "SorcerySpeed",
+                    "restrictions": [
+                        {
+                            "type": "ActivationOnlyIfCondition",
+                            "condition": {
+                                "type": "Compare",
+                                "left": {
+                                    "type": "TurnTracking",
+                                    "player": "You",
+                                    "tracker": "RED_NONCOMBAT_DAMAGE_DEALT"
+                                },
+                                "operator": "GTE",
+                                "right": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                }
+                            }
+                        }
+                    ],
+                    "descriptionOverride": "Transform this land. Activate only if red sources you controlled dealt 4 or more noncombat damage this turn and only as a sorcery."
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "158",
+            "rarity": "MYTHIC",
+            "artist": "Victor Adame Minguez",
+            "flavorText": "Chimil gave the Oltec passion. Ojer Axonil challenged them to harness it.",
+            "imageUri": "https://cards.scryfall.io/normal/back/5/0/50f8e2b6-98c7-4f28-bb39-e1fbe841f1ee.jpg?1782694483"
+        },
+        "colorIdentityOverride": [
+            "RED"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "158",
+        "rarity": "MYTHIC",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/50f8e2b6-98c7-4f28-bb39-e1fbe841f1ee.jpg?1782694483"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Ojer Kaslem, Deepest Growth
 {
     "name": "Ojer Kaslem, Deepest Growth",

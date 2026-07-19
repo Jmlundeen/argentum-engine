@@ -678,6 +678,43 @@ data class CapDamage(
     }
 }
 
+/**
+ * Raise damage to a minimum amount — the floor mirror of [CapDamage]. If a matching source
+ * would deal **less than** the minimum, it deals exactly the minimum instead (larger amounts
+ * are unchanged, and a zero would-be amount is not raised — the source only "deals damage" once
+ * it deals a positive amount). Distinct from [ModifyDamageAmount] (which adds unconditionally):
+ * this clamps to a lower bound.
+ *
+ * The minimum is [minAmount], or — when [dynamicMinimum] is non-null — an amount evaluated at
+ * damage time against the **replacement's source** permanent (as with [ModifyDamageAmount]'s
+ * `dynamicModifier`). Ojer Axonil, Deepest Might: "If a red source you control would deal an
+ * amount of noncombat damage less than Ojer Axonil's power to an opponent, that source deals
+ * damage equal to Ojer Axonil's power instead." →
+ * `SetMinimumDamage(dynamicMinimum = DynamicAmount.SourcePower, appliesTo = DamageEvent(
+ *   recipient = Opponent, source = SourceFilter.Matching(red you-control), damageType = NonCombat))`.
+ */
+@SerialName("SetMinimumDamage")
+@Serializable
+data class SetMinimumDamage(
+    val minAmount: Int = 0,
+    val dynamicMinimum: DynamicAmount? = null,
+    override val appliesTo: EventPattern
+) : ReplacementEffect {
+    override val description: String
+        get() {
+            val floor = dynamicMinimum?.description ?: "$minAmount"
+            return "If ${appliesTo.description}, it deals $floor damage instead"
+        }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        val newDynamic = dynamicMinimum?.applyTextReplacement(replacer)
+        return if (newAppliesTo !== appliesTo || newDynamic !== dynamicMinimum)
+            copy(appliesTo = newAppliesTo, dynamicMinimum = newDynamic)
+        else this
+    }
+}
+
 // =============================================================================
 // Draw Replacement Effects
 // =============================================================================
