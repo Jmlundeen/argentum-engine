@@ -17,3 +17,48 @@
         "BLUE"
     ]
 }
+
+// Voracious Greatshark
+{
+    "name": "Voracious Greatshark",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Creature — Shark",
+    "oracleText": "Flash (You may cast this spell any time you could cast an instant.)\nWhen this creature enters, counter target artifact or creature spell.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": "Counter",
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature|artifact",
+                        "zone": "Stack"
+                    },
+                    "id": "target artifact or creature spell"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "70",
+        "rarity": "RARE",
+        "artist": "Mathias Kollros",
+        "flavorText": "There is no boat big enough.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/4/1400155f-8911-45fd-aab2-998c8a28292c.jpg?1783931068"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}

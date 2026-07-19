@@ -97,6 +97,41 @@
     ]
 }
 
+// Sphinx of the Final Word
+{
+    "name": "Sphinx of the Final Word",
+    "manaCost": "{5}{U}{U}",
+    "typeLine": "Creature — Sphinx",
+    "oracleText": "This spell can't be countered.\nFlying\nHexproof (This creature can't be the target of spells or abilities your opponents control.)\nInstant and sorcery spells you control can't be countered.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING",
+        "HEXPROOF"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantCantBeCountered",
+                "filter": "instant|sorcery ctrl:you"
+            }
+        ],
+        "cantBeCountered": true
+    },
+    "metadata": {
+        "collectorNumber": "63",
+        "rarity": "MYTHIC",
+        "artist": "Lius Lasahido",
+        "flavorText": "He answers questions as readily as he asks them, but his answer is always \"no.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/866f92a3-2738-4e0f-adda-3ff9227dc17a.jpg?1783937917"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Tajuru Pathwarden
 {
     "name": "Tajuru Pathwarden",
