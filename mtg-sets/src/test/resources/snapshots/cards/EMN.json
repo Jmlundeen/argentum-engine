@@ -1137,6 +1137,72 @@
     ]
 }
 
+// Lupine Prototype
+{
+    "name": "Lupine Prototype",
+    "manaCost": "{2}",
+    "typeLine": "Artifact Creature — Wolf Construct",
+    "oracleText": "This creature can't attack or block unless a player has no cards in hand.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantAttackUnless",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "CountPlayersWith",
+                        "scope": "Each",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Hand",
+                            "negate": true
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            },
+            {
+                "type": "CantBlockUnless",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "CountPlayersWith",
+                        "scope": "Each",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Hand",
+                            "negate": true
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "197",
+        "rarity": "RARE",
+        "artist": "Deruchenko Alexander",
+        "flavorText": "\"Ludevic saw it in a dream and set to work immediately, every detail already known. Can such genius be taught?\"\n—Stitcher Geralf",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/d/dd8272ca-8e3d-4980-99f2-352a1db76d74.jpg?1783937424"
+    },
+    "colorIdentityOverride": []
+}
+
 // Midnight Scavengers
 {
     "name": "Midnight Scavengers",
