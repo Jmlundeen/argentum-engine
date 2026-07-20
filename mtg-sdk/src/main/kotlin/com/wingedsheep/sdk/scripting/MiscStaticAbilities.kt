@@ -440,27 +440,41 @@ data object OpponentsPlayWithHandsRevealed : StaticAbility {
  * this card from your graveyard if a non-Zombie creature died this turn" —
  * `MayCastSelfFromZones(listOf(Zone.GRAVEYARD), condition = Conditions.NonSubtypeCreatureDiedThisTurn(Subtype.ZOMBIE))`.
  *
+ * When [additionalCost] is non-null, casting through this permission requires paying that cost in
+ * addition to the card's normal mana cost — mirrors [GrantMayCastFromLinkedExile.additionalCost].
+ * Used by Alien Symbiosis (SPM): "You may cast this card from your graveyard by discarding a card
+ * in addition to paying its other costs" —
+ * `MayCastSelfFromZones(listOf(Zone.GRAVEYARD), additionalCost = Costs.additional.DiscardCards(1))`.
+ *
  * Normal timing rules still apply — a creature with no flash is castable this way only at sorcery
- * speed, on the player's turn with an empty stack. The card is cast for its normal mana cost.
+ * speed, on the player's turn with an empty stack. The card is cast for its normal mana cost (plus
+ * [additionalCost], if any).
  *
  * @property zones The zones from which this card may be cast.
  * @property condition Optional gate; null = always available (the Squee shape).
+ * @property additionalCost Optional additional cost required alongside the card's mana cost when
+ *   cast through this permission; null = no additional cost (the Squee/Gravecrawler shape).
  */
 @SerialName("MayCastSelfFromZones")
 @Serializable
 data class MayCastSelfFromZones(
     val zones: List<Zone>,
-    val condition: Condition? = null
+    val condition: Condition? = null,
+    val additionalCost: AdditionalCost? = null
 ) : StaticAbility {
     override val description: String = buildString {
         append("You may cast this card from ${zones.joinToString(" or ") { it.displayName }}")
+        if (additionalCost != null) append(" by ${additionalCost.description.lowercase()} in addition to paying its other costs")
         if (condition != null) append(" ${condition.description}")
         append(".")
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newCondition = condition?.applyTextReplacement(replacer)
-        return if (newCondition !== condition) copy(condition = newCondition) else this
+        val newAdditionalCost = additionalCost?.applyTextReplacement(replacer)
+        return if (newCondition !== condition || newAdditionalCost !== additionalCost) {
+            copy(condition = newCondition, additionalCost = newAdditionalCost)
+        } else this
     }
 }
 

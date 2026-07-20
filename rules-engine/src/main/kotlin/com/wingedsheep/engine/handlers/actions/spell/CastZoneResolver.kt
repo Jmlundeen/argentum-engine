@@ -131,16 +131,29 @@ class CastZoneResolver(
         state: GameState,
         playerId: EntityId,
         cardId: EntityId
-    ): Boolean {
-        val cardComponent = state.getEntity(cardId)?.get<CardComponent>() ?: return false
-        val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId) ?: return false
+    ): Boolean = findMayCastSelfFromZoneAbility(state, playerId, cardId) != null
+
+    /**
+     * Locate the [MayCastSelfFromZones] ability (if any) that currently permits casting [cardId]
+     * from its present zone for [playerId] — honoring the zone match and optional [Condition] gate.
+     * Callers that need the ability's [MayCastSelfFromZones.additionalCost] (e.g. Alien Symbiosis'
+     * "by discarding a card") use this overload; [hasMayCastSelfFromZonePermission] is the boolean
+     * convenience wrapper.
+     */
+    fun findMayCastSelfFromZoneAbility(
+        state: GameState,
+        playerId: EntityId,
+        cardId: EntityId
+    ): MayCastSelfFromZones? {
+        val cardComponent = state.getEntity(cardId)?.get<CardComponent>() ?: return null
+        val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId) ?: return null
 
         // A permission applies if the card is currently in one of its named zones for this player
         // AND its optional condition (e.g. Undead Sprinter's "a non-Zombie creature died this turn")
         // holds — mirroring the enumerator gate so the authorization can't outlive the permission.
         return cardDef.script.staticAbilities
             .filterIsInstance<MayCastSelfFromZones>()
-            .any { ability ->
+            .firstOrNull { ability ->
                 val inNamedZone = ability.zones.any { zone ->
                     cardId in state.getZone(ZoneKey(playerId, zone))
                 }

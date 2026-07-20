@@ -58,6 +58,66 @@
     ]
 }
 
+// Alien Symbiosis
+{
+    "name": "Alien Symbiosis",
+    "manaCost": "{1}{B}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +1/+1, has menace, and is a Symbiote in addition to its other types.\nYou may cast this card from your graveyard by discarding a card in addition to paying its other costs.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "MENACE"
+            },
+            {
+                "type": "GrantSubtype",
+                "subtype": "Symbiote",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            },
+            {
+                "type": "MayCastSelfFromZones",
+                "zones": [
+                    "Graveyard"
+                ],
+                "additionalCost": {
+                    "type": "AdditionalAtom",
+                    "atom": "AtomDiscard"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "UNCOMMON",
+        "artist": "JB Casacop",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b898ccb7-758e-4f11-95e0-b412721d8bf9.jpg?1783905348",
+        "rulings": [
+            {
+                "date": "2025-09-19",
+                "text": "You must follow all normal timing rules when casting Alien Symbiosis using its last ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Amazing Acrobatics
 {
     "name": "Amazing Acrobatics",
@@ -2980,6 +3040,83 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// SP//dr, Piloted by Peni
+{
+    "name": "SP//dr, Piloted by Peni",
+    "manaCost": "{3}{W}{U}",
+    "typeLine": "Legendary Artifact Creature — Spider Hero",
+    "oracleText": "Vigilance\nWhen SP//dr enters, put a +1/+1 counter on target creature.\nWhenever a modified creature you control deals combat damage to a player, draw a card. (Equipment, Auras you control, and counters are modifications.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "target"
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": "AnyPlayer",
+                    "sourceFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            "IsModified"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "147",
+        "rarity": "UNCOMMON",
+        "artist": "Toni Infante",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/4/c47c1d83-e76d-4939-9ed6-05a9e709dea1.jpg?1783905311"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
     ]
 }
 
