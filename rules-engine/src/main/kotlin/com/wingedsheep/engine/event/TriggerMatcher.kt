@@ -497,6 +497,10 @@ class TriggerMatcher(
                     matchesPlayer(trigger.player, event.playerId, controllerId)
                 else -> false
             }
+            is EventPattern.DiscoveredEvent -> {
+                event is com.wingedsheep.engine.core.DiscoveredEvent &&
+                    matchesPlayer(trigger.player, event.playerId, controllerId)
+            }
             is EventPattern.ExploredEvent -> {
                 if (event !is com.wingedsheep.engine.core.PermanentExploredEvent) return false
                 // Reveal-type gate (CR 701.44a): ANY always matches; LAND/NONLAND require the
@@ -1594,6 +1598,7 @@ class TriggerMatcher(
                 triggerLastKnownPower = trigger.triggerContext.lastKnownPower,
                 triggerLastKnownToughness = trigger.triggerContext.lastKnownToughness,
                 triggerScryCount = trigger.triggerContext.scryCount,
+                triggerDiscoverValue = trigger.triggerContext.discoverValue,
                 triggerExcessDamageAmount = trigger.triggerContext.excessDamageAmount,
                 triggerRecipientToughness = trigger.triggerContext.recipientToughnessAtDamage,
                 triggerManaSpentOnTriggeringSpell = trigger.triggerContext.manaSpentOnTriggeringSpell,

@@ -100,6 +100,7 @@ class LibraryExecutors(
         StoreCardNameExecutor(),
         EmitScriedEventExecutor(),
         EmitSurveiledEventExecutor(),
+        EmitDiscoveredEventExecutor(),
         EmitManifestedDreadEventExecutor(),
         EmitLibrarySearchedEventExecutor()
     )

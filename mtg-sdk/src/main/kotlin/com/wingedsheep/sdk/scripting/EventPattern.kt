@@ -443,6 +443,23 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     }
 
     /**
+     * Whenever [player] discovers (CR 701.57). Fires once per discover, after the whole discover
+     * process is complete — including the "cast for free or put into hand" decision (CR 701.57b: a
+     * player has "discovered" only after the process finishes, "even if some or all of those
+     * actions were impossible"). Carries the discover value N (the mana-value threshold used), read
+     * via [com.wingedsheep.sdk.scripting.values.ContextPropertyKey.TRIGGER_DISCOVER_VALUE] so
+     * "discover again for the same value" payoffs (Curator of Sun's Creation) can reuse it. The
+     * event fires even when the library was empty or held no matching card.
+     */
+    @SerialName("DiscoveredEvent")
+    @Serializable
+    data class DiscoveredEvent(
+        val player: Player = Player.You
+    ) : EventPattern {
+        override val description: String = "${player.description} discovers"
+    }
+
+    /**
      * Whenever a permanent matching [filter] explores (CR 701.44), optionally gated by whether the
      * revealed card was a land ([revealedType]). The exploring permanent is the event subject, so
      * "a creature you control explores" is `filter = GameObjectFilter.Creature.youControl()` with a

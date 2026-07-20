@@ -1962,6 +1962,19 @@ object Triggers {
     )
 
     /**
+     * Whenever you discover (CR 701.57). Fires once per discover, after the whole discover process
+     * (including the cast/hand decision) resolves. Pair with
+     * [com.wingedsheep.sdk.scripting.values.DynamicAmount.ContextProperty] +
+     * [com.wingedsheep.sdk.scripting.values.ContextPropertyKey.TRIGGER_DISCOVER_VALUE] to scale by
+     * "the same value" (Curator of Sun's Creation). Combine with `oncePerTurn = true` on the
+     * triggered ability for "This ability triggers only once each turn."
+     */
+    val WheneverYouDiscover: TriggerSpec = TriggerSpec(
+        event = DiscoveredEvent(Player.You),
+        binding = TriggerBinding.ANY
+    )
+
+    /**
      * Whenever a permanent matching [filter] explores (CR 701.44), optionally gated by the reveal
      * outcome ([revealedType]). Binding is [TriggerBinding.ANY] — the observer watches every
      * matching permanent, so `filter.youControl()` resolves "you" to the observer's controller.

@@ -159,6 +159,8 @@ data class TriggeredAbilityOnStackComponent(
     val granterId: EntityId? = null,
     /** Cards looked at by the scry that fired this trigger (CR 701.18). Null for non-scry triggers. */
     val triggerScryCount: Int? = null,
+    /** Discover value N of the discover that fired this trigger (CR 701.57). Null for non-discover triggers. */
+    val triggerDiscoverValue: Int? = null,
     /** Damage past lethal dealt to the trigger's creature recipient (CR 120.4a). Null for non-damage triggers. */
     val triggerExcessDamageAmount: Int? = null,
     /** Recipient creature's toughness when the triggering damage was dealt (CR 603.10 LKI). Read via

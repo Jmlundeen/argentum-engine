@@ -280,6 +280,11 @@ data class EffectContext(
      */
     val triggerScryCount: Int? = null,
     /**
+     * Discover value N of the discover that fired this trigger (CR 701.57). Read by
+     * `ContextPropertyKey.TRIGGER_DISCOVER_VALUE` (Curator of Sun's Creation).
+     */
+    val triggerDiscoverValue: Int? = null,
+    /**
      * Damage past lethal dealt to the trigger's creature recipient (CR 120.4a). Read by
      * `ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT` (Fall of Cair Andros).
      */

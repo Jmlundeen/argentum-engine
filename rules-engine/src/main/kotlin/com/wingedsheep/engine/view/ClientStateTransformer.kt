@@ -1641,6 +1641,7 @@ class ClientStateTransformer(
         triggerLastKnownPower = triggered.lastKnownPower,
         triggerLastKnownToughness = triggered.lastKnownToughness,
         triggerScryCount = triggered.triggerScryCount,
+        triggerDiscoverValue = triggered.triggerDiscoverValue,
         triggerExcessDamageAmount = triggered.triggerExcessDamageAmount,
         triggerRecipientToughness = triggered.triggerRecipientToughness,
         triggerManaSpentOnTriggeringSpell = triggered.triggerManaSpentOnTriggeringSpell,

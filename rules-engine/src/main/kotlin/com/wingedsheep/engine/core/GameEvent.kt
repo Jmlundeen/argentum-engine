@@ -314,6 +314,24 @@ data class SurveiledEvent(
 ) : GameEvent
 
 /**
+ * A player just finished a `discover N` (CR 701.57). Fires once per discover, after the whole
+ * process — including the "cast for free or put into hand" decision — resolves (CR 701.57b). Drives
+ * "Whenever you discover" triggers; see [com.wingedsheep.sdk.scripting.EventPattern.DiscoveredEvent].
+ *
+ * @property playerId The player who discovered.
+ * @property value The discover threshold N used (the mana value, not the number of cards exiled).
+ *   Surfaced via `TRIGGER_DISCOVER_VALUE` so "discover again for the same value" payoffs can reuse it.
+ * @property sourceName The card/ability that caused the discover (for display).
+ */
+@Serializable
+@SerialName("DiscoveredEvent")
+data class DiscoveredEvent(
+    val playerId: EntityId,
+    val value: Int,
+    val sourceName: String
+) : GameEvent
+
+/**
  * A permanent just explored (CR 701.44). Fires once per explore, after the reveal + hand/counter
  * resolution is determined. Drives [com.wingedsheep.sdk.scripting.EventPattern.ExploredEvent]
  * triggers ("whenever a creature you control explores [a land / nonland card]").

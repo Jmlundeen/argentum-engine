@@ -1199,6 +1199,10 @@ is PermanentsSacrificedEvent -> {
             is RingTemptedEvent,
             is ScriedEvent,
             is SurveiledEvent,
+            // Internal signal that fires "whenever you discover" watcher triggers (Curator of
+            // Sun's Creation); the reveal/exile/cast moves are surfaced by their own events, so no
+            // separate client event.
+            is DiscoveredEvent,
             // Internal signal that fires "whenever a creature you control explores" watcher
             // triggers; the reveal/hand/counter moves are already surfaced by their own events, so
             // no separate client event.

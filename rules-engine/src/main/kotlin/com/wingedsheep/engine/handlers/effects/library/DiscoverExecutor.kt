@@ -2,6 +2,7 @@ package com.wingedsheep.engine.handlers.effects.library
 
 import com.wingedsheep.engine.core.CardsRevealedEvent
 import com.wingedsheep.engine.core.DecisionPhase
+import com.wingedsheep.engine.core.DiscoveredEvent
 import com.wingedsheep.engine.core.DiscoverMayCastContinuation
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
@@ -16,8 +17,10 @@ import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.DiscoverEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.EmitDiscoveredEventEffect
 import kotlin.reflect.KClass
 
 /**
@@ -76,13 +79,24 @@ class DiscoverExecutor(
             }
         }
 
-        if (exiledCards.isEmpty()) {
-            return EffectResult.success(currentState)
-        }
-
         val sourceName = context.sourceId?.let {
             currentState.getEntity(it)?.get<CardComponent>()?.name
         }
+
+        // Fires "whenever you discover" once the discover completes (CR 701.57b). Bundled into the
+        // discover's follow-up so it runs from a *completed* resolution — a game event emitted while
+        // paused for the may-cast decision does not reliably fire watcher triggers.
+        val emitDiscovered = EmitDiscoveredEventEffect(threshold)
+
+        if (exiledCards.isEmpty()) {
+            // CR 701.57b: the player still "discovered" even though the library was empty and no
+            // card could be exiled — emit inline (no decision pauses this branch).
+            return EffectResult.success(
+                currentState,
+                listOf(DiscoveredEvent(playerId = controllerId, value = threshold, sourceName = sourceName ?: "Discover"))
+            )
+        }
+
         allEvents.add(
             CardsRevealedEvent(
                 revealingPlayerId = controllerId,
@@ -114,18 +128,17 @@ class DiscoverExecutor(
             // CR 701.57c: the final card exiled is still the "discovered card" if its mana value is
             // ≤ N (a land at the bottom of the library has mana value 0). When so, a thenEffect keyed
             // on the discovered card still runs (Hit the Mother Lode decking itself out on lands still
-            // makes Treasures); otherwise nothing was discovered and there is no follow-up.
+            // makes Treasures); otherwise nothing was discovered and there is no follow-up. Either way
+            // the DiscoveredEvent still fires (CR 701.57b), bundled as the tail of the follow-up.
             val finalCardMv = currentState.getEntity(exiledCards.last())?.get<CardComponent>()?.manaValue
-            val thenEffect = effect.thenEffect
-            if (thenEffect == null || finalCardMv == null || finalCardMv > threshold) {
-                return EffectResult.success(currentState, allEvents + bottomEvents)
-            }
+            val runThen = effect.thenEffect?.takeIf { finalCardMv != null && finalCardMv <= threshold }
             val discoveredCollections = effect.storeDiscoveredAs
                 ?.let { mapOf(it to listOf(exiledCards.last())) }
                 ?: emptyMap()
+            val tail = CompositeEffect(listOfNotNull(runThen, emitDiscovered))
             val thenResult = runEffect(
                 currentState,
-                thenEffect,
+                tail,
                 EffectContext(
                     sourceId = context.sourceId,
                     controllerId = controllerId,
@@ -161,7 +174,11 @@ class DiscoverExecutor(
             exiledCards = exiledCards.toList(),
             discoveredCardId = discoveredCard,
             storeDiscoveredAs = effect.storeDiscoveredAs,
-            thenEffect = effect.thenEffect
+            // The card's own follow-up (if any) runs first, then the DiscoveredEvent tail fires so
+            // "whenever you discover" watchers see a completed discover (CR 701.57b). The resumer
+            // runs this at every completion path — including after a free cast — because it is now
+            // always non-null.
+            thenEffect = CompositeEffect(listOfNotNull(effect.thenEffect, emitDiscovered))
         )
         val stateWithCont = pause.state.pushContinuation(continuation)
 

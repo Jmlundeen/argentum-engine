@@ -655,6 +655,7 @@ class TriggerProcessor(
                 triggerLastKnownToughness = trigger.triggerContext.lastKnownToughness,
                 triggerModesChosenCount = trigger.triggerContext.modesChosenCount,
                 triggerScryCount = trigger.triggerContext.scryCount,
+                triggerDiscoverValue = trigger.triggerContext.discoverValue,
                 triggerExcessDamageAmount = trigger.triggerContext.excessDamageAmount,
                 triggerRecipientToughness = trigger.triggerContext.recipientToughnessAtDamage,
                 triggerManaSpentOnTriggeringSpell = trigger.triggerContext.manaSpentOnTriggeringSpell,
@@ -707,6 +708,7 @@ class TriggerProcessor(
             triggerModesChosenCount = trigger.triggerContext.modesChosenCount,
             enchantedCreatureLastKnownPower = trigger.triggerContext.enchantedCreatureLastKnownPower,
             triggerScryCount = trigger.triggerContext.scryCount,
+            triggerDiscoverValue = trigger.triggerContext.discoverValue,
             triggerExcessDamageAmount = trigger.triggerContext.excessDamageAmount,
             triggerRecipientToughness = trigger.triggerContext.recipientToughnessAtDamage,
             triggerManaSpentOnTriggeringSpell = trigger.triggerContext.manaSpentOnTriggeringSpell,
@@ -766,6 +768,7 @@ class TriggerProcessor(
             triggerModesChosenCount = trigger.triggerContext.modesChosenCount,
             enchantedCreatureLastKnownPower = trigger.triggerContext.enchantedCreatureLastKnownPower,
             triggerScryCount = trigger.triggerContext.scryCount,
+            triggerDiscoverValue = trigger.triggerContext.discoverValue,
             triggerExcessDamageAmount = trigger.triggerContext.excessDamageAmount,
             triggerRecipientToughness = trigger.triggerContext.recipientToughnessAtDamage,
             triggerManaSpentOnTriggeringSpell = trigger.triggerContext.manaSpentOnTriggeringSpell,
@@ -1249,6 +1252,7 @@ class TriggerProcessor(
                         // cards looked at while scrying" (ContextPropertyKey.TRIGGER_SCRY_COUNT).
                         // Without this the cap resolves to 0 and the player can pick no targets.
                         triggerScryCount = trigger.triggerContext.scryCount,
+                        triggerDiscoverValue = trigger.triggerContext.discoverValue,
                     )
                     DynamicAmountEvaluator().evaluate(state, dyn, context)
                 } catch (_: Exception) {
