@@ -3981,6 +3981,50 @@
     ]
 }
 
+// Savior of the Sleeping
+{
+    "name": "Savior of the Sleeping",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "Vigilance\nWhenever an enchantment you control is put into a graveyard from the battlefield, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "enchantment ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "28",
+        "artist": "Valera Lutfullina",
+        "flavorText": "Even lost in slumber, the citizens of Ardenvale dream of a tireless protector standing guard over their homes.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/b/7b4979d9-fafb-4e0e-868f-f4772109d7a7.jpg?1783915126"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Scarecrow Guide
 {
     "name": "Scarecrow Guide",
@@ -4470,6 +4514,54 @@
     ]
 }
 
+// Spiteful Hexmage
+{
+    "name": "Spiteful Hexmage",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Human Warlock",
+    "oracleText": "When this creature enters, create a Cursed Role token attached to target creature you control. (If you control another Role on it, put that one into the graveyard. Enchanted creature is 1/1.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateRoleToken",
+                    "roleName": "Cursed Role",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "id": "target creature you control"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "108",
+        "rarity": "RARE",
+        "artist": "Anna Steinbauer",
+        "flavorText": "\"Who'll never amount to anything now, Father?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/0/40c797b2-db51-4a39-b80e-44d58cd7a07c.jpg?1783915102"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Stingblade Assassin
 {
     "name": "Stingblade Assassin",
@@ -4755,6 +4847,61 @@
     ]
 }
 
+// Succumb to the Cold
+{
+    "name": "Succumb to the Cold",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Tap one or two target creatures an opponent controls. Put a stun counter on each of them. (If a permanent with a stun counter would become untapped, remove one from it instead.)",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": "IterationSpace.Targets",
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "TapUntap",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    },
+                    {
+                        "type": "AddCounters",
+                        "counterType": "stun",
+                        "count": 1,
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    }
+                ]
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 2,
+                "minCount": 1,
+                "filter": {
+                    "baseFilter": "creature ctrl:opponent"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "72",
+        "rarity": "UNCOMMON",
+        "artist": "Andrew Mar",
+        "flavorText": "\"I've never known cold like it. It burned like fire and bit like an adder's fangs. Call me a coward if you wish, but I won't go back there.\"\n—Syr Lydel, knight of Vantress",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/1/c14d9fc0-bfbf-4359-93bf-5e53466965d6.jpg?1783915114"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Sugar Rush
 {
     "name": "Sugar Rush",
@@ -4865,6 +5012,48 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Tanglespan Lookout
+{
+    "name": "Tanglespan Lookout",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Satyr",
+    "oracleText": "Whenever an Aura you control enters, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "enchantment Aura ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "188",
+        "rarity": "UNCOMMON",
+        "artist": "Dmitry Burmak",
+        "flavorText": "\"The trolls have your scent, traveler. Hurry on, and let me take care of them.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3bc5c32d-be0a-4a5f-a8c7-9767a895bc76.jpg?1783915077"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -5138,6 +5327,64 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Up the Beanstalk
+{
+    "name": "Up the Beanstalk",
+    "manaCost": "{1}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters and whenever you cast a spell with mana value 5 or greater, draw a card.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtLeast",
+                                "min": 5
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "195",
+        "rarity": "UNCOMMON",
+        "artist": "Lucas Graciano",
+        "flavorText": "\"It's not so bad. All you have to do is keep from looking down.\"\n—Troyan, to Kellan and Ruby",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/d/2d5e991f-23b2-4db0-a452-7755125b1fd2.jpg?1783915075"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
