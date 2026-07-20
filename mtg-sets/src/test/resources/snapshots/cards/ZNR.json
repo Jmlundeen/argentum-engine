@@ -60,6 +60,181 @@
     ]
 }
 
+// Crawling Barrens
+{
+    "name": "Crawling Barrens",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{4}: Put two +1/+1 counters on this land. Then you may have it become a 0/0 Elemental creature until end of turn. It's still a land.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "+1/+1",
+                            "count": 2,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": "Gate.MayDecide",
+                            "then": {
+                                "type": "BecomeCreature",
+                                "power": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "toughness": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "creatureTypes": [
+                                    "Elemental"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Put two +1/+1 counters on this land. Then you may have it become a 0/0 Elemental creature until end of turn. It's still a land."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "262",
+        "rarity": "RARE",
+        "artist": "Jonas De Ro",
+        "flavorText": "Zendikar is restless.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/b/7bd0e025-7a75-4641-a51a-27df9dcde05f.jpg?1783929307",
+        "rulings": [
+            {
+                "date": "2024-11-08",
+                "text": "You can activate Crawling Barrens's second ability even if it's already a creature."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "Counters on Crawling Barrens remain on it when it stops being a creature. If it becomes a creature later, they'll apply to it."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "Unless Crawling Barrens is already a creature, its second ability causes the +1/+1 counters to be put onto a noncreature land. Abilities that apply or trigger when counters are put on a creature you control won't do so."
+            }
+        ]
+    }
+}
+
+// Felidar Retreat
+{
+    "name": "Felidar Retreat",
+    "manaCost": "{3}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Landfall — Whenever a land you control enters, choose one —\n• Create a 2/2 white Cat Beast creature token.\n• Put a +1/+1 counter on each creature you control. Those creatures gain vigilance until end of turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "CreateToken",
+                                "power": 2,
+                                "toughness": 2,
+                                "colors": [
+                                    "WHITE"
+                                ],
+                                "creatureTypes": [
+                                    "Cat",
+                                    "Beast"
+                                ],
+                                "imageUri": "https://cards.scryfall.io/normal/front/e/2/e2c91781-acf9-4cff-be1a-85148ad2a683.jpg?1783929500"
+                            }
+                        },
+                        {
+                            "effect": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "AddCounters",
+                                            "counterType": "+1/+1",
+                                            "count": 1,
+                                            "target": "Self"
+                                        },
+                                        {
+                                            "type": "GrantKeyword",
+                                            "keyword": "VIGILANCE",
+                                            "target": "Self"
+                                        }
+                                    ]
+                                }
+                            },
+                            "description": "Put a +1/+1 counter on each creature you control. Those creatures gain vigilance until end of turn"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, choose one — create a 2/2 white Cat Beast creature token; or put a +1/+1 counter on each creature you control and those creatures gain vigilance until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "rarity": "RARE",
+        "artist": "Ralph Horsley",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/5/45340647-4d3e-4be1-b0e6-e40cc56a438b.jpg?1783929418",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "Felidar Retreat's second mode affects only creatures you control at the time the ability resolves, including creatures you control but that for some reason didn't get a +1/+1 counter. Creatures you begin to control later in the turn won't gain vigilance or get a +1/+1 counter."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "A landfall ability doesn't trigger if a permanent already on the battlefield becomes a land."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Gnarlid Colony
 {
     "name": "Gnarlid Colony",

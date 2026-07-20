@@ -128,6 +128,83 @@
     ]
 }
 
+// Gate Colossus
+{
+    "name": "Gate Colossus",
+    "manaCost": "{8}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "Affinity for Gates (This spell costs {1} less to cast for each Gate you control.)\nThis creature can't be blocked by creatures with power 2 or less.\nWhenever a Gate you control enters, you may put this card from your graveyard on top of your library.",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 8
+    },
+    "keywords": [
+        "AFFINITY"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "AffinityForSubtype",
+            "forSubtype": "Gate"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Gate ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Library",
+                        "placement": "Top",
+                        "fromZone": "Graveyard"
+                    }
+                },
+                "activeZone": "Graveyard",
+                "descriptionOverride": "Whenever a Gate you control enters, you may put this card from your graveyard on top of your library."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "CantBeBlockedBy",
+                "blockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature",
+                        {
+                            "type": "PowerAtMost",
+                            "max": 2
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "232",
+        "rarity": "UNCOMMON",
+        "artist": "Izzy",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/99767e2f-a558-4d63-b9b6-923d15b433e1.jpg?1783933626",
+        "rulings": [
+            {
+                "date": "2024-11-08",
+                "text": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying, add any cost increases, then apply any cost reductions. The mana value of the spell remains unchanged, no matter what the total cost to cast it was."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "Once a creature with power 3 or greater has blocked Gate Colossus, changing the power of the blocking creature won't cause Gate Colossus to become unblocked."
+            }
+        ]
+    }
+}
+
 // Gateway Sneak
 {
     "name": "Gateway Sneak",

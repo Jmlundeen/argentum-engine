@@ -34,8 +34,10 @@
                     "creatureTypes": [
                         "Elf",
                         "Warrior"
-                    ]
-                }
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/1/1/118d0655-5719-4512-8bc1-fe759669811b.jpg?1783928078"
+                },
+                "descriptionOverride": "Whenever Lathril deals combat damage to a player, create that many 1/1 green Elf Warrior creature tokens."
             }
         ],
         "activatedAbilities": [
@@ -50,7 +52,8 @@
                             "atom": {
                                 "type": "AtomTapPermanents",
                                 "count": 10,
-                                "filter": "creature Elf"
+                                "filter": "creature Elf",
+                                "excludeSelf": true
                             }
                         }
                     ]
@@ -77,7 +80,8 @@
                             }
                         }
                     ]
-                }
+                },
+                "descriptionOverride": "Each opponent loses 10 life and you gain 10 life."
             }
         ]
     },
@@ -85,7 +89,13 @@
         "collectorNumber": "1",
         "rarity": "MYTHIC",
         "artist": "Caroline Gariba",
-        "imageUri": "https://cards.scryfall.io/normal/front/5/4/547888c3-a9a6-4413-b29a-6bcd8a9279bf.jpg"
+        "imageUri": "https://cards.scryfall.io/normal/front/5/4/547888c3-a9a6-4413-b29a-6bcd8a9279bf.jpg?1783928341",
+        "rulings": [
+            {
+                "date": "2021-02-05",
+                "text": "You can tap any ten untapped Elves you control, including ones you haven't controlled continuously since the beginning of your most recent turn, to pay that part of the cost of Lathril's activated ability. You must have controlled Lathril continuously since the beginning of your most recent turn, however. Lathril doesn't count as one of the ten."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLACK",

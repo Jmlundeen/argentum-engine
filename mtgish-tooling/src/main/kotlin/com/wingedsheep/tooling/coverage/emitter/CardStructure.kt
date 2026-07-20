@@ -3842,7 +3842,19 @@ internal fun EmitCtx.abilityCostDsl(node: JsonElement?): String? {
         "And" -> {
             val parts = (obj["args"].asArr ?: return null).map { abilityCostDsl(it) ?: return null }
             if (parts.size < 2) return null
-            "Costs.Composite(${parts.joinToString(", ")})"
+            // "{T}, Tap ten untapped Elves you control" (Lathril): the source is already being tapped by
+            // the {T} half, so it can't also be one of the N — the ten must come from *other* permanents.
+            // Only the composite knows both halves, so the exclusion is applied here rather than in the
+            // per-atom TapNumberPermanents branch.
+            val tapsSelf = parts.any { it == "Costs.Tap" }
+            val adjusted = if (!tapsSelf) parts else parts.map { part ->
+                if (part.startsWith("Costs.TapPermanents(")) {
+                    part.dropLast(1) + ", excludeSelf = true)"
+                } else {
+                    part
+                }
+            }
+            "Costs.Composite(${adjusted.joinToString(", ")})"
         }
         "PayMana" -> renderMana(obj.field("args")).ifEmpty { null }?.let { "Costs.Mana(\"$it\")" }
         // Waterbend {N} (CR, Avatar: The Last Airbender): the cost is a plain mana cost; the
