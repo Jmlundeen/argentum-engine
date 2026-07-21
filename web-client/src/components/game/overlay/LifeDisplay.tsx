@@ -4,6 +4,7 @@ import type { EntityId, ClientPlayerEffect, ClientCommanderDamage } from '@/type
 import { useResponsiveContext, getEffectIcon } from '../board/shared'
 import { styles } from '../board/styles'
 import { HoverCardPreview } from '../../ui/HoverCardPreview'
+import { AbilityText } from '../../ui/ManaSymbols'
 import { TheRingBadge } from './TheRingBadge'
 
 /**
@@ -593,7 +594,7 @@ export function ActiveEffectsBadges({ effects }: { effects: readonly ClientPlaye
           <span style={styles.effectBadgeName}>{effect.name}</span>
           {hoveredEffect === effect.effectId && effect.description && !effect.imageUri && (
             <div style={styles.effectTooltip}>
-              {effect.description}
+              <AbilityText text={effect.description} size={13} />
             </div>
           )}
         </div>

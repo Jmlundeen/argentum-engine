@@ -2,6 +2,7 @@ import React from 'react'
 import type { Keyword, AbilityFlag, ClientCardEffect, Color } from '@/types'
 import { keywordManaClass, keywordSvgIcon, displayableKeywords } from '@/assets/icons/keywords'
 import { SvgGlyph } from '@/assets/icons/SvgGlyph'
+import { AbilityText } from '../../ui/ManaSymbols'
 import { styles } from '../board/styles'
 
 /** MTG color to mana-font protection class mapping */
@@ -369,7 +370,7 @@ export function ActiveEffectBadges({ effects, sizing }: {
           top: tooltipPos.y,
           borderColor: getTooltipBorderColor(hoveredEffectData.icon),
         }}>
-          {hoveredEffectData.description}
+          <AbilityText text={hoveredEffectData.description} size={13} />
         </div>
       )}
     </>
