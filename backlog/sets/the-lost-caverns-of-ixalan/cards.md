@@ -124,7 +124,7 @@
 - [x] Hotfoot Gnome
 - [x] Hoverstone Pilgrim
 - [x] Huatli's Final Strike
-- [ ] Huatli, Poet of Unity
+- [x] Huatli, Poet of Unity
 - [x] Hulking Raptor
 - [x] Hunter's Blowgun
 - [x] Hurl into History
