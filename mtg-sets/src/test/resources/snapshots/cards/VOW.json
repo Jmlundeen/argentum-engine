@@ -7449,6 +7449,84 @@
     ]
 }
 
+// Skulking Killer
+{
+    "name": "Skulking Killer",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Vampire Assassin",
+    "oracleText": "When this creature enters, target creature an opponent controls gets -2/-2 until end of turn if that opponent controls no other creatures.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "AggregateBattlefield",
+                                "player": {
+                                    "type": "ControllerOf",
+                                    "targetDescription": "target creature an opponent controls"
+                                },
+                                "filter": "creature"
+                            },
+                            "operator": "EQ",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -2
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "target creature an opponent controls"
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    },
+                    "id": "target creature an opponent controls"
+                },
+                "descriptionOverride": "When this creature enters, target creature an opponent controls gets -2/-2 until end of turn if that opponent controls no other creatures."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "rarity": "UNCOMMON",
+        "artist": "Alex Brock",
+        "flavorText": "Olivia set a few villagers loose in the hedge maze as part of the evening's \"entertainment.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/497b94b9-c5d7-4e94-87c2-ca1342588d79.jpg?1783924852"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Skull Skaab
 {
     "name": "Skull Skaab",

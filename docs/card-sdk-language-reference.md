@@ -5846,6 +5846,12 @@ Numbers computed at resolution time.
   <filter>" (Tom Bombadil's lore-counter total; reach for it via
   `Conditions.CounterKindAmongYouControlAtLeast`). `CounterTypeFilter.Any` totals every kind. Counters
   are read from base state (layer-independent).
+  The `player` accepts the same references as elsewhere, including `Player.ControllerOf(desc)` /
+  `Player.OwnerOf(desc)` — "the creatures **that [target]'s controller** controls" — which resolve
+  against the effect's chosen target. Skulking Killer's "target creature an opponent controls gets
+  -2/-2 … if that opponent controls no other creatures" is
+  `AggregateBattlefield(Player.ControllerOf("target creature an opponent controls"), Creature) == 1`
+  (the target's controller controls exactly one creature — the target itself).
 - `AggregateZone(player, zone, filter?, aggregation?)` — count cards in a zone.
 - `CountPermanentsOfType(player, subtype)` — count by creature type.
 - `CountCreaturesYouControl` — shorthand for "your creatures".

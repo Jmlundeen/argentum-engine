@@ -215,7 +215,7 @@
 - [x] Sigarda's Imprisonment
 - [ ] Sigarda's Summons
 - [ ] Sigardian Paladin
-- [ ] Skulking Killer
+- [x] Skulking Killer
 - [ ] Skull Skaab
 - [x] Skywarp Skaab
 - [x] Snarling Wolf
