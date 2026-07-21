@@ -2294,6 +2294,96 @@
     ]
 }
 
+// Dreadfeast Demon
+{
+    "name": "Dreadfeast Demon",
+    "manaCost": "{5}{B}{B}",
+    "typeLine": "Creature — Demon",
+    "oracleText": "Flying\nAt the beginning of your end step, sacrifice a non-Demon creature. If you do, create a token that's a copy of this creature.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.DoAction",
+                        "action": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "BattlefieldMatching",
+                                        "filter": {
+                                            "cardPredicates": [
+                                                "IsCreature",
+                                                {
+                                                    "type": "NotSubtype",
+                                                    "subtype": "Demon"
+                                                }
+                                            ]
+                                        },
+                                        "player": "You"
+                                    },
+                                    "storeAs": "gathered0"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "gathered0",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "selected1",
+                                    "prompt": "Choose a non-Demon creature to sacrifice",
+                                    "useTargetingUI": true
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "selected1",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Sacrifice"
+                                }
+                            ]
+                        }
+                    },
+                    "then": "CreateTokenCopyOfSource"
+                },
+                "descriptionOverride": "At the beginning of your end step, sacrifice a non-Demon creature. If you do, create a token that's a copy of this creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "108",
+        "rarity": "RARE",
+        "artist": "Andrew Mar",
+        "flavorText": "By the sixth day of darkness, the lake was more blood than water.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/269199ea-2106-4299-ade0-10cce1320434.jpg?1783924865"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dreadlight Monstrosity
 {
     "name": "Dreadlight Monstrosity",

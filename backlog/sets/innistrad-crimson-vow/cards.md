@@ -79,7 +79,7 @@
 - [ ] Dormant Grove
 - [ ] Dorothea, Vengeful Victim
 - [ ] Dread Fugue
-- [ ] Dreadfeast Demon
+- [x] Dreadfeast Demon
 - [x] Dreadlight Monstrosity
 - [x] Dreamroot Cascade
 - [ ] Dreamshackle Geist
