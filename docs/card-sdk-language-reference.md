@@ -3383,6 +3383,13 @@ Triggers.youCastSpell(
   ("cards looked at"). Used by Golbez.
 - `WheneverYouScryOrSurveil` — the combined look-at-top trigger; fires once per scry **and**
   once per surveil (Matoya, Archon Elder).
+- `WheneverYouDiscover` — fires once per discover (CR 701.57), after the whole discover process —
+  including the "cast for free or put into hand" decision — resolves (CR 701.57b). Pair with
+  `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCOVER_VALUE)` to reuse the discover
+  value N ("discover again for the same value"), and `oncePerTurn = true` on the triggered ability
+  for "This ability triggers only once each turn." Used by Curator of Sun's Creation. The event is
+  emitted from a completed resolution (not the paused may-cast batch), so watchers fire reliably; it
+  fires even when the library was empty or no matching card was found.
 
 ### Explore (CR 701.44)
 
@@ -6107,6 +6114,9 @@ Army just amassed by a sibling/action effect, or any cost-chosen entity. The plu
   - `TRIGGER_SCRY_COUNT` — cards looked at by the scry **or surveil** that fired the trigger
     (Celeborn the Wise, Elrond Master of Healing). Equals the scry/surveil N parameter unless the
     library held fewer cards.
+  - `TRIGGER_DISCOVER_VALUE` — the discover value N (mana-value threshold) of the discover that
+    fired the trigger (CR 701.57) — Curator of Sun's Creation's "discover again for the same value."
+    Pair with `Triggers.WheneverYouDiscover`; `0` for non-discover triggers.
   - `TRIGGER_EXCESS_DAMAGE_AMOUNT` — damage past lethal in the trigger payload (CR 120.4a).
     Set from `DamageDealtEvent.excessAmount`; non-zero only for `DealsDamageEvent(requireExcess = true)`
     triggers — Fall of Cair Andros' "amass Orcs X, where X is the excess damage."

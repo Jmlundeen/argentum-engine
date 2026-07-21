@@ -4298,6 +4298,45 @@
     ]
 }
 
+// Curator of Sun's Creation
+{
+    "name": "Curator of Sun's Creation",
+    "manaCost": "{3}{R}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "Whenever you discover, discover again for the same value. This ability triggers only once each turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "DiscoveredEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Discover",
+                    "amount": {
+                        "type": "ContextProperty",
+                        "key": "TRIGGER_DISCOVER_VALUE"
+                    }
+                },
+                "oncePerTurn": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "141",
+        "rarity": "UNCOMMON",
+        "artist": "Javier Charro",
+        "flavorText": "\"Put your hammers away and bring me some blankets! Such a gift from Tilonalli must be handled with the utmost care.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/1/a144d0b3-678d-4f4c-a9b0-22af19f5cf9f.jpg?1782694496"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Daring Discovery
 {
     "name": "Daring Discovery",

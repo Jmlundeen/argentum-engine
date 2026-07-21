@@ -75,6 +75,7 @@ enum class TriggerCategory {
     RING_TEMPTED,
     SCRIED,
     SURVEILED,
+    DISCOVERED,
     EXPLORED,
     EXPLOITED,
     TRAINED,
@@ -255,6 +256,7 @@ class TriggerIndex(
                 // "Whenever you scry or surveil" indexes under both buckets so either engine event
                 // finds it; the matcher confirms the event is a scry or a surveil.
                 is SdkGameEvent.ScriedOrSurveiledEvent -> SCRIED_OR_SURVEILED_LIST
+                is SdkGameEvent.DiscoveredEvent -> DISCOVERED_LIST
                 is SdkGameEvent.ExploredEvent -> EXPLORED_LIST
                 is SdkGameEvent.ExploitedEvent -> EXPLOITED_LIST
                 is SdkGameEvent.TrainedEvent -> TRAINED_LIST
@@ -302,6 +304,7 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.RingTemptedEvent -> RING_TEMPTED_LIST
             is com.wingedsheep.engine.core.ScriedEvent -> SCRIED_LIST
             is com.wingedsheep.engine.core.SurveiledEvent -> SURVEILED_LIST
+            is com.wingedsheep.engine.core.DiscoveredEvent -> DISCOVERED_LIST
             is com.wingedsheep.engine.core.PermanentExploredEvent -> EXPLORED_LIST
             is com.wingedsheep.engine.core.ExploitedEvent -> EXPLOITED_LIST
             is com.wingedsheep.engine.core.TrainedEvent -> TRAINED_LIST
@@ -341,6 +344,7 @@ class TriggerIndex(
         private val RING_TEMPTED_LIST = listOf(TriggerCategory.RING_TEMPTED)
         private val SCRIED_LIST = listOf(TriggerCategory.SCRIED)
         private val SURVEILED_LIST = listOf(TriggerCategory.SURVEILED)
+        private val DISCOVERED_LIST = listOf(TriggerCategory.DISCOVERED)
         private val SCRIED_OR_SURVEILED_LIST = listOf(TriggerCategory.SCRIED, TriggerCategory.SURVEILED)
         private val EXPLORED_LIST = listOf(TriggerCategory.EXPLORED)
         private val EXPLOITED_LIST = listOf(TriggerCategory.EXPLOITED)

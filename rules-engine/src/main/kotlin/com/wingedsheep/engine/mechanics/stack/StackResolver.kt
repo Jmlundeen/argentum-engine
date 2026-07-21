@@ -2266,6 +2266,7 @@ class StackResolver(
             enchantedCreatureLastKnownPower = abilityComponent.enchantedCreatureLastKnownPower,
             triggerModesChosenCount = abilityComponent.triggerModesChosenCount,
             triggerScryCount = abilityComponent.triggerScryCount,
+            triggerDiscoverValue = abilityComponent.triggerDiscoverValue,
             triggerExcessDamageAmount = abilityComponent.triggerExcessDamageAmount,
             triggerRecipientToughness = abilityComponent.triggerRecipientToughness,
             triggerManaSpentOnTriggeringSpell = abilityComponent.triggerManaSpentOnTriggeringSpell,

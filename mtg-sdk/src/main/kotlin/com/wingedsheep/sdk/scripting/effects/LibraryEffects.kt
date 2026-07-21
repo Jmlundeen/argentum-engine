@@ -79,6 +79,27 @@ data class EmitSurveiledEventEffect(
 }
 
 /**
+ * Emit a `DiscoveredEvent` after a discover finishes resolving — the discover twin of
+ * [EmitSurveiledEventEffect]. Appended internally by the discover executor to the tail of the
+ * discover's follow-up so "Whenever you discover" triggers
+ * ([com.wingedsheep.sdk.dsl.Triggers.WheneverYouDiscover]) fire exactly once per discover (CR
+ * 701.57), *after* the whole process — including the cast/hand decision — completes (CR 701.57b).
+ *
+ * Carries [value], the discover threshold N used, so the event can surface it via
+ * `ContextPropertyKey.TRIGGER_DISCOVER_VALUE`. Unlike surveil (whose count is read from a pipeline
+ * collection), the discover value is already a resolved integer at emit time, so it is baked in
+ * directly. Card authors should not use this directly; it is wired into the discover primitive.
+ */
+@SerialName("EmitDiscoveredEvent")
+@Serializable
+data class EmitDiscoveredEventEffect(
+    val value: Int
+) : Effect {
+    // Intentionally blank: this is an internal pipeline tail with no player-facing text.
+    override val description: String = ""
+}
+
+/**
  * Emit a `ManifestedDreadEvent` after a manifest-dread pipeline finishes resolving — the
  * manifest-dread twin of [EmitScriedEventEffect]. Appended internally by
  * [com.wingedsheep.sdk.dsl.LibraryPatterns.manifestDread] so "Whenever you manifest dread"

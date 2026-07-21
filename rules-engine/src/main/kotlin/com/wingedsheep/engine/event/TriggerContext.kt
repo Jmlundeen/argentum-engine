@@ -122,6 +122,13 @@ data class TriggerContext(
      */
     val scryCount: Int? = null,
     /**
+     * The discover value N (mana-value threshold) of the discover that fired this trigger (CR
+     * 701.57). Read by `ContextPropertyKey.TRIGGER_DISCOVER_VALUE` so "discover again for the same
+     * value" payoffs (Curator of Sun's Creation) reuse it. `null` when the trigger was not driven
+     * by a discover.
+     */
+    val discoverValue: Int? = null,
+    /**
      * Damage past lethal dealt to the trigger's creature recipient (CR 120.4a). Captured
      * from `DamageDealtEvent.excessAmount` so payoffs like Fall of Cair Andros — "amass
      * Orcs X, where X is the excess damage" — can read it via
@@ -230,6 +237,12 @@ data class TriggerContext(
                 is com.wingedsheep.engine.core.SurveiledEvent -> TriggerContext(
                     triggeringPlayerId = event.playerId,
                     scryCount = event.count
+                )
+                // Discover (CR 701.57): carries the discover value N so "discover again for the
+                // same value" (Curator of Sun's Creation) can reuse it via TRIGGER_DISCOVER_VALUE.
+                is com.wingedsheep.engine.core.DiscoveredEvent -> TriggerContext(
+                    triggeringPlayerId = event.playerId,
+                    discoverValue = event.value
                 )
                 // Manifest dread (CR 701.60): the cards put into the graveyard this way are
                 // carried as capturedEntityIds, seeded into the resolving trigger's pipeline under

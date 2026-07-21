@@ -1033,12 +1033,43 @@ class LibraryAndZoneContinuationResumer(
                 .copy(triggersAlreadyProcessed = castResult.triggersAlreadyProcessed)
         }
 
-        // Cast succeeded synchronously; checkForMore drains the pre-pushed follow-up continuation.
-        // CastSpellHandler already stacked this cast's triggers (e.g. Quintorius Kand's "whenever you
-        // cast a spell from exile"); propagate the flag so SubmitDecisionHandler doesn't re-scan the
-        // SpellCastEvent and double-fire them.
-        return checkForMore(castResult.state, bottomEvents + castResult.events)
-            .copy(triggersAlreadyProcessed = castResult.triggersAlreadyProcessed)
+        // Cast succeeded synchronously; checkForMore drains the pre-pushed follow-up continuation
+        // (the card's thenEffect plus the DiscoveredEvent emit tail). CastSpellHandler already
+        // stacked this cast's triggers (e.g. Quintorius Kand's "whenever you cast a spell from
+        // exile"); propagate the flag so SubmitDecisionHandler doesn't re-scan the SpellCastEvent and
+        // double-fire them. But that flag also suppresses scanning of the DiscoveredEvent the tail
+        // emits (CR 701.57b) — a genuinely new event CastSpellHandler never saw — so scan its
+        // "whenever you discover" triggers here.
+        return scanDiscoveredEventTriggers(
+            checkForMore(castResult.state, bottomEvents + castResult.events)
+                .copy(triggersAlreadyProcessed = castResult.triggersAlreadyProcessed)
+        )
+    }
+
+    /**
+     * Detect and process "whenever you discover" triggers (CR 701.57 — Curator of Sun's Creation)
+     * from any [DiscoveredEvent] in [result]'s events. Used only on the discover **cast-for-free**
+     * branch, which returns `triggersAlreadyProcessed = true` to protect the discovered card's own
+     * `SpellCastEvent` from a re-scan — a flag that would otherwise also suppress the DiscoveredEvent
+     * emitted by the discover tail. Detecting it here keeps the SpellCastEvent protected while still
+     * firing discover watchers. No-op when the result paused (the emit tail hasn't run yet) or has no
+     * DiscoveredEvent.
+     */
+    private fun scanDiscoveredEventTriggers(result: ExecutionResult): ExecutionResult {
+        if (!result.isSuccess || result.isPaused) return result
+        val discoveredEvents = result.events.filterIsInstance<com.wingedsheep.engine.core.DiscoveredEvent>()
+        if (discoveredEvents.isEmpty()) return result
+        val triggers = services.triggerDetector.detectTriggers(result.state, discoveredEvents)
+        if (triggers.isEmpty()) return result
+        val processed = services.triggerProcessor.processTriggers(result.state, triggers)
+        val events = result.events + processed.events
+        return if (processed.isPaused) {
+            ExecutionResult.paused(processed.state, processed.pendingDecision!!, events)
+                .copy(triggersAlreadyProcessed = true)
+        } else {
+            ExecutionResult.success(processed.newState, events)
+                .copy(triggersAlreadyProcessed = true)
+        }
     }
 
     /** Run a discover [DiscoverMayCastContinuation.thenEffect] (if any) with the discovered card published. */
@@ -1146,8 +1177,14 @@ class LibraryAndZoneContinuationResumer(
         }
 
         val exposed = exposeCollectionsToNextFrame(castResult.state, castCollections)
-        return checkForMore(exposed, castResult.events)
-            .copy(triggersAlreadyProcessed = castResult.triggersAlreadyProcessed)
+        // Shared by every free-cast-with-targets flow (cascade, discover, suspend, …). When a
+        // *discovered* targeted spell is cast for free, the discover tail's DiscoveredEvent rides
+        // this batch under triggersAlreadyProcessed = true and would be suppressed — scan it (no-op
+        // for the non-discover callers, which emit no DiscoveredEvent).
+        return scanDiscoveredEventTriggers(
+            checkForMore(exposed, castResult.events)
+                .copy(triggersAlreadyProcessed = castResult.triggersAlreadyProcessed)
+        )
     }
 
     /**

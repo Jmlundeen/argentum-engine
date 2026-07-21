@@ -250,6 +250,13 @@ enum class ContextPropertyKey(val description: String) {
      * Orcs X, where X is the excess damage."
      */
     TRIGGER_EXCESS_DAMAGE_AMOUNT("the excess damage"),
+    /**
+     * The value N of the discover that fired this trigger (CR 701.57) — the mana-value threshold
+     * used, not the number of cards exiled. Read by "Whenever you discover, discover again for the
+     * same value" payoffs (Curator of Sun's Creation). `0` when the trigger was not driven by a
+     * discover.
+     */
+    TRIGGER_DISCOVER_VALUE("the same value"),
 }
 
 /**

@@ -691,6 +691,8 @@ class DynamicAmountEvaluator(
 
         ContextPropertyKey.TRIGGER_SCRY_COUNT -> context.triggerScryCount ?: 0
 
+        ContextPropertyKey.TRIGGER_DISCOVER_VALUE -> context.triggerDiscoverValue ?: 0
+
         ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT -> context.triggerExcessDamageAmount ?: 0
 
         ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS -> context.triggerRecipientToughness ?: 0
