@@ -208,24 +208,46 @@ class CastZoneResolver(
         playerId: EntityId,
         cardId: EntityId,
         cardComponent: CardComponent
-    ): Boolean {
-        if (cardId !in state.getZone(ZoneKey(playerId, Zone.GRAVEYARD))) return false
+    ): Boolean = findMayCastFromGraveyardGrant(state, playerId, cardId, cardComponent) != null
+
+    /**
+     * Find the [MayCastFromGraveyard] grant (printed or durationally granted) that authorizes
+     * casting [cardId] from [playerId]'s graveyard, or null if none applies. When several apply, a
+     * rider-bearing grant (The Tomb of Aclazotz — "it enters with a finality counter and is a
+     * Vampire") is preferred, so the cast picks up its entry rider: a player taps such a source
+     * specifically to get that effect. The returned grant's rider is frozen onto the stack spell at
+     * cast time (see `CastSpellHandler`), which is why the decision is made here.
+     */
+    fun findMayCastFromGraveyardGrant(
+        state: GameState,
+        playerId: EntityId,
+        cardId: EntityId,
+        cardComponent: CardComponent
+    ): MayCastFromGraveyard? {
+        if (cardId !in state.getZone(ZoneKey(playerId, Zone.GRAVEYARD))) return null
+        val matches = mutableListOf<MayCastFromGraveyard>()
         for (permId in state.getBattlefield(playerId)) {
             val permCard = state.getEntity(permId)?.get<CardComponent>() ?: continue
             val permDef = cardRegistry.getCard(permCard.cardDefinitionId) ?: continue
             for (sa in permDef.script.staticAbilities) {
-                if (mayCastFromGraveyardGrantApplies(state, playerId, cardId, sa)) return true
+                if (sa is MayCastFromGraveyard && mayCastFromGraveyardGrantApplies(state, playerId, cardId, sa)) {
+                    matches.add(sa)
+                }
             }
         }
-        // Durational grants (e.g. Forgotten Cellar's "cast spells from your graveyard this turn")
-        // recorded in grantedStaticAbilities, anchored to a permanent the player controls.
+        // Durational grants (e.g. Forgotten Cellar's "cast spells from your graveyard this turn",
+        // or The Tomb of Aclazotz's per-turn creature-cast grant) recorded in grantedStaticAbilities,
+        // anchored to a permanent the player controls.
         for (grant in state.grantedStaticAbilities) {
             val anchor = state.getEntity(grant.entityId) ?: continue
             val controller = anchor.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
             if (controller != playerId) continue
-            if (mayCastFromGraveyardGrantApplies(state, playerId, cardId, grant.ability)) return true
+            val sa = grant.ability
+            if (sa is MayCastFromGraveyard && mayCastFromGraveyardGrantApplies(state, playerId, cardId, sa)) {
+                matches.add(sa)
+            }
         }
-        return false
+        return matches.firstOrNull { it.hasEntryRider } ?: matches.firstOrNull()
     }
 
     private fun mayCastFromGraveyardGrantApplies(

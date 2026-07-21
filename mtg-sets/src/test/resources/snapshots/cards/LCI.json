@@ -16738,6 +16738,111 @@
     ]
 }
 
+// Tarrian's Journal
+{
+    "name": "Tarrian's Journal",
+    "manaCost": "{1}{B}",
+    "typeLine": "Legendary Artifact — Book",
+    "oracleText": "{T}, Sacrifice another artifact or creature: Draw a card. Activate only as a sorcery.\n{2}, {T}, Discard your hand: Transform Tarrian's Journal.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature|artifact",
+                                "excludeSelf": true
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "SorcerySpeed"
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap",
+                        "CostDiscardHand"
+                    ]
+                },
+                "effect": "Transform"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "The Tomb of Aclazotz",
+        "manaCost": "",
+        "typeLine": "Legendary Land — Cave",
+        "oracleText": "(Transforms from Tarrian's Journal.)\n{T}: Add {B}.\n{T}: You may cast a creature spell from your graveyard this turn. If you do, it enters with a finality counter on it and is a Vampire in addition to its other types. (If a creature with a finality counter on it would die, exile it instead.)",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_3",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "BLACK"
+                    }
+                },
+                {
+                    "id": "ability_4",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "GrantStaticAbility",
+                        "ability": {
+                            "type": "MayCastFromGraveyard",
+                            "filter": "creature",
+                            "entersWithCounter": "FINALITY",
+                            "addedSubtypeOnEntry": "Vampire"
+                        },
+                        "target": "Self"
+                    }
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "126",
+            "rarity": "RARE",
+            "artist": "Randy Gallegos",
+            "imageUri": "https://cards.scryfall.io/normal/back/9/9/99255a66-b868-45fc-a2a9-0c89bd851b69.jpg?1782694509"
+        },
+        "colorIdentityOverride": [
+            "BLACK"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "126",
+        "rarity": "RARE",
+        "artist": "Randy Gallegos",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/99255a66-b868-45fc-a2a9-0c89bd851b69.jpg?1782694509"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Tarrian's Soulcleaver
 {
     "name": "Tarrian's Soulcleaver",

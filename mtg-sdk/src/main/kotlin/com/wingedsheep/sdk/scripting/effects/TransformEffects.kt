@@ -2,6 +2,7 @@ package com.wingedsheep.sdk.scripting.effects
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.targets.permanentDescription
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -13,14 +14,14 @@ import kotlinx.serialization.Serializable
 /**
  * Transform a double-faced permanent.
  * Toggles between front and back face.
- * "Transform this creature"
+ * "Transform this permanent" (type-neutral: the source may be an artifact, land, etc.)
  */
 @SerialName("Transform")
 @Serializable
 data class TransformEffect(
     val target: EffectTarget = EffectTarget.Self
 ) : Effect {
-    override val description: String = "Transform ${target.description}"
+    override val description: String = "Transform ${target.permanentDescription}"
 }
 
 /**
@@ -57,9 +58,9 @@ data class ExileAndReturnTransformedEffect(
     val returnAs: ReturnFace = ReturnFace.TRANSFORMED
 ) : Effect {
     override val description: String = when (returnAs) {
-        ReturnFace.TRANSFORMED -> "Exile ${target.description}, then return it to the battlefield transformed"
-        ReturnFace.FRONT -> "Exile ${target.description}, then return it to the battlefield front face up"
-        ReturnFace.BACK -> "Exile ${target.description}, then return it to the battlefield back face up"
+        ReturnFace.TRANSFORMED -> "Exile ${target.permanentDescription}, then return it to the battlefield transformed"
+        ReturnFace.FRONT -> "Exile ${target.permanentDescription}, then return it to the battlefield front face up"
+        ReturnFace.BACK -> "Exile ${target.permanentDescription}, then return it to the battlefield back face up"
     }
 }
 

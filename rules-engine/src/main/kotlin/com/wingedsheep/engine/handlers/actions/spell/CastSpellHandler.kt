@@ -2940,6 +2940,13 @@ class CastSpellHandler(
             } else null
 
         // Cast the spell
+        // The Tomb of Aclazotz: capture the authorizing MayCastFromGraveyard grant now, while the
+        // card is still in the graveyard (the input `state`), so its cast-this-way entry rider
+        // (finality counter + Vampire) can be frozen onto the stack spell after it's cast (below).
+        // Null unless casting from a graveyard under a rider-bearing grant.
+        val graveyardCastRiderGrant =
+            zoneResolver.findMayCastFromGraveyardGrant(state, action.playerId, action.cardId, cardComponent)
+
         val castResult = stackResolver.castSpell(
             currentState,
             action.cardId,
@@ -2990,6 +2997,20 @@ class CastSpellHandler(
 
         var currentCastState = castResult.newState
         var allEvents = events + castResult.events
+
+        // The Tomb of Aclazotz: freeze the graveyard-cast entry rider (finality counter + added
+        // subtype) onto the stack spell now, from the specific grant that authorized this cast.
+        // StackResolver reads it back and applies it when the permanent resolves onto the battlefield.
+        graveyardCastRiderGrant?.takeIf { it.hasEntryRider }?.let { grant ->
+            currentCastState = currentCastState.updateEntity(action.cardId) { c ->
+                c.with(
+                    com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent(
+                        entersWithCounter = grant.entersWithCounter,
+                        addedSubtype = grant.addedSubtypeOnEntry
+                    )
+                )
+            }
+        }
 
         // Apply any spell riders carried by the mana that paid for this spell.
         // Some riders mutate the spell directly (e.g., Cavern's MakesSpellUncounterable

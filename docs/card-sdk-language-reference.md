@@ -4403,13 +4403,27 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   from both the enumerator (displayed cost) and `ActivateAbilityHandler` (paid cost), keyed on the
   ability's source permanent; non-mana costs (`{T}`, sacrifice) and abilities with no mana cost are
   unaffected. Backed by `ManaCost.reduceGenericWithManaFloor(amount, minTotalMana)`.
-- `MayCastFromGraveyard(filter, lifeCost = 0, duringYourTurnOnly = false)` — cast spells matching
-  `filter` from your graveyard following normal timing, optionally paying `lifeCost` life. Free for
-  Yawgmoth's Agenda (`MayCastFromGraveyard(Nonland)`); `lifeCost = 1, duringYourTurnOnly = true` for
-  Festival of Embers. Pair with `MayPlayLandsFromGraveyard` for "play lands and cast spells from
-  your graveyard". Lands are *played*, not cast, so they need the lands permission separately. This
-  grants permission over *other* cards in your graveyard from a battlefield permanent — for a card
-  that grants permission to cast *itself* from a zone, use `MayCastSelfFromZones`.
+- `MayCastFromGraveyard(filter, lifeCost = 0, duringYourTurnOnly = false, entersWithCounter = null, addedSubtypeOnEntry = null)`
+  — cast spells matching `filter` from your graveyard following normal timing, optionally paying
+  `lifeCost` life. Free for Yawgmoth's Agenda (`MayCastFromGraveyard(Nonland)`); `lifeCost = 1,
+  duringYourTurnOnly = true` for Festival of Embers. Pair with `MayPlayLandsFromGraveyard` for "play
+  lands and cast spells from your graveyard". Lands are *played*, not cast, so they need the lands
+  permission separately. This grants permission over *other* cards in your graveyard from a
+  battlefield permanent — for a card that grants permission to cast *itself* from a zone, use
+  `MayCastSelfFromZones`. **Cast-this-way entry rider:** `entersWithCounter` (a `CounterType`) and
+  `addedSubtypeOnEntry` (a subtype string) apply only to a permanent cast from the graveyard *under
+  this grant* — when it resolves it enters with one such counter and gains that subtype "in addition
+  to its other types" (a persistent characteristic, until it leaves the battlefield). Both default to
+  null (no rider), so existing graveyard-cast cards are byte-identical. The Tomb of Aclazotz (Tarrian's
+  Journal back) = `GrantStaticAbility(MayCastFromGraveyard(Creature, entersWithCounter =
+  CounterType.FINALITY, addedSubtypeOnEntry = "Vampire"), EffectTarget.Self, Duration.EndOfTurn)`. The
+  rider is frozen onto the stack spell at cast time (`CastSpellHandler` reads the authorizing grant via
+  `CastZoneResolver.findMayCastFromGraveyardGrant`, preferring a rider-bearing one when several apply)
+  as a `GraveyardCastRiderComponent`, and applied on entry by `StackResolver` →
+  `EntersWithReplacements.applyCastFromGraveyardRider` (finality counter placed → the
+  `ZoneMovementUtils` death-replacement exiles it instead of dying; added subtype = floating `Layer.TYPE`
+  effect). This is the reusable mechanism for the previously-unimplemented "cast from graveyard, enters
+  with a finality counter" rider (Osteomancer Adept's forage path documents the same gap).
 - `GraveyardCardsHaveFlashback(filter, cost = null, duringYourTurnOnly = false)` — a **whole-graveyard
   flashback grant** (CR 702.34): a continuous static that grants flashback to *every* card in the
   controller's graveyard matching `filter` (not a single-card grant like `Effects.GrantFlashback` /

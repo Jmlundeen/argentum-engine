@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.targets.permanentDescription
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -97,7 +98,7 @@ data class GrantTriggeredAbilityEffect(
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String = buildString {
-        append("${target.description} gains \"${ability.description}\"")
+        append("${target.permanentDescription} gains \"${ability.description}\"")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
 
@@ -125,7 +126,7 @@ data class GrantActivatedAbilityEffect(
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String = buildString {
-        append("${target.description} gains \"${ability.description}\"")
+        append("${target.permanentDescription} gains \"${ability.description}\"")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
 
@@ -220,7 +221,7 @@ data class GrantStaticAbilityEffect(
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String = buildString {
-        append("${target.description} gains \"${ability.description}\"")
+        append("${target.permanentDescription} gains \"${ability.description}\"")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
 
@@ -255,7 +256,7 @@ data class GrantReplacementEffectEffect(
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String = buildString {
-        append("${target.description} gains \"${replacement.description}\"")
+        append("${target.permanentDescription} gains \"${replacement.description}\"")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
 

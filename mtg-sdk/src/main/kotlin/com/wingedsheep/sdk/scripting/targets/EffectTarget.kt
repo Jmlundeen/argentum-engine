@@ -275,3 +275,16 @@ sealed interface EffectTarget {
         override val description: String = "its controller"
     }
 }
+
+/**
+ * Type-neutral phrasing for the source permanent, for effects that apply to it regardless of its
+ * card type. [EffectTarget.Self]'s own [EffectTarget.description] is creature-centric
+ * ("this creature") because most self-referential effects (pumps, keyword grants) live on
+ * creatures and read best that way. Effects that also legitimately apply to non-creature
+ * permanents — transforming a double-faced artifact/land, granting an ability to a Vehicle or a
+ * DFC land — must render the source through this instead, so the generated ability text doesn't
+ * call a land or artifact "this creature". Non-[Self] targets fall through to their own
+ * [EffectTarget.description] unchanged.
+ */
+val EffectTarget.permanentDescription: String
+    get() = if (this is EffectTarget.Self) "this permanent" else description
