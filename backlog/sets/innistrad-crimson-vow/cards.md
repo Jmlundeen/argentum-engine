@@ -107,7 +107,7 @@
 - [x] Geistlight Snare
 - [ ] Geralf, Visionary Stitcher
 - [x] Gift of Fangs
-- [ ] Glorious Sunrise
+- [x] Glorious Sunrise
 - [x] Gluttonous Guest
 - [ ] Graf Reaver
 - [x] Grisly Ritual
@@ -147,7 +147,7 @@
 - [x] Kessig Wolfrider
 - [ ] Kindly Ancestor
 - [x] Lacerate Flesh
-- [ ] Laid to Rest
+- [x] Laid to Rest
 - [ ] Lambholt Raconteur
 - [ ] Lantern Bearer
 - [x] Lantern Flare
@@ -226,7 +226,7 @@
 - [x] Spore Crawler
 - [x] Sporeback Wolf
 - [x] Steelclad Spirit
-- [ ] Stensia Uprising
+- [x] Stensia Uprising
 - [ ] Stitched Assistant
 - [x] Stormcarved Coast
 - [ ] Stormchaser Drake
