@@ -433,6 +433,65 @@
     ]
 }
 
+// Ascendant Packleader
+{
+    "name": "Ascendant Packleader",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Wolf",
+    "oracleText": "This creature enters with a +1/+1 counter on it if you control a permanent with mana value 4 or greater.\nWhenever you cast a spell with mana value 4 or greater, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "ManaValueAtLeast",
+                                "min": 4
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "+1/+1",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 1,
+                "selfOnly": true,
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "permanent mv>=4"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "186",
+        "rarity": "RARE",
+        "artist": "Alessandra Pisano",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/4/142c5b67-5de9-41da-b57f-7ce771457a3e.jpg?1783924820"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Belligerent Guest
 {
     "name": "Belligerent Guest",
@@ -597,6 +656,58 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Blood Hypnotist
+{
+    "name": "Blood Hypnotist",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Vampire",
+    "oracleText": "This creature can't block.\nWhenever you sacrifice one or more Blood tokens, target creature can't block this turn. This ability triggers only once each turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "artifact Blood"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CantBlockTargetCreatures",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "creature"
+                },
+                "oncePerTurn": true
+            }
+        ],
+        "staticAbilities": [
+            "CantBlock"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "145",
+        "rarity": "UNCOMMON",
+        "artist": "Marie Magny",
+        "flavorText": "Arvon was ecstatic to offer his blood to such a captivating creature.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/8/d85e0477-9176-4a3e-badc-f1c1c734e59c.jpg?1783924842"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -1903,6 +2014,67 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Dreadlight Monstrosity
+{
+    "name": "Dreadlight Monstrosity",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Creature — Crab Horror",
+    "oracleText": "Ward {2} (Whenever this creature becomes the target of a spell or ability an opponent controls, counter it unless that player pays {2}.)\n{3}{U}{U}: This creature can't be blocked this turn. Activate only if you own a card in exile.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "WARD"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ward",
+            "cost": {
+                "type": "WardCost.Mana",
+                "manaCost": "{2}"
+            }
+        }
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}{U}{U}"
+                    }
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "CANT_BE_BLOCKED",
+                    "target": "Self"
+                },
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Exile"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "57",
+        "artist": "Jason Kang",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/6/16345278-7565-406b-a958-835081082bc8.jpg?1783924894"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

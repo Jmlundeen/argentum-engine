@@ -2,7 +2,7 @@
 
 **Set Size:** 272 booster cards (excluding basic lands and tokens)
 **Release Date:** November 19, 2021
-**Implemented:** 123 / 272
+**Implemented:** 127 / 272
 - [x] Abrade
 - [x] Adamant Will
 - [ ] Aim for the Head
@@ -16,7 +16,7 @@
 - [x] Apprentice Sharpshooter
 - [ ] Archghoul of Thraben
 - [x] Arm the Cathars
-- [ ] Ascendant Packleader
+- [x] Ascendant Packleader
 - [ ] Avabruck Caretaker
 - [ ] Ballista Watcher
 - [x] Belligerent Guest
@@ -24,7 +24,7 @@
 - [ ] Biolume Egg
 - [x] Bleed Dry
 - [x] Blood Fountain
-- [ ] Blood Hypnotist
+- [x] Blood Hypnotist
 - [x] Blood Petal Celebrant
 - [x] Blood Servitor
 - [x] Bloodcrazed Socialite
@@ -80,7 +80,7 @@
 - [ ] Dorothea, Vengeful Victim
 - [ ] Dread Fugue
 - [ ] Dreadfeast Demon
-- [ ] Dreadlight Monstrosity
+- [x] Dreadlight Monstrosity
 - [x] Dreamroot Cascade
 - [ ] Dreamshackle Geist
 - [ ] Drogskol Infantry
@@ -236,7 +236,7 @@
 - [x] Swamp
 - [x] Syncopate
 - [x] Syphon Essence
-- [ ] Thalia, Guardian of Thraben
+- [x] Thalia, Guardian of Thraben
 - [x] Thirst for Discovery
 - [ ] Torens, Fist of the Angels
 - [x] Toxic Scorpion
