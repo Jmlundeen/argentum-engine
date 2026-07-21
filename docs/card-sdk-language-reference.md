@@ -1016,7 +1016,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   (Int overload) redirects the tokens, e.g. `EffectTarget.TargetController` for "its controller creates
   two Treasure tokens" (An Offer You Can't Refuse).
 - `CreateFood(count?, controller?)` — Food tokens.
-- `CreateBlood(count?, controller?)` — Blood tokens (artifact with "{1}, {T}, Discard a card, Sacrifice this artifact: Draw a card.").
+- `CreateBlood(count?, controller?)` — Blood tokens (artifact with "{1}, {T}, Discard a card, Sacrifice this artifact: Draw a card."). `count` accepts an `Int` or a `DynamicAmount` (the latter evaluated at resolution, e.g. `CreateBlood(DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ExcessMarkedDamage))` for Lacerate Flesh's "create a number of Blood tokens equal to the amount of excess damage dealt").
 - `CreateClue(count?, controller?)` / `Investigate(count?, controller?)` — Clue tokens (artifact with
   "{2}, Sacrifice this token: Draw a card."). `Investigate` is the keyword-action spelling (CR 701.36) so
   card text "investigate" maps directly; both create the same predefined `Clue` token — Malcolm, the Eyes.
@@ -2709,6 +2709,12 @@ work for abilities-on-stack (which carry no `CardComponent`).
   ability controller) it never matches — it is only meaningful in target/condition contexts. Used by
   Stolen Uniform's "if it's attached to a creature you control" guard
   (`Conditions.EntityMatches(EffectTarget.TriggeringEntity, GameObjectFilter.Any.attachedTo(GameObjectFilter.Creature.youControl()))`).
+  Safe to nest inside an `Exists(...)` condition that gates a `ConditionalStaticAbility`, even for
+  mutually-referencing statics (Bride's Gown ↔ Groom's Finery each switch a bonus on when the *other*
+  Equipment is attached to a creature you control): `PredicateEvaluator` threads the in-flight projection
+  through its recursive predicate walk, so an `attachedTo(...)` reached mid-projection resolves the host's
+  control against the base `ControllerComponent` (empty-fallback projection) instead of re-entering the
+  lazy `GameState.projectedState` and recursing to a `StackOverflowError`.
 - `ExiledWithSource` (filter builder `exiledWithSource()`) — source-relative: the candidate card is
   one the effect's source permanent exiled, i.e. its id is recorded in the source's
   `LinkedExileComponent` (the same linkage set by `RedirectZoneChange(linkToSource = true)`,
@@ -3845,6 +3851,13 @@ staticAbility {
   "Enchanted creature ... is a Citizen with base power and toughness 1/1 and '{T}: Add {C}' named Humble Merchant."
 - `ConditionalStaticAbility` — static gated by a runtime `Condition`. A conditional wrapping a *multi-effect* ability
   (e.g. `TransformPermanent`) lowers through the plural converter and gates every resulting effect on the condition.
+  The gate is honored for **non-projection** grants too, not just layer-projected effects: a conditional wrapping a
+  `GrantActivatedAbility` is unwrapped by both the ability enumerator (`CastPermissionUtils`) and the activation path
+  (`ActivateAbilityHandler`), which evaluate its `Condition` against the granting permanent before handing out the
+  ability — so the grant appears as a legal action only while the condition holds. Nature's Embrace: "As long as
+  enchanted permanent is a land, it has '{T}: Add two mana of any one color'" is a
+  `ConditionalStaticAbility(GrantActivatedAbility({T}: AddAnyColorMana(2)), EnchantedPermanentMatches(Land))` — the
+  granted mana ability switches on/off continuously with the host's type.
 - `CompositeStaticAbility(abilities)` — bundles several component static abilities into **one** printed static ability
   whose single continuous effect spans multiple Rule 613 layers (CR 613.6). Use it when one printed ability grants a
   *combination* of type/subtype/color/keyword/P/T changes to the same objects — e.g. Bello, Bard of the Brambles: "each

@@ -2453,7 +2453,22 @@ class ActivateAbilityHandler(
 
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
             val classLevel = container.get<com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent>()?.currentLevel
-            for (ability in cardDef.script.effectiveStaticAbilities(classLevel)) {
+            for (rawAbility in cardDef.script.effectiveStaticAbilities(classLevel)) {
+                // A grant can be gated by a ConditionalStaticAbility (Nature's Embrace: the land host
+                // gains "{T}: Add two mana of any one color" only while it is a land). Unwrap the
+                // condition against the granter here so the actual-activation path agrees with the
+                // enumerator; skip when the gate is currently false.
+                val ability = when (rawAbility) {
+                    is com.wingedsheep.sdk.scripting.ConditionalStaticAbility -> {
+                        val granterController = state.projectedState.getController(permanentId)
+                            ?: container.get<ControllerComponent>()?.playerId
+                            ?: continue
+                        val ctx = EffectContext(sourceId = permanentId, controllerId = granterController)
+                        if (!conditionEvaluator.evaluate(state, rawAbility.condition, ctx)) continue
+                        rawAbility.ability
+                    }
+                    else -> rawAbility
+                }
                 // "[filter] have all activated abilities of the [creature] cards exiled with/to craft
                 // this" (Territory Forge / Locus of Enlightenment = Self; Agatha's Soul Cauldron =
                 // creatures you control with a +1/+1 counter). Mirror

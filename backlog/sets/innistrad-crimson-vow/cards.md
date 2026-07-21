@@ -35,10 +35,10 @@
 - [x] Boarded Window
 - [x] Bramble Armor
 - [x] Bramble Wurm
-- [ ] Bride's Gown
+- [x] Bride's Gown
 - [ ] Brine Comber
 - [ ] By Invitation Only
-- [ ] Cartographer's Survey
+- [x] Cartographer's Survey
 - [ ] Catapult Fodder
 - [ ] Cemetery Desecrator
 - [ ] Cemetery Gatekeeper
@@ -67,7 +67,7 @@
 - [x] Dawnhart Geist
 - [x] Daybreak Combatants
 - [x] Deathcap Glade
-- [ ] Demonic Bargain
+- [x] Demonic Bargain
 - [ ] Desperate Farmer
 - [ ] Dig Up
 - [x] Diregraf Scavenger
@@ -112,7 +112,7 @@
 - [ ] Graf Reaver
 - [x] Grisly Ritual
 - [ ] Grolnok, the Omnivore
-- [ ] Groom's Finery
+- [x] Groom's Finery
 - [ ] Gryff Rider
 - [x] Gryffwing Cavalry
 - [ ] Gutter Skulker
@@ -146,7 +146,7 @@
 - [x] Kessig Flamebreather
 - [x] Kessig Wolfrider
 - [ ] Kindly Ancestor
-- [ ] Lacerate Flesh
+- [x] Lacerate Flesh
 - [ ] Laid to Rest
 - [ ] Lambholt Raconteur
 - [ ] Lantern Bearer
@@ -167,10 +167,10 @@
 - [x] Moldgraf Millipede
 - [x] Mountain
 - [ ] Mulch
-- [ ] Nature's Embrace
+- [x] Nature's Embrace
 - [x] Nebelgast Beguiler
 - [x] Necroduality
-- [ ] Nurturing Presence
+- [x] Nurturing Presence
 - [ ] Oakshade Stalker
 - [ ] Odric, Blood-Cursed
 - [ ] Old Rutstein
@@ -221,7 +221,7 @@
 - [x] Snarling Wolf
 - [ ] Sorin the Mirthless
 - [ ] Soulcipher Board
-- [ ] Spiked Ripsaw
+- [x] Spiked Ripsaw
 - [ ] Splendid Reclamation
 - [x] Spore Crawler
 - [x] Sporeback Wolf

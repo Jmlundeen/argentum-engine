@@ -107,9 +107,12 @@ class PredicateEvaluator {
 
         if (!cardMatches) return false
 
-        // Check all state predicates (these use base state, not projected)
+        // Check all state predicates. Most read base state, but the attachment/relative-power
+        // branches need projection — thread the SAME [projected] we were handed (during layer
+        // projection this is the empty-fallback ProjectedState, so we don't re-enter the lazy
+        // GameState.projectedState mid-projection and recurse forever).
         val stateMatches = filter.statePredicates.all { predicate ->
-            matchesStatePredicate(state, entityId, predicate, context)
+            matchesStatePredicate(state, entityId, predicate, context, projected)
         }
 
         if (!stateMatches) return false
@@ -884,7 +887,17 @@ class PredicateEvaluator {
         state: GameState,
         entityId: EntityId,
         predicate: StatePredicate,
-        context: PredicateContext? = null
+        context: PredicateContext? = null,
+        /**
+         * Projection to consult for the branches that need continuous effects (attachment host
+         * type/control, relative power). Defaults to the canonical lazy [GameState.projectedState]
+         * for external callers (trigger matching, targeting). During layer projection the caller
+         * passes the empty-fallback [ProjectedState] instead, so an `Exists`/attachment predicate
+         * evaluated *while* the projection is being built does not re-enter the lazy delegate on the
+         * same thread and recurse until the stack overflows (two Auras/Equipment whose conditional
+         * statics reference each other, e.g. Bride's Gown ↔ Groom's Finery).
+         */
+        projected: ProjectedState = state.projectedState
     ): Boolean {
         val container = state.getEntity(entityId) ?: return false
 
@@ -1079,7 +1092,7 @@ class PredicateEvaluator {
             // by the player who designated it.
             StatePredicate.IsRingBearer -> {
                 val bearer = container.get<com.wingedsheep.engine.state.components.identity.RingBearerComponent>()
-                bearer != null && state.projectedState.getController(entityId) == bearer.ownerId
+                bearer != null && projected.getController(entityId) == bearer.ownerId
             }
 
             // Counter state
@@ -1122,7 +1135,7 @@ class PredicateEvaluator {
             // land turned into a creature) is matched correctly.
             is StatePredicate.AttachedToCardType -> {
                 val attached = container.get<AttachedToComponent>() ?: return false
-                state.projectedState.hasType(attached.targetId, predicate.cardType.name)
+                projected.hasType(attached.targetId, predicate.cardType.name)
             }
 
             // General attachment match — entity is attached to a host that matches the nested
@@ -1134,10 +1147,14 @@ class PredicateEvaluator {
                 val attached = container.get<AttachedToComponent>() ?: return false
                 // A controller predicate in the nested filter needs a "you"; without an evaluation
                 // context fall back to the host's actual controller so the match can still run.
+                // Use base ControllerComponent under the empty-fallback projection (where
+                // getController is null) so mid-projection evaluation still resolves a "you".
                 val ctx = context ?: PredicateContext(
-                    controllerId = state.projectedState.getController(attached.targetId) ?: return false
+                    controllerId = projected.getController(attached.targetId)
+                        ?: state.getEntity(attached.targetId)?.get<ControllerComponent>()?.playerId
+                        ?: return false
                 )
-                matches(state, state.projectedState, attached.targetId, predicate.filter, ctx)
+                matches(state, projected, attached.targetId, predicate.filter, ctx)
             }
 
             // Source-relative — the candidate IS the effect's source permanent itself
@@ -1196,7 +1213,6 @@ class PredicateEvaluator {
 
             // Relative power
             StatePredicate.HasGreatestPower -> {
-                val projected = state.projectedState
                 val entityController = projected.getController(entityId)
                     ?: container.get<ControllerComponent>()?.playerId
                     ?: return false
@@ -1216,7 +1232,6 @@ class PredicateEvaluator {
             // regardless of controller. Ties leave every minimum-power creature matching, so a
             // downstream "choose one" selection breaks them (Drop of Honey).
             StatePredicate.HasLeastPowerAmongAllCreatures -> {
-                val projected = state.projectedState
                 if (!projected.isCreature(entityId)) return false
                 val entityPower = projected.getPower(entityId) ?: return false
                 val minPower = state.getBattlefield()
@@ -1227,7 +1242,6 @@ class PredicateEvaluator {
             }
 
             StatePredicate.HasLeastPower -> {
-                val projected = state.projectedState
                 val entityController = projected.getController(entityId)
                     ?: container.get<ControllerComponent>()?.playerId
                     ?: return false
@@ -1249,9 +1263,9 @@ class PredicateEvaluator {
                 container.get<RoomComponent>()?.lockedFaces?.isNotEmpty() == true
 
             // Composite / logical combinators
-            is StatePredicate.Or -> predicate.predicates.any { matchesStatePredicate(state, entityId, it, context) }
-            is StatePredicate.And -> predicate.predicates.all { matchesStatePredicate(state, entityId, it, context) }
-            is StatePredicate.Not -> !matchesStatePredicate(state, entityId, predicate.predicate, context)
+            is StatePredicate.Or -> predicate.predicates.any { matchesStatePredicate(state, entityId, it, context, projected) }
+            is StatePredicate.And -> predicate.predicates.all { matchesStatePredicate(state, entityId, it, context, projected) }
+            is StatePredicate.Not -> !matchesStatePredicate(state, entityId, predicate.predicate, context, projected)
         }
     }
 
