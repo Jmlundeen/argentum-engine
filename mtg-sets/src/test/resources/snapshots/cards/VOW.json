@@ -257,6 +257,114 @@
     ]
 }
 
+// Anje, Maid of Dishonor
+{
+    "name": "Anje, Maid of Dishonor",
+    "manaCost": "{2}{B}{R}",
+    "typeLine": "Legendary Creature — Vampire",
+    "oracleText": "Whenever Anje and/or one or more other Vampires you control enter, create a Blood token. This ability triggers only once each turn. (It's an artifact with \"{1}, {T}, Discard a card, Sacrifice this token: Draw a card.\")\n{2}, Sacrifice another creature or a Blood token: Each opponent loses 2 life and you gain 2 life.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "PermanentsEnteredEvent",
+                    "filter": "creature Vampire ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Blood"
+                },
+                "oncePerTurn": true,
+                "descriptionOverride": "Whenever Anje and/or one or more other Vampires you control enter, create a Blood token. This ability triggers only once each turn."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": {
+                                    "cardPredicates": [
+                                        {
+                                            "type": "Or",
+                                            "predicates": [
+                                                "IsCreature",
+                                                {
+                                                    "type": "And",
+                                                    "predicates": [
+                                                        "IsArtifact",
+                                                        {
+                                                            "type": "HasSubtype",
+                                                            "subtype": "Blood"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "excludeSelf": true
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "{2}, Sacrifice another creature or a Blood token: Each opponent loses 2 life and you gain 2 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "231",
+        "rarity": "RARE",
+        "artist": "Yongjae Choi",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1bfac4ab-97f1-448c-8554-42ed03eb5656.jpg?1783924794"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Apprentice Sharpshooter
 {
     "name": "Apprentice Sharpshooter",
@@ -1608,6 +1716,125 @@
     ]
 }
 
+// Cultivator Colossus
+{
+    "name": "Cultivator Colossus",
+    "manaCost": "{4}{G}{G}{G}",
+    "typeLine": "Creature — Plant Beast",
+    "oracleText": "Trample\nCultivator Colossus's power and toughness are each equal to the number of lands you control.\nWhen this creature enters, you may put a land card from your hand onto the battlefield tapped. If you do, draw a card and repeat this process.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "land"
+            }
+        },
+        "toughness": {
+            "type": "Dynamic",
+            "source": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "land"
+            }
+        }
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "RepeatWhile",
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Hand",
+                                            "filter": "land"
+                                        },
+                                        "storeAs": "put_candidates"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "put_candidates",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "putting"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "putting",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield",
+                                            "placement": "Tapped"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Gated",
+                                "gate": {
+                                    "type": "Gate.WhenCondition",
+                                    "condition": {
+                                        "type": "CollectionContainsMatch",
+                                        "collection": "putting",
+                                        "filter": "land"
+                                    }
+                                },
+                                "then": {
+                                    "type": "DrawCards",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "repeatCondition": {
+                        "type": "WhileCondition",
+                        "condition": {
+                            "type": "CollectionContainsMatch",
+                            "collection": "putting",
+                            "filter": "land"
+                        }
+                    }
+                },
+                "descriptionOverride": "When this creature enters, you may put a land card from your hand onto the battlefield tapped. If you do, draw a card and repeat this process."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "195",
+        "rarity": "MYTHIC",
+        "artist": "Antonio José Manzanedo",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/2/62dffe04-c431-440d-a8da-33c74b4bb683.jpg?1783924815"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Dawnhart Disciple
 {
     "name": "Dawnhart Disciple",
@@ -2166,6 +2393,88 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Dominating Vampire
+{
+    "name": "Dominating Vampire",
+    "manaCost": "{1}{R}{R}",
+    "typeLine": "Creature — Vampire",
+    "oracleText": "When this creature enters, gain control of target creature with mana value less than or equal to the number of Vampires you control until end of turn. Untap that creature. It gains haste until end of turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GainControl",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            },
+                            "duration": "EndOfTurn"
+                        },
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            },
+                            "tap": false
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "ManaValueAtMostDynamic",
+                                    "amount": {
+                                        "type": "AggregateBattlefield",
+                                        "player": "You",
+                                        "filter": "creature Vampire"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "id": "target creature"
+                },
+                "descriptionOverride": "When this creature enters, gain control of target creature with mana value less than or equal to the number of Vampires you control until end of turn. Untap that creature. It gains haste until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "154",
+        "rarity": "RARE",
+        "artist": "PINDURSKI",
+        "flavorText": "\"You can join me or feed me. Choose fast.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/b/4b11d234-c6e4-45b2-a3c2-dcacc77cc084.jpg?1783924838"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2996,6 +3305,87 @@
     ]
 }
 
+// Fleeting Spirit
+{
+    "name": "Fleeting Spirit",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "{W}, Exile three cards from your graveyard: This creature gains first strike until end of turn.\nDiscard a card: Exile this creature. Return it to the battlefield under its owner's control at the beginning of the next end step.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{W}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomExileFrom",
+                                "zone": "Graveyard",
+                                "count": 3
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "FIRST_STRIKE",
+                    "target": "Self"
+                },
+                "descriptionOverride": "{W}, Exile three cards from your graveyard: This creature gains first strike until end of turn."
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": "AtomDiscard"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": "Self",
+                            "destination": "Exile"
+                        },
+                        {
+                            "type": "CreateDelayedTrigger",
+                            "step": "END",
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": "Self",
+                                "destination": "Battlefield"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Discard a card: Exile this creature. Return it to the battlefield under its owner's control at the beginning of the next end step."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "14",
+        "rarity": "UNCOMMON",
+        "artist": "Evyn Fong",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/b/db9d80f7-9742-4437-a9f4-6717a678f935.jpg?1783924922"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Flourishing Hunter
 {
     "name": "Flourishing Hunter",
@@ -3150,6 +3540,87 @@
         "artist": "Anato Finnstark",
         "flavorText": "Tamil had always wanted a closer look at a geist's lantern. Now he had an eternity to study one.",
         "imageUri": "https://cards.scryfall.io/normal/front/7/3/7302b5da-cac5-4ce7-ad38-2ff4e410891b.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Geralf, Visionary Stitcher
+{
+    "name": "Geralf, Visionary Stitcher",
+    "manaCost": "{2}{U}",
+    "typeLine": "Legendary Creature — Human Wizard",
+    "oracleText": "Zombies you control have flying.\n{U}, {T}, Sacrifice another nontoken creature: Create an X/X blue Zombie creature token, where X is the sacrificed creature's toughness.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{U}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature nontoken",
+                                "excludeSelf": true
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 0,
+                    "toughness": 0,
+                    "colors": [
+                        "BLUE"
+                    ],
+                    "creatureTypes": [
+                        "Zombie"
+                    ],
+                    "dynamicPower": {
+                        "type": "EntityProperty",
+                        "entity": "Sacrificed",
+                        "numericProperty": "Toughness"
+                    },
+                    "dynamicToughness": {
+                        "type": "EntityProperty",
+                        "entity": "Sacrificed",
+                        "numericProperty": "Toughness"
+                    }
+                },
+                "descriptionOverride": "{U}, {T}, Sacrifice another nontoken creature: Create an X/X blue Zombie creature token, where X is the sacrificed creature's toughness."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "FLYING",
+                "filter": {
+                    "baseFilter": "creature Zombie ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "61",
+        "rarity": "RARE",
+        "artist": "Bryan Sola",
+        "flavorText": "\"Do you like it, Sister? Its dreadful visage was inspired by your own.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/9/69890076-9cc4-434f-8618-63b00fdf4515.jpg?1783924892"
     },
     "colorIdentityOverride": [
         "BLUE"
@@ -5829,6 +6300,213 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Old Rutstein
+{
+    "name": "Old Rutstein",
+    "manaCost": "{1}{B}{G}",
+    "typeLine": "Legendary Creature — Human Peasant",
+    "oracleText": "When Old Rutstein enters and at the beginning of your upkeep, mill a card. If a land card is milled this way, create a Treasure token. If a creature card is milled this way, create a 1/1 green Insect creature token. If a noncreature, nonland card is milled this way, create a Blood token.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        },
+                                        "isMill": true
+                                    },
+                                    "storeAs": "milled"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "milled",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "CollectionContainsMatch",
+                                    "collection": "milled",
+                                    "filter": "land"
+                                }
+                            },
+                            "then": {
+                                "type": "CreatePredefinedToken",
+                                "tokenType": "Treasure"
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "CollectionContainsMatch",
+                                    "collection": "milled",
+                                    "filter": "creature"
+                                }
+                            },
+                            "then": {
+                                "type": "CreateToken",
+                                "power": 1,
+                                "toughness": 1,
+                                "colors": [
+                                    "GREEN"
+                                ],
+                                "creatureTypes": [
+                                    "Insect"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "CollectionContainsMatch",
+                                    "collection": "milled",
+                                    "filter": "noncreature nonland"
+                                }
+                            },
+                            "then": {
+                                "type": "CreatePredefinedToken",
+                                "tokenType": "Blood"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When Old Rutstein enters, mill a card. If a land card is milled this way, create a Treasure token. If a creature card is milled this way, create a 1/1 green Insect creature token. If a noncreature, nonland card is milled this way, create a Blood token."
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        },
+                                        "isMill": true
+                                    },
+                                    "storeAs": "milled"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "milled",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "CollectionContainsMatch",
+                                    "collection": "milled",
+                                    "filter": "land"
+                                }
+                            },
+                            "then": {
+                                "type": "CreatePredefinedToken",
+                                "tokenType": "Treasure"
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "CollectionContainsMatch",
+                                    "collection": "milled",
+                                    "filter": "creature"
+                                }
+                            },
+                            "then": {
+                                "type": "CreateToken",
+                                "power": 1,
+                                "toughness": 1,
+                                "colors": [
+                                    "GREEN"
+                                ],
+                                "creatureTypes": [
+                                    "Insect"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "CollectionContainsMatch",
+                                    "collection": "milled",
+                                    "filter": "noncreature nonland"
+                                }
+                            },
+                            "then": {
+                                "type": "CreatePredefinedToken",
+                                "tokenType": "Blood"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "At the beginning of your upkeep, mill a card. If a land card is milled this way, create a Treasure token. If a creature card is milled this way, create a 1/1 green Insect creature token. If a noncreature, nonland card is milled this way, create a Blood token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "244",
+        "rarity": "RARE",
+        "artist": "Greg Staples",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/2/625b8023-2ef1-4b7b-9e48-4f774fee14e0.jpg?1783924790"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
     ]
 }
 
@@ -9243,6 +9921,90 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Voldaren Estate
+{
+    "name": "Voldaren Estate",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{T}, Pay 1 life: Add one mana of any color. Spend this mana only to cast a Vampire spell.\n{5}, {T}: Create a Blood token. This ability costs {1} less to activate for each Vampire you control.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "restriction": {
+                        "type": "SubtypeSpellsOnly",
+                        "subtypes": [
+                            "Vampire"
+                        ]
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{5}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Blood"
+                },
+                "descriptionOverride": "{5}, {T}: Create a Blood token. This ability costs {1} less to activate for each Vampire you control.",
+                "genericCostReduction": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "creature Vampire"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "267",
+        "rarity": "RARE",
+        "artist": "Richard Wright",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/5/2577e5fd-903a-44ce-989a-d53d56511ad3.jpg?1783924780"
+    }
 }
 
 // Wandering Mind

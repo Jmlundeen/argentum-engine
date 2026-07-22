@@ -2,7 +2,7 @@
 
 **Set Size:** 272 booster cards (excluding basic lands and tokens)
 **Release Date:** November 19, 2021
-**Implemented:** 127 / 272
+**Implemented:** 147 / 272
 - [x] Abrade
 - [x] Adamant Will
 - [ ] Aim for the Head
@@ -12,7 +12,7 @@
 - [x] Ancestral Anger
 - [ ] Ancient Lumberknot
 - [x] Angelic Quartermaster
-- [ ] Anje, Maid of Dishonor
+- [x] Anje, Maid of Dishonor
 - [x] Apprentice Sharpshooter
 - [ ] Archghoul of Thraben
 - [x] Arm the Cathars
@@ -61,7 +61,7 @@
 - [ ] Creepy Puppeteer
 - [x] Cruel Witness
 - [x] Crushing Canopy
-- [ ] Cultivator Colossus
+- [x] Cultivator Colossus
 - [ ] Curse of Hospitality
 - [x] Dawnhart Disciple
 - [x] Dawnhart Geist
@@ -74,7 +74,7 @@
 - [ ] Distracting Geist
 - [ ] Diver Skaab
 - [ ] Dollhouse of Horrors
-- [ ] Dominating Vampire
+- [x] Dominating Vampire
 - [x] Doomed Dissenter
 - [ ] Dormant Grove
 - [ ] Dorothea, Vengeful Victim
@@ -99,13 +99,13 @@
 - [ ] Fell Stinger
 - [ ] Fierce Retribution
 - [x] Flame-Blessed Bolt
-- [ ] Fleeting Spirit
+- [x] Fleeting Spirit
 - [x] Flourishing Hunter
 - [ ] Foreboding Statue
 - [x] Forest
 - [x] Frenzied Devils
 - [x] Geistlight Snare
-- [ ] Geralf, Visionary Stitcher
+- [x] Geralf, Visionary Stitcher
 - [x] Gift of Fangs
 - [x] Glorious Sunrise
 - [x] Gluttonous Guest
@@ -173,7 +173,7 @@
 - [x] Nurturing Presence
 - [ ] Oakshade Stalker
 - [ ] Odric, Blood-Cursed
-- [ ] Old Rutstein
+- [x] Old Rutstein
 - [ ] Olivia's Attendants
 - [ ] Olivia, Crimson Bride
 - [x] Ollenbock Escort
@@ -257,7 +257,7 @@
 - [ ] Volatile Arsonist
 - [ ] Voldaren Bloodcaster
 - [x] Voldaren Epicure
-- [ ] Voldaren Estate
+- [x] Voldaren Estate
 - [ ] Voltaic Visionary
 - [x] Wandering Mind
 - [x] Wanderlight Spirit
