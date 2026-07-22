@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.permanentDescription
+import com.wingedsheep.sdk.scripting.targets.selfNounToken
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -96,11 +96,12 @@ data class GrantTriggeredAbilityEffect(
     val ability: TriggeredAbility,
     val target: EffectTarget,
     val duration: Duration = Duration.EndOfTurn
-) : Effect {
-    override val description: String = buildString {
-        append("${target.permanentDescription} gains \"${ability.description}\"")
+) : Effect, SelfReferentialDescription {
+    override val descriptionTemplate: String = buildString {
+        append("${target.selfNounToken} gains \"${ability.description}\"")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
+    override val description: String get() = defaultResolvedDescription
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newAbility = ability.applyTextReplacement(replacer)
@@ -124,11 +125,12 @@ data class GrantActivatedAbilityEffect(
     val ability: ActivatedAbility,
     val target: EffectTarget,
     val duration: Duration = Duration.EndOfTurn
-) : Effect {
-    override val description: String = buildString {
-        append("${target.permanentDescription} gains \"${ability.description}\"")
+) : Effect, SelfReferentialDescription {
+    override val descriptionTemplate: String = buildString {
+        append("${target.selfNounToken} gains \"${ability.description}\"")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
+    override val description: String get() = defaultResolvedDescription
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newAbility = ability.applyTextReplacement(replacer)
@@ -219,11 +221,12 @@ data class GrantStaticAbilityEffect(
     val ability: com.wingedsheep.sdk.scripting.StaticAbility,
     val target: EffectTarget,
     val duration: Duration = Duration.EndOfTurn
-) : Effect {
-    override val description: String = buildString {
-        append("${target.permanentDescription} gains \"${ability.description}\"")
+) : Effect, SelfReferentialDescription {
+    override val descriptionTemplate: String = buildString {
+        append("${target.selfNounToken} gains \"${ability.description}\"")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
+    override val description: String get() = defaultResolvedDescription
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newAbility = ability.applyTextReplacement(replacer)
@@ -254,11 +257,12 @@ data class GrantReplacementEffectEffect(
     val replacement: com.wingedsheep.sdk.scripting.ReplacementEffect,
     val target: EffectTarget = EffectTarget.Self,
     val duration: Duration = Duration.EndOfTurn
-) : Effect {
-    override val description: String = buildString {
-        append("${target.permanentDescription} gains \"${replacement.description}\"")
+) : Effect, SelfReferentialDescription {
+    override val descriptionTemplate: String = buildString {
+        append("${target.selfNounToken} gains \"${replacement.description}\"")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
+    override val description: String get() = defaultResolvedDescription
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newReplacement = replacement.applyTextReplacement(replacer)

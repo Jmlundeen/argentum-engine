@@ -1972,6 +1972,20 @@ can't statically prevent (cross-trigger flows, `Self`-vs-`ContextTarget` inside 
 - `EffectTarget.Self` — the source permanent. In a *granted* ability (Equipment/Aura "equipped
   creature has …"), `Self` is the **host** that received the ability — its `{T}` taps the host —
   not the granting object (CR 113.7).
+  - **Self-noun rendering (type-aware text).** `EffectTarget.Self.description` is "this creature"
+    (most self-referential effects live on creatures). Effects that also apply to *non-creature*
+    permanents — `TransformEffect` / `ExileAndReturnTransformedEffect`, and the ability grants
+    `GrantTriggeredAbility` / `GrantActivatedAbility` / `GrantStaticAbility` /
+    `GrantReplacementEffect` — must not hard-code either noun, so they implement
+    `SelfReferentialDescription` (a standalone mixin, **not** a subtype of the sealed `@Serializable`
+    `Effect`) and build a `descriptionTemplate` using `EffectTarget.selfNounToken` — which renders
+    `Self` as the placeholder `SELF_NOUN_TOKEN` (`"{self}"`). `Effect.description` default-resolves
+    that token to `DEFAULT_SELF_NOUN` ("this permanent") via `resolveSelfNoun(...)`, a type-safe
+    fallback so the raw token never leaks; the server's `ClientStateTransformer` instead re-resolves
+    the template against the host permanent's *projected* type (`selfNounFor` → "this creature" /
+    "this artifact" / "this land" / … ) when it renders the ability on the stack (and planeswalker
+    loyalty lines). `descriptionTemplate` and `description` are computed (non-constructor)
+    properties, so neither is serialized — the card snapshot is unaffected.
 - `EffectTarget.GrantingSource` — the permanent whose static ability granted the currently-resolving
   ability: the Equipment/Aura/permanent bearing the `GrantActivatedAbility` static, as the counterpart
   to `Self` (the host). Use when a granted ability names the *granting object* — e.g. Trusty

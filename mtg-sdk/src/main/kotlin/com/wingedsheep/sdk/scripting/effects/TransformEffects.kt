@@ -2,7 +2,7 @@ package com.wingedsheep.sdk.scripting.effects
 
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.permanentDescription
+import com.wingedsheep.sdk.scripting.targets.selfNounToken
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -20,8 +20,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TransformEffect(
     val target: EffectTarget = EffectTarget.Self
-) : Effect {
-    override val description: String = "Transform ${target.permanentDescription}"
+) : Effect, SelfReferentialDescription {
+    override val descriptionTemplate: String = "Transform ${target.selfNounToken}"
+    override val description: String get() = defaultResolvedDescription
 }
 
 /**
@@ -56,12 +57,13 @@ enum class ReturnFace { TRANSFORMED, FRONT, BACK }
 data class ExileAndReturnTransformedEffect(
     val target: EffectTarget = EffectTarget.Self,
     val returnAs: ReturnFace = ReturnFace.TRANSFORMED
-) : Effect {
-    override val description: String = when (returnAs) {
-        ReturnFace.TRANSFORMED -> "Exile ${target.permanentDescription}, then return it to the battlefield transformed"
-        ReturnFace.FRONT -> "Exile ${target.permanentDescription}, then return it to the battlefield front face up"
-        ReturnFace.BACK -> "Exile ${target.permanentDescription}, then return it to the battlefield back face up"
+) : Effect, SelfReferentialDescription {
+    override val descriptionTemplate: String = when (returnAs) {
+        ReturnFace.TRANSFORMED -> "Exile ${target.selfNounToken}, then return it to the battlefield transformed"
+        ReturnFace.FRONT -> "Exile ${target.selfNounToken}, then return it to the battlefield front face up"
+        ReturnFace.BACK -> "Exile ${target.selfNounToken}, then return it to the battlefield back face up"
     }
+    override val description: String get() = defaultResolvedDescription
 }
 
 /**
