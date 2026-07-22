@@ -29,7 +29,7 @@ import io.kotest.matchers.shouldNotBe
  *
  * The novel behavior proven here is a **creature front transforming into a non-creature Saga back**
  * (assembled with `CardDefinition.doubleFacedPermanent`): the sorcery-speed activated ability
- * exile-returns Huatli as Roar, which re-enters as a Saga, picks up CR 714.2b's on-enter lore
+ * exile-returns Huatli as Roar, which re-enters as a Saga, picks up CR 714.3a's on-enter lore
  * counter, and fires chapter I (two 3/3 green Dinosaur tokens). Chapter II then grants Roar itself a
  * lasting Citanul-Hierophants static — "creatures you control have '{T}: Add {R}, {G}, or {W}'" —
  * proven by a controlled creature gaining an activatable mana ability it lacked before.

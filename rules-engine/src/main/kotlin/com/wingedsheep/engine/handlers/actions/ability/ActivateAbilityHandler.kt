@@ -2535,44 +2535,10 @@ class ActivateAbilityHandler(
         }
 
         // Granted GrantActivatedAbility statics (CR 611): a permanent that was itself *granted* an
-        // ability-granting static — not one printed on its card — confers the inner activated ability
-        // to the matching group, exactly like a printed GrantActivatedAbility. Mirrors
-        // CastPermissionUtils.getStaticGrantedAbilitiesWithGranter so this handler and the enumerators
-        // agree. Example: Roar of the Fifth People chapter II, "This Saga gains 'Creatures you control
-        // have "{T}: Add {R}, {G}, or {W}."'" — the outer static lands in GameState.grantedStaticAbilities.
-        for (grantedStatic in state.grantedStaticAbilities) {
-            val grantAbility = grantedStatic.ability as? GrantActivatedAbility ?: continue
-            val granterId = grantedStatic.entityId
-            val granter = state.getEntity(granterId) ?: continue
-            if (!state.getBattlefield().contains(granterId)) continue
-            if (granter.has<FaceDownComponent>()) continue
-            when (val scope = grantAbility.filter.scope) {
-                is Scope.Battlefield -> {
-                    if (grantAbility.filter.excludeSelf && granterId == entityId) continue
-                    val granterController = state.projectedState.getController(granterId) ?: continue
-                    val matches = predicateEvaluator.matches(
-                        state,
-                        state.projectedState,
-                        entityId,
-                        grantAbility.filter.baseFilter,
-                        PredicateContext(controllerId = granterController, sourceId = granterId)
-                    )
-                    if (matches) result.add(grantAbility.ability to granterId)
-                }
-                is Scope.AttachedTo -> {
-                    val attachedTo = granter.get<AttachedToComponent>()
-                    if (attachedTo != null && attachedTo.targetId == entityId) {
-                        result.add(grantAbility.ability to granterId)
-                    }
-                }
-                is Scope.Self -> {
-                    if (granterId == entityId) result.add(grantAbility.ability to granterId)
-                }
-                is Scope.Specific -> {
-                    if (scope.entityId == entityId) result.add(grantAbility.ability to granterId)
-                }
-            }
-        }
+        // ability-granting static — e.g. Roar of the Fifth People chapter II. Resolved by the shared
+        // helper so this handler and the enumerators agree on the granted set.
+        castPermissionUtils.getGrantedStaticGrantActivatedAbilities(entityId, state)
+            .forEach { result.add(it.ability to it.granterId) }
 
         // GainActivatedAbilitiesOfPermanents (Sharkey): copies of opponents' lands' abilities, etc.
         // Resolved by the shared helper so the enumerator and this handler agree on the gained set.

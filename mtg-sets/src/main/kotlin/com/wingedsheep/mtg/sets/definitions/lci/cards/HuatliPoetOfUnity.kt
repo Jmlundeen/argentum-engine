@@ -39,7 +39,7 @@ import com.wingedsheep.sdk.scripting.values.ManaColorSet
  *
  * Transform loop mirrors Dion, Bahamut's Dominant / Terra, Magical Adept: the sorcery-speed
  * activated ability exile-returns Huatli transformed, so Roar re-enters the battlefield as a Saga
- * and picks up CR 714.2b's on-enter lore counter (chapter I triggers) via the shared Saga-entry
+ * and picks up CR 714.3a's on-enter lore counter (chapter I triggers) via the shared Saga-entry
  * hook — no explicit lore-counter effect is needed. The back is a non-creature enchantment, so the
  * DFC is assembled with [CardDefinition.doubleFacedPermanent] rather than `doubleFacedCreature`.
  *
