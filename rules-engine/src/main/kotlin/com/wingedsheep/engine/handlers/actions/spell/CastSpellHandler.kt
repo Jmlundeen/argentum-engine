@@ -2998,15 +2998,25 @@ class CastSpellHandler(
         var currentCastState = castResult.newState
         var allEvents = events + castResult.events
 
-        // The Tomb of Aclazotz: freeze the graveyard-cast entry rider (finality counter + added
-        // subtype) onto the stack spell now, from the specific grant that authorized this cast.
-        // StackResolver reads it back and applies it when the permanent resolves onto the battlefield.
-        graveyardCastRiderGrant?.takeIf { it.hasEntryRider }?.let { grant ->
+        // Freeze a graveyard-cast entry rider onto the stack spell now; StackResolver reads it back
+        // and applies it when the permanent resolves onto the battlefield. Two sources feed it:
+        //  - The Tomb of Aclazotz: a rider-bearing MayCastFromGraveyard grant (finality counter +
+        //    added subtype), from the specific grant that authorized this cast.
+        //  - Osteomancer Adept's forage permission: "that creature enters with a finality counter on
+        //    it" (finality only, no added subtype) — reusing the same entry-rider plumbing.
+        val riderCounter: CounterType? = when {
+            graveyardCastRiderGrant?.hasEntryRider == true -> graveyardCastRiderGrant.entersWithCounter
+            isForageCast -> CounterType.FINALITY
+            else -> null
+        }
+        val riderSubtype: String? =
+            graveyardCastRiderGrant?.takeIf { it.hasEntryRider }?.addedSubtypeOnEntry
+        if (riderCounter != null || riderSubtype != null) {
             currentCastState = currentCastState.updateEntity(action.cardId) { c ->
                 c.with(
                     com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent(
-                        entersWithCounter = grant.entersWithCounter,
-                        addedSubtype = grant.addedSubtypeOnEntry
+                        entersWithCounter = riderCounter,
+                        addedSubtype = riderSubtype
                     )
                 )
             }

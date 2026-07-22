@@ -4436,8 +4436,10 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   as a `GraveyardCastRiderComponent`, and applied on entry by `StackResolver` →
   `EntersWithReplacements.applyCastFromGraveyardRider` (finality counter placed → the
   `ZoneMovementUtils` death-replacement exiles it instead of dying; added subtype = floating `Layer.TYPE`
-  effect). This is the reusable mechanism for the previously-unimplemented "cast from graveyard, enters
-  with a finality counter" rider (Osteomancer Adept's forage path documents the same gap).
+  effect). This is the reusable "cast from graveyard, enters with a finality counter" mechanism:
+  Osteomancer Adept's forage permission (`MayCastCreaturesFromGraveyardWithForageComponent`) shares it —
+  `CastSpellHandler` freezes the same `GraveyardCastRiderComponent(entersWithCounter = FINALITY)` onto a
+  forage-cast creature, applied on entry by the identical `StackResolver` path.
 - `GraveyardCardsHaveFlashback(filter, cost = null, duringYourTurnOnly = false)` — a **whole-graveyard
   flashback grant** (CR 702.34): a continuous static that grants flashback to *every* card in the
   controller's graveyard matching `filter` (not a single-card grant like `Effects.GrantFlashback` /
