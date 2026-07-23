@@ -547,6 +547,26 @@ sealed interface CostReductionSource {
     }
 
     /**
+     * Reduces cost by the greatest **power** among permanents the caster controls matching a
+     * filter. Used for The Skullspore Nexus ("This spell costs {X} less to cast, where X is the
+     * greatest power among creatures you control.") via
+     * `GreatestPowerAmongPermanentsYouControl(Filters.Creature)`.
+     *
+     * Empty matches yield 0 reduction. Power is read from projected state (CR 613), so counters
+     * and continuous buffs on the controlled creatures count. The power-reading sibling of
+     * [GreatestManaValueAmongPermanentsYouControl].
+     *
+     * @property filter The filter that controlled permanents must match
+     */
+    @SerialName("GreatestPowerAmongPermanentsYouControl")
+    @Serializable
+    data class GreatestPowerAmongPermanentsYouControl(
+        val filter: GameObjectFilter
+    ) : CostReductionSource {
+        override val description: String = "the greatest power among ${filter.description} you control"
+    }
+
+    /**
      * Reduces cost by a fixed amount if a creature is currently attacking the caster.
      * Used for cards like Swat Away ("This spell costs {2} less to cast if a creature
      * is attacking you").

@@ -215,6 +215,9 @@ data class EffectContext(
     val triggerLastKnownPower: Int? = null,
     /** Toughness of the triggering entity the moment it left the battlefield (dies/leaves triggers) */
     val triggerLastKnownToughness: Int? = null,
+    /** Total last-known power of a creatures-died batch (CR 603.2c). Read via
+     *  `ContextPropertyKey.DIED_BATCH_TOTAL_POWER` (The Skullspore Nexus). Null for non-batch triggers. */
+    val triggerDiedBatchTotalPower: Int? = null,
     /**
      * Power of the creature an Aura/Equipment was attached to, captured when its triggered
      * ability fired. Read by [EntityReference.EnchantedCreature] power reads as last-known

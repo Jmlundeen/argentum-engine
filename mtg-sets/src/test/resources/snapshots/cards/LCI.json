@@ -18294,6 +18294,122 @@
     ]
 }
 
+// The Skullspore Nexus
+{
+    "name": "The Skullspore Nexus",
+    "manaCost": "{6}{G}{G}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "This spell costs {X} less to cast, where X is the greatest power among creatures you control.\nWhenever one or more nontoken creatures you control die, create a green Fungus Dinosaur creature token with base power and toughness each equal to the total power of those creatures.\n{2}, {T}: Double target creature's power until end of turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "CreaturesYouControlDiedEvent",
+                    "filter": "creature nontoken"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 0,
+                    "toughness": 0,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Fungus",
+                        "Dinosaur"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/f/9/f92f2858-e524-4d23-b947-d4dff20e7f59.jpg?1783913606",
+                    "dynamicPower": {
+                        "type": "ContextProperty",
+                        "key": "DIED_BATCH_TOTAL_POWER"
+                    },
+                    "dynamicToughness": {
+                        "type": "ContextProperty",
+                        "key": "DIED_BATCH_TOTAL_POWER"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "EntityProperty",
+                        "entity": "Target",
+                        "numericProperty": "Power"
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature whose power to double"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "creature whose power to double"
+                    }
+                ]
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "GreatestPowerAmongPermanentsYouControl",
+                        "filter": "creature"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "212",
+        "rarity": "MYTHIC",
+        "artist": "Daarken",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/5/b56a7631-5f94-468d-aab7-7e9e129c5f49.jpg?1782694440",
+        "rulings": [
+            {
+                "date": "2023-11-10",
+                "text": "Use the power of the nontoken creatures that died as they last existed on the battlefield to determine the base power and toughness of the token created by the middle ability."
+            },
+            {
+                "date": "2023-11-10",
+                "text": "To double a creature's power, that creature gets +X/+0, where X is that creature's power as The Skullspore Nexus's activated ability resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Thousand Moons Crackshot
 {
     "name": "Thousand Moons Crackshot",

@@ -707,6 +707,8 @@ class DynamicAmountEvaluator(
 
         ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS -> context.triggerRecipientToughness ?: 0
 
+        ContextPropertyKey.DIED_BATCH_TOTAL_POWER -> context.triggerDiedBatchTotalPower ?: 0
+
         ContextPropertyKey.LINKED_EXILE_CARD_COUNT -> {
             val sourceId = context.sourceId
             if (sourceId == null) 0 else state.getEntity(sourceId)

@@ -416,6 +416,9 @@ class CostCalculator(
             is CostReductionSource.GreatestManaValueAmongPermanentsYouControl -> {
                 greatestManaValueAmongMatching(state, playerId, source.filter)
             }
+            is CostReductionSource.GreatestPowerAmongPermanentsYouControl -> {
+                greatestPowerAmongMatching(state, playerId, source.filter)
+            }
             is CostReductionSource.FixedIfVoid -> {
                 if (state.nonlandPermanentLeftBattlefieldThisTurn || state.spellWarpedThisTurn)
                     source.amount
@@ -491,6 +494,37 @@ class CostCalculator(
             }
         }
         return maxMv
+    }
+
+    /**
+     * Find the greatest power among permanents the player controls matching a filter.
+     * Returns 0 if none match. Power is read from projected state (CR 613) so counters and
+     * continuous buffs on the controlled permanents count. The power-reading sibling of
+     * [greatestManaValueAmongMatching].
+     */
+    private fun greatestPowerAmongMatching(
+        state: GameState,
+        playerId: EntityId,
+        filter: GameObjectFilter
+    ): Int {
+        val projectedState = state.projectedState
+        var maxPower = 0
+        for (entityId in state.getBattlefield(playerId)) {
+            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
+            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val matches = filter.cardPredicates.all { predicate ->
+                matchesBattlefieldPredicate(entityId, cardDef, predicate, projectedState)
+            }
+            if (matches) {
+                val power = projectedState.getPower(entityId) ?: when (val p = card.baseStats?.power) {
+                    is CharacteristicValue.Fixed -> p.value
+                    is CharacteristicValue.DynamicWithOffset -> p.offset
+                    else -> 0
+                }
+                if (power > maxPower) maxPower = power
+            }
+        }
+        return maxPower
     }
 
     /**

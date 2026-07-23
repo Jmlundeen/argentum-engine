@@ -4173,8 +4173,11 @@ staticAbility {
   same, all players), `PermanentsSacrificedThisTurn(amountPerPermanent = 1)` (the count of
   permanents sacrificed this turn by *any* player — not controller-scoped — reading the
   turn-scoped `GameState.permanentsSacrificedThisTurn` counter; The Balrog, Durin's Bane),
-  `CardsInGraveyardMatchingFilter`, `FixedIfAnyTargetMatches`, … — see
-  `CostStaticAbilities.kt` for the full list.
+  `CardsInGraveyardMatchingFilter`, `FixedIfAnyTargetMatches`,
+  `GreatestManaValueAmongPermanentsYouControl(filter)` (Sunderflock — "the greatest mana value among
+  Elementals you control"), `GreatestPowerAmongPermanentsYouControl(filter)` (The Skullspore Nexus —
+  "the greatest power among creatures you control"; power read from projected state so counters and
+  buffs count; empty match → 0), … — see `CostStaticAbilities.kt` for the full list.
 - `gating: CostGating` — gates whether/how often the modifier fires:
   - `None` (default) — applies to every matching cast.
   - `NthOfTypePerTurn(n)` — only when this is the Nth matching spell each turn (1-indexed; counts the
@@ -6145,6 +6148,23 @@ For triggered abilities whose effect reads a property of the entity that caused 
 - `DynamicAmounts.triggeringManaValue()` — mana value of the triggering entity.
 
 All three desugar to `EntityProperty(EntityReference.Triggering, …)`.
+
+### Death-batch total-power shortcut (`DynamicAmounts.*` facade)
+
+For "one or more creatures you control die" **batch** triggers
+(`Triggers.OneOrMoreCreaturesYouControlDie`, CR 603.2c) whose payoff scales by the combined power of
+the creatures that died:
+
+- `DynamicAmounts.diedBatchTotalPower()` — the summed **last-known** power of the creatures that died
+  in the batch that fired this trigger, counting only the deaths that match the trigger's filter
+  (so a `.nontoken()` trigger ignores dying tokens). Desugars to
+  `ContextProperty(ContextPropertyKey.DIED_BATCH_TOTAL_POWER)`. The value is captured at trigger
+  detection (a graveyard card would report only printed power, dropping counters and buffs — CR
+  603.10 last-known information), so it survives to resolution. Returns 0 outside a creatures-died
+  batch trigger. Individual powers may be negative, so the sum can be too. Used by The Skullspore
+  Nexus — "create a green Fungus Dinosaur creature token with base power and toughness each equal to
+  the total power of those creatures" (`Effects.CreateDynamicToken(dynamicPower = …, dynamicToughness
+  = …)`).
 
 ### Attached-creature shortcut (`DynamicAmounts.*` facade)
 

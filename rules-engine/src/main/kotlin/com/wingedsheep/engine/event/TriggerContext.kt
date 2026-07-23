@@ -44,6 +44,15 @@ data class TriggerContext(
     /** Last known toughness when the triggering entity left the battlefield (for dies/leaves triggers) */
     val lastKnownToughness: Int? = null,
     /**
+     * Total last-known power of the creatures that died in the batch that fired a
+     * `CreaturesYouControlDiedEvent` trigger (CR 603.2c / 603.10) — summed over the deaths that
+     * match the trigger's filter, captured at detection time. Read via
+     * [com.wingedsheep.sdk.scripting.values.ContextPropertyKey.DIED_BATCH_TOTAL_POWER] by "the
+     * total power of those creatures" batch payoffs (The Skullspore Nexus). Null for non-batch
+     * triggers. Populated by [TriggerDetector], not [fromEvent].
+     */
+    val diedBatchTotalPower: Int? = null,
+    /**
      * Last-known **projected** subtypes when the triggering entity left the battlefield (CR 603.10),
      * so continuous-effect-granted types count and not just printed ones. Read by
      * [com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadSubtype] as an intervening-if on
