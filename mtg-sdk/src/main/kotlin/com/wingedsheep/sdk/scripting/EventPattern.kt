@@ -4,6 +4,8 @@ import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.events.AmountFilter
 import com.wingedsheep.sdk.scripting.events.ControllerFilter
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
@@ -267,11 +269,13 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @Serializable
     data class DrawEvent(
         val player: Player = Player.You,
-        val exceptFirstInDrawStep: Boolean = false
+        val exceptFirstInDrawStep: Boolean = false,
+        val condition: Condition? = null
     ) : EventPattern {
         override val description: String = buildString {
             append(player.description)
             append(" would draw a card")
+            if (condition != null) append(" ${condition.description}")
             if (exceptFirstInDrawStep) append(" (except the first each draw step)")
         }
     }
