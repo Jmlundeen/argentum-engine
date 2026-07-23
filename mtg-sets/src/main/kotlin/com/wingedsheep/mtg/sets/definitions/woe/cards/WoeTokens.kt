@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Wilds of Eldraine's Rat token: a 1/1 black Rat creature token with "This token can't block."
@@ -12,8 +13,12 @@ import com.wingedsheep.sdk.scripting.effects.Effect
  * [Effects.CreateToken] rather than a [com.wingedsheep.mtg.sets.tokens.PredefinedTokens] entry.
  * Several WOE cards create it (Harried Spearguard, Warehouse Tabby, Rat Out, …), so the shape —
  * including the token's art — lives here rather than being copied per card.
+ *
+ * [count] is a [DynamicAmount] so the same helper covers the fixed-count cards and Song of
+ * Totentanz's "create X … Rat creature tokens".
  */
-internal fun woeRatToken(): Effect = Effects.CreateToken(
+internal fun woeRatToken(count: DynamicAmount = DynamicAmount.Fixed(1)): Effect = Effects.CreateToken(
+    count = count,
     power = 1,
     toughness = 1,
     colors = setOf(Color.BLACK),

@@ -2064,11 +2064,13 @@ object Effects {
         controller: EffectTarget? = null,
         imageUri: String? = null,
         legendary: Boolean = false,
-        tapped: Boolean = false
+        tapped: Boolean = false,
+        staticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList()
     ): Effect = CreateTokenEffect(
         count = count, power = power, toughness = toughness, colors = colors,
         creatureTypes = creatureTypes, keywords = keywords,
-        controller = controller, imageUri = imageUri, legendary = legendary, tapped = tapped
+        controller = controller, imageUri = imageUri, legendary = legendary, tapped = tapped,
+        staticAbilities = staticAbilities
     )
 
     /**

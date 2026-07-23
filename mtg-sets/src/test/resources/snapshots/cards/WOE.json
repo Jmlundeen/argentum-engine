@@ -152,6 +152,55 @@
     ]
 }
 
+// Ashiok's Reaper
+{
+    "name": "Ashiok's Reaper",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Nightmare",
+    "oracleText": "Whenever an enchantment you control is put into a graveyard from the battlefield, draw a card.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "enchantment ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "UNCOMMON",
+        "artist": "Denis Zhbankov",
+        "flavorText": "Neva's dreams were haunted by memories of the invasion—oil-black tendrils grasping at her through the mist. Or . . . was this something new?",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/3/83957fe0-6500-420c-9b7a-2448a1c1d3b3.jpg?1783915111",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "Enchantment tokens (such as Roles) that are sacrificed, destroyed, or would otherwise go to the graveyard are put into their owner's graveyard before ceasing to exist. If you controlled the token, Ashiok's Reaper's ability will trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Barrow Naughty
 {
     "name": "Barrow Naughty",
@@ -2833,6 +2882,110 @@
     ]
 }
 
+// Imodane's Recruiter
+{
+    "name": "Imodane's Recruiter",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "When this creature enters, creatures you control get +1/+0 and gain haste until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "target": "Self"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": "Self"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "229",
+        "rarity": "UNCOMMON",
+        "artist": "Néstor Ossandón Leal",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/d/4dbaa855-3f8e-42e6-8ec8-5ffbc5c8acf0.jpg?1783915064",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "Imodane's Recruiter's triggered ability affects only creatures you control at the time it resolves. Creatures you begin to control later in the turn won't get +1/+0 or gain haste."
+            },
+            {
+                "date": "2023-09-01",
+                "text": "If a spell is cast as an Adventure, its controller exiles it instead of putting it into its owner's graveyard as it resolves. For as long as it remains exiled, that player may cast it as a permanent spell."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ],
+    "layout": "ADVENTURE",
+    "cardFaces": [
+        {
+            "name": "Train Troops",
+            "manaCost": "{4}{W}",
+            "typeLine": "Sorcery — Adventure",
+            "oracleText": "Create two 2/2 white Knight creature tokens with vigilance. (Then exile this card. You may cast the creature later from exile.)",
+            "script": {
+                "spellEffect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Knight"
+                    ],
+                    "keywords": [
+                        "VIGILANCE"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/f/4/f4035134-a162-4651-86c5-ae006b6e0e20.jpg?1783914992"
+                }
+            }
+        }
+    ]
+}
+
 // Kindled Heroism
 {
     "name": "Kindled Heroism",
@@ -3587,6 +3740,64 @@
     ]
 }
 
+// Protective Parents
+{
+    "name": "Protective Parents",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Peasant",
+    "oracleText": "When this creature dies, create a Young Hero Role token attached to up to one target creature you control. (If you control another Role on it, put that one into the graveyard. Enchanted creature has \"Whenever this creature attacks, if its toughness is 3 or less, put a +1/+1 counter on it.\")",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateRoleToken",
+                    "roleName": "Young Hero Role",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "up to one target creature you control"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "id": "up to one target creature you control"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "artist": "Matt Stewart",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68cc9653-80ef-4606-a0ec-6d4228fdb118.jpg?1783915130",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "If you don't choose a target for Protective Parents's ability, the Young Hero Role token won't be created."
+            },
+            {
+                "date": "2023-09-01",
+                "text": "If a permanent has more than one Role attached to it controlled by the same player, each of those Roles except the one with the most recent timestamp is put into its owner's graveyard. This is a state-based action."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Quick Study
 {
     "name": "Quick Study",
@@ -3710,6 +3921,64 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Redtooth Genealogist
+{
+    "name": "Redtooth Genealogist",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elf Advisor",
+    "oracleText": "When this creature enters, create a Royal Role token attached to another target creature you control. (If you control another Role on it, put that one into the graveyard. Enchanted creature gets +1/+1 and has ward {1}.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateRoleToken",
+                    "roleName": "Royal Role",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "another target creature you control"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you",
+                        "excludeSelf": true
+                    },
+                    "id": "another target creature you control"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "179",
+        "artist": "Gaboleps",
+        "flavorText": "Some family trees are thornier than others.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/99c81440-66eb-4443-a83f-e2f15cb68a3e.jpg?1783915079",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "If a permanent has more than one Role attached to it controlled by the same player, each of those Roles except the one with the most recent timestamp is put into its owner's graveyard. This is a state-based action."
+            },
+            {
+                "date": "2023-09-01",
+                "text": "Some spells and abilities that create Role tokens require targets. If each target chosen is an illegal target as that spell or ability tries to resolve, it won't resolve. The Role token won't be created."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -4368,6 +4637,67 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Song of Totentanz
+{
+    "name": "Song of Totentanz",
+    "manaCost": "{X}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Create X 1/1 black Rat creature tokens with \"This token can't block.\" Creatures you control gain haste until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CreateToken",
+                    "count": "XValue",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Rat"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/1/e/1e0205f2-25c1-403b-b408-56e3f2d63b4d.jpg?1783915000",
+                    "staticAbilities": [
+                        "CantBlock"
+                    ]
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "GrantKeyword",
+                        "keyword": "HASTE",
+                        "target": "Self"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "RARE",
+        "artist": "Randy Gallegos",
+        "flavorText": "Townsfolk tapped their feet and hummed along, unwittingly amplifying the tune that would summon their doom.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/4/940e8bb7-0251-4fac-945c-d83618c10447.jpg?1783915088",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "Only creatures you control at the time Song of Totentanz resolves, including the Rat tokens it creates, will gain haste. Creatures you begin to control later in the turn won't be affected."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
