@@ -13,7 +13,7 @@ import {
   useViewerTeamIndex,
 } from '@/store/selectors'
 import { teamColor, type SeatColor } from '@/styles/seatColors'
-import type { ClientCard, ClientPlayer } from '@/types'
+import type { ClientCard, ClientPlayer, EntityId } from '@/types'
 import { useResponsiveContext } from './board/shared'
 
 /**
@@ -60,8 +60,15 @@ function chipSizing(responsive: { isMobile: boolean; isTablet: boolean; isShortD
  */
 export function OpponentRail({
   spectatorMode = false,
+  visibleBoardIds = [],
 }: {
   spectatorMode?: boolean
+  /**
+   * Boards currently visible in the strip (the viewed board, plus every cell of a
+   * shared-strip view). A chip whose board is visible drops its player anchors — the
+   * center-HUD orb (viewed) or the cell's name plate (shared-strip) carries them instead.
+   */
+  visibleBoardIds?: readonly EntityId[]
 }) {
   const responsive = useResponsiveContext()
   const opponents = useOpponents()
@@ -152,6 +159,7 @@ export function OpponentRail({
                 key={opponent.playerId}
                 opponent={opponent}
                 isViewed={viewedOpponent?.playerId === opponent.playerId}
+                isBoardVisible={visibleBoardIds.includes(opponent.playerId)}
                 viewPinned={viewPinned}
                 spectatorMode={spectatorMode}
                 isAlly
@@ -165,6 +173,7 @@ export function OpponentRail({
                 key={opponent.playerId}
                 opponent={opponent}
                 isViewed={viewedOpponent?.playerId === opponent.playerId}
+                isBoardVisible={visibleBoardIds.includes(opponent.playerId)}
                 viewPinned={viewPinned}
                 spectatorMode={spectatorMode}
               />
@@ -182,6 +191,7 @@ export function OpponentRail({
               key={opponent.playerId}
               opponent={opponent}
               isViewed={viewedOpponent?.playerId === opponent.playerId}
+              isBoardVisible={visibleBoardIds.includes(opponent.playerId)}
               viewPinned={viewPinned}
               spectatorMode={spectatorMode}
             />
@@ -193,7 +203,9 @@ export function OpponentRail({
           {/* Divider — the camera controls below are *settings*, not players, so set them apart
               from the chip list above. */}
           <div aria-hidden style={{ alignSelf: 'stretch', height: 1, margin: '4px 6px 2px', background: 'rgba(255, 255, 255, 0.1)' }} />
-          <button
+          {/* Overview is desktop/tablet-landscape only — three ~33% board cells are
+              unusable on a portrait phone (GameBoard ignores the mode on isMobile too). */}
+          {!responsive.isMobile && <button
             onClick={toggleOverviewMode}
             title={
               overviewMode
@@ -225,7 +237,7 @@ export function OpponentRail({
             <span style={{ fontWeight: 800, color: overviewMode ? '#e4daff' : '#666' }}>
               {overviewMode ? 'On' : 'Off'}
             </span>
-          </button>
+          </button>}
           <button
             onClick={toggleFollowAction}
             title={
@@ -583,12 +595,15 @@ function HandCountIcon({ color = '#8899bb' }: { color?: string }) {
 function RailChip({
   opponent,
   isViewed,
+  isBoardVisible,
   viewPinned,
   spectatorMode,
   isAlly = false,
 }: {
   opponent: ClientPlayer
   isViewed: boolean
+  /** This opponent's board is on screen (viewed, or a cell of a shared-strip view). */
+  isBoardVisible: boolean
   viewPinned: boolean
   spectatorMode: boolean
   /** Two-Headed Giant: this seat is the viewing player's teammate (ally treatment, no own life). */
@@ -786,12 +801,12 @@ function RailChip({
     <div style={{ position: 'relative', pointerEvents: 'auto', width: '100%' }}>
       <div
         data-rail-chip={playerId}
-        // The viewed opponent's full-size life orb (center HUD) carries the
-        // player anchors while their board is in view — the chip only anchors
-        // arrows / damage floats / target clicks for off-screen opponents.
-        // Duplicate anchors would make querySelector pick whichever comes
-        // first in the DOM.
-        {...(!isViewed
+        // Exactly one element per player carries the anchors: the center-HUD life orb
+        // for the *viewed* opponent, the cell's name plate for every other board
+        // visible in a shared-strip view, and this chip only while the board is
+        // off-screen. Duplicate anchors would make querySelector pick whichever
+        // comes first in the DOM.
+        {...(!isBoardVisible
           ? {
               'data-player-id': playerId,
               'data-life-id': playerId,

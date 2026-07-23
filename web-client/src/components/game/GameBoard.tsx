@@ -184,15 +184,19 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   // defending seats during combat between two other players.
   const visibleStripIds = useMemo<readonly EntityId[]>(() => {
     if (!isMulti) return []
+    const single = viewedOpponent ? [viewedOpponent.playerId] : []
+    // Phones: the shared-strip views split into ~33% cells that are unusable in
+    // portrait — keep the focused one-board camera only.
+    if (responsive.isMobile) return single
     if (overviewActive) return stripOpponents.map((o) => o.playerId)
     if (!viewedOpponent) return []
     const stripIds = new Set(stripOpponents.map((o) => o.playerId))
     const extras = defenderFocusIds.filter((id) => id !== viewedOpponent.playerId && stripIds.has(id))
-    if (extras.length === 0) return [viewedOpponent.playerId]
+    if (extras.length === 0) return single
     // Keep strip (turn) order so boards don't jump when defenders change.
     const visible = new Set([viewedOpponent.playerId, ...extras])
     return stripOpponents.filter((o) => visible.has(o.playerId)).map((o) => o.playerId)
-  }, [isMulti, overviewActive, stripOpponents, viewedOpponent, defenderFocusIds])
+  }, [isMulti, responsive.isMobile, overviewActive, stripOpponents, viewedOpponent, defenderFocusIds])
   const multiView = visibleStripIds.length > 1
   // In a shared-strip view the visible boards come first (each with an equal width
   // share) and the hidden ones follow at full width, overflowing off-screen to the
@@ -601,7 +605,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
       )}
       {isMulti && (
         <>
-          <OpponentRail spectatorMode={spectatorMode} />
+          <OpponentRail spectatorMode={spectatorMode} visibleBoardIds={visibleStripIds} />
           <div
             data-opponent-strip
             style={{
@@ -611,8 +615,11 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
               minHeight: 0,
               minWidth: 0,
               // Shared-strip views: keep the leftmost board clear of the fixed rail
-              // column (single view centers one full-width board, so no clash there).
+              // column, and every cell's top (name plates, zone piles) clear of the
+              // Fullscreen/Concede button row (single view centers one full-width
+              // board below the hand reservation, so no clash there).
               paddingLeft: multiView ? railReservedWidth(responsive) : 0,
+              paddingTop: multiView ? 48 : 0,
               boxSizing: 'border-box',
             }}
             onTouchStart={(e) => {
@@ -653,6 +660,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                     ? 100 / visibleStripIds.length
                     : 100
                   : 100
+                const isViewedCell = o.playerId === viewedOpponent?.playerId
                 return (
                   <OpponentBoardArea
                     key={o.playerId}
@@ -662,6 +670,12 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                     handReservation={oppHandReservation}
                     stripWidthPct={widthPct}
                     hideHand={multiView}
+                    // The viewed board's anchors stay on the center-HUD orb; every other
+                    // visible board's plate takes over from its rail chip.
+                    plateCarriesAnchors={multiView && !isViewedCell && visibleStripIds.includes(o.playerId)}
+                    {...(multiView && isViewedCell
+                      ? { viewedRingColor: identitySeatColor(teamMap, o.playerId, gameState.players.findIndex((p) => p.playerId === o.playerId)).base }
+                      : {})}
                     spectatorMode={spectatorMode}
                     isHijacking={hijackControlledOpponentId === o.playerId}
                     hijackedSurfaceStyle={hijackedSurfaceStyle}

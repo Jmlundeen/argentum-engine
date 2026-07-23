@@ -29,33 +29,26 @@ The one shipped flow that was **not live-verified**: hotseat connections never r
 - Client entry points: `GameOverState.eliminated` (`store/slices/types.ts`),
   `enterEliminatedSpectate` (`boardViewSlice.ts`), `isEliminatedSpectator` in `GameBoard.tsx`.
 
-## 2. Per-board "face" anchor for arrows and player targeting
+## 2. ~~Per-board "face" anchor for arrows and player targeting~~ — DONE (2026-07-24)
 
-In shared-strip views (overview / combat split), arrows targeting a *player* aim at the top-center
-of their board cell — which is usually their lands row. Add a small per-cell **name plate** (name +
-life, seat-colored) rendered inside `OpponentBoardArea` when the board is visible in a multi-view,
-carrying the player anchors (`data-life-id` etc.) so:
+Shipped as `BoardNamePlate` in `OpponentBoardArea.tsx`: a seat-colored name + life pill at the
+top of every visible shared-strip cell. It carries the player anchors (`data-life-id` etc.) for
+every visible board except the viewed one (whose anchors stay on the center-HUD orb; rail chips
+now drop anchors whenever the board is visible — `OpponentRail visibleBoardIds`), and doubles as
+the defender-assignment / player-target click target. `CombatArrows` bundles to the chip only
+when no plate is on screen and otherwise ends player arrows on the plate.
 
-- attack/targeting arrows end somewhere that reads as "the player",
-- the plate doubles as a defender-assignment / player-target click target (today those clicks go
-  to the rail chip or the center-HUD orb, which only represents the *viewed* opponent).
+## 3. Overview polish — mostly DONE (2026-07-24)
 
-Anchor uniqueness rule (one `data-life-id` per player, see `OpponentRail.tsx` comment): the plate
-must take over from the rail chip while the board is visible, mirroring the existing viewed-orb
-handoff. `CombatArrows.getVisibleBoardRect` then becomes unnecessary — resolve to the plate.
-
-## 3. Overview polish
-
-- **Concede overlap**: top-right Concede button sits over the rightmost cell's deck pile in
-  overview (`ZonePiles.OPPONENT_TOP_RESERVED` only reserves height, and only helps the viewed
-  layout). Reserve right-edge space in multi-view or move the pile column inward.
-- **Viewed-board indicator**: in overview there's no visual for which board is "viewed" (the one
-  the center-HUD orb and `1`-`9` focus tracks). A subtle seat-colored inset ring on that cell.
-- **Phones/tablets**: three ~33% cells are unusable on portrait phones. Either disable the toggle
-  on `isMobile`, or make overview a 1×N vertically scrollable list there.
-- **MTGO-style per-opponent collapse** (bigger lift): instead of all-or-one, let each opponent
-  cell be individually collapsed (+/-) so the remaining boards grow — MTGO's model. The
-  `stripWidthPct` plumbing already supports arbitrary shares; needs UI + state
+- ~~**Concede overlap**~~ — the strip gets `paddingTop: 48` in shared-strip views, clearing the
+  Fullscreen/Concede row for every cell.
+- ~~**Viewed-board indicator**~~ — seat-colored inset ring on the viewed cell
+  (`viewedRingColor` on `OpponentBoardArea`).
+- ~~**Phones**~~ — shared-strip views are disabled on `isMobile` (focused camera only; the rail
+  hides the Overview toggle). A 1×N vertically scrollable phone overview remains an idea.
+- **MTGO-style per-opponent collapse** (bigger lift, still open): instead of all-or-one, let
+  each opponent cell be individually collapsed (+/-) so the remaining boards grow — MTGO's
+  model. The `stripWidthPct` plumbing already supports arbitrary shares; needs UI + state
   (`collapsedSeats: Set<EntityId>` in `boardViewSlice`).
 
 ## 4. Combat split-view refinements

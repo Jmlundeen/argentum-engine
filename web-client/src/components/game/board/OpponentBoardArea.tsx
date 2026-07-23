@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import type React from 'react'
+import { useGameStore } from '@/store/gameStore'
 import type { ClientPlayer } from '@/types'
 import { hand } from '@/types'
-import { useRevealedLibraryTopCard } from '@/store/selectors'
+import { useRevealedLibraryTopCard, useIdentityColor } from '@/store/selectors'
 import { Battlefield } from './Battlefield'
 import { CardRow } from './HandZone'
 import { CommandZone } from './CommandZone'
@@ -29,6 +30,8 @@ export function OpponentBoardArea({
   handReservation = 0,
   stripWidthPct = 100,
   hideHand = false,
+  plateCarriesAnchors = false,
+  viewedRingColor,
   spectatorMode,
   isHijacking,
   hijackedSurfaceStyle,
@@ -47,11 +50,24 @@ export function OpponentBoardArea({
    */
   stripWidthPct?: number
   /**
-   * Strip layout only: hide the opponent hand fan and its reservation band. Used when
-   * several boards share the strip — the fans would overlap across the narrow cells,
-   * and the rail chips already carry every hand count.
+   * Strip layout only: shared-strip view (table overview / combat defender-focus split).
+   * Hides the opponent hand fan and its reservation band (the fans would overlap across
+   * the narrow cells; rail chips carry the hand counts) and renders a seat-colored name
+   * plate at the top of the cell instead — the board's "face".
    */
   hideHand?: boolean
+  /**
+   * Shared-strip view only: the name plate carries this player's anchors
+   * (`data-life-id` etc.) so arrows, damage floats, and player-target clicks land on it.
+   * False for the *viewed* board, whose anchors stay on the center-HUD life orb —
+   * exactly one element per player may carry the anchors (see the OpponentRail comment).
+   */
+  plateCarriesAnchors?: boolean
+  /**
+   * Shared-strip view only: seat color for a persistent inset ring marking this cell as
+   * the *viewed* board (the one the center-HUD orb and keys 1-9 track). Undefined = no ring.
+   */
+  viewedRingColor?: string
   spectatorMode: boolean
   /** This opponent's seat is currently driven by this client (Mindslaver / hotseat). */
   isHijacking: boolean
@@ -194,12 +210,211 @@ export function OpponentBoardArea({
       {/* A hijack-controlled hand must stay visible even in shared-strip views —
           this client is playing from it. */}
       {(!hideHand || isHijacking) && handBlock}
+      {/* Shared-strip view: the board's "face" — name + life at the top of the cell.
+          Sits below the hand when a hijack forces the fan visible. */}
+      {hideHand && (
+        <BoardNamePlate
+          player={opponent}
+          carriesAnchors={plateCarriesAnchors}
+          top={(isHijacking ? handReservation : 0) + 6}
+        />
+      )}
+      {/* Persistent inset ring marking the viewed cell in a shared-strip view. */}
+      {viewedRingColor && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 2,
+            pointerEvents: 'none',
+            borderRadius: 10,
+            boxShadow: `inset 0 0 0 2px ${viewedRingColor}55, inset 0 0 18px ${viewedRingColor}22`,
+          }}
+        />
+      )}
       {/* Reservation band mirrors grid row 1 so the board area below aligns
-          exactly with the 2-player opponent area (grid row 2). With the hand
-          hidden (shared-strip views) a slim margin replaces it — the board
-          gets the vertical space back. */}
-      <div style={{ height: !hideHand || isHijacking ? handReservation : 8, flexShrink: 0 }} aria-hidden />
+          exactly with the 2-player opponent area (grid row 2). Shared-strip views
+          replace it with room for the name plate — the board gets the rest of the
+          vertical space back. */}
+      <div
+        style={{
+          height: hideHand ? (isHijacking ? handReservation : 0) + 34 : handReservation,
+          flexShrink: 0,
+        }}
+        aria-hidden
+      />
       {boardBlock}
+    </div>
+  )
+}
+
+/**
+ * The board's "face" in a shared-strip view: a compact seat-colored pill (name + life)
+ * pinned to the top of the cell. When [carriesAnchors] it holds this player's anchor
+ * attributes, so attack/targeting arrows and damage floats land on it instead of the
+ * board's lands, and it doubles as the player-level click target — defender assignment
+ * while declaring attackers, player targeting during a selection (same handling as the
+ * rail chip's crosshair).
+ */
+function BoardNamePlate({
+  player,
+  carriesAnchors,
+  top,
+}: {
+  player: ClientPlayer
+  carriesAnchors: boolean
+  top: number
+}) {
+  const seat = useIdentityColor(player.playerId)
+  const playerId = player.playerId
+
+  const combatState = useGameStore((state) => state.combatState)
+  const assignDefender = useGameStore((state) => state.assignDefenderToSelectedAttackers)
+  const draggingAttackerId = useGameStore((state) => state.draggingAttackerId)
+  const targetingState = useGameStore((state) => state.targetingState)
+  const addTarget = useGameStore((state) => state.addTarget)
+  const removeTarget = useGameStore((state) => state.removeTarget)
+  const pendingDecision = useGameStore((state) => state.pendingDecision)
+  const submitTargetsDecision = useGameStore((state) => state.submitTargetsDecision)
+  const decisionSelectionState = useGameStore((state) => state.decisionSelectionState)
+  const toggleDecisionSelection = useGameStore((state) => state.toggleDecisionSelection)
+
+  // Defender assignment (mirrors RailChip): legal while declaring attackers with a
+  // selection or an attacker drag in flight.
+  const declaringAttackers = combatState?.mode === 'declareAttackers'
+  const isDefenderTarget =
+    declaringAttackers && (combatState?.validAttackTargets.includes(playerId) ?? false)
+  const isDefenderAssignTarget =
+    isDefenderTarget &&
+    ((combatState?.selectedAttackers.length ?? 0) > 0 || draggingAttackerId !== null)
+
+  // Player-as-target (mirrors RailChip's crosshair handling).
+  const isTargetingSelected = targetingState?.selectedTargets.includes(playerId) ?? false
+  const isValidTargetingTarget = targetingState?.validTargets.includes(playerId) ?? false
+  const isChooseTargetsDecision = pendingDecision?.type === 'ChooseTargetsDecision'
+  const isValidDecisionTarget =
+    isChooseTargetsDecision &&
+    pendingDecision.targetRequirements.length === 1 &&
+    (pendingDecision.legalTargets[0] ?? []).includes(playerId)
+  const isValidDecisionSelection = decisionSelectionState?.validOptions.includes(playerId) ?? false
+  const isSelectedDecisionOption = decisionSelectionState?.selectedOptions.includes(playerId) ?? false
+  const isPlayerTargetable = isValidTargetingTarget || isValidDecisionTarget || isValidDecisionSelection
+  const isPlayerTargetSelected = isTargetingSelected || isSelectedDecisionOption
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isDefenderTarget && (combatState?.selectedAttackers.length ?? 0) > 0) {
+      assignDefender(playerId)
+      return
+    }
+    if (isTargetingSelected) {
+      removeTarget(playerId)
+      return
+    }
+    if (isValidTargetingTarget) {
+      addTarget(playerId)
+      return
+    }
+    if (isValidDecisionTarget) {
+      submitTargetsDecision({ 0: [playerId] })
+      return
+    }
+    if (isValidDecisionSelection) {
+      toggleDecisionSelection(playerId)
+    }
+  }
+
+  const interactive = isDefenderAssignTarget || isPlayerTargetable || isPlayerTargetSelected
+  const lifeDanger = player.life <= 5
+  const borderColor = isDefenderAssignTarget
+    ? '#ff4444'
+    : isPlayerTargetSelected
+      ? '#ffff00'
+      : isPlayerTargetable
+        ? '#ff4444'
+        : seat.base
+
+  return (
+    <div
+      data-board-plate={playerId}
+      {...(carriesAnchors
+        ? {
+            'data-player-id': playerId,
+            'data-life-id': playerId,
+            'data-life-display': playerId,
+          }
+        : {})}
+      role={interactive ? 'button' : undefined}
+      title={
+        isDefenderAssignTarget
+          ? `Attack ${player.name}`
+          : isPlayerTargetable || isPlayerTargetSelected
+            ? (isPlayerTargetSelected ? `Unselect ${player.name}` : `Target ${player.name}`)
+            : player.name
+      }
+      onClick={interactive ? handleClick : undefined}
+      style={{
+        position: 'absolute',
+        top,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 56,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        height: 24,
+        padding: '0 11px',
+        borderRadius: 999,
+        border: `${interactive ? 2 : 1}px solid ${borderColor}`,
+        background: 'rgba(10, 12, 20, 0.9)',
+        color: '#dde3f0',
+        fontSize: 12,
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        userSelect: 'none',
+        cursor: interactive ? 'pointer' : 'default',
+        pointerEvents: 'auto',
+        boxShadow: isDefenderAssignTarget
+          ? '0 0 12px rgba(255, 68, 68, 0.6)'
+          : isPlayerTargetSelected
+            ? '0 0 10px rgba(255, 255, 0, 0.6)'
+            : 'none',
+        transition: 'border-color 150ms, box-shadow 150ms',
+      }}
+    >
+      <span
+        aria-hidden
+        style={{
+          width: 9,
+          height: 9,
+          borderRadius: '50%',
+          background: seat.base,
+          boxShadow: `0 0 5px ${seat.base}`,
+          flexShrink: 0,
+        }}
+      />
+      <span
+        style={{
+          maxWidth: 140,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          color: seat.bright,
+        }}
+      >
+        {player.name}
+      </span>
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 3,
+          fontVariantNumeric: 'tabular-nums',
+          color: lifeDanger ? '#ff5555' : '#ffffff',
+        }}
+      >
+        <span aria-hidden style={{ color: '#ff6b6b', fontSize: 11 }}>❤</span>
+        {player.life}
+      </span>
     </div>
   )
 }

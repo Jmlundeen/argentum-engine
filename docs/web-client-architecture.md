@@ -236,19 +236,24 @@ are gated on `players.length > 2`).
   left the game. The *viewed* opponent additionally keeps a full-size life orb in the
   center HUD (seat-tinted to match their chip) — the familiar, biggest click target for
   targeting and defender assignment. Anchors (`data-player-id` / `data-life-id` /
-  `data-life-display`) are carried by the orb for the viewed opponent and by the rail chip
-  for everyone else — never both, so arrows, damage floats, and player-target clicks
-  resolve unambiguously.
+  `data-life-display`) are carried by exactly one element per player: the orb for the
+  viewed opponent, the cell's name plate for every other board visible in a shared-strip
+  view (the plate is also a defender-assignment / player-target click target), and the
+  rail chip only while the board is off-screen — never more than one, so arrows, damage
+  floats, and player-target clicks resolve unambiguously.
 - **Board switching**: rail-chip click (pins; re-click unpins), keyboard `1`/`2`/`3`,
   horizontal swipe. Follow-the-action (`useMultiplayerView` + the `boardView` slice:
   `viewedOpponentId`, `viewPinned`, `followAction`) slides automatically on coarse
   boundaries — an opponent's turn starting, the attacker's board when you're attacked, the
   priority seat in hotseat — and is refused inside `followViewTo` while any input is
   pending (the camera never moves under an in-progress selection).
-- **Table overview** (`boardView.overviewMode`, rail toggle or key `0`): every living
-  opponent's board shares the strip side-by-side instead of the one-board camera — cells
-  split the width evenly (padded clear of the fixed rail via `railReservedWidth`), hand
-  fans hide (chips carry the counts), and the per-slot card sizer shrinks cards to fit.
+- **Table overview** (`boardView.overviewMode`, rail toggle or key `0`; desktop/tablet
+  only — phones keep the focused camera): every living opponent's board shares the strip
+  side-by-side instead of the one-board camera — cells split the width evenly (padded
+  clear of the fixed rail via `railReservedWidth` and of the Fullscreen/Concede row),
+  hand fans hide (chips carry the counts), and the per-slot card sizer shrinks cards to
+  fit. Each visible cell gets a seat-colored **name plate** (`BoardNamePlate` — the
+  board's "face": name + life) and the viewed cell a subtle seat-colored inset ring.
   Hidden boards stay mounted after the visible cells at full width, overflowing
   off-screen right, so their card anchors keep remapping to rail chips. Selecting a
   single board (chip click / `1`-`9`) exits back to the focused camera.
@@ -280,7 +285,7 @@ are gated on `players.length > 2`).
   attacked (phrased with the lobby's `attackMode` when known) and rail chips of
   unattackable living seats dim with a 🚫 marker. Arrows against the viewed defender render
   per-creature in the defender's seat color; attacks on boards visible in a shared-strip
-  view aim near the top of the defender's board cell; attacks on off-screen boards bundle
+  view end on the defender's name plate; attacks on off-screen boards bundle
   into one arrow to the defender's rail chip with a creature-count badge (`CombatArrows`),
   and any card anchor on an off-screen board remaps to its controller's chip (also in
   `TargetingArrows`). While you declare blocks, attackers aimed at other defenders render
