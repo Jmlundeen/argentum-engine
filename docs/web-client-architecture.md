@@ -335,6 +335,16 @@ list (3-4 seats ⇒ hotseat) — see `ScenarioSeat` in `ScenarioDtos.kt`.
 4. User clicks target → add to selection
 5. When enough targets → submit action
 
+Spells with multiple target requirements (e.g. "2 damage to any target and 1 damage to any
+other target") walk the requirements one step at a time inside a single targeting phase.
+Confirming a step snapshots the outgoing `TargetingState` onto
+`TargetingState.previousRequirementStates`; a **Back** button (`goBackTargeting`) pops that
+stack so the player can revise an already-confirmed target before the action is submitted —
+the restored step keeps its confirmed picks selected, and re-confirming recomputes later
+steps' valid-target pools against the revised selection. The resolution-time
+`ChooseTargetsDecision` flow (`BattlefieldTargetingUI`) implements the same back navigation
+over its local requirement index. Cancel still aborts the whole action.
+
 ## Type Mapping
 
 ### Backend → Frontend

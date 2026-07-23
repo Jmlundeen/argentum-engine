@@ -24,6 +24,7 @@ function ZoneCardTargetingOverlay({
   onDeselect,
   onConfirm,
   onCancel,
+  onBack,
 }: {
   zoneCards: ClientCard[]
   targetingState: { selectedTargets: readonly EntityId[]; minTargets: number; maxTargets: number; targetDescription?: string; currentRequirementIndex?: number; totalRequirements?: number; sourceCardName?: string }
@@ -32,6 +33,8 @@ function ZoneCardTargetingOverlay({
   onDeselect: (cardId: EntityId) => void
   onConfirm: () => void
   onCancel: () => void
+  /** Present when an earlier target requirement can be revised (multi-target spells). */
+  onBack?: () => void
 }) {
   const hoverCard = useGameStore((s) => s.hoverCard)
   const gameState = useGameStore((s) => s.gameState)
@@ -394,6 +397,24 @@ function ZoneCardTargetingOverlay({
 
       {/* Buttons */}
       <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+        {onBack && (
+          <button
+            onClick={onBack}
+            style={{
+              padding: responsive.isMobile ? '10px 24px' : '12px 36px',
+              fontSize: responsive.fontSize.large,
+              backgroundColor: '#444',
+              color: 'white',
+              border: 'none',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontWeight: 600,
+              transition: 'all 0.15s',
+            }}
+          >
+            ← Back
+          </button>
+        )}
         <button
           onClick={() => setMinimized(true)}
           style={{
@@ -456,6 +477,7 @@ export function TargetingOverlay() {
   const targetingState = useGameStore((state) => state.targetingState)
   const cancelTargeting = useGameStore((state) => state.cancelTargeting)
   const confirmTargeting = useGameStore((state) => state.confirmTargeting)
+  const goBackTargeting = useGameStore((state) => state.goBackTargeting)
   const responsive = useResponsiveContext()
   const draggable = useDraggable()
 
@@ -477,6 +499,7 @@ export function TargetingOverlay() {
   const maxTargets = targetingState.maxTargets
   const hasEnoughTargets = selectedCount >= minTargets
   const hasMaxTargets = selectedCount >= maxTargets
+  const canGoBack = (targetingState.previousRequirementStates?.length ?? 0) > 0
   const isSacrifice = targetingState.isSacrificeSelection
   const isBounce = targetingState.isBounceSelection
   const isTapPermanent = targetingState.isTapPermanentSelection
@@ -518,6 +541,7 @@ export function TargetingOverlay() {
         onDeselect={removeTarget}
         onConfirm={confirmTargeting}
         onCancel={cancelTargeting}
+        {...(canGoBack ? { onBack: goBackTargeting } : {})}
       />
     )
   }
@@ -635,6 +659,15 @@ export function TargetingOverlay() {
         </div>
       )}
       <div style={{ display: 'flex', gap: 8, marginTop: 8, pointerEvents: 'auto' }}>
+        {canGoBack && (
+          <button onClick={goBackTargeting} style={{
+            ...styles.cancelButton,
+            padding: responsive.isMobile ? '8px 12px' : '10px 16px',
+            fontSize: responsive.fontSize.normal,
+          }}>
+            ← Back
+          </button>
+        )}
         {hasEnoughTargets && (
           <button onClick={confirmTargeting} style={{
             ...styles.actionButton,

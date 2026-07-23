@@ -1,6 +1,9 @@
 import { defineConfig } from '@playwright/test'
 
 const skipWebServer = !!process.env.SKIP_WEB_SERVER
+// Override when the client under test runs on a non-default port (e.g. a worktree's dev
+// server next to an already-running main checkout). Pair with SKIP_WEB_SERVER=true.
+const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:5173'
 
 export default defineConfig({
   testDir: './tests',
@@ -10,7 +13,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
