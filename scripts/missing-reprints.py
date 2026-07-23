@@ -139,19 +139,43 @@ def fetch_printings(card_name: str) -> list[Printing]:
     return printings
 
 
-def scaffolded_sets() -> set[str]:
+SET_CODE_RE = re.compile(r'override\s+val\s+code\s*=\s*"([^"]+)"')
+
+
+def set_dir_codes() -> dict[str, str]:
+    """Map each definitions/<dir> to its lowercase set code, read from the dir's *Set.kt.
+
+    The directory name usually equals the code, but can't always: `con` is a reserved
+    filename on Windows, so Conflux lives in `definitions/conflux/`.
+    """
+    codes: dict[str, str] = {}
     if not DEFINITIONS_ROOT.is_dir():
-        return set()
-    return {d.name for d in DEFINITIONS_ROOT.iterdir() if d.is_dir()}
+        return codes
+    for d in sorted(DEFINITIONS_ROOT.iterdir()):
+        if not d.is_dir():
+            continue
+        code = None
+        for set_kt in sorted(d.glob("*Set.kt")):
+            m = SET_CODE_RE.search(set_kt.read_text(encoding="utf-8"))
+            if m:
+                code = m.group(1).lower()
+                break
+        codes[d.name] = code or d.name
+    return codes
+
+
+def scaffolded_sets() -> set[str]:
+    return set(set_dir_codes().values())
 
 
 def scan_definitions() -> tuple[dict[str, str], dict[str, set[str]]]:
     """Return (canonical[name]->set_code, reprints[name]->{set_codes})."""
     canonical: dict[str, str] = {}
     reprints: dict[str, set[str]] = defaultdict(set)
+    codes = set_dir_codes()
     for kt in DEFINITIONS_ROOT.glob("*/cards/*.kt"):
         text = kt.read_text(encoding="utf-8")
-        set_code = kt.parts[-3]
+        set_code = codes.get(kt.parts[-3], kt.parts[-3])
         card_names = {m.group(1) for m in CARD_DSL_RE.finditer(text)}
         for name in card_names:
             canonical[name] = set_code

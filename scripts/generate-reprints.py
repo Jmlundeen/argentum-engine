@@ -69,16 +69,42 @@ def pascal(name: str) -> str:
     return pas
 
 
+SET_CODE_RE = re.compile(r'override\s+val\s+code\s*=\s*"([^"]+)"')
+
+
+def set_dir_codes() -> dict[str, str]:
+    """Map each definitions/<dir> to its lowercase set code, read from the dir's *Set.kt.
+
+    The directory name usually equals the code, but can't always: `con` is a reserved
+    filename on Windows, so Conflux lives in `definitions/conflux/`.
+    """
+    codes: dict[str, str] = {}
+    if not DEFINITIONS_ROOT.is_dir():
+        return codes
+    for d in sorted(DEFINITIONS_ROOT.iterdir()):
+        if not d.is_dir():
+            continue
+        code = None
+        for set_kt in sorted(d.glob("*Set.kt")):
+            m = SET_CODE_RE.search(set_kt.read_text(encoding="utf-8"))
+            if m:
+                code = m.group(1).lower()
+                break
+        codes[d.name] = code or d.name
+    return codes
+
+
 def scaffolded_sets() -> set[str]:
-    return {d.name for d in DEFINITIONS_ROOT.iterdir() if d.is_dir()}
+    return set(set_dir_codes().values())
 
 
 def scan_definitions() -> tuple[dict[str, str], dict[str, set[str]]]:
     canonical: dict[str, str] = {}
     reprints: dict[str, set[str]] = defaultdict(set)
+    codes = set_dir_codes()
     for kt in DEFINITIONS_ROOT.glob("*/cards/*.kt"):
         text = kt.read_text(encoding="utf-8")
-        set_code = kt.parts[-3]
+        set_code = codes.get(kt.parts[-3], kt.parts[-3])
         card_names = {m.group(1) for m in CARD_DSL_RE.finditer(text)}
         for name in card_names:
             canonical[name] = set_code
@@ -154,12 +180,12 @@ def kt_str(s: str | None) -> str:
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def render(name: str, set_code: str, p: dict, set_entry: dict | None) -> str:
+def render(name: str, set_code: str, p: dict, set_entry: dict | None, pkg_dir: str) -> str:
     val = f"{pascal(name)}Reprint"
     artist = set_entry.get("artist") if set_entry else None
     rarity = RARITY_MAP.get(p.get("rarity", ""), "COMMON")
     # Kotlin package segments can't start with a digit (e.g. 8ed, 5dn) — backtick-escape them.
-    seg = f"`{set_code}`" if set_code[:1].isdigit() else set_code
+    seg = f"`{pkg_dir}`" if pkg_dir[:1].isdigit() else pkg_dir
     pkg = f"com.wingedsheep.mtg.sets.definitions.{seg}.cards"
     lines = [
         f"package {pkg}",
@@ -194,6 +220,7 @@ def main() -> int:
     only = args.set.lower() if args.set else None
 
     scaffolded = scaffolded_sets()
+    dir_for = {code: d for d, code in set_dir_codes().items()}
     canonical, reprints = scan_definitions()
 
     written = 0
@@ -224,14 +251,15 @@ def main() -> int:
             if not primary or not primary.get("scryfall_id") or not primary.get("oracle_id"):
                 skipped_nocache += 1
                 continue
-            out_dir = DEFINITIONS_ROOT / sc / "cards"
+            pkg_dir = dir_for.get(sc, sc)
+            out_dir = DEFINITIONS_ROOT / pkg_dir / "cards"
             if not out_dir.is_dir():
                 continue
             out_file = out_dir / f"{pascal(name)}Reprint.kt"
             if out_file.exists():
                 skipped_exists += 1
                 continue
-            content = render(name, sc, primary, set_cache_entry(sc, name))
+            content = render(name, sc, primary, set_cache_entry(sc, name), pkg_dir)
             if args.dry_run:
                 written += 1
                 by_set[sc] += 1

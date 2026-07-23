@@ -48,6 +48,29 @@ CACHE_TTL_DAYS = 30
 CARD_DSL_RE = re.compile(r'\b(?:card|basicLand)\(\s*"([^"]+)"')
 PRINTING_NAME_RE = re.compile(r'\bname\s*=\s*"([^"]+)"')
 PRINTING_SETCODE_RE = re.compile(r'\bsetCode\s*=\s*"([^"]+)"')
+SET_CODE_RE = re.compile(r'override\s+val\s+code\s*=\s*"([^"]+)"')
+
+
+def set_dir_codes() -> dict[str, str]:
+    """Map each definitions/<dir> to its lowercase set code, read from the dir's *Set.kt.
+
+    The directory name usually equals the code, but can't always: `con` is a reserved
+    filename on Windows, so Conflux lives in `definitions/conflux/`.
+    """
+    codes: dict[str, str] = {}
+    if not DEFINITIONS_ROOT.is_dir():
+        return codes
+    for d in sorted(DEFINITIONS_ROOT.iterdir()):
+        if not d.is_dir():
+            continue
+        code = None
+        for set_kt in sorted(d.glob("*Set.kt")):
+            m = SET_CODE_RE.search(set_kt.read_text(encoding="utf-8"))
+            if m:
+                code = m.group(1).lower()
+                break
+        codes[d.name] = code or d.name
+    return codes
 
 # Set types we expect to scaffold as a top-level set. Promo/token/memorabilia
 # printings are noted but never count as "expected canonical".
@@ -146,20 +169,19 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
 
 
 def scaffolded_sets() -> set[str]:
-    if not DEFINITIONS_ROOT.is_dir():
-        return set()
-    return {d.name for d in DEFINITIONS_ROOT.iterdir() if d.is_dir()}
+    return set(set_dir_codes().values())
 
 
 def find_canonical(card_name: str) -> tuple[str, Path] | None:
     """Return (set_code_lower, file_path) of the file with `card("Name") { ... }`."""
     front = card_name.split(" // ", 1)[0].strip()
+    codes = set_dir_codes()
     for kt in DEFINITIONS_ROOT.glob("*/cards/*.kt"):
         text = kt.read_text(encoding="utf-8")
         for m in CARD_DSL_RE.finditer(text):
             if m.group(1) in (card_name, front):
-                # definitions/<setcode>/cards/<file>.kt
-                set_code = kt.parts[-3]
+                # definitions/<dir>/cards/<file>.kt
+                set_code = codes.get(kt.parts[-3], kt.parts[-3])
                 return (set_code, kt)
     return None
 
@@ -170,6 +192,7 @@ def find_reprint_rows(card_name: str) -> dict[str, Path]:
     """
     front = card_name.split(" // ", 1)[0].strip()
     result: dict[str, Path] = {}
+    codes = set_dir_codes()
     for kt in DEFINITIONS_ROOT.glob("*/cards/*.kt"):
         text = kt.read_text(encoding="utf-8")
         if "Printing(" not in text:
@@ -178,7 +201,7 @@ def find_reprint_rows(card_name: str) -> dict[str, Path]:
             continue  # this file holds the CardDefinition, not a reprint row
         if not any(n in (card_name, front) for n in PRINTING_NAME_RE.findall(text)):
             continue
-        set_code = kt.parts[-3]
+        set_code = codes.get(kt.parts[-3], kt.parts[-3])
         result[set_code] = kt
     return result
 
