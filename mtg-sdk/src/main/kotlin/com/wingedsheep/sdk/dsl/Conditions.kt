@@ -676,12 +676,28 @@ object Conditions {
      * Used by Delirium cards (Spineseeker Centipede, Balustrade Wurm).
      */
     fun Delirium(count: Int = 4): ConditionInterface =
+        graveyardTypeThreshold(count, Aggregation.DISTINCT_TYPES)
+
+    /**
+     * If there are [count] or more distinct *permanent* types (CR 110.4: artifact, battle, creature,
+     * enchantment, land, planeswalker) among the cards in your graveyard — Matzalantli, the Great
+     * Door's transform gate. This is [Delirium]'s permanent-only sibling: non-permanent card types
+     * never count. Instants and sorceries have no permanent type, and a kindred card contributes only
+     * its *other* (permanent) type, not "kindred" itself (CR 300.2b). Unlike counting distinct card
+     * types among permanent cards, this does not miscount a kindred permanent. A single card with
+     * several permanent types (an artifact creature) contributes each once; the same type across many
+     * cards still counts once.
+     */
+    fun DistinctPermanentTypesInGraveyard(count: Int): ConditionInterface =
+        graveyardTypeThreshold(count, Aggregation.DISTINCT_PERMANENT_TYPES)
+
+    /** Shared shape for the graveyard type-count gates ([Delirium], [DistinctPermanentTypesInGraveyard]). */
+    private fun graveyardTypeThreshold(count: Int, aggregation: Aggregation): ConditionInterface =
         Compare(
             DynamicAmount.AggregateZone(
                 player = Player.You,
                 zone = Zone.GRAVEYARD,
-                filter = GameObjectFilter.Any,
-                aggregation = Aggregation.DISTINCT_TYPES
+                aggregation = aggregation
             ),
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(count)

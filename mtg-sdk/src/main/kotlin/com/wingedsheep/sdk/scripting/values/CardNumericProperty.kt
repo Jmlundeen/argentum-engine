@@ -22,6 +22,14 @@ enum class Aggregation {
     COUNT, MAX, MIN, SUM,
     /** Count distinct card types across all matched entities */
     DISTINCT_TYPES,
+    /**
+     * Count distinct *permanent* card types across all matched entities (CR 110.4: artifact,
+     * battle, creature, enchantment, land, planeswalker). Like [DISTINCT_TYPES] but non-permanent
+     * card types — instant, sorcery, and kindred (CR 300.2b: a kindred card is a permanent only
+     * via its *other* type) — never contribute. Used for "N or more permanent types among …"
+     * (Matzalantli, the Great Door).
+     */
+    DISTINCT_PERMANENT_TYPES,
     /** Count distinct colors across all matched entities */
     DISTINCT_COLORS,
     /** Count distinct English card names across all matched entities */
