@@ -2,6 +2,7 @@ package com.wingedsheep.engine.handlers
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.continuations.*
+import com.wingedsheep.engine.replacement.ReplacementEffectProcessor
 import com.wingedsheep.engine.state.GameState
 
 /**
@@ -35,7 +36,7 @@ class ContinuationHandler(
         registerModule(chainResumer)
         registerAutoResumerModule(chainResumer)
         registerModule(CreatureTypeChoiceContinuationResumer(services))
-        registerModule(com.wingedsheep.engine.handlers.continuations.TextReplacementContinuationResumer(services))
+        registerModule(TextReplacementContinuationResumer(services))
         registerModule(DrawReplacementContinuationResumer(services))
         registerModule(CardSpecificContinuationResumer(services))
         registerModule(DiscardAndDrawContinuationResumer(services))
@@ -54,7 +55,15 @@ class ContinuationHandler(
         registerModule(AmassContinuationResumer(services))
         registerModule(LeylineContinuationResumer(services))
         registerModule(ActivateAbilityXCostContinuationResumer(services))
-        registerModule(com.wingedsheep.engine.handlers.continuations.ActivateAbilityOpponentTargetResumer(services))
+        registerModule(ActivateAbilityOpponentTargetResumer(services))
+
+        // Replacement effect system
+        val replacementResumer = ReplacementContinuationResumer(
+            ReplacementEffectProcessor(),
+            services
+        )
+        registerModule(replacementResumer)
+        registerAutoResumerModule(replacementResumer)
     }
 
     /**

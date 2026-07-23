@@ -2,6 +2,9 @@ package com.wingedsheep.engine.handlers.effects.drawing
 
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent
+import com.wingedsheep.engine.core.DrawPhaseManager
+import com.wingedsheep.engine.handlers.continuations.CoreAutoResumerModule
+import com.wingedsheep.engine.handlers.actions.ability.CycleCardHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
@@ -18,7 +21,7 @@ import kotlin.reflect.KClass
  * This class is a thin driver over [DrawLoop]; the actual mechanics of a
  * single-card draw live in [DrawCardPrimitive] and the replacement-effect
  * pipeline lives in [DrawReplacementDispatcher]. Both collaborators are shared
- * with [com.wingedsheep.engine.core.DrawPhaseManager] so the draw-step and
+ * with [DrawPhaseManager] so the draw-step and
  * spell/ability paths go through exactly the same code.
  */
 class DrawCardsExecutor(
@@ -30,7 +33,7 @@ class DrawCardsExecutor(
     override val effectType: KClass<DrawCardsEffect> = DrawCardsEffect::class
 
     private val primitive = DrawCardPrimitive(cardRegistry)
-    private val dispatcher = DrawReplacementDispatcher(cardRegistry, effectExecutor)
+    private val dispatcher = DrawReplacementDispatcher(effectExecutor)
 
     override fun execute(
         state: GameState,
@@ -42,15 +45,11 @@ class DrawCardsExecutor(
             return EffectResult.error(state, "No valid player for draw")
         }
 
-        val baseCount = amountEvaluator.evaluate(state, effect.count, context)
+        val count = amountEvaluator.evaluate(state, effect.count, context)
 
         var currentState = state
         val allEvents = mutableListOf<GameEvent>()
         for (playerId in playerIds) {
-            // Apply ModifyDrawAmount once per draw instruction (CR 121.2a), at the
-            // announcement site — Quantum Riddler-style "draw N+1 instead". Re-applying
-            // inside the per-card loop or on resume would double-fire; do it here only.
-            val count = applyDrawAmountModifier(currentState, playerId, baseCount)
             val result = executeDraws(currentState, playerId, count)
             currentState = result.state
             allEvents.addAll(result.events)
@@ -62,28 +61,32 @@ class DrawCardsExecutor(
     }
 
     /**
-     * Execute a sequence of [count] draws for [playerId] as a spell/ability
-     * draw (i.e., not the draw-step draw).
+     * Execute a sequence of [count] draws for [playerId].
      *
      * This is a public API used by several call sites beyond this executor:
-     *  - [com.wingedsheep.engine.handlers.continuations.DrawReplacementContinuationResumer]
-     *    when resuming a paused draw after a replacement decision,
-     *  - [com.wingedsheep.engine.handlers.continuations.CoreAutoResumerModule]
-     *    when auto-resuming `DrawReplacementRemainingDrawsContinuation` and
-     *    `CycleDrawContinuation`,
-     *  - [com.wingedsheep.engine.handlers.actions.ability.CycleCardHandler]
-     *    for the draw that follows cycling.
+     *  - [DrawPhaseManager] when performing the draw-step draw,
+     *  - [CoreAutoResumerModule] when auto-resuming `DrawReplacementRemainingDrawsContinuation`
+     *    and `CycleDrawContinuation`,
+     *  - [CycleCardHandler] for the draw that follows cycling.
      *
+     * @param isDrawStep `true` when this is the active player's draw-step
+     *     draw (sets `isDrawStep` on the shield consumer and static replacement
+     *     checks), `false` for spell/ability draws.
+     * @param emptyLibraryReason message on draw failure when library is empty.
+     *     Draw-step callers pass `"Library is empty"`; spell/ability callers
+     *     pass `"Empty library"`.
      * @param skipPrompts historical flag meaning "this resumption has already
-     *     handled decisions for the draw — skip both the static replacement
-     *     and prompt-on-draw checks in the loop, but still honor the shield
-     *     consumer". Setting this is how resume paths avoid re-asking the same
-     *     question they just resumed from.
+     *     handled decisions for the draw — skip the static replacement checks
+     *     in the loop, but still honor the shield consumer". Setting this is
+     *     how resume paths avoid re-asking the same question they just resumed
+     *     from.
      */
     fun executeDraws(
         state: GameState,
         playerId: EntityId,
         count: Int,
+        isDrawStep: Boolean = false,
+        emptyLibraryReason: String = "Empty library",
         skipPrompts: Boolean = false
     ): EffectResult {
         return DrawLoop.run(
@@ -92,50 +95,10 @@ class DrawCardsExecutor(
             count = count,
             primitive = primitive,
             dispatcher = dispatcher,
-            isDrawStep = false,
+            isDrawStep = isDrawStep,
             skipStaticReplacement = skipPrompts,
-            skipPromptOnDraw = skipPrompts,
-            emptyLibraryReason = "Empty library"
+            emptyLibraryReason = emptyLibraryReason
         )
     }
 
-    /**
-     * Apply [com.wingedsheep.sdk.scripting.ModifyDrawAmount] replacements to an
-     * announced draw count of [originalCount] for [playerId] (CR 121.2a). Used by
-     * other announcement sites that bypass [execute] and drive [executeDraws]
-     * directly (cycling's "Draw a card" — CR 702.32a; Grothama-style "each player
-     * draws cards equal to the damage they dealt to this creature") so that the
-     * +N modifier still fires once per draw instruction. The resume paths inside
-     * [com.wingedsheep.engine.handlers.continuations.DrawReplacementContinuationResumer]
-     * and [com.wingedsheep.engine.handlers.continuations.CoreAutoResumerModule]
-     * intentionally skip this — they're continuing an already-modified instruction.
-     */
-    fun applyDrawAmountModifier(
-        state: GameState,
-        playerId: EntityId,
-        originalCount: Int
-    ): Int = dispatcher.applyDrawAmountModifier(state, playerId, originalCount)
-
-    /**
-     * Expose the prompt-on-draw check so
-     * [com.wingedsheep.engine.handlers.continuations.DrawReplacementContinuationResumer]
-     * can re-ask after a player declines a prompt (to check for other
-     * `promptOnDraw` abilities they might still activate). The shape of this
-     * delegate mirrors the pre-refactor method signature so that the resumer
-     * doesn't have to learn about the dispatcher abstraction.
-     */
-    internal fun checkPromptOnDraw(
-        state: GameState,
-        playerId: EntityId,
-        remainingDrawCount: Int,
-        drawnCardsSoFar: List<EntityId>,
-        declinedSourceIds: List<EntityId> = emptyList()
-    ): EffectResult? = dispatcher.checkPromptOnDraw(
-        state = state,
-        playerId = playerId,
-        drawCount = remainingDrawCount,
-        drawnCardsSoFar = drawnCardsSoFar,
-        isDrawStep = false,
-        declinedSourceIds = declinedSourceIds
-    )
 }

@@ -3,6 +3,8 @@ package com.wingedsheep.engine.handlers.effects.drawing
 import com.wingedsheep.engine.core.CardsDrawnEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent
+import com.wingedsheep.engine.core.DrawFailedEvent
+import com.wingedsheep.engine.core.CardRevealedFromDrawEvent
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.model.EntityId
@@ -39,10 +41,7 @@ object DrawLoop {
      * @param skipStaticReplacement skip the Parallel Thoughts-style static
      *     replacement check. Historical `skipPrompts = true` sets this when
      *     resuming after a decision already asked the question.
-     * @param skipPromptOnDraw skip the prompt-on-draw check. Always `true` for
-     *     the draw-step path (it asks once up-front in `performDrawStep`), and
-     *     set to `true` by spell/ability resume paths that handled prompts.
-     * @param emptyLibraryReason message on [com.wingedsheep.engine.core.DrawFailedEvent]
+     * @param emptyLibraryReason message on [DrawFailedEvent]
      *     when the library runs out mid-loop. Draw-step callers pass
      *     `"Library is empty"`; spell/ability callers pass `"Empty library"`.
      */
@@ -54,26 +53,23 @@ object DrawLoop {
         dispatcher: DrawReplacementDispatcher?,
         isDrawStep: Boolean,
         skipStaticReplacement: Boolean = false,
-        skipPromptOnDraw: Boolean = false,
         emptyLibraryReason: String = "Empty library"
     ): EffectResult {
         var newState = state
         val drawnCards = mutableListOf<EntityId>()
         val perCardEvents = mutableListOf<GameEvent>()
 
-        for (i in 0 until count) {
-            val drawsLeftIncludingThis = count - i
-
+        var remaining = count
+        while (remaining > 0) {
             // 1. Check replacements.
             if (dispatcher != null) {
                 val dispatch = dispatcher.checkBeforeDraw(
                     state = newState,
                     playerId = playerId,
-                    drawsLeftIncludingThis = drawsLeftIncludingThis,
+                    drawsLeftIncludingThis = remaining,
                     drawnCardsSoFar = drawnCards.toList(),
                     isDrawStep = isDrawStep,
-                    skipStaticReplacement = skipStaticReplacement,
-                    skipPromptOnDraw = skipPromptOnDraw
+                    skipStaticReplacement = skipStaticReplacement
                 )
                 when (dispatch) {
                     is DrawReplacementDispatcher.DispatchResult.Paused -> {
@@ -84,6 +80,12 @@ object DrawLoop {
                     is DrawReplacementDispatcher.DispatchResult.Replaced -> {
                         newState = dispatch.state
                         perCardEvents.addAll(dispatch.events)
+                        remaining--
+                        continue
+                    }
+                    is DrawReplacementDispatcher.DispatchResult.Modified -> {
+                        newState = dispatch.state
+                        remaining += dispatch.delta
                         continue
                     }
                     is DrawReplacementDispatcher.DispatchResult.None -> {
@@ -103,6 +105,7 @@ object DrawLoop {
             }
 
             drawnCards.add(drawOneResult.drawnCardId!!)
+            remaining--
         }
 
         return buildSuccessResult(newState, playerId, drawnCards, perCardEvents)
@@ -112,7 +115,7 @@ object DrawLoop {
      * Build a success result with a prepended [CardsDrawnEvent] aggregating
      * every card drawn in this loop invocation. Matches the historical
      * [DrawCardsExecutor] ordering, where the aggregate event comes first
-     * and per-card side events (e.g., [com.wingedsheep.engine.core.CardRevealedFromDrawEvent])
+     * and per-card side events (e.g., [CardRevealedFromDrawEvent])
      * come after.
      */
     private fun buildSuccessResult(

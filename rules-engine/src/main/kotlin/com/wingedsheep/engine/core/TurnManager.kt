@@ -40,6 +40,10 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.HijackScope
+import com.wingedsheep.engine.mechanics.combat.CombatDefenders
+import com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
+import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.sdk.scripting.Duration
 
 /**
  * Manages turn-based game flow: phases, steps, and turn transitions.
@@ -57,10 +61,10 @@ import com.wingedsheep.sdk.scripting.effects.HijackScope
  * - [CleanupPhaseManager] — cleanup step, end-of-turn expiration
  */
 class TurnManager(
-    private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
+    private val cardRegistry: CardRegistry,
     private val combatManager: CombatManager = CombatManager(
         cardRegistry,
-        com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor.noOp(cardRegistry)
+        ManaAbilitySideEffectExecutor.noOp(cardRegistry)
     ),
     private val sbaChecker: StateBasedActionChecker = StateBasedActionChecker(cardRegistry = cardRegistry),
     private val decisionHandler: DecisionHandler = DecisionHandler(),
@@ -76,16 +80,6 @@ class TurnManager(
     /** Draw cards for a player. Delegates to [DrawPhaseManager]. */
     fun drawCards(state: GameState, playerId: EntityId, count: Int, skipPrompts: Boolean = false): ExecutionResult =
         drawPhaseManager.drawCards(state, playerId, count, skipPrompts)
-
-    /** Check for prompt-on-draw abilities. Delegates to [DrawPhaseManager]. */
-    internal fun checkPromptOnDraw(
-        state: GameState,
-        playerId: EntityId,
-        drawCount: Int,
-        isDrawStep: Boolean,
-        declinedSourceIds: List<EntityId> = emptyList()
-    ): ExecutionResult? =
-        drawPhaseManager.checkPromptOnDraw(state, playerId, drawCount, isDrawStep, declinedSourceIds)
 
     // ── Turn lifecycle ──
 
@@ -128,8 +122,8 @@ class TurnManager(
             // end-of-combat counter-placement modifier still lingering at a turn boundary is
             // dropped. Longer-lived durations (UntilYourNextTurn, Permanent) survive.
             activeCounterPlacementModifiers = state.activeCounterPlacementModifiers.filter { modifier ->
-                modifier.duration !is com.wingedsheep.sdk.scripting.Duration.EndOfTurn &&
-                    modifier.duration !is com.wingedsheep.sdk.scripting.Duration.EndOfCombat
+                modifier.duration !is Duration.EndOfTurn &&
+                    modifier.duration !is Duration.EndOfCombat
             }
         )
 
@@ -560,7 +554,7 @@ class TurnManager(
                 // each declares and passes, the priority round walks to the next defender
                 // (a defending player who hasn't declared can't pass — see PassPriorityHandler),
                 // and the step only advances to combat damage once every defender has declared.
-                val firstDefender = com.wingedsheep.engine.mechanics.combat.CombatDefenders
+                val firstDefender = CombatDefenders
                     .defendingPlayersInApnapOrder(newState).firstOrNull()
                     ?: newState.turnOrder.firstOrNull { it != activePlayer }
                     ?: activePlayer

@@ -3,7 +3,6 @@ package com.wingedsheep.engine.core
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import kotlinx.serialization.Serializable
 
 /**
@@ -86,55 +85,6 @@ data class DrawReplacementRemainingDrawsContinuation(
     val remainingDraws: Int,
     val isDrawStep: Boolean
 ) : ContinuationFrame
-
-/**
- * Continuation for prompting the player to activate a "prompt on draw" ability
- * (e.g., Words of Wind) before a draw happens.
- *
- * After the player answers yes/no, the handler pays mana, creates a replacement
- * shield, and then proceeds with the draw.
- *
- * @property drawingPlayerId The player who is about to draw
- * @property sourceId The permanent with the promptOnDraw ability
- * @property sourceName Name of the source for display
- * @property abilityEffect The effect to execute on activation (creates a shield)
- * @property manaCost The mana cost string for the activation (e.g., "{1}")
- * @property drawCount Number of cards to draw after activation
- * @property isDrawStep Whether this is from the draw step (vs spell/ability draws)
- */
-@Serializable
-data class DrawReplacementActivationContinuation(
-    override val decisionId: String,
-    val drawingPlayerId: EntityId,
-    val sourceId: EntityId,
-    val sourceName: String,
-    val abilityEffect: Effect,
-    val manaCost: String,
-    val drawCount: Int,
-    val isDrawStep: Boolean,
-    val drawnCardsSoFar: List<EntityId> = emptyList(),
-    val targetRequirements: List<TargetRequirement> = emptyList(),
-    val declinedSourceIds: List<EntityId> = emptyList()
-) : ContinuationFrame
-
-/**
- * Resume after target selection for a "prompt on draw" ability that requires targeting
- * (e.g., Words of War). After the player paid mana and selected targets, we create
- * the replacement shield with the chosen targets, then proceed with draws.
- */
-@Serializable
-data class DrawReplacementTargetContinuation(
-    override val decisionId: String,
-    val drawingPlayerId: EntityId,
-    val sourceId: EntityId,
-    val sourceName: String,
-    val abilityEffect: Effect,
-    val drawCount: Int,
-    val isDrawStep: Boolean,
-    val drawnCardsSoFar: List<EntityId> = emptyList(),
-    val targetRequirements: List<TargetRequirement> = emptyList()
-) : ContinuationFrame
-
 
 /**
  * Resume after the player answers yes/no for an optional static draw replacement effect

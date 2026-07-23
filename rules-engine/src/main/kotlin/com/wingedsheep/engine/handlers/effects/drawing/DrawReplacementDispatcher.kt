@@ -3,52 +3,48 @@ package com.wingedsheep.engine.handlers.effects.drawing
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.DecisionPhase
 import com.wingedsheep.engine.core.DecisionRequestedEvent
-import com.wingedsheep.engine.core.DrawReplacementActivationContinuation
+import com.wingedsheep.engine.core.DrawReplacementRemainingDrawsContinuation
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent
-import com.wingedsheep.engine.core.ManaSourceOption
-import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.StaticDrawReplacementContinuation
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.mechanics.mana.ManaSolver
-import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.core.ExecutionResult
+import com.wingedsheep.engine.replacement.PendingGameEvent
+import com.wingedsheep.engine.replacement.ReplacementEffectProcessor
+import com.wingedsheep.engine.replacement.ProcessorResult
+import com.wingedsheep.engine.replacement.ReplacementOutcome
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.costs.manaCostOrNull
 import com.wingedsheep.sdk.scripting.ModifyDrawAmount
 import com.wingedsheep.sdk.scripting.PreventDraw
 import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.references.Player
 import java.util.UUID
 
 /**
- * Runs the three draw-replacement checks that fire before each individual card
+ * Runs the draw-replacement checks that fire before each individual card
  * is drawn, in the order required by the rules:
  *
- *  1. Unified draw replacement shield
- *     ([com.wingedsheep.engine.mechanics.layers.SerializableModification.ReplaceDrawWithEffect])
- *     — Words of Worship / Wind / War / Waste / Wilding and friends, dispatched
- *     via [DrawReplacementShieldConsumer].
- *  2. Static draw prevention effects — Mornsong Aria / Narset-style effects.
+ *  1. Centralized replacement effect processor ([ReplacementEffectProcessor])
+ *      checks replacement effects to apply and prompts the user when multiple available.
+ *  2. (Parallel Thoughts-style optional static replacement handled by
+ *     [checkStaticDrawReplacement] as a fallback.)
+ *     for [PreventDraw] (CR 121.2a / 615).
  *  3. Static draw replacement effect — Parallel Thoughts-style optional
  *     yes/no prompt that replaces the draw with an alternative effect.
- *  4. Prompt-on-draw activated ability — `activatedAbilities` with
- *     `promptOnDraw = true`, e.g. Words of Wind cycling.
  *
- * The dispatcher is the single place both [DrawCardsExecutor] (spell/ability
- * draws) and [com.wingedsheep.engine.core.DrawPhaseManager] (draw-step draws)
- * call into to ask "does anything intercept this draw?" — unifying the two
- * copies of this logic that previously existed in those two classes.
+ * The dispatcher is called by [DrawLoop] during each iteration of a multi-draw
+ * sequence, shared by both [DrawCardsExecutor] and [DrawPhaseManager].
+ *
+ * Prompt-on-draw activated abilities (`promptOnDraw = true`) are no longer
+ * supported by the engine. Words cycle cards use the floating-shield mechanism
+ * via manual activation instead.
  */
 class DrawReplacementDispatcher(
-    private val cardRegistry: CardRegistry,
     private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)?
 ) {
     /**
@@ -70,6 +66,13 @@ class DrawReplacementDispatcher(
          * must return this result (possibly with its own events prepended).
          */
         data class Paused(val result: EffectResult) : DispatchResult
+
+        /**
+         * A [ModifyDrawAmount] replacement adjusted the draw count. The caller
+         * should add [delta] to the remaining draws and re-check without drawing
+         * a card this iteration.
+         */
+        data class Modified(val state: GameState, val delta: Int) : DispatchResult
     }
 
     /**
@@ -85,12 +88,6 @@ class DrawReplacementDispatcher(
      * @param skipStaticReplacement skip the Parallel Thoughts check; set by
      *     callers that pass the historical `skipPrompts = true` flag when
      *     resuming after a prior decision already handled replacements.
-     * @param skipPromptOnDraw skip the prompt-on-draw check; set by the
-     *     draw-step path (which asks up-front once in `performDrawStep`) and
-     *     by resume paths that have already handled the prompt.
-     * @param declinedSourceIds prompt-on-draw sources the player has already
-     *     declined in this decision chain — re-declining the same source would
-     *     loop forever.
      */
     fun checkBeforeDraw(
         state: GameState,
@@ -98,34 +95,54 @@ class DrawReplacementDispatcher(
         drawsLeftIncludingThis: Int,
         drawnCardsSoFar: List<EntityId>,
         isDrawStep: Boolean,
-        skipStaticReplacement: Boolean = false,
-        skipPromptOnDraw: Boolean = false,
-        declinedSourceIds: List<EntityId> = emptyList()
+        skipStaticReplacement: Boolean = false
     ): DispatchResult {
-        // 1. Unified draw replacement shield.
-        val shieldConsumer = effectExecutor?.let { DrawReplacementShieldConsumer(it) }
-        if (shieldConsumer != null) {
-            val shieldResult = shieldConsumer.consumeShield(
-                state = state,
-                playerId = playerId,
-                remainingDraws = drawsLeftIncludingThis - 1,
-                drawnCardsSoFar = drawnCardsSoFar,
-                eventsSoFar = emptyList(),
-                isDrawStep = isDrawStep
-            )
-            if (shieldResult != null) {
-                return when (shieldResult) {
-                    is DrawReplacementShieldConsumer.ConsumeResult.Paused ->
-                        DispatchResult.Paused(shieldResult.result)
-                    is DrawReplacementShieldConsumer.ConsumeResult.Synchronous ->
-                        DispatchResult.Replaced(shieldResult.state, shieldResult.events)
+        val remainingDraws = drawsLeftIncludingThis - 1
+        val event = PendingGameEvent.DrawPending(
+            playerId = playerId,
+            count = 1,
+            remainingDraws = remainingDraws,
+            isDrawStep = isDrawStep
+        )
+        when (val processorResult = processor.process(state, event)) {
+            is ProcessorResult.Paused -> {
+                // Player must choose between competing replacements (CR 616.1).
+                return DispatchResult.Paused(
+                    EffectResult.paused(processorResult.state, processorResult.decision)
+                )
+            }
+            is ProcessorResult.Resolved -> {
+                when (val outcome = processorResult.outcome) {
+                    is ReplacementOutcome.Consumed -> {
+                        // Draw prevented
+                        return DispatchResult.Replaced(processorResult.state, emptyList())
+                    }
+                    is ReplacementOutcome.Replaced -> {
+                        // A replacement effect should execute instead of drawing.
+                        val ctx = processorResult.executionContext
+                        if (ctx != null) {
+                            return executeFromShield(
+                                processorResult.state, playerId,
+                                outcome.newEffect, ctx,
+                                remainingDraws, isDrawStep
+                            )
+                        }
+                        // Battlefield replacement (not a shield) — mark replaced without execution.
+                        return DispatchResult.Replaced(processorResult.state, emptyList())
+                    }
+                    is ReplacementOutcome.Modified -> {
+                        val modifiedEvent = outcome.modifiedEvent as? PendingGameEvent.DrawPending
+                        val newRemaining = modifiedEvent?.remainingDraws ?: remainingDraws
+                        val delta = newRemaining - remainingDraws
+                        if (delta != 0) {
+                            return DispatchResult.Modified(processorResult.state, delta)
+                        }
+                    }
                 }
             }
-        }
-
-        // 2. Mandatory static draw prevention.
-        if (isDrawPrevented(state, playerId)) {
-            return DispatchResult.Replaced(state, emptyList())
+            is ProcessorResult.Pass -> {
+                /* No replacement matched — fall through to step 3. */
+            }
         }
 
         // 3. Static draw replacement (Parallel Thoughts).
@@ -138,40 +155,65 @@ class DrawReplacementDispatcher(
             }
         }
 
-        // 4. Prompt-on-draw activated ability (Words of Wind).
-        if (!skipPromptOnDraw) {
-            val promptResult = checkPromptOnDraw(
-                state, playerId, drawsLeftIncludingThis, drawnCardsSoFar, isDrawStep, declinedSourceIds
-            )
-            if (promptResult != null) {
-                return DispatchResult.Paused(promptResult)
-            }
-        }
-
         return DispatchResult.None
     }
 
-    private fun isDrawPrevented(state: GameState, playerId: EntityId): Boolean {
-        for (entityId in state.getBattlefield()) {
-            val container = state.getEntity(entityId) ?: continue
-            val replacementSource = container.get<ReplacementEffectSourceComponent>() ?: continue
+    /**
+     * Execute the replacement effect that came from a NextUse floating shield,
+     * using the execution context built by the [ReplacementEffectProcessor].
+     * Pushes a [DrawReplacementRemainingDrawsContinuation] if more draws remain.
+     *
+     * Returns the appropriate [DispatchResult].
+     */
+    private fun executeFromShield(
+        processorState: GameState,
+        playerId: EntityId,
+        replacementEffect: Effect,
+        context: EffectContext,
+        remainingDraws: Int,
+        isDrawStep: Boolean
+    ): DispatchResult {
+        val executor = effectExecutor ?: return DispatchResult.Replaced(processorState, emptyList())
 
-            for (effect in replacementSource.replacementEffects) {
-                if (effect !is PreventDraw) continue
+        // Push remaining-draws continuation so the draw loop resumes after the pipeline
+        var state = processorState
+        if (remainingDraws > 0) {
+            state = state.pushContinuation(
+                DrawReplacementRemainingDrawsContinuation(
+                    drawingPlayerId = playerId,
+                    remainingDraws = remainingDraws,
+                    isDrawStep = isDrawStep
+                )
+            )
+        }
 
-                val drawEvent = effect.appliesTo
-                if (drawEvent !is com.wingedsheep.sdk.scripting.EventPattern.DrawEvent) continue
+        // Execute the stored replacement effect.
+        // The processor has already stamped the activeReplacementChain onto state
+        // (containing all effects applied in this chain), so nested effect execution
+        // won't re-trigger them. Clear the chain after execution.
+        val pipelineResult = executor(state, replacementEffect, context)
+        if (pipelineResult.isPaused) {
+            // Clear chain on pause so subsequent draw iterations are unaffected.
+            val clearedState = pipelineResult.state.copy(activeReplacementChain = null)
+            return DispatchResult.Paused(
+                EffectResult.paused(clearedState, pipelineResult.pendingDecision!!, pipelineResult.events)
+            )
+        }
 
-                val sourceControllerId = container.get<ControllerComponent>()?.playerId
-                when (drawEvent.player) {
-                    Player.Each -> return true
-                    Player.You -> if (playerId == sourceControllerId) return true
-                    Player.EachOpponent -> if (sourceControllerId != null && playerId != sourceControllerId) return true
-                    else -> {}
-                }
+        // Pipeline completed synchronously — pop remaining-draws continuation
+        var resultState = pipelineResult.state
+        if (remainingDraws > 0) {
+            val (popped, stateAfterPop) = resultState.popContinuation()
+            if (popped is DrawReplacementRemainingDrawsContinuation) {
+                resultState = stateAfterPop
             }
         }
-        return false
+
+        // Clear the active replacement chain so subsequent draw iterations
+        // (and any continuations) start with a clean slate.
+        resultState = resultState.copy(activeReplacementChain = null)
+
+        return DispatchResult.Replaced(resultState, pipelineResult.events)
     }
 
     /**
@@ -251,161 +293,5 @@ class DrawReplacementDispatcher(
         return null
     }
 
-    /**
-     * Check if [playerId] has a "prompt on draw" activated ability they can
-     * afford (e.g., Words of Wind). If so, returns a paused [ExecutionResult]
-     * with a mana-source selection decision; otherwise returns `null`.
-     *
-     * [declinedSourceIds] carries sources the player has already declined in
-     * this decision chain — without it, declining a prompt would loop forever
-     * as the dispatcher immediately re-offered the same ability.
-     */
-    fun checkPromptOnDraw(
-        state: GameState,
-        playerId: EntityId,
-        drawCount: Int,
-        drawnCardsSoFar: List<EntityId>,
-        isDrawStep: Boolean,
-        declinedSourceIds: List<EntityId> = emptyList()
-    ): EffectResult? {
-        val projected = state.projectedState
-        val controlledPermanents = projected.getBattlefieldControlledBy(playerId)
-
-        for (permanentId in controlledPermanents) {
-            if (permanentId in declinedSourceIds) continue
-            val container = state.getEntity(permanentId) ?: continue
-            val card = container.get<CardComponent>() ?: continue
-            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
-
-            for (ability in cardDef.script.activatedAbilities) {
-                if (!ability.promptOnDraw) continue
-
-                val manaCost = when (val cost = ability.cost) {
-                    is AbilityCost.Atom -> cost.manaCostOrNull
-                    is AbilityCost.Composite ->
-                        cost.costs.firstNotNullOfOrNull { it.manaCostOrNull }
-                    else -> null
-                } ?: continue
-
-                val manaSolver = ManaSolver(cardRegistry)
-                if (!manaSolver.canPay(state, playerId, manaCost)) continue
-
-                val sources = manaSolver.findAvailableManaSources(state, playerId)
-                val sourceOptions = sources.map { source ->
-                    ManaSourceOption(
-                        entityId = source.entityId,
-                        name = source.name,
-                        producesColors = source.producesColors,
-                        producesColorless = source.producesColorless,
-                        requiresSacrifice = source.requiresSacrifice,
-                        requiresTappingAnotherPermanent = source.tapPermanentsSubCost != null
-                    )
-                }
-
-                val solution = manaSolver.solve(state, playerId, manaCost)
-                val autoPaySuggestion = solution?.sources?.map { it.entityId } ?: emptyList()
-
-                val decisionId = UUID.randomUUID().toString()
-                val decision = SelectManaSourcesDecision(
-                    id = decisionId,
-                    playerId = playerId,
-                    prompt = "Pay ${manaCost} to activate ${card.name}?",
-                    context = DecisionContext(
-                        sourceId = permanentId,
-                        sourceName = card.name,
-                        phase = DecisionPhase.RESOLUTION
-                    ),
-                    availableSources = sourceOptions,
-                    requiredCost = manaCost.toString(),
-                    autoPaySuggestion = autoPaySuggestion,
-                    canDecline = true
-                )
-
-                val continuation = DrawReplacementActivationContinuation(
-                    decisionId = decisionId,
-                    drawingPlayerId = playerId,
-                    sourceId = permanentId,
-                    sourceName = card.name,
-                    abilityEffect = ability.effect,
-                    manaCost = manaCost.toString(),
-                    drawCount = drawCount,
-                    isDrawStep = isDrawStep,
-                    drawnCardsSoFar = drawnCardsSoFar,
-                    targetRequirements = ability.targetRequirements,
-                    declinedSourceIds = declinedSourceIds
-                )
-
-                val stateWithDecision = state.withPendingDecision(decision)
-                val stateWithContinuation = stateWithDecision.pushContinuation(continuation)
-
-                return EffectResult.paused(
-                    stateWithContinuation,
-                    decision,
-                    listOf(
-                        DecisionRequestedEvent(
-                            decisionId = decisionId,
-                            playerId = playerId,
-                            decisionType = "SELECT_MANA_SOURCES",
-                            prompt = decision.prompt
-                        )
-                    )
-                )
-            }
-        }
-        return null
-    }
-
-    /**
-     * Apply [ModifyDrawAmount] replacements to an announced draw count for [playerId]
-     * (CR 121.2a — the draw-N instruction is modified by replacement effects that refer
-     * to the number of cards drawn before any individual card draws). Called once at the
-     * call site where the draw instruction is announced — spell/ability resolution and the
-     * draw step — and NOT at every iteration of the per-card draw loop, so a paused-and-
-     * resumed loop doesn't double-modify.
-     *
-     * Iterates every battlefield permanent's replacement effects, gates each by the
-     * [DrawEvent]'s `player` filter relative to [playerId] and the source's controller,
-     * and (if all `restrictions` hold) sums the modifier into [originalCount]. The
-     * final result is clamped to `≥ 0`.
-     */
-    fun applyDrawAmountModifier(
-        state: GameState,
-        playerId: EntityId,
-        originalCount: Int
-    ): Int {
-        if (originalCount <= 0) return originalCount
-        val conditionEvaluator = com.wingedsheep.engine.handlers.ConditionEvaluator()
-        var adjusted = originalCount
-        for (entityId in state.getBattlefield()) {
-            val container = state.getEntity(entityId) ?: continue
-            val replacementSource = container.get<ReplacementEffectSourceComponent>() ?: continue
-            val sourceControllerId = container.get<ControllerComponent>()?.playerId
-
-            for (effect in replacementSource.replacementEffects) {
-                if (effect !is ModifyDrawAmount) continue
-                val drawEvent = effect.appliesTo as? com.wingedsheep.sdk.scripting.EventPattern.DrawEvent ?: continue
-
-                val matchesPlayer = when (drawEvent.player) {
-                    Player.Each -> true
-                    Player.You -> sourceControllerId != null && playerId == sourceControllerId
-                    Player.EachOpponent ->
-                        sourceControllerId != null && playerId != sourceControllerId
-                    else -> false
-                }
-                if (!matchesPlayer) continue
-
-                val effectContext = com.wingedsheep.engine.handlers.EffectContext(
-                    sourceId = entityId,
-                    controllerId = playerId,
-                )
-                val restrictionsHold = effect.restrictions.all { restriction ->
-                    conditionEvaluator.evaluate(state, restriction, effectContext)
-                }
-                if (!restrictionsHold) continue
-
-                adjusted += effect.modifier
-            }
-        }
-        return adjusted.coerceAtLeast(0)
-    }
+    private val processor = ReplacementEffectProcessor()
 }

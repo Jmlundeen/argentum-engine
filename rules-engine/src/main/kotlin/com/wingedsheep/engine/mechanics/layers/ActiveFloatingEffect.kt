@@ -1,13 +1,17 @@
 package com.wingedsheep.engine.mechanics.layers
 
+import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.RedirectScope
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.engine.replacement.ReplacementEffectProcessor
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -92,6 +96,14 @@ data class FloatingEffectData(
  */
 @Serializable
 sealed interface SerializableModification {
+    /**
+     * Build an [EffectContext] from this modification's stored data (targets, X value,
+     * named targets, source id), or `null` if this modification type carries no such data.
+     *
+     * Used by [ReplacementEffectProcessor] to reconstruct
+     * an execution context from a floating-effect shield without knowing the concrete subclass.
+     */
+    fun toEffectContext(controllerId: EntityId): EffectContext? = null
     @Serializable
     data class SetPowerToughness(val power: Int, val toughness: Int) : SerializableModification
 
@@ -111,8 +123,8 @@ sealed interface SerializableModification {
      */
     @Serializable
     data class SetPowerToughnessDynamic(
-        val power: com.wingedsheep.sdk.scripting.values.DynamicAmount,
-        val toughness: com.wingedsheep.sdk.scripting.values.DynamicAmount
+        val power: DynamicAmount,
+        val toughness: DynamicAmount
     ) : SerializableModification
 
     @Serializable
@@ -417,7 +429,15 @@ sealed interface SerializableModification {
          * by then (Aladdin's Lamp: "look at the top X cards"). Null when no X was involved.
          */
         val xValue: Int? = null
-    ) : SerializableModification
+    ) : SerializableModification {
+        override fun toEffectContext(controllerId: EntityId): EffectContext = EffectContext(
+            controllerId = controllerId,
+            sourceId = sourceId,
+            targets = targets,
+            xValue = xValue,
+            pipeline = PipelineState(namedTargets = namedTargets)
+        )
+    }
 
     /**
      * Damage prevention shield: the next time a creature of the specified type would deal
