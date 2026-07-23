@@ -23,10 +23,10 @@ import com.wingedsheep.sdk.scripting.effects.GrantCastCreaturesFromGraveyardWith
  * - Forage additional cost: Costs.additional.Forage + CostHandler validation
  * - Graveyard casting permission: MayCastCreaturesFromGraveyardWithForageComponent
  * - Legal action enumeration: CastFromZoneEnumerator.enumerateGraveyardCreaturesWithForage
- *
- * Note: Forage cost payment (exile 3 or sacrifice Food) during cast is validated
- * but the finality counter application on ETB for forage-cast creatures is not
- * yet wired (needs CastSpellHandler + StackResolver changes to track and apply).
+ * - Finality counter on ETB: CastSpellHandler freezes a GraveyardCastRiderComponent
+ *   (entersWithCounter = FINALITY) onto the forage-cast spell, applied on entry by
+ *   StackResolver -> EntersWithReplacements.applyCastFromGraveyardRider (shared with
+ *   The Tomb of Aclazotz's rider-bearing MayCastFromGraveyard grant).
  */
 val OsteomancerAdept = card("Osteomancer Adept") {
     manaCost = "{1}{B}"

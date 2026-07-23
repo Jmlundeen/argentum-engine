@@ -217,6 +217,17 @@ object ZoneTransitionService {
         }
         val actualDestZone = redirectResult.destinationZone
 
+        // A card-intrinsic redirect into the library shuffles the card in rather than placing it on
+        // top (Darksteel Colossus, Progenitus). This holds even when the caller skipped the redirect
+        // check and passed the result in via the destination zone — such callers set libraryPlacement
+        // themselves, so honour whichever is Shuffled.
+        val effectiveLibraryPlacement =
+            if (redirectResult.shuffleIntoLibrary && actualDestZone == Zone.LIBRARY) {
+                LibraryPlacement.Shuffled
+            } else {
+                options.libraryPlacement
+            }
+
         // Determine controller and destination zone key. Control-changing effects (Threaten,
         // Empress Galina) live in Layer 2 of the projection and never touch the base
         // ControllerComponent, so a battlefield exit must read the projected controller first —
@@ -354,6 +365,18 @@ object ZoneTransitionService {
             newState = newState.updateEntity(entityId) { c -> stripBattlefieldComponents(c) }
             newState = removeFloatingEffectsTargeting(newState, entityId)
 
+            // A permanent's battlefield-scoped granted *static* abilities end when it leaves the
+            // battlefield (CR 400.7 — the card becomes a new object with no memory). These live in
+            // their own GameState list with no floating-effect representation, so prune them here
+            // alongside the floating effects. Without this a grant like Roar of the Fifth People's
+            // chapter II ("creatures you control have '{T}: Add {R}, {G}, or {W}'") lingers on the
+            // card after it hits the graveyard — inert in play (the ability enumerators gate on the
+            // granter still being on the battlefield) but still surfaced as an active-effect badge.
+            // Player-anchored grants (entityId = a player, e.g. Malicious Eclipse) are untouched.
+            newState = newState.copy(
+                grantedStaticAbilities = newState.grantedStaticAbilities.filter { it.entityId != entityId }
+            )
+
             // Re-attach LinkedExileComponent on any non-battlefield destination so LTB triggers
             // that reference it (like Seam Rip's return effect or Champion of the Clachan's
             // bounce-back) still have access to it after the source has left. Rule 400.7 is
@@ -417,13 +440,13 @@ object ZoneTransitionService {
                 events.addAll(sagaEvents)
             }
             Zone.LIBRARY -> {
-                if (options.libraryPlacement is LibraryPlacement.Shuffled) {
+                if (effectiveLibraryPlacement is LibraryPlacement.Shuffled) {
                     // Drop reveals on every other library card before mixing the new one in
                     newState = com.wingedsheep.engine.handlers.effects.library.LibraryRevealUtils
                         .clearLibraryReveals(newState, ownerId)
                 }
-                newState = placeInLibrary(newState, entityId, destZoneKey, options.libraryPlacement)
-                if (options.libraryPlacement is LibraryPlacement.Shuffled) {
+                newState = placeInLibrary(newState, entityId, destZoneKey, effectiveLibraryPlacement)
+                if (effectiveLibraryPlacement is LibraryPlacement.Shuffled) {
                     events.add(com.wingedsheep.engine.core.LibraryShuffledEvent(ownerId))
                 }
             }

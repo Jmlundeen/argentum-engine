@@ -930,6 +930,11 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
                     if (excludeSelf) append("other ")
                     append(pluralize(filter.description))
                 }
+                Aggregation.DISTINCT_PERMANENT_TYPES -> {
+                    append("the number of permanent types among ")
+                    if (excludeSelf) append("other ")
+                    append(pluralize(filter.description))
+                }
                 Aggregation.DISTINCT_COLORS -> {
                     append("the number of colors among ")
                     if (excludeSelf) append("other ")
@@ -1023,6 +1028,10 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
                 }
                 Aggregation.DISTINCT_TYPES -> {
                     append("the number of card types among ")
+                    append(pluralize(filter.description))
+                }
+                Aggregation.DISTINCT_PERMANENT_TYPES -> {
+                    append("the number of permanent types among ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_COLORS -> {

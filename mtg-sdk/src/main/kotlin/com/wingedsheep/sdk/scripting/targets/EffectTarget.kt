@@ -275,3 +275,32 @@ sealed interface EffectTarget {
         override val description: String = "its controller"
     }
 }
+
+/**
+ * Placeholder token emitted where an effect refers to its own source permanent generically. The SDK
+ * renders [EffectTarget.Self] as this token inside a
+ * [com.wingedsheep.sdk.scripting.effects.SelfReferentialDescription]'s `descriptionTemplate`; the
+ * type-aware render layer (the server's `ClientStateTransformer`) substitutes the noun matching the
+ * host permanent's actual type ("this creature" for a creature, "this land"/"this artifact"/… for a
+ * non-creature). [DEFAULT_SELF_NOUN] is the type-safe fallback applied wherever no host permanent is
+ * in hand, so the raw token never leaks to an un-type-aware consumer.
+ */
+const val SELF_NOUN_TOKEN = "{self}"
+
+/** Noun [SELF_NOUN_TOKEN] resolves to when the host permanent's type is unknown (tests, logs,
+ * non-type-aware contexts). "this permanent" is correct for a permanent of any card type. */
+const val DEFAULT_SELF_NOUN = "this permanent"
+
+/** Replace every [SELF_NOUN_TOKEN] in [text] with [noun]. */
+fun resolveSelfNoun(text: String, noun: String): String = text.replace(SELF_NOUN_TOKEN, noun)
+
+/**
+ * Type-neutral phrasing for the source permanent. For [EffectTarget.Self] this is the
+ * [SELF_NOUN_TOKEN] placeholder (resolved to the permanent's actual-type noun downstream); every
+ * non-[Self] target falls through to its own [EffectTarget.description] unchanged. Effects that
+ * legitimately apply to non-creature permanents — transforming a double-faced artifact/land,
+ * granting an ability to a Vehicle or DFC land — must build their `descriptionTemplate` through
+ * this so the generated text never calls a land or artifact "this creature".
+ */
+val EffectTarget.selfNounToken: String
+    get() = if (this is EffectTarget.Self) SELF_NOUN_TOKEN else description

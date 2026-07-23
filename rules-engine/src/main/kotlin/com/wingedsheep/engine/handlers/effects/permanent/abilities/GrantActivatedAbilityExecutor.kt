@@ -11,11 +11,17 @@ import kotlin.reflect.KClass
 
 /**
  * Executor for GrantActivatedAbilityEffect.
- * "Target creature gains '[activated ability]' until end of turn"
+ * "Target [permanent] gains '[activated ability]' until end of turn"
  *
  * Adds the activated ability to GameState.grantedActivatedAbilities,
  * where GameSession will find it when computing legal actions and
  * ActivateAbilityHandler will find it when validating activations.
+ *
+ * Target-general: the grant works on any battlefield permanent, not just creatures
+ * (e.g. Glorious Sunrise grants a land "{T}: Add {G}{G}{G}"). The type of a valid
+ * target is already constrained by the effect's [GrantActivatedAbilityEffect.target]
+ * requirement, so the executor only verifies the resolved target is a permanent on the
+ * battlefield.
  */
 class GrantActivatedAbilityExecutor : EffectExecutor<GrantActivatedAbilityEffect> {
 
@@ -30,14 +36,11 @@ class GrantActivatedAbilityExecutor : EffectExecutor<GrantActivatedAbilityEffect
         val targetId = context.resolveTarget(effect.target)
             ?: return EffectResult.error(state, "No valid target for activated ability grant")
 
-        // Verify target exists and is a creature on the battlefield
+        // Verify target exists and is a permanent on the battlefield.
         val targetContainer = state.getEntity(targetId)
-            ?: return EffectResult.error(state, "Target creature no longer exists")
-        val cardComponent = targetContainer.get<CardComponent>()
+            ?: return EffectResult.error(state, "Target no longer exists")
+        targetContainer.get<CardComponent>()
             ?: return EffectResult.error(state, "Target is not a card")
-        if (!cardComponent.typeLine.isCreature) {
-            return EffectResult.error(state, "Target is not a creature")
-        }
         if (!state.getBattlefield().contains(targetId)) {
             return EffectResult.error(state, "Target is not on the battlefield")
         }

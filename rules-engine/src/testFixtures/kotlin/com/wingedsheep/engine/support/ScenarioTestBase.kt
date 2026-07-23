@@ -501,6 +501,18 @@ abstract class ScenarioTestBase : FunSpec() {
                 container = container.with(ToxicComponent(toxicAmount))
             }
 
+            // Attach SelfZoneRedirectComponent for card-intrinsic "from anywhere" zone-redirect
+            // self-replacements (Darksteel Colossus, Progenitus) — mirrors CardEntityFactory so
+            // the redirect fires in every zone in scenario tests too.
+            val selfRedirects = cardDef.script.replacementEffects
+                .filterIsInstance<com.wingedsheep.sdk.scripting.RedirectZoneChange>()
+                .filter { it.selfOnly }
+            if (selfRedirects.isNotEmpty()) {
+                container = container.with(
+                    com.wingedsheep.engine.state.components.identity.SelfZoneRedirectComponent(selfRedirects)
+                )
+            }
+
             state = state.withEntity(cardId, container)
             return cardId
         }

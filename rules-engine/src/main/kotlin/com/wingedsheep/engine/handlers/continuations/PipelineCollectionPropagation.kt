@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.continuations
 import com.wingedsheep.engine.core.EffectContinuation
 import com.wingedsheep.engine.core.GatedActionContinuation
 import com.wingedsheep.engine.core.ReflexiveTriggerTargetContinuation
+import com.wingedsheep.engine.core.RepeatWhileContinuation
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.model.EntityId
@@ -24,6 +25,12 @@ import com.wingedsheep.sdk.model.EntityId
  * - [GatedActionContinuation] — a `Gate.DoAction` frame whose
  *   [com.wingedsheep.sdk.scripting.effects.SuccessCriterion.CollectionNonEmpty] criterion
  *   (and `then`/`otherwise` branches) must see the collections the action produced.
+ * - [RepeatWhileContinuation] — an AFTER_BODY frame whose repeat condition (a WhileCondition,
+ *   e.g. `CollectionContainsMatch("putting", …)` on Cultivator Colossus) evaluates against the
+ *   body's own outputs *this pass*. When the body paused for a decision, its collections drain
+ *   here; they're stashed in [RepeatWhileContinuation.bodyCollections] (NOT the frame's pristine
+ *   `effectContext`) so the AFTER_BODY resumer can feed them to the condition as bodyOutputs while
+ *   the next iteration still re-gathers fresh. Mirrors the synchronous path in RepeatWhileExecutor.
  *
  * Unknown frame types are left untouched (they don't read pipeline storage).
  *
@@ -53,6 +60,12 @@ fun exposeCollectionsToNextFrame(
         is GatedActionContinuation -> {
             val (_, popped) = state.popContinuation()
             popped.pushContinuation(next.copy(effectContext = next.effectContext.withMergedCollections()))
+        }
+        is RepeatWhileContinuation -> {
+            // Stash into bodyCollections, not effectContext — the condition reads these outputs
+            // this pass, but the next iteration must start from the pristine pre-loop context.
+            val (_, popped) = state.popContinuation()
+            popped.pushContinuation(next.copy(bodyCollections = next.bodyCollections + collections))
         }
         else -> state
     }

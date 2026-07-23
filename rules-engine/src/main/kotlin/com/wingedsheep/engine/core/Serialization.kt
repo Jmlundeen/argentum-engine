@@ -350,6 +350,7 @@ val engineSerializersModule = SerializersModule {
         subclass(TextReplacementComponent::class)
         subclass(ProtectionComponent::class)
         subclass(HexproofFromColorComponent::class)
+        subclass(SelfZoneRedirectComponent::class)
         subclass(ToxicComponent::class)
         subclass(CopyOfComponent::class)
         subclass(RevertCopyAtEndOfTurnComponent::class)
@@ -552,6 +553,7 @@ val engineSerializersModule = SerializersModule {
         subclass(SpellContextComponent::class)
         subclass(SpellGrantedKeywordsComponent::class)
         subclass(SpellCopyTokenRidersComponent::class)
+        subclass(GraveyardCastRiderComponent::class)
 
         // Continuous effects
         subclass(ContinuousEffectSourceComponent::class)

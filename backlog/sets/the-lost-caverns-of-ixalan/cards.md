@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 266 / 286
+**Implemented:** 269 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -124,7 +124,7 @@
 - [x] Hotfoot Gnome
 - [x] Hoverstone Pilgrim
 - [x] Huatli's Final Strike
-- [ ] Huatli, Poet of Unity
+- [x] Huatli, Poet of Unity
 - [x] Hulking Raptor
 - [x] Hunter's Blowgun
 - [x] Hurl into History
@@ -157,7 +157,7 @@
 - [x] Marauding Brinefang
 - [ ] Market Gnome
 - [x] Master's Guide-Mural
-- [ ] Matzalantli, the Great Door
+- [x] Matzalantli, the Great Door
 - [x] Mephitic Draught
 - [x] Merfolk Cave-Diver
 - [x] Might of the Ancestors
@@ -246,7 +246,7 @@
 - [x] Sunshot Militia
 - [x] Swashbuckler's Whip
 - [x] Synapse Necromage
-- [ ] Tarrian's Journal
+- [x] Tarrian's Journal
 - [x] Tarrian's Soulcleaver
 - [x] Tectonic Hazard
 - [x] Tendril of the Mycotyrant

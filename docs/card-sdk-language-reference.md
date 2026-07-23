@@ -729,6 +729,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
     static ability is active rather than as a one-shot floating effect.)
 - `GrantKeyword(keyword, target, duration)` — grant a keyword for a duration. The target may be a battlefield permanent **or a permanent spell still on the stack**: a permanent spell keeps its entity id as it resolves, so a keyword granted to `EffectTarget.TriggeringEntity` inside a "when you next cast a creature spell this turn" delayed trigger carries onto the creature the moment it enters (Summon: Brynhildr's Gestalt Mode = "it gains haste until end of turn"). On a non-permanent spell the floating effect simply never has a permanent to apply to.
 - `GrantStaticAbility(ability, target, duration)` — grant a printed-shape `StaticAbility` (e.g. `CantBeBlockedByMoreThan(1)`) to a permanent for a duration. The runtime sibling of a printed static ability: unlike keyword grants (which flow through projected keywords) it is recorded as a `GrantedStaticAbility` keyed to the entity in `GameState.grantedStaticAbilities` and read **at the point of use** — combat blocker validation (`BlockPhaseManager`, CR 509.1b) consults granted `CantBeBlockedByMoreThan` alongside the creature's printed static abilities; the grant expires in the cleanup step (EndOfTurn). Compose inside `ForEachInGroup` with `EffectTarget.Self` for "each creature you control gains ..." (Full Steam Ahead = `ModifyStats(2,2)` + `GrantKeyword(TRAMPLE)` + `GrantStaticAbility(CantBeBlockedByMoreThan(1))`). `CantBeBlockedByMoreThan` (combat), `MayCastFromGraveyard` (graveyard-cast enumerator + `CastZoneResolver`, e.g. Forgotten Cellar's "cast spells from your graveyard this turn"), and `PreventActivatedAbilities` (activation legality: `CastPermissionUtils.isActivationPrevented`, consulted by the ability handler and both ability enumerators) are wired into read sites today; granting another `StaticAbility` kind compiles and stores but needs its own point-of-use read to take effect. A granted `PreventActivatedAbilities` behaves exactly like the printed form anchored to the grant's holder: its filter is evaluated with the holder as source, so the self-scoped `PreventActivatedAbilities(GameObjectFilter.Permanent.sourceItself())` locks the *holder's own* activated abilities — mana abilities included unless `nonManaAbilitiesOnly = true`. Pair it with `Duration.WhileAffectedTapped` ("for as long as it remains tapped", keyed to the granted-to permanent) for the Braided Net shape — "Tap another target nonland permanent. Its activated abilities can't be activated for as long as it remains tapped." = `Effects.Tap(target)` + `Effects.GrantStaticAbility(PreventActivatedAbilities(GameObjectFilter.Permanent.sourceItself()), target, Duration.WhileAffectedTapped)`. Like every "for as long as …" duration it is one-way (CR 611.2b): the read site gates per-frame, and `EndedDurationExpiryCheck` physically removes the grant the moment the permanent untaps (or leaves the battlefield), so a later re-tap does not re-lock it.
+- `GrantActivatedAbilityEffect(ability, target, duration)` — one-shot grant of an `ActivatedAbility` to a **target permanent** for a duration (default `Duration.EndOfTurn`). The runtime sibling of the static `GrantActivatedAbility`: records a `GrantedActivatedAbility` keyed to the entity in `GameState.grantedActivatedAbilities`, which both ability enumerators (`ActivatedAbilityEnumerator`, and `ManaAbilityEnumerator` when the granted ability has `isManaAbility = true`) and the activation path (`ActivateAbilityHandler`) read alongside printed abilities; the grant expires in the cleanup step. **Target-general** — works on any battlefield permanent, not just creatures (the *type* of a legal target is constrained by the ability's `TargetRequirement`, so a `TargetPermanent(filter = TargetFilter.Land)` yields "target land gains …"). Glorious Sunrise's mode 2 = grant a land `ActivatedAbility(cost = AbilityCost.Tap, effect = AddMana(GREEN, 3), isManaAbility = true)` — a temporary "{T}: Add {G}{G}{G}". A granted **mana** ability must set `isManaAbility = true` or the mana enumerator won't surface it. (The always-on land-grant sibling is the static `ConditionalStaticAbility(GrantActivatedAbility(...), EnchantedPermanentMatches(Land))` — Nature's Embrace.)
+- `GrantStaticAbility(ability, target, duration)` — grant a printed-shape `StaticAbility` (e.g. `CantBeBlockedByMoreThan(1)`) to a permanent for a duration. The runtime sibling of a printed static ability: unlike keyword grants (which flow through projected keywords) it is recorded as a `GrantedStaticAbility` keyed to the entity in `GameState.grantedStaticAbilities` and read **at the point of use** — combat blocker validation (`BlockPhaseManager`, CR 509.1b) consults granted `CantBeBlockedByMoreThan` alongside the creature's printed static abilities; the grant expires in the cleanup step (EndOfTurn). Compose inside `ForEachInGroup` with `EffectTarget.Self` for "each creature you control gains ..." (Full Steam Ahead = `ModifyStats(2,2)` + `GrantKeyword(TRAMPLE)` + `GrantStaticAbility(CantBeBlockedByMoreThan(1))`). `CantBeBlockedByMoreThan` (combat), `MayCastFromGraveyard` (graveyard-cast enumerator + `CastZoneResolver`, e.g. Forgotten Cellar's "cast spells from your graveyard this turn"), `PreventActivatedAbilities` (activation legality: `CastPermissionUtils.isActivationPrevented`, consulted by the ability handler and both ability enumerators), and `GrantActivatedAbility` (ability legality: `CastPermissionUtils.getStaticGrantedAbilitiesWithGranter` + the `ActivateAbilityHandler` twin, read by both ability enumerators and the activation handler) are wired into read sites today; granting another `StaticAbility` kind compiles and stores but needs its own point-of-use read to take effect. Granting a `GrantActivatedAbility` makes the holder confer the inner activated ability to its filtered group exactly like a printed one — this is how "This permanent gains 'Creatures you control have "&lt;activated ability&gt;"'" is modelled (Roar of the Fifth People, the Saga back of Huatli, Poet of Unity: `GrantStaticAbility(GrantActivatedAbility(ActivatedAbility({T}: AddManaOfChoice(ManaColorSet.Specific(R,G,W))), GroupFilter(Creature.youControl())), EffectTarget.Self, Duration.Permanent)`). A granted `PreventActivatedAbilities` behaves exactly like the printed form anchored to the grant's holder: its filter is evaluated with the holder as source, so the self-scoped `PreventActivatedAbilities(GameObjectFilter.Permanent.sourceItself())` locks the *holder's own* activated abilities — mana abilities included unless `nonManaAbilitiesOnly = true`. Pair it with `Duration.WhileAffectedTapped` ("for as long as it remains tapped", keyed to the granted-to permanent) for the Braided Net shape — "Tap another target nonland permanent. Its activated abilities can't be activated for as long as it remains tapped." = `Effects.Tap(target)` + `Effects.GrantStaticAbility(PreventActivatedAbilities(GameObjectFilter.Permanent.sourceItself()), target, Duration.WhileAffectedTapped)`. Like every "for as long as …" duration it is one-way (CR 611.2b): the read site gates per-frame, and `EndedDurationExpiryCheck` physically removes the grant the moment the permanent untaps (or leaves the battlefield), so a later re-tap does not re-lock it.
 - `GrantReplacementEffect(replacement, target, duration)` — grant a printed-shape `ReplacementEffect` (e.g. `RedirectZoneChange`) to a permanent for a duration. The runtime sibling of a printed replacement effect, modelled exactly like `GrantStaticAbility`: recorded as a `GrantedReplacementEffect` (carrying the granting `controllerId`) in `GameState.grantedReplacementEffects` and read **at the point of use** — the zone-change redirect path (`ZoneMovementUtils.checkZoneChangeRedirect`) consults granted `RedirectZoneChange` alongside permanents' printed replacement effects; the grant expires in the cleanup step (EndOfTurn). Used for durational "this turn" riders such as Forgotten Cellar's "if a card would be put into your graveyard from anywhere this turn, exile it instead" (`GrantReplacementEffect(RedirectZoneChange(newDestination = Zone.EXILE, appliesTo = EventPattern.ZoneChangeEvent(filter = GameObjectFilter(controllerPredicate = ControllerPredicate.OwnedByYou), to = Zone.GRAVEYARD)))`). Only `RedirectZoneChange` is wired into a read site today; granting another `ReplacementEffect` kind compiles and stores but needs its own point-of-use read to take effect. A **resolving instant/sorcery** may also grant a *floating, controller-scoped global* replacement — `EffectTarget.Self` then resolves to the spell on the stack (not a battlefield permanent), and the grant is anchored to the caster (`context.controllerId`) so it persists after the spell leaves; the redirect read path uses only the grant's `controllerId` + the replacement's filter. Used by Malicious Eclipse's "if a creature an opponent controls would die this turn, exile it instead" (`GrantReplacementEffect(RedirectZoneChange(newDestination = Zone.EXILE, appliesTo = EventPattern.ZoneChangeEvent(filter = GameObjectFilter.Creature.opponentControls(), from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD)), EffectTarget.Self, Duration.EndOfTurn)`). Note: `MayCastFromGraveyard` granted via `GrantStaticAbility` is now also read at the graveyard-cast enumerator/`CastZoneResolver`, so "you may cast spells from your graveyard this turn" is `GrantStaticAbility(MayCastFromGraveyard(filter), EffectTarget.Self, Duration.EndOfTurn)`.
 - `GrantHarmonize(target, cost?, duration)` — grant **Harmonize** (CR 702.180) to a target instant/sorcery card in a graveyard. `cost` defaults to `null` = "equal to the card's mana cost" (Songcrafter Mage); pass a `ManaCost` for a fixed harmonize cost. Records a runtime `GrantedKeywordAbility` keyed to the card entity; the cast-from-graveyard enumerator, the cast handler, the alternative-payment handler (tap-for-power reduction), and the stack resolver (exile on resolution) all read printed-or-granted harmonize through the shared `HarmonizeGrants` resolver, so a granted harmonize behaves identically to a printed one. The grant expires in the cleanup step (EndOfTurn) and surfaces a "Granted Ability" badge on the card.
 - `GrantFlashback(target, cost?, duration)` — grant **Flashback** (CR 702.34) to a target instant/sorcery card in a graveyard. The runtime sibling of printed `KeywordAbility.Flashback`, modelled exactly like `GrantHarmonize`. `cost` defaults to `null` = "equal to the card's mana cost" (Archmage's Newt); pass a `ManaCost` for a fixed flashback cost (e.g. `{0}` on a saddled-Mount branch). Records a runtime `GrantedKeywordAbility` keyed to the card entity; the cast-from-graveyard enumerator, the cast handler / `CastZoneResolver`, and the stack resolver (exile on resolution) read printed-**or**-granted flashback through the shared `FlashbackGrants.effectiveFlashback` resolver, so a granted flashback is castable and exiled exactly like a printed one. The grant survives the graveyard → stack move and expires in the cleanup step (EndOfTurn). Pair with `ConditionalEffect(Conditions.SourceIsSaddled, GrantFlashback(t, {0}), elseEffect = GrantFlashback(t))` for the saddled-or-not cost swap.
@@ -772,6 +774,11 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   target: reads the current count and places that many more (so the total doubles). Distinct from the
   `DoubleCounterPlacement` replacement (which doubles *future* placements); the added counters still trigger
   placement replacements like Hardened Scales. No-op with zero counters. Sage of the Fang.
+- `DoubleAllCounters(target?)` — the every-kind twin of `DoubleCounters`: "double the number of each kind of
+  counter on target permanent" (`DoubleCountersEffect` with `counterType = null`). Every kind currently on the
+  target is snapshotted first, then doubled as its own placement, so per-kind replacements apply and counters
+  added by this effect are never re-doubled. No-op when the target has no counters at all. Zimone, Paradox
+  Sculptor.
 - `GrantCounterPlacementModifier(modifier?, duration?, counterType?, recipient?)` — install a **temporary,
   duration-scoped, controller-scoped** counter-placement modifier: the activated/spell-granted analogue of the
   static `ModifyCounterPlacement` replacement (Hardened Scales). While active, if the *controller* of the effect
@@ -913,7 +920,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   Duskmourn's Glimmer cards create a "1/1 white Glimmer enchantment creature token" via `enchantmentToken = true`).
   `count` accepts an `Int` or a `DynamicAmount` (the latter for "create X tokens" wording — e.g. Verdeloth the
   Ancient passes `count = DynamicAmount.XValue` to make X Saprolings when kicked); both count overloads accept
-  `tapped` (The Final Days creates a `DynamicAmount.Conditional` number of **tapped** Horror tokens). Publishes the created token
+  `tapped` and `staticAbilities` (The Final Days creates a `DynamicAmount.Conditional` number of **tapped** Horror
+  tokens; Song of Totentanz creates `DynamicAmount.XValue` Rats carrying `CantBlock()`). Publishes the created token
   entity IDs to the `CREATED_TOKENS` pipeline collection, so a sibling effect in a `CompositeEffect` can address
   each token via `EffectTarget.PipelineTarget(CREATED_TOKENS, index)` — e.g. Mardu Monument grants menace and haste
   until end of turn to each of its three freshly-created Warriors with one `GrantKeyword` per token. For a *named*
@@ -1016,7 +1024,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   (Int overload) redirects the tokens, e.g. `EffectTarget.TargetController` for "its controller creates
   two Treasure tokens" (An Offer You Can't Refuse).
 - `CreateFood(count?, controller?)` — Food tokens.
-- `CreateBlood(count?, controller?)` — Blood tokens (artifact with "{1}, {T}, Discard a card, Sacrifice this artifact: Draw a card.").
+- `CreateBlood(count?, controller?)` — Blood tokens (artifact with "{1}, {T}, Discard a card, Sacrifice this artifact: Draw a card."). `count` accepts an `Int` or a `DynamicAmount` (the latter evaluated at resolution, e.g. `CreateBlood(DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ExcessMarkedDamage))` for Lacerate Flesh's "create a number of Blood tokens equal to the amount of excess damage dealt").
 - `CreateClue(count?, controller?)` / `Investigate(count?, controller?)` — Clue tokens (artifact with
   "{2}, Sacrifice this token: Draw a card."). `Investigate` is the keyword-action spelling (CR 701.36) so
   card text "investigate" maps directly; both create the same predefined `Clue` token — Malcolm, the Eyes.
@@ -1510,7 +1518,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   (default) asks everyone; `Player.EachOpponent` asks only the controller's opponents — "any
   opponent may sacrifice a creature… if a player does, tap this and put a +1/+1 counter on it"
   (Desecration Demon). APNAP order is preserved within the scoped subset.
-- `RepeatWhileEffect(body, repeatCondition)` (facade `Effects.RepeatWhile(body, repeatCondition)`) — do-while loop: run `body` once, then repeat while `repeatCondition` holds. `repeatCondition` is `RepeatCondition.PlayerChooses(decider, prompt)` (a yes/no each iteration) or `RepeatCondition.WhileCondition(condition)` (a game-state `Condition`). A `WhileCondition` is evaluated against the **body's own pipeline outputs from that iteration** (the collections/values it just stored), then the next iteration's body runs from the pristine pre-loop context — so a loop can branch on what it just produced without stale state leaking forward. Models "do X. Repeat this process [if …]" — e.g. **The Tale of Tamiyo** I–III: `RepeatWhile(body = Composite(Patterns.Library.mill(2), ConditionalEffect(CollectionSharesCardType("milled"), DrawCards(1))), repeatCondition = WhileCondition(CollectionSharesCardType("milled")))` mills two, and while the two milled cards share a card type both draws and repeats.
+- `RepeatWhileEffect(body, repeatCondition)` (facade `Effects.RepeatWhile(body, repeatCondition)`) — do-while loop: run `body` once, then repeat while `repeatCondition` holds. `repeatCondition` is `RepeatCondition.PlayerChooses(decider, prompt)` (a yes/no each iteration) or `RepeatCondition.WhileCondition(condition)` (a game-state `Condition`). A `WhileCondition` is evaluated against the **body's own pipeline outputs from that iteration** (the collections/values it just stored), then the next iteration's body runs from the pristine pre-loop context — so a loop can branch on what it just produced without stale state leaking forward. This holds **whether the body resolves synchronously or pauses for a decision mid-loop**: a body that stops for a player choice (e.g. a `SelectFromCollection` "you may" prompt) has its outputs captured when it resumes and still fed to the condition. Models "do X. Repeat this process [if …]" — e.g. **The Tale of Tamiyo** I–III (synchronous body): `RepeatWhile(body = Composite(Patterns.Library.mill(2), ConditionalEffect(CollectionSharesCardType("milled"), DrawCards(1))), repeatCondition = WhileCondition(CollectionSharesCardType("milled")))` mills two, and while the two milled cards share a card type both draws and repeats. **Cultivator Colossus** (pausing body): `RepeatWhile(body = Composite(Patterns.Hand.putFromHand(Land, count = 1, entersTapped = true), ConditionalEffect(CollectionContainsMatch("putting", Land), DrawCards(1))), repeatCondition = WhileCondition(CollectionContainsMatch("putting", Land)))` — each pass prompts to put up to one land (choosing zero declines), draws only if one was put, and repeats while a land was put this pass.
 
 ### Sequencing & conditional
 
@@ -1972,6 +1980,20 @@ can't statically prevent (cross-trigger flows, `Self`-vs-`ContextTarget` inside 
 - `EffectTarget.Self` — the source permanent. In a *granted* ability (Equipment/Aura "equipped
   creature has …"), `Self` is the **host** that received the ability — its `{T}` taps the host —
   not the granting object (CR 113.7).
+  - **Self-noun rendering (type-aware text).** `EffectTarget.Self.description` is "this creature"
+    (most self-referential effects live on creatures). Effects that also apply to *non-creature*
+    permanents — `TransformEffect` / `ExileAndReturnTransformedEffect`, and the ability grants
+    `GrantTriggeredAbility` / `GrantActivatedAbility` / `GrantStaticAbility` /
+    `GrantReplacementEffect` — must not hard-code either noun, so they implement
+    `SelfReferentialDescription` (a standalone mixin, **not** a subtype of the sealed `@Serializable`
+    `Effect`) and build a `descriptionTemplate` using `EffectTarget.selfNounToken` — which renders
+    `Self` as the placeholder `SELF_NOUN_TOKEN` (`"{self}"`). `Effect.description` default-resolves
+    that token to `DEFAULT_SELF_NOUN` ("this permanent") via `resolveSelfNoun(...)`, a type-safe
+    fallback so the raw token never leaks; the server's `ClientStateTransformer` instead re-resolves
+    the template against the host permanent's *projected* type (`selfNounFor` → "this creature" /
+    "this artifact" / "this land" / … ) when it renders the ability on the stack (and planeswalker
+    loyalty lines). `descriptionTemplate` and `description` are computed (non-constructor)
+    properties, so neither is serialized — the card snapshot is unaffected.
 - `EffectTarget.GrantingSource` — the permanent whose static ability granted the currently-resolving
   ability: the Equipment/Aura/permanent bearing the `GrantActivatedAbility` static, as the counterpart
   to `Self` (the host). Use when a granted ability names the *granting object* — e.g. Trusty
@@ -2709,6 +2731,12 @@ work for abilities-on-stack (which carry no `CardComponent`).
   ability controller) it never matches — it is only meaningful in target/condition contexts. Used by
   Stolen Uniform's "if it's attached to a creature you control" guard
   (`Conditions.EntityMatches(EffectTarget.TriggeringEntity, GameObjectFilter.Any.attachedTo(GameObjectFilter.Creature.youControl()))`).
+  Safe to nest inside an `Exists(...)` condition that gates a `ConditionalStaticAbility`, even for
+  mutually-referencing statics (Bride's Gown ↔ Groom's Finery each switch a bonus on when the *other*
+  Equipment is attached to a creature you control): `PredicateEvaluator` threads the in-flight projection
+  through its recursive predicate walk, so an `attachedTo(...)` reached mid-projection resolves the host's
+  control against the base `ControllerComponent` (empty-fallback projection) instead of re-entering the
+  lazy `GameState.projectedState` and recursing to a `StackOverflowError`.
 - `ExiledWithSource` (filter builder `exiledWithSource()`) — source-relative: the candidate card is
   one the effect's source permanent exiled, i.e. its id is recorded in the source's
   `LinkedExileComponent` (the same linkage set by `RedirectZoneChange(linkToSource = true)`,
@@ -3845,6 +3873,13 @@ staticAbility {
   "Enchanted creature ... is a Citizen with base power and toughness 1/1 and '{T}: Add {C}' named Humble Merchant."
 - `ConditionalStaticAbility` — static gated by a runtime `Condition`. A conditional wrapping a *multi-effect* ability
   (e.g. `TransformPermanent`) lowers through the plural converter and gates every resulting effect on the condition.
+  The gate is honored for **non-projection** grants too, not just layer-projected effects: a conditional wrapping a
+  `GrantActivatedAbility` is unwrapped by both the ability enumerator (`CastPermissionUtils`) and the activation path
+  (`ActivateAbilityHandler`), which evaluate its `Condition` against the granting permanent before handing out the
+  ability — so the grant appears as a legal action only while the condition holds. Nature's Embrace: "As long as
+  enchanted permanent is a land, it has '{T}: Add two mana of any one color'" is a
+  `ConditionalStaticAbility(GrantActivatedAbility({T}: AddAnyColorMana(2)), EnchantedPermanentMatches(Land))` — the
+  granted mana ability switches on/off continuously with the host's type.
 - `CompositeStaticAbility(abilities)` — bundles several component static abilities into **one** printed static ability
   whose single continuous effect spans multiple Rule 613 layers (CR 613.6). Use it when one printed ability grants a
   *combination* of type/subtype/color/keyword/P/T changes to the same objects — e.g. Bello, Bard of the Brambles: "each
@@ -4403,13 +4438,38 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   from both the enumerator (displayed cost) and `ActivateAbilityHandler` (paid cost), keyed on the
   ability's source permanent; non-mana costs (`{T}`, sacrifice) and abilities with no mana cost are
   unaffected. Backed by `ManaCost.reduceGenericWithManaFloor(amount, minTotalMana)`.
-- `MayCastFromGraveyard(filter, lifeCost = 0, duringYourTurnOnly = false)` — cast spells matching
-  `filter` from your graveyard following normal timing, optionally paying `lifeCost` life. Free for
-  Yawgmoth's Agenda (`MayCastFromGraveyard(Nonland)`); `lifeCost = 1, duringYourTurnOnly = true` for
-  Festival of Embers. Pair with `MayPlayLandsFromGraveyard` for "play lands and cast spells from
-  your graveyard". Lands are *played*, not cast, so they need the lands permission separately. This
-  grants permission over *other* cards in your graveyard from a battlefield permanent — for a card
-  that grants permission to cast *itself* from a zone, use `MayCastSelfFromZones`.
+- `MayCastFromGraveyard(filter, lifeCost = 0, duringYourTurnOnly = false, entersWithCounter = null, addedSubtypeOnEntry = null)`
+  — cast spells matching `filter` from your graveyard following normal timing, optionally paying
+  `lifeCost` life. Free for Yawgmoth's Agenda (`MayCastFromGraveyard(Nonland)`); `lifeCost = 1,
+  duringYourTurnOnly = true` for Festival of Embers. Pair with `MayPlayLandsFromGraveyard` for "play
+  lands and cast spells from your graveyard". Lands are *played*, not cast, so they need the lands
+  permission separately. This grants permission over *other* cards in your graveyard from a
+  battlefield permanent — for a card that grants permission to cast *itself* from a zone, use
+  `MayCastSelfFromZones`. **Cast-this-way entry rider:** `entersWithCounter` (a `CounterType`) and
+  `addedSubtypeOnEntry` (a subtype string) apply only to a permanent cast from the graveyard *under
+  this grant* — when it resolves it enters with one such counter and gains that subtype "in addition
+  to its other types" (a persistent characteristic, until it leaves the battlefield). Both default to
+  null (no rider), so existing graveyard-cast cards are byte-identical. The Tomb of Aclazotz (Tarrian's
+  Journal back) = `GrantStaticAbility(MayCastFromGraveyard(Creature, entersWithCounter =
+  CounterType.FINALITY, addedSubtypeOnEntry = "Vampire"), EffectTarget.Self, Duration.EndOfTurn)`. The
+  rider is frozen onto the stack spell at cast time (`CastSpellHandler` reads the authorizing grant via
+  `CastZoneResolver.findMayCastFromGraveyardGrant`) as a `GraveyardCastRiderComponent`, and applied on
+  entry by `StackResolver` →
+  `EntersWithReplacements.applyCastFromGraveyardRider` (finality counter placed → the
+  `ZoneMovementUtils` death-replacement exiles it instead of dying; added subtype = floating `Layer.TYPE`
+  effect). This is the reusable "cast from graveyard, enters with a finality counter" mechanism:
+  Osteomancer Adept's forage permission (`MayCastCreaturesFromGraveyardWithForageComponent`) shares it —
+  `CastSpellHandler` freezes the same `GraveyardCastRiderComponent(entersWithCounter = FINALITY)` onto a
+  forage-cast creature, applied on entry by the identical `StackResolver` path.
+  **Choosing among grants (CR 601.2b):** when several `MayCastFromGraveyard` grants apply to the same
+  card at once (a free `Nonland` grant *and* the Tomb's rider `Creature` grant), the graveyard-cast
+  enumerator offers one legal action per distinct permission — distinguished by life cost and entry
+  rider (the rider option reads "Cast X (enters with a finality counter; becomes a Vampire)") — and
+  the choice rides on `CastSpell.graveyardCastRider` (a `GraveyardCastRiderSelection`). So the player
+  picks the permission, and thus whether they take the rider, *before* paying — like flashback vs a
+  normal cast. `findMayCastFromGraveyardGrant(selection)` returns the grant matching that choice,
+  falling back to a rider-preferring auto-pick when the selection is unspecified or names a rider no
+  applicable grant offers (so a client can't dodge a mandatory rider).
 - `GraveyardCardsHaveFlashback(filter, cost = null, duringYourTurnOnly = false)` — a **whole-graveyard
   flashback grant** (CR 702.34): a continuous static that grants flashback to *every* card in the
   controller's graveyard matching `filter` (not a single-card grant like `Effects.GrantFlashback` /
@@ -5627,6 +5687,14 @@ default to "you" so card authors don't need to pass it explicitly.
   gate (`staticAbility { ability = ModifyStats(...); condition = Conditions.Delirium() }` —
   Spineseeker Centipede) and as an activated-ability `ActivationRestriction.OnlyIfCondition`
   ("Activate only if there are four or more card types …" — Balustrade Wurm).
+- `DistinctPermanentTypesInGraveyard(count)` — Delirium's permanent-only sibling: "there are `count`
+  or more distinct **permanent** types (CR 110.4: artifact, battle, creature, enchantment, land,
+  planeswalker) among cards in your graveyard" (Matzalantli, the Great Door's transform gate).
+  Composes through `Compare(AggregateZone(Player.You, Zone.GRAVEYARD, Aggregation.DISTINCT_PERMANENT_TYPES),
+  GTE, Fixed(count))`. Non-permanent card types never count: instants and sorceries have no permanent
+  type, and a **kindred** card contributes only its *other* (permanent) type, not "kindred" itself
+  (CR 300.2b) — so this is not the same as counting distinct card types among a graveyard filtered to
+  permanent cards, which would over-count a kindred permanent.
 - `CreatureDiedThisTurn` — intervening-if "if a creature died this turn", **global** (any player's
   control; sums every player's `CreaturesDiedThisTurnComponent`).
 - `ControlledCreatureDiedThisTurn` — intervening-if "if a creature died **under your control** this
@@ -5811,7 +5879,8 @@ Numbers computed at resolution time.
 - `AggregateBattlefield(player, filter, aggregation?, property?, counterType?)` — aggregate over
   matching permanents. `aggregation` defaults to `COUNT`; other modes: `MAX`/`MIN`/`SUM` over a
   `property` (`POWER`/`TOUGHNESS`/`MANA_VALUE`), and the distinct-set counters
-  `DISTINCT_TYPES`, `DISTINCT_COLORS`, `DISTINCT_NAMES`, `DISTINCT_BASIC_LAND_SUBTYPES`
+  `DISTINCT_TYPES`, `DISTINCT_PERMANENT_TYPES`, `DISTINCT_COLORS`, `DISTINCT_NAMES`,
+  `DISTINCT_BASIC_LAND_SUBTYPES`
   (Domain), `DISTINCT_COUNTER_TYPES` (the number of different kinds of counters present
   across the group — same kind on several permanents counts once), and `DISTINCT_VALUES`
   (the number of *distinct values* of the configured `property` — Selvala, Eager Trailblazer's
@@ -5826,12 +5895,22 @@ Numbers computed at resolution time.
   (`filter = GameObjectFilter.NonlandPermanent, aggregation = DISTINCT_TYPES, excludeSelf = true`).
   `DISTINCT_TYPES` counts only true **card types** (CR 205.2a: Artifact/Creature/Enchantment/…), never
   supertypes or subtypes, while still honoring projection-changed types (an animated land that became a
-  Creature counts as a Creature).
+  Creature counts as a Creature). `DISTINCT_PERMANENT_TYPES` is the same but restricted to the six
+  **permanent** types (CR 110.4: artifact, battle, creature, enchantment, land, planeswalker) — instant,
+  sorcery, and kindred never count (a kindred permanent contributes only its *other* type). Used for
+  "N or more permanent types among …" (Matzalantli, the Great Door, via
+  `Conditions.DistinctPermanentTypesInGraveyard`).
   When `counterType` (a `CounterTypeFilter`) is set with `SUM`/`MAX`/`MIN`, the per-permanent value
   aggregated is the count of *that kind* of counter on it — i.e. "the total <kind> counters among
   <filter>" (Tom Bombadil's lore-counter total; reach for it via
   `Conditions.CounterKindAmongYouControlAtLeast`). `CounterTypeFilter.Any` totals every kind. Counters
   are read from base state (layer-independent).
+  The `player` accepts the same references as elsewhere, including `Player.ControllerOf(desc)` /
+  `Player.OwnerOf(desc)` — "the creatures **that [target]'s controller** controls" — which resolve
+  against the effect's chosen target. Skulking Killer's "target creature an opponent controls gets
+  -2/-2 … if that opponent controls no other creatures" is
+  `AggregateBattlefield(Player.ControllerOf("target creature an opponent controls"), Creature) == 1`
+  (the target's controller controls exactly one creature — the target itself).
 - `AggregateZone(player, zone, filter?, aggregation?)` — count cards in a zone.
 - `CountPermanentsOfType(player, subtype)` — count by creature type.
 - `CountCreaturesYouControl` — shorthand for "your creatures".
@@ -6670,18 +6749,29 @@ replacementEffect {
   covered too: e.g. Dauntless Dismantler's "Artifacts your opponents control enter tapped" taps an
   opponent's Map/Treasure/Clue token, and Authority of the Consuls taps opponents' creature tokens (a token
   entering attacking keeps its tapped state and is not overridden).
-- `RedirectZoneChange(newDestination, appliesTo, linkToSource = false)` — redirect a zone change to a
-  different destination (Rest in Peace / Leyline of the Void: graveyard → exile). `appliesTo` is an
-  `EventPattern.ZoneChangeEvent(filter, from?, to?)`; the `filter`'s `controllerPredicate` scopes it
-  (e.g. `OwnedByOpponent` for Leyline). When `linkToSource = true` and `newDestination = Zone.EXILE`,
-  each redirected card is added to the source permanent's `LinkedExileComponent`, so the source can
-  later reference — and grant playing of — the cards it exiled. Valgavoth, Terror Eater pairs it with
-  `GrantMayCastFromLinkedExile`: "If a card you didn't control would be put into an opponent's graveyard
-  from anywhere, exile it instead" is `RedirectZoneChange(newDestination = Zone.EXILE, linkToSource =
-  true, appliesTo = ZoneChangeEvent(to = Zone.GRAVEYARD, filter = GameObjectFilter(cardPredicates =
-  listOf(CardPredicate.IsNontoken), controllerPredicate = ControllerPredicate.And(listOf(OwnedByOpponent,
-  Not(ControlledByYou))))))`. The redirect (and link) is honored across every graveyard path: SBA deaths,
-  mill/discard/destroy (`ZoneTransitionService`), spell resolution, counters, and fizzles (`StackResolver`).
+- `RedirectZoneChange(newDestination, appliesTo, linkToSource = false, selfOnly = false, shuffleIntoLibrary = false, reveal = false)`
+  — redirect a zone change to a different destination (Rest in Peace / Leyline of the Void: graveyard →
+  exile). `appliesTo` is an `EventPattern.ZoneChangeEvent(filter, from?, to?)`; the `filter`'s
+  `controllerPredicate` scopes it (e.g. `OwnedByOpponent` for Leyline). When `linkToSource = true` and
+  `newDestination = Zone.EXILE`, each redirected card is added to the source permanent's
+  `LinkedExileComponent`, so the source can later reference — and grant playing of — the cards it exiled.
+  Valgavoth, Terror Eater pairs it with `GrantMayCastFromLinkedExile`: "If a card you didn't control
+  would be put into an opponent's graveyard from anywhere, exile it instead" is
+  `RedirectZoneChange(newDestination = Zone.EXILE, linkToSource = true, appliesTo = ZoneChangeEvent(to =
+  Zone.GRAVEYARD, filter = GameObjectFilter(cardPredicates = listOf(CardPredicate.IsNontoken),
+  controllerPredicate = ControllerPredicate.And(listOf(OwnedByOpponent, Not(ControlledByYou))))))`. The
+  redirect (and link) is honored across every graveyard path: SBA deaths, mill/discard/destroy
+  (`ZoneTransitionService`), spell resolution, counters, and fizzles (`StackResolver`).
+  **Card-intrinsic "from anywhere" self-replacements:** set `selfOnly = true` when the redirect is the
+  moving card's *own* ability referring to itself ("If ~ would be put into a graveyard from anywhere,
+  …"). It then functions in **every** zone (CR 614.12), carried on the card entity via
+  `SelfZoneRedirectComponent` rather than scanned off the battlefield, so the card is redirected whether
+  it dies, is milled, is discarded, or is countered on the stack — and it stops applying only while the
+  source is on the battlefield with all abilities removed. `shuffleIntoLibrary = true` (with
+  `newDestination = Zone.LIBRARY`) shuffles the card in rather than placing it on top; `reveal = true`
+  is the flavor "reveal it and …" (informational — a public-zone card is already known). Darksteel
+  Colossus / Progenitus: `RedirectZoneChange(newDestination = Zone.LIBRARY, appliesTo =
+  ZoneChangeEvent(to = Zone.GRAVEYARD), selfOnly = true, shuffleIntoLibrary = true, reveal = true)`.
 - `RedirectZoneChangeWithEffect(newDestination, additionalEffect, selfOnly = false, linkToSource = false,
   appliesTo)` — like `RedirectZoneChange` but also runs `additionalEffect` when the replacement fires.
   The additional effect is applied through a small executor whitelist (not the full pipeline) —

@@ -1567,6 +1567,17 @@ object Effects {
         com.wingedsheep.sdk.scripting.effects.DoubleCountersEffect(counterType, target)
 
     /**
+     * "Double the number of each kind of counter on [target]" — the every-kind twin of
+     * [DoubleCounters]. Each counter kind currently on the target is doubled independently,
+     * so per-kind placement replacements (Hardened Scales, Branching Evolution) apply as
+     * normal. No-op when the target has no counters at all. Used by Zimone, Paradox Sculptor.
+     */
+    fun DoubleAllCounters(
+        target: EffectTarget = EffectTarget.ContextTarget(0)
+    ): Effect =
+        com.wingedsheep.sdk.scripting.effects.DoubleCountersEffect(counterType = null, target = target)
+
+    /**
      * Remove counters of a given type from a target. No-op if the target has fewer
      * than `count` counters of that type.
      */
@@ -2064,11 +2075,13 @@ object Effects {
         controller: EffectTarget? = null,
         imageUri: String? = null,
         legendary: Boolean = false,
-        tapped: Boolean = false
+        tapped: Boolean = false,
+        staticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList()
     ): Effect = CreateTokenEffect(
         count = count, power = power, toughness = toughness, colors = colors,
         creatureTypes = creatureTypes, keywords = keywords,
-        controller = controller, imageUri = imageUri, legendary = legendary, tapped = tapped
+        controller = controller, imageUri = imageUri, legendary = legendary, tapped = tapped,
+        staticAbilities = staticAbilities
     )
 
     /**
@@ -2258,6 +2271,14 @@ object Effects {
      */
     fun CreateBlood(count: Int = 1, controller: EffectTarget? = null): Effect =
         CreatePredefinedTokenEffect("Blood", count, controller)
+
+    /**
+     * Create a dynamic number of Blood tokens — the count is evaluated at resolution time.
+     * Used for cards like Lacerate Flesh ("create a number of Blood tokens equal to the amount
+     * of excess damage dealt to that creature this way") where the amount depends on game state.
+     */
+    fun CreateBlood(count: DynamicAmount, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Blood", controller = controller, dynamicCount = count)
 
     /**
      * Create Clue artifact tokens.

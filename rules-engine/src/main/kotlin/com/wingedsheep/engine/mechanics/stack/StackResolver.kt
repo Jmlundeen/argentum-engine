@@ -1092,6 +1092,10 @@ class StackResolver(
         cardDef: com.wingedsheep.sdk.model.CardDefinition?
     ): Pair<GameState, List<GameEvent>> {
         val controllerId = spellComponent.casterId
+        // The Tomb of Aclazotz: a graveyard-cast entry rider frozen on this spell at cast time.
+        // Captured before the `updateEntity` block below strips it; applied on entry further down.
+        val graveyardCastRider =
+            state.getEntity(spellId)?.get<com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent>()
 
         // For Auras: get the target before removing TargetsComponent. The target is usually a
         // permanent, but "enchant player" Auras (Grievous Wound) attach to a player — both are
@@ -1117,6 +1121,7 @@ class StackResolver(
         var newState = state.updateEntity(spellId) { c ->
             var updated = c.without<SpellOnStackComponent>()
                 .without<TargetsComponent>()
+                .without<com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent>()
                 .with(ControllerComponent(controllerId))
 
             if (resolvingAsSpellCopy) {
@@ -1387,6 +1392,19 @@ class StackResolver(
             )
             newState = counterState
             counterEvents.addAll(events)
+        }
+
+        // The Tomb of Aclazotz cast-this-way entry rider: a creature cast from the graveyard under
+        // its grant enters with a finality counter and gains "Vampire" in addition to its other
+        // types. Applied after the printed enters-with replacements so both stack cleanly (CR 614).
+        if (graveyardCastRider != null && !spellComponent.castFaceDown) {
+            val (riderState, riderEvents) =
+                com.wingedsheep.engine.handlers.effects.EntersWithReplacements.applyCastFromGraveyardRider(
+                    newState, spellId, controllerId,
+                    graveyardCastRider.entersWithCounter, graveyardCastRider.addedSubtype
+                )
+            newState = riderState
+            counterEvents.addAll(riderEvents)
         }
 
         // Handle planeswalker starting loyalty (Rule 306.5b)
@@ -2182,6 +2200,10 @@ class StackResolver(
             c.without<SpellOnStackComponent>().without<TargetsComponent>()
         }
         newState = newState.addToZone(destZoneKey, spellId)
+        // A card-intrinsic redirect into the library shuffles the card in (Progenitus).
+        if (destZone == Zone.LIBRARY && fizzleRedirect.shuffleIntoLibrary) {
+            newState = shuffleOwnerLibrary(newState, ownerId)
+        }
         if (destZone == Zone.EXILE && fizzleRedirect.linkSourceId != null) {
             newState = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
                 .linkExiledToSource(newState, spellId, fizzleRedirect.linkSourceId)
@@ -2532,6 +2554,10 @@ class StackResolver(
         val destZone = counterRedirect.destinationZone
         val destZoneKey = ZoneKey(ownerId, destZone)
         newState = newState.addToZone(destZoneKey, spellId)
+        // A card-intrinsic redirect into the library shuffles the card in (Progenitus).
+        if (destZone == Zone.LIBRARY && counterRedirect.shuffleIntoLibrary) {
+            newState = shuffleOwnerLibrary(newState, ownerId)
+        }
         if (destZone == Zone.EXILE && counterRedirect.linkSourceId != null) {
             newState = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
                 .linkExiledToSource(newState, spellId, counterRedirect.linkSourceId)

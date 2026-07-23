@@ -2940,6 +2940,15 @@ class CastSpellHandler(
             } else null
 
         // Cast the spell
+        // The Tomb of Aclazotz: capture the authorizing MayCastFromGraveyard grant now, while the
+        // card is still in the graveyard (the input `state`), so its cast-this-way entry rider
+        // (finality counter + Vampire) can be frozen onto the stack spell after it's cast (below).
+        // Null unless casting from a graveyard under a rider-bearing grant.
+        val graveyardCastRiderGrant =
+            zoneResolver.findMayCastFromGraveyardGrant(
+                state, action.playerId, action.cardId, cardComponent, action.graveyardCastRider
+            )
+
         val castResult = stackResolver.castSpell(
             currentState,
             action.cardId,
@@ -2990,6 +2999,30 @@ class CastSpellHandler(
 
         var currentCastState = castResult.newState
         var allEvents = events + castResult.events
+
+        // Freeze a graveyard-cast entry rider onto the stack spell now; StackResolver reads it back
+        // and applies it when the permanent resolves onto the battlefield. Two sources feed it:
+        //  - The Tomb of Aclazotz: a rider-bearing MayCastFromGraveyard grant (finality counter +
+        //    added subtype), from the specific grant that authorized this cast.
+        //  - Osteomancer Adept's forage permission: "that creature enters with a finality counter on
+        //    it" (finality only, no added subtype) — reusing the same entry-rider plumbing.
+        val riderCounter: CounterType? = when {
+            graveyardCastRiderGrant?.hasEntryRider == true -> graveyardCastRiderGrant.entersWithCounter
+            isForageCast -> CounterType.FINALITY
+            else -> null
+        }
+        val riderSubtype: String? =
+            graveyardCastRiderGrant?.takeIf { it.hasEntryRider }?.addedSubtypeOnEntry
+        if (riderCounter != null || riderSubtype != null) {
+            currentCastState = currentCastState.updateEntity(action.cardId) { c ->
+                c.with(
+                    com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent(
+                        entersWithCounter = riderCounter,
+                        addedSubtype = riderSubtype
+                    )
+                )
+            }
+        }
 
         // Apply any spell riders carried by the mana that paid for this spell.
         // Some riders mutate the spell directly (e.g., Cavern's MakesSpellUncounterable

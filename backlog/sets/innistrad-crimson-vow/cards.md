@@ -2,7 +2,7 @@
 
 **Set Size:** 272 booster cards (excluding basic lands and tokens)
 **Release Date:** November 19, 2021
-**Implemented:** 123 / 272
+**Implemented:** 147 / 272
 - [x] Abrade
 - [x] Adamant Will
 - [ ] Aim for the Head
@@ -12,11 +12,11 @@
 - [x] Ancestral Anger
 - [ ] Ancient Lumberknot
 - [x] Angelic Quartermaster
-- [ ] Anje, Maid of Dishonor
+- [x] Anje, Maid of Dishonor
 - [x] Apprentice Sharpshooter
 - [ ] Archghoul of Thraben
 - [x] Arm the Cathars
-- [ ] Ascendant Packleader
+- [x] Ascendant Packleader
 - [ ] Avabruck Caretaker
 - [ ] Ballista Watcher
 - [x] Belligerent Guest
@@ -24,7 +24,7 @@
 - [ ] Biolume Egg
 - [x] Bleed Dry
 - [x] Blood Fountain
-- [ ] Blood Hypnotist
+- [x] Blood Hypnotist
 - [x] Blood Petal Celebrant
 - [x] Blood Servitor
 - [x] Bloodcrazed Socialite
@@ -35,10 +35,10 @@
 - [x] Boarded Window
 - [x] Bramble Armor
 - [x] Bramble Wurm
-- [ ] Bride's Gown
+- [x] Bride's Gown
 - [ ] Brine Comber
 - [ ] By Invitation Only
-- [ ] Cartographer's Survey
+- [x] Cartographer's Survey
 - [ ] Catapult Fodder
 - [ ] Cemetery Desecrator
 - [ ] Cemetery Gatekeeper
@@ -61,26 +61,26 @@
 - [ ] Creepy Puppeteer
 - [x] Cruel Witness
 - [x] Crushing Canopy
-- [ ] Cultivator Colossus
+- [x] Cultivator Colossus
 - [ ] Curse of Hospitality
 - [x] Dawnhart Disciple
 - [x] Dawnhart Geist
 - [x] Daybreak Combatants
 - [x] Deathcap Glade
-- [ ] Demonic Bargain
+- [x] Demonic Bargain
 - [ ] Desperate Farmer
 - [ ] Dig Up
 - [x] Diregraf Scavenger
 - [ ] Distracting Geist
 - [ ] Diver Skaab
 - [ ] Dollhouse of Horrors
-- [ ] Dominating Vampire
+- [x] Dominating Vampire
 - [x] Doomed Dissenter
 - [ ] Dormant Grove
 - [ ] Dorothea, Vengeful Victim
 - [ ] Dread Fugue
-- [ ] Dreadfeast Demon
-- [ ] Dreadlight Monstrosity
+- [x] Dreadfeast Demon
+- [x] Dreadlight Monstrosity
 - [x] Dreamroot Cascade
 - [ ] Dreamshackle Geist
 - [ ] Drogskol Infantry
@@ -99,20 +99,20 @@
 - [ ] Fell Stinger
 - [ ] Fierce Retribution
 - [x] Flame-Blessed Bolt
-- [ ] Fleeting Spirit
+- [x] Fleeting Spirit
 - [x] Flourishing Hunter
 - [ ] Foreboding Statue
 - [x] Forest
 - [x] Frenzied Devils
 - [x] Geistlight Snare
-- [ ] Geralf, Visionary Stitcher
+- [x] Geralf, Visionary Stitcher
 - [x] Gift of Fangs
-- [ ] Glorious Sunrise
+- [x] Glorious Sunrise
 - [x] Gluttonous Guest
 - [ ] Graf Reaver
 - [x] Grisly Ritual
 - [ ] Grolnok, the Omnivore
-- [ ] Groom's Finery
+- [x] Groom's Finery
 - [ ] Gryff Rider
 - [x] Gryffwing Cavalry
 - [ ] Gutter Skulker
@@ -146,8 +146,8 @@
 - [x] Kessig Flamebreather
 - [x] Kessig Wolfrider
 - [ ] Kindly Ancestor
-- [ ] Lacerate Flesh
-- [ ] Laid to Rest
+- [x] Lacerate Flesh
+- [x] Laid to Rest
 - [ ] Lambholt Raconteur
 - [ ] Lantern Bearer
 - [x] Lantern Flare
@@ -167,13 +167,13 @@
 - [x] Moldgraf Millipede
 - [x] Mountain
 - [ ] Mulch
-- [ ] Nature's Embrace
+- [x] Nature's Embrace
 - [x] Nebelgast Beguiler
 - [x] Necroduality
-- [ ] Nurturing Presence
+- [x] Nurturing Presence
 - [ ] Oakshade Stalker
 - [ ] Odric, Blood-Cursed
-- [ ] Old Rutstein
+- [x] Old Rutstein
 - [ ] Olivia's Attendants
 - [ ] Olivia, Crimson Bride
 - [x] Ollenbock Escort
@@ -215,18 +215,18 @@
 - [x] Sigarda's Imprisonment
 - [ ] Sigarda's Summons
 - [ ] Sigardian Paladin
-- [ ] Skulking Killer
+- [x] Skulking Killer
 - [ ] Skull Skaab
 - [x] Skywarp Skaab
 - [x] Snarling Wolf
 - [ ] Sorin the Mirthless
 - [ ] Soulcipher Board
-- [ ] Spiked Ripsaw
+- [x] Spiked Ripsaw
 - [ ] Splendid Reclamation
 - [x] Spore Crawler
 - [x] Sporeback Wolf
 - [x] Steelclad Spirit
-- [ ] Stensia Uprising
+- [x] Stensia Uprising
 - [ ] Stitched Assistant
 - [x] Stormcarved Coast
 - [ ] Stormchaser Drake
@@ -236,7 +236,7 @@
 - [x] Swamp
 - [x] Syncopate
 - [x] Syphon Essence
-- [ ] Thalia, Guardian of Thraben
+- [x] Thalia, Guardian of Thraben
 - [x] Thirst for Discovery
 - [ ] Torens, Fist of the Angels
 - [x] Toxic Scorpion
@@ -257,7 +257,7 @@
 - [ ] Volatile Arsonist
 - [ ] Voldaren Bloodcaster
 - [x] Voldaren Epicure
-- [ ] Voldaren Estate
+- [x] Voldaren Estate
 - [ ] Voltaic Visionary
 - [x] Wandering Mind
 - [x] Wanderlight Spirit
