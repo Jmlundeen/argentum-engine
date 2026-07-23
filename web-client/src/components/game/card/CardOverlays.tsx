@@ -1,4 +1,5 @@
 import React from 'react'
+import { createPortal } from 'react-dom'
 import type { Keyword, AbilityFlag, ClientCardEffect, Color } from '@/types'
 import { keywordManaClass, keywordSvgIcon, displayableKeywords } from '@/assets/icons/keywords'
 import { SvgGlyph } from '@/assets/icons/SvgGlyph'
@@ -363,7 +364,11 @@ export function ActiveEffectBadges({ effects, sizing }: {
           </div>
         ))}
       </div>
-      {hoveredEffect && tooltipPos && hoveredEffectData?.description && (
+      {/* Portalled to <body>: the tooltip is position:fixed with viewport coordinates,
+          but it renders from inside a card that may sit under a transform (tapped-card
+          rotation, the multiplayer board strip's translateX) — a transformed ancestor
+          would re-anchor `fixed` to itself and misplace the tooltip. */}
+      {hoveredEffect && tooltipPos && hoveredEffectData?.description && createPortal(
         <div style={{
           ...styles.cardEffectTooltip,
           left: tooltipPos.x,
@@ -371,7 +376,8 @@ export function ActiveEffectBadges({ effects, sizing }: {
           borderColor: getTooltipBorderColor(hoveredEffectData.icon),
         }}>
           <AbilityText text={hoveredEffectData.description} size={13} />
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )

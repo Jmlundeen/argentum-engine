@@ -986,7 +986,9 @@ export type GameStore = {
   viewPinned: boolean
   followAction: boolean
   overviewMode: boolean
+  collapsedSeats: readonly EntityId[]
   eliminatedSpectating: boolean
+  eliminatedBottomSeatId: EntityId | null
   spectatorBottomSeatId: EntityId | null
   teamByPlayerId: Readonly<Record<EntityId, number>>
   teamSharedLife: boolean
@@ -994,7 +996,9 @@ export type GameStore = {
   unpinView: () => void
   toggleFollowAction: () => void
   toggleOverviewMode: () => void
+  toggleSeatCollapsed: (playerId: EntityId) => void
   enterEliminatedSpectate: () => void
+  setEliminatedBottomSeat: (playerId: EntityId | null) => void
   followViewTo: (playerId: EntityId) => void
   setSpectatorBottomSeat: (playerId: EntityId | null) => void
   setSeatTeams: (teamByPlayerId: Record<EntityId, number>, sharedLife?: boolean) => void

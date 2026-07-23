@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useBattlefieldCards, groupCards, visibleStackDepth, useSplitOutTargetIds, selectViewingPlayerId } from '@/store/selectors.ts'
 import { useGameStore } from '@/store/gameStore.ts'
 import { useInteraction } from '@/hooks/useInteraction.ts'
@@ -43,15 +44,16 @@ const ATTACHMENT_COLLAPSE_THRESHOLD = 3
 export function Battlefield({ isOpponent, playerId, spectatorMode = false }: {
   isOpponent: boolean
   /**
-   * Scope an opponent battlefield to one seat's permanents (multiplayer opponent
-   * boards). Omitted → all non-viewing-player permanents (the 2-player shape; in a
-   * 2-player game the two are identical).
+   * Scope this battlefield to one seat's permanents. For an opponent board (multiplayer
+   * strip cells): omitted → all non-viewing-player permanents (the 2-player shape; in a
+   * 2-player game the two are identical). For the player side it renders another seat's
+   * board in the bottom half (eliminated spectator's chosen bottom seat).
    */
   playerId?: EntityId
   spectatorMode?: boolean
 }) {
   const slotRef = useRef<HTMLDivElement>(null)
-  const cards = useBattlefieldCards(isOpponent ? playerId : undefined)
+  const cards = useBattlefieldCards(isOpponent ? playerId : undefined, isOpponent ? undefined : playerId)
   const lands = isOpponent ? cards.opponentLands : cards.playerLands
   const creatures = isOpponent ? cards.opponentCreatures : cards.playerCreatures
   const planeswalkers = isOpponent ? cards.opponentPlaneswalkers : cards.playerPlaneswalkers
@@ -822,7 +824,11 @@ function AttachmentsBrowser({
     )
   }
 
-  return (
+  // Portalled to <body>: this fixed full-screen overlay renders from inside a
+  // battlefield that may sit in the multiplayer board strip, whose translateX
+  // transform would otherwise make `fixed` resolve against the (clipped, possibly
+  // off-screen) cell — same trap the ZonePiles browsers portal around.
+  return createPortal(
     <div style={styles.exileOverlay} onClick={onClose}>
       <div style={styles.exileBrowserContent} onClick={(e) => e.stopPropagation()}>
         <div style={styles.exileBrowserHeader}>
@@ -834,6 +840,7 @@ function AttachmentsBrowser({
           {renderSection('linkedExile', linkedExile)}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

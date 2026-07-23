@@ -256,7 +256,13 @@ are gated on `players.length > 2`).
   board's "face": name + life) and the viewed cell a subtle seat-colored inset ring.
   Hidden boards stay mounted after the visible cells at full width, overflowing
   off-screen right, so their card anchors keep remapping to rail chips. Selecting a
-  single board (chip click / `1`-`9`) exits back to the focused camera.
+  single board (chip click / `1`-`9`) exits back to the focused camera. Each cell can
+  also be individually folded to a narrow seat-colored tab (MTGO-style: the "−" button
+  next to the plate; the tab re-expands on click — `boardView.collapsedSeats`): the
+  remaining boards split the freed width, and a collapsed seat's full board moves to
+  the off-screen group so its anchors bundle back to the rail chip. Collapse state is
+  overview-only — the focused camera and the combat split ignore it — and persists
+  across overview toggles until the game resets.
 - **Combat defender-focus split** (`useCombatDefenderFocus`): when the server's confirmed
   combat is between two *other* players, the attacker's and defenders' boards share the
   strip so the fight renders as real arrows between real boards instead of a bundled
@@ -268,7 +274,12 @@ are gated on `players.length > 2`).
   adds a "Keep Watching" button. It dismisses the overlay, forces the table overview, and
   collapses the dead bottom half (grid rows 4-5 → 0, hand/pass/undo/concede hidden) with
   a "spectating" banner + Leave Game button; the freed height flows to the opponent
-  strip.
+  strip. The banner also carries a **bottom-board picker**
+  (`boardView.eliminatedBottomSeatId`): choosing a living player anchors their board in
+  the empty bottom half the way spectating renders a bottom seat — read-only board +
+  face-down hand, their life on the right center-HUD orb (which takes over their
+  anchors from the rail chip), and their cell leaves the opponent strip. Clicking the
+  active seat again clears it; the choice self-heals to "collapsed" if that player dies.
 - **Seat identity**: `styles/seatColors.ts` (Okabe-Ito, by seat index = turn-order index in
   `gameState.players`) colors rail chips, combat arrows and chevrons, stack item borders
   (caster), and log entry names.
@@ -291,12 +302,20 @@ are gated on `players.length > 2`).
   `TargetingArrows`). While you declare blocks, attackers aimed at other defenders render
   dimmed (CR 509.1b — `CombatState.actingSeat` scopes `attackingCreatures` to attacks on
   you).
-- **Zone browsers portal to `<body>`**: the graveyard/exile/library/plotted/paradigm
-  browsers are `position: fixed` overlays, but an opponent's `ZonePile` sits inside the
-  strip whose `translateX` transform would make `fixed` resolve against the (clipped,
-  possibly off-screen) cell — so `ZonePiles.tsx` renders them through `createPortal`.
-  Titles carry the owner's name ("Carol's Graveyard") since "Opponent's" is ambiguous at
-  a multiplayer table.
+- **The transform trap — overlays inside the strip portal to `<body>`**: the strip
+  track's `translateX` (and any other transformed ancestor, e.g. a tapped card's
+  rotation) turns a `position: fixed` descendant's containing block into that ancestor —
+  the "fixed" element then renders relative to the (clipped, possibly off-screen) cell
+  instead of the viewport. **Checklist: anything rendered under `OpponentBoardArea`
+  (hand `CardRow`, `CommandZone`, `Battlefield`, `ZonePile`, and everything inside
+  `GameCard`) that is full-screen or positioned in viewport coordinates must go through
+  `createPortal(..., document.body)`.** Current portals: the
+  graveyard/exile/library/plotted/paradigm browsers (`ZonePiles.tsx` — titles carry the
+  owner's name, "Carol's Graveyard", since "Opponent's" is ambiguous at a multiplayer
+  table), the attachments browser (`Battlefield.tsx`), the copy-of hover preview and the
+  active-effect badge tooltip (`GameCard.tsx` / `CardOverlays.tsx`). Overlays rendered
+  from `GameBoard` itself (stack, action menu, decision modals, yield menu) sit outside
+  the strip and don't need it.
 - **Spectator/replay** reuse the same layout anchored to a chosen bottom seat
   (`spectatorBottomSeatId`, cycled from the spectator header); replays render through the
   same `GameBoard spectatorMode` path.

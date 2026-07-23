@@ -23,7 +23,7 @@ import { useResponsive } from '@/hooks/useResponsive'
 import { ManaSymbol } from '../ui/ManaSymbols'
 
 // Import extracted components
-import { Battlefield, CardRow, CommandZone, OpponentBoardArea, StackDisplay, ZonePile, ResponsiveContext } from './board'
+import { Battlefield, CardRow, CommandZone, OpponentBoardArea, CollapsedBoardTab, COLLAPSED_TAB_WIDTH, StackDisplay, ZonePile, ResponsiveContext } from './board'
 import { RenderProfiler } from '@/utils/renderProfiler'
 import { CardPreview } from './card'
 import { TargetingOverlay, ManaColorSelectionOverlay, LifeDisplay, ActiveEffectsBadges, ConcedeButton, FullscreenButton, SpectatorCountBadge } from './overlay'
@@ -94,17 +94,38 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   // not a reserved full-width band — so it no longer pushes the board down.
   const effectiveTopOffset = topOffset
   useMultiplayerView(isMulti, opponents)
-  const stripOpponents = useMemo(() => opponents.filter((o) => !o.hasLost), [opponents])
+  // Multiplayer camera extensions: the all-boards table overview (toggle / key 0) with
+  // MTGO-style per-board collapse, the eliminated-spectator layout, and the combat
+  // defender-focus split (combat between two *other* players shows attacker and defender
+  // side by side).
+  const overviewModeOn = useGameStore((state) => state.overviewMode)
+  const collapsedSeats = useGameStore((state) => state.collapsedSeats)
+  const toggleSeatCollapsed = useGameStore((state) => state.toggleSeatCollapsed)
+  const eliminatedSpectating = useGameStore((state) => state.eliminatedSpectating)
+  const eliminatedBottomSeatId = useGameStore((state) => state.eliminatedBottomSeatId)
+  const setEliminatedBottomSeat = useGameStore((state) => state.setEliminatedBottomSeat)
+  const returnToMenu = useGameStore((state) => state.returnToMenu)
+  const viewingPlayer = useViewingPlayer()
+  // Eliminated-spectator layout: the local player is out of a multiplayer game and chose
+  // "Keep watching" — their dead bottom half collapses and all action UI hides.
+  const isEliminatedSpectator =
+    isMulti && !spectatorMode && eliminatedSpectating && (viewingPlayer?.hasLost ?? false)
+  // Eliminated spectator's chosen bottom seat: a living player whose board fills the
+  // (otherwise collapsed) bottom half, the way spectating anchors a bottom seat. Their
+  // board leaves the opponent strip while anchored here. Self-heals if the seat dies.
+  const eliminatedBottomSeat = useMemo(() => {
+    if (!isEliminatedSpectator || !eliminatedBottomSeatId) return null
+    const p = gameState?.players.find((pp) => pp.playerId === eliminatedBottomSeatId)
+    return p && !p.hasLost ? p : null
+  }, [isEliminatedSpectator, eliminatedBottomSeatId, gameState])
+  const stripOpponents = useMemo(
+    () => opponents.filter((o) => !o.hasLost && o.playerId !== eliminatedBottomSeat?.playerId),
+    [opponents, eliminatedBottomSeat],
+  )
   const viewedStripIndex = Math.max(
     0,
     stripOpponents.findIndex((o) => o.playerId === viewedOpponent?.playerId),
   )
-  // Multiplayer camera extensions: the all-boards table overview (toggle / key 0), the
-  // eliminated-spectator layout, and the combat defender-focus split (combat between two
-  // *other* players shows attacker and defender side by side).
-  const overviewModeOn = useGameStore((state) => state.overviewMode)
-  const eliminatedSpectating = useGameStore((state) => state.eliminatedSpectating)
-  const returnToMenu = useGameStore((state) => state.returnToMenu)
   const defenderFocusIds = useCombatDefenderFocus(isMulti && !spectatorMode)
   // In a Two-Headed Giant game the orb/edge tints follow the *team* hue (both teammates share
   // it); otherwise they keep the per-seat hue. The team map is empty in every non-team game.
@@ -167,15 +188,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     executeAction(modifiedActionInfo)
   }, [manaSelectionState, cancelManaSelection, executeAction])
 
-  const viewingPlayer = useViewingPlayer()
   const opponent = useOpponent()
   const stackCards = useStackCards()
   const ghostCards = useGhostCards(playerId ?? null)
 
-  // Eliminated-spectator layout: the local player is out of a multiplayer game and chose
-  // "Keep watching" — their dead bottom half collapses and all action UI hides.
-  const isEliminatedSpectator =
-    isMulti && !spectatorMode && eliminatedSpectating && (viewingPlayer?.hasLost ?? false)
   // Table overview: every living opponent's board shares the strip. Entering the
   // eliminated-spectator layout turns it on; a chip click focuses one board again.
   const overviewActive = isMulti && overviewModeOn
@@ -198,17 +214,44 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     return stripOpponents.filter((o) => visible.has(o.playerId)).map((o) => o.playerId)
   }, [isMulti, responsive.isMobile, overviewActive, stripOpponents, viewedOpponent, defenderFocusIds])
   const multiView = visibleStripIds.length > 1
-  // In a shared-strip view the visible boards come first (each with an equal width
-  // share) and the hidden ones follow at full width, overflowing off-screen to the
-  // right — so card anchors on hidden boards keep resolving to rail chips.
-  const orderedStrip = useMemo(() => {
-    if (!multiView) return stripOpponents
-    const visible = new Set(visibleStripIds)
-    return [
-      ...stripOpponents.filter((o) => visible.has(o.playerId)),
-      ...stripOpponents.filter((o) => !visible.has(o.playerId)),
-    ]
-  }, [multiView, stripOpponents, visibleStripIds])
+  // MTGO-style per-board collapse — table overview only; the focused camera and the
+  // combat defender-focus split ignore it (their board sets are already deliberate).
+  const collapsedStripIds = useMemo<readonly EntityId[]>(
+    () => (overviewActive && multiView ? visibleStripIds.filter((id) => collapsedSeats.includes(id)) : []),
+    [overviewActive, multiView, visibleStripIds, collapsedSeats],
+  )
+  // Boards whose cards + plate are actually on screen: the shared-strip cells minus the
+  // collapsed ones. Drives which rail chips drop their player anchors.
+  const expandedStripIds = useMemo<readonly EntityId[]>(
+    () => visibleStripIds.filter((id) => !collapsedStripIds.includes(id)),
+    [visibleStripIds, collapsedStripIds],
+  )
+  // In a shared-strip view the strip renders the visible cells in turn order (expanded
+  // boards splitting the width, collapsed boards as narrow tabs), then the hidden *and*
+  // collapsed full boards at full width, overflowing off-screen to the right — so card
+  // anchors on boards without an expanded cell keep resolving to rail chips.
+  const visibleStripCells = useMemo(
+    () => stripOpponents.filter((o) => visibleStripIds.includes(o.playerId)),
+    [stripOpponents, visibleStripIds],
+  )
+  const offscreenStripBoards = useMemo(
+    () =>
+      stripOpponents.filter(
+        (o) => !visibleStripIds.includes(o.playerId) || collapsedStripIds.includes(o.playerId),
+      ),
+    [stripOpponents, visibleStripIds, collapsedStripIds],
+  )
+  // Expanded cells share the width left over by the collapsed tabs.
+  const expandedCellBasis =
+    collapsedStripIds.length > 0
+      ? `calc((100% - ${collapsedStripIds.length * COLLAPSED_TAB_WIDTH}px) / ${Math.max(1, expandedStripIds.length)})`
+      : `${100 / Math.max(1, expandedStripIds.length)}%`
+  // The rail chips also cover the eliminated spectator's bottom-anchored board, whose
+  // anchors live on the bottom life orb while it is on screen.
+  const anchorVisibleBoardIds = useMemo<readonly EntityId[]>(
+    () => (eliminatedBottomSeat ? [...expandedStripIds, eliminatedBottomSeat.playerId] : expandedStripIds),
+    [expandedStripIds, eliminatedBottomSeat],
+  )
 
   // Mindslaver-style hijack indicators (Phase 2C). Spectators don't get the UX promotions.
   const youAreHijacking = !spectatorMode ? (gameState?.youAreHijacking ?? null) : null
@@ -261,6 +304,11 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   // seat color everyone else sees for you (and that the rail's self chip uses), instead of the
   // fixed 2-player blue.
   const selfSeatColor = useIdentityColor(effectiveViewingPlayer?.playerId ?? null)
+
+  // The seat anchoring the bottom HUD (right life orb + bottom half of the board): the
+  // eliminated spectator's chosen living seat when one is set, else the viewing player.
+  const bottomHudPlayer = eliminatedBottomSeat ?? effectiveViewingPlayer
+  const bottomHudSeatColor = useIdentityColor(bottomHudPlayer?.playerId ?? null)
 
   if (!gameState || (!spectatorMode && (!playerId || !viewingPlayer))) {
     return null
@@ -516,9 +564,15 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
       // under the position:fixed hand overlays. Both 1fr rows then receive
       // identical heights → symmetric card sizes for player and opponent.
       // Eliminated spectator: the dead bottom half (rows 4-5) collapses — the freed
-      // space flows to the opponent strip (row 2, the only remaining 1fr).
+      // space flows to the opponent strip (row 2, the only remaining 1fr) — unless a
+      // living player's board is anchored there, which restores the spectator-shaped
+      // rows (small face-down hand at the bottom).
       gridTemplateRows: isEliminatedSpectator
-        ? `${oppHandReservation}px minmax(0, 1fr) auto 0px 0px`
+        ? eliminatedBottomSeat
+          ? `${oppHandReservation}px minmax(0, 1fr) auto minmax(0, 1fr) ${
+              responsive.smallCardHeight + responsive.handBattlefieldGap
+            }px`
+          : `${oppHandReservation}px minmax(0, 1fr) auto 0px 0px`
         : `${oppHandReservation}px minmax(0, 1fr) auto minmax(0, 1fr) ${
             (spectatorMode ? responsive.smallCardHeight : responsive.cardHeight) + responsive.handBattlefieldGap
           }px`,
@@ -559,12 +613,16 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           >
             Leave Game
           </button>
-          {/* Spectating banner — sits where the (now empty) hand used to be. */}
+          {/* Spectating banner — top center, in the chrome row between the Fullscreen
+              and Leave Game buttons (the bottom of the screen belongs to the step strip
+              or the anchored bottom board). It also carries the bottom-board picker:
+              put a living player's board in the empty bottom half (click the active
+              seat again to clear it). */}
           <div
             role="status"
             style={{
               position: 'fixed',
-              bottom: 12,
+              top: responsive.isMobile ? 8 : 12,
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: 90,
@@ -583,7 +641,47 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             }}
           >
             <span aria-hidden>💀</span>
-            You've been eliminated — spectating the rest of the game
+            You've been eliminated — spectating
+            <span aria-hidden style={{ width: 1, height: 14, background: '#3a3a44' }} />
+            <span style={{ color: '#7c8aa8', fontWeight: 600 }}>Board below:</span>
+            {opponents.filter((o) => !o.hasLost).map((o) => {
+              const idx = gameState.players.findIndex((p) => p.playerId === o.playerId)
+              const seat = identitySeatColor(teamMap, o.playerId, idx)
+              const active = eliminatedBottomSeat?.playerId === o.playerId
+              return (
+                <button
+                  key={o.playerId}
+                  onClick={() => setEliminatedBottomSeat(active ? null : o.playerId)}
+                  title={active
+                    ? `Stop showing ${o.name}'s board at the bottom`
+                    : `Show ${o.name}'s board in the bottom half`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    height: 22,
+                    padding: '0 9px',
+                    borderRadius: 999,
+                    border: `${active ? 2 : 1}px solid ${active ? seat.bright : seat.base}`,
+                    background: active ? seat.soft : 'rgba(10, 12, 20, 0.85)',
+                    color: seat.bright,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <span aria-hidden style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    background: seat.base,
+                    boxShadow: `0 0 4px ${seat.base}`,
+                  }} />
+                  {o.name}
+                </button>
+              )
+            })}
           </div>
         </>
       )}
@@ -605,7 +703,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
       )}
       {isMulti && (
         <>
-          <OpponentRail spectatorMode={spectatorMode} visibleBoardIds={visibleStripIds} />
+          <OpponentRail spectatorMode={spectatorMode} visibleBoardIds={anchorVisibleBoardIds} />
           <div
             data-opponent-strip
             style={{
@@ -650,40 +748,60 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                 transition: 'transform 220ms cubic-bezier(0.4, 0, 0.2, 1)',
               }}
             >
-              {orderedStrip.map((o) => {
-                // Two-Headed Giant: your teammate's board is an ally (face-up hand + marker).
-                const oIsAlly = viewerTeam != null && teamMap[o.playerId] === viewerTeam
-                // Shared-strip views: visible boards split the width evenly; hidden ones
-                // keep full width and overflow off-screen (see orderedStrip).
-                const widthPct = multiView
-                  ? visibleStripIds.includes(o.playerId)
-                    ? 100 / visibleStripIds.length
-                    : 100
-                  : 100
-                const isViewedCell = o.playerId === viewedOpponent?.playerId
+              {(() => {
+                const renderStripBoard = (o: (typeof stripOpponents)[number], expandedCell: boolean) => {
+                  // Two-Headed Giant: your teammate's board is an ally (face-up hand + marker).
+                  const oIsAlly = viewerTeam != null && teamMap[o.playerId] === viewerTeam
+                  const isViewedCell = o.playerId === viewedOpponent?.playerId
+                  return (
+                    <OpponentBoardArea
+                      key={o.playerId}
+                      opponent={o}
+                      layout="strip"
+                      topOffset={effectiveTopOffset}
+                      handReservation={oppHandReservation}
+                      // Shared-strip views: expanded cells split the width left over by
+                      // the collapsed tabs; hidden/collapsed full boards keep full width
+                      // and overflow off-screen (see offscreenStripBoards).
+                      stripBasis={multiView && expandedCell ? expandedCellBasis : '100%'}
+                      hideHand={multiView}
+                      // The viewed board's anchors stay on the center-HUD orb; every other
+                      // expanded board's plate takes over from its rail chip.
+                      plateCarriesAnchors={multiView && expandedCell && !isViewedCell}
+                      {...(multiView && expandedCell && isViewedCell
+                        ? { viewedRingColor: identitySeatColor(teamMap, o.playerId, gameState.players.findIndex((p) => p.playerId === o.playerId)).base }
+                        : {})}
+                      // Fold-away control — table overview only; the combat split and the
+                      // focused camera keep their deliberate board sets.
+                      {...(overviewActive && multiView && expandedCell
+                        ? { onToggleCollapse: () => toggleSeatCollapsed(o.playerId) }
+                        : {})}
+                      spectatorMode={spectatorMode}
+                      isHijacking={hijackControlledOpponentId === o.playerId}
+                      hijackedSurfaceStyle={hijackedSurfaceStyle}
+                      isAlly={oIsAlly}
+                      {...(oIsAlly && viewerTeam != null ? { allyColor: selfSeatColor.base } : {})}
+                    />
+                  )
+                }
+                if (!multiView) return stripOpponents.map((o) => renderStripBoard(o, false))
                 return (
-                  <OpponentBoardArea
-                    key={o.playerId}
-                    opponent={o}
-                    layout="strip"
-                    topOffset={effectiveTopOffset}
-                    handReservation={oppHandReservation}
-                    stripWidthPct={widthPct}
-                    hideHand={multiView}
-                    // The viewed board's anchors stay on the center-HUD orb; every other
-                    // visible board's plate takes over from its rail chip.
-                    plateCarriesAnchors={multiView && !isViewedCell && visibleStripIds.includes(o.playerId)}
-                    {...(multiView && isViewedCell
-                      ? { viewedRingColor: identitySeatColor(teamMap, o.playerId, gameState.players.findIndex((p) => p.playerId === o.playerId)).base }
-                      : {})}
-                    spectatorMode={spectatorMode}
-                    isHijacking={hijackControlledOpponentId === o.playerId}
-                    hijackedSurfaceStyle={hijackedSurfaceStyle}
-                    isAlly={oIsAlly}
-                    {...(oIsAlly && viewerTeam != null ? { allyColor: selfSeatColor.base } : {})}
-                  />
+                  <>
+                    {visibleStripCells.map((o) =>
+                      collapsedStripIds.includes(o.playerId) ? (
+                        <CollapsedBoardTab
+                          key={`${o.playerId}-collapsed-tab`}
+                          player={o}
+                          onExpand={() => toggleSeatCollapsed(o.playerId)}
+                        />
+                      ) : (
+                        renderStripBoard(o, true)
+                      ),
+                    )}
+                    {offscreenStripBoards.map((o) => renderStripBoard(o, false))}
+                  </>
                 )
-              })}
+              })()}
             </div>
             {/* Seat-colored edge flash on board arrival */}
             {!multiView && viewedOpponent && (
@@ -822,7 +940,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           activeSide={
             spectatorMode
               ? (gameState.activePlayerId === effectiveViewingPlayer?.playerId ? 'bottom' : 'top')
-              : (isMyTurn ? 'bottom' : 'top')
+              : (isMyTurn || (eliminatedBottomSeat != null && gameState.activePlayerId === eliminatedBottomSeat.playerId)
+                  ? 'bottom'
+                  : 'top')
           }
           stopOverrides={stopOverrides}
           onToggleStop={toggleStopOverride}
@@ -830,13 +950,16 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
         />
         </div>
 
-        {/* Player life (right side) */}
+        {/* Player life (right side) — the eliminated spectator's chosen bottom seat
+            takes this orb over (their board fills the bottom half). */}
         <div style={{ ...styles.centerLifeSection, ...styles.centerLifeSectionRight }}>
-          {effectiveViewingPlayer && (
+          {bottomHudPlayer && (
             <>
-              <LifeDisplay life={effectiveViewingPlayer.life} isPlayer playerId={effectiveViewingPlayer.playerId} playerName={effectiveViewingPlayer.name} spectatorMode={spectatorMode} poisonCounters={effectiveViewingPlayer.poisonCounters} commanderDamage={effectiveViewingPlayer.commanderDamage ?? []} handSize={effectiveViewingPlayer.handSize} maxHandSize={effectiveViewingPlayer.maxHandSize} {...(isMulti ? { seatColor: selfSeatColor.base } : {})} />
-              {!responsive.isMobile && <ActiveEffectsBadges effects={effectiveViewingPlayer.activeEffects} />}
-              {!responsive.isMobile && effectiveViewingPlayer.manaPool && <ManaPool manaPool={effectiveViewingPlayer.manaPool} />}
+              {/* When another seat is anchored here (eliminated spectator), the orb is
+                  spectator-shaped: no "You" role tag, no player-click handling. */}
+              <LifeDisplay life={bottomHudPlayer.life} isPlayer playerId={bottomHudPlayer.playerId} playerName={bottomHudPlayer.name} spectatorMode={spectatorMode || eliminatedBottomSeat != null} poisonCounters={bottomHudPlayer.poisonCounters} commanderDamage={bottomHudPlayer.commanderDamage ?? []} handSize={bottomHudPlayer.handSize} maxHandSize={bottomHudPlayer.maxHandSize} {...(isMulti ? { seatColor: bottomHudSeatColor.base } : {})} />
+              {!responsive.isMobile && <ActiveEffectsBadges effects={bottomHudPlayer.activeEffects} />}
+              {!responsive.isMobile && bottomHudPlayer.manaPool && <ManaPool manaPool={bottomHudPlayer.manaPool} />}
             </>
           )}
         </div>
@@ -858,6 +981,34 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           so no padding here. Equal-height with row 2 → symmetric cards.
           Collapsed (row is 0px) for an eliminated spectator — their permanents
           left the game with them. */}
+      {/* Eliminated spectator with a chosen bottom seat: that living player's board fills
+          the bottom half, rendered read-only the way spectating renders a bottom seat. */}
+      {isEliminatedSpectator && eliminatedBottomSeat && (
+        <div style={styles.playerArea}>
+          <div style={styles.playerRowWithZones}>
+            <CommandZone player={eliminatedBottomSeat} />
+            <div style={styles.playerMainArea}>
+              <Battlefield isOpponent={false} playerId={eliminatedBottomSeat.playerId} spectatorMode />
+            </div>
+            <ZonePile player={eliminatedBottomSeat} />
+          </div>
+        </div>
+      )}
+      {isEliminatedSpectator && eliminatedBottomSeat && (
+        <div
+          data-zone="hand"
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 50,
+          }}
+        >
+          <CardRow zoneId={hand(eliminatedBottomSeat.playerId)} faceDown small />
+        </div>
+      )}
+
       {!isEliminatedSpectator && <div style={styles.playerArea}>
         <div style={styles.playerRowWithZones}>
           {/* Player command zone (left side) — Commander format only; renders nothing otherwise. */}

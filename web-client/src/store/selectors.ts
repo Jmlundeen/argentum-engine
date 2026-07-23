@@ -242,16 +242,22 @@ export function useOpponents(): readonly ClientPlayer[] {
  * The opponent whose board occupies the viewed slot. Resolves the boardView
  * selection with fallbacks: an eliminated or unknown selection falls back to the
  * first opponent still in the game (or the first opponent, if all have lost).
+ * The eliminated spectator's chosen bottom seat never occupies the viewed slot —
+ * its board is already fully visible at the bottom of the screen.
  */
 export function useViewedOpponent(): ClientPlayer | null {
   const opponents = useOpponents()
   const viewedOpponentId = useGameStore((state) => state.viewedOpponentId)
+  const eliminatedSpectating = useGameStore((state) => state.eliminatedSpectating)
+  const eliminatedBottomSeatId = useGameStore((state) => state.eliminatedBottomSeatId)
   return useMemo(() => {
-    if (opponents.length === 0) return null
-    const selected = opponents.find((p) => p.playerId === viewedOpponentId)
+    const bottomSeatId = eliminatedSpectating ? eliminatedBottomSeatId : null
+    const candidates = bottomSeatId ? opponents.filter((p) => p.playerId !== bottomSeatId) : opponents
+    if (candidates.length === 0) return null
+    const selected = candidates.find((p) => p.playerId === viewedOpponentId)
     if (selected && !selected.hasLost) return selected
-    return opponents.find((p) => !p.hasLost) ?? opponents[0] ?? null
-  }, [opponents, viewedOpponentId])
+    return candidates.find((p) => !p.hasLost) ?? candidates[0] ?? null
+  }, [opponents, viewedOpponentId, eliminatedSpectating, eliminatedBottomSeatId])
 }
 
 /**
@@ -519,10 +525,19 @@ function battlefieldCardsEqual(a: BattlefieldCards, b: BattlefieldCards): boolea
  * `opponentId` scopes the opponent* groups to one seat's permanents (a multiplayer
  * opponent board). When omitted, the opponent groups hold everything the viewing
  * player doesn't control — the 2-player shape, unchanged.
+ *
+ * `playerIdOverride` makes the player* groups hold another seat's permanents instead of
+ * the viewing player's — the eliminated spectator's chosen bottom board (spectating
+ * proper doesn't need it: there `selectViewingPlayerId` already resolves to the bottom
+ * seat).
  */
-export function useBattlefieldCards(opponentId?: EntityId | null): BattlefieldCards {
+export function useBattlefieldCards(
+  opponentId?: EntityId | null,
+  playerIdOverride?: EntityId | null,
+): BattlefieldCards {
   const gameState = useGameStore(selectGameState)
-  const playerId = useGameStore(selectViewingPlayerId)
+  const viewerId = useGameStore(selectViewingPlayerId)
+  const playerId = playerIdOverride ?? viewerId
   const previousRef = useRef<BattlefieldCards | null>(null)
 
   return useMemo(() => {

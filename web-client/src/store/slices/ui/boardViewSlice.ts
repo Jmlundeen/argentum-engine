@@ -59,11 +59,25 @@ export interface BoardViewSliceState {
    */
   overviewMode: boolean
   /**
+   * MTGO-style per-opponent collapse in the table overview: seats whose cell is folded
+   * to a narrow tab so the remaining boards split the freed width. Only consulted while
+   * the overview is on; the focused camera and the combat split ignore it. Seats stay
+   * collapsed across overview toggles until reset (new game / leave).
+   */
+  collapsedSeats: readonly EntityId[]
+  /**
    * The local player was eliminated from a multiplayer game and chose "Keep watching"
    * on the defeat overlay: their dead bottom half collapses, the freed space goes to the
    * opponent boards, and all action UI hides. Cleared on reset (new game / leave).
    */
   eliminatedSpectating: boolean
+  /**
+   * Eliminated spectator's chosen bottom seat: a *living* player whose board fills the
+   * (otherwise collapsed) bottom half, the way spectating anchors a bottom seat. Null =
+   * no bottom board (the freed height flows to the opponent strip). Ignored outside the
+   * eliminated-spectating layout; self-heals to null rendering-side if the seat dies.
+   */
+  eliminatedBottomSeatId: EntityId | null
   /**
    * Spectator/replay: which seat anchors the bottom half of the board. Null =
    * the stream's default (`spectatingState.player1Id`). Set by the spectator
@@ -94,11 +108,18 @@ export interface BoardViewSliceActions {
   toggleFollowAction: () => void
   /** Toggle the all-boards table overview. */
   toggleOverviewMode: () => void
+  /** Fold/unfold one opponent's overview cell (MTGO-style per-board collapse). */
+  toggleSeatCollapsed: (playerId: EntityId) => void
   /**
    * "Keep watching" after being eliminated from a multiplayer game: dismisses the defeat
    * overlay and enters the spectator layout (overview on, dead bottom half collapsed).
    */
   enterEliminatedSpectate: () => void
+  /**
+   * Eliminated spectator: anchor the bottom half to a living player's board
+   * (null = collapse the bottom half again).
+   */
+  setEliminatedBottomSeat: (playerId: EntityId | null) => void
   /**
    * Follow-the-action write. Refused at the handler (not at render time) when the
    * view is pinned, following is off, or the player has any pending input — the
@@ -124,7 +145,9 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
   viewPinned: false,
   followAction: loadFollowAction(),
   overviewMode: false,
+  collapsedSeats: [],
   eliminatedSpectating: false,
+  eliminatedBottomSeatId: null,
   spectatorBottomSeatId: null,
   teamByPlayerId: {},
   teamSharedLife: false,
@@ -134,6 +157,9 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
     // Only opponents occupy the viewed slot — your half is sacred.
     if (playerId === ownId && !get().spectatingState) return
     if (gameState && !gameState.players.some((p) => p.playerId === playerId)) return
+    // The eliminated spectator's chosen bottom board is already fully visible at the
+    // bottom — it never also occupies the viewed strip slot.
+    if (get().eliminatedSpectating && playerId === get().eliminatedBottomSeatId) return
     const pin = opts?.pin ?? true
     // Pinning a board and follow-the-action are mutually exclusive: pinning turns follow off
     // (the camera is locked), so the Follow toggle reflects that rather than lying "on".
@@ -165,8 +191,19 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
     set({ overviewMode: next, ...(next ? { viewPinned: false } : {}) })
   },
 
+  toggleSeatCollapsed: (playerId) => {
+    const prev = get().collapsedSeats
+    set({
+      collapsedSeats: prev.includes(playerId)
+        ? prev.filter((id) => id !== playerId)
+        : [...prev, playerId],
+    })
+  },
+
   enterEliminatedSpectate: () =>
     set({ eliminatedSpectating: true, overviewMode: true, viewPinned: false, gameOverState: null }),
+
+  setEliminatedBottomSeat: (playerId) => set({ eliminatedBottomSeatId: playerId }),
 
   followViewTo: (playerId) => {
     const state = get()
@@ -194,7 +231,9 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
       viewedOpponentId: null,
       viewPinned: false,
       overviewMode: false,
+      collapsedSeats: [],
       eliminatedSpectating: false,
+      eliminatedBottomSeatId: null,
       spectatorBottomSeatId: null,
       teamByPlayerId: {},
       teamSharedLife: false,
