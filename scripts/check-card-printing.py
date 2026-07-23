@@ -37,6 +37,8 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from set_dirs import scaffolded_set_codes, set_dir_codes
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFINITIONS_ROOT = REPO_ROOT / "mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/definitions"
 CACHE_ROOT = Path.home() / ".cache" / "scryfall" / "printings"
@@ -145,21 +147,16 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
     return printings
 
 
-def scaffolded_sets() -> set[str]:
-    if not DEFINITIONS_ROOT.is_dir():
-        return set()
-    return {d.name for d in DEFINITIONS_ROOT.iterdir() if d.is_dir()}
-
-
 def find_canonical(card_name: str) -> tuple[str, Path] | None:
     """Return (set_code_lower, file_path) of the file with `card("Name") { ... }`."""
     front = card_name.split(" // ", 1)[0].strip()
+    codes = set_dir_codes()
     for kt in DEFINITIONS_ROOT.glob("*/cards/*.kt"):
         text = kt.read_text(encoding="utf-8")
         for m in CARD_DSL_RE.finditer(text):
             if m.group(1) in (card_name, front):
-                # definitions/<setcode>/cards/<file>.kt
-                set_code = kt.parts[-3]
+                # definitions/<dir>/cards/<file>.kt
+                set_code = codes.get(kt.parts[-3], kt.parts[-3])
                 return (set_code, kt)
     return None
 
@@ -170,6 +167,7 @@ def find_reprint_rows(card_name: str) -> dict[str, Path]:
     """
     front = card_name.split(" // ", 1)[0].strip()
     result: dict[str, Path] = {}
+    codes = set_dir_codes()
     for kt in DEFINITIONS_ROOT.glob("*/cards/*.kt"):
         text = kt.read_text(encoding="utf-8")
         if "Printing(" not in text:
@@ -178,7 +176,7 @@ def find_reprint_rows(card_name: str) -> dict[str, Path]:
             continue  # this file holds the CardDefinition, not a reprint row
         if not any(n in (card_name, front) for n in PRINTING_NAME_RE.findall(text)):
             continue
-        set_code = kt.parts[-3]
+        set_code = codes.get(kt.parts[-3], kt.parts[-3])
         result[set_code] = kt
     return result
 
@@ -228,7 +226,7 @@ def main() -> int:
         print(f"error: no Scryfall printings for '{name}'", file=sys.stderr)
         return 2
 
-    scaffolded = scaffolded_sets()
+    scaffolded = scaffolded_set_codes()
     expected = expected_canonical(printings)
     expected_scaffolded = expected is not None and expected.set_code in scaffolded
 

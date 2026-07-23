@@ -34,6 +34,8 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
+from set_dirs import dir_for_codes, scaffolded_set_codes, set_dir_codes
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFINITIONS_ROOT = REPO_ROOT / "mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/definitions"
 PRINTINGS_CACHE = Path.home() / ".cache" / "scryfall" / "printings"
@@ -69,16 +71,13 @@ def pascal(name: str) -> str:
     return pas
 
 
-def scaffolded_sets() -> set[str]:
-    return {d.name for d in DEFINITIONS_ROOT.iterdir() if d.is_dir()}
-
-
 def scan_definitions() -> tuple[dict[str, str], dict[str, set[str]]]:
     canonical: dict[str, str] = {}
     reprints: dict[str, set[str]] = defaultdict(set)
+    codes = set_dir_codes()
     for kt in DEFINITIONS_ROOT.glob("*/cards/*.kt"):
         text = kt.read_text(encoding="utf-8")
-        set_code = kt.parts[-3]
+        set_code = codes.get(kt.parts[-3], kt.parts[-3])
         card_names = {m.group(1) for m in CARD_DSL_RE.finditer(text)}
         for name in card_names:
             canonical[name] = set_code
@@ -154,12 +153,12 @@ def kt_str(s: str | None) -> str:
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def render(name: str, set_code: str, p: dict, set_entry: dict | None) -> str:
+def render(name: str, set_code: str, p: dict, set_entry: dict | None, pkg_dir: str) -> str:
     val = f"{pascal(name)}Reprint"
     artist = set_entry.get("artist") if set_entry else None
     rarity = RARITY_MAP.get(p.get("rarity", ""), "COMMON")
     # Kotlin package segments can't start with a digit (e.g. 8ed, 5dn) — backtick-escape them.
-    seg = f"`{set_code}`" if set_code[:1].isdigit() else set_code
+    seg = f"`{pkg_dir}`" if pkg_dir[:1].isdigit() else pkg_dir
     pkg = f"com.wingedsheep.mtg.sets.definitions.{seg}.cards"
     lines = [
         f"package {pkg}",
@@ -193,7 +192,8 @@ def main() -> int:
     args = ap.parse_args()
     only = args.set.lower() if args.set else None
 
-    scaffolded = scaffolded_sets()
+    scaffolded = scaffolded_set_codes()
+    dir_for = dir_for_codes()
     canonical, reprints = scan_definitions()
 
     written = 0
@@ -224,14 +224,15 @@ def main() -> int:
             if not primary or not primary.get("scryfall_id") or not primary.get("oracle_id"):
                 skipped_nocache += 1
                 continue
-            out_dir = DEFINITIONS_ROOT / sc / "cards"
+            pkg_dir = dir_for.get(sc, sc)
+            out_dir = DEFINITIONS_ROOT / pkg_dir / "cards"
             if not out_dir.is_dir():
                 continue
             out_file = out_dir / f"{pascal(name)}Reprint.kt"
             if out_file.exists():
                 skipped_exists += 1
                 continue
-            content = render(name, sc, primary, set_cache_entry(sc, name))
+            content = render(name, sc, primary, set_cache_entry(sc, name), pkg_dir)
             if args.dry_run:
                 written += 1
                 by_set[sc] += 1

@@ -25,7 +25,9 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
  * `basicLands`) cannot silently drop or add a card. Delete the harness once every set
  * is converted and the manual lists are gone.
  *
- * Convention: a set's cards package is `definitions.{code.lowercase()}.cards`.
+ * A set's cards package is `<the set object's own package>.cards` — derived from the object
+ * itself rather than the set code, since a directory can't always match the code (`con` is a
+ * reserved filename on Windows, so Conflux lives in `definitions/conflux/`).
  */
 class CardDiscoveryEquivalenceTest : FunSpec({
 
@@ -60,4 +62,4 @@ class CardDiscoveryEquivalenceTest : FunSpec({
 })
 
 private fun packageNameFor(set: MtgSet): String =
-    "com.wingedsheep.mtg.sets.definitions.${set.code.lowercase()}.cards"
+    "${set::class.java.packageName}.cards"

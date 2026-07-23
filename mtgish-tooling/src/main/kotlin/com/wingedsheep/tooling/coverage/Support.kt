@@ -48,6 +48,46 @@ val MTGISH_LINES: File get() = File(TOOLING_DIR, "data/mtgish.lines.json")
 const val MTGISH_URL = "https://raw.githubusercontent.com/i5jb/mtgish/main/data/mtgish.lines.json"
 val DEFAULT_GENERATED_ROOT: File get() = File(TOOLING_DIR, "generated")
 
+// --- set code -> definitions/ directory -----------------------------------------------------------
+
+/**
+ * Windows reserves the DOS device names (CON, PRN, AUX, NUL, COM1–9, LPT1–9) as file names — even
+ * with an extension — and Git for Windows refuses to check such paths out.
+ */
+val WINDOWS_RESERVED_NAMES = Regex("(?i)^(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])$")
+
+/** [name] unchanged unless it's a Windows-reserved device name, which gets a trailing underscore. */
+fun windowsSafeFileName(name: String): String =
+    if (WINDOWS_RESERVED_NAMES.matches(name)) "${name}_" else name
+
+/** Inverse of [windowsSafeFileName], for recovering a code from a filename on disk. */
+fun fromWindowsSafeFileName(name: String): String =
+    if (name.endsWith("_") && WINDOWS_RESERVED_NAMES.matches(name.dropLast(1))) name.dropLast(1) else name
+
+private val SET_CODE_DECL = Regex("""override\s+val\s+code\s*=\s*"([^"]+)"""")
+
+private val setDirByCode: Map<String, String> by lazy {
+    DEFINITIONS_ROOT.listFiles { f: File -> f.isDirectory }.orEmpty().sortedBy { it.name }
+        .mapNotNull { dir ->
+            dir.listFiles { f: File -> f.name.endsWith("Set.kt") }.orEmpty().sortedBy { it.name }
+                .firstNotNullOfOrNull { SET_CODE_DECL.find(it.readText())?.groupValues?.get(1)?.lowercase() }
+                ?.let { code -> code to dir.name }
+        }
+        .toMap()
+}
+
+/**
+ * The `definitions/<dir>` (and package) segment for a set code. Usually the lowercase code, but
+ * the directory name is not guaranteed: `con` is Windows-reserved, so Conflux lives in
+ * `definitions/conflux/`. Scaffolded sets resolve to their actual directory (read from the
+ * `*Set.kt` `code` declaration); unscaffolded reserved codes fall back to the underscore escape
+ * so generated paths stay creatable on Windows.
+ */
+fun setDirSegment(setCode: String): String {
+    val code = setCode.lowercase()
+    return setDirByCode[code] ?: windowsSafeFileName(code)
+}
+
 // ---------------------------------------------------------------------------
 // JsonElement accessors (the dict/list/scalar lens onto the dynamic IR).
 // ---------------------------------------------------------------------------

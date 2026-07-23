@@ -38,6 +38,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
+from set_dirs import scaffolded_set_codes, set_dir_codes
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFINITIONS_ROOT = REPO_ROOT / "mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/definitions"
 CACHE_ROOT = Path.home() / ".cache" / "scryfall" / "printings"
@@ -139,19 +141,14 @@ def fetch_printings(card_name: str) -> list[Printing]:
     return printings
 
 
-def scaffolded_sets() -> set[str]:
-    if not DEFINITIONS_ROOT.is_dir():
-        return set()
-    return {d.name for d in DEFINITIONS_ROOT.iterdir() if d.is_dir()}
-
-
 def scan_definitions() -> tuple[dict[str, str], dict[str, set[str]]]:
     """Return (canonical[name]->set_code, reprints[name]->{set_codes})."""
     canonical: dict[str, str] = {}
     reprints: dict[str, set[str]] = defaultdict(set)
+    codes = set_dir_codes()
     for kt in DEFINITIONS_ROOT.glob("*/cards/*.kt"):
         text = kt.read_text(encoding="utf-8")
-        set_code = kt.parts[-3]
+        set_code = codes.get(kt.parts[-3], kt.parts[-3])
         card_names = {m.group(1) for m in CARD_DSL_RE.finditer(text)}
         for name in card_names:
             canonical[name] = set_code
@@ -180,7 +177,7 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0, help="cap number of Scryfall fetches")
     args = parser.parse_args()
 
-    scaffolded = scaffolded_sets()
+    scaffolded = scaffolded_set_codes()
     canonical, reprints = scan_definitions()
 
     only_set = args.set.lower() if args.set else None

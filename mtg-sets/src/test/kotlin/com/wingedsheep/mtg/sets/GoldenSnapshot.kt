@@ -15,6 +15,20 @@ import java.io.File
  */
 object GoldenSnapshot {
 
+    /**
+     * Windows reserves the DOS device names (CON, PRN, AUX, NUL, COM1–9, LPT1–9) as filenames —
+     * even with an extension — and Git for Windows refuses to check such paths out.
+     */
+    private val WINDOWS_RESERVED_NAMES = Regex("(?i)^(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])$")
+
+    /**
+     * [name] as a committable filename segment: unchanged unless it's a Windows-reserved device
+     * name, which gets a trailing underscore (Conflux's per-set golden is `CON_.json`). Any golden
+     * whose filename is minted from an arbitrary code (set code, card id, …) must go through this.
+     */
+    fun fileSafe(name: String): String =
+        if (WINDOWS_RESERVED_NAMES.matches(name)) "${name}_" else name
+
     private val updateMode: Boolean =
         System.getProperty("updateSnapshots")?.toBooleanStrictOrNull() == true ||
             System.getenv("UPDATE_SNAPSHOTS").let { it != null && it.isNotBlank() && it != "0" }

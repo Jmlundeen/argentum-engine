@@ -92,13 +92,13 @@ object Fixtures {
     // ---------------------------------------------------------------------------
     // Disk IO — shared resource layout for both the CLI (writes) and the test (reads).
     // ---------------------------------------------------------------------------
-    fun fixtureFile(code: String): File = File(FIXTURES_DIR, "${code.lowercase()}.fixture.json")
-    fun goldenFile(code: String): File = File(FIXTURES_DIR, "${code.lowercase()}.emitted.golden.txt")
+    fun fixtureFile(code: String): File = File(FIXTURES_DIR, "${windowsSafeFileName(code.lowercase())}.fixture.json")
+    fun goldenFile(code: String): File = File(FIXTURES_DIR, "${windowsSafeFileName(code.lowercase())}.emitted.golden.txt")
 
     /** Front-face codes that have a committed fixture, sorted — drives the test's set loop. */
     fun committedSets(): List<String> =
         FIXTURES_DIR.listFiles { f -> f.isFile && f.name.endsWith(".fixture.json") }
-            ?.map { it.name.removeSuffix(".fixture.json").uppercase() }?.sorted()
+            ?.map { fromWindowsSafeFileName(it.name.removeSuffix(".fixture.json")).uppercase() }?.sorted()
             ?: emptyList()
 
     fun load(code: String): FixtureSet = parse(fixtureFile(code).readText())

@@ -46,7 +46,7 @@ class CardDefinitionSnapshotTest : FunSpec({
             val actual = sorted.joinToString("\n\n") { card ->
                 "// ${card.name}\n${normalizeAbilityIds(CardExporter.exportToJson(card))}"
             }
-            GoldenSnapshot.verify("snapshots/cards/${set.code}.json", actual)
+            GoldenSnapshot.verify("snapshots/cards/${GoldenSnapshot.fileSafe(set.code)}.json", actual)
         }
 
         test("${set.code} (${set.displayName}): cards survive a JSON round-trip") {
