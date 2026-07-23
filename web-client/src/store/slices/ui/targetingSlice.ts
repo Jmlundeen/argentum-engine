@@ -21,6 +21,7 @@ export interface TargetingSliceActions {
   removeTarget: (targetId: EntityId) => void
   cancelTargeting: () => void
   confirmTargeting: () => void
+  goBackTargeting: () => void
 }
 
 export type TargetingSlice = TargetingSliceState & TargetingSliceActions
@@ -86,6 +87,18 @@ export const createTargetingSlice: SliceCreator<TargetingSlice> = (set, get) => 
     set({ targetingState: null })
   },
 
+  goBackTargeting: () => {
+    // Step back to the previous requirement of a multi-target spell, restoring it
+    // exactly as it was presented (pool, bounds, zone) with its confirmed picks
+    // still selected. The current requirement's in-progress picks are discarded;
+    // re-confirming recomputes later pools against the revised selection.
+    set((state) => {
+      const prev = state.targetingState?.previousRequirementStates?.at(-1)
+      if (!prev) return state
+      return { targetingState: { ...prev, warning: null } }
+    })
+  },
+
   confirmTargeting: () => {
     const { targetingState, pipelineState, gameState, startTargeting } = get()
     if (!targetingState || !gameState || !pipelineState) return
@@ -139,6 +152,11 @@ export const createTargetingSlice: SliceCreator<TargetingSlice> = (set, get) => 
             ...(targetingState.requiresDamageDistribution
               ? { requiresDamageDistribution: true }
               : {}),
+            // Snapshot the outgoing requirement so goBackTargeting can restore it.
+            previousRequirementStates: [
+              ...(targetingState.previousRequirementStates ?? []),
+              targetingState,
+            ],
           })
           return
         }

@@ -112,6 +112,15 @@ export interface TargetingState {
   /** Transient warning shown when the user tries an illegal toggle (e.g. clicking past max
    * on a multi-target step). Cleared on the next successful add/remove. */
   warning?: string | null
+  /**
+   * Snapshot stack of already-confirmed requirements' states (multi-target spells).
+   * confirmTargeting pushes the outgoing state when advancing to the next requirement;
+   * goBackTargeting pops it so the player can revise an earlier target before the
+   * action is submitted. Each snapshot carries its own shorter stack, so a pop
+   * restores the full targeting state as it was presented (including X-narrowed
+   * valid-target pools and the picks that were confirmed).
+   */
+  previousRequirementStates?: readonly TargetingState[]
 }
 
 /**
@@ -1047,6 +1056,7 @@ export type GameStore = {
   removeTarget: (targetId: EntityId) => void
   cancelTargeting: () => void
   confirmTargeting: () => void
+  goBackTargeting: () => void
   startCombat: (state: CombatState) => void
   toggleAttacker: (creatureId: EntityId) => void
   assignBlocker: (blockerId: EntityId, attackerId: EntityId) => void

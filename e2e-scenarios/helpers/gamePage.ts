@@ -144,6 +144,12 @@ export class GamePage {
     await this.screenshot('Targeting decision ready')
   }
 
+  /** Step back to the previous target requirement of a multi-target spell (clicks "← Back"). */
+  async goBackTargetStep() {
+    await this.page.getByRole('button', { name: '← Back' }).first().click()
+    await this.screenshot('Back to previous target step')
+  }
+
   /** Confirm target selection (clicks "Confirm Target", "Confirm (N)", or a zone-specific confirmation). */
   async confirmTargets() {
     await this.page

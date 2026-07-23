@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
 import type { DecisionSelectionState } from '@/store/slices'
 import type { EntityId, ChooseTargetsDecision } from '@/types'
@@ -29,6 +29,9 @@ export function BattlefieldTargetingUI({
   // Multi-requirement state: track which requirement we're on and accumulated targets
   const [currentReqIndex, setCurrentReqIndex] = useState(0)
   const [collectedTargets, setCollectedTargets] = useState<Record<number, readonly EntityId[]>>({})
+  // Picks to pre-select when the requirement changes because the player stepped Back;
+  // consumed (and cleared) by the selection-state effect below.
+  const restoredSelectionRef = useRef<readonly EntityId[] | null>(null)
 
   const totalRequirements = decision.targetRequirements.length
   const targetReq = decision.targetRequirements[currentReqIndex]
@@ -50,11 +53,12 @@ export function BattlefieldTargetingUI({
     const selectionState: DecisionSelectionState = {
       decisionId: decision.id,
       validOptions: [...filteredLegalTargets],
-      selectedOptions: [],
+      selectedOptions: restoredSelectionRef.current ? [...restoredSelectionRef.current] : [],
       minSelections: minTargets,
       maxSelections: maxTargets,
       prompt: targetReq?.description ?? decision.prompt,
     }
+    restoredSelectionRef.current = null
     startDecisionSelection(selectionState)
 
     return () => {
@@ -100,6 +104,20 @@ export function BattlefieldTargetingUI({
     submitCancelDecision()
   }
 
+  const handleBack = () => {
+    // Step back to the previous requirement, restoring its confirmed picks so the
+    // player can revise them. The current requirement's in-progress picks are
+    // discarded; its pool is recomputed on re-confirm against the revised selection.
+    if (currentReqIndex === 0) return
+    const prevIndex = currentReqIndex - 1
+    restoredSelectionRef.current = collectedTargets[prevIndex] ?? []
+    const remaining = { ...collectedTargets }
+    delete remaining[prevIndex]
+    setCollectedTargets(remaining)
+    cancelDecisionSelection()
+    setCurrentReqIndex(prevIndex)
+  }
+
   const requirementLabel = totalRequirements > 1
     ? `Choose Target (${currentReqIndex + 1}/${totalRequirements})`
     : 'Choose Target'
@@ -136,6 +154,11 @@ export function BattlefieldTargetingUI({
       </div>
 
       <div className={styles.buttonContainerSmall}>
+        {currentReqIndex > 0 && (
+          <button onClick={handleBack} className={`${styles.confirmButton} ${styles.confirmButtonSmall}`}>
+            ← Back
+          </button>
+        )}
         {canDecline && selectedCount === 0 && (
           <button onClick={handleDecline} className={`${styles.confirmButton} ${styles.confirmButtonSmall}`}>
             Decline
