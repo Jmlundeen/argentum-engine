@@ -237,16 +237,39 @@ data class ModifyCounterPlacement(
  * can later reference the cards it exiled — e.g. Valgavoth, Terror Eater ("If a card you didn't
  * control would be put into an opponent's graveyard from anywhere, exile it instead." + "you may
  * play cards exiled with Valgavoth"). Ignored for non-exile destinations.
+ *
+ * ## Card-intrinsic "from anywhere" self-replacements
+ *
+ * When [selfOnly] is true the redirect is the moving card's own ability referring to itself
+ * ("If ~ would be put into a graveyard from anywhere, …") and therefore functions in **every**
+ * zone (CR 614.12), not just while the source is on the battlefield. The engine carries it on the
+ * card entity itself rather than scanning the battlefield, so a card milled, discarded, or
+ * countered on the stack is redirected too. It stops applying only while the source is on the
+ * battlefield and has lost all abilities.
+ *
+ * [shuffleIntoLibrary] pairs with `newDestination = Zone.LIBRARY` for the Darksteel Colossus /
+ * Progenitus family ("reveal ~ and shuffle it into its owner's library instead") — the card is
+ * shuffled in rather than placed on top. [reveal] shows the card as it is shuffled away.
  */
 @SerialName("RedirectZoneChange")
 @Serializable
 data class RedirectZoneChange(
     val newDestination: Zone,
     override val appliesTo: EventPattern,
-    val linkToSource: Boolean = false
+    val linkToSource: Boolean = false,
+    val selfOnly: Boolean = false,
+    val shuffleIntoLibrary: Boolean = false,
+    val reveal: Boolean = false
 ) : ReplacementEffect {
-    override val description: String =
-        "If ${appliesTo.description}, put it into ${newDestination.displayName} instead"
+    override val description: String = buildString {
+        append("If ${appliesTo.description}, ")
+        if (reveal) append("reveal it and ")
+        if (shuffleIntoLibrary && newDestination == Zone.LIBRARY) {
+            append("shuffle it into its owner's library instead")
+        } else {
+            append("put it into ${newDestination.displayName} instead")
+        }
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)

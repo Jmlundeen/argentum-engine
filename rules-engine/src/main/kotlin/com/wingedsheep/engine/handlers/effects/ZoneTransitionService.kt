@@ -217,6 +217,17 @@ object ZoneTransitionService {
         }
         val actualDestZone = redirectResult.destinationZone
 
+        // A card-intrinsic redirect into the library shuffles the card in rather than placing it on
+        // top (Darksteel Colossus, Progenitus). This holds even when the caller skipped the redirect
+        // check and passed the result in via the destination zone — such callers set libraryPlacement
+        // themselves, so honour whichever is Shuffled.
+        val effectiveLibraryPlacement =
+            if (redirectResult.shuffleIntoLibrary && actualDestZone == Zone.LIBRARY) {
+                LibraryPlacement.Shuffled
+            } else {
+                options.libraryPlacement
+            }
+
         // Determine controller and destination zone key. Control-changing effects (Threaten,
         // Empress Galina) live in Layer 2 of the projection and never touch the base
         // ControllerComponent, so a battlefield exit must read the projected controller first —
@@ -429,13 +440,13 @@ object ZoneTransitionService {
                 events.addAll(sagaEvents)
             }
             Zone.LIBRARY -> {
-                if (options.libraryPlacement is LibraryPlacement.Shuffled) {
+                if (effectiveLibraryPlacement is LibraryPlacement.Shuffled) {
                     // Drop reveals on every other library card before mixing the new one in
                     newState = com.wingedsheep.engine.handlers.effects.library.LibraryRevealUtils
                         .clearLibraryReveals(newState, ownerId)
                 }
-                newState = placeInLibrary(newState, entityId, destZoneKey, options.libraryPlacement)
-                if (options.libraryPlacement is LibraryPlacement.Shuffled) {
+                newState = placeInLibrary(newState, entityId, destZoneKey, effectiveLibraryPlacement)
+                if (effectiveLibraryPlacement is LibraryPlacement.Shuffled) {
                     events.add(com.wingedsheep.engine.core.LibraryShuffledEvent(ownerId))
                 }
             }

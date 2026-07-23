@@ -2200,6 +2200,10 @@ class StackResolver(
             c.without<SpellOnStackComponent>().without<TargetsComponent>()
         }
         newState = newState.addToZone(destZoneKey, spellId)
+        // A card-intrinsic redirect into the library shuffles the card in (Progenitus).
+        if (destZone == Zone.LIBRARY && fizzleRedirect.shuffleIntoLibrary) {
+            newState = shuffleOwnerLibrary(newState, ownerId)
+        }
         if (destZone == Zone.EXILE && fizzleRedirect.linkSourceId != null) {
             newState = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
                 .linkExiledToSource(newState, spellId, fizzleRedirect.linkSourceId)
@@ -2550,6 +2554,10 @@ class StackResolver(
         val destZone = counterRedirect.destinationZone
         val destZoneKey = ZoneKey(ownerId, destZone)
         newState = newState.addToZone(destZoneKey, spellId)
+        // A card-intrinsic redirect into the library shuffles the card in (Progenitus).
+        if (destZone == Zone.LIBRARY && counterRedirect.shuffleIntoLibrary) {
+            newState = shuffleOwnerLibrary(newState, ownerId)
+        }
         if (destZone == Zone.EXILE && counterRedirect.linkSourceId != null) {
             newState = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
                 .linkExiledToSource(newState, spellId, counterRedirect.linkSourceId)

@@ -59,6 +59,44 @@
     "colorIdentityOverride": []
 }
 
+// Darksteel Colossus
+{
+    "name": "Darksteel Colossus",
+    "manaCost": "{11}",
+    "typeLine": "Artifact Creature — Golem",
+    "oracleText": "Trample, indestructible\nIf Darksteel Colossus would be put into a graveyard from anywhere, reveal Darksteel Colossus and shuffle it into its owner's library instead.",
+    "creatureStats": {
+        "power": 11,
+        "toughness": 11
+    },
+    "keywords": [
+        "TRAMPLE",
+        "INDESTRUCTIBLE"
+    ],
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "RedirectZoneChange",
+                "newDestination": "Library",
+                "appliesTo": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Graveyard"
+                },
+                "selfOnly": true,
+                "shuffleIntoLibrary": true,
+                "reveal": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "rarity": "RARE",
+        "artist": "Carl Critchlow",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cbc27b24-f085-48b0-8757-cd11fbf25b91.jpg?1783944427"
+    },
+    "colorIdentityOverride": []
+}
+
 // Darksteel Forge
 {
     "name": "Darksteel Forge",

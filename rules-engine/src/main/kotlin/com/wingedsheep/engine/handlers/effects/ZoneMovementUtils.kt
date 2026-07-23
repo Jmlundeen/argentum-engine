@@ -73,12 +73,19 @@ import com.wingedsheep.sdk.scripting.predicates.evaluateWith
  *        card should be linked to this source permanent's `LinkedExileComponent` after the move
  *        — set by a [RedirectZoneChange] with `linkToSource = true` (Valgavoth, Terror Eater).
  *        Each mover applies the link via [ZoneMovementUtils.linkExiledToSource].
+ * @param shuffleIntoLibrary When true (and [destinationZone] is [Zone.LIBRARY]), the card is
+ *        shuffled into its owner's library rather than placed on top — Darksteel Colossus /
+ *        Progenitus. Movers translate this into [LibraryPlacement.Shuffled].
+ * @param reveal When true, the card is revealed as it is redirected (informational — the shuffle
+ *        destination is otherwise hidden). Darksteel Colossus / Progenitus.
  */
 data class ZoneChangeRedirectResult(
     val destinationZone: Zone,
     val additionalEffect: com.wingedsheep.sdk.scripting.effects.Effect? = null,
     val effectControllerId: EntityId? = null,
-    val linkSourceId: EntityId? = null
+    val linkSourceId: EntityId? = null,
+    val shuffleIntoLibrary: Boolean = false,
+    val reveal: Boolean = false
 )
 
 /**
@@ -473,6 +480,28 @@ object ZoneMovementUtils {
     ): ZoneChangeRedirectResult {
         val container = state.getEntity(entityId) ?: return ZoneChangeRedirectResult(toZone)
 
+        // Card-intrinsic "would be put into [zone] from anywhere → redirect instead" self-replacement
+        // (Darksteel Colossus, Progenitus). It functions in every zone (CR 614.12), so it is read off
+        // the moving card itself rather than by scanning the battlefield. It stops applying only while
+        // the source is on the battlefield and has lost all abilities.
+        val selfRedirect = container
+            .get<com.wingedsheep.engine.state.components.identity.SelfZoneRedirectComponent>()
+        if (selfRedirect != null &&
+            !(fromZone == Zone.BATTLEFIELD && state.projectedState.hasLostAllAbilities(entityId))
+        ) {
+            for (effect in selfRedirect.redirects) {
+                val event = effect.appliesTo
+                if (event !is com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent) continue
+                if (event.to != null && event.to != toZone) continue
+                if (event.from != null && event.from != fromZone) continue
+                return ZoneChangeRedirectResult(
+                    effect.newDestination,
+                    shuffleIntoLibrary = effect.shuffleIntoLibrary,
+                    reveal = effect.reveal
+                )
+            }
+        }
+
         // Check if the entity itself has ExileOnLeaveBattlefieldComponent
         // (e.g., creature returned by Kheru Lich Lord, Whip of Erebos)
         if (fromZone == Zone.BATTLEFIELD && toZone != Zone.EXILE &&
@@ -517,6 +546,11 @@ object ZoneMovementUtils {
             for (effect in replacementComponent.replacementEffects) {
                 when (effect) {
                     is RedirectZoneChange -> {
+                        // selfOnly redirects are the moving card's own ability and are handled
+                        // above via SelfZoneRedirectComponent (in every zone); never let them
+                        // redirect other cards passing through the battlefield source.
+                        if (effect.selfOnly) continue
+
                         val event = effect.appliesTo
                         if (event !is com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent) continue
 
