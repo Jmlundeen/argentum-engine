@@ -12787,6 +12787,93 @@
     ]
 }
 
+// Pit of Offerings
+{
+    "name": "Pit of Offerings",
+    "manaCost": "",
+    "typeLine": "Land — Cave",
+    "oracleText": "This land enters tapped.\nWhen this land enters, exile up to three target cards from graveyards.\n{T}: Add {C}.\n{T}: Add one mana of any of the exiled cards' colors.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Exile",
+                        "linkToSource": true
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "count": 3,
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": {},
+                        "zone": "Graveyard"
+                    },
+                    "id": "cards from graveyards"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_3",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "colorSet": "ManaColorSet.AmongLinkedExiledCards"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "278",
+        "rarity": "UNCOMMON",
+        "artist": "Martin de Diego Sádaba",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bc7d3957-b483-4a1f-a244-293c90032f5e.jpg?1782694390",
+        "rulings": [
+            {
+                "date": "2023-11-10",
+                "text": "The five colors are white, blue, black, red, and green. The last ability of Pit of Offerings can't produce {C}."
+            },
+            {
+                "date": "2023-11-10",
+                "text": "If no cards are exiled with Pit of Offerings, its last ability can't add mana."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Plundering Pirate
 {
     "name": "Plundering Pirate",

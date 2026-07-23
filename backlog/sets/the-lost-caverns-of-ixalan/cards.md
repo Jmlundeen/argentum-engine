@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 270 / 286
+**Implemented:** 272 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -183,7 +183,7 @@
 - [x] Pathfinding Axejaw
 - [x] Petrify
 - [x] Pirate Hat
-- [ ] Pit of Offerings
+- [x] Pit of Offerings
 - [x] Plundering Pirate
 - [x] Poetic Ingenuity
 - [x] Poison Dart Frog

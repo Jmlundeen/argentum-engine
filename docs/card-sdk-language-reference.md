@@ -906,6 +906,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `AddManaOfColorAmongGraveyard(filter)` — one mana of any color among cards in your graveyard matching
   `filter` (reads each card's base colors; sugar for `ManaColorSet.AmongCardsInGraveyard(filter)`). The
   Grey Havens ("any color among legendary creature cards in your graveyard").
+- `AddManaOfColorAmongLinkedExile()` — one mana of any color among the cards currently exiled *with*
+  the source permanent (its `LinkedExileComponent`, still in the exile zone; reads each card's base
+  colors; sugar for `ManaColorSet.AmongLinkedExiledCards`). Pit of Offerings ("any of the exiled
+  cards' colors"). Pair with a `MoveToZoneEffect(linkToSource = true)` that records the exiled pile.
 - `AddManaOfColorLandsCouldProduce(scope)` — sugar for `AddManaOfChoice(ManaColorSet.LandsCouldProduce(scope))`. Fellwar Stone / Exotic Orchard / Reflecting Pool shape.
 - `AddManaOfColorInCommanderColorIdentity()` — sugar for `AddManaOfChoice(ManaColorSet.CommanderIdentity)`. Arcane Signet / Command Tower shape.
 - `AddAnyColorManaSpendOnChosenType(typeName)` — mana that can only pay for a specific card type (kept separate because it derives a runtime [ManaRestriction] from the source's chosen subtype).
@@ -6294,6 +6298,7 @@ solver picks if there's only one), and that color is added to the pool.
 - `ManaColorSet.AmongPermanents(filter)` — colors of permanents matching `filter`, read via projected state so type/color-changing effects are honored. Mox Amber shape.
 - `ManaColorSet.LandsCouldProduce(scope)` — colors any land in `scope` could produce; tapped state and activation costs are ignored (CR 106.7). `scope` is `LandControllerScope.{YOU, OPPONENTS, ANY}`. Fellwar Stone / Exotic Orchard / Reflecting Pool shape.
 - `ManaColorSet.SourceChosenColor` — the single color stored on the source's `ChosenColorComponent` (set via `EntersWithChoice(ChoiceType.COLOR)`). Uncharted Haven / Ashling Rekindled shape.
+- `ManaColorSet.AmongLinkedExiledCards` — union of the base colors of the cards currently exiled *with* the source permanent — the ids in its `LinkedExileComponent` (set by `MoveToZoneEffect(linkToSource = true)`) that are still in the exile zone. A card that has since left exile drops out of the pool; colorless-only or empty piles produce no mana. Pit of Offerings shape ("any of the exiled cards' colors").
 
 ### `ManaRestriction`
 
