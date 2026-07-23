@@ -915,7 +915,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   Duskmourn's Glimmer cards create a "1/1 white Glimmer enchantment creature token" via `enchantmentToken = true`).
   `count` accepts an `Int` or a `DynamicAmount` (the latter for "create X tokens" wording — e.g. Verdeloth the
   Ancient passes `count = DynamicAmount.XValue` to make X Saprolings when kicked); both count overloads accept
-  `tapped` (The Final Days creates a `DynamicAmount.Conditional` number of **tapped** Horror tokens). Publishes the created token
+  `tapped` and `staticAbilities` (The Final Days creates a `DynamicAmount.Conditional` number of **tapped** Horror
+  tokens; Song of Totentanz creates `DynamicAmount.XValue` Rats carrying `CantBlock()`). Publishes the created token
   entity IDs to the `CREATED_TOKENS` pipeline collection, so a sibling effect in a `CompositeEffect` can address
   each token via `EffectTarget.PipelineTarget(CREATED_TOKENS, index)` — e.g. Mardu Monument grants menace and haste
   until end of turn to each of its three freshly-created Warriors with one `GrantKeyword` per token. For a *named*
