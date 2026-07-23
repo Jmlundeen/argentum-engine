@@ -109,6 +109,10 @@ class CoreAutoResumerModule(
         },
 
         autoResumer(RepeatWhileContinuation::class, canResume = { it.phase == RepeatWhilePhase.AFTER_BODY }) { state, continuation, events, checkForMore ->
+            // The body paused for a decision this pass; its pipeline collections (e.g. `putting`,
+            // the land put by Cultivator Colossus) drained into `bodyCollections` via
+            // exposeCollectionsToNextFrame. Feed them to the repeat condition as bodyOutputs so a
+            // WhileCondition sees this pass's outputs — matching the synchronous (non-pausing) path.
             val result = com.wingedsheep.engine.handlers.effects.composite.RepeatWhileExecutor.askCondition(
                 state = state,
                 body = continuation.body,
@@ -117,7 +121,10 @@ class CoreAutoResumerModule(
                 context = continuation.effectContext,
                 sourceName = continuation.sourceName,
                 effectExecutor = services.effectExecutorRegistry::execute,
-                priorEvents = events
+                priorEvents = events,
+                bodyOutputs = com.wingedsheep.engine.handlers.effects.composite.RepeatWhileExecutor.Companion.BodyOutputs(
+                    collections = continuation.bodyCollections
+                )
             )
             mergeAndContinue(result.toExecutionResult(), events = emptyList(), checkForMore)
         },

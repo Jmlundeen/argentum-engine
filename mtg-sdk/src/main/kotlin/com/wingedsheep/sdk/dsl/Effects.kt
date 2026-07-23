@@ -2260,6 +2260,14 @@ object Effects {
         CreatePredefinedTokenEffect("Blood", count, controller)
 
     /**
+     * Create a dynamic number of Blood tokens — the count is evaluated at resolution time.
+     * Used for cards like Lacerate Flesh ("create a number of Blood tokens equal to the amount
+     * of excess damage dealt to that creature this way") where the amount depends on game state.
+     */
+    fun CreateBlood(count: DynamicAmount, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Blood", controller = controller, dynamicCount = count)
+
+    /**
      * Create Clue artifact tokens.
      * "{2}, Sacrifice this token: Draw a card."
      *

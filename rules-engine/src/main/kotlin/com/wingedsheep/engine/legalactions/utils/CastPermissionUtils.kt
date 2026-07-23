@@ -989,7 +989,22 @@ class CastPermissionUtils(
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
             // Include unlocked Room face statics (CR 709.5) so a Room that grants activated
             // abilities (e.g. Greenhouse) only hands them out once its door is unlocked.
-            for (ability in com.wingedsheep.engine.state.components.identity.RoomFaceStatics.activeStaticAbilities(container, cardDef)) {
+            for (rawAbility in com.wingedsheep.engine.state.components.identity.RoomFaceStatics.activeStaticAbilities(container, cardDef)) {
+                // A grant can be gated by a ConditionalStaticAbility (Nature's Embrace: the land host
+                // gains "{T}: Add two mana of any one color" only while it is a land). Unwrap the
+                // condition against the granter here — otherwise the raw wrapper is not a
+                // GrantActivatedAbility and the grant is silently dropped. Skip when the gate is false.
+                val ability = when (rawAbility) {
+                    is com.wingedsheep.sdk.scripting.ConditionalStaticAbility -> {
+                        val granterController = state.projectedState.getController(permanentId)
+                            ?: container.get<ControllerComponent>()?.playerId
+                            ?: continue
+                        val ctx = EffectContext(sourceId = permanentId, controllerId = granterController)
+                        if (!conditionEvaluator.evaluate(state, rawAbility.condition, ctx)) continue
+                        rawAbility.ability
+                    }
+                    else -> rawAbility
+                }
                 // "[filter] have all activated abilities of the [creature] cards exiled with/to craft
                 // this": pull every activated ability off each card in the granter's exile pile (linked
                 // or crafted, per `ability.source`) and grant it to each matching permanent. Self filter

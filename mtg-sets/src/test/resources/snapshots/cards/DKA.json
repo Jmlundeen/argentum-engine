@@ -685,6 +685,46 @@
     ]
 }
 
+// Thalia, Guardian of Thraben
+{
+    "name": "Thalia, Guardian of Thraben",
+    "manaCost": "{1}{W}",
+    "typeLine": "Legendary Creature — Human Soldier",
+    "oracleText": "First strike\nNoncreature spells cost {1} more to cast.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FIRST_STRIKE"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "AnyCaster",
+                    "filter": "noncreature"
+                },
+                "modification": {
+                    "type": "IncreaseGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "rarity": "RARE",
+        "artist": "Jana Schirmer & Johannes Voss",
+        "flavorText": "\"Thraben is our home and I will not see it fall to this unhallowed horde.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/824423ff-6441-4be6-b754-810adf9ca6a2.jpg?1783940849"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Tower Geist
 {
     "name": "Tower Geist",

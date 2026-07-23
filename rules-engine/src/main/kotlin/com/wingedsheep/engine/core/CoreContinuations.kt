@@ -398,6 +398,13 @@ data class ForEachContinuation(
  * @property xValue The X value (if applicable)
  * @property targets The chosen targets (for effect context)
  * @property phase Current phase of the repeat loop
+ * @property bodyCollections Pipeline collections produced by *this pass's* body, captured when the
+ *   body paused for a decision. The AFTER_BODY resumer feeds these to the repeat condition as
+ *   bodyOutputs — mirroring the synchronous path, where the body's own outputs (e.g. `putting`,
+ *   the land put this pass) are what a WhileCondition evaluates. Kept separate from [effectContext]
+ *   on purpose: [effectContext] must stay the pristine pre-loop context so the *next* iteration
+ *   re-gathers fresh (a stale collection leaking forward would mask the next pass and the loop
+ *   would never terminate — see RepeatWhileExecutor.executeIteration).
  */
 @Serializable
 data class RepeatWhileContinuation(
@@ -407,7 +414,8 @@ data class RepeatWhileContinuation(
     val resolvedDeciderId: EntityId? = null,
     val sourceName: String?,
     val phase: RepeatWhilePhase,
-    val effectContext: EffectContext
+    val effectContext: EffectContext,
+    val bodyCollections: Map<String, List<EntityId>> = emptyMap()
 ) : ContinuationFrame
 
 /**

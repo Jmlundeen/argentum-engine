@@ -951,14 +951,13 @@ class DynamicAmountEvaluator(
                     else -> emptyList()
                 }
             }
-            is Player.ControllerOf -> {
-                // Would need to resolve the target and find its controller
-                emptyList()
-            }
-            is Player.OwnerOf -> {
-                // Would need to resolve the target and find its owner
-                emptyList()
-            }
+            // Controller/owner of the effect's chosen target — resolved via the shared single-player
+            // resolver (parity with resolvePlayerRef), so aggregates like "creatures that target's
+            // controller controls" work (Skulking Killer's "if that opponent controls no other
+            // creatures" = AggregateBattlefield(ControllerOf("target"), Creature) == 1).
+            is Player.ControllerOf, is Player.OwnerOf -> listOfNotNull(
+                TargetResolutionUtils.resolvePlayerRef(player, context, state)
+            )
             is Player.TriggeringPlayer -> {
                 // The player associated with the trigger event (e.g. the caster for a
                 // SpellCastEvent, whose triggeringEntityId is the spell, not the player).
