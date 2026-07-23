@@ -56,6 +56,16 @@ private val CARD_TYPE_NAMES: Set<String> =
     com.wingedsheep.sdk.core.CardType.entries.mapTo(mutableSetOf()) { it.name }
 
 /**
+ * The names of every permanent card type (CR 110.4: artifact, battle, creature, enchantment, land,
+ * planeswalker). Used to count "permanent types" via [Aggregation.DISTINCT_PERMANENT_TYPES]. Derived
+ * from [com.wingedsheep.sdk.core.CardType.isPermanent], so kindred/instant/sorcery are excluded — a
+ * kindred permanent (e.g. a kindred enchantment) contributes only its permanent type(s), never
+ * "kindred" itself.
+ */
+private val PERMANENT_TYPE_NAMES: Set<String> =
+    com.wingedsheep.sdk.core.CardType.entries.filter { it.isPermanent }.mapTo(mutableSetOf()) { it.name }
+
+/**
  * Every official creature type (CR 205.3m), proper-cased to match the subtype strings carried in
  * [ProjectedState.getSubtypes]. Used by [DynamicAmount.LargestSharedCreatureTypeCount] to keep
  * non-creature subtypes (Equipment, Vehicle, basic land types, …) from polluting the tribe tally.
@@ -826,6 +836,15 @@ class DynamicAmountEvaluator(
                         ?: emptySet()
                 }
             }.size
+            // Like DISTINCT_TYPES but restricted to permanent card types (CR 110.4), so a projection-
+            // changed type still counts (an animated land that became a Creature).
+            Aggregation.DISTINCT_PERMANENT_TYPES -> matchingEntities.flatMapTo(mutableSetOf()) { entityId ->
+                projection.getTypes(entityId).filterTo(mutableSetOf()) { it in PERMANENT_TYPE_NAMES }.ifEmpty {
+                    state.getEntity(entityId)?.get<CardComponent>()?.typeLine?.cardTypes
+                        ?.filter { it.isPermanent }?.map { it.name }?.toSet()
+                        ?: emptySet()
+                }
+            }.size
             Aggregation.DISTINCT_COLORS -> matchingEntities.flatMapTo(mutableSetOf()) { entityId ->
                 projection.getColors(entityId).ifEmpty {
                     state.getEntity(entityId)?.get<CardComponent>()?.colors?.map { it.name }?.toSet()
@@ -896,6 +915,15 @@ class DynamicAmountEvaluator(
             Aggregation.DISTINCT_TYPES -> {
                 matchingEntities.flatMapTo(mutableSetOf()) { entityId ->
                     state.getEntity(entityId)?.get<CardComponent>()?.typeLine?.cardTypes?.map { it.name }?.toSet()
+                        ?: emptySet()
+                }.size
+            }
+            // Permanent card types only (CR 110.4) — kindred/instant/sorcery never count. This is
+            // Matzalantli, the Great Door's "N or more permanent types among cards in your graveyard".
+            Aggregation.DISTINCT_PERMANENT_TYPES -> {
+                matchingEntities.flatMapTo(mutableSetOf()) { entityId ->
+                    state.getEntity(entityId)?.get<CardComponent>()?.typeLine?.cardTypes
+                        ?.filter { it.isPermanent }?.map { it.name }?.toSet()
                         ?: emptySet()
                 }.size
             }

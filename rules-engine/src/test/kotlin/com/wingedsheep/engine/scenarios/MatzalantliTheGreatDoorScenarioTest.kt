@@ -22,10 +22,12 @@ import io.kotest.matchers.shouldBe
  * Matzalantli, the Great Door // The Core (LCI #256).
  *
  * The novel building block is the transform gate:
- * `Conditions.DistinctCardTypesInGraveyard(4, GameObjectFilter.Permanent)` — "four or more permanent
- * types among cards in your graveyard". Proven by activating the transform with a graveyard holding 3
- * permanent types (+ non-permanent cards that must NOT count) → rejected, then 4 permanent types →
- * allowed. Also covers The Core's fathomless-descent mana (X = permanent cards in the graveyard).
+ * `Conditions.DistinctPermanentTypesInGraveyard(4)` — "four or more permanent types among cards in
+ * your graveyard" (CR 110.4). Proven by activating the transform with a graveyard holding 3 permanent
+ * types (+ non-permanent cards that must NOT count) → rejected, then 4 permanent types → allowed; and
+ * that a kindred permanent contributes only its permanent type, not "kindred" (CR 300.2b), so a
+ * kindred enchantment among 3 permanent types does not spuriously reach four. Also covers The Core's
+ * fathomless-descent mana (X = permanent cards in the graveyard).
  */
 class MatzalantliTheGreatDoorScenarioTest : FunSpec({
 
@@ -42,6 +44,11 @@ class MatzalantliTheGreatDoorScenarioTest : FunSpec({
     val gySorcery = card("GY Sorcery") {
         manaCost = "{B}"; colorIdentity = "B"; typeLine = "Sorcery"; spell { effect = Effects.GainLife(1) }
     }
+    // A kindred enchantment: card types {KINDRED, ENCHANTMENT}. Only ENCHANTMENT is a permanent type
+    // (CR 110.4/300.2b) — the gate must not count "kindred" as a fourth permanent type.
+    val gyKindredEnchantment = card("GY Kindred Enchantment") {
+        manaCost = "{1}{W}"; colorIdentity = "W"; typeLine = "Kindred Enchantment — Bear"
+    }
 
     fun resolveStack(driver: GameTestDriver) {
         var guard = 0
@@ -51,7 +58,10 @@ class MatzalantliTheGreatDoorScenarioTest : FunSpec({
     fun newDriver(): GameTestDriver {
         val driver = GameTestDriver()
         driver.registerCards(
-            TestCards.all + listOf(MatzalantliTheGreatDoor, gyCreature, gyArtifact, gyEnchantment, gyInstant, gySorcery)
+            TestCards.all + listOf(
+                MatzalantliTheGreatDoor, gyCreature, gyArtifact, gyEnchantment, gyInstant, gySorcery,
+                gyKindredEnchantment
+            )
         )
         driver.initMirrorMatch(deck = Deck.of("Swamp" to 40), skipMulligans = true, startingPlayer = 0)
         driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
@@ -82,6 +92,22 @@ class MatzalantliTheGreatDoorScenarioTest : FunSpec({
 
         // 3 permanent types (creature/artifact/enchantment); the instant + sorcery are not permanent
         // types, so the "four or more permanent types" gate is unmet — activation is rejected.
+        driver.submit(ActivateAbility(playerId = active, sourceId = matz, abilityId = transformId))
+            .isSuccess shouldBe false
+    }
+
+    test("a kindred permanent doesn't count 'kindred' as a permanent type (3 types stays blocked)") {
+        val driver = newDriver()
+        val active = driver.activePlayer!!
+        val matz = driver.putPermanentOnBattlefield(active, "Matzalantli, the Great Door")
+        // creature + artifact + a kindred enchantment: 3 permanent types (creature/artifact/enchantment),
+        // but 4 *card* types once KINDRED is included. Counting distinct card types among permanent cards
+        // would wrongly reach four; counting permanent types (CR 110.4) correctly stays at three.
+        driver.putCardInGraveyard(active, "GY Creature")
+        driver.putCardInGraveyard(active, "GY Artifact")
+        driver.putCardInGraveyard(active, "GY Kindred Enchantment")
+        driver.giveColorlessMana(active, 4)
+
         driver.submit(ActivateAbility(playerId = active, sourceId = matz, abilityId = transformId))
             .isSuccess shouldBe false
     }

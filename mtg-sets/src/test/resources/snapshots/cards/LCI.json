@@ -10566,8 +10566,7 @@
                                 "type": "AggregateZone",
                                 "player": "You",
                                 "zone": "Graveyard",
-                                "filter": "permanent",
-                                "aggregation": "DISTINCT_TYPES"
+                                "aggregation": "DISTINCT_PERMANENT_TYPES"
                             },
                             "operator": "GTE",
                             "right": {

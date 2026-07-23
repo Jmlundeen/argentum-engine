@@ -5680,14 +5680,15 @@ default to "you" so card authors don't need to pass it explicitly.
   printed threshold is always four, but `count` is parameterized. Works as a static "as long as …"
   gate (`staticAbility { ability = ModifyStats(...); condition = Conditions.Delirium() }` —
   Spineseeker Centipede) and as an activated-ability `ActivationRestriction.OnlyIfCondition`
-  ("Activate only if there are four or more card types …" — Balustrade Wurm). `Delirium(count)`
-  delegates to `DistinctCardTypesInGraveyard(count, filter = GameObjectFilter.Any)` (below).
-- `DistinctCardTypesInGraveyard(count, filter = GameObjectFilter.Any)` — generalizes `Delirium`:
-  "there are `count` or more distinct card types among the cards in your graveyard that match
-  `filter`." Pass `GameObjectFilter.Permanent` for "N or more **permanent** types among cards in
-  your graveyard" (Matzalantli, the Great Door's transform gate — a permanent card only ever carries
-  permanent card types, so distinct card types among the graveyard's permanent cards is exactly its
-  permanent-type count: artifact, battle, creature, enchantment, land, planeswalker).
+  ("Activate only if there are four or more card types …" — Balustrade Wurm).
+- `DistinctPermanentTypesInGraveyard(count)` — Delirium's permanent-only sibling: "there are `count`
+  or more distinct **permanent** types (CR 110.4: artifact, battle, creature, enchantment, land,
+  planeswalker) among cards in your graveyard" (Matzalantli, the Great Door's transform gate).
+  Composes through `Compare(AggregateZone(Player.You, Zone.GRAVEYARD, Aggregation.DISTINCT_PERMANENT_TYPES),
+  GTE, Fixed(count))`. Non-permanent card types never count: instants and sorceries have no permanent
+  type, and a **kindred** card contributes only its *other* (permanent) type, not "kindred" itself
+  (CR 300.2b) — so this is not the same as counting distinct card types among a graveyard filtered to
+  permanent cards, which would over-count a kindred permanent.
 - `CreatureDiedThisTurn` — intervening-if "if a creature died this turn", **global** (any player's
   control; sums every player's `CreaturesDiedThisTurnComponent`).
 - `ControlledCreatureDiedThisTurn` — intervening-if "if a creature died **under your control** this
@@ -5872,7 +5873,8 @@ Numbers computed at resolution time.
 - `AggregateBattlefield(player, filter, aggregation?, property?, counterType?)` — aggregate over
   matching permanents. `aggregation` defaults to `COUNT`; other modes: `MAX`/`MIN`/`SUM` over a
   `property` (`POWER`/`TOUGHNESS`/`MANA_VALUE`), and the distinct-set counters
-  `DISTINCT_TYPES`, `DISTINCT_COLORS`, `DISTINCT_NAMES`, `DISTINCT_BASIC_LAND_SUBTYPES`
+  `DISTINCT_TYPES`, `DISTINCT_PERMANENT_TYPES`, `DISTINCT_COLORS`, `DISTINCT_NAMES`,
+  `DISTINCT_BASIC_LAND_SUBTYPES`
   (Domain), `DISTINCT_COUNTER_TYPES` (the number of different kinds of counters present
   across the group — same kind on several permanents counts once), and `DISTINCT_VALUES`
   (the number of *distinct values* of the configured `property` — Selvala, Eager Trailblazer's
@@ -5887,7 +5889,11 @@ Numbers computed at resolution time.
   (`filter = GameObjectFilter.NonlandPermanent, aggregation = DISTINCT_TYPES, excludeSelf = true`).
   `DISTINCT_TYPES` counts only true **card types** (CR 205.2a: Artifact/Creature/Enchantment/…), never
   supertypes or subtypes, while still honoring projection-changed types (an animated land that became a
-  Creature counts as a Creature).
+  Creature counts as a Creature). `DISTINCT_PERMANENT_TYPES` is the same but restricted to the six
+  **permanent** types (CR 110.4: artifact, battle, creature, enchantment, land, planeswalker) — instant,
+  sorcery, and kindred never count (a kindred permanent contributes only its *other* type). Used for
+  "N or more permanent types among …" (Matzalantli, the Great Door, via
+  `Conditions.DistinctPermanentTypesInGraveyard`).
   When `counterType` (a `CounterTypeFilter`) is set with `SUM`/`MAX`/`MIN`, the per-permanent value
   aggregated is the count of *that kind* of counter on it — i.e. "the total <kind> counters among
   <filter>" (Tom Bombadil's lore-counter total; reach for it via

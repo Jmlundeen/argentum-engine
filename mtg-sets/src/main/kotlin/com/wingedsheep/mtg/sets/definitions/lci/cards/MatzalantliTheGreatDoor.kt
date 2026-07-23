@@ -31,10 +31,10 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *   in your graveyard.
  *
  * A plain in-place flip (`TransformEffect`, CR 701.27), artifact front / non-creature land back →
- * `CardDefinition.doubleFacedPermanent`. The transform gate reuses the Delirium machinery restricted
- * to permanent cards: `Conditions.DistinctCardTypesInGraveyard(4, GameObjectFilter.Permanent)` —
- * a permanent card only ever carries permanent card types, so distinct card types among the
- * graveyard's permanent cards is exactly its permanent-type count. The back's fathomless-descent
+ * `CardDefinition.doubleFacedPermanent`. The transform gate is Delirium's permanent-only sibling:
+ * `Conditions.DistinctPermanentTypesInGraveyard(4)` counts only permanent types (CR 110.4), so a
+ * kindred permanent in the graveyard doesn't spuriously add "kindred" to the tally. The back's
+ * fathomless-descent
  * mana is `AddAnyColorMana` with a dynamic amount counting permanent cards in the graveyard
  * (`DynamicAmount.Count(You, GRAVEYARD, Permanent)`, the Souls of the Lost / Squirming Emergence
  * count) — one chosen color, X of it.
@@ -62,7 +62,7 @@ private val MatzalantliTheGreatDoorFront = card("Matzalantli, the Great Door") {
         effect = TransformEffect(EffectTarget.Self)
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
-                Conditions.DistinctCardTypesInGraveyard(4, GameObjectFilter.Permanent)
+                Conditions.DistinctPermanentTypesInGraveyard(4)
             )
         )
         description = "Transform Matzalantli. Activate only if there are four or more permanent " +
