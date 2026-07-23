@@ -46,10 +46,11 @@ when no plate is on screen and otherwise ends player arrows on the plate.
   (`viewedRingColor` on `OpponentBoardArea`).
 - ~~**Phones**~~ — shared-strip views are disabled on `isMobile` (focused camera only; the rail
   hides the Overview toggle). A 1×N vertically scrollable phone overview remains an idea.
-- **MTGO-style per-opponent collapse** (bigger lift, still open): instead of all-or-one, let
-  each opponent cell be individually collapsed (+/-) so the remaining boards grow — MTGO's
-  model. The `stripWidthPct` plumbing already supports arbitrary shares; needs UI + state
-  (`collapsedSeats: Set<EntityId>` in `boardViewSlice`).
+- ~~**MTGO-style per-opponent collapse**~~ — DONE (2026-07-24): each overview cell has a
+  "−" button folding it to a narrow seat-colored tab (`CollapsedBoardTab`); the remaining
+  boards split the freed width and the collapsed board joins the off-screen group so its
+  anchors bundle back to the rail chip. State: `collapsedSeats` in `boardViewSlice`
+  (overview-only; focused camera and combat split ignore it).
 
 ## 4. Combat split-view refinements
 
@@ -92,19 +93,26 @@ died (`spectatorBottomSeatId` machinery already exists in `boardViewSlice`).
 
 ## 7. Eliminated-spectator layout polish
 
-- The center HUD's right orb still shows the dead player's last life total; replace with a
-  tombstone treatment or repurpose the slot (e.g. whose turn / turn number).
-- Optionally let an eliminated spectator put a *chosen living player* in the (now empty) bottom
-  half instead of collapsing it — closer to how spectating renders a bottom seat.
+- The center HUD's right orb still shows the dead player's last life total (when no bottom
+  board is chosen); replace with a tombstone treatment or repurpose the slot (e.g. whose
+  turn / turn number).
+- ~~Chosen living player in the bottom half~~ — DONE (2026-07-24): the spectating banner
+  carries a bottom-board picker (`eliminatedBottomSeatId` in `boardViewSlice`); the chosen
+  seat's board renders read-only in the bottom half (spectator-style face-down hand), takes
+  over the right center-HUD orb, and leaves the opponent strip. Click the active seat again
+  to clear; self-heals if the seat dies.
 
-## 8. Overlay-inside-strip audit (transform trap)
+## 8. ~~Overlay-inside-strip audit (transform trap)~~ — DONE (2026-07-24)
 
-The strip track's `translateX` turns `position: fixed` descendants into cell-relative boxes —
-that's what broke multiplayer zone browsing (fixed by portalling the `ZonePiles` browsers to
-`document.body`). Audit the remaining subtree rendered under `OpponentBoardArea` for other
-fixed/full-screen elements (card context menus, yield menus, any future in-board overlay) and
-portal or hoist them. A lint-ish guard is hard; a checklist note in
-`web-client-architecture.md` may be enough.
+Audited everything rendered under `OpponentBoardArea` for `position: fixed` /
+viewport-coordinate elements. Two live bugs found and portalled to `document.body`:
+the attachments browser (`Battlefield.tsx` `AttachmentsBrowser`, a full-screen
+`styles.exileOverlay`) and the active-effect badge tooltip (`CardOverlays.tsx`,
+`styles.cardEffectTooltip` — also broken under a tapped card's rotation transform).
+Everything else in the subtree was clean: the zone browsers and the copy-of hover
+preview were already portalled; the yield context menu, decision modals, stack, and
+action menu render from `GameBoard`, outside the strip. A checklist note now lives in
+`web-client-architecture.md` § *the transform trap*.
 
 ## 9. Overview performance sanity check
 

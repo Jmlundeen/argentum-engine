@@ -28,10 +28,11 @@ export function OpponentBoardArea({
   layout,
   topOffset,
   handReservation = 0,
-  stripWidthPct = 100,
+  stripBasis = '100%',
   hideHand = false,
   plateCarriesAnchors = false,
   viewedRingColor,
+  onToggleCollapse,
   spectatorMode,
   isHijacking,
   hijackedSurfaceStyle,
@@ -44,11 +45,12 @@ export function OpponentBoardArea({
   /** Strip layout only: height of the hand reservation band (grid row 1 height). */
   handReservation?: number
   /**
-   * Strip layout only: this cell's share of the strip width. 100 (default) for the
-   * one-board sliding camera; a fraction of 100 when several boards share the strip
+   * Strip layout only: this cell's share of the strip width as a CSS width value.
+   * '100%' (default) for the one-board sliding camera; an equal fraction (or a
+   * `calc(...)` share around collapsed tabs) when several boards share the strip
    * (table overview / combat defender-focus split) — card sizing self-measures per slot.
    */
-  stripWidthPct?: number
+  stripBasis?: string
   /**
    * Strip layout only: shared-strip view (table overview / combat defender-focus split).
    * Hides the opponent hand fan and its reservation band (the fans would overlap across
@@ -68,6 +70,12 @@ export function OpponentBoardArea({
    * the *viewed* board (the one the center-HUD orb and keys 1-9 track). Undefined = no ring.
    */
   viewedRingColor?: string
+  /**
+   * Table overview only: fold this cell down to a narrow tab (MTGO-style per-board
+   * collapse) so the other boards split the freed width. Rendered as a small "−"
+   * button next to the name plate; the collapsed tab itself is [CollapsedBoardTab].
+   */
+  onToggleCollapse?: () => void
   spectatorMode: boolean
   /** This opponent's seat is currently driven by this client (Mindslaver / hotseat). */
   isHijacking: boolean
@@ -167,8 +175,8 @@ export function OpponentBoardArea({
       data-opponent-board={opponent.playerId}
       data-ally={isAlly || undefined}
       style={{
-        flex: `0 0 ${stripWidthPct}%`,
-        minWidth: `${stripWidthPct}%`,
+        flex: `0 0 ${stripBasis}`,
+        minWidth: stripBasis,
         height: '100%',
         position: 'relative',
         display: 'flex',
@@ -219,6 +227,36 @@ export function OpponentBoardArea({
           top={(isHijacking ? handReservation : 0) + 6}
         />
       )}
+      {/* Fold-away control (table overview): collapse this cell to a tab so the
+          other boards grow. Top-right corner, clear of the centered name plate. */}
+      {onToggleCollapse && (
+        <button
+          onClick={onToggleCollapse}
+          title={`Collapse ${opponent.name}'s board`}
+          style={{
+            position: 'absolute',
+            top: (isHijacking ? handReservation : 0) + 6,
+            right: 8,
+            zIndex: 56,
+            width: 24,
+            height: 24,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 6,
+            border: '1px solid #3a3a44',
+            background: 'rgba(10, 12, 20, 0.85)',
+            color: '#9fb0d0',
+            fontSize: 14,
+            fontWeight: 800,
+            lineHeight: 1,
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          −
+        </button>
+      )}
       {/* Persistent inset ring marking the viewed cell in a shared-strip view. */}
       {viewedRingColor && (
         <div
@@ -247,6 +285,101 @@ export function OpponentBoardArea({
     </div>
   )
 }
+
+/**
+ * A collapsed board's stand-in in the table overview (MTGO-style per-board collapse):
+ * a narrow full-height tab with the seat color, a "+" affordance, and the player's name
+ * running vertically. The whole tab is one click target that re-expands the board. The
+ * seat's real board stays mounted off-screen (with the other hidden boards) so its card
+ * anchors keep bundling to the rail chip, which also carries the player anchors — the
+ * tab itself carries none.
+ */
+export function CollapsedBoardTab({
+  player,
+  onExpand,
+}: {
+  player: ClientPlayer
+  onExpand: () => void
+}) {
+  const seat = useIdentityColor(player.playerId)
+  const tomb = player.hasLost
+  return (
+    <div
+      data-collapsed-board={player.playerId}
+      role="button"
+      title={`Expand ${player.name}'s board`}
+      onClick={onExpand}
+      style={{
+        flex: `0 0 ${COLLAPSED_TAB_WIDTH}px`,
+        minWidth: COLLAPSED_TAB_WIDTH,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 8,
+        padding: '8px 0',
+        boxSizing: 'border-box',
+        borderRadius: 8,
+        border: `1px solid ${seat.base}55`,
+        background: `linear-gradient(180deg, ${seat.soft}, rgba(10, 12, 20, 0.85))`,
+        cursor: 'pointer',
+        userSelect: 'none',
+        overflow: 'hidden',
+        transition: 'flex-basis 220ms cubic-bezier(0.4, 0, 0.2, 1), min-width 220ms cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
+    >
+      <span
+        aria-hidden
+        style={{
+          width: 20,
+          height: 20,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 5,
+          border: `1px solid ${seat.base}`,
+          color: seat.bright,
+          fontSize: 13,
+          fontWeight: 800,
+          lineHeight: 1,
+          flexShrink: 0,
+        }}
+      >
+        +
+      </span>
+      <span
+        aria-hidden
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          background: seat.base,
+          boxShadow: `0 0 5px ${seat.base}`,
+          flexShrink: 0,
+          filter: tomb ? 'grayscale(1)' : 'none',
+        }}
+      />
+      <span
+        style={{
+          writingMode: 'vertical-rl',
+          fontSize: 12,
+          fontWeight: 700,
+          letterSpacing: '0.06em',
+          color: seat.bright,
+          maxHeight: '55%',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {player.name}
+      </span>
+    </div>
+  )
+}
+
+/** Width of a collapsed board's tab in the table overview. */
+export const COLLAPSED_TAB_WIDTH = 30
 
 /**
  * The board's "face" in a shared-strip view: a compact seat-colored pill (name + life)
