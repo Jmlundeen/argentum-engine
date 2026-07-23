@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useGameStore } from '@/store/gameStore.ts'
 import { useZoneCards, useStackCards, useZone, selectGameState } from '@/store/selectors.ts'
 import { graveyard, exile, library } from '@/types'
@@ -50,6 +51,10 @@ export function ZonePile({ player, isOpponent = false }: { player: ClientPlayer;
   const hasPlotted = plottedCards.length > 0
   const hasParadigm = paradigmCards.length > 0
   const pileCount = BASE_PILE_COUNT + (hasPlotted ? 1 : 0) + (hasParadigm ? 1 : 0)
+
+  // Browser titles carry the owner's name — "Opponent's Graveyard" is ambiguous at a
+  // multiplayer table.
+  const ownerLabel = (zone: string) => (isOpponent ? `${player.name}'s ${zone}` : `Your ${zone}`)
 
   // Shrink piles to fit the column's actual height. The viewport-derived
   // pileWidth doesn't know about (a) the opponent's Concede button, which
@@ -290,32 +295,50 @@ export function ZonePile({ player, isOpponent = false }: { player: ClientPlayer;
         </div>
       )}
 
-      {browsingGraveyard && (
-        <GraveyardBrowser cards={graveyardCards} onClose={() => setBrowsingGraveyard(false)} />
+      {/* The browsers are position:fixed full-screen overlays, but an opponent's
+          ZonePile sits inside the multiplayer board strip whose translateX transform
+          makes `fixed` resolve against the (overflow-hidden, possibly off-screen)
+          strip cell instead of the viewport. Portal them to <body> so browsing an
+          opponent's graveyard/exile/library works identically in every layout. */}
+      {browsingGraveyard && createPortal(
+        <GraveyardBrowser
+          cards={graveyardCards}
+          ownerLabel={ownerLabel('Graveyard')}
+          onClose={() => setBrowsingGraveyard(false)}
+        />,
+        document.body,
       )}
-      {browsingExile && (
-        <ExileBrowser cards={exileCards} onClose={() => setBrowsingExile(false)} />
+      {browsingExile && createPortal(
+        <ExileBrowser
+          cards={exileCards}
+          ownerLabel={ownerLabel('Exile')}
+          onClose={() => setBrowsingExile(false)}
+        />,
+        document.body,
       )}
-      {browsingPlotted && (
+      {browsingPlotted && createPortal(
         <PlottedBrowser
           cards={plottedCards}
-          ownerLabel={isOpponent ? "Opponent's Plotted Spells" : 'Your Plotted Spells'}
+          ownerLabel={ownerLabel('Plotted Spells')}
           onClose={() => setBrowsingPlotted(false)}
-        />
+        />,
+        document.body,
       )}
-      {browsingParadigm && (
+      {browsingParadigm && createPortal(
         <ParadigmBrowser
           cards={paradigmCards}
-          ownerLabel={isOpponent ? "Opponent's Paradigm Cards" : 'Your Paradigm Cards'}
+          ownerLabel={ownerLabel('Paradigm Cards')}
           onClose={() => setBrowsingParadigm(false)}
-        />
+        />,
+        document.body,
       )}
-      {browsingLibrary && (
+      {browsingLibrary && createPortal(
         <LibraryBrowser
-          ownerLabel={isOpponent ? "Opponent's Library" : 'Your Library'}
+          ownerLabel={ownerLabel('Library')}
           entityIds={libraryEntityIds}
           onClose={() => setBrowsingLibrary(false)}
-        />
+        />,
+        document.body,
       )}
     </div>
   )
@@ -324,7 +347,7 @@ export function ZonePile({ player, isOpponent = false }: { player: ClientPlayer;
 /**
  * Full-screen overlay for browsing graveyard cards.
  */
-function GraveyardBrowser({ cards, onClose }: { cards: readonly ClientCard[], onClose: () => void }) {
+function GraveyardBrowser({ cards, ownerLabel, onClose }: { cards: readonly ClientCard[], ownerLabel: string, onClose: () => void }) {
   const hoverCard = useGameStore((state) => state.hoverCard)
   const responsive = useResponsiveContext()
   const [minimized, setMinimized] = useState(false)
@@ -380,7 +403,7 @@ function GraveyardBrowser({ cards, onClose }: { cards: readonly ClientCard[], on
     <div style={styles.graveyardOverlay} onClick={onClose}>
       <div style={styles.graveyardBrowserContent} onClick={(e) => e.stopPropagation()}>
         <div style={styles.graveyardBrowserHeader}>
-          <h2 style={styles.graveyardBrowserTitle}>Graveyard ({cards.length})</h2>
+          <h2 style={styles.graveyardBrowserTitle}>{ownerLabel} ({cards.length})</h2>
           <button style={styles.graveyardCloseButton} onClick={onClose}>✕</button>
         </div>
         <div style={styles.graveyardCardGrid}>
@@ -439,7 +462,7 @@ function GraveyardBrowser({ cards, onClose }: { cards: readonly ClientCard[], on
 /**
  * Full-screen overlay for browsing exile cards.
  */
-function ExileBrowser({ cards, onClose }: { cards: readonly ClientCard[], onClose: () => void }) {
+function ExileBrowser({ cards, ownerLabel, onClose }: { cards: readonly ClientCard[], ownerLabel: string, onClose: () => void }) {
   const hoverCard = useGameStore((state) => state.hoverCard)
   const responsive = useResponsiveContext()
   const [minimized, setMinimized] = useState(false)
@@ -503,7 +526,7 @@ function ExileBrowser({ cards, onClose }: { cards: readonly ClientCard[], onClos
       <div style={styles.exileBrowserContent} onClick={(e) => e.stopPropagation()}>
         <div style={styles.exileBrowserHeader}>
           <h2 style={styles.exileBrowserTitle}>
-            Exile ({cards.length})
+            {ownerLabel} ({cards.length})
             {plottedCount > 0 && (
               <span style={styles.exilePlottedCount}> · {plottedCount} plotted</span>
             )}

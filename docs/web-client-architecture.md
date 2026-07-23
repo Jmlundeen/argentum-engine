@@ -245,6 +245,25 @@ are gated on `players.length > 2`).
   boundaries — an opponent's turn starting, the attacker's board when you're attacked, the
   priority seat in hotseat — and is refused inside `followViewTo` while any input is
   pending (the camera never moves under an in-progress selection).
+- **Table overview** (`boardView.overviewMode`, rail toggle or key `0`): every living
+  opponent's board shares the strip side-by-side instead of the one-board camera — cells
+  split the width evenly (padded clear of the fixed rail via `railReservedWidth`), hand
+  fans hide (chips carry the counts), and the per-slot card sizer shrinks cards to fit.
+  Hidden boards stay mounted after the visible cells at full width, overflowing
+  off-screen right, so their card anchors keep remapping to rail chips. Selecting a
+  single board (chip click / `1`-`9`) exits back to the focused camera.
+- **Combat defender-focus split** (`useCombatDefenderFocus`): when the server's confirmed
+  combat is between two *other* players, the attacker's and defenders' boards share the
+  strip so the fight renders as real arrows between real boards instead of a bundled
+  arrow onto a rail chip. Entering the split respects the camera guards (follow on,
+  unpinned, no pending input — `hasPendingInputSelection`); once active it holds for the
+  whole combat so boards don't shift mid-fight.
+- **Eliminated spectator** (`boardView.eliminatedSpectating`): a personal
+  `PlayerEliminatedMessage` marks the defeat overlay `GameOverState.eliminated`, which
+  adds a "Keep Watching" button. It dismisses the overlay, forces the table overview, and
+  collapses the dead bottom half (grid rows 4-5 → 0, hand/pass/undo/concede hidden) with
+  a "spectating" banner + Leave Game button; the freed height flows to the opponent
+  strip.
 - **Seat identity**: `styles/seatColors.ts` (Okabe-Ito, by seat index = turn-order index in
   `gameState.players`) colors rail chips, combat arrows and chevrons, stack item borders
   (caster), and log entry names.
@@ -255,13 +274,24 @@ are gated on `players.length > 2`).
 - **Combat**: with >1 possible defender, the first attacker selection pops a defender pick;
   assignment is sticky (`CombatState.stickyDefenderId`) and per-creature reassignable via
   rail-chip clicks, the viewed opponent's life orb, or the chip's planeswalker flyout. Confirm is disabled until every
-  selected attacker has an explicit defender. Arrows against the viewed defender render
-  per-creature in the defender's seat color; attacks on slid-away boards bundle into one
-  arrow to the defender's rail chip with a creature-count badge (`CombatArrows`), and any
-  card anchor on a slid-away board remaps to its controller's chip (also in
+  selected attacker has an explicit defender. When exactly one player is a legal attack
+  target (attack left/right — CR 803.1, last opponent standing) the sticky defender is
+  pre-assigned so the popup never asks; a restriction banner names who can legally be
+  attacked (phrased with the lobby's `attackMode` when known) and rail chips of
+  unattackable living seats dim with a 🚫 marker. Arrows against the viewed defender render
+  per-creature in the defender's seat color; attacks on boards visible in a shared-strip
+  view aim near the top of the defender's board cell; attacks on off-screen boards bundle
+  into one arrow to the defender's rail chip with a creature-count badge (`CombatArrows`),
+  and any card anchor on an off-screen board remaps to its controller's chip (also in
   `TargetingArrows`). While you declare blocks, attackers aimed at other defenders render
   dimmed (CR 509.1b — `CombatState.actingSeat` scopes `attackingCreatures` to attacks on
   you).
+- **Zone browsers portal to `<body>`**: the graveyard/exile/library/plotted/paradigm
+  browsers are `position: fixed` overlays, but an opponent's `ZonePile` sits inside the
+  strip whose `translateX` transform would make `fixed` resolve against the (clipped,
+  possibly off-screen) cell — so `ZonePiles.tsx` renders them through `createPortal`.
+  Titles carry the owner's name ("Carol's Graveyard") since "Opponent's" is ambiguous at
+  a multiplayer table.
 - **Spectator/replay** reuse the same layout anchored to a chosen bottom seat
   (`spectatorBottomSeatId`, cycled from the spectator header); replays render through the
   same `GameBoard spectatorMode` path.

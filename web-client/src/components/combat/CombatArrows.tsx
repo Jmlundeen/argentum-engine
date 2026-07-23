@@ -221,6 +221,22 @@ function isOnScreen(p: Point): boolean {
 }
 
 /**
+ * A player's board cell in the multiplayer strip, when it is actually visible: in the
+ * table overview / combat defender-focus split several boards share the strip, so
+ * "on screen" can't be inferred from the viewed opponent alone. Returns the cell rect
+ * when the board is on-screen with real width (hidden cells sit off-screen to the
+ * right at full width), else null.
+ */
+function getVisibleBoardRect(playerId: EntityId): DOMRect | null {
+  const element = document.querySelector(`[data-opponent-board="${playerId}"]`)
+  if (!element) return null
+  const rect = element.getBoundingClientRect()
+  if (rect.width < 40) return null
+  const midX = rect.left + rect.width / 2
+  return midX >= 0 && midX <= window.innerWidth ? rect : null
+}
+
+/**
  * Combat arrows overlay - draws arrows between blockers and attackers.
  *
  * Shows arrows in three scenarios:
@@ -448,7 +464,12 @@ export function CombatArrows() {
         // is the planeswalker's controller (CR 802.2a) or the player themself.
         const targetCard = cards?.[targetId]
         const defenderId = targetCard ? targetCard.controllerId : targetId
-        if (isMulti && defenderId !== viewingPlayerId && defenderId !== viewedOpponentId) {
+        const isOtherOpponent =
+          isMulti && defenderId !== viewingPlayerId && defenderId !== viewedOpponentId
+        // A defender board sharing the strip (table overview / combat defender-focus
+        // split) is a real on-screen anchor — no bundling.
+        const visibleBoard = isOtherOpponent ? getVisibleBoardRect(defenderId) : null
+        if (isOtherOpponent && !visibleBoard) {
           // Off-screen defender → bundle to their rail chip.
           const chip = getPlayerLifeCenter(defenderId)
           if (!chip) return
@@ -460,6 +481,12 @@ export function CombatArrows() {
         }
         const cardPos = targetCard ? getCardCenter(targetId) : null
         const targetPos = (cardPos && (!isMulti || isOnScreen(cardPos)) ? cardPos : null)
+          // Player attacked on a visible shared-strip board: aim near the top of their
+          // board cell (their "face"); their center-HUD orb belongs to the viewed
+          // opponent and their rail chip would drag the arrow across the screen.
+          ?? (visibleBoard
+            ? { x: visibleBoard.left + visibleBoard.width / 2, y: visibleBoard.top + Math.min(60, visibleBoard.height * 0.18) }
+            : null)
           ?? getPlayerLifeCenter(defenderId)
         if (!targetPos) return
         newAttackerArrows.push({

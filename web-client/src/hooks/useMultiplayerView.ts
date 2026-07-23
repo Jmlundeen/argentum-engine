@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
-import { selectGameState, selectViewingPlayerId } from '@/store/selectors'
-import type { ClientPlayer } from '@/types'
+import { selectGameState, selectViewingPlayerId, useViewedOpponent } from '@/store/selectors'
+import { hasPendingInputSelection } from '@/store/slices/ui/boardViewSlice'
+import type { ClientPlayer, EntityId } from '@/types'
 
 /**
  * Multiplayer camera controls: follow-the-action and keyboard board switching.
@@ -12,7 +13,8 @@ import type { ClientPlayer } from '@/types'
  * pending input (the camera never moves under an in-progress selection) or has
  * pinned the view.
  *
- * Keyboard: 1..9 select the Nth living opponent (in rail order); Esc unpins.
+ * Keyboard: 1..9 select the Nth living opponent (in rail order); 0 toggles the
+ * table overview; Esc unpins.
  */
 export function useMultiplayerView(enabled: boolean, opponents: readonly ClientPlayer[]) {
   const gameState = useGameStore(selectGameState)
@@ -65,6 +67,9 @@ export function useMultiplayerView(enabled: boolean, opponents: readonly ClientP
         const living = opponents.filter((o) => !o.hasLost)
         const picked = living[Number(e.key) - 1]
         if (picked) store.viewOpponent(picked.playerId)
+      } else if (e.key === '0') {
+        if (store.selectedCardId) return
+        store.toggleOverviewMode()
       } else if (e.key === 'Escape') {
         // Esc means "cancel" inside selection modes; only unpin when idle.
         if (
@@ -80,4 +85,76 @@ export function useMultiplayerView(enabled: boolean, opponents: readonly ClientP
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [enabled, opponents])
+}
+
+const NO_EXTRA_BOARDS: readonly EntityId[] = Object.freeze([])
+
+/**
+ * Combat between two *other* players: the extra defending seats whose boards should be
+ * shown alongside the viewed board so the fight is visible as real arrows between real
+ * boards instead of a bundled arrow onto a rail chip.
+ *
+ * Active only while the server's confirmed combat has attackers, the viewing player is
+ * neither the attacker nor among the defenders (those cases keep today's behavior — your
+ * own half is always visible), and follow-the-action is on and unpinned. Entering the
+ * split view is refused while the player has any pending input (the camera never moves
+ * under an in-progress selection), but once active it stays for the whole combat so the
+ * boards don't shift mid-fight.
+ */
+export function useCombatDefenderFocus(enabled: boolean): readonly EntityId[] {
+  const gameState = useGameStore(selectGameState)
+  const viewingPlayerId = useGameStore(selectViewingPlayerId)
+  const viewedOpponent = useViewedOpponent()
+  const viewedOpponentId = viewedOpponent?.playerId ?? null
+  const [extras, setExtras] = useState<readonly EntityId[]>(NO_EXTRA_BOARDS)
+
+  const combat = gameState?.combat ?? null
+
+  useEffect(() => {
+    const reset = () => setExtras((prev) => (prev.length === 0 ? prev : NO_EXTRA_BOARDS))
+    if (!enabled || !gameState || !combat || combat.attackers.length === 0 || !viewingPlayerId) {
+      reset()
+      return
+    }
+    if (combat.attackingPlayerId === viewingPlayerId) {
+      reset()
+      return
+    }
+    const defenders = new Set<EntityId>()
+    for (const a of combat.attackers) {
+      const d =
+        a.attackingTarget.type === 'Player'
+          ? a.attackingTarget.playerId
+          : gameState.cards[a.attackingTarget.permanentId]?.controllerId
+      if (d) defenders.add(d)
+    }
+    // You're among the defenders → the attacker slides into view (useMultiplayerView)
+    // and your own half is already on screen. No split needed.
+    if (defenders.has(viewingPlayerId)) {
+      reset()
+      return
+    }
+    // Both sides of the fight must be on screen: the attacker and every defending
+    // seat, minus whichever of them already occupies the viewed slot.
+    const combatants = new Set<EntityId>(defenders)
+    combatants.add(combat.attackingPlayerId)
+    const next = gameState.players
+      .filter((p) => !p.hasLost && combatants.has(p.playerId))
+      .map((p) => p.playerId)
+      .filter((id) => id !== viewedOpponentId)
+    if (next.length === 0) {
+      reset()
+      return
+    }
+    setExtras((prev) => {
+      // Entering (not updating) the split view respects the camera guards.
+      if (prev.length === 0) {
+        const store = useGameStore.getState()
+        if (!store.followAction || store.viewPinned || hasPendingInputSelection(store)) return prev
+      }
+      return prev.length === next.length && prev.every((id, i) => id === next[i]) ? prev : next
+    })
+  }, [enabled, gameState, combat, viewingPlayerId, viewedOpponentId])
+
+  return extras
 }

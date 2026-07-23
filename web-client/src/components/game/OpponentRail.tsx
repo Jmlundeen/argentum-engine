@@ -17,6 +17,15 @@ import type { ClientCard, ClientPlayer } from '@/types'
 import { useResponsiveContext } from './board/shared'
 
 /**
+ * Total viewport width claimed by the fixed rail column (chip width + left offset + a
+ * small gap). The table overview pads the board strip by this much so the leftmost
+ * board never renders under the rail.
+ */
+export function railReservedWidth(responsive: { isMobile: boolean; isTablet: boolean; isShortDesktop: boolean }): number {
+  return chipSizing(responsive).width + (responsive.isMobile ? 8 : 12) + 8
+}
+
+/**
  * Chip dimensions by screen size. The rail is a fixed-width column, so every chip shares one
  * size; large desktops get noticeably bigger chips (the small default felt cramped there).
  */
@@ -61,6 +70,8 @@ export function OpponentRail({
   const viewPinned = useGameStore((state) => state.viewPinned)
   const followAction = useGameStore((state) => state.followAction)
   const toggleFollowAction = useGameStore((state) => state.toggleFollowAction)
+  const overviewMode = useGameStore((state) => state.overviewMode)
+  const toggleOverviewMode = useGameStore((state) => state.toggleOverviewMode)
 
   // Two-Headed Giant (CR 810): when a team game is in progress, the rail splits into two
   // team sections — your team (you + ally) and the opposing team — colored by team with one
@@ -179,9 +190,42 @@ export function OpponentRail({
       )}
       {!spectatorMode && (
         <>
-          {/* Divider — the Follow control is a camera *setting*, not a player, so set it apart
+          {/* Divider — the camera controls below are *settings*, not players, so set them apart
               from the chip list above. */}
           <div aria-hidden style={{ alignSelf: 'stretch', height: 1, margin: '4px 6px 2px', background: 'rgba(255, 255, 255, 0.1)' }} />
+          <button
+            onClick={toggleOverviewMode}
+            title={
+              overviewMode
+                ? 'Table overview: every opponent board is shown side-by-side. Click (or press 0) to focus one board.'
+                : 'Focused camera: one opponent board at a time. Click (or press 0) to see the whole table at once.'
+            }
+            style={{
+              alignSelf: 'flex-start',
+              pointerEvents: 'auto',
+              height: 20,
+              padding: '0 9px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              borderRadius: 6,
+              border: `1px solid ${overviewMode ? 'rgba(180, 160, 255, 0.55)' : '#3a3a44'}`,
+              background: overviewMode ? 'rgba(50, 35, 90, 0.7)' : 'rgba(18, 18, 26, 0.7)',
+              color: overviewMode ? '#cbb8ff' : '#888',
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <span aria-hidden style={{ fontSize: 11 }}>⊞</span>
+            Overview
+            <span style={{ fontWeight: 800, color: overviewMode ? '#e4daff' : '#666' }}>
+              {overviewMode ? 'On' : 'Off'}
+            </span>
+          </button>
           <button
             onClick={toggleFollowAction}
             title={
@@ -637,6 +681,15 @@ function RailChip({
       .map((id) => gameState.cards[id])
       .filter((c): c is ClientCard => !!c && c.controllerId === playerId)
   }, [declaringAttackers, combatState, gameState, playerId])
+  // Attack restriction: while declaring attackers, this living seat can't be attacked at
+  // all — neither the player (attack left/right, teammate) nor any of their
+  // planeswalkers. Dimmed with a 🚫 marker so who's legal reads at a glance.
+  const isAttackRestricted =
+    !spectatorMode &&
+    !opponent.hasLost &&
+    declaringAttackers &&
+    !isDefenderTarget &&
+    attackablePlaneswalkers.length === 0
   const [hovered, setHovered] = useState(false)
 
   /* ── Attention pulse on life / hand changes ─────────────────────────── */
@@ -746,7 +799,7 @@ function RailChip({
             }
           : {})}
         role="button"
-        title={chipTitle(opponent)}
+        title={chipTitle(opponent) + (isAttackRestricted ? "\nCan't be attacked this combat" : '')}
         onClick={handleChipClick}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -766,8 +819,8 @@ function RailChip({
           cursor: tomb && !spectatorMode ? 'default' : 'pointer',
           userSelect: 'none',
           whiteSpace: 'nowrap',
-          filter: tomb ? 'grayscale(1)' : 'none',
-          opacity: tomb ? 0.6 : 1,
+          filter: tomb ? 'grayscale(1)' : isAttackRestricted ? 'saturate(0.5)' : 'none',
+          opacity: tomb ? 0.6 : isAttackRestricted ? 0.5 : 1,
           transition: 'border-color 150ms, background 150ms, opacity 200ms',
           ...(ringShadow ? { boxShadow: ringShadow } : {}),
           // Active turn wins the animation slot (clearest signal); otherwise the
@@ -837,6 +890,13 @@ function RailChip({
         >
           {tomb ? '💀' : ''}
         </span>
+
+        {/* Attack-restriction marker — this seat can't be attacked this combat. */}
+        {isAttackRestricted && (
+          <span aria-hidden style={{ fontSize: compact ? 9 : 10, lineHeight: 1, flexShrink: 0 }}>
+            🚫
+          </span>
+        )}
 
         {/* Name (hidden on phones — the seat dot + position carries identity). Flexes to fill
             the fixed chip width and truncates, so every chip is the same size. An ally (your

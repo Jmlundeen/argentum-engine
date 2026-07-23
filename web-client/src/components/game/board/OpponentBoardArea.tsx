@@ -27,6 +27,8 @@ export function OpponentBoardArea({
   layout,
   topOffset,
   handReservation = 0,
+  stripWidthPct = 100,
+  hideHand = false,
   spectatorMode,
   isHijacking,
   hijackedSurfaceStyle,
@@ -38,6 +40,18 @@ export function OpponentBoardArea({
   topOffset: number
   /** Strip layout only: height of the hand reservation band (grid row 1 height). */
   handReservation?: number
+  /**
+   * Strip layout only: this cell's share of the strip width. 100 (default) for the
+   * one-board sliding camera; a fraction of 100 when several boards share the strip
+   * (table overview / combat defender-focus split) — card sizing self-measures per slot.
+   */
+  stripWidthPct?: number
+  /**
+   * Strip layout only: hide the opponent hand fan and its reservation band. Used when
+   * several boards share the strip — the fans would overlap across the narrow cells,
+   * and the rail chips already carry every hand count.
+   */
+  hideHand?: boolean
   spectatorMode: boolean
   /** This opponent's seat is currently driven by this client (Mindslaver / hotseat). */
   isHijacking: boolean
@@ -137,13 +151,14 @@ export function OpponentBoardArea({
       data-opponent-board={opponent.playerId}
       data-ally={isAlly || undefined}
       style={{
-        flex: '0 0 100%',
-        minWidth: '100%',
+        flex: `0 0 ${stripWidthPct}%`,
+        minWidth: `${stripWidthPct}%`,
         height: '100%',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
+        transition: 'flex-basis 220ms cubic-bezier(0.4, 0, 0.2, 1), min-width 220ms cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
       {/* Two-Headed Giant ally marker — a team-colored corner badge so a teammate's board (with
@@ -176,10 +191,14 @@ export function OpponentBoardArea({
           Ally · {opponent.name}
         </div>
       )}
-      {handBlock}
+      {/* A hijack-controlled hand must stay visible even in shared-strip views —
+          this client is playing from it. */}
+      {(!hideHand || isHijacking) && handBlock}
       {/* Reservation band mirrors grid row 1 so the board area below aligns
-          exactly with the 2-player opponent area (grid row 2). */}
-      <div style={{ height: handReservation, flexShrink: 0 }} aria-hidden />
+          exactly with the 2-player opponent area (grid row 2). With the hand
+          hidden (shared-strip views) a slim margin replaces it — the board
+          gets the vertical space back. */}
+      <div style={{ height: !hideHand || isHijacking ? handReservation : 8, flexShrink: 0 }} aria-hidden />
       {boardBlock}
     </div>
   )
