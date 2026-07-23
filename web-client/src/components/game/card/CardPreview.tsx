@@ -7,7 +7,7 @@ import { useResponsiveContext, handleImageError, getCounterStatModifier, hasStat
 import { styles } from '../board/styles'
 import { counterManaClass } from '@/assets/icons/keywords'
 import { HoverCardPreview } from '../../ui/HoverCardPreview'
-import { ManaCost } from '../../ui/ManaSymbols'
+import { ManaCost, AbilityText } from '../../ui/ManaSymbols'
 
 /**
  * Game board card preview — wraps the shared HoverCardPreview with
@@ -325,7 +325,9 @@ export function CardPreview() {
             .map((effect) => (
               <div key={effect.effectId} style={styles.cardPreviewEffect}>
                 <span style={styles.cardPreviewEffectName}>{effect.name}</span>
-                <span style={styles.cardPreviewEffectText}>{effect.description}</span>
+                <span style={styles.cardPreviewEffectText}>
+                  <AbilityText text={effect.description ?? ''} size={13} />
+                </span>
               </div>
             ))}
         </div>

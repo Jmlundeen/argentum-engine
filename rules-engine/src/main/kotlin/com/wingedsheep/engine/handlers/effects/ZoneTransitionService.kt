@@ -354,6 +354,18 @@ object ZoneTransitionService {
             newState = newState.updateEntity(entityId) { c -> stripBattlefieldComponents(c) }
             newState = removeFloatingEffectsTargeting(newState, entityId)
 
+            // A permanent's battlefield-scoped granted *static* abilities end when it leaves the
+            // battlefield (CR 400.7 — the card becomes a new object with no memory). These live in
+            // their own GameState list with no floating-effect representation, so prune them here
+            // alongside the floating effects. Without this a grant like Roar of the Fifth People's
+            // chapter II ("creatures you control have '{T}: Add {R}, {G}, or {W}'") lingers on the
+            // card after it hits the graveyard — inert in play (the ability enumerators gate on the
+            // granter still being on the battlefield) but still surfaced as an active-effect badge.
+            // Player-anchored grants (entityId = a player, e.g. Malicious Eclipse) are untouched.
+            newState = newState.copy(
+                grantedStaticAbilities = newState.grantedStaticAbilities.filter { it.entityId != entityId }
+            )
+
             // Re-attach LinkedExileComponent on any non-battlefield destination so LTB triggers
             // that reference it (like Seam Rip's return effect or Champion of the Clachan's
             // bounce-back) still have access to it after the source has left. Rule 400.7 is
