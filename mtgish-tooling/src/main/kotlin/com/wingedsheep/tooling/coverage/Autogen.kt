@@ -34,10 +34,12 @@ import java.util.Locale
  * human-authored card whose scenario test passes. Deliberately NOT a card loader.
  */
 object Autogen {
-    // A Kotlin package segment starting with a digit (e.g. set code "5DN" -> "5dn") is not a valid
-    // bare identifier and must be backtick-escaped, matching how the promoted cards declare it.
+    // A set's package segment is its definitions/ directory (see setDirSegment — usually the
+    // lowercase code, but e.g. Conflux is `conflux` because `con` is Windows-reserved). A segment
+    // starting with a digit (e.g. set code "5DN" -> "5dn") is not a valid bare identifier and must
+    // be backtick-escaped, matching how the promoted cards declare it.
     private fun packageSegment(setCode: String): String {
-        val seg = setCode.lowercase()
+        val seg = setDirSegment(setCode)
         return if (seg.firstOrNull()?.isDigit() == true) "`$seg`" else seg
     }
     private fun genPackage(setCode: String) = "com.wingedsheep.mtg.sets.generated.${packageSegment(setCode)}.cards"
@@ -204,7 +206,7 @@ object Autogen {
 
     private fun modeWrite(setCode: String, effects: Set<String>, keywords: Set<String>, outdir: String?, skipReprints: Boolean, onlyExisting: Boolean): Int {
         val (missing, idx) = missingWithMtgish(setCode)
-        val out = if (outdir != null) File(outdir) else File(DEFAULT_GENERATED_ROOT, setCode.lowercase())
+        val out = if (outdir != null) File(outdir) else File(DEFAULT_GENERATED_ROOT, setDirSegment(setCode))
         // --only-existing: refresh just the cards this tool already drafted into `out` (e.g. after an
         // emitter improvement) instead of sweeping in newly-eligible cards — and never touch a
         // hand-made card sharing the dir. Provenance is the mtgish marker in the file's content, so a
@@ -252,7 +254,7 @@ object Autogen {
 
     private fun modeEmitAll(setCode: String, effects: Set<String>, keywords: Set<String>, outdir: String?): Int {
         val (names, idx) = allWithMtgish(setCode)
-        val out = if (outdir != null) File(outdir) else File(DEFAULT_GENERATED_ROOT, setCode.lowercase())
+        val out = if (outdir != null) File(outdir) else File(DEFAULT_GENERATED_ROOT, setDirSegment(setCode))
         if (out.exists()) out.listFiles { f -> f.name.endsWith(".kt") }?.forEach { it.delete() }  // fresh dir
         out.mkdirs()
         var written = 0
@@ -272,7 +274,7 @@ object Autogen {
 
     private fun modeWriteAll(setCode: String, effects: Set<String>, keywords: Set<String>, outdir: String?, completeOnly: Boolean, skipReprints: Boolean, onlyExisting: Boolean): Int {
         val (names, idx) = allWithMtgish(setCode)
-        val out = if (outdir != null) File(outdir) else File(DEFINITIONS_ROOT, "${setCode.lowercase()}/cards")
+        val out = if (outdir != null) File(outdir) else File(DEFINITIONS_ROOT, "${setDirSegment(setCode)}/cards")
         // --only-existing: refresh just the cards this tool previously generated into `out`, in place.
         // Computed BEFORE any delete, by the mtgish marker in each file — so hand-made cards (and the
         // blanket wipe below) are skipped and only tool-authored files are replaced.
@@ -362,7 +364,7 @@ object Autogen {
                 System.err.println("relocate: \"$name\" -> ${earliest.uppercase()} renders incomplete; left in ${setCode.uppercase()}")
                 continue
             }
-            val dir = File(DEFINITIONS_ROOT, "${earliest.lowercase()}/cards").apply { mkdirs() }
+            val dir = File(DEFINITIONS_ROOT, "${setDirSegment(earliest)}/cards").apply { mkdirs() }
             File(dir, sourceFileName(name)).writeText(res.text)
             moved++
             perSet.merge(earliest.uppercase(), 1, Int::plus)

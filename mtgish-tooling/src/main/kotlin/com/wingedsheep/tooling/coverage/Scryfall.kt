@@ -76,12 +76,12 @@ object Scryfall {
         names
     }
 
-    private fun cachePath(code: String): File = File(CACHE_ROOT, "${code.lowercase()}.json")
+    private fun cachePath(code: String): File = File(CACHE_ROOT, "${windowsSafeFileName(code.lowercase())}.json")
 
     /** Uppercased set codes that already have a cached Scryfall canonical payload on disk. */
     fun cachedSetCodes(): Set<String> =
         CACHE_ROOT.listFiles { f -> f.isFile && f.extension == "json" && !f.name.startsWith("_") }
-            ?.map { it.nameWithoutExtension.uppercase() }?.toSet()
+            ?.map { fromWindowsSafeFileName(it.nameWithoutExtension).uppercase() }?.toSet()
             ?: emptySet()
 
     /** A set's `released_at` (ISO date) read straight from the cache file — null, never a fetch, if absent. */

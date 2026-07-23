@@ -46,7 +46,7 @@ class CardDefinitionSnapshotTest : FunSpec({
             val actual = sorted.joinToString("\n\n") { card ->
                 "// ${card.name}\n${normalizeAbilityIds(CardExporter.exportToJson(card))}"
             }
-            GoldenSnapshot.verify("snapshots/cards/${goldenName(set.code)}.json", actual)
+            GoldenSnapshot.verify("snapshots/cards/${GoldenSnapshot.fileSafe(set.code)}.json", actual)
         }
 
         test("${set.code} (${set.displayName}): cards survive a JSON round-trip") {
@@ -58,16 +58,6 @@ class CardDefinitionSnapshotTest : FunSpec({
         }
     }
 })
-
-/**
- * Windows reserves the DOS device names (CON, PRN, AUX, NUL, COM1–9, LPT1–9) as filenames — even
- * with an extension — and Git for Windows refuses to check such paths out. Set codes that collide
- * get a trailing underscore, so Conflux's golden is `CON_.json`.
- */
-private val WINDOWS_RESERVED_NAMES = Regex("(?i)^(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])$")
-
-private fun goldenName(code: String): String =
-    if (WINDOWS_RESERVED_NAMES.matches(code)) "${code}_" else code
 
 /**
  * Replace each distinct `ability_<n>` with a per-card sequential id in first-appearance order, so the

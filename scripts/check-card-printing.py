@@ -37,6 +37,8 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from set_dirs import scaffolded_set_codes, set_dir_codes
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFINITIONS_ROOT = REPO_ROOT / "mtg-sets/src/main/kotlin/com/wingedsheep/mtg/sets/definitions"
 CACHE_ROOT = Path.home() / ".cache" / "scryfall" / "printings"
@@ -48,29 +50,6 @@ CACHE_TTL_DAYS = 30
 CARD_DSL_RE = re.compile(r'\b(?:card|basicLand)\(\s*"([^"]+)"')
 PRINTING_NAME_RE = re.compile(r'\bname\s*=\s*"([^"]+)"')
 PRINTING_SETCODE_RE = re.compile(r'\bsetCode\s*=\s*"([^"]+)"')
-SET_CODE_RE = re.compile(r'override\s+val\s+code\s*=\s*"([^"]+)"')
-
-
-def set_dir_codes() -> dict[str, str]:
-    """Map each definitions/<dir> to its lowercase set code, read from the dir's *Set.kt.
-
-    The directory name usually equals the code, but can't always: `con` is a reserved
-    filename on Windows, so Conflux lives in `definitions/conflux/`.
-    """
-    codes: dict[str, str] = {}
-    if not DEFINITIONS_ROOT.is_dir():
-        return codes
-    for d in sorted(DEFINITIONS_ROOT.iterdir()):
-        if not d.is_dir():
-            continue
-        code = None
-        for set_kt in sorted(d.glob("*Set.kt")):
-            m = SET_CODE_RE.search(set_kt.read_text(encoding="utf-8"))
-            if m:
-                code = m.group(1).lower()
-                break
-        codes[d.name] = code or d.name
-    return codes
 
 # Set types we expect to scaffold as a top-level set. Promo/token/memorabilia
 # printings are noted but never count as "expected canonical".
@@ -168,10 +147,6 @@ def fetch_printings(card_name: str, *, refresh: bool) -> list[Printing]:
     return printings
 
 
-def scaffolded_sets() -> set[str]:
-    return set(set_dir_codes().values())
-
-
 def find_canonical(card_name: str) -> tuple[str, Path] | None:
     """Return (set_code_lower, file_path) of the file with `card("Name") { ... }`."""
     front = card_name.split(" // ", 1)[0].strip()
@@ -251,7 +226,7 @@ def main() -> int:
         print(f"error: no Scryfall printings for '{name}'", file=sys.stderr)
         return 2
 
-    scaffolded = scaffolded_sets()
+    scaffolded = scaffolded_set_codes()
     expected = expected_canonical(printings)
     expected_scaffolded = expected is not None and expected.set_code in scaffolded
 
