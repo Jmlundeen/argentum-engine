@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 272 / 286
+**Implemented:** 273 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -236,7 +236,7 @@
 - [x] Squirming Emergence
 - [x] Staggering Size
 - [x] Stalactite Stalker
-- [ ] Starving Revenant
+- [x] Starving Revenant
 - [x] Staunch Crewmate
 - [x] Stinging Cave Crawler
 - [x] Subterranean Schooner
