@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 274 / 286
+**Implemented:** 275 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -229,7 +229,7 @@
 - [ ] Sorcerous Spyglass
 - [x] Soulcoil Viper
 - [x] Souls of the Lost
-- [ ] Sovereign Okinec Ahau
+- [x] Sovereign Okinec Ahau
 - [x] Spelunking
 - [x] Spring-Loaded Sawblades
 - [x] Spyglass Siren

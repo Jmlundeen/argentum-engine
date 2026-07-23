@@ -6122,6 +6122,16 @@ Numbers computed at resolution time.
   ExcessMarkedDamage)`). CompositeEffect resolves sub-effects sequentially with no interleaved SBA pass, so
   the creature is still present mid-composite with its just-marked damage. Returns 0 off the battlefield or
   for a non-creature.
+- `EntityProperty(entity, EntityNumericProperty.BasePower)` / `EntityNumericProperty.BaseToughness` — the
+  entity's printed **base** power/toughness (its P/T before counters, Auras, Equipment, anthems, and any other
+  continuous modification): the Fixed `CardComponent.baseStats.basePower`/`baseToughness` the card was printed
+  with, `0` for `*`/CDA stats. Uses the *same* base as the `CardPredicate.PowerGreaterThanBase` filter, so
+  `Subtract(EntityProperty(e, Power), EntityProperty(e, BasePower))` gives exactly the "difference" (current
+  power − base power) that filter's qualifying creatures have — the per-creature +1/+1 counter amount for
+  **Sovereign Okinec Ahau** ("Whenever ~ attacks, for each creature you control with power greater than that
+  creature's base power, put a number of +1/+1 counters on that creature equal to the difference."), composed
+  as a `ForEachInGroup` over `Creature.youControl().powerGreaterThanBase()` reading the amount off
+  `EntityReference.IterationEntity`. Not projected — always the printed base.
 - `CardNumericProperty(card, property)` — generic numeric property accessor.
 
 ### Triggering-entity shortcuts (`DynamicAmounts.*` facades)

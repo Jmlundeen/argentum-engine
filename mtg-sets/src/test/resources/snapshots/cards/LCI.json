@@ -15961,6 +15961,82 @@
     ]
 }
 
+// Sovereign Okinec Ahau
+{
+    "name": "Sovereign Okinec Ahau",
+    "manaCost": "{2}{G}{W}",
+    "typeLine": "Legendary Creature — Cat Noble",
+    "oracleText": "Ward {2}\nWhenever Sovereign Okinec Ahau attacks, for each creature you control with power greater than that creature's base power, put a number of +1/+1 counters on that creature equal to the difference.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "WARD"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ward",
+            "cost": {
+                "type": "WardCost.Mana",
+                "manaCost": "{2}"
+            }
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    "PowerGreaterThanBase"
+                                ],
+                                "controllerPredicate": "ControlledByYou"
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "AddDynamicCounters",
+                        "counterType": "+1/+1",
+                        "amount": {
+                            "type": "Subtract",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "IterationEntity",
+                                "numericProperty": "Power"
+                            },
+                            "right": {
+                                "type": "EntityProperty",
+                                "entity": "IterationEntity",
+                                "numericProperty": "BasePower"
+                            }
+                        },
+                        "target": "Self"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "240",
+        "rarity": "MYTHIC",
+        "artist": "Victor Adame Minguez",
+        "flavorText": "As surface empires send their explorers down, his hungry eyes look upward.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/70c75aa7-e2f9-4a69-8086-c982019ca714.jpg?1782694418"
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Spelunking
 {
     "name": "Spelunking",

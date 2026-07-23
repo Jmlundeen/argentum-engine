@@ -1086,6 +1086,15 @@ class DynamicAmountEvaluator(
             is EntityNumericProperty.Toughness ->
                 resolvePowerOrToughness(state, entityId, isPower = false, context, useProjected, explicitProjected)
 
+            // Printed base power/toughness — never projected. Reads the Fixed base the card was
+            // printed with (0 for */CDA stats), matching the CardPredicate.PowerGreaterThanBase
+            // filter so "difference = power − base power" stays consistent (Sovereign Okinec Ahau).
+            is EntityNumericProperty.BasePower ->
+                state.getEntity(entityId)?.get<CardComponent>()?.baseStats?.basePower ?: 0
+
+            is EntityNumericProperty.BaseToughness ->
+                state.getEntity(entityId)?.get<CardComponent>()?.baseStats?.baseToughness ?: 0
+
             is EntityNumericProperty.ManaValue ->
                 state.getEntity(entityId)?.get<CardComponent>()?.manaValue ?: 0
 
