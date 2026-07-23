@@ -24,6 +24,7 @@ import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.components.battlefield.GraveyardPlayPermissionUsedComponent
 import com.wingedsheep.sdk.core.CardType
+import com.wingedsheep.sdk.scripting.EntersAsCopy
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
@@ -281,6 +282,51 @@ class PlayLandHandler(
                     return ExecutionResult.success(triggerResult.newState, allEvents)
                 }
                 return ExecutionResult.success(newState, onEnterEvents)
+            }
+        }
+
+        // EntersAsCopy — "you may have this land enter [tapped] as a copy of a land card in a
+        // graveyard, except it's a Cave …" (Echoing Deeps; also Vesuva / Thespian's Stage copying a
+        // land on the battlefield). This is an as-enters replacement (CR 707.2): pause for the copy
+        // choice; [CloneEntersOnBattlefieldContinuation]'s resumer copies the chosen land's copiable
+        // characteristics onto this land, adds the extra subtype, taps it if the rider says so, and
+        // fires the entry's ETB triggers. Only engaged when a candidate exists — otherwise the land
+        // just enters as its printed self via the normal finish below.
+        if (cardDef != null) {
+            val entersAsCopy = cardDef.script.replacementEffects
+                .filterIsInstance<EntersAsCopy>()
+                .firstOrNull()
+            if (entersAsCopy != null &&
+                com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
+                    .entersAsCopyCandidates(newState, action.cardId, action.playerId, entersAsCopy)
+                    .isNotEmpty()
+            ) {
+                // Use up a land drop and emit the entry event before pausing.
+                newState = newState.updateEntity(action.playerId) { c ->
+                    val landDrops = c.get<LandDropsComponent>() ?: LandDropsComponent()
+                    c.with(landDrops.use())
+                }
+                val zoneChangeEvent = ZoneChangeEvent(
+                    action.cardId,
+                    cardComponent.name,
+                    fromZone,
+                    Zone.BATTLEFIELD,
+                    action.playerId
+                )
+                val events = listOf(zoneChangeEvent) + listOfNotNull(riderPlayEvent)
+                newState = newState.tick()
+
+                val result = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
+                    .pauseForEntersAsCopy(
+                        state = newState,
+                        entityId = action.cardId,
+                        controllerId = action.playerId,
+                        cardComponent = cardComponent,
+                        effect = entersAsCopy,
+                        fromZone = fromZone,
+                        carryEvents = events,
+                    )
+                if (result != null) return result
             }
         }
 

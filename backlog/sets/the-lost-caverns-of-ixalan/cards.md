@@ -88,7 +88,7 @@
 - [x] Earthshaker Dreadmaw
 - [x] Eaten by Piranhas
 - [x] Echo of Dusk
-- [ ] Echoing Deeps
+- [x] Echoing Deeps
 - [x] Enterprising Scallywag
 - [x] Envoy of Okinec Ahau
 - [x] Etali's Favor

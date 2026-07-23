@@ -6921,17 +6921,24 @@ replacementEffect {
   trigger itself. Used by Worldwalker Helm (`TokenCreationEvent(You, Artifact)`, add `Map`, `inheritTapped = true`)
   and Peregrin Took (`additionalTokenType = "Food"`, "those tokens plus an additional Food token are created instead")
   and Quina, Qu Gourmet (`additionalTokenType = "Frog"`, default `appliesTo` = any token you create, adds a 1/1 green Frog).
-- `EntersAsCopy(optional, copyFilter, copyFromZone, filterByTotalManaSpent, additionalSubtypes, additionalKeywords, nameOverride, powerOverride, toughnessOverride, exileCopiedCard)` —
-  "enter as a copy of …". As the permanent resolves, the controller picks an object matching
+- `EntersAsCopy(optional, copyFilter, copyFromZone, filterByTotalManaSpent, additionalSubtypes, additionalKeywords, nameOverride, powerOverride, toughnessOverride, exileCopiedCard, tappedIfCopied)` —
+  "enter as a copy of …". As the permanent enters, the controller picks an object matching
   `copyFilter` and the permanent enters as a copy (Rule 707 copiable values), with any overrides
   applied. `copyFromZone` selects the candidate pool: `Zone.BATTLEFIELD` (default — Clone, Clever
-  Impersonator, Mockingbird) copies a permanent in play; `Zone.GRAVEYARD` copies a creature *card*
-  from any graveyard (Superior Spider-Man) via the modal card-list overlay. `additionalSubtypes` /
+  Impersonator, Mockingbird) copies a permanent in play; `Zone.GRAVEYARD` copies a *card*
+  from any graveyard (Superior Spider-Man; Echoing Deeps copies a land card) via the modal card-list
+  overlay. `additionalSubtypes` /
   `additionalKeywords` are added "in addition to its other types"; `nameOverride` keeps a fixed name;
   `powerOverride` / `toughnessOverride` force base P/T; `exileCopiedCard` exiles the copied card after
   the copy ("When you do, exile that card"). `filterByTotalManaSpent` restricts copy targets to mana
-  value ≤ total mana spent (Mockingbird). The copy snapshots a `CopyOfComponent` so it reverts to its
-  printed identity when it leaves the battlefield (CR 400.7 / 707.2).
+  value ≤ total mana spent (Mockingbird). `tappedIfCopied` makes the permanent enter **tapped** only
+  when it actually enters as a copy — the "enter tapped as a copy" rider on the land-copy cycle
+  (Echoing Deeps; Vesuva / Thespian's Stage copying a land on the battlefield); declining the copy
+  enters it untapped as its printed self. The copy snapshots a `CopyOfComponent` so it reverts to its
+  printed identity when it leaves the battlefield (CR 400.7 / 707.2). Works both when the source is
+  cast as a spell (resolved off the stack) **and** when it enters the battlefield directly — a land
+  played (Echoing Deeps) pauses via `PermanentEntryReplacements.pauseForEntersAsCopy`, its resumer
+  `CloneEntersOnBattlefieldContinuation` copying onto the already-placed permanent in place.
 - `ModifyDrawAmount(modifier, restrictions, appliesTo)` — modify the number of cards a draw
   instruction announces by a fixed amount, optionally gated by extra `restrictions: List<Condition>`
   evaluated against the drawing player as controller. Applied **once** per draw instruction at the

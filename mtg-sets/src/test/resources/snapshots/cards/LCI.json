@@ -6066,6 +6066,54 @@
     ]
 }
 
+// Echoing Deeps
+{
+    "name": "Echoing Deeps",
+    "manaCost": "",
+    "typeLine": "Land — Cave",
+    "oracleText": "You may have this land enter tapped as a copy of any land card in a graveyard, except it's a Cave in addition to its other types.\n{T}: Add {C}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "copyFilter": {
+                    "cardPredicates": [
+                        "IsLand"
+                    ]
+                },
+                "copyFromZone": "Graveyard",
+                "additionalSubtypes": [
+                    "Cave"
+                ],
+                "tappedIfCopied": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "271",
+        "rarity": "RARE",
+        "artist": "Mauricio Calle",
+        "flavorText": "The still, silent waters reflect what was, not what is.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/4/244c06b3-532d-426e-8bee-ee9461d092a6.jpg?1782694396"
+    },
+    "colorIdentityOverride": []
+}
+
 // Enterprising Scallywag
 {
     "name": "Enterprising Scallywag",

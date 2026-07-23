@@ -6,12 +6,15 @@ import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.ContinuationFrame
 import com.wingedsheep.engine.core.DecisionContext
 import com.wingedsheep.engine.core.DecisionPhase
+import com.wingedsheep.engine.core.CloneEntersOnBattlefieldContinuation
 import com.wingedsheep.engine.core.EntersWithChoiceOnBattlefieldContinuation
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.OptionMetadata
 import com.wingedsheep.engine.core.PendingDecision
 import com.wingedsheep.engine.core.SelectCardsDecision
+import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.PlayerComponent
@@ -19,6 +22,7 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceType
+import com.wingedsheep.sdk.scripting.EntersAsCopy
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -45,6 +49,100 @@ import com.wingedsheep.sdk.scripting.references.Player
  * [carryEvents], or the triggers fire twice.
  */
 object PermanentEntryReplacements {
+
+    private val predicateEvaluator = PredicateEvaluator()
+
+    /**
+     * Copy candidates for an [EntersAsCopy] on a permanent already on the battlefield: land/permanent
+     * cards in graveyards ([Zone.GRAVEYARD]) or permanents on the battlefield matching
+     * [EntersAsCopy.copyFilter], excluding [entityId] itself. Exposed so callers (e.g.
+     * `PlayLandHandler`) can guard resource consumption before committing to a pause.
+     */
+    fun entersAsCopyCandidates(
+        state: GameState,
+        entityId: EntityId,
+        controllerId: EntityId,
+        effect: EntersAsCopy,
+    ): List<EntityId> {
+        val pool = if (effect.copyFromZone == Zone.GRAVEYARD) {
+            state.turnOrder.flatMap { state.getGraveyard(it) }
+        } else {
+            state.getBattlefield()
+        }
+        return pool.filter { candidateId ->
+            candidateId != entityId &&
+                predicateEvaluator.matches(
+                    state, state.projectedState, candidateId, effect.copyFilter,
+                    PredicateContext(controllerId = controllerId)
+                )
+        }
+    }
+
+    /**
+     * Build the paused [ExecutionResult] for a permanent's [EntersAsCopy] replacement (CR 707.2) on
+     * a permanent already placed on the battlefield **directly** — a land played (Echoing Deeps /
+     * Vesuva / Thespian's Stage) or a token/put-onto-battlefield permanent. The spell-resolution
+     * path keeps its own pre-battlefield variant
+     * ([com.wingedsheep.engine.mechanics.stack.StackResolver.resolvePermanentSpell]) because there
+     * the entity is still on the stack.
+     *
+     * Gathers copy candidates — land/permanent cards in graveyards ([Zone.GRAVEYARD]) or permanents
+     * on the battlefield — matching [EntersAsCopy.copyFilter], excluding the entering permanent
+     * itself, then pauses for a [SelectCardsDecision] (min 0 when [EntersAsCopy.optional], so "may"
+     * declines are expressible). [CloneEntersOnBattlefieldContinuation]'s resumer applies the copy,
+     * taps if [EntersAsCopy.tappedIfCopied], and fires the entry's ETB triggers.
+     *
+     * @return a paused [ExecutionResult], or `null` if there are no candidates to copy — the caller
+     *   then completes entry normally (the permanent stays its printed self).
+     */
+    fun pauseForEntersAsCopy(
+        state: GameState,
+        entityId: EntityId,
+        controllerId: EntityId,
+        cardComponent: CardComponent,
+        effect: EntersAsCopy,
+        fromZone: Zone?,
+        carryEvents: List<GameEvent> = emptyList(),
+    ): ExecutionResult? {
+        val copyFromGraveyard = effect.copyFromZone == Zone.GRAVEYARD
+        val candidates = entersAsCopyCandidates(state, entityId, controllerId, effect)
+        if (candidates.isEmpty()) return null
+
+        val filterDesc = effect.copyFilter.description
+        val whereDesc = if (copyFromGraveyard) "$filterDesc card in a graveyard" else filterDesc
+        val decisionId = "clone-enters-bf-${entityId.value}"
+        val decision = SelectCardsDecision(
+            id = decisionId,
+            playerId = controllerId,
+            prompt = if (effect.optional) "You may choose a $whereDesc to copy" else "Choose a $whereDesc to copy",
+            context = DecisionContext(
+                sourceId = entityId,
+                sourceName = cardComponent.name,
+                phase = DecisionPhase.RESOLUTION
+            ),
+            options = candidates,
+            minSelections = if (effect.optional) 0 else 1,
+            maxSelections = 1,
+            // Battlefield copies click permanents in-place; graveyard copies use the modal
+            // card-list overlay (graveyards aren't on the battlefield).
+            useTargetingUI = !copyFromGraveyard
+        )
+        val continuation = CloneEntersOnBattlefieldContinuation(
+            decisionId = decisionId,
+            entityId = entityId,
+            controllerId = controllerId,
+            fromZone = fromZone,
+            additionalSubtypes = effect.additionalSubtypes,
+            additionalKeywords = effect.additionalKeywords,
+            nameOverride = effect.nameOverride,
+            powerOverride = effect.powerOverride,
+            toughnessOverride = effect.toughnessOverride,
+            exileCopiedCard = effect.exileCopiedCard,
+            tappedIfCopied = effect.tappedIfCopied,
+        )
+        val paused = state.pushContinuation(continuation).withPendingDecision(decision)
+        return ExecutionResult.paused(paused, decision, carryEvents)
+    }
 
     /**
      * Build the paused [ExecutionResult] for a permanent's first/next [EntersWithChoice].

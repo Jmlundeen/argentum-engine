@@ -237,6 +237,7 @@ val engineSerializersModule = SerializersModule {
         subclass(ModalPreChosenContinuation::class)
         subclass(ModalChosenModeTailContinuation::class)
         subclass(CloneEntersContinuation::class)
+        subclass(CloneEntersOnBattlefieldContinuation::class)
         subclass(EntersWithChoiceSpellContinuation::class)
         subclass(EntersWithChoiceOnBattlefieldContinuation::class)
         subclass(PayLifeOrEnterTappedLandContinuation::class)

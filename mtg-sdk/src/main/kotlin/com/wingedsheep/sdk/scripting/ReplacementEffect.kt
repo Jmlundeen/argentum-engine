@@ -1199,6 +1199,10 @@ data class LifeLossFloor(
  * @param toughnessOverride When non-null, the copy's base toughness is set to this value.
  * @param exileCopiedCard When true, the copied card is exiled after the copy is applied
  *                   ("When you do, exile that card"). Only meaningful with [copyFromZone] = graveyard.
+ * @param tappedIfCopied When true, the permanent enters **tapped** if (and only if) it enters as a
+ *                   copy — the "enter tapped as a copy" rider on the land-copy cycle (Vesuva,
+ *                   Thespian's Stage, Echoing Deeps). If the copy is declined (or no candidate
+ *                   exists) the permanent enters untapped as its printed self.
  */
 @SerialName("EntersAsCopy")
 @Serializable
@@ -1213,6 +1217,7 @@ data class EntersAsCopy(
     val powerOverride: Int? = null,
     val toughnessOverride: Int? = null,
     val exileCopiedCard: Boolean = false,
+    val tappedIfCopied: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Any,
         to = Zone.BATTLEFIELD
@@ -1221,10 +1226,12 @@ data class EntersAsCopy(
     override val description: String = run {
         val filterDesc = copyFilter.description
         val where = if (copyFromZone == Zone.GRAVEYARD) "$filterDesc card in a graveyard" else "$filterDesc on the battlefield"
+        val subject = if (copyFilter == GameObjectFilter.Land) "this land" else "this creature"
+        val tappedWord = if (tappedIfCopied) "tapped " else ""
         val lead = if (optional) {
-            "You may have this creature enter as a copy of any $where"
+            "You may have $subject enter ${tappedWord}as a copy of any $where"
         } else {
-            "This creature enters as a copy of any $where"
+            "$subject enters ${tappedWord}as a copy of any $where"
         }
         buildString {
             append(lead)

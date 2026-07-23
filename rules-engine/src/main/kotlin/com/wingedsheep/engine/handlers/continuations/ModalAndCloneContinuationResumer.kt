@@ -24,6 +24,7 @@ class ModalAndCloneContinuationResumer(
         resumer(ModalContinuation::class, ::resumeModal),
         resumer(ModalTargetContinuation::class, ::resumeModalTarget),
         resumer(CloneEntersContinuation::class, ::resumeCloneEnters),
+        resumer(CloneEntersOnBattlefieldContinuation::class, ::resumeCloneEntersOnBattlefield),
         resumer(EntersWithChoiceSpellContinuation::class, ::resumeEntersWithChoiceSpell),
         resumer(EntersWithChoiceOnBattlefieldContinuation::class, ::resumeEntersWithChoiceOnBattlefield),
         resumer(PayLifeOrEnterTappedLandContinuation::class, ::resumePayLifeOrEnterTappedLand),
@@ -353,6 +354,125 @@ class ModalAndCloneContinuationResumer(
         }
 
         return checkForMore(newState, events)
+    }
+
+    /**
+     * Resume after a player chooses (or declines) a card/permanent to copy for an
+     * [com.wingedsheep.sdk.scripting.EntersAsCopy] replacement on a permanent that has already been
+     * placed on the battlefield **directly** (a land played — Echoing Deeps / Vesuva / Thespian's
+     * Stage — or a token). Unlike [resumeCloneEnters], the entity is already a battlefield permanent,
+     * so we copy onto it in place, tap it if [CloneEntersOnBattlefieldContinuation.tappedIfCopied]
+     * and a copy was made, then fire the entry's ETB triggers off a synthesized [ZoneChangeEvent].
+     */
+    fun resumeCloneEntersOnBattlefield(
+        state: GameState,
+        continuation: CloneEntersOnBattlefieldContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is CardsSelectedResponse) {
+            return ExecutionResult.error(state, "Expected card selection response for clone-enters-on-battlefield")
+        }
+
+        val entityId = continuation.entityId
+        val entityContainer = state.getEntity(entityId)
+            ?: return ExecutionResult.error(state, "Clone-enters entity not found: $entityId")
+        val originalCardComponent = entityContainer.get<CardComponent>()
+            ?: return ExecutionResult.error(state, "Clone-enters entity has no CardComponent")
+
+        var newState = state
+        var copyApplied = false
+        val outEvents = mutableListOf<GameEvent>()
+        val selectedId = response.selectedCards.firstOrNull()
+
+        if (selectedId != null) {
+            val targetCardComponent = newState.getEntity(selectedId)?.get<CardComponent>()
+            if (targetCardComponent != null) {
+                copyApplied = true
+                // Copy the chosen object's copiable characteristics (CR 707.2), keeping this
+                // permanent's own owner. Apply additional subtypes/keywords and overrides.
+                var copiedCardComponent = targetCardComponent.copy(ownerId = originalCardComponent.ownerId)
+                if (continuation.additionalSubtypes.isNotEmpty()) {
+                    val newSubtypes = copiedCardComponent.typeLine.subtypes +
+                        continuation.additionalSubtypes.map { com.wingedsheep.sdk.core.Subtype(it) }
+                    copiedCardComponent = copiedCardComponent.copy(
+                        typeLine = copiedCardComponent.typeLine.copy(subtypes = newSubtypes)
+                    )
+                }
+                if (continuation.additionalKeywords.isNotEmpty()) {
+                    copiedCardComponent = copiedCardComponent.copy(
+                        baseKeywords = copiedCardComponent.baseKeywords + continuation.additionalKeywords
+                    )
+                }
+                if (continuation.nameOverride != null) {
+                    copiedCardComponent = copiedCardComponent.copy(name = continuation.nameOverride)
+                }
+                if (continuation.powerOverride != null || continuation.toughnessOverride != null) {
+                    val basePower = continuation.powerOverride
+                        ?: copiedCardComponent.baseStats?.basePower ?: 0
+                    val baseToughness = continuation.toughnessOverride
+                        ?: copiedCardComponent.baseStats?.baseToughness ?: 0
+                    copiedCardComponent = copiedCardComponent.copy(
+                        baseStats = com.wingedsheep.sdk.model.CreatureStats(basePower, baseToughness)
+                    )
+                }
+                // Snapshot the pre-copy CardComponent so the permanent reverts to its printed
+                // identity when it leaves the battlefield (CR 400.7 / 707.2).
+                newState = newState.updateEntity(entityId) { c ->
+                    c.with(copiedCardComponent)
+                        .with(com.wingedsheep.engine.state.components.identity.CopyOfComponent(
+                            originalCardDefinitionId = originalCardComponent.cardDefinitionId,
+                            copiedCardDefinitionId = targetCardComponent.cardDefinitionId,
+                            originalCardComponent = originalCardComponent
+                        ))
+                }
+            }
+        }
+
+        // "enter tapped as a copy" — only tap when a copy was actually made.
+        if (copyApplied && continuation.tappedIfCopied) {
+            newState = newState.updateEntity(entityId) { c ->
+                c.with(com.wingedsheep.engine.state.components.battlefield.TappedComponent)
+            }
+        }
+
+        // "When you do, exile that card." (graveyard copies) — exile the copied card afterward.
+        if (copyApplied && continuation.exileCopiedCard && selectedId != null) {
+            val exileResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                .moveToZone(newState, selectedId, Zone.EXILE)
+            newState = exileResult.state
+            outEvents.addAll(exileResult.events)
+        }
+
+        val finalCardComponent = newState.getEntity(entityId)?.get<CardComponent>() ?: originalCardComponent
+        val copyOfOriginalName = if (copyApplied && finalCardComponent.name != originalCardComponent.name) {
+            originalCardComponent.name
+        } else null
+
+        // Fire any ETB triggers off a synthesized entry event now that the final (copied) identity
+        // is in place, mirroring resumeEntersWithChoiceOnBattlefield.
+        val zoneChangeEvent = ZoneChangeEvent(
+            entityId,
+            finalCardComponent.name,
+            continuation.fromZone,
+            Zone.BATTLEFIELD,
+            continuation.controllerId,
+            copyOfOriginalName = copyOfOriginalName
+        )
+        val triggers = services.triggerDetector.detectTriggers(newState, listOf(zoneChangeEvent))
+        if (triggers.isNotEmpty()) {
+            val triggerResult = services.triggerProcessor.processTriggers(newState, triggers)
+            if (triggerResult.isPaused) {
+                return ExecutionResult.paused(
+                    triggerResult.state,
+                    triggerResult.pendingDecision!!,
+                    outEvents + triggerResult.events
+                )
+            }
+            return checkForMore(triggerResult.newState, outEvents + triggerResult.events)
+        }
+
+        return checkForMore(newState, outEvents)
     }
 
     /**
