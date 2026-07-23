@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.spell
 
+import com.wingedsheep.engine.core.GraveyardCastRiderSelection
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.mechanics.FlashbackGrants
@@ -208,24 +209,72 @@ class CastZoneResolver(
         playerId: EntityId,
         cardId: EntityId,
         cardComponent: CardComponent
-    ): Boolean {
-        if (cardId !in state.getZone(ZoneKey(playerId, Zone.GRAVEYARD))) return false
+    ): Boolean = findMayCastFromGraveyardGrant(state, playerId, cardId, cardComponent) != null
+
+    /**
+     * Every [MayCastFromGraveyard] grant (printed or durationally granted) that authorizes casting
+     * [cardId] from [playerId]'s graveyard right now. Empty if none applies. The graveyard-cast
+     * enumerator uses this to offer one legal action per *distinct* grant (by life cost + entry
+     * rider), so the player picks the permission — and thus its rider — up front (CR 601.2b).
+     */
+    fun applicableMayCastFromGraveyardGrants(
+        state: GameState,
+        playerId: EntityId,
+        cardId: EntityId,
+        cardComponent: CardComponent
+    ): List<MayCastFromGraveyard> {
+        if (cardId !in state.getZone(ZoneKey(playerId, Zone.GRAVEYARD))) return emptyList()
+        val matches = mutableListOf<MayCastFromGraveyard>()
         for (permId in state.getBattlefield(playerId)) {
             val permCard = state.getEntity(permId)?.get<CardComponent>() ?: continue
             val permDef = cardRegistry.getCard(permCard.cardDefinitionId) ?: continue
             for (sa in permDef.script.staticAbilities) {
-                if (mayCastFromGraveyardGrantApplies(state, playerId, cardId, sa)) return true
+                if (sa is MayCastFromGraveyard && mayCastFromGraveyardGrantApplies(state, playerId, cardId, sa)) {
+                    matches.add(sa)
+                }
             }
         }
-        // Durational grants (e.g. Forgotten Cellar's "cast spells from your graveyard this turn")
-        // recorded in grantedStaticAbilities, anchored to a permanent the player controls.
+        // Durational grants (e.g. Forgotten Cellar's "cast spells from your graveyard this turn",
+        // or The Tomb of Aclazotz's per-turn creature-cast grant) recorded in grantedStaticAbilities,
+        // anchored to a permanent the player controls.
         for (grant in state.grantedStaticAbilities) {
             val anchor = state.getEntity(grant.entityId) ?: continue
             val controller = anchor.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
             if (controller != playerId) continue
-            if (mayCastFromGraveyardGrantApplies(state, playerId, cardId, grant.ability)) return true
+            val sa = grant.ability
+            if (sa is MayCastFromGraveyard && mayCastFromGraveyardGrantApplies(state, playerId, cardId, sa)) {
+                matches.add(sa)
+            }
         }
-        return false
+        return matches
+    }
+
+    /**
+     * Find the [MayCastFromGraveyard] grant that authorizes casting [cardId] from [playerId]'s
+     * graveyard, or null if none applies. The returned grant's cast-this-way entry rider is frozen
+     * onto the stack spell at cast time (see `CastSpellHandler`), which is why the decision is here.
+     *
+     * When several grants apply, [selection] (the permission the player chose at cast time, carried
+     * on `CastSpell.graveyardCastRider`) disambiguates: the grant whose entry rider matches it is
+     * returned, honoring the player's CR 601.2b announcement — including an explicit *no-rider*
+     * choice (a free grant, when a rider-bearing one also applies). Falls back to a rider-preferring
+     * auto-pick when [selection] is null (unspecified) **or** names a rider that doesn't match any
+     * applicable grant — so a client can't dodge a mandatory rider by claiming a permission it lacks.
+     */
+    fun findMayCastFromGraveyardGrant(
+        state: GameState,
+        playerId: EntityId,
+        cardId: EntityId,
+        cardComponent: CardComponent,
+        selection: GraveyardCastRiderSelection? = null
+    ): MayCastFromGraveyard? {
+        val matches = applicableMayCastFromGraveyardGrants(state, playerId, cardId, cardComponent)
+        if (selection != null) {
+            matches.firstOrNull {
+                it.entersWithCounter == selection.entersWithCounter && it.addedSubtypeOnEntry == selection.addedSubtype
+            }?.let { return it }
+        }
+        return matches.firstOrNull { it.hasEntryRider } ?: matches.firstOrNull()
     }
 
     private fun mayCastFromGraveyardGrantApplies(

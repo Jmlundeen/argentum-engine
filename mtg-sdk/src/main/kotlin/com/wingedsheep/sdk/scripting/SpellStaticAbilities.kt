@@ -273,22 +273,44 @@ data class GrantMiracleToCardsInHand(
  * Used for:
  *  - Festival of Embers: `MayCastFromGraveyard(InstantOrSorcery, lifeCost = 1, duringYourTurnOnly = true)`
  *  - Yawgmoth's Agenda: `MayCastFromGraveyard(Nonland)` — free, any spell type, any turn.
+ *  - The Tomb of Aclazotz (Tarrian's Journal back): `MayCastFromGraveyard(Creature,
+ *    entersWithCounter = CounterType.FINALITY, addedSubtypeOnEntry = "Vampire")` — a permanent cast
+ *    from the graveyard under this grant enters with a finality counter and gains the subtype.
+ *
+ * [entersWithCounter] and [addedSubtypeOnEntry] are the **cast-this-way entry rider** (CR 614-style):
+ * they apply only to a permanent cast from the graveyard *under this grant* — when it resolves onto
+ * the battlefield it enters with one counter of that type and gains the subtype "in addition to its
+ * other types" (a persistent characteristic, for as long as it remains on the battlefield). Both
+ * default to null (no rider), so existing graveyard-cast cards are unaffected.
  *
  * @property filter The filter that spells must match (e.g., instant/sorcery, or any nonland card)
  * @property lifeCost The life cost to pay in addition to other costs (0 = free)
  * @property duringYourTurnOnly If true, only castable during your turn
+ * @property entersWithCounter If set, a permanent cast this way enters with one such counter
+ * @property addedSubtypeOnEntry If set, a permanent cast this way gains this subtype on entry
  */
 @SerialName("MayCastFromGraveyard")
 @Serializable
 data class MayCastFromGraveyard(
     val filter: GameObjectFilter,
     val lifeCost: Int = 0,
-    val duringYourTurnOnly: Boolean = false
+    val duringYourTurnOnly: Boolean = false,
+    val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null,
+    val addedSubtypeOnEntry: String? = null
 ) : StaticAbility {
+    /** True when this grant carries a cast-this-way entry rider (finality counter / added subtype). */
+    val hasEntryRider: Boolean get() = entersWithCounter != null || addedSubtypeOnEntry != null
+
     override val description: String = buildString {
         if (duringYourTurnOnly) append("During your turn, y") else append("Y")
         append("ou may cast ${filter.description} spells from your graveyard")
         if (lifeCost > 0) append(" by paying $lifeCost life in addition to their other costs")
+        if (entersWithCounter != null || addedSubtypeOnEntry != null) {
+            append(". If you do, it enters")
+            if (entersWithCounter != null) append(" with a ${entersWithCounter.name.lowercase()} counter on it")
+            if (entersWithCounter != null && addedSubtypeOnEntry != null) append(" and")
+            if (addedSubtypeOnEntry != null) append(" is a $addedSubtypeOnEntry in addition to its other types")
+        }
     }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)

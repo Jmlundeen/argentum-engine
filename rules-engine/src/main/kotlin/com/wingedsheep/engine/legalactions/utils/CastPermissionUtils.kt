@@ -8,6 +8,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AbilityActivatedEverComponent
 import com.wingedsheep.engine.state.components.battlefield.AbilityActivatedThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.GraveyardPlayPermissionUsedComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -31,6 +32,7 @@ import com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.EquipAbilitiesAtInstantSpeed
 import com.wingedsheep.sdk.scripting.FreeFirstEquipEachTurn
+import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
 import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
 import com.wingedsheep.sdk.scripting.MayPlayPermanentsFromGraveyard
@@ -43,6 +45,7 @@ import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
 import com.wingedsheep.sdk.scripting.PreventCycling
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.RestrictSpellsCastPerTurn
+import com.wingedsheep.sdk.scripting.filters.unified.Scope
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -1080,6 +1083,11 @@ class CastPermissionUtils(
             }
         }
 
+        // Granted GrantActivatedAbility statics (CR 611): a permanent that was itself *granted* an
+        // ability-granting static — e.g. Roar of the Fifth People chapter II. Shared with
+        // ActivateAbilityHandler so the enumerator and the handler never drift.
+        result.addAll(getGrantedStaticGrantActivatedAbilities(entityId, state))
+
         // GainActivatedAbilitiesOfPermanents (Sharkey, Tyrant of the Shire): permanents matching
         // [grantedTo] gain copies of the activated abilities of permanents matching [sourceFilter].
         result.addAll(getGainedAbilitiesOfPermanents(entityId, state))
@@ -1091,6 +1099,58 @@ class CastPermissionUtils(
         // two buttons confuses the UI and adds nothing in play (you can only tap once anyway).
         // Collapse them to a single entry, keeping the first granter we found.
         return result.distinctBy { it.ability.id }
+    }
+
+    /**
+     * Granted [GrantActivatedAbility] statics (CR 611): a permanent that was itself *granted* an
+     * ability-granting static — not one printed on its card — confers the inner activated ability to
+     * the matching group exactly like a printed [GrantActivatedAbility]. The outer static lands in
+     * [GameState.grantedStaticAbilities] (via GrantStaticAbilityEffect) and the granter is the
+     * permanent that gained it. Example: Roar of the Fifth People chapter II, "This Saga gains
+     * 'Creatures you control have "{T}: Add {R}, {G}, or {W}."'".
+     *
+     * Shared by [getStaticGrantedAbilitiesWithGranter] (the enumerator) and `ActivateAbilityHandler`
+     * (the activation handler) so both agree on which entity receives which granted ability.
+     */
+    fun getGrantedStaticGrantActivatedAbilities(
+        entityId: EntityId,
+        state: GameState
+    ): List<StaticGrantedAbility> {
+        val result = mutableListOf<StaticGrantedAbility>()
+        for (grantedStatic in state.grantedStaticAbilities) {
+            val grantAbility = grantedStatic.ability as? GrantActivatedAbility ?: continue
+            val granterId = grantedStatic.entityId
+            val granter = state.getEntity(granterId) ?: continue
+            if (!state.getBattlefield().contains(granterId)) continue
+            if (granter.has<FaceDownComponent>()) continue
+            when (val scope = grantAbility.filter.scope) {
+                is Scope.Battlefield -> {
+                    if (grantAbility.filter.excludeSelf && granterId == entityId) continue
+                    val granterController = state.projectedState.getController(granterId) ?: continue
+                    val matches = predicateEvaluator.matches(
+                        state,
+                        state.projectedState,
+                        entityId,
+                        grantAbility.filter.baseFilter,
+                        PredicateContext(controllerId = granterController, sourceId = granterId)
+                    )
+                    if (matches) result.add(StaticGrantedAbility(grantAbility.ability, granterId))
+                }
+                is Scope.AttachedTo -> {
+                    val attachedTo = granter.get<AttachedToComponent>()
+                    if (attachedTo != null && attachedTo.targetId == entityId) {
+                        result.add(StaticGrantedAbility(grantAbility.ability, granterId))
+                    }
+                }
+                is Scope.Self -> {
+                    if (granterId == entityId) result.add(StaticGrantedAbility(grantAbility.ability, granterId))
+                }
+                is Scope.Specific -> {
+                    if (scope.entityId == entityId) result.add(StaticGrantedAbility(grantAbility.ability, granterId))
+                }
+            }
+        }
+        return result
     }
 
     /**

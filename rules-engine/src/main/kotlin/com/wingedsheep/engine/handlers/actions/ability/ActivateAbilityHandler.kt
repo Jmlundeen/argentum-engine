@@ -2549,6 +2549,12 @@ class ActivateAbilityHandler(
             }
         }
 
+        // Granted GrantActivatedAbility statics (CR 611): a permanent that was itself *granted* an
+        // ability-granting static — e.g. Roar of the Fifth People chapter II. Resolved by the shared
+        // helper so this handler and the enumerators agree on the granted set.
+        castPermissionUtils.getGrantedStaticGrantActivatedAbilities(entityId, state)
+            .forEach { result.add(it.ability to it.granterId) }
+
         // GainActivatedAbilitiesOfPermanents (Sharkey): copies of opponents' lands' abilities, etc.
         // Resolved by the shared helper so the enumerator and this handler agree on the gained set.
         castPermissionUtils.getGainedAbilitiesOfPermanents(entityId, state)

@@ -343,3 +343,20 @@ data class SpellCopyTokenRidersComponent(
     val sacrificeAtStep: Step? = null,
     val sacrificeOnlyOnControllersTurn: Boolean = false
 ) : Component
+
+/**
+ * Cast-this-way entry rider for a spell cast from the graveyard under a
+ * [com.wingedsheep.sdk.scripting.MayCastFromGraveyard] grant that carries rider fields
+ * (The Tomb of Aclazotz). The rider is frozen onto the stack spell at cast time — from the
+ * *specific* grant that authorized the cast, so it survives grant expiry and is unambiguous when
+ * several graveyard-cast grants are active. Read by
+ * [com.wingedsheep.engine.mechanics.stack.StackResolver] when the spell resolves onto the
+ * battlefield: the permanent enters with one [entersWithCounter] counter and gains
+ * [addedSubtype] "in addition to its other types". The component disappears with the spell entity
+ * when it leaves the stack (countered / fizzled spells simply never apply it).
+ */
+@Serializable
+data class GraveyardCastRiderComponent(
+    val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null,
+    val addedSubtype: String? = null
+) : Component
