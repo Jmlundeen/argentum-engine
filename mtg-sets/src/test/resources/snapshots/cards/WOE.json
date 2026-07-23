@@ -4074,6 +4074,65 @@
     ]
 }
 
+// Return Triumphant
+{
+    "name": "Return Triumphant",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return target creature card with mana value 3 or less from your graveyard to the battlefield. Create a Young Hero Role token attached to it. (Enchanted creature has \"Whenever this creature attacks, if its toughness is 3 or less, put a +1/+1 counter on it.\" If you put another Role on the creature later, put this one into the graveyard.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature card with mana value 3 or less from your graveyard"
+                    },
+                    "destination": "Battlefield"
+                },
+                {
+                    "type": "CreateRoleToken",
+                    "roleName": "Young Hero Role",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature card with mana value 3 or less from your graveyard"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature mv<=3 own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "target creature card with mana value 3 or less from your graveyard"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "26",
+        "artist": "Will Gist",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f5209c13-9591-48eb-8d6c-112b3bdd429a.jpg?1783915128",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "If a permanent has more than one Role attached to it controlled by the same player, each of those Roles except the one with the most recent timestamp is put into its owner's graveyard. This is a state-based action."
+            },
+            {
+                "date": "2023-09-01",
+                "text": "Some spells and abilities that create Role tokens require targets. If each target chosen is an illegal target as that spell or ability tries to resolve, it won't resolve. The Role token won't be created."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Rimefur Reindeer
 {
     "name": "Rimefur Reindeer",
@@ -5387,6 +5446,52 @@
     ]
 }
 
+// Tattered Ratter
+{
+    "name": "Tattered Ratter",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Human Peasant",
+    "oracleText": "Whenever a Rat you control becomes blocked, it gets +2/+0 until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "BecomesBlockedEvent",
+                    "filter": "creature Rat ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "TriggeringEntity"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "152",
+        "rarity": "UNCOMMON",
+        "artist": "Tyler Walpole",
+        "flavorText": "\"What's that, Snappers? Yes, you're right! It *was* very rude of the innkeeper to throw us out!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/0/30f505b4-d61c-4da8-ab45-37125260d556.jpg?1783915087"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Three Bowls of Porridge
 {
     "name": "Three Bowls of Porridge",
@@ -5592,6 +5697,53 @@
     ]
 }
 
+// Unassuming Sage
+{
+    "name": "Unassuming Sage",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Human Peasant Wizard",
+    "oracleText": "When this creature enters, you may pay {2}. If you do, create a Sorcerer Role token attached to it. (Enchanted creature gets +1/+1 and has \"Whenever this creature attacks, scry 1.\")",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{2}"
+                        }
+                    },
+                    "then": {
+                        "type": "CreateRoleToken",
+                        "roleName": "Sorcerer Role",
+                        "target": "Self"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "artist": "Michele Giorgi",
+        "flavorText": "\"The archmage Valya? Why yes, I do believe I've heard of her.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/6/a66fbaeb-1624-43b3-83e2-a37ce7588a5a.jpg?1783915126"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Unruly Catapult
 {
     "name": "Unruly Catapult",
@@ -5775,6 +5927,64 @@
                 ]
             }
         }
+    ]
+}
+
+// Verdant Outrider
+{
+    "name": "Verdant Outrider",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "{1}{G}: This creature can't be blocked by creatures with power 2 or less this turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "GrantStaticAbility",
+                    "ability": {
+                        "type": "CantBeBlockedBy",
+                        "blockerFilter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "PowerAtMost",
+                                    "max": 2
+                                }
+                            ]
+                        }
+                    },
+                    "target": "Self"
+                },
+                "descriptionOverride": "{1}{G}: This creature can't be blocked by creatures with power 2 or less this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "196",
+        "artist": "Taras Susak",
+        "flavorText": "Some knights who survived the invasion have forsaken what remains of their courts. The newly formed Verdant Order has sworn to defend the last untouched parts of the wilds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/3/c34830e4-823a-40fa-ba41-bb2afbf1e499.jpg?1783915074",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "Activating Verdant Outrider's ability after it has become blocked by a creature with power 2 or less won't cause it to become unblocked."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -6127,5 +6337,113 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Witch's Mark
+{
+    "name": "Witch's Mark",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "You may discard a card. If you do, draw two cards.\nCreate a Wicked Role token attached to up to one target creature you control. (If you control another Role on it, put that one into the graveyard. Enchanted creature gets +1/+1. When this token is put into a graveyard, each opponent loses 1 life.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.DoAction",
+                            "action": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Hand"
+                                        },
+                                        "storeAs": "hand"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "hand",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "discarded",
+                                        "prompt": "Choose 1 card to discard"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "discarded",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Discard"
+                                    }
+                                ]
+                            }
+                        },
+                        "then": {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
+                    },
+                    "descriptionOverride": "You may discard a card. If you do, draw two cards."
+                },
+                {
+                    "type": "CreateRoleToken",
+                    "roleName": "Wicked Role",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "up to one target creature you control"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "up to one target creature you control"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "158",
+        "artist": "Justyna Dura",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/6/0685afcb-06f6-4d18-b8c2-510764558dc1.jpg?1783915086",
+        "rulings": [
+            {
+                "date": "2023-09-01",
+                "text": "You can cast Witch's Mark without a target just to discard a card and draw two cards. However, if you do choose a target, and that target is illegal at the time Witch's Mark tries to resolve, the spell won't resolve and none of its effects will happen. You won't discard, draw, or create a Wicked Role token."
+            },
+            {
+                "date": "2023-09-01",
+                "text": "If you don't choose a target for Witch's Mark, the Wicked Role token won't be created."
+            },
+            {
+                "date": "2023-09-01",
+                "text": "If a permanent has more than one Role attached to it controlled by the same player, each of those Roles except the one with the most recent timestamp is put into its owner's graveyard. This is a state-based action."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
