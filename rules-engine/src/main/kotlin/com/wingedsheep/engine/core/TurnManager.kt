@@ -78,8 +78,8 @@ class TurnManager(
     // ── Delegate methods for external callers ──
 
     /** Draw cards for a player. Delegates to [DrawPhaseManager]. */
-    fun drawCards(state: GameState, playerId: EntityId, count: Int, skipPrompts: Boolean = false): ExecutionResult =
-        drawPhaseManager.drawCards(state, playerId, count, skipPrompts)
+    fun drawCards(state: GameState, playerId: EntityId, count: Int): ExecutionResult =
+        drawPhaseManager.drawCards(state, playerId, count)
 
     // ── Turn lifecycle ──
 

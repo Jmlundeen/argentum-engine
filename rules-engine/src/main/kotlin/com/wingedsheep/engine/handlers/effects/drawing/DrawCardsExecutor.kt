@@ -75,19 +75,13 @@ class DrawCardsExecutor(
      * @param emptyLibraryReason message on draw failure when library is empty.
      *     Draw-step callers pass `"Library is empty"`; spell/ability callers
      *     pass `"Empty library"`.
-     * @param skipPrompts historical flag meaning "this resumption has already
-     *     handled decisions for the draw — skip the static replacement checks
-     *     in the loop, but still honor the shield consumer". Setting this is
-     *     how resume paths avoid re-asking the same question they just resumed
-     *     from.
      */
     fun executeDraws(
         state: GameState,
         playerId: EntityId,
         count: Int,
         isDrawStep: Boolean = false,
-        emptyLibraryReason: String = "Empty library",
-        skipPrompts: Boolean = false
+        emptyLibraryReason: String = "Empty library"
     ): EffectResult {
         return DrawLoop.run(
             state = state,
@@ -96,7 +90,6 @@ class DrawCardsExecutor(
             primitive = primitive,
             dispatcher = dispatcher,
             isDrawStep = isDrawStep,
-            skipStaticReplacement = skipPrompts,
             emptyLibraryReason = emptyLibraryReason
         )
     }

@@ -4,9 +4,10 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
-
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
+import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.DoubleDamage
@@ -130,13 +131,26 @@ class ReplacementEffectProcessor {
             return ProcessorResult.Pass
         }
 
-        // 3. If only one matches, apply it directly
-        if (fresh.size == 1) {
-            return applySingle(state, fresh[0], event, alreadyApplied, context)
+        // 3. Separate optional replacements — they need a yes/no prompt before
+        //    entering the standard CR 616.1 pipeline.
+        val (optional, mandatory) = fresh.partition {
+            it.effect is ReplaceDrawWithEffect && it.effect.optional
+        }
+        if (optional.isNotEmpty()) {
+            // For the first optional match, present the yes/no prompt.
+            // If the player says NO, the immediate draw proceeds normally;
+            // the optional replacement's identity is consumed (CR 614.5) so
+            // it won't re-match on re-check within the same chain.
+            return presentOptionalReplacement(state, event, optional.first(), alreadyApplied, context)
         }
 
-        // 4. Multiple matches — group by priority order (CR 616.1a-d)
-        val byGroup = fresh.groupBy { classifyPriorityGroup(it.effect, event) }
+        // 4. If only one mandatory match, apply it directly
+        if (mandatory.size == 1) {
+            return applySingle(state, mandatory[0], event, alreadyApplied, context)
+        }
+
+        // 6. Multiple mandatory matches — group by priority order (CR 616.1a-d)
+        val byGroup = mandatory.groupBy { classifyPriorityGroup(it.effect, event) }
 
         for (group in enumEntries<ReplacementPriorityGroup>()) {
             val groupEffects = byGroup[group] ?: continue
@@ -291,6 +305,66 @@ class ReplacementEffectProcessor {
     }
 
     /**
+     * Present a yes/no prompt for an optional draw replacement effect
+     * (e.g., Parallel Thoughts).
+     *
+     * The player decides whether to replace the draw with the optional effect.
+     * YES applies the replacement; NO proceeds with the normal draw.
+     */
+    private fun presentOptionalReplacement(
+        state: GameState,
+        event: PendingGameEvent,
+        gathered: GatheredReplacement,
+        alreadyApplied: Set<ReplacementEffectIdentity>,
+        context: EffectContext?
+    ): ProcessorResult.Paused {
+        val playerId = event.affectedPlayerId
+        val decisionId = UUID.randomUUID().toString()
+        val drawEvent = event as? PendingGameEvent.DrawPending
+
+        val sourceEntity = state.getEntity(gathered.identity.sourceEntityId)
+        val card = sourceEntity?.get<CardComponent>()
+        val cardName = card?.name ?: "Unknown"
+        val linkedExile = sourceEntity?.get<LinkedExileComponent>()
+        val pileCount = linkedExile?.exiledIds?.size
+
+        val prompt = buildString {
+            append("Use $cardName? ${gathered.description}")
+            if (pileCount != null) {
+                append(" ($pileCount cards remaining)")
+            }
+        }
+
+        val decision = YesNoDecision(
+            id = decisionId,
+            playerId = playerId,
+            prompt = prompt,
+            context = DecisionContext(
+                sourceId = gathered.identity.sourceEntityId,
+                sourceName = cardName,
+                phase = DecisionPhase.RESOLUTION
+            )
+        )
+
+        val continuation = StaticDrawReplacementContinuation(
+            decisionId = decisionId,
+            drawingPlayerId = playerId,
+            sourceId = gathered.identity.sourceEntityId,
+            sourceName = cardName,
+            replacementEffect = (gathered.effect as ReplaceDrawWithEffect).replacementEffect,
+            drawCount = drawEvent?.drawsLeft ?: 1,
+            isDrawStep = drawEvent?.isDrawStep ?: false,
+            drawnCardsSoFar = drawEvent?.drawnCardsSoFar ?: emptyList(),
+            declinedIdentity = gathered.identity
+        )
+
+        val stateWithDecision = state.withPendingDecision(decision)
+        val stateWithContinuation = stateWithDecision.pushContinuation(continuation)
+
+        return ProcessorResult.Paused(stateWithContinuation, decision)
+    }
+
+    /**
      * Classify a replacement effect into a priority group (CR 616.1a-d).
      *
      * For Phase 1 (draw domain), all draw-related replacements are in
@@ -378,11 +452,6 @@ class ReplacementEffectProcessor {
             val controllerId = container.get<ControllerComponent>()?.playerId ?: continue
 
             for ((index, effect) in replacementSource.replacementEffects.withIndex()) {
-                // Skip optional ReplaceDrawWithEffect from battlefield permanents —
-                // these are handled by DrawReplacementDispatcher.checkStaticDrawReplacement
-                // which presents the yes/no prompt to the player (Parallel Thoughts style).
-                if (effect is ReplaceDrawWithEffect && effect.optional) continue
-
                 val evalContext = context ?: EffectContext(
                     controllerId = controllerId,
                     sourceId = entityId

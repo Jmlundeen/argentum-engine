@@ -35,8 +35,12 @@ sealed interface PendingGameEvent {
         val playerId: EntityId,
         val count: Int,
         val remainingDraws: Int = 0,
-        val isDrawStep: Boolean = false
+        val isDrawStep: Boolean = false,
+        val drawnCardsSoFar: List<EntityId> = emptyList()
     ) : PendingGameEvent {
         override val affectedPlayerId: EntityId get() = playerId
+
+        /** Total draws remaining including this one (derived from remainingDraws + 1). */
+        val drawsLeft: Int get() = remainingDraws + 1
     }
 }

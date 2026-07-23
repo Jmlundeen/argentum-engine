@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.core
 
+import com.wingedsheep.engine.replacement.ReplacementEffectIdentity
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Effect
@@ -97,6 +98,9 @@ data class DrawReplacementRemainingDrawsContinuation(
  * @property drawCount Number of draws remaining (including this one)
  * @property isDrawStep Whether this is from the draw step (vs spell/ability draws)
  * @property drawnCardsSoFar Cards already drawn before this replacement was offered
+ * @property declinedIdentity The replacement effect identity to stamp on the chain
+ *     when the player says NO, so this specific replacement won't re-prompt for
+ *     the current draw but other optional replacements still can.
  */
 @Serializable
 data class StaticDrawReplacementContinuation(
@@ -107,7 +111,8 @@ data class StaticDrawReplacementContinuation(
     val replacementEffect: Effect,
     val drawCount: Int,
     val isDrawStep: Boolean,
-    val drawnCardsSoFar: List<EntityId> = emptyList()
+    val drawnCardsSoFar: List<EntityId> = emptyList(),
+    val declinedIdentity: ReplacementEffectIdentity? = null
 ) : ContinuationFrame
 
 /**

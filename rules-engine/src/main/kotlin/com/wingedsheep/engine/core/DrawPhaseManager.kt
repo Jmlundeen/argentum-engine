@@ -127,14 +127,13 @@ class DrawPhaseManager(
      * Delegates to [DrawCardsExecutor.executeDraws] so the draw-step path and
      * the spell/ability path share the same primitives.
      */
-    fun drawCards(state: GameState, playerId: EntityId, count: Int, skipPrompts: Boolean = false): ExecutionResult {
+    fun drawCards(state: GameState, playerId: EntityId, count: Int): ExecutionResult {
         return drawExecutor.executeDraws(
             state = state,
             playerId = playerId,
             count = count,
             isDrawStep = true,
-            emptyLibraryReason = "Library is empty",
-            skipPrompts = skipPrompts
+            emptyLibraryReason = "Library is empty"
         ).toExecutionResult()
     }
 }

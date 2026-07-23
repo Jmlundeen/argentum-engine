@@ -10,6 +10,7 @@ import com.wingedsheep.engine.core.YesNoResponse
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.drawing.DrawCardsExecutor
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.replacement.ReplacementEffectIdentity
 
 class DrawReplacementContinuationResumer(
     private val services: EngineServices
@@ -55,13 +56,21 @@ class DrawReplacementContinuationResumer(
                 events.addAll(effectResult.events)
             }
         } else {
-            // Player declined - draw 1 card normally (skip prompts since we already handled them)
+            // Player declined — stamp the declined identity so this specific
+            // replacement won't re-prompt (CR 614.5), but other optional
+            // replacements (if any) can still prompt for the current draw.
+            val declinedId = continuation.declinedIdentity
+            val stateWithDeclined = if (declinedId != null) {
+                newState.copy(activeReplacementChain = setOf(declinedId))
+            } else {
+                newState
+            }
             val singleDrawExecutor = DrawCardsExecutor(
                 cardRegistry = services.cardRegistry,
                 effectExecutor = services.effectExecutorRegistry::execute
             )
             val singleDrawResult = singleDrawExecutor.executeDraws(
-                newState, playerId, 1, skipPrompts = true
+                stateWithDeclined, playerId, 1
             ).toExecutionResult()
             if (singleDrawResult.isPaused) {
                 return ExecutionResult.paused(
@@ -70,7 +79,8 @@ class DrawReplacementContinuationResumer(
                     events + singleDrawResult.events
                 )
             }
-            newState = singleDrawResult.newState
+            // Clear the chain so remaining draws start clean
+            newState = singleDrawResult.newState.copy(activeReplacementChain = null)
             events.addAll(singleDrawResult.events)
         }
 

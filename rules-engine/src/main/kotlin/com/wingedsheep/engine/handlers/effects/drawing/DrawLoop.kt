@@ -38,9 +38,6 @@ object DrawLoop {
      *     bare [DrawCardsExecutor] without an effect executor)
      * @param isDrawStep `true` when this is the active player's draw-step
      *     draw, `false` for spell/ability draws
-     * @param skipStaticReplacement skip the Parallel Thoughts-style static
-     *     replacement check. Historical `skipPrompts = true` sets this when
-     *     resuming after a decision already asked the question.
      * @param emptyLibraryReason message on [DrawFailedEvent]
      *     when the library runs out mid-loop. Draw-step callers pass
      *     `"Library is empty"`; spell/ability callers pass `"Empty library"`.
@@ -52,7 +49,6 @@ object DrawLoop {
         primitive: DrawCardPrimitive,
         dispatcher: DrawReplacementDispatcher?,
         isDrawStep: Boolean,
-        skipStaticReplacement: Boolean = false,
         emptyLibraryReason: String = "Empty library"
     ): EffectResult {
         var newState = state
@@ -68,8 +64,7 @@ object DrawLoop {
                     playerId = playerId,
                     drawsLeftIncludingThis = remaining,
                     drawnCardsSoFar = drawnCards.toList(),
-                    isDrawStep = isDrawStep,
-                    skipStaticReplacement = skipStaticReplacement
+                    isDrawStep = isDrawStep
                 )
                 when (dispatch) {
                     is DrawReplacementDispatcher.DispatchResult.Paused -> {
