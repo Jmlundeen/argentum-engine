@@ -369,10 +369,23 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     if (combatState.mode !== 'declareAttackers') return
     if (combatState.validCreatures.length === 0) return
 
+    // Sticky defender applies to the whole selection (multiplayer) — same rule as
+    // toggling attackers one by one, so "Attack All" never reopens the defender pick
+    // when a defender is already chosen (or was pre-assigned as the sole legal one).
+    const newAttackers = [...combatState.validCreatures]
+    const newTargets = { ...combatState.attackerTargets }
+    if (combatState.stickyDefenderId) {
+      for (const id of newAttackers) {
+        if (!newTargets[id]) newTargets[id] = combatState.stickyDefenderId
+      }
+    }
+    getWebSocket()?.send(createUpdateAttackerTargetsMessage(newAttackers, newTargets))
+
     set({
       combatState: {
         ...combatState,
-        selectedAttackers: [...combatState.validCreatures],
+        selectedAttackers: newAttackers,
+        attackerTargets: newTargets,
       },
     })
   },

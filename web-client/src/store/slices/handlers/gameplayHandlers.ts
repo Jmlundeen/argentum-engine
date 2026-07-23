@@ -674,6 +674,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
           result: 'lose',
           message: 'You are out of the game — the table plays on without you.',
           gameId: msg.gameId,
+          eliminated: true,
         },
       })
     },

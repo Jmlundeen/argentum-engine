@@ -178,13 +178,29 @@ export default function App() {
         ? [...attackersAction.mandatoryAttackers]
         : []
 
+      // Multiplayer with exactly one legal attack target that is a player (attack
+      // left/right, last opponent standing — and no attackable planeswalkers):
+      // pre-assign it as the sticky defender so every selected attacker gets it
+      // and the "Attack which player?" popup never needs to ask.
+      const playerIdSet = new Set(gameState?.players.map((p) => p.playerId) ?? [])
+      const soleDefenderId =
+        (gameState?.players.length ?? 0) > 2 &&
+        validAttackTargets.length === 1 &&
+        playerIdSet.has(validAttackTargets[0]!)
+          ? validAttackTargets[0]!
+          : null
+
       // Enter combat mode — pre-select mandatory attackers
       startCombat({
         mode: 'declareAttackers',
         actingSeat: attackersAction?.action.type === 'DeclareAttackers' ? attackersAction.action.playerId : null,
-        stickyDefenderId: null,
+        stickyDefenderId: soleDefenderId,
         selectedAttackers: [...mandatoryAttackers],
-        attackerTargets: {},
+        // Mandatory attackers are pre-selected, so give them the sole defender too —
+        // otherwise the defender popup would still ask about them.
+        attackerTargets: soleDefenderId
+          ? Object.fromEntries(mandatoryAttackers.map((id) => [id, soleDefenderId]))
+          : {},
         validAttackTargets,
         blockerAssignments: {},
         validCreatures,
@@ -411,6 +427,7 @@ function GameOverlay() {
   const lastError = useGameStore((state) => state.lastError)
   const clearError = useGameStore((state) => state.clearError)
   const returnToMenu = useGameStore((state) => state.returnToMenu)
+  const enterEliminatedSpectate = useGameStore((state) => state.enterEliminatedSpectate)
   const navigate = useNavigate()
 
   // Auto-dismiss is handled centrally in the store (setError schedules clearError), so it
@@ -437,6 +454,16 @@ function GameOverlay() {
           </h1>
           <p style={overlayStyles.subtitle}>{reasonText}</p>
           <div style={overlayStyles.buttonRow}>
+            {/* Eliminated from a multiplayer game that plays on: offer to stay and
+                spectate the rest of it (board overview, action UI hidden). */}
+            {gameOverState.eliminated && (
+              <button
+                onClick={enterEliminatedSpectate}
+                style={overlayStyles.replayButton}
+              >
+                Keep Watching
+              </button>
+            )}
             <button
               onClick={returnToMenu}
               style={overlayStyles.button}

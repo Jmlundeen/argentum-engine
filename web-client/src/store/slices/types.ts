@@ -177,6 +177,12 @@ export interface GameOverState {
   result: 'win' | 'lose' | 'draw'
   message?: string | undefined
   gameId?: string | undefined
+  /**
+   * True when this is a personal elimination from a multiplayer game that continues
+   * without the player — the overlay then offers "Keep watching" (spectate the rest
+   * of the game) alongside the exit buttons.
+   */
+  eliminated?: boolean
 }
 
 /**
@@ -979,12 +985,16 @@ export type GameStore = {
   viewedOpponentId: EntityId | null
   viewPinned: boolean
   followAction: boolean
+  overviewMode: boolean
+  eliminatedSpectating: boolean
   spectatorBottomSeatId: EntityId | null
   teamByPlayerId: Readonly<Record<EntityId, number>>
   teamSharedLife: boolean
   viewOpponent: (playerId: EntityId, opts?: { pin?: boolean }) => void
   unpinView: () => void
   toggleFollowAction: () => void
+  toggleOverviewMode: () => void
+  enterEliminatedSpectate: () => void
   followViewTo: (playerId: EntityId) => void
   setSpectatorBottomSeat: (playerId: EntityId | null) => void
   setSeatTeams: (teamByPlayerId: Record<EntityId, number>, sharedLife?: boolean) => void

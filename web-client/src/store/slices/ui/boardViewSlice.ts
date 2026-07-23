@@ -6,9 +6,29 @@
  * rules. In a 2-player game none of this state is consulted — the sole opponent is
  * always the viewed board and the rail doesn't render.
  */
-import type { SliceCreator, EntityId } from '../types'
+import type { SliceCreator, EntityId, GameStore } from '../types'
 
 const FOLLOW_ACTION_KEY = 'argentum-follow-action'
+
+/**
+ * True while the player has any pending input or in-progress selection. The camera —
+ * whether follow-the-action, the combat defender-focus split, or any other automatic
+ * view change — must never move under an in-progress selection (stale-UI suppression
+ * applies to camera movement). Shared by `followViewTo` and the render-time camera hooks.
+ */
+export function hasPendingInputSelection(state: GameStore): boolean {
+  return !!(
+    state.targetingState ||
+    state.decisionSelectionState ||
+    state.pendingDecision ||
+    state.distributeState ||
+    state.counterDistributionState ||
+    state.manaSelectionState ||
+    state.delveSelectionState ||
+    state.tapForPowerSelectionState ||
+    state.pipelineState
+  )
+}
 
 function loadFollowAction(): boolean {
   try {
@@ -32,6 +52,18 @@ export interface BoardViewSliceState {
   viewPinned: boolean
   /** Follow-the-action camera setting (persisted). Default on. */
   followAction: boolean
+  /**
+   * Table overview: every living opponent's board is shown side-by-side (cards shrink to
+   * fit) instead of the one-board sliding camera. Toggled from the rail or the `0` key;
+   * selecting a single board (chip click / 1-9) exits back to the focused camera.
+   */
+  overviewMode: boolean
+  /**
+   * The local player was eliminated from a multiplayer game and chose "Keep watching"
+   * on the defeat overlay: their dead bottom half collapses, the freed space goes to the
+   * opponent boards, and all action UI hides. Cleared on reset (new game / leave).
+   */
+  eliminatedSpectating: boolean
   /**
    * Spectator/replay: which seat anchors the bottom half of the board. Null =
    * the stream's default (`spectatingState.player1Id`). Set by the spectator
@@ -60,6 +92,13 @@ export interface BoardViewSliceActions {
   unpinView: () => void
   /** Toggle the follow-the-action setting (persisted). */
   toggleFollowAction: () => void
+  /** Toggle the all-boards table overview. */
+  toggleOverviewMode: () => void
+  /**
+   * "Keep watching" after being eliminated from a multiplayer game: dismisses the defeat
+   * overlay and enters the spectator layout (overview on, dead bottom half collapsed).
+   */
+  enterEliminatedSpectate: () => void
   /**
    * Follow-the-action write. Refused at the handler (not at render time) when the
    * view is pinned, following is off, or the player has any pending input — the
@@ -84,6 +123,8 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
   viewedOpponentId: null,
   viewPinned: false,
   followAction: loadFollowAction(),
+  overviewMode: false,
+  eliminatedSpectating: false,
   spectatorBottomSeatId: null,
   teamByPlayerId: {},
   teamSharedLife: false,
@@ -96,7 +137,13 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
     const pin = opts?.pin ?? true
     // Pinning a board and follow-the-action are mutually exclusive: pinning turns follow off
     // (the camera is locked), so the Follow toggle reflects that rather than lying "on".
-    set({ viewedOpponentId: playerId, viewPinned: pin, ...(pin ? { followAction: false } : {}) })
+    // Picking a single board also exits the table overview — it *is* the focus gesture.
+    set({
+      viewedOpponentId: playerId,
+      viewPinned: pin,
+      overviewMode: false,
+      ...(pin ? { followAction: false } : {}),
+    })
   },
 
   unpinView: () => set({ viewPinned: false }),
@@ -112,6 +159,15 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
     set({ followAction: next, ...(next ? { viewPinned: false } : {}) })
   },
 
+  toggleOverviewMode: () => {
+    // Entering the overview releases any pin (there is no single board to pin).
+    const next = !get().overviewMode
+    set({ overviewMode: next, ...(next ? { viewPinned: false } : {}) })
+  },
+
+  enterEliminatedSpectate: () =>
+    set({ eliminatedSpectating: true, overviewMode: true, viewPinned: false, gameOverState: null }),
+
   followViewTo: (playerId) => {
     const state = get()
     if (!state.followAction || state.viewPinned) return
@@ -121,18 +177,7 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
     // declare-blockers is the one exception: sliding the attacker's board in is
     // exactly what a defender needs, and blocking happens on your own (always
     // visible) half — so only an in-progress *attack* declaration blocks it.
-    if (
-      state.targetingState ||
-      state.decisionSelectionState ||
-      state.pendingDecision ||
-      state.combatState?.mode === 'declareAttackers' ||
-      state.distributeState ||
-      state.counterDistributionState ||
-      state.manaSelectionState ||
-      state.delveSelectionState ||
-      state.tapForPowerSelectionState ||
-      state.pipelineState
-    ) {
+    if (hasPendingInputSelection(state) || state.combatState?.mode === 'declareAttackers') {
       return
     }
     set({ viewedOpponentId: playerId })
@@ -145,5 +190,13 @@ export const createBoardViewSlice: SliceCreator<BoardViewSlice> = (set, get) => 
     set({ teamByPlayerId, teamSharedLife: sharedLife }),
 
   resetBoardView: () =>
-    set({ viewedOpponentId: null, viewPinned: false, spectatorBottomSeatId: null, teamByPlayerId: {}, teamSharedLife: false }),
+    set({
+      viewedOpponentId: null,
+      viewPinned: false,
+      overviewMode: false,
+      eliminatedSpectating: false,
+      spectatorBottomSeatId: null,
+      teamByPlayerId: {},
+      teamSharedLife: false,
+    }),
 })

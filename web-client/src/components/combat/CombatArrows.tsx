@@ -221,6 +221,20 @@ function isOnScreen(p: Point): boolean {
 }
 
 /**
+ * The name plate ("face") of a player's board cell in a shared-strip view (table
+ * overview / combat defender-focus split). Its presence on-screen is what marks the
+ * board as visible — several boards can share the strip, so visibility can't be
+ * inferred from the viewed opponent alone. Arrows targeting the player end here.
+ */
+function getBoardPlateCenter(playerId: EntityId): Point | null {
+  const element = document.querySelector(`[data-board-plate="${playerId}"]`)
+  if (!element) return null
+  const rect = element.getBoundingClientRect()
+  const p = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+  return isOnScreen(p) ? p : null
+}
+
+/**
  * Combat arrows overlay - draws arrows between blockers and attackers.
  *
  * Shows arrows in three scenarios:
@@ -448,7 +462,12 @@ export function CombatArrows() {
         // is the planeswalker's controller (CR 802.2a) or the player themself.
         const targetCard = cards?.[targetId]
         const defenderId = targetCard ? targetCard.controllerId : targetId
-        if (isMulti && defenderId !== viewingPlayerId && defenderId !== viewedOpponentId) {
+        const isOtherOpponent =
+          isMulti && defenderId !== viewingPlayerId && defenderId !== viewedOpponentId
+        // A defender board sharing the strip (table overview / combat defender-focus
+        // split) shows its name plate — a real on-screen anchor, so no bundling.
+        const platePos = isOtherOpponent ? getBoardPlateCenter(defenderId) : null
+        if (isOtherOpponent && !platePos) {
           // Off-screen defender → bundle to their rail chip.
           const chip = getPlayerLifeCenter(defenderId)
           if (!chip) return
@@ -460,6 +479,9 @@ export function CombatArrows() {
         }
         const cardPos = targetCard ? getCardCenter(targetId) : null
         const targetPos = (cardPos && (!isMulti || isOnScreen(cardPos)) ? cardPos : null)
+          // Player attacked on a visible shared-strip board: their cell's name plate is
+          // the "face" of the board (and also carries their data-life-id anchors).
+          ?? platePos
           ?? getPlayerLifeCenter(defenderId)
         if (!targetPos) return
         newAttackerArrows.push({
