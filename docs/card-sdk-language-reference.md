@@ -4528,7 +4528,7 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   in your graveyard has flashback … equal to that card's mana cost") and one for
   `InstantOrSorcery.withSubtype(Lesson)` with `cost = {1}` ("each Lesson card in your graveyard has
   flashback {1}"), both `duringYourTurnOnly = true`.
-- `GrantMayCastFromLinkedExile(filter = Nonland, duringYourTurnOnly = false, additionalCost = null, ownedByYou = false, withoutPayingManaCost = false, oncePerTurn = false, maxManaValue = null, exiledThisTurnOnly = false)`
+- `GrantMayCastFromLinkedExile(filter = Nonland, duringYourTurnOnly = false, additionalCost = null, ownedByYou = false, withoutPayingManaCost = false, oncePerTurn = false, maxManaValue = null, exiledThisTurnOnly = false, entersWithCounter = null)`
   — "you may cast cards exiled with this permanent" — reads the source's `LinkedExileComponent` (Rona,
   Disciple of Gix; Maralen, Fae Ascendant; Dawnhand Dissident). Casting spells from linked exile is
   enumerated by `CastFromZoneEnumerator.enumerateLinkedExile`; the cast path deliberately skips lands.
@@ -4538,6 +4538,14 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   (e.g. `GameObjectFilter.Any`, no `IsNonland` predicate), the permission also covers *playing* land
   cards from the linked exile — surfaced by `PlayLandEnumerator` and authorized by `PlayLandHandler`
   (lands cost no life). Pair with a `RedirectZoneChange(linkToSource = true)` to fill the exile pile.
+  **Cast-this-way entry rider:** `entersWithCounter` (a `CounterType`) mirrors
+  `MayCastFromGraveyard.entersWithCounter` for the linked-exile path — a permanent cast from this pile
+  *under this grant* enters the battlefield with one such counter (`CastSpellHandler` freezes the same
+  `GraveyardCastRiderComponent` it uses for graveyard casts, applied at resolution by `StackResolver`).
+  Intrepid Paleontologist = `GrantMayCastFromLinkedExile(filter = Creature.withSubtype("Dinosaur"),
+  ownedByYou = true, entersWithCounter = CounterType.FINALITY)` — "You may cast Dinosaur creature spells
+  from among cards you own exiled with this creature. If you cast a spell this way, that creature enters
+  with a finality counter on it."
 - `GraveyardCreaturesHaveSneak(cost)` — "Creature cards in your graveyard have sneak `cost`. You may
   cast creature spells from your graveyard using their sneak abilities." (Ninja Teen level 3.) While
   the controller has this static active, their graveyard creature cards become castable via the

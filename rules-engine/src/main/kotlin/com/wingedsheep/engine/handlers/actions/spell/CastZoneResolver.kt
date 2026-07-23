@@ -650,9 +650,21 @@ class CastZoneResolver(
                 is CardPredicate.IsInstant -> card.typeLine.isInstant
                 is CardPredicate.IsSorcery -> card.typeLine.isSorcery
                 is CardPredicate.IsCreature -> card.typeLine.isCreature
+                is CardPredicate.IsNoncreature -> !card.typeLine.isCreature
                 is CardPredicate.IsEnchantment -> card.typeLine.isEnchantment
+                is CardPredicate.IsNonenchantment -> !card.typeLine.isEnchantment
                 is CardPredicate.IsArtifact -> card.typeLine.isArtifact
+                is CardPredicate.IsNonartifact -> !card.typeLine.isArtifact
                 is CardPredicate.IsLand -> card.typeLine.isLand
+                is CardPredicate.IsNonland -> !card.typeLine.isLand
+                is CardPredicate.IsPermanent -> card.typeLine.isPermanent
+                // Subtype gating — required for e.g. "Dinosaur creature spells" (Intrepid
+                // Paleontologist). Without these branches a subtype filter silently matched
+                // every card via the conservative `else`.
+                is CardPredicate.HasSubtype -> card.typeLine.hasSubtype(predicate.subtype)
+                is CardPredicate.HasAnyOfSubtypes ->
+                    predicate.subtypes.any { card.typeLine.hasSubtype(it) }
+                is CardPredicate.NotSubtype -> !card.typeLine.hasSubtype(predicate.subtype)
                 is CardPredicate.ManaValueAtLeast -> card.manaCost.cmc >= predicate.min
                 is CardPredicate.ManaValueAtMost -> card.manaCost.cmc <= predicate.max
                 is CardPredicate.ManaValueEquals -> card.manaCost.cmc == predicate.value

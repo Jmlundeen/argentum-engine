@@ -8761,6 +8761,88 @@
     ]
 }
 
+// Intrepid Paleontologist
+{
+    "name": "Intrepid Paleontologist",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Human Druid",
+    "oracleText": "{T}: Add one mana of any color.\n{2}: Exile target card from a graveyard.\nYou may cast Dinosaur creature spells from among cards you own exiled with this creature. If you cast a spell this way, that creature enters with a finality counter on it. (If a creature with a finality counter on it would die, exile it instead.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target card in a graveyard"
+                    },
+                    "destination": "Exile",
+                    "linkToSource": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {},
+                            "zone": "Graveyard"
+                        },
+                        "id": "target card in a graveyard"
+                    }
+                ]
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantMayCastFromLinkedExile",
+                "filter": "creature Dinosaur",
+                "ownedByYou": true,
+                "entersWithCounter": "FINALITY"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "193",
+        "rarity": "RARE",
+        "artist": "Irina Nordsol",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/7/871a164a-0fe6-480e-a1be-cbffce884bd3.jpg?1782694454",
+        "rulings": [
+            {
+                "date": "2023-11-10",
+                "text": "Finality counters aren't a keyword ability. A finality counter doesn't give any abilities to the permanent it's on."
+            },
+            {
+                "date": "2023-11-10",
+                "text": "You cast the exiled Dinosaur creature spell using the permission Intrepid Paleontologist grants. You must still pay that spell's costs and follow its normal timing permissions (usually sorcery speed)."
+            },
+            {
+                "date": "2023-11-10",
+                "text": "If Intrepid Paleontologist leaves the battlefield, the cards exiled with it remain exiled and can no longer be cast."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Inverted Iceberg
 {
     "name": "Inverted Iceberg",

@@ -3010,9 +3010,14 @@ class CastSpellHandler(
         //    added subtype), from the specific grant that authorized this cast.
         //  - Osteomancer Adept's forage permission: "that creature enters with a finality counter on
         //    it" (finality only, no added subtype) — reusing the same entry-rider plumbing.
+        //  - Intrepid Paleontologist: a rider-bearing GrantMayCastFromLinkedExile ("If you cast a
+        //    spell this way, that creature enters with a finality counter on it") — same plumbing,
+        //    but the authorizing grant is the linked-exile cast permission captured pre-cast.
         val riderCounter: CounterType? = when {
             graveyardCastRiderGrant?.hasEntryRider == true -> graveyardCastRiderGrant.entersWithCounter
             isForageCast -> CounterType.FINALITY
+            linkedExileGranterEntry?.ability?.entersWithCounter != null ->
+                linkedExileGranterEntry.ability.entersWithCounter
             else -> null
         }
         val riderSubtype: String? =
