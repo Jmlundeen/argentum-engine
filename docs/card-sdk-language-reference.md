@@ -6749,18 +6749,29 @@ replacementEffect {
   covered too: e.g. Dauntless Dismantler's "Artifacts your opponents control enter tapped" taps an
   opponent's Map/Treasure/Clue token, and Authority of the Consuls taps opponents' creature tokens (a token
   entering attacking keeps its tapped state and is not overridden).
-- `RedirectZoneChange(newDestination, appliesTo, linkToSource = false)` — redirect a zone change to a
-  different destination (Rest in Peace / Leyline of the Void: graveyard → exile). `appliesTo` is an
-  `EventPattern.ZoneChangeEvent(filter, from?, to?)`; the `filter`'s `controllerPredicate` scopes it
-  (e.g. `OwnedByOpponent` for Leyline). When `linkToSource = true` and `newDestination = Zone.EXILE`,
-  each redirected card is added to the source permanent's `LinkedExileComponent`, so the source can
-  later reference — and grant playing of — the cards it exiled. Valgavoth, Terror Eater pairs it with
-  `GrantMayCastFromLinkedExile`: "If a card you didn't control would be put into an opponent's graveyard
-  from anywhere, exile it instead" is `RedirectZoneChange(newDestination = Zone.EXILE, linkToSource =
-  true, appliesTo = ZoneChangeEvent(to = Zone.GRAVEYARD, filter = GameObjectFilter(cardPredicates =
-  listOf(CardPredicate.IsNontoken), controllerPredicate = ControllerPredicate.And(listOf(OwnedByOpponent,
-  Not(ControlledByYou))))))`. The redirect (and link) is honored across every graveyard path: SBA deaths,
-  mill/discard/destroy (`ZoneTransitionService`), spell resolution, counters, and fizzles (`StackResolver`).
+- `RedirectZoneChange(newDestination, appliesTo, linkToSource = false, selfOnly = false, shuffleIntoLibrary = false, reveal = false)`
+  — redirect a zone change to a different destination (Rest in Peace / Leyline of the Void: graveyard →
+  exile). `appliesTo` is an `EventPattern.ZoneChangeEvent(filter, from?, to?)`; the `filter`'s
+  `controllerPredicate` scopes it (e.g. `OwnedByOpponent` for Leyline). When `linkToSource = true` and
+  `newDestination = Zone.EXILE`, each redirected card is added to the source permanent's
+  `LinkedExileComponent`, so the source can later reference — and grant playing of — the cards it exiled.
+  Valgavoth, Terror Eater pairs it with `GrantMayCastFromLinkedExile`: "If a card you didn't control
+  would be put into an opponent's graveyard from anywhere, exile it instead" is
+  `RedirectZoneChange(newDestination = Zone.EXILE, linkToSource = true, appliesTo = ZoneChangeEvent(to =
+  Zone.GRAVEYARD, filter = GameObjectFilter(cardPredicates = listOf(CardPredicate.IsNontoken),
+  controllerPredicate = ControllerPredicate.And(listOf(OwnedByOpponent, Not(ControlledByYou))))))`. The
+  redirect (and link) is honored across every graveyard path: SBA deaths, mill/discard/destroy
+  (`ZoneTransitionService`), spell resolution, counters, and fizzles (`StackResolver`).
+  **Card-intrinsic "from anywhere" self-replacements:** set `selfOnly = true` when the redirect is the
+  moving card's *own* ability referring to itself ("If ~ would be put into a graveyard from anywhere,
+  …"). It then functions in **every** zone (CR 614.12), carried on the card entity via
+  `SelfZoneRedirectComponent` rather than scanned off the battlefield, so the card is redirected whether
+  it dies, is milled, is discarded, or is countered on the stack — and it stops applying only while the
+  source is on the battlefield with all abilities removed. `shuffleIntoLibrary = true` (with
+  `newDestination = Zone.LIBRARY`) shuffles the card in rather than placing it on top; `reveal = true`
+  is the flavor "reveal it and …" (informational — a public-zone card is already known). Darksteel
+  Colossus / Progenitus: `RedirectZoneChange(newDestination = Zone.LIBRARY, appliesTo =
+  ZoneChangeEvent(to = Zone.GRAVEYARD), selfOnly = true, shuffleIntoLibrary = true, reveal = true)`.
 - `RedirectZoneChangeWithEffect(newDestination, additionalEffect, selfOnly = false, linkToSource = false,
   appliesTo)` — like `RedirectZoneChange` but also runs `additionalEffect` when the replacement fires.
   The additional effect is applied through a small executor whitelist (not the full pipeline) —

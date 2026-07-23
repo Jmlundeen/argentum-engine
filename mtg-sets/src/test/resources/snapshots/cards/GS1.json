@@ -1,0 +1,41 @@
+// Ancestor Dragon
+{
+    "name": "Ancestor Dragon",
+    "manaCost": "{4}{W}{W}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhenever one or more creatures you control attack, you gain 1 life for each attacking creature.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "YouAttackEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature attacking"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "12",
+        "rarity": "RARE",
+        "artist": "Shinchuen Chen",
+        "flavorText": "It is said that Yinglong gave birth to the qilin and the phoenix, and after them, all the hairy and winged beings in the world. Thus it is known as the Ancestor Dragon.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/b/9ba9d1f0-a864-490c-b258-6bf9de251c4b.jpg?1783934632"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

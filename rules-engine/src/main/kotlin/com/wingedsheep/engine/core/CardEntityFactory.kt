@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.model.PrintingRef
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ProtectionScope
+import com.wingedsheep.sdk.scripting.RedirectZoneChange
 
 /**
  * Builds the per-entity [ComponentContainer] for a card from its [CardDefinition].
@@ -111,6 +112,16 @@ object CardEntityFactory {
 
         if (protectionColors.isNotEmpty() || protectionSubtypes.isNotEmpty() || protectionSupertypes.isNotEmpty()) {
             container = container.with(ProtectionComponent(protectionColors, protectionSubtypes, protectionSupertypes))
+        }
+
+        // Card-intrinsic "would be put into [zone] from anywhere → redirect instead" self-replacements
+        // (Darksteel Colossus, Progenitus). Carried on the card entity so they function in every zone,
+        // not just on the battlefield — see [SelfZoneRedirectComponent].
+        val selfRedirects = cardDef.script.replacementEffects
+            .filterIsInstance<RedirectZoneChange>()
+            .filter { it.selfOnly }
+        if (selfRedirects.isNotEmpty()) {
+            container = container.with(SelfZoneRedirectComponent(selfRedirects))
         }
 
         val hexproofFromColors = cardDef.keywordAbilities

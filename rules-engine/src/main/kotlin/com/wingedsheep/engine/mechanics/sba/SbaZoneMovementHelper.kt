@@ -91,10 +91,21 @@ object SbaZoneMovementHelper {
             }
         }
 
-        // Delegate zone movement to ZoneTransitionService for full cleanup
+        // Delegate zone movement to ZoneTransitionService for full cleanup. A card-intrinsic
+        // redirect into the library (Darksteel Colossus, Progenitus) shuffles the card in — the
+        // redirect check ran above, so carry its Shuffled placement through the skipped move.
+        val deathLibraryPlacement =
+            if (redirectResult.shuffleIntoLibrary && destinationZone == Zone.LIBRARY) {
+                com.wingedsheep.engine.handlers.effects.LibraryPlacement.Shuffled
+            } else {
+                com.wingedsheep.engine.handlers.effects.LibraryPlacement.Top
+            }
         val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
             newState, entityId, destinationZone,
-            com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(skipZoneChangeRedirect = true)
+            com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
+                skipZoneChangeRedirect = true,
+                libraryPlacement = deathLibraryPlacement
+            )
         )
         newState = transitionResult.state
 
