@@ -1972,6 +1972,20 @@ can't statically prevent (cross-trigger flows, `Self`-vs-`ContextTarget` inside 
 - `EffectTarget.Self` — the source permanent. In a *granted* ability (Equipment/Aura "equipped
   creature has …"), `Self` is the **host** that received the ability — its `{T}` taps the host —
   not the granting object (CR 113.7).
+  - **Self-noun rendering (type-aware text).** `EffectTarget.Self.description` is "this creature"
+    (most self-referential effects live on creatures). Effects that also apply to *non-creature*
+    permanents — `TransformEffect` / `ExileAndReturnTransformedEffect`, and the ability grants
+    `GrantTriggeredAbility` / `GrantActivatedAbility` / `GrantStaticAbility` /
+    `GrantReplacementEffect` — must not hard-code either noun, so they implement
+    `SelfReferentialDescription` (a standalone mixin, **not** a subtype of the sealed `@Serializable`
+    `Effect`) and build a `descriptionTemplate` using `EffectTarget.selfNounToken` — which renders
+    `Self` as the placeholder `SELF_NOUN_TOKEN` (`"{self}"`). `Effect.description` default-resolves
+    that token to `DEFAULT_SELF_NOUN` ("this permanent") via `resolveSelfNoun(...)`, a type-safe
+    fallback so the raw token never leaks; the server's `ClientStateTransformer` instead re-resolves
+    the template against the host permanent's *projected* type (`selfNounFor` → "this creature" /
+    "this artifact" / "this land" / … ) when it renders the ability on the stack (and planeswalker
+    loyalty lines). `descriptionTemplate` and `description` are computed (non-constructor)
+    properties, so neither is serialized — the card snapshot is unaffected.
 - `EffectTarget.GrantingSource` — the permanent whose static ability granted the currently-resolving
   ability: the Equipment/Aura/permanent bearing the `GrantActivatedAbility` static, as the counterpart
   to `Self` (the host). Use when a granted ability names the *granting object* — e.g. Trusty
@@ -4403,13 +4417,38 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   from both the enumerator (displayed cost) and `ActivateAbilityHandler` (paid cost), keyed on the
   ability's source permanent; non-mana costs (`{T}`, sacrifice) and abilities with no mana cost are
   unaffected. Backed by `ManaCost.reduceGenericWithManaFloor(amount, minTotalMana)`.
-- `MayCastFromGraveyard(filter, lifeCost = 0, duringYourTurnOnly = false)` — cast spells matching
-  `filter` from your graveyard following normal timing, optionally paying `lifeCost` life. Free for
-  Yawgmoth's Agenda (`MayCastFromGraveyard(Nonland)`); `lifeCost = 1, duringYourTurnOnly = true` for
-  Festival of Embers. Pair with `MayPlayLandsFromGraveyard` for "play lands and cast spells from
-  your graveyard". Lands are *played*, not cast, so they need the lands permission separately. This
-  grants permission over *other* cards in your graveyard from a battlefield permanent — for a card
-  that grants permission to cast *itself* from a zone, use `MayCastSelfFromZones`.
+- `MayCastFromGraveyard(filter, lifeCost = 0, duringYourTurnOnly = false, entersWithCounter = null, addedSubtypeOnEntry = null)`
+  — cast spells matching `filter` from your graveyard following normal timing, optionally paying
+  `lifeCost` life. Free for Yawgmoth's Agenda (`MayCastFromGraveyard(Nonland)`); `lifeCost = 1,
+  duringYourTurnOnly = true` for Festival of Embers. Pair with `MayPlayLandsFromGraveyard` for "play
+  lands and cast spells from your graveyard". Lands are *played*, not cast, so they need the lands
+  permission separately. This grants permission over *other* cards in your graveyard from a
+  battlefield permanent — for a card that grants permission to cast *itself* from a zone, use
+  `MayCastSelfFromZones`. **Cast-this-way entry rider:** `entersWithCounter` (a `CounterType`) and
+  `addedSubtypeOnEntry` (a subtype string) apply only to a permanent cast from the graveyard *under
+  this grant* — when it resolves it enters with one such counter and gains that subtype "in addition
+  to its other types" (a persistent characteristic, until it leaves the battlefield). Both default to
+  null (no rider), so existing graveyard-cast cards are byte-identical. The Tomb of Aclazotz (Tarrian's
+  Journal back) = `GrantStaticAbility(MayCastFromGraveyard(Creature, entersWithCounter =
+  CounterType.FINALITY, addedSubtypeOnEntry = "Vampire"), EffectTarget.Self, Duration.EndOfTurn)`. The
+  rider is frozen onto the stack spell at cast time (`CastSpellHandler` reads the authorizing grant via
+  `CastZoneResolver.findMayCastFromGraveyardGrant`) as a `GraveyardCastRiderComponent`, and applied on
+  entry by `StackResolver` →
+  `EntersWithReplacements.applyCastFromGraveyardRider` (finality counter placed → the
+  `ZoneMovementUtils` death-replacement exiles it instead of dying; added subtype = floating `Layer.TYPE`
+  effect). This is the reusable "cast from graveyard, enters with a finality counter" mechanism:
+  Osteomancer Adept's forage permission (`MayCastCreaturesFromGraveyardWithForageComponent`) shares it —
+  `CastSpellHandler` freezes the same `GraveyardCastRiderComponent(entersWithCounter = FINALITY)` onto a
+  forage-cast creature, applied on entry by the identical `StackResolver` path.
+  **Choosing among grants (CR 601.2b):** when several `MayCastFromGraveyard` grants apply to the same
+  card at once (a free `Nonland` grant *and* the Tomb's rider `Creature` grant), the graveyard-cast
+  enumerator offers one legal action per distinct permission — distinguished by life cost and entry
+  rider (the rider option reads "Cast X (enters with a finality counter; becomes a Vampire)") — and
+  the choice rides on `CastSpell.graveyardCastRider` (a `GraveyardCastRiderSelection`). So the player
+  picks the permission, and thus whether they take the rider, *before* paying — like flashback vs a
+  normal cast. `findMayCastFromGraveyardGrant(selection)` returns the grant matching that choice,
+  falling back to a rider-preferring auto-pick when the selection is unspecified or names a rider no
+  applicable grant offers (so a client can't dodge a mandatory rider).
 - `GraveyardCardsHaveFlashback(filter, cost = null, duringYourTurnOnly = false)` — a **whole-graveyard
   flashback grant** (CR 702.34): a continuous static that grants flashback to *every* card in the
   controller's graveyard matching `filter` (not a single-card grant like `Effects.GrantFlashback` /

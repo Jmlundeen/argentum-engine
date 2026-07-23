@@ -353,4 +353,49 @@ object EntersWithReplacements {
             }
         }
     }
+
+    /**
+     * Apply a graveyard-cast entry rider (The Tomb of Aclazotz) to a permanent that just resolved
+     * onto the battlefield after being cast from the graveyard under a rider-bearing
+     * [com.wingedsheep.sdk.scripting.MayCastFromGraveyard] grant (frozen at cast time on the stack
+     * spell as [com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent]):
+     *  - it enters with one [counter] counter (CR 614.1c), emitting a [CountersAddedEvent] so the
+     *    finality death-replacement (ZoneMovementUtils) and counter watchers see it; and
+     *  - it gains [addedSubtype] "in addition to its other types" via a floating [Layer.TYPE]
+     *    modification with [Duration.Permanent] — floating effects targeting an entity are removed
+     *    when it leaves the battlefield, giving exactly the "…while on the battlefield" persistence.
+     * The subtype is applied only to creatures (CR 205.1b). Returns the new state and the events.
+     */
+    fun applyCastFromGraveyardRider(
+        state: GameState,
+        entityId: EntityId,
+        controllerId: EntityId,
+        counter: CounterType?,
+        addedSubtype: String?
+    ): Pair<GameState, List<GameEvent>> {
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        if (counter != null) {
+            val name = newState.getEntity(entityId)?.get<CardComponent>()?.name ?: ""
+            newState = newState.updateEntity(entityId) { c ->
+                val current = c.get<CountersComponent>() ?: CountersComponent()
+                c.with(current.withAdded(counter, 1))
+            }
+            events.add(CountersAddedEvent(entityId, counter.name, 1, name))
+        }
+        // Gate on the entering permanent's *base* type — the projected state isn't recomputed yet at
+        // this ETB point, so it wouldn't yet see the just-resolved permanent as a creature.
+        val entersAsCreature =
+            newState.getEntity(entityId)?.get<CardComponent>()?.typeLine?.isCreature == true
+        if (addedSubtype != null && entersAsCreature) {
+            newState = newState.addFloatingEffect(
+                layer = Layer.TYPE,
+                modification = SerializableModification.AddSubtype(addedSubtype),
+                affectedEntities = setOf(entityId),
+                duration = Duration.Permanent,
+                context = EffectContext(sourceId = entityId, controllerId = controllerId)
+            )
+        }
+        return newState to events
+    }
 }
