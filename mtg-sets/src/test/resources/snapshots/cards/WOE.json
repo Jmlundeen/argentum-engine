@@ -3989,6 +3989,128 @@
     ]
 }
 
+// Redcap Gutter-Dweller
+{
+    "name": "Redcap Gutter-Dweller",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Goblin Warrior",
+    "oracleText": "Menace\nWhen this creature enters, create two 1/1 black Rat creature tokens with \"This token can't block.\"\nAt the beginning of your upkeep, you may sacrifice another creature. If you do, put a +1/+1 counter on this creature and exile the top card of your library. You may play that card this turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Rat"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/1/e/1e0205f2-25c1-403b-b408-56e3f2d63b4d.jpg?1783915000",
+                    "staticAbilities": [
+                        "CantBlock"
+                    ]
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "Sacrifice",
+                            "filter": "creature",
+                            "excludeSource": true
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddCounters",
+                                "counterType": "+1/+1",
+                                "count": 1,
+                                "target": "Self"
+                            },
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "TopOfLibrary",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeAs": "redcapImpulseExiled"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "redcapImpulseExiled",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Exile"
+                                        }
+                                    },
+                                    {
+                                        "type": "GrantMayPlayFromExile",
+                                        "from": "redcapImpulseExiled"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "146",
+        "rarity": "RARE",
+        "artist": "Alexey Kruglov",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/6/96bcd5f0-da79-47ab-83cf-976198b458d1.jpg?1783915091",
+        "rulings": [
+            {
+                "date": "2024-11-08",
+                "text": "If Redcap Gutter-Dweller leaves the battlefield after its last ability has triggered, you can still sacrifice a creature and exile the top card of your library, even though you won't put a +1/+1 counter on Redcap Gutter-Dweller."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "You pay all costs and follow all normal timing rules for cards played with the permission granted by Redcap Gutter-Dweller's last ability. For example, if the exiled card is a land card, you may play it only during your main phase while the stack is empty."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Redcap Thief
 {
     "name": "Redcap Thief",
