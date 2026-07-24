@@ -60,13 +60,14 @@ val BonehoardDracosaur = card("Bonehoard Dracosaur") {
                     power = 3,
                     toughness = 1,
                     colors = setOf(Color.RED),
-                    creatureTypes = setOf("Dinosaur")
+                    creatureTypes = setOf("Dinosaur"),
+                    imageUri = "https://cards.scryfall.io/normal/front/e/e/ee0702f9-769b-40c0-96a7-508dc8f2652c.jpg?1783913606",
                 )
             ),
             // If you exiled a nonland card this way, create a Treasure token.
             ConditionalEffect(
                 condition = Conditions.CollectionContainsMatch("dracosaurExiled", GameObjectFilter.Nonland),
-                effect = Effects.CreateTreasure()
+                effect = Effects.CreateTreasure(imageUri = LciTokenArt.TREASURE)
             )
         ))
     }

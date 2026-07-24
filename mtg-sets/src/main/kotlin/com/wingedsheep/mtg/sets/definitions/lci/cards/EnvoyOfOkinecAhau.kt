@@ -25,7 +25,8 @@ val EnvoyOfOkinecAhau = card("Envoy of Okinec Ahau") {
             power = 1,
             toughness = 1,
             creatureTypes = setOf("Gnome"),
-            artifactToken = true
+            artifactToken = true,
+            imageUri = "https://cards.scryfall.io/normal/front/6/d/6def709a-53b3-4520-9544-74ab6472d256.jpg?1783913604",
         )
     }
 

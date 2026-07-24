@@ -52,7 +52,7 @@ import com.wingedsheep.sdk.scripting.values.ManaColorSet
 
 private val RoarOfTheFifthPeople = card("Roar of the Fifth People") {
     manaCost = ""
-    colorIdentity = "G"
+    colorIdentity = "WRG"
     typeLine = "Enchantment — Saga"
     oracleText = "(As this Saga enters and after your draw step, add a lore counter.)\n" +
         "I — Create two 3/3 green Dinosaur creature tokens.\n" +
@@ -121,7 +121,7 @@ private val RoarOfTheFifthPeople = card("Roar of the Fifth People") {
 
 private val HuatliPoetOfUnityFront = card("Huatli, Poet of Unity") {
     manaCost = "{2}{G}"
-    colorIdentity = "G"
+    colorIdentity = "WRG"
     typeLine = "Legendary Creature — Human Warrior Bard"
     oracleText = "When Huatli enters, search your library for a basic land card, reveal it, put it " +
         "into your hand, then shuffle.\n" +

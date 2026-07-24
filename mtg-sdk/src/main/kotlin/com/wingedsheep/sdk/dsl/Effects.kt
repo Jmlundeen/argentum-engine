@@ -2228,16 +2228,16 @@ object Effects {
      *   `EffectTarget.TargetController` for "its controller creates two Treasure tokens"
      *   (An Offer You Can't Refuse)
      */
-    fun CreateTreasure(count: Int = 1, tapped: Boolean = false, controller: EffectTarget? = null): Effect =
-        CreatePredefinedTokenEffect("Treasure", count, controller, tapped = tapped)
+    fun CreateTreasure(count: Int = 1, tapped: Boolean = false, controller: EffectTarget? = null, imageUri: String? = null): Effect =
+        CreatePredefinedTokenEffect("Treasure", count, controller, tapped = tapped, imageUri = imageUri)
 
     /**
      * Create a dynamic number of Treasure tokens — the count is evaluated at resolution
      * time. Used for cards like Goldvein Hydra ("create a number of tapped Treasure tokens
      * equal to its power") where the amount depends on game state.
      */
-    fun CreateTreasure(count: DynamicAmount, tapped: Boolean = false): Effect =
-        CreatePredefinedTokenEffect("Treasure", tapped = tapped, dynamicCount = count)
+    fun CreateTreasure(count: DynamicAmount, tapped: Boolean = false, imageUri: String? = null): Effect =
+        CreatePredefinedTokenEffect("Treasure", tapped = tapped, dynamicCount = count, imageUri = imageUri)
 
     /**
      * "You may behold a [filter]. If you do, [ifBeheld]." — the resolution-time behold
@@ -2391,16 +2391,16 @@ object Effects {
      *
      * @param count Number of tokens to create
      */
-    fun CreateMapToken(count: Int = 1): Effect =
-        CreatePredefinedTokenEffect("Map", count)
+    fun CreateMapToken(count: Int = 1, imageUri: String? = null): Effect =
+        CreatePredefinedTokenEffect("Map", count, imageUri = imageUri)
 
     /**
      * Create a dynamic number of Map tokens — the count is evaluated at resolution time.
      * Used for cards like Journey On ("create X Map tokens, where X is one plus the number
      * of opponents who control an artifact") where the amount depends on game state.
      */
-    fun CreateMapToken(count: DynamicAmount): Effect =
-        CreatePredefinedTokenEffect("Map", dynamicCount = count)
+    fun CreateMapToken(count: DynamicAmount, imageUri: String? = null): Effect =
+        CreatePredefinedTokenEffect("Map", dynamicCount = count, imageUri = imageUri)
 
     /**
      * Create Drone artifact creature tokens.

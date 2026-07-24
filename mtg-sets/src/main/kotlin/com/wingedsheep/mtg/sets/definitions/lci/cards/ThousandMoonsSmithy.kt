@@ -64,7 +64,7 @@ private fun gnomeSoldierToken() = Effects.CreateToken(
     colors = setOf(Color.WHITE),
     creatureTypes = setOf("Gnome", "Soldier"),
     artifactToken = true,
-    imageUri = "https://cards.scryfall.io/normal/front/4/a/4a6bec46-1acd-4726-b8d9-3045ac6a2ea2.jpg?1782694580",
+    imageUri = "https://cards.scryfall.io/normal/front/c/b/cbe7c36a-77b7-4418-9e2d-b6aeea61502e.jpg?1783913608",
     staticAbilities = listOf(
         SetBasePowerToughnessDynamicStatic(
             power = artifactsAndCreaturesYouControl,

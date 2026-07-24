@@ -202,7 +202,14 @@ data class CreatePredefinedTokenEffect(
      * token count instead of [count]. Used by Lobelia Sackville-Baggins ("create X
      * Treasure tokens, where X is the exiled card's power").
      */
-    val dynamicCount: DynamicAmount? = null
+    val dynamicCount: DynamicAmount? = null,
+    /**
+     * Overrides the token's art. Predefined tokens (Treasure, Map, …) carry one canonical
+     * printing in `PredefinedTokens.kt` shared engine-wide, but the same token has different
+     * art in every set. A card can pass its set's printing here so it mints the in-set version;
+     * `null` falls back to the predefined token's own image.
+     */
+    val imageUri: String? = null
 ) : Effect {
     override val description: String = buildString {
         append(if (dynamicCount != null) "Create " else if (count == 1) "Create a " else "Create $count ")

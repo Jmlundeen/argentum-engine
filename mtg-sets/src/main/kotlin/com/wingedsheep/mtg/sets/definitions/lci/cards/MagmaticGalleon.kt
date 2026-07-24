@@ -53,7 +53,7 @@ val MagmaticGalleon = card("Magmatic Galleon") {
             requireExcess = true,
             batch = true,
         )
-        effect = Effects.CreateTreasure()
+        effect = Effects.CreateTreasure(imageUri = LciTokenArt.TREASURE)
     }
 
     keywordAbility(KeywordAbility.crew(2))

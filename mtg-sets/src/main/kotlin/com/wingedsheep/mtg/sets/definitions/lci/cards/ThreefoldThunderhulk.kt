@@ -32,8 +32,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   1/1 colorless Gnome artifact creature tokens: no color set, `artifactToken = true`,
  *   `creatureTypes = setOf("Gnome")`. Reading the *source's* power at resolution means later
  *   +1/+1 counters (from ability 3, or any other pump) increase the token count on future
- *   triggers, matching the printed "equal to its power". No imageUri: the local LCI Scryfall
- *   dump has no Gnome token entry (matching Anim Pakal).
+ *   triggers, matching the printed "equal to its power". Uses the LCI Gnome token art
+ *   (Scryfall set `tlci`, id 6def709a), the same token minted by Anim Pakal.
  *
  * Ability 3 — [Costs.Composite] of [Costs.Mana] "{2}" and
  *   [Costs.SacrificeAnother] over [GameObjectFilter.Artifact] (excludeSelf, so the Thunderhulk
@@ -62,7 +62,8 @@ val ThreefoldThunderhulk = card("Threefold Thunderhulk") {
             toughness = 1,
             colors = emptySet(),
             creatureTypes = setOf("Gnome"),
-            artifactToken = true
+            artifactToken = true,
+            imageUri = "https://cards.scryfall.io/normal/front/6/d/6def709a-53b3-4520-9544-74ab6472d256.jpg?1783913604",
         )
     }
 
@@ -75,7 +76,8 @@ val ThreefoldThunderhulk = card("Threefold Thunderhulk") {
             toughness = 1,
             colors = emptySet(),
             creatureTypes = setOf("Gnome"),
-            artifactToken = true
+            artifactToken = true,
+            imageUri = "https://cards.scryfall.io/normal/front/6/d/6def709a-53b3-4520-9544-74ab6472d256.jpg?1783913604",
         )
     }
 

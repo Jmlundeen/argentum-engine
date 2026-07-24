@@ -34,7 +34,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *      always equals the total +1/+1 counters on Anim Pakal at the moment tokens are created.
  * - Tokens are 1/1 colorless Gnome artifact creature tokens: no color set, `artifactToken = true`,
  *   `creatureTypes = setOf("Gnome")`, `tapped = true`, `attacking = true`.
- * - No imageUri for the Gnome token: no Gnome token entry was found in the local LCI Scryfall dump.
+ * - The Gnome token uses the LCI Gnome token art (Scryfall set `tlci`, id 6def709a).
  */
 val AnimPakal = card("Anim Pakal, Thousandth Moon") {
     manaCost = "{1}{R}{W}"
@@ -59,7 +59,8 @@ val AnimPakal = card("Anim Pakal, Thousandth Moon") {
                 creatureTypes = setOf("Gnome"),
                 tapped = true,
                 attacking = true,
-                artifactToken = true
+                artifactToken = true,
+                imageUri = "https://cards.scryfall.io/normal/front/6/d/6def709a-53b3-4520-9544-74ab6472d256.jpg?1783913604",
             )
         )
     }
