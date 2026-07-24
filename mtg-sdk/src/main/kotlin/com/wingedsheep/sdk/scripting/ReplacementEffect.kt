@@ -64,6 +64,33 @@ sealed interface ReplacementEffect : TextReplaceable<ReplacementEffect> {
 
     /** What type of event this replacement intercepts (compositional) */
     val appliesTo: EventPattern
+
+    /**
+     * Whether this replacement effect is optional (player may decline).
+     * Default false — most replacement effects are mandatory.
+     * Override to true for effects like "you may draw a card instead" prompts.
+     */
+    val optional: Boolean get() = false
+
+    /**
+     * Priority group per CR 616.1a-e. Each sealed subtype declares its own
+     * override; the [ReplacementEffectProcessor] reads this directly rather
+     * than re-classifying via pattern matching.
+     *
+     * Default is [ReplacementPriorityGroup.ANY] (CR 616.1e).
+     */
+    val priorityGroup: ReplacementPriorityGroup get() = ReplacementPriorityGroup.ANY
+
+    /**
+     * Additional [Condition]s gating when this replacement applies.
+     * Evaluated against the source permanent's controller; ALL must hold.
+     * Default empty list — most replacement effects have no extra gates.
+     *
+     * Types that carry a `restrictions` field (e.g. [ModifyDrawAmount],
+     * [PreventDamage], [DoubleDamage], [ModifyLifeGain], [ModifyLifeLoss],
+     * [ModifyMillAmount], [LifeLossFloor]) override this automatically.
+     */
+    val restrictions: List<Condition> get() = emptyList()
 }
 
 // =============================================================================
@@ -261,6 +288,9 @@ data class RedirectZoneChange(
     val shuffleIntoLibrary: Boolean = false,
     val reveal: Boolean = false
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = if (selfOnly) ReplacementPriorityGroup.SELF_REPLACEMENT else ReplacementPriorityGroup.ANY
+
     override val description: String = buildString {
         append("If ${appliesTo.description}, ")
         if (reveal) append("reveal it and ")
@@ -314,6 +344,9 @@ data class OnEnterRunEffect(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = ReplacementPriorityGroup.SELF_REPLACEMENT
+
     override val description: String = "As this permanent enters, ${effect.description.lowercase()}"
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
@@ -335,6 +368,9 @@ data class EntersTapped(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = ReplacementPriorityGroup.SELF_REPLACEMENT
+
     override val description: String = when {
         payLifeCost != null -> "As this permanent enters, you may pay $payLifeCost life. If you don't, it enters tapped."
         unlessCondition != null -> "This permanent enters tapped unless ${unlessCondition.description}"
@@ -370,6 +406,9 @@ data class EntersUntapped(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = ReplacementPriorityGroup.SELF_REPLACEMENT
+
     override val description: String = "If ${appliesTo.description}, it enters untapped"
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
@@ -431,6 +470,9 @@ data class EntersWithCounters(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = if (selfOnly) ReplacementPriorityGroup.SELF_REPLACEMENT else ReplacementPriorityGroup.ANY
+
     override val description: String = buildString {
         append("If ${appliesTo.description}, it enters with $count ${counterType.description} counters")
         if (condition != null) append(" if ${condition.description}")
@@ -464,6 +506,9 @@ data class EntersWithDynamicCounters(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = if (!otherOnly) ReplacementPriorityGroup.SELF_REPLACEMENT else ReplacementPriorityGroup.ANY
+
     override val description: String =
         "If ${appliesTo.description}, it enters with ${count.description} ${counterType.description} counters"
 
@@ -503,6 +548,9 @@ data class EntersWithKeywords(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = if (selfOnly) ReplacementPriorityGroup.SELF_REPLACEMENT else ReplacementPriorityGroup.ANY
+
     override val description: String = buildString {
         append("If ${appliesTo.description}, it enters with ")
         append(keywords.joinToString(" and ") { it.displayName.lowercase() })
@@ -538,7 +586,7 @@ data class EntersWithKeywords(
 @Serializable
 data class PreventDamage(
     val amount: Int? = null,  // null = prevent all
-    val restrictions: List<Condition> = emptyList(),
+    override val restrictions: List<Condition> = emptyList(),
     override val appliesTo: EventPattern
 ) : ReplacementEffect {
     override val description: String = buildString {
@@ -611,7 +659,7 @@ data class RedirectDamage(
 @SerialName("DoubleDamage")
 @Serializable
 data class DoubleDamage(
-    val restrictions: List<Condition> = emptyList(),
+    override val restrictions: List<Condition> = emptyList(),
     override val appliesTo: EventPattern
 ) : ReplacementEffect {
     override val description: String = buildString {
@@ -775,7 +823,7 @@ data class SetMinimumDamage(
 @Serializable
 data class ModifyDrawAmount(
     val modifier: Int,
-    val restrictions: List<Condition> = emptyList(),
+    override val restrictions: List<Condition> = emptyList(),
     override val appliesTo: EventPattern = EventPattern.DrawEvent()
 ) : ReplacementEffect {
     override val description: String = buildString {
@@ -816,7 +864,7 @@ data class ModifyDrawAmount(
 @Serializable
 data class ModifyMillAmount(
     val modifier: Int,
-    val restrictions: List<Condition> = emptyList(),
+    override val restrictions: List<Condition> = emptyList(),
     override val appliesTo: EventPattern = EventPattern.MillEvent()
 ) : ReplacementEffect {
     override val description: String = buildString {
@@ -848,7 +896,7 @@ data class ModifyMillAmount(
 @Serializable
 data class ReplaceDrawWithEffect(
     val replacementEffect: Effect,
-    val optional: Boolean = false,
+    override val optional: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.DrawEvent()
 ) : ReplacementEffect {
     override val description: String = buildString {
@@ -987,7 +1035,7 @@ data class ModifyLifeGain(
      * gaining player as controller; ALL must hold. Used by Phial of Galadriel
      * (`restrictions = listOf(Conditions.LifeAtMost(5))` — "while you have 5 or less life").
      */
-    val restrictions: List<Condition> = emptyList()
+    override val restrictions: List<Condition> = emptyList()
 ) : ReplacementEffect {
     override val description: String = buildString {
         val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
@@ -1060,7 +1108,7 @@ data class ModifyLifeGain(
 data class ModifyLifeLoss(
     val multiplier: Int = 1,
     val modifier: Int = 0,
-    val restrictions: List<com.wingedsheep.sdk.scripting.conditions.Condition> = emptyList(),
+    override val restrictions: List<Condition> = emptyList(),
     override val appliesTo: EventPattern = EventPattern.LifeLossEvent()
 ) : ReplacementEffect {
     override val description: String = buildString {
@@ -1139,7 +1187,7 @@ data class ModifyLifeLoss(
 @Serializable
 data class LifeLossFloor(
     val floor: Int = 1,
-    val restrictions: List<Condition> = emptyList(),
+    override val restrictions: List<Condition> = emptyList(),
     override val appliesTo: EventPattern = EventPattern.LifeLossEvent()
 ) : ReplacementEffect {
     override val description: String = buildString {
@@ -1207,7 +1255,7 @@ data class LifeLossFloor(
 @SerialName("EntersAsCopy")
 @Serializable
 data class EntersAsCopy(
-    val optional: Boolean = true,
+    override val optional: Boolean = true,
     val copyFilter: GameObjectFilter = GameObjectFilter.Creature,
     val copyFromZone: Zone = Zone.BATTLEFIELD,
     val filterByTotalManaSpent: Boolean = false,
@@ -1223,6 +1271,9 @@ data class EntersAsCopy(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = ReplacementPriorityGroup.COPY
+
     override val description: String = run {
         val filterDesc = copyFilter.description
         val where = if (copyFromZone == Zone.GRAVEYARD) "$filterDesc card in a graveyard" else "$filterDesc on the battlefield"
@@ -1418,6 +1469,9 @@ data class EntersWithChoice(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = ReplacementPriorityGroup.SELF_REPLACEMENT
+
     override val description: String = when (choiceType) {
         ChoiceType.COLOR -> if (chooser == Player.AnOpponent) {
             "As this permanent enters, an opponent chooses a color"
@@ -1501,6 +1555,9 @@ data class EntersWithRevealCounters(
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = ReplacementPriorityGroup.SELF_REPLACEMENT
+
     override val description: String =
         "As this creature enters, you may reveal any number of cards from your ${revealSource.name.lowercase()} that match. For each card revealed this way, put $countersPerReveal $counterType counter${if (countersPerReveal > 1) "s" else ""} on it."
 
@@ -1547,14 +1604,17 @@ data class EntersWithRevealCounters(
 data class EntersWithDevour(
     val multiplier: Int,
     val sacrificeFilter: GameObjectFilter = GameObjectFilter.Creature,
-    val counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter =
-        com.wingedsheep.sdk.scripting.events.CounterTypeFilter.PlusOnePlusOne,
+    val counterType: CounterTypeFilter =
+        CounterTypeFilter.PlusOnePlusOne,
     val variant: String = "",
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Any,
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = ReplacementPriorityGroup.SELF_REPLACEMENT
+
     override val description: String = buildString {
         append("Devour")
         if (variant.isNotBlank()) {
@@ -1697,6 +1757,9 @@ data class RedirectZoneChangeWithEffect(
     val linkToSource: Boolean = false,
     override val appliesTo: EventPattern
 ) : ReplacementEffect {
+    override val priorityGroup: ReplacementPriorityGroup
+        get() = if (selfOnly) ReplacementPriorityGroup.SELF_REPLACEMENT else ReplacementPriorityGroup.ANY
+
     override val description: String =
         "If ${appliesTo.description}, instead put it into ${newDestination.displayName} and ${additionalEffect.description}"
 
@@ -1740,7 +1803,7 @@ data class RedirectZoneChangeWithEffect(
 @SerialName("ReplaceTokenCreationWithAttachedCopy")
 @Serializable
 data class ReplaceTokenCreationWithAttachedCopy(
-    val optional: Boolean = true,
+    override val optional: Boolean = true,
     val oncePerTurn: Boolean = true,
     val attachmentVerb: String = "attached",
     override val appliesTo: EventPattern = EventPattern.TokenCreationEvent()

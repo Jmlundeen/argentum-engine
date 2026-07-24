@@ -1,8 +1,21 @@
 package com.wingedsheep.engine.replacement
 
-import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.engine.core.ContinuationFrame
+import com.wingedsheep.engine.core.DecisionContext
+import com.wingedsheep.engine.core.DecisionPhase
+import com.wingedsheep.engine.core.PendingDecision
+import com.wingedsheep.engine.core.StaticDrawReplacementContinuation
+import com.wingedsheep.engine.core.YesNoDecision
+import com.wingedsheep.engine.handlers.ConditionEvaluator
+import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.EventPattern
+import com.wingedsheep.sdk.scripting.ModifyDrawAmount
+import com.wingedsheep.sdk.scripting.PreventDraw
+import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
 import com.wingedsheep.sdk.scripting.ReplacementEffect
+import com.wingedsheep.sdk.scripting.references.Player
 import kotlinx.serialization.Serializable
 
 /**
@@ -17,6 +30,14 @@ import kotlinx.serialization.Serializable
  * This is deliberately distinct from [com.wingedsheep.engine.core.GameEvent]
  * (which records what *did* happen) — pending events describe hypothetical
  * future events that may never occur if replacement effects consume them.
+ *
+ * Each domain (draw, damage, life, token creation, zone change, etc.)
+ * defines its own subtype and implements the polymorphic methods that
+ * the domain-agnostic [ReplacementEffectProcessor] calls:
+ * - [matches] — check if an [EventPattern] describes this event
+ * - [applyReplacement] — apply a [ReplacementEffect] to produce an outcome
+ * - [createOptionalPrompt] — build a yes/no prompt + continuation for
+ *   optional replacement effects (most domains return null = mandatory-only)
  */
 @Serializable
 sealed interface PendingGameEvent {
@@ -26,6 +47,50 @@ sealed interface PendingGameEvent {
      * between multiple competing replacement effects (CR 616.1).
      */
     val affectedPlayerId: EntityId
+
+    /**
+     * Check whether the given [pattern] describes this event.
+     *
+     * @param pattern The [EventPattern] from a replacement effect's `appliesTo`
+     * @param sourceControllerId The controller of the permanent granting the replacement
+     * @param state Current game state (for condition evaluation)
+     * @param context Optional execution context (for condition evaluation)
+     * @return true if this event matches the pattern
+     */
+    fun matches(
+        pattern: EventPattern,
+        sourceControllerId: EntityId,
+        state: GameState,
+        context: EffectContext?
+    ): Boolean
+
+    /**
+     * Apply a [ReplacementEffect] to this event and produce a [ReplacementOutcome].
+     *
+     * @param effect The replacement effect to apply
+     * @param state Current game state
+     * @return The outcome (Modified, Replaced, or Consumed)
+     */
+    fun applyReplacement(effect: ReplacementEffect, state: GameState): ReplacementOutcome
+
+    /**
+     * Build a yes/no prompt and continuation for an optional replacement effect.
+     *
+     * Most event domains return null (no optional replacement support), causing the
+     * processor to treat the effect as mandatory via [applyReplacement].
+     *
+     * @param decisionId Unique ID for the decision
+     * @param gathered The matched replacement effect
+     * @param state Current game state
+     * @param context Execution context
+     * @return An [OptionalPromptResult] with the decision and continuation, or null
+     */
+    fun createOptionalPrompt(
+        decisionId: String,
+        gathered: GatheredReplacement,
+        state: GameState,
+        context: EffectContext?
+    ): OptionalPromptResult? = null
 
     /**
      * Draw event: a player is about to draw cards from their library.
@@ -42,5 +107,124 @@ sealed interface PendingGameEvent {
 
         /** Total draws remaining including this one (derived from remainingDraws + 1). */
         val drawsLeft: Int get() = remainingDraws + 1
+
+        override fun matches(
+            pattern: EventPattern,
+            sourceControllerId: EntityId,
+            state: GameState,
+            context: EffectContext?
+        ): Boolean {
+            if (pattern !is EventPattern.DrawEvent) return false
+            val condition = pattern.condition
+            if (condition != null) {
+                val evalContext = context ?: EffectContext(
+                    sourceId = null,
+                    controllerId = sourceControllerId
+                )
+                if (!ConditionEvaluator().evaluate(state, condition, evalContext)) {
+                    return false
+                }
+            }
+            return matchesPlayerFilter(pattern.player, playerId, sourceControllerId)
+        }
+
+        override fun applyReplacement(effect: ReplacementEffect, state: GameState): ReplacementOutcome {
+            return when (effect) {
+                is ModifyDrawAmount -> {
+                    ReplacementOutcome.Modified(
+                        copy(remainingDraws = (remainingDraws + effect.modifier).coerceAtLeast(0))
+                    )
+                }
+                is PreventDraw -> ReplacementOutcome.Consumed
+                is ReplaceDrawWithEffect -> ReplacementOutcome.Replaced(effect.replacementEffect)
+                else -> ReplacementOutcome.Modified(this)
+            }
+        }
+
+        override fun createOptionalPrompt(
+            decisionId: String,
+            gathered: GatheredReplacement,
+            state: GameState,
+            context: EffectContext?
+        ): OptionalPromptResult? {
+            val replaceEffect = gathered.effect as? ReplaceDrawWithEffect ?: return null
+            val sourceEntityId = gathered.sourceEntityId(state)
+            val sourceEntity = sourceEntityId?.let { state.getEntity(it) }
+            val card = sourceEntity?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()
+            val cardName = card?.name ?: "Unknown"
+            val linkedExile = sourceEntity
+                ?.get<com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent>()
+            val pileCount = linkedExile?.exiledIds?.size
+
+            val prompt = buildString {
+                append("Use $cardName? ${gathered.description}")
+                if (pileCount != null) {
+                    append(" ($pileCount cards remaining)")
+                }
+            }
+
+            val decision = YesNoDecision(
+                id = decisionId,
+                playerId = affectedPlayerId,
+                prompt = prompt,
+                context = DecisionContext(
+                    sourceId = sourceEntityId,
+                    sourceName = cardName,
+                    phase = DecisionPhase.RESOLUTION
+                )
+            )
+
+            val continuation = StaticDrawReplacementContinuation(
+                decisionId = decisionId,
+                drawingPlayerId = playerId,
+                sourceId = sourceEntityId ?: EntityId(""),
+                sourceName = cardName,
+                replacementEffect = replaceEffect.replacementEffect,
+                drawCount = drawsLeft,
+                isDrawStep = isDrawStep,
+                drawnCardsSoFar = drawnCardsSoFar,
+                declinedIdentity = gathered.identity
+            )
+
+            return OptionalPromptResult(
+                decision = decision,
+                continuation = continuation
+            )
+        }
+
+        /**
+         * Check whether a player filter matches the drawing player relative to
+         * the replacement source's controller.
+         *
+         * For [Player.EachOpponent], the check uses `!= sourceControllerId`, which
+         * correctly captures opponent relationships in both 2-player and 4+ player
+         * games — the draw event carries [affectedPlayerId] directly, and any player
+         * who is not the source controller is an opponent. This works because draw
+         * events are scoped to a single affected player; damage events with
+         * multi-opponent semantics may need additional relationship tracking.
+         */
+        private fun matchesPlayerFilter(
+            player: Player,
+            affectedPlayerId: EntityId,
+            sourceControllerId: EntityId
+        ): Boolean {
+            return when (player) {
+                Player.Each -> true
+                Player.You -> affectedPlayerId == sourceControllerId
+                Player.EachOpponent -> affectedPlayerId != sourceControllerId
+                else -> false
+            }
+        }
     }
 }
+
+/**
+ * Result of [PendingGameEvent.createOptionalPrompt].
+ *
+ * @property decision The yes/no decision to present to the player
+ * @property continuation The continuation frame to resume after the player answers
+ */
+data class OptionalPromptResult(
+    val decision: PendingDecision,
+    val continuation: ContinuationFrame
+)

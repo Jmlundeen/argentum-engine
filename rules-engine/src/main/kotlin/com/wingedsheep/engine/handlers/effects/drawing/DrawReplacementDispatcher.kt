@@ -78,7 +78,8 @@ class DrawReplacementDispatcher(
         playerId: EntityId,
         drawsLeftIncludingThis: Int,
         drawnCardsSoFar: List<EntityId>,
-        isDrawStep: Boolean
+        isDrawStep: Boolean,
+        context: EffectContext? = null
     ): DispatchResult {
         val remainingDraws = drawsLeftIncludingThis - 1
         val event = PendingGameEvent.DrawPending(
@@ -88,7 +89,7 @@ class DrawReplacementDispatcher(
             isDrawStep = isDrawStep,
             drawnCardsSoFar = drawnCardsSoFar
         )
-        when (val processorResult = processor.process(state, event)) {
+        when (val processorResult = processor.process(state, event, context)) {
             is ProcessorResult.Paused -> {
                 // Player must choose between competing replacements (CR 616.1)
                 // or answer a yes/no prompt for an optional replacement.

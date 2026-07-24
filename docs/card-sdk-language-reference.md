@@ -6799,6 +6799,10 @@ replacementEffect {
 }
 ```
 
+All `ReplacementEffect` subtypes inherit a virtual `restrictions: List<Condition>` property (default empty) from the interface. 
+When non-empty, the replacement only applies if every condition passes when evaluated against the replacement's controller — 
+a uniform gating mechanism used by `PreventDamage`, `DoubleDamage`, `ModifyLifeLoss`, `LifeLossFloor`, and others.
+
 - `ReplacementEffect.PreventDamage(amount?, restrictions?, appliesTo)` — prevent damage matching the
   `EventPattern.DamageEvent` shape. `amount = null` prevents all; a number prevents up to that much.
   `restrictions: List<Condition>` (default empty) gates the prevention on extra conditions evaluated

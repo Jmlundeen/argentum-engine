@@ -5,6 +5,7 @@ import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.DrawFailedEvent
 import com.wingedsheep.engine.core.CardRevealedFromDrawEvent
+import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.model.EntityId
@@ -49,7 +50,8 @@ object DrawLoop {
         primitive: DrawCardPrimitive,
         dispatcher: DrawReplacementDispatcher?,
         isDrawStep: Boolean,
-        emptyLibraryReason: String = "Empty library"
+        emptyLibraryReason: String = "Empty library",
+        context: EffectContext? = null
     ): EffectResult {
         var newState = state
         val drawnCards = mutableListOf<EntityId>()
@@ -64,7 +66,8 @@ object DrawLoop {
                     playerId = playerId,
                     drawsLeftIncludingThis = remaining,
                     drawnCardsSoFar = drawnCards.toList(),
-                    isDrawStep = isDrawStep
+                    isDrawStep = isDrawStep,
+                    context = context
                 )
                 when (dispatch) {
                     is DrawReplacementDispatcher.DispatchResult.Paused -> {

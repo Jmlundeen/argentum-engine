@@ -12,6 +12,8 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.engine.replacement.ReplacementEffectProcessor
+import com.wingedsheep.sdk.scripting.EventPattern
+import com.wingedsheep.sdk.scripting.ReplacementEffect
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -104,6 +106,18 @@ sealed interface SerializableModification {
      * an execution context from a floating-effect shield without knowing the concrete subclass.
      */
     fun toEffectContext(controllerId: EntityId): EffectContext? = null
+
+    /**
+     * Convert this floating-effect shield modification into an SDK [ReplacementEffect]
+     * for matching and outcome processing by the [ReplacementEffectProcessor].
+     *
+     * Returns `null` (default) for modifications that do not represent replacement-effect
+     * shields. Override in concrete subtypes that store a replacement behavior.
+     *
+     * @param controllerId The controller of the floating effect
+     */
+    fun toReplacementEffect(controllerId: EntityId): ReplacementEffect? = null
+
     @Serializable
     data class SetPowerToughness(val power: Int, val toughness: Int) : SerializableModification
 
@@ -437,6 +451,12 @@ sealed interface SerializableModification {
             xValue = xValue,
             pipeline = PipelineState(namedTargets = namedTargets)
         )
+
+        override fun toReplacementEffect(controllerId: EntityId): ReplacementEffect =
+            com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect(
+                replacementEffect = replacementEffect,
+                appliesTo = EventPattern.DrawEvent()
+            )
     }
 
     /**

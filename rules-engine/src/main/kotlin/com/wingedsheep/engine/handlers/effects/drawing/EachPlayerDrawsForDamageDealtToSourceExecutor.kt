@@ -39,7 +39,7 @@ class EachPlayerDrawsForDamageDealtToSourceExecutor(
         for (playerId in ordered) {
             val baseCount = perPlayer[playerId] ?: continue
             if (baseCount <= 0) continue
-            val result = drawCardsExecutor.executeDraws(currentState, playerId, baseCount)
+            val result = drawCardsExecutor.executeDraws(currentState, playerId, baseCount, context = context)
             currentState = result.state
             events.addAll(result.events)
             if (result.pendingDecision != null) {

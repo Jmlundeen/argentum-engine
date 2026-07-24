@@ -3,43 +3,16 @@ package com.wingedsheep.engine.replacement
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
-import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.identity.OwnerComponent
+import com.wingedsheep.engine.state.components.identity.SelfZoneRedirectComponent
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.DoubleDamage
-import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.ModifyDrawAmount
-import com.wingedsheep.sdk.scripting.ModifyLifeGain
-import com.wingedsheep.sdk.scripting.ModifyLifeLoss
-import com.wingedsheep.sdk.scripting.ModifyMillAmount
-import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.PreventDraw
-import com.wingedsheep.sdk.scripting.ReplaceDrawWithEffect
 import com.wingedsheep.sdk.scripting.ReplacementEffect
-import com.wingedsheep.sdk.scripting.conditions.Condition
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
-import com.wingedsheep.sdk.scripting.references.Player
-import java.util.UUID
+import com.wingedsheep.sdk.scripting.ReplacementPriorityGroup
+import java.util.*
 import kotlin.enums.enumEntries
-
-/**
- * Priority group for classifying replacement effects per CR 616.1a-d.
- */
-enum class ReplacementPriorityGroup {
-    /** Self-replacement effects (CR 614.15 / 616.1a) — must be chosen first */
-    SELF_REPLACEMENT,
-    /** Control-changing effects (CR 616.1b) */
-    CONTROL_CHANGE,
-    /** Copy effects (CR 616.1c) */
-    COPY,
-    /** All other replacement effects (CR 616.1d) — affected player may choose any */
-    ANY
-}
 
 /**
  * Result returned by [ReplacementEffectProcessor.process].
@@ -61,7 +34,7 @@ sealed interface ProcessorResult {
      *
      * @property executionContext Context for executing the replacement effect,
      *   built from floating-shield data when the matched replacement came from
-     *   a NextUse shield. Null for battlefield-originated replacements.
+     *   a floating effect. Null for battlefield-originated replacements.
      */
     data class Resolved(
         val state: GameState,
@@ -73,13 +46,28 @@ sealed interface ProcessorResult {
 /**
  * Central processor for replacement effects.
  *
- * Gathers all active replacement effects from the battlefield and granted
- * effects, matches them against a [PendingGameEvent], and handles the full
- * CR 614-616 resolution pipeline including:
+ * Gathers all active replacement effects from the battlefield, granted
+ * effects, and self-redirect components, matches them against a
+ * [PendingGameEvent], and handles the full CR 614-616 resolution pipeline
+ * including:
  *
  * - CR 614.5: Only applies each effect once per event chain
  * - CR 616.1: Player choice between competing same-group effects
  * - CR 616.1e: Repeated application until no more effects match
+ *
+ * This processor is fully domain-agnostic. Each [PendingGameEvent] subtype
+ * implements [PendingGameEvent.matches] (event-pattern matching) and
+ * [PendingGameEvent.applyReplacement] (outcome production), so the processor
+ * never needs to know about draw, damage, life, or any other domain.
+ *
+ * ## Source scanning
+ * [gatherReplacements] scans four sources:
+ * 1. **Battlefield permanents** with [ReplacementEffectSourceComponent]
+ * 2. **Floating effects** that carry replacement-effect modifications (Words cycle shields and any future floating replacement effects)
+ * 3. **Granted replacement effects** in [GameState.grantedReplacementEffects]
+ *    — temporary grants like Malicious Eclipse's "exile instead this turn"
+ * 4. **Self-redirect components** via [SelfZoneRedirectComponent] on any
+ *    entity (functions in every zone per CR 614.12)
  */
 class ReplacementEffectProcessor {
 
@@ -109,7 +97,7 @@ class ReplacementEffectProcessor {
 
     /**
      * Internal recursive loop. Applies one replacement at a time and re-checks
-     * for additional matches until none remain or we need player input.
+     * for additional matches until none remain, or we need player input.
      *
      * @return [ProcessorResult.Pass] if no replacements matched the current event,
      *         [ProcessorResult.Resolved] if all replacements resolved (carrying the
@@ -134,13 +122,11 @@ class ReplacementEffectProcessor {
         // 3. Separate optional replacements — they need a yes/no prompt before
         //    entering the standard CR 616.1 pipeline.
         val (optional, mandatory) = fresh.partition {
-            it.effect is ReplaceDrawWithEffect && it.effect.optional
+            it.effect.optional
         }
         if (optional.isNotEmpty()) {
-            // For the first optional match, present the yes/no prompt.
-            // If the player says NO, the immediate draw proceeds normally;
-            // the optional replacement's identity is consumed (CR 614.5) so
-            // it won't re-match on re-check within the same chain.
+            // Present the optional prompt via the event's domain-specific handler.
+            // If the event doesn't support optional prompts, treat as mandatory.
             return presentOptionalReplacement(state, event, optional.first(), alreadyApplied, context)
         }
 
@@ -149,22 +135,30 @@ class ReplacementEffectProcessor {
             return applySingle(state, mandatory[0], event, alreadyApplied, context)
         }
 
-        // 6. Multiple mandatory matches — group by priority order (CR 616.1a-d)
-        val byGroup = mandatory.groupBy { classifyPriorityGroup(it.effect, event) }
+        // 5. Multiple mandatory matches — group by priority order (CR 616.1a-e)
+        val byGroup = mandatory.groupBy { it.effect.priorityGroup }
 
         for (group in enumEntries<ReplacementPriorityGroup>()) {
             val groupEffects = byGroup[group] ?: continue
             if (groupEffects.isEmpty()) continue
 
             if (group == ReplacementPriorityGroup.ANY && groupEffects.size > 1) {
-                // CR 616.1d: player chooses. However, if all effects are structurally
-                // identical (same card activated multiple times, e.g. Words cycle shields),
-                // auto-apply the first — there's no meaningful choice to present.
+                // CR 616.1e: player chooses. However, if all effects are structurally
+                // identical AND come from the same source entity (e.g. two copies of the
+                // same Words cycle ability on one card), auto-apply the first — there's
+                // no meaningful choice to present since they're fungible.
                 val first = groupEffects.first()
-                if (groupEffects.all { it.effect == first.effect && it.description == first.description }) {
+                val firstSourceId = first.sourceEntityId(state)
+                val isFungible = firstSourceId != null &&
+                    groupEffects.all {
+                        it.effect == first.effect &&
+                        it.description == first.description &&
+                        it.sourceEntityId(state) == firstSourceId
+                    }
+                if (isFungible) {
                     return applySingle(state, first, event, alreadyApplied, context)
                 }
-                // Different effects — player must choose (CR 616.1d)
+                // Different effects or different sources — player must choose (CR 616.1e)
                 return presentChoice(state, event, groupEffects, alreadyApplied, context)
             }
 
@@ -179,9 +173,9 @@ class ReplacementEffectProcessor {
      * Apply a single replacement effect and recursively re-check if modified
      * (CR 616.1e — after applying an effect, repeat until no more apply).
      *
-     * If the outcome is [Modified], the modified event is run through the
-     * pipeline again. If no further replacements match (returns [Pass]), the
-     * final modified event is returned as a [Resolved] outcome.
+     * If the outcome is [ReplacementOutcome.Modified], the modified event is run through the
+     * pipeline again. If no further replacements match (returns [ProcessorResult.Pass]), the
+     * final modified event is returned as a [ProcessorResult.Resolved] outcome.
      */
     internal fun applySingle(
         state: GameState,
@@ -193,20 +187,27 @@ class ReplacementEffectProcessor {
         val outcome = createOutcome(gathered.effect, event, state)
 
         // Build execution context — prefer floating-shield context (Words cycle),
-        // fall back to any passed-in context, or build one from battlefield source data.
-        val execContext = gathered.floatingEffectIndex?.let {
-            buildContextFromShield(state, it, gathered.sourceControllerId)
-        } ?: context ?: EffectContext(
-            controllerId = gathered.sourceControllerId,
-            sourceId = gathered.identity.sourceEntityId
-        )
+        // fall back to any passed-in context, or build one from source data
+        // resolved via [GatheredReplacement.sourceEntityId].
+        val execContext = when (val identity = gathered.identity) {
+            is ReplacementEffectIdentity.FloatingIdentity -> {
+                buildContextFromShield(state, identity.floatingIndex, gathered.sourceControllerId)
+            }
+            else -> context ?: EffectContext(
+                controllerId = gathered.sourceControllerId,
+                sourceId = gathered.sourceEntityId(state)
+            )
+        }
 
         // Consume floating-effect shield if the replacement came from one
         // (e.g. Words cycle NextUse shields). This removes the floating effect
         // from state so it won't match future events.
-        val consumedState = gathered.floatingEffectIndex?.let {
-            consumeFloatingEffect(state, it)
-        } ?: state
+        val consumedState = when (val identity = gathered.identity) {
+            is ReplacementEffectIdentity.FloatingIdentity -> {
+                consumeFloatingEffect(state, identity.floatingIndex)
+            }
+            else -> state
+        }
 
         val updatedAlreadyApplied = alreadyApplied + gathered.identity
 
@@ -245,10 +246,10 @@ class ReplacementEffectProcessor {
      */
     private fun buildContextFromShield(
         state: GameState,
-        floatingEffectIndex: Int,
+        floatingIndex: Int,
         controllerId: EntityId
     ): EffectContext? {
-        val fe = state.floatingEffects.getOrNull(floatingEffectIndex) ?: return null
+        val fe = state.floatingEffects.getOrNull(floatingIndex) ?: return null
         return fe.effect.modification.toEffectContext(controllerId)
     }
 
@@ -256,16 +257,16 @@ class ReplacementEffectProcessor {
      * Remove a floating effect by its index in [GameState.floatingEffects].
      * Used to consume NextUse shields after their replacement effect is applied.
      */
-    private fun consumeFloatingEffect(state: GameState, floatingEffectIndex: Int): GameState {
-        if (floatingEffectIndex < 0 || floatingEffectIndex >= state.floatingEffects.size) return state
+    private fun consumeFloatingEffect(state: GameState, floatingIndex: Int): GameState {
+        if (floatingIndex < 0 || floatingIndex >= state.floatingEffects.size) return state
         val updatedEffects = state.floatingEffects.toMutableList()
-        updatedEffects.removeAt(floatingEffectIndex)
+        updatedEffects.removeAt(floatingIndex)
         return state.copy(floatingEffects = updatedEffects)
     }
 
     /**
      * Present a choice between multiple competing replacement effects to
-     * the affected player (CR 616.1d).
+     * the affected player (CR 616.1e).
      */
     private fun presentChoice(
         state: GameState,
@@ -305,11 +306,13 @@ class ReplacementEffectProcessor {
     }
 
     /**
-     * Present a yes/no prompt for an optional draw replacement effect
+     * Present a yes/no prompt for an optional replacement effect
      * (e.g., Parallel Thoughts).
      *
-     * The player decides whether to replace the draw with the optional effect.
-     * YES applies the replacement; NO proceeds with the normal draw.
+     * Delegates to the event's [PendingGameEvent.createOptionalPrompt] for
+     * domain-specific prompt and continuation construction. If the event
+     * returns null (no optional prompt support), the effect is treated
+     * as mandatory.
      */
     private fun presentOptionalReplacement(
         state: GameState,
@@ -317,127 +320,44 @@ class ReplacementEffectProcessor {
         gathered: GatheredReplacement,
         alreadyApplied: Set<ReplacementEffectIdentity>,
         context: EffectContext?
-    ): ProcessorResult.Paused {
-        val playerId = event.affectedPlayerId
+    ): ProcessorResult {
         val decisionId = UUID.randomUUID().toString()
-        val drawEvent = event as? PendingGameEvent.DrawPending
+        val promptResult = event.createOptionalPrompt(decisionId, gathered, state, context)
+            ?: // Event doesn't support optional prompts — treat as mandatory
+            return applySingle(state, gathered, event, alreadyApplied, context)
 
-        val sourceEntity = state.getEntity(gathered.identity.sourceEntityId)
-        val card = sourceEntity?.get<CardComponent>()
-        val cardName = card?.name ?: "Unknown"
-        val linkedExile = sourceEntity?.get<LinkedExileComponent>()
-        val pileCount = linkedExile?.exiledIds?.size
+        val stateWithDecision = state.withPendingDecision(promptResult.decision)
+        val stateWithContinuation = stateWithDecision.pushContinuation(promptResult.continuation)
 
-        val prompt = buildString {
-            append("Use $cardName? ${gathered.description}")
-            if (pileCount != null) {
-                append(" ($pileCount cards remaining)")
-            }
-        }
-
-        val decision = YesNoDecision(
-            id = decisionId,
-            playerId = playerId,
-            prompt = prompt,
-            context = DecisionContext(
-                sourceId = gathered.identity.sourceEntityId,
-                sourceName = cardName,
-                phase = DecisionPhase.RESOLUTION
-            )
-        )
-
-        val continuation = StaticDrawReplacementContinuation(
-            decisionId = decisionId,
-            drawingPlayerId = playerId,
-            sourceId = gathered.identity.sourceEntityId,
-            sourceName = cardName,
-            replacementEffect = (gathered.effect as ReplaceDrawWithEffect).replacementEffect,
-            drawCount = drawEvent?.drawsLeft ?: 1,
-            isDrawStep = drawEvent?.isDrawStep ?: false,
-            drawnCardsSoFar = drawEvent?.drawnCardsSoFar ?: emptyList(),
-            declinedIdentity = gathered.identity
-        )
-
-        val stateWithDecision = state.withPendingDecision(decision)
-        val stateWithContinuation = stateWithDecision.pushContinuation(continuation)
-
-        return ProcessorResult.Paused(stateWithContinuation, decision)
-    }
-
-    /**
-     * Classify a replacement effect into a priority group (CR 616.1a-d).
-     *
-     * For Phase 1 (draw domain), all draw-related replacements are in
-     * the ANY group. When expanded to other domains, self-replacement,
-     * control-change, and copy groups will be classified here.
-     */
-    private fun classifyPriorityGroup(
-        effect: ReplacementEffect,
-        event: PendingGameEvent
-    ): ReplacementPriorityGroup {
-        return when (effect) {
-            // Self-replacement effects (CR 614.15): effects on a permanent
-            // that modify how that same permanent enters the battlefield.
-            // Classified by checking if the effect is on the affected object
-            // itself. For draw domain, this doesn't apply.
-            is ReplaceDrawWithEffect,
-            is PreventDraw,
-            is ModifyDrawAmount -> ReplacementPriorityGroup.ANY
-
-            // Future domains will add their own classification here
-            else -> ReplacementPriorityGroup.ANY
-        }
+        return ProcessorResult.Paused(stateWithContinuation, promptResult.decision)
     }
 
     /**
      * Create a [ReplacementOutcome] by applying a single replacement effect
      * to a pending event.
+     *
+     * Delegates to [PendingGameEvent.applyReplacement] for domain-specific
+     * outcome production — the processor remains domain-agnostic.
      */
     private fun createOutcome(
         effect: ReplacementEffect,
         event: PendingGameEvent,
         state: GameState
     ): ReplacementOutcome {
-        return when (event) {
-            is PendingGameEvent.DrawPending -> applyDrawReplacement(effect, event, state)
-        }
-    }
-
-    /**
-     * Apply a draw-related replacement effect.
-     */
-    private fun applyDrawReplacement(
-        effect: ReplacementEffect,
-        event: PendingGameEvent.DrawPending,
-        state: GameState
-    ): ReplacementOutcome {
-        return when (effect) {
-            is ModifyDrawAmount -> {
-                // Add the modifier to the remaining draws. At the per-card level
-                // (checkBeforeDraw) this adds extra draws to the remaining-draws
-                // continuation. At the announcement site (applyDrawAmountModifier),
-                // the reader adds remainingDraws to originalCount (the event's
-                // remainingDraws is 0 before modification, so it becomes `modifier`).
-                val newRemaining = (event.remainingDraws + effect.modifier).coerceAtLeast(0)
-                ReplacementOutcome.Modified(event.copy(remainingDraws = newRemaining))
-            }
-            is PreventDraw -> {
-                // Consume the draw entirely
-                ReplacementOutcome.Consumed
-            }
-            is ReplaceDrawWithEffect -> {
-                // Replace with the specified effect
-                ReplacementOutcome.Replaced(effect.replacementEffect)
-            }
-            else -> {
-                // Unknown effect type for draw — pass through
-                ReplacementOutcome.Modified(event)
-            }
-        }
+        return event.applyReplacement(effect, state)
     }
 
     /**
      * Gather all active replacement effects that match the given event.
+     *
+     * Scans four sources:
+     * 1. Battlefield permanents with [ReplacementEffectSourceComponent]
+     * 2. Floating effects that carry replacement-effect modifications (Words cycle shields and any future floating replacement effects)
+     * 3. [state.grantedReplacementEffects] — temporary grants like Malicious Eclipse
+     * 4. Entities with [SelfZoneRedirectComponent] — "from anywhere" self-redirects
+     *
+     * Each effect is matched via [PendingGameEvent.matches], so unsupported
+     * event domains are naturally filtered out.
      */
     fun gatherReplacements(
         state: GameState,
@@ -446,6 +366,7 @@ class ReplacementEffectProcessor {
     ): List<GatheredReplacement> {
         val results = mutableListOf<GatheredReplacement>()
 
+        // 1. Battlefield permanents with ReplacementEffectSourceComponent
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
             val replacementSource = container.get<ReplacementEffectSourceComponent>() ?: continue
@@ -460,7 +381,7 @@ class ReplacementEffectProcessor {
 
                 results.add(
                     GatheredReplacement(
-                        identity = ReplacementEffectIdentity(
+                        identity = ReplacementEffectIdentity.BattlefieldIdentity(
                             sourceEntityId = entityId,
                             effectIndex = index
                         ),
@@ -472,32 +393,67 @@ class ReplacementEffectProcessor {
             }
         }
 
-        // Also scan floating effects for NextUse replacement shields
-        // (Words cycle activated-ability shields are stored here, not on battlefield permanents).
-        if (event is PendingGameEvent.DrawPending) {
-            for ((index, fe) in state.floatingEffects.withIndex()) {
-                if (fe.duration !is Duration.NextUse) continue
-                if (event.playerId !in fe.effect.affectedEntities) continue
-                val mod = fe.effect.modification
-                val drawMod = mod as? SerializableModification.ReplaceDrawWithEffect ?: continue
+        // 2. Floating effects that carry replacement-effect modifications
+        // (Words cycle shields stored here, not on battlefield permanents).
+        for ((index, fe) in state.floatingEffects.withIndex()) {
+            if (event.affectedPlayerId !in fe.effect.affectedEntities) continue
 
-                val sdkEffect = ReplaceDrawWithEffect(
-                    replacementEffect = drawMod.replacementEffect,
-                    appliesTo = EventPattern.DrawEvent()
+            val sdkEffect = fe.effect.modification.toReplacementEffect(fe.controllerId) ?: continue
+
+            if (!matchesEvent(sdkEffect, event, fe.controllerId, state, context)) continue
+
+            val desc = (fe.effect.modification.javaClass.name ?: "").ifBlank { "Replace draw" }
+
+            results.add(
+                GatheredReplacement(
+                    identity = ReplacementEffectIdentity.FloatingIdentity(floatingIndex = index),
+                    effect = sdkEffect,
+                    sourceControllerId = fe.controllerId,
+                    description = desc
                 )
-                val desc = (drawMod.sourceName ?: "").ifBlank { "Replace draw" }
-                val sourceId = drawMod.sourceId ?: EntityId("")
+            )
+        }
+
+        // 3. Granted replacement effects (temporary riders like Malicious Eclipse)
+        for ((index, grant) in state.grantedReplacementEffects.withIndex()) {
+            val controllerId = grant.controllerId
+            if (!matchesEvent(grant.replacement, event, controllerId, state, context)) continue
+
+            results.add(
+                GatheredReplacement(
+                    identity = ReplacementEffectIdentity.GrantedIdentity(grantedIndex = index),
+                    effect = grant.replacement,
+                    sourceControllerId = controllerId,
+                    description = grant.replacement.description
+                )
+            )
+        }
+
+        // 4. Self-redirect components — "from anywhere" effects on the card entity itself
+        //    (Darksteel Colossus, Progenitus). These function in every zone (CR 614.12).
+        //    Skip entities on the battlefield since their effects are already gathered
+        //    via ReplacementEffectSourceComponent above (source 1).
+        val battlefieldSet = state.getBattlefield().toSet()
+        for ((entityId, container) in state.entities) {
+            if (entityId in battlefieldSet) continue
+            val selfRedirect = container.get<SelfZoneRedirectComponent>() ?: continue
+            // Determine controller: use ControllerComponent if present, else OwnerComponent
+            val controllerId = container.get<ControllerComponent>()?.playerId
+                ?: container.get<OwnerComponent>()?.playerId
+                ?: continue
+
+            for ((index, effect) in selfRedirect.redirects.withIndex()) {
+                if (!matchesEvent(effect, event, controllerId, state, context)) continue
 
                 results.add(
                     GatheredReplacement(
-                        identity = ReplacementEffectIdentity(
-                            sourceEntityId = sourceId,
-                            effectIndex = -(index + 1000)  // negative range to avoid collision
+                        identity = ReplacementEffectIdentity.SelfRedirectIdentity(
+                            sourceEntityId = entityId,
+                            effectIndex = index
                         ),
-                        effect = sdkEffect,
-                        sourceControllerId = event.playerId,
-                        description = desc,
-                        floatingEffectIndex = index
+                        effect = effect,
+                        sourceControllerId = controllerId,
+                        description = effect.description
                     )
                 )
             }
@@ -509,6 +465,10 @@ class ReplacementEffectProcessor {
     /**
      * Check whether a replacement effect matches a pending event using its
      * [ReplacementEffect.appliesTo] pattern and any [ReplacementEffect.restrictions].
+     *
+     * Delegates event-pattern matching to [PendingGameEvent.matches], then
+     * evaluates the effect's [ReplacementEffect.restrictions] against the
+     * current state. This method is fully domain-agnostic.
      */
     private fun matchesEvent(
         effect: ReplacementEffect,
@@ -517,29 +477,13 @@ class ReplacementEffectProcessor {
         state: GameState,
         context: EffectContext? = null
     ): Boolean {
-        val appliesTo = effect.appliesTo
-
-        val baseMatch = when (event) {
-            is PendingGameEvent.DrawPending -> {
-                when (appliesTo) {
-                    is EventPattern.DrawEvent -> {
-                        val condition = appliesTo.condition
-                        if (condition != null) {
-                            if (!conditionEvaluator.evaluate(state, condition, context ?: EffectContext(sourceId = null, controllerId = sourceControllerId))) {
-                                return false
-                            }
-                        }
-                        matchesPlayerFilter(appliesTo.player, event.playerId, sourceControllerId)
-                    }
-                    else -> false
-                }
-            }
+        // Delegate to the polymorphic event match
+        if (!event.matches(effect.appliesTo, sourceControllerId, state, context)) {
+            return false
         }
 
-        if (!baseMatch) return false
-
-        // Evaluate restrictions if present (e.g., ModifyDrawAmount.restrictions)
-        val restrictions = getRestrictions(effect)
+        // Evaluate the effect's restrictions (CR 614 — extra conditions)
+        val restrictions = effect.restrictions
         if (restrictions.isNotEmpty()) {
             val evalContext = context ?: EffectContext(
                 sourceId = null,
@@ -551,42 +495,5 @@ class ReplacementEffectProcessor {
         }
 
         return true
-    }
-
-    /**
-     * Check whether a player filter matches the drawing player relative to
-     * the replacement source's controller.
-     */
-    private fun matchesPlayerFilter(
-        player: Player,
-        affectedPlayerId: EntityId,
-        sourceControllerId: EntityId
-    ): Boolean {
-        return when (player) {
-            Player.Each -> true
-            Player.You -> affectedPlayerId == sourceControllerId
-            Player.EachOpponent -> affectedPlayerId != sourceControllerId
-            else -> false
-        }
-    }
-
-    /**
-     * Extract the [Condition] restrictions from a [ReplacementEffect], if any.
-     *
-     * Not all replacement effects have restrictions — only those that refine their
-     * applicability with additional conditions (e.g., [ModifyDrawAmount.restrictions],
-     * [com.wingedsheep.sdk.scripting.PreventDamage.restrictions]). This helper
-     * provides a uniform interface for the matching pipeline.
-     */
-    private fun getRestrictions(effect: ReplacementEffect): List<Condition> {
-        return when (effect) {
-            is ModifyDrawAmount -> effect.restrictions
-            is PreventDamage -> effect.restrictions
-            is DoubleDamage -> effect.restrictions
-            is ModifyLifeGain -> effect.restrictions
-            is ModifyLifeLoss -> effect.restrictions
-            is ModifyMillAmount -> effect.restrictions
-            else -> emptyList()
-        }
     }
 }

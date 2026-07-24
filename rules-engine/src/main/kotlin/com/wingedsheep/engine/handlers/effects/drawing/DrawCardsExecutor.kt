@@ -50,7 +50,7 @@ class DrawCardsExecutor(
         var currentState = state
         val allEvents = mutableListOf<GameEvent>()
         for (playerId in playerIds) {
-            val result = executeDraws(currentState, playerId, count)
+            val result = executeDraws(currentState, playerId, count, context = context)
             currentState = result.state
             allEvents.addAll(result.events)
             if (result.pendingDecision != null) {
@@ -81,7 +81,8 @@ class DrawCardsExecutor(
         playerId: EntityId,
         count: Int,
         isDrawStep: Boolean = false,
-        emptyLibraryReason: String = "Empty library"
+        emptyLibraryReason: String = "Empty library",
+        context: EffectContext? = null
     ): EffectResult {
         return DrawLoop.run(
             state = state,
@@ -90,7 +91,8 @@ class DrawCardsExecutor(
             primitive = primitive,
             dispatcher = dispatcher,
             isDrawStep = isDrawStep,
-            emptyLibraryReason = emptyLibraryReason
+            emptyLibraryReason = emptyLibraryReason,
+            context = context
         )
     }
 
