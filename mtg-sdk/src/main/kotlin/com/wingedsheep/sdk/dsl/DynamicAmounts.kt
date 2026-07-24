@@ -354,6 +354,21 @@ object DynamicAmounts {
         DynamicAmount.ContextProperty(ContextPropertyKey.X_VALUE_OF_TRIGGERING_SPELL)
 
     // =========================================================================
+    // Death-batch trigger values
+    // =========================================================================
+
+    /**
+     * "The total power of those creatures" — the summed last-known power of the creatures that
+     * died in the batch that fired a `OneOrMoreCreaturesYouControlDie` trigger (CR 603.2c). Only
+     * the deaths matching the trigger's filter count. Captured at detection time (the graveyard
+     * card's printed power would drop counters/buffs), so it survives to resolution. `0` outside a
+     * creatures-died batch trigger. Used by The Skullspore Nexus — "create a … token with base
+     * power and toughness each equal to the total power of those creatures."
+     */
+    fun diedBatchTotalPower(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.DIED_BATCH_TOTAL_POWER)
+
+    // =========================================================================
     // Prevention-reaction values
     // =========================================================================
 

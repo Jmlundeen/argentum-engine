@@ -17245,7 +17245,8 @@
                 "modification": {
                     "type": "ReduceGenericBy",
                     "source": {
-                        "type": "GreatestManaValueAmongPermanentsYouControl",
+                        "type": "GreatestPropertyAmongPermanentsYouControl",
+                        "property": "ManaValue",
                         "filter": "permanent Elemental"
                     }
                 }

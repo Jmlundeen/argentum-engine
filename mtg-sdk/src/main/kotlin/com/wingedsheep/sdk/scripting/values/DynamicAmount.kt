@@ -257,6 +257,15 @@ enum class ContextPropertyKey(val description: String) {
      * discover.
      */
     TRIGGER_DISCOVER_VALUE("the same value"),
+    /**
+     * The total **last-known power** of the creatures that died in the batch that fired this
+     * trigger (CR 603.2c / 603.10). Summed from each dying creature's power the instant it left
+     * the battlefield — the graveyard card's printed power would drop counters and buffs, so the
+     * value is captured at detection time. Read by "one or more creatures you control die"
+     * batch payoffs keyed on "the total power of those creatures" (The Skullspore Nexus).
+     * `0` when the trigger was not a creatures-died batch.
+     */
+    DIED_BATCH_TOTAL_POWER("the total power of those creatures"),
 }
 
 /**

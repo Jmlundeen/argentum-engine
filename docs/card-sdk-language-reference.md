@@ -1061,7 +1061,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   taps for any color — i.e. the mana ability of each basic land type, without the basic supertype. The
   Overlord of the Hauntwoods trigger creates them `tapped = true`.
 - `CreateRoleToken(roleName, target)` — attach a Role aura token.
-- `CreateMapToken(count?)` — Map artifact tokens.
+- `CreateMapToken(count?)` — Map artifact tokens. `count` accepts an `Int` or a `DynamicAmount`
+  (the latter evaluated at resolution, e.g. Journey On's `CreateMapToken(Add(Fixed(1),
+  CountPlayersWith(Player.EachOpponent, Conditions.ControlArtifact)))` — "X is one plus the number
+  of opponents who control an artifact").
 - `CreateDroneToken(count?)` — Drone tokens.
 - `CreateMunitionsToken(count?)` — Munitions noncreature artifact tokens (Weapons Manufacturing); the LTB damage
   trigger lives on the predefined `Munitions` `CardDefinition` and is picked up automatically by the engine's
@@ -2517,6 +2520,14 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   with `EntityReference.AmassedArmy` for a **resolution-time pipeline** bound — Grishnákh, Brash Instigator
   ("power ≤ the amassed Army's power"). The pipeline reference is threaded into target enumeration via
   `findLegalTargets(..., pipelineContext = …)`; see §13 "Pipeline values inside target filters".
+- `.powerGreaterThanBase()` — **self-relative**: the object's current (projected) power is strictly greater
+  than its **own** printed base power (`CardComponent.baseStats.basePower`). Any pump that raises power above
+  base qualifies — a +1/+1 counter, an anthem, a temporary boost; a shrunk or unmodified creature does not.
+  Off-battlefield objects (no projected power) and `*`/CDA-power creatures (no fixed printed base) never
+  match. Backs the Malamet "power greater than its base power" cycle — Kutzil, Malamet Exemplar ("Whenever
+  one or more creatures you control each with power greater than its base power deals combat damage to a
+  player, draw a card"), pairing `GameObjectFilter.Creature.powerGreaterThanBase()` with the
+  `OneOrMoreDealCombatDamageToPlayerEvent` batch trigger (§8).
 - `.manaValueAtMostEntityManaSpent(ref)` — mana value ≤ the mana **actually spent** to cast a referenced
   entity. Reads the live `SpellOnStackComponent` buckets while the entity is still a spell, or the
   `CastRecordComponent` snapshot once it has resolved onto the battlefield (0 if it was never cast).
@@ -4165,8 +4176,13 @@ staticAbility {
   same, all players), `PermanentsSacrificedThisTurn(amountPerPermanent = 1)` (the count of
   permanents sacrificed this turn by *any* player — not controller-scoped — reading the
   turn-scoped `GameState.permanentsSacrificedThisTurn` counter; The Balrog, Durin's Bane),
-  `CardsInGraveyardMatchingFilter`, `FixedIfAnyTargetMatches`, … — see
-  `CostStaticAbilities.kt` for the full list.
+  `CardsInGraveyardMatchingFilter`, `FixedIfAnyTargetMatches`,
+  `GreatestPropertyAmongPermanentsYouControl(property, filter)` — "{X} less, where X is the greatest
+  `<property>` among `<filter>` you control", parameterized over `EntityNumericProperty`:
+  `ManaValue` (Sunderflock — "greatest mana value among Elementals you control", read from the card
+  definition), `Power` (The Skullspore Nexus — "greatest power among creatures you control", read
+  from projected state so counters and buffs count); empty match → 0. … — see `CostStaticAbilities.kt`
+  for the full list.
 - `gating: CostGating` — gates whether/how often the modifier fires:
   - `None` (default) — applies to every matching cast.
   - `NthOfTypePerTurn(n)` — only when this is the Nth matching spell each turn (1-indexed; counts the
@@ -6114,6 +6130,16 @@ Numbers computed at resolution time.
   ExcessMarkedDamage)`). CompositeEffect resolves sub-effects sequentially with no interleaved SBA pass, so
   the creature is still present mid-composite with its just-marked damage. Returns 0 off the battlefield or
   for a non-creature.
+- `EntityProperty(entity, EntityNumericProperty.BasePower)` / `EntityNumericProperty.BaseToughness` — the
+  entity's printed **base** power/toughness (its P/T before counters, Auras, Equipment, anthems, and any other
+  continuous modification): the Fixed `CardComponent.baseStats.basePower`/`baseToughness` the card was printed
+  with, `0` for `*`/CDA stats. Uses the *same* base as the `CardPredicate.PowerGreaterThanBase` filter, so
+  `Subtract(EntityProperty(e, Power), EntityProperty(e, BasePower))` gives exactly the "difference" (current
+  power − base power) that filter's qualifying creatures have — the per-creature +1/+1 counter amount for
+  **Sovereign Okinec Ahau** ("Whenever ~ attacks, for each creature you control with power greater than that
+  creature's base power, put a number of +1/+1 counters on that creature equal to the difference."), composed
+  as a `ForEachInGroup` over `Creature.youControl().powerGreaterThanBase()` reading the amount off
+  `EntityReference.IterationEntity`. Not projected — always the printed base.
 - `CardNumericProperty(card, property)` — generic numeric property accessor.
 
 ### Triggering-entity shortcuts (`DynamicAmounts.*` facades)
@@ -6127,6 +6153,23 @@ For triggered abilities whose effect reads a property of the entity that caused 
 - `DynamicAmounts.triggeringManaValue()` — mana value of the triggering entity.
 
 All three desugar to `EntityProperty(EntityReference.Triggering, …)`.
+
+### Death-batch total-power shortcut (`DynamicAmounts.*` facade)
+
+For "one or more creatures you control die" **batch** triggers
+(`Triggers.OneOrMoreCreaturesYouControlDie`, CR 603.2c) whose payoff scales by the combined power of
+the creatures that died:
+
+- `DynamicAmounts.diedBatchTotalPower()` — the summed **last-known** power of the creatures that died
+  in the batch that fired this trigger, counting only the deaths that match the trigger's filter
+  (so a `.nontoken()` trigger ignores dying tokens). Desugars to
+  `ContextProperty(ContextPropertyKey.DIED_BATCH_TOTAL_POWER)`. The value is captured at trigger
+  detection (a graveyard card would report only printed power, dropping counters and buffs — CR
+  603.10 last-known information), so it survives to resolution. Returns 0 outside a creatures-died
+  batch trigger. Individual powers may be negative, so the sum can be too. Used by The Skullspore
+  Nexus — "create a green Fungus Dinosaur creature token with base power and toughness each equal to
+  the total power of those creatures" (`Effects.CreateDynamicToken(dynamicPower = …, dynamicToughness
+  = …)`).
 
 ### Attached-creature shortcut (`DynamicAmounts.*` facade)
 

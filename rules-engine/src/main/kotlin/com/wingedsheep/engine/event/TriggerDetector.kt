@@ -2294,7 +2294,11 @@ class TriggerDetector(
 
     private data class CreatureDeathInfo(
         val entityId: EntityId,
-        val typeLine: com.wingedsheep.sdk.core.TypeLine?
+        val typeLine: com.wingedsheep.sdk.core.TypeLine?,
+        /** Power the instant the creature left the battlefield (CR 603.10 LKI), for batch power sums. */
+        val lastKnownPower: Int? = null,
+        /** Whether the dead creature was a token, so the filter's nontoken/token predicate is honored. */
+        val wasToken: Boolean = false
     )
 
     /**
@@ -2333,7 +2337,14 @@ class TriggerDetector(
             if (typeLine?.isCreature != true) continue
             val controllerId = event.lastKnown?.controllerId ?: event.ownerId
             deathsByController.getOrPut(controllerId) { mutableListOf() }
-                .add(CreatureDeathInfo(event.entityId, typeLine))
+                .add(
+                    CreatureDeathInfo(
+                        entityId = event.entityId,
+                        typeLine = typeLine,
+                        lastKnownPower = event.lastKnown?.power,
+                        wasToken = event.lastKnown?.wasToken ?: false
+                    )
+                )
         }
         if (deathsByController.isEmpty()) return
 
@@ -2440,18 +2451,33 @@ class TriggerDetector(
         }
         if (relevantDeaths.isEmpty()) return
 
-        val hasMatch = relevantDeaths.any { info ->
+        // Which of the batch's deaths satisfy the trigger's filter. Evaluated against last-known
+        // information (the creatures are already in the graveyard) — including the token/nontoken
+        // predicate, so "one or more *nontoken* creatures you control die" (The Skullspore Nexus,
+        // Ghoulish Procession) ignores dying tokens both for firing and for the power sum below.
+        fun deathMatchesFilter(info: CreatureDeathInfo): Boolean =
             trigger.filter.cardPredicates.all { predicate ->
                 when (predicate) {
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsCreature ->
                         info.typeLine?.isCreature == true
                     is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtype ->
                         info.typeLine?.hasSubtype(predicate.subtype) == true
+                    is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsNontoken ->
+                        !info.wasToken
+                    is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsToken ->
+                        info.wasToken
                     else -> true
                 }
             }
-        }
-        if (!hasMatch) return
+
+        val matchingDeaths = relevantDeaths.filter { deathMatchesFilter(it) }
+        if (matchingDeaths.isEmpty()) return
+
+        // "the total power of those creatures" — CR uses each creature's last-known power (buffs and
+        // counters included); a graveyard card would report only printed power. Individual powers can
+        // be negative, so the sum can be too (a token whose base P/T is that sum dies to state-based
+        // actions if it is 0 or less).
+        val batchTotalPower = matchingDeaths.sumOf { it.lastKnownPower ?: 0 }
 
         triggers.add(
             PendingTrigger(
@@ -2459,7 +2485,7 @@ class TriggerDetector(
                 sourceId = sourceId,
                 sourceName = sourceName,
                 controllerId = controllerId,
-                triggerContext = TriggerContext()
+                triggerContext = TriggerContext(diedBatchTotalPower = batchTotalPower)
             )
         )
     }

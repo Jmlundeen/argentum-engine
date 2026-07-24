@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Sunderflock
@@ -39,7 +40,8 @@ val Sunderflock = card("Sunderflock") {
         ability = ModifySpellCost(
             target = SpellCostTarget.SelfCast,
             modification = CostModification.ReduceGenericBy(
-                CostReductionSource.GreatestManaValueAmongPermanentsYouControl(
+                CostReductionSource.GreatestPropertyAmongPermanentsYouControl(
+                    EntityNumericProperty.ManaValue,
                     GameObjectFilter.Permanent.withSubtype(Subtype("Elemental")),
                 ),
             ),

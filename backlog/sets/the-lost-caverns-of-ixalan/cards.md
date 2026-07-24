@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 273 / 286
+**Implemented:** 277 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -140,11 +140,11 @@
 - [x] Jadelight Spelunker
 - [x] Join the Dead
 - [x] Kaslem's Stonetree
-- [ ] Kellan, Daring Traveler
+- [x] Kellan, Daring Traveler
 - [x] Kinjalli's Dawnrunner
 - [ ] Kitesail Larcenist
 - [x] Kutzil's Flanker
-- [ ] Kutzil, Malamet Exemplar
+- [x] Kutzil, Malamet Exemplar
 - [x] Lodestone Needle
 - [x] Magmatic Galleon
 - [x] Malamet Battle Glyph
@@ -229,7 +229,7 @@
 - [ ] Sorcerous Spyglass
 - [x] Soulcoil Viper
 - [x] Souls of the Lost
-- [ ] Sovereign Okinec Ahau
+- [x] Sovereign Okinec Ahau
 - [x] Spelunking
 - [x] Spring-Loaded Sawblades
 - [x] Spyglass Siren
@@ -257,7 +257,7 @@
 - [x] The Everflowing Well
 - [ ] The Millennium Calendar
 - [x] The Mycotyrant
-- [ ] The Skullspore Nexus
+- [x] The Skullspore Nexus
 - [x] Thousand Moons Crackshot
 - [x] Thousand Moons Infantry
 - [x] Thousand Moons Smithy

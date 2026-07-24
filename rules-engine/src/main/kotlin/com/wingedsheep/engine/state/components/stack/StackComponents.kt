@@ -144,6 +144,9 @@ data class TriggeredAbilityOnStackComponent(
     val copyTotal: Int? = null,    // Total number of copies being created
     val lastKnownPower: Int? = null,    // Power at the moment the triggering entity left the battlefield (dies/leaves)
     val lastKnownToughness: Int? = null, // Toughness at the moment the triggering entity left the battlefield (dies/leaves)
+    /** Total last-known power of a creatures-died batch (CR 603.2c). Read via
+     *  `ContextPropertyKey.DIED_BATCH_TOTAL_POWER` (The Skullspore Nexus). Null for non-batch triggers. */
+    val diedBatchTotalPower: Int? = null,
     /** Number of mode picks recorded by the spell-cast that fired this trigger (Riku of Many Paths). */
     val triggerModesChosenCount: Int? = null,
     /** Power of the aura/equipment's attached creature, captured at trigger time; LKI for

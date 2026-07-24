@@ -27,6 +27,34 @@ sealed interface EntityNumericProperty {
         override val description: String = "toughness"
     }
 
+    /**
+     * The entity's printed **base** power — its power before counters, Auras, Equipment, anthems,
+     * and any other continuous modification. Reads the fixed
+     * [com.wingedsheep.sdk.model.CreatureStats.basePower] assigned when the card was printed; a
+     * creature with characteristic-defining `*`/CDA power has no fixed base and reads 0.
+     *
+     * This is the *same* notion of "base power" that [com.wingedsheep.sdk.scripting.predicates
+     * .CardPredicate.PowerGreaterThanBase] tests against, so pairing the two stays consistent:
+     * `Subtract(EntityProperty(e, Power), EntityProperty(e, BasePower))` yields exactly the
+     * "difference" (current power − base power) that filter's qualifying creatures have — the
+     * per-creature +1/+1 counter amount for Sovereign Okinec Ahau.
+     */
+    @SerialName("BasePower")
+    @Serializable
+    data object BasePower : EntityNumericProperty {
+        override val description: String = "base power"
+    }
+
+    /**
+     * The entity's printed **base** toughness — the toughness sibling of [BasePower]. Reads the
+     * fixed [com.wingedsheep.sdk.model.CreatureStats.baseToughness]; `*`/CDA toughness reads 0.
+     */
+    @SerialName("BaseToughness")
+    @Serializable
+    data object BaseToughness : EntityNumericProperty {
+        override val description: String = "base toughness"
+    }
+
     @SerialName("ManaValue")
     @Serializable
     data object ManaValue : EntityNumericProperty {

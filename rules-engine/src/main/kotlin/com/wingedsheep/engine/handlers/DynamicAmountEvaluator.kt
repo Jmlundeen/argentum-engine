@@ -707,6 +707,8 @@ class DynamicAmountEvaluator(
 
         ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS -> context.triggerRecipientToughness ?: 0
 
+        ContextPropertyKey.DIED_BATCH_TOTAL_POWER -> context.triggerDiedBatchTotalPower ?: 0
+
         ContextPropertyKey.LINKED_EXILE_CARD_COUNT -> {
             val sourceId = context.sourceId
             if (sourceId == null) 0 else state.getEntity(sourceId)
@@ -1085,6 +1087,15 @@ class DynamicAmountEvaluator(
 
             is EntityNumericProperty.Toughness ->
                 resolvePowerOrToughness(state, entityId, isPower = false, context, useProjected, explicitProjected)
+
+            // Printed base power/toughness — never projected. Reads the Fixed base the card was
+            // printed with (0 for */CDA stats), matching the CardPredicate.PowerGreaterThanBase
+            // filter so "difference = power − base power" stays consistent (Sovereign Okinec Ahau).
+            is EntityNumericProperty.BasePower ->
+                state.getEntity(entityId)?.get<CardComponent>()?.baseStats?.basePower ?: 0
+
+            is EntityNumericProperty.BaseToughness ->
+                state.getEntity(entityId)?.get<CardComponent>()?.baseStats?.baseToughness ?: 0
 
             is EntityNumericProperty.ManaValue ->
                 state.getEntity(entityId)?.get<CardComponent>()?.manaValue ?: 0

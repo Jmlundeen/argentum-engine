@@ -66,6 +66,8 @@ data class TriggeredAbilityContinuation(
     val triggerLastKnownBlockingOrBlockedByIds: List<EntityId>? = null,
     val lastKnownPower: Int? = null,
     val lastKnownToughness: Int? = null,
+    /** Total last-known power of a creatures-died batch (CR 603.2c). Null for non-batch triggers. */
+    val diedBatchTotalPower: Int? = null,
     val triggerModesChosenCount: Int? = null,
     /** Power of the aura/equipment's attached creature, captured at trigger time (CR 608.2h LKI). */
     val enchantedCreatureLastKnownPower: Int? = null,

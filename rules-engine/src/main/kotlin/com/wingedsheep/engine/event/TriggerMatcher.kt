@@ -1119,6 +1119,16 @@ class TriggerMatcher(
                     else lastKnownToughness ?: projected.getToughness(entityId) ?: cardComponent.baseStats?.baseToughness ?: 0
                 toughness > power
             }
+            is com.wingedsheep.sdk.scripting.predicates.CardPredicate.PowerGreaterThanBase -> {
+                // Self-relative: last-known/projected power at event time vs the object's own
+                // printed base power. Face-down (base 2/2, power 2) never exceeds its base.
+                if (isFaceDown) false
+                else {
+                    val basePower = cardComponent.baseStats?.basePower
+                    val power = lastKnownPower ?: projected.getPower(entityId) ?: basePower
+                    basePower != null && power != null && power > basePower
+                }
+            }
             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasKeyword ->
                 projected.hasKeyword(entityId, predicate.keyword)
             is com.wingedsheep.sdk.scripting.predicates.CardPredicate.NotKeyword ->
@@ -1597,6 +1607,7 @@ class TriggerMatcher(
                 triggerLastKnownSubtypes = trigger.triggerContext.lastKnownSubtypes,
                 triggerLastKnownPower = trigger.triggerContext.lastKnownPower,
                 triggerLastKnownToughness = trigger.triggerContext.lastKnownToughness,
+                triggerDiedBatchTotalPower = trigger.triggerContext.diedBatchTotalPower,
                 triggerScryCount = trigger.triggerContext.scryCount,
                 triggerDiscoverValue = trigger.triggerContext.discoverValue,
                 triggerExcessDamageAmount = trigger.triggerContext.excessDamageAmount,

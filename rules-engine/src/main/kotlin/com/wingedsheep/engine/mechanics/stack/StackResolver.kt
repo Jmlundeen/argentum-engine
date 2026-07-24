@@ -2285,6 +2285,7 @@ class StackResolver(
             targetingSourceEntityId = abilityComponent.targetingSourceEntityId,
             triggerLastKnownPower = abilityComponent.lastKnownPower,
             triggerLastKnownToughness = abilityComponent.lastKnownToughness,
+            triggerDiedBatchTotalPower = abilityComponent.diedBatchTotalPower,
             enchantedCreatureLastKnownPower = abilityComponent.enchantedCreatureLastKnownPower,
             triggerModesChosenCount = abilityComponent.triggerModesChosenCount,
             triggerScryCount = abilityComponent.triggerScryCount,
