@@ -67,7 +67,7 @@ val VolatileFault = card("Volatile Fault") {
                     )
                 )
             ) then
-            Effects.CreateTreasure(1)
+            Effects.CreateTreasure(1, imageUri = LciTokenArt.TREASURE)
         description = "{1}, {T}, Sacrifice this land: Destroy target nonbasic land an opponent " +
             "controls. That player may search their library for a basic land card, put it onto " +
             "the battlefield, then shuffle. You create a Treasure token."

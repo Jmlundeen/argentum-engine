@@ -62,7 +62,7 @@ val SanguineEvangelist = card("Sanguine Evangelist") {
             colors = setOf(Color.BLACK),
             creatureTypes = setOf("Bat"),
             keywords = setOf(Keyword.FLYING),
-            imageUri = "https://cards.scryfall.io/normal/front/1/0/100c0127-49dd-4a78-9c88-1881e7923674.jpg?1721425184",
+            imageUri = "https://cards.scryfall.io/normal/front/0/0/00841e4b-0995-4fb5-93d6-e177beba4934.jpg?1783913608",
         )
     }
 
@@ -75,7 +75,7 @@ val SanguineEvangelist = card("Sanguine Evangelist") {
             colors = setOf(Color.BLACK),
             creatureTypes = setOf("Bat"),
             keywords = setOf(Keyword.FLYING),
-            imageUri = "https://cards.scryfall.io/normal/front/1/0/100c0127-49dd-4a78-9c88-1881e7923674.jpg?1721425184",
+            imageUri = "https://cards.scryfall.io/normal/front/0/0/00841e4b-0995-4fb5-93d6-e177beba4934.jpg?1783913608",
         )
     }
 

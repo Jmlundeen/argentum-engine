@@ -40,7 +40,7 @@ val AbueloAncestralEcho = card("Abuelo, Ancestral Echo") {
         cost = Costs.Mana("{1}{W}{U}")
         val t = target(
             "target",
-            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()))
+            TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()).other())
         )
         effect = Effects.Composite(
             Effects.Exile(t),

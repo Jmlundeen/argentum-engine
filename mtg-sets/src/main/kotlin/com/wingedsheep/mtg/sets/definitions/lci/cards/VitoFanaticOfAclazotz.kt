@@ -67,6 +67,7 @@ val VitoFanaticOfAclazotz = card("Vito, Fanatic of Aclazotz") {
                     colors = setOf(Color.WHITE, Color.BLACK),
                     creatureTypes = setOf("Vampire", "Demon"),
                     keywords = setOf(Keyword.FLYING),
+                    imageUri = "https://cards.scryfall.io/normal/front/3/0/3005eb0a-5c96-4a07-a6b9-a907d1095cdf.jpg?1783913605",
                 ),
             ),
         )

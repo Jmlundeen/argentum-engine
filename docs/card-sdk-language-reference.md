@@ -1056,11 +1056,12 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   path for a bare `CardDefinition`, sibling to the in-zone token-copy path). If no creature has that
   mana value, nothing is created (the cost was still paid). The minted token's own `{X}` reads 0 — it
   never went on the stack. Pass `DynamicAmount.XValue` for "mana value X".
-- `CreateTreasure(count?, tapped?, controller?)` — Treasure tokens. `count` accepts an `Int` or a `DynamicAmount`
+- `CreateTreasure(count?, tapped?, controller?, imageUri?)` — Treasure tokens. `count` accepts an `Int` or a `DynamicAmount`
   (the latter evaluated at resolution, e.g. `CreateTreasure(DynamicAmounts.sourcePower(), tapped = true)`
   for Goldvein Hydra's "create a number of tapped Treasure tokens equal to its power"). `controller`
   (Int overload) redirects the tokens, e.g. `EffectTarget.TargetController` for "its controller creates
-  two Treasure tokens" (An Offer You Can't Refuse).
+  two Treasure tokens" (An Offer You Can't Refuse). `imageUri` overrides the token art (see the
+  set-specific-art note below).
 - `CreateFood(count?, controller?)` — Food tokens.
 - `CreateBlood(count?, controller?)` — Blood tokens (artifact with "{1}, {T}, Discard a card, Sacrifice this artifact: Draw a card."). `count` accepts an `Int` or a `DynamicAmount` (the latter evaluated at resolution, e.g. `CreateBlood(DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ExcessMarkedDamage))` for Lacerate Flesh's "create a number of Blood tokens equal to the amount of excess damage dealt").
 - `CreateClue(count?, controller?)` / `Investigate(count?, controller?)` — Clue tokens (artifact with
@@ -1078,10 +1079,16 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   taps for any color — i.e. the mana ability of each basic land type, without the basic supertype. The
   Overlord of the Hauntwoods trigger creates them `tapped = true`.
 - `CreateRoleToken(roleName, target)` — attach a Role aura token.
-- `CreateMapToken(count?)` — Map artifact tokens. `count` accepts an `Int` or a `DynamicAmount`
+- `CreateMapToken(count?, imageUri?)` — Map artifact tokens. `count` accepts an `Int` or a `DynamicAmount`
   (the latter evaluated at resolution, e.g. Journey On's `CreateMapToken(Add(Fixed(1),
   CountPlayersWith(Player.EachOpponent, Conditions.ControlArtifact)))` — "X is one plus the number
-  of opponents who control an artifact").
+  of opponents who control an artifact"). `imageUri` overrides the token art (see below).
+- **Set-specific token art (`imageUri` override).** Predefined tokens carry one canonical printing in
+  `PredefinedTokens.kt`, shared engine-wide, but the same token (Treasure, Map, …) has different art in
+  every set. Pass `imageUri` to `CreateTreasure` / `CreateMapToken` (or `CreatePredefinedTokenEffect`
+  directly) so the created token shows that set's printing; `null` (the default) falls back to the
+  predefined token's own image. `CreatePredefinedTokenExecutor` resolves `effect.imageUri ?: cardDef.metadata.imageUri`.
+  Example: LCI cards pass `LciTokenArt.TREASURE` (Scryfall set `tlci`) so their Treasure shows the LCI printing.
 - `CreateDroneToken(count?)` — Drone tokens.
 - `CreateMunitionsToken(count?)` — Munitions noncreature artifact tokens (Weapons Manufacturing); the LTB damage
   trigger lives on the predefined `Munitions` `CardDefinition` and is picked up automatically by the engine's

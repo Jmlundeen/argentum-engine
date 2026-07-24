@@ -34,7 +34,8 @@ val NurturingBristleback = card("Nurturing Bristleback") {
             power = 3,
             toughness = 3,
             colors = setOf(Color.GREEN),
-            creatureTypes = setOf("Dinosaur")
+            creatureTypes = setOf("Dinosaur"),
+            imageUri = "https://cards.scryfall.io/normal/front/2/b/2bbb7151-cf71-49bc-8d99-b0230d5465e5.jpg?1783913607",
         )
     }
     keywordAbility(KeywordAbility.typecycling("Forest", ManaCost.parse("{2}")))

@@ -33,7 +33,8 @@ val HitTheMotherLode = card("Hit the Mother Lode") {
                         DynamicAmount.StoredCardManaValue("discovered")
                     )
                 ),
-                tapped = true
+                tapped = true,
+                imageUri = LciTokenArt.TREASURE,
             )
         )
     }

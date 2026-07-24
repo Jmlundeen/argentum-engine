@@ -89,7 +89,8 @@ class CreatePredefinedTokenExecutor(
                 // Fall back to the mana-cost-derived colors for tokens without an override.
                 colors = cardDef.colorIdentityOverride ?: cardDef.colors,
                 ownerId = tokenControllerId,
-                imageUri = cardDef.metadata.imageUri
+                // Set-specific token art when the effect overrides it, else the predefined printing.
+                imageUri = effect.imageUri ?: cardDef.metadata.imageUri
             )
 
             var container = ComponentContainer.of(

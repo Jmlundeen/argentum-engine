@@ -71,7 +71,8 @@ val CorpsesOfTheLost = card("Corpses of the Lost") {
             power = 2,
             toughness = 2,
             colors = setOf(Color.BLACK),
-            creatureTypes = setOf("Skeleton", "Pirate")
+            creatureTypes = setOf("Skeleton", "Pirate"),
+            imageUri = "https://cards.scryfall.io/normal/front/2/e/2ec83fe2-173b-4aa6-bfa1-892b092bd1f6.jpg?1783913607",
         )
     }
 

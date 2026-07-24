@@ -45,7 +45,8 @@ val BroodrageMycoid = card("Broodrage Mycoid") {
             toughness = 1,
             colors = setOf(Color.BLACK),
             creatureTypes = setOf("Fungus"),
-            staticAbilities = listOf(CantBlock(GroupFilter.source()))
+            staticAbilities = listOf(CantBlock(GroupFilter.source())),
+            imageUri = "https://cards.scryfall.io/normal/front/7/3/73ff66e3-ea24-4542-887f-c41abb1759e6.jpg?1783913609",
         )
     }
 

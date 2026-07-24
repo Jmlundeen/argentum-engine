@@ -20,8 +20,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *   `count = DynamicAmount.Fixed(2)` makes two 1/1 colorless Gnome artifact creature tokens: no
  *   color set (`colors = emptySet()`),
  *   `artifactToken = true`, `creatureTypes = setOf("Gnome")` — the same token minted by Anim Pakal,
- *   Threefold Thunderhulk, and Adaptive Gemguard. No imageUri: the local LCI Scryfall dump has no
- *   Gnome token entry.
+ *   Threefold Thunderhulk, and Adaptive Gemguard. Uses the LCI Gnome token art (Scryfall set
+ *   `tlci`, id 6def709a).
  *
  * Ability 2 — [Costs.Composite] of [Costs.Mana] "{W}" and [Costs.SacrificeSelf] with
  *   [Effects.GainLife] (3, default [EffectTarget.Controller]).
@@ -42,7 +42,8 @@ val TinkersTote = card("Tinker's Tote") {
             toughness = 1,
             colors = emptySet(),
             creatureTypes = setOf("Gnome"),
-            artifactToken = true
+            artifactToken = true,
+            imageUri = "https://cards.scryfall.io/normal/front/6/d/6def709a-53b3-4520-9544-74ab6472d256.jpg?1783913604",
         )
     }
 
