@@ -5913,6 +5913,78 @@
     "colorIdentityOverride": []
 }
 
+// Quilled Greatwurm
+{
+    "name": "Quilled Greatwurm",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Creature — Wurm",
+    "oracleText": "Trample\nWhenever a creature you control deals combat damage during your turn, put that many +1/+1 counters on it. (It must survive to get the counters.)\nYou may cast this card from your graveyard by removing six counters from among creatures you control in addition to paying its other costs.",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "sourceFilter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddDynamicCounters",
+                    "counterType": "+1/+1",
+                    "amount": {
+                        "type": "ContextProperty",
+                        "key": "TRIGGER_DAMAGE_AMOUNT"
+                    },
+                    "target": "TriggeringEntity"
+                },
+                "triggerCondition": "IsYourTurn"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "MayCastSelfFromZones",
+                "zones": [
+                    "Graveyard"
+                ],
+                "additionalCost": {
+                    "type": "AdditionalAtom",
+                    "atom": {
+                        "type": "AtomRemoveCounters",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 6
+                        },
+                        "filter": "creature"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "rarity": "MYTHIC",
+        "artist": "Michal Ivan",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/31b60531-3d33-4e66-923a-29008716b15c.jpg?1783909095",
+        "rulings": [
+            {
+                "date": "2024-11-08",
+                "text": "You must follow all normal timing rules when casting Quilled Greatwurm from your graveyard with the permission granted by its last ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Raise the Past
 {
     "name": "Raise the Past",
