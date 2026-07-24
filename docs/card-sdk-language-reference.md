@@ -7451,7 +7451,10 @@ levels, saga chapters, faces — is covered automatically. What it checks:
   `ChooseOption` / a cast-time additional cost, …) in the same resolution scope. A read written
   *nowhere* on the card is an **error** (typo → silent no-op); read-before-write and
   cross-resolution reads are warnings, as are stores nothing reads. A collection write `x`
-  also satisfies the numeric read `x_count`.
+  also satisfies the numeric read `x_count`. Macro effects that the engine expands into a
+  pipeline count as writers of the collections that expansion seeds: `Scry` writes `toTop` /
+  `toBottom` and `Surveil` writes `toTop` / `toGraveyard`, so a sibling effect may read the
+  kept-on-top cards (e.g. Starving Revenant's `DistinctEntitiesInCollections("toTop")`).
 - **Target bindings per owning ability** — `ContextTarget(i)` must fit the owning ability's
   flattened target slots (a `count = 2` requirement spans two indices); `BoundVariable(name)`
   must match a requirement `id` (indexed form `id[i]` allowed). Modes inherit the card-level
