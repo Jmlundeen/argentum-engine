@@ -186,6 +186,13 @@ object Costs {
     val SacrificeGrantingPermanent: AbilityCost = AbilityCost.SacrificeGrantingPermanent
 
     /**
+     * Tap the permanent that granted this activated ability — "Tap Fishing Pole" inside the
+     * ability the Equipment grants its equipped creature. Compose with [Tap] when the printed cost
+     * taps both the host (`{T}`) and the granter.
+     */
+    val TapGrantingPermanent: AbilityCost = AbilityCost.TapGrantingPermanent
+
+    /**
      * Sacrifice a creature of the type chosen when this permanent entered the battlefield.
      * Used by cards like Doom Cannon.
      */
@@ -283,6 +290,14 @@ object Costs {
      */
     fun RemoveCounterFromSelf(counterType: String?, count: Int = 1): AbilityCost =
         AbilityCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), self = true))
+
+    /**
+     * Put [count] counters of [counterType] on this permanent as part of the activation cost —
+     * "{T}, Put a page counter on this artifact: Scry 1" (Mazemind Tome). The accruing mirror of
+     * [RemoveCounterFromSelf]; always payable, since it costs the player nothing they must have.
+     */
+    fun PutCounterOnSelf(counterType: String, count: Int = 1): AbilityCost =
+        AbilityCost.Atom(CostAtom.PutCountersOnSelf(counterType, count))
 
     /**
      * Remove [count] counters of the specified [counterType] (or any type when null)

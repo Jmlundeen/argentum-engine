@@ -11,6 +11,7 @@ import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.CastFromHandComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.LastKnownPermanentComponent
 import com.wingedsheep.engine.state.components.battlefield.EnteredViaAbilityComponent
 import com.wingedsheep.engine.state.components.battlefield.chosenOpponent
 import com.wingedsheep.engine.state.components.battlefield.HasDealtCombatDamageToPlayerComponent
@@ -640,6 +641,22 @@ class ConditionEvaluator(
                     // watching "that Equipment"). Match against projected state so state predicates
                     // (attachment) and the controller predicate ("a creature you control") resolve;
                     // "you" is the ability's controller carried in the effect context.
+                    PredicateEvaluator().matches(
+                        state,
+                        state.projectedState,
+                        triggeringId,
+                        condition.filter,
+                        PredicateContext.fromEffectContext(it.effectContext)
+                    )
+                } else if (triggeringId != null &&
+                    state.getEntity(triggeringId)?.has<LastKnownPermanentComponent>() == true
+                ) {
+                    // The triggering object is a permanent that has *left* the battlefield — the
+                    // dies/leaves-trigger case. "It" still means the permanent as it last existed
+                    // (CR 608.2h), so run the real predicate evaluator: the LKI-aware predicates
+                    // (e.g. IsAttacking, which reads the battlefield-exit snapshot) resolve there,
+                    // whereas the static-card-characteristics path below can't see them at all and
+                    // would vacuously match. Garna, Bloodfist of Keld's "if it was attacking".
                     PredicateEvaluator().matches(
                         state,
                         state.projectedState,

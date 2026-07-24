@@ -158,6 +158,7 @@ object ZoneTransitionService {
         var lastKnownLostAllAbilities = false
         var lastKnownAttachedTo = options.lastKnownAttachedTo
         var lastKnownBlockingOrBlockedByIds: List<EntityId> = emptyList()
+        var lastKnownWasAttacking = false
         var lastKnownWasToken = false
         var lastKnownDamageDealtByPlayers: Map<EntityId, Int> = emptyMap()
         var lastKnownDamageSources: Set<com.wingedsheep.engine.state.components.battlefield.DamageSourceLki> = emptySet()
@@ -199,6 +200,11 @@ object ZoneTransitionService {
                 val blockedByThis = container.get<BlockingComponent>()?.blockedAttackerIds ?: emptyList()
                 lastKnownBlockingOrBlockedByIds = (blockingThis + blockedByThis).distinct()
             }
+            // Whether it was still an attacking creature as it left (CR 506.4), captured before
+            // cleanupCombatReferences strips the live AttackingComponent — "draw a card if it was
+            // attacking" (Garna, Bloodfist of Keld) resolves after the death, so it can only read
+            // last known information (CR 608.2h).
+            lastKnownWasAttacking = container.has<AttackingComponent>()
             lastKnownWasToken = container.has<TokenComponent>()
             lastKnownDamageDealtByPlayers =
                 container.get<DamageDealtByPlayersThisTurnComponent>()?.perPlayer ?: emptyMap()
@@ -271,6 +277,7 @@ object ZoneTransitionService {
                 cardDefinitionId = cardComponent.cardDefinitionId,
                 attachedTo = lastKnownAttachedTo,
                 blockingOrBlockedByIds = lastKnownBlockingOrBlockedByIds,
+                wasAttacking = lastKnownWasAttacking,
                 wasToken = lastKnownWasToken,
                 damageDealtByPlayers = lastKnownDamageDealtByPlayers,
                 damageSources = lastKnownDamageSources,

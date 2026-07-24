@@ -65,7 +65,11 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             val grantedAbilities = state.grantedActivatedAbilities
                 .filter { it.entityId == entityId }
                 .map { it.ability }
-            val staticAbilities = context.castPermissionUtils.getStaticGrantedActivatedAbilities(entityId, state)
+            val staticGrants = context.castPermissionUtils.getStaticGrantedAbilitiesWithGranter(entityId, state)
+            val staticAbilities = staticGrants.map { it.ability }
+            // Which permanent granted each statically-granted ability, so a cost that names the
+            // granter (AbilityCost.TapGrantingPermanent) can be gated on *its* state, not the host's.
+            val granterByAbilityId = staticGrants.associate { it.ability.id to it.granterId }
             val allAbilities = grantedAbilities + staticAbilities
 
             // If no card definition (e.g., tokens) and no granted/static abilities, skip
@@ -199,6 +203,11 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                             if (hasSummoningSickness && !hasHaste) continue
                         }
                     }
+                    // "Tap <the granting Equipment>" — an already-tapped (or departed) granter makes
+                    // the whole granted ability unactivatable (Fishing Pole).
+                    is AbilityCost.TapGrantingPermanent -> {
+                        if (!granterIsUntapped(state, granterByAbilityId[ability.id])) continue
+                    }
                     is AbilityCost.Atom -> when (val atom = effectiveCost.atom) {
                         is CostAtom.Mana -> {
                             if (!context.manaSolver.canPay(state, playerId, atom.cost, precomputedSources = context.availableManaSources, spellContext = abilityContext)) {
@@ -258,8 +267,9 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         }
                         // Pay-life / reveal carry no enumeration-time selection or affordability gate
                         // here (life payability is validated at payment time, matching the prior
-                        // fall-through behavior for these costs).
-                        is CostAtom.PayLife, is CostAtom.RevealFromHand -> {}
+                        // fall-through behavior for these costs). Putting counters on the source
+                        // costs nothing the player must have, so it never gates enumeration either.
+                        is CostAtom.PayLife, is CostAtom.RevealFromHand, is CostAtom.PutCountersOnSelf -> {}
                         is CostAtom.RemoveCounters -> {
                             val needed = when (val count = atom.count) {
                                 is com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed -> count.amount
@@ -405,9 +415,10 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                             discardTargets = targets
                                         }
                                     }
-                                    // Pay-life / reveal carry no enumeration-time gate here (matching
-                                    // the prior else fall-through for these sub-costs).
-                                    is CostAtom.PayLife, is CostAtom.RevealFromHand -> {}
+                                    // Pay-life / reveal / put-counters-on-self carry no enumeration-time
+                                    // gate here (matching the prior else fall-through for these sub-costs).
+                                    is CostAtom.PayLife, is CostAtom.RevealFromHand,
+                                    is CostAtom.PutCountersOnSelf -> {}
                                     is CostAtom.RemoveCounters -> {
                                         val needed = when (val count = atom.count) {
                                             is com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed -> count.amount
@@ -465,6 +476,14 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                             costCanBePaid = false
                                             break
                                         }
+                                    }
+                                }
+                                // "Tap <the granting Equipment>" as one sub-cost of a composite —
+                                // "{1}, {T}, Tap Fishing Pole:".
+                                is AbilityCost.TapGrantingPermanent -> {
+                                    if (!granterIsUntapped(state, granterByAbilityId[ability.id])) {
+                                        costCanBePaid = false
+                                        break
                                     }
                                 }
                                 is AbilityCost.Forage -> {
@@ -1248,6 +1267,18 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
             )
             evaluator.evaluate(state, reduction, targetContext)
         }
+    }
+
+    /**
+     * Is [granterId] a permanent that is on the battlefield and untapped? The payability gate for
+     * [AbilityCost.TapGrantingPermanent]; an unresolved granter (null) is treated as unpayable,
+     * since the cost names a specific permanent that must still be there to tap (CR 201.5a).
+     */
+    private fun granterIsUntapped(state: com.wingedsheep.engine.state.GameState, granterId: EntityId?): Boolean {
+        if (granterId == null) return false
+        val granter = state.getEntity(granterId) ?: return false
+        if (granterId !in state.getBattlefield()) return false
+        return !granter.has<TappedComponent>()
     }
 
     private fun reduceGenericInAbilityCost(cost: AbilityCost, amount: Int): AbilityCost = when (cost) {

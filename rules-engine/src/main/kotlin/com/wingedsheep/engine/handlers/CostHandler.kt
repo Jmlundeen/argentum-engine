@@ -2,6 +2,7 @@ package com.wingedsheep.engine.handlers
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.effects.DamageUtils
+import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
 import com.wingedsheep.engine.mechanics.cost.CostPaymentService
@@ -65,6 +66,13 @@ class CostHandler {
         controllerId: EntityId,
         manaPool: ManaPool,
         abilityContext: SpellPaymentContext? = null,
+        /**
+         * The permanent whose static ability granted [cost]'s ability to [sourceId], when this is a
+         * granted ability. Only [AbilityCost.TapGrantingPermanent] needs it — the granter has to be
+         * untapped for that cost to be payable. Null (the default) means "granter unknown", which
+         * defers the check to payment time, matching the Exile/Sacrifice granter costs.
+         */
+        granterId: EntityId? = null,
     ): Boolean {
         return when (cost) {
             is AbilityCost.Free -> true
@@ -126,6 +134,17 @@ class CostHandler {
                 // Same granter-resolution contract as ExileGrantingPermanent above.
                 true
             }
+            is AbilityCost.TapGrantingPermanent -> {
+                // Unlike its exile/sacrifice siblings this one has a real payability gate: a
+                // granter that is already tapped can't be tapped again, which is what stops a
+                // Fishing Pole from being milked more than once per untap. When the caller
+                // couldn't resolve the granter we fall through to payment-time validation.
+                if (granterId == null) true
+                else {
+                    val granter = state.getEntity(granterId)
+                    granter != null && granterId in state.getBattlefield() && !granter.has<TappedComponent>()
+                }
+            }
             is AbilityCost.TapXPermanents -> {
                 // X can be 0, so this is always payable
                 // maxAffordableX is capped by untapped permanent count in LegalActionsCalculator
@@ -173,7 +192,7 @@ class CostHandler {
                 true
             }
             is AbilityCost.Composite -> {
-                cost.costs.all { canPayAbilityCost(state, it, sourceId, controllerId, manaPool, abilityContext) }
+                cost.costs.all { canPayAbilityCost(state, it, sourceId, controllerId, manaPool, abilityContext, granterId) }
             }
             is AbilityCost.Loyalty -> {
                 // Check if we have enough loyalty to pay the cost
@@ -341,6 +360,22 @@ class CostHandler {
                 )
 
                 CostPaymentResult.success(transitionResult.state, manaPool, transitionResult.events)
+            }
+            is AbilityCost.TapGrantingPermanent -> {
+                val granterId = choices.granterId
+                    ?: return CostPaymentResult.failure("Granting permanent not provided for cost")
+                val granter = state.getEntity(granterId)
+                    ?: return CostPaymentResult.failure("Granting permanent not found")
+                if (granterId !in state.getBattlefield()) {
+                    return CostPaymentResult.failure("Granting permanent is not on the battlefield")
+                }
+                if (granter.has<TappedComponent>()) {
+                    return CostPaymentResult.failure("Granting permanent is already tapped")
+                }
+                // Through the shared tap helper so the TappedEvent fires — a "whenever this becomes
+                // tapped" trigger must see an Equipment tapped to pay a granted ability's cost.
+                val (newState, event) = tap(state, granterId)
+                CostPaymentResult.success(newState, manaPool, listOfNotNull(event))
             }
             is AbilityCost.SacrificeGrantingPermanent -> {
                 val granterId = choices.granterId
@@ -530,6 +565,9 @@ class CostHandler {
             val handZone = ZoneKey(controllerId, Zone.HAND)
             findMatchingCardsUnified(state, state.getZone(handZone), atom.filter, controllerId).size >= atom.count
         }
+        // Adding counters takes nothing away, so there is never a reason it can't be paid — this
+        // is what keeps Mazemind Tome activatable on the very activation that exiles it.
+        is CostAtom.PutCountersOnSelf -> true
         is CostAtom.RemoveCounters -> {
             if (atom.self) {
                 val counters = state.getEntity(sourceId)?.get<CountersComponent>() ?: return false
@@ -612,6 +650,37 @@ class CostHandler {
             // is a no-op success kept for atom exhaustiveness (the PayCost reveal path emits the
             // CardsRevealedEvent through CostPaymentService).
             CostPaymentResult.success(state, manaPool)
+        is CostAtom.PutCountersOnSelf -> {
+            // Counters put on as a cost are an ordinary counter placement (CR 121.6), so they run
+            // through the same chokepoint as the AddCounters effect: the "can't have counters put
+            // on it" gate (CR 614.1 / Solemnity), the placement replacements (Hardened Scales,
+            // Doubling Season), and the first-placement-this-turn marker. A permanent that can't
+            // receive counters still pays the cost — nothing is owed and the activation stands.
+            val counterType = resolveNamedCounterType(atom.counterType)
+            if (!state.projectedState.canReceiveCounters(sourceId)) {
+                CostPaymentResult.success(state, manaPool)
+            } else {
+                val current = state.getEntity(sourceId)?.get<CountersComponent>() ?: CountersComponent()
+                val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
+                    state, sourceId, counterType, atom.count, placerId = controllerId
+                )
+                val firstThisTurn = DamageUtils.isFirstCounterThisTurn(state, sourceId)
+                val newState = state.updateEntity(sourceId) { c ->
+                    c.with(current.withAdded(counterType, modifiedCount))
+                }.let { DamageUtils.markCounterPlacedOnCreature(it, controllerId, sourceId) }
+                val entityName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: ""
+                CostPaymentResult.success(
+                    newState,
+                    manaPool,
+                    events = listOf(
+                        CountersAddedEvent(
+                            sourceId, atom.counterType, modifiedCount, entityName,
+                            firstThisTurn, placedBy = controllerId,
+                        )
+                    ),
+                )
+            }
+        }
         is CostAtom.RemoveCounters -> {
             val counterType = atom.counterType?.let { resolveNamedCounterType(it) }
             val requiredCount = getAtomCount(atom.count, choices)
@@ -886,8 +955,11 @@ class CostHandler {
                         total >= needed
                     }
                 }
-                // Mana / return-to-hand / reveal are not produced as spell additional costs today.
-                is CostAtom.Mana, is CostAtom.ReturnToHand, is CostAtom.RevealFromHand -> false
+                // Mana / return-to-hand / reveal / put-counters-on-self are not produced as spell
+                // additional costs today (the last is inherently ability-scoped — a spell on the
+                // stack has no permanent to put the counters on).
+                is CostAtom.Mana, is CostAtom.ReturnToHand, is CostAtom.RevealFromHand,
+                is CostAtom.PutCountersOnSelf -> false
             }
             is AdditionalCost.PayLifePerTarget -> {
                 // Always payable: choosing zero targets pays zero life. Per-target life

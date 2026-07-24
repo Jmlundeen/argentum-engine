@@ -363,7 +363,11 @@ class ActivateAbilityHandler(
 
         val abilityPaymentContext = buildAbilityPaymentContext(cardComponent, state.projectedState, action.sourceId)
 
-        if (action.paymentStrategy !is PaymentStrategy.Explicit && !canPayAbilityCostWithSources(state, costAfterConvokeReduction, action.sourceId, action.playerId, abilityPaymentContext)) {
+        // The granter of a statically-granted ability, so AbilityCost.TapGrantingPermanent can be
+        // checked against the *Equipment's* tap state rather than the host creature's.
+        val validationGranterId = staticGrants.firstOrNull { it.first.id == action.abilityId }?.second
+
+        if (action.paymentStrategy !is PaymentStrategy.Explicit && !canPayAbilityCostWithSources(state, costAfterConvokeReduction, action.sourceId, action.playerId, abilityPaymentContext, validationGranterId)) {
             return when (effectiveCost) {
                 is AbilityCost.Tap -> "This permanent is already tapped"
                 is AbilityCost.TapAttachedCreature -> "Enchanted creature is tapped"
@@ -1707,6 +1711,7 @@ class ActivateAbilityHandler(
         sourceId: com.wingedsheep.sdk.model.EntityId,
         playerId: com.wingedsheep.sdk.model.EntityId,
         abilityContext: SpellPaymentContext? = null,
+        granterId: com.wingedsheep.sdk.model.EntityId? = null,
     ): Boolean {
         val poolComponent = state.getEntity(playerId)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
         val manaPool = ManaPool(
@@ -1722,7 +1727,7 @@ class ActivateAbilityHandler(
             is AbilityCost.Atom -> {
                 val mana = cost.manaCostOrNull
                 if (mana != null) manaSolver.canPay(state, playerId, mana, spellContext = abilityContext)
-                else costHandler.canPayAbilityCost(state, cost, sourceId, playerId, manaPool, abilityContext)
+                else costHandler.canPayAbilityCost(state, cost, sourceId, playerId, manaPool, abilityContext, granterId)
             }
             is AbilityCost.Composite -> {
                 // If composite cost includes Tap, the source itself can't also be used as a mana source
@@ -1730,10 +1735,10 @@ class ActivateAbilityHandler(
                 cost.costs.all { subCost ->
                     val subMana = subCost.manaCostOrNull
                     if (subMana != null) manaSolver.canPay(state, playerId, subMana, excludeSources = excludeSources, spellContext = abilityContext)
-                    else costHandler.canPayAbilityCost(state, subCost, sourceId, playerId, manaPool, abilityContext)
+                    else costHandler.canPayAbilityCost(state, subCost, sourceId, playerId, manaPool, abilityContext, granterId)
                 }
             }
-            else -> costHandler.canPayAbilityCost(state, cost, sourceId, playerId, manaPool, abilityContext)
+            else -> costHandler.canPayAbilityCost(state, cost, sourceId, playerId, manaPool, abilityContext, granterId)
         }
     }
 

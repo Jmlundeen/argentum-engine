@@ -138,6 +138,10 @@ class CostPaymentService(private val services: EngineServices) {
                     selectionPrompt(state, payerId, resolved, sourceId, sourceName, ctx, controlledMatching(state, payerId, atom.filter, sourceId), atom.count, useTargetingUI = true)
                 is CostAtom.TapPermanents ->
                     selectionPrompt(state, payerId, resolved, sourceId, sourceName, ctx, controlledUntapped(state, payerId, atom.filter, if (atom.excludeSelf) sourceId else null), atom.count, useTargetingUI = true)
+                // Activated-ability-scoped (see canAfford below, which reports it unaffordable as a
+                // PayCost) — unreachable, but a yes/no is its shape if it is ever wired up.
+                is CostAtom.PutCountersOnSelf ->
+                    yesNoPrompt(state, payerId, resolved, sourceId, sourceName, ctx, "${atom.description}?", atom.description)
                 is CostAtom.RemoveCounters -> {
                     val count = when (val c = atom.count) {
                         is com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed -> c.amount
@@ -306,6 +310,9 @@ class CostPaymentService(private val services: EngineServices) {
             is CostAtom.Sacrifice -> sacrificeSelected(state, payerId, selected.keys.toList())
             is CostAtom.ReturnToHand -> returnSelected(state, selected.keys.toList())
             is CostAtom.TapPermanents -> tapSelected(state, selected.keys.toList())
+            // Not offered as a PayCost (canAfford reports it unaffordable) — an activated-ability
+            // cost is paid through CostHandler.payAtom, which owns the counter-placement path.
+            is CostAtom.PutCountersOnSelf -> CostPaymentExecution(state, emptyList(), success = false)
             is CostAtom.RemoveCounters -> performRemoveCounters(state, payerId, atom, sourceId, selected)
         }
     }
@@ -623,6 +630,9 @@ class CostPaymentService(private val services: EngineServices) {
                     }
                     is CostAtom.ReturnToHand -> controlledMatching(state, payerId, atom.filter, sourceId).size >= atom.count
                     is CostAtom.TapPermanents -> controlledUntapped(state, payerId, atom.filter, if (atom.excludeSelf) sourceId else null).size >= atom.count
+                    // Activated-ability cost only: no printed morph / "unless you …" cost puts
+                    // counters on a permanent, and CostHandler owns the placement path.
+                    is CostAtom.PutCountersOnSelf -> false
                     is CostAtom.RemoveCounters -> {
                         val needed = when (val c = atom.count) {
                             is com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed -> c.amount

@@ -30,15 +30,23 @@ class RemoveCountersExecutor : EffectExecutor<RemoveCountersEffect> {
 
         val current = state.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()
 
+        // Report what was *actually* taken off, not what was asked for: a permanent carrying fewer
+        // counters than the effect names (or none at all — it may have left the battlefield and had
+        // its counters stripped) has that many removed and no more. Emitting the requested amount
+        // regardless would tell "whenever a counter is removed" observers, and the
+        // SuccessCriterion.CountersRemoved "if you do" gate, that something happened when nothing did.
+        val removed = minOf(current.getCount(counterType), effect.count)
+        if (removed <= 0) return EffectResult.success(state, emptyList())
+
         val newState = state.updateEntity(targetId) { container ->
-            container.with(current.withRemoved(counterType, effect.count))
+            container.with(current.withRemoved(counterType, removed))
         }
 
         val entityName = state.getEntity(targetId)?.get<CardComponent>()?.name ?: ""
 
         return EffectResult.success(
             newState,
-            listOf(CountersRemovedEvent(targetId, effect.counterType, effect.count, entityName))
+            listOf(CountersRemovedEvent(targetId, effect.counterType, removed, entityName))
         )
     }
 }

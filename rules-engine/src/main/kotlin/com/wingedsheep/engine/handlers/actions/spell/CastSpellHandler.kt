@@ -1496,8 +1496,9 @@ class CastSpellHandler(
                             }
                         }
                     }
-                    // Mana / reveal are not produced as spell additional costs today.
-                    is CostAtom.Mana, is CostAtom.RevealFromHand -> {}
+                    // Mana / reveal are not produced as spell additional costs today, and
+                    // put-counters-on-self is ability-scoped (no permanent to accrue them on).
+                    is CostAtom.Mana, is CostAtom.RevealFromHand, is CostAtom.PutCountersOnSelf -> {}
                     is CostAtom.RemoveCounters -> {
                         val needed = when (val c = atom.count) {
                             is com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed -> c.amount
@@ -2278,8 +2279,11 @@ class CastSpellHandler(
                                 events.addAll(tr.events)
                             }
                         }
-                        // PayLife is auto-paid in the loop above; mana / reveal aren't spell additional costs.
-                        is CostAtom.PayLife, is CostAtom.Mana, is CostAtom.RevealFromHand -> {}
+                        // PayLife is auto-paid in the loop above; mana / reveal aren't spell additional
+                        // costs, and put-counters-on-self is ability-scoped (a spell on the stack has no
+                        // permanent to accrue them on).
+                        is CostAtom.PayLife, is CostAtom.Mana, is CostAtom.RevealFromHand,
+                        is CostAtom.PutCountersOnSelf -> {}
                         is CostAtom.RemoveCounters -> {
                             val resolvedRemovals = resolveDistributedCounterRemovalsForPayment(action)
                             for (removal in resolvedRemovals) {

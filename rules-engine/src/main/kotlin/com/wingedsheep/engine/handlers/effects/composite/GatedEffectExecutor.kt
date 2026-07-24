@@ -688,6 +688,7 @@ class GatedEffectExecutor(
                 (effectContext.pipeline.storedCollections[criterion.name]?.size ?: 0) >= criterion.min
             is SuccessCriterion.DamageDealt -> evaluateDamageDealt(criterion, effectContext, priorEvents)
             is SuccessCriterion.ControlChanged -> evaluateControlChanged(priorEvents)
+            is SuccessCriterion.CountersRemoved -> evaluateCountersRemoved(priorEvents)
         }
 
         /**
@@ -699,6 +700,15 @@ class GatedEffectExecutor(
          * new controller, and a control change that never happened (illegal/missing permanent target
          * at resolution) emits no such event at all.
          */
+        /**
+         * Did the gated action actually take a counter off something? Scans the action's own
+         * events for a positive-amount [CountersRemovedEvent] — a removal against a permanent with
+         * no such counter (or one that has left the battlefield) emits none, which is exactly the
+         * "you didn't do it" case the gate must catch.
+         */
+        private fun evaluateCountersRemoved(priorEvents: List<GameEvent>): Boolean =
+            priorEvents.any { event -> event is CountersRemovedEvent && event.amount > 0 }
+
         private fun evaluateControlChanged(priorEvents: List<GameEvent>): Boolean =
             priorEvents.any { event ->
                 event is ControlChangedEvent && event.oldControllerId != event.newControllerId

@@ -1353,6 +1353,14 @@ object Triggers {
         TriggerSpec(event = TapEvent(filter), binding = binding)
 
     /**
+     * Generic "becomes untapped" factory — use [BecomesUntapped] for SELF; reach for this factory
+     * for ATTACHED ("whenever equipped creature becomes untapped", Fishing Pole). [UntapEvent]
+     * carries no filter, so binding is the only axis.
+     */
+    fun becomesUntapped(binding: TriggerBinding = TriggerBinding.SELF): TriggerSpec =
+        TriggerSpec(event = UntapEvent, binding = binding)
+
+    /**
      * Whenever one or more permanents matching [filter] become tapped — a **batching** trigger
      * (CR 603.2c) that fires at most once per simultaneous tap batch, not once per tapped permanent.
      * Use for the "Whenever one or more … become tapped" wording (Deeproot Pilgrimage: "Whenever one
