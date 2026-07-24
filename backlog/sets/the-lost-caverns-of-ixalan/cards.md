@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 282 / 286
+**Implemented:** 286 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -142,7 +142,7 @@
 - [x] Kaslem's Stonetree
 - [x] Kellan, Daring Traveler
 - [x] Kinjalli's Dawnrunner
-- [ ] Kitesail Larcenist
+- [x] Kitesail Larcenist
 - [x] Kutzil's Flanker
 - [x] Kutzil, Malamet Exemplar
 - [x] Lodestone Needle
@@ -206,7 +206,7 @@
 - [x] Restless Vents
 - [x] River Herald Guide
 - [x] River Herald Scout
-- [ ] Roaming Throne
+- [x] Roaming Throne
 - [x] Ruin-Lurker Bat
 - [x] Rumbling Rockslide
 - [x] Runaway Boulder
@@ -226,7 +226,7 @@
 - [x] Skullcap Snail
 - [x] Soaring Sandwing
 - [x] Song of Stupefaction
-- [ ] Sorcerous Spyglass
+- [x] Sorcerous Spyglass
 - [x] Soulcoil Viper
 - [x] Souls of the Lost
 - [x] Sovereign Okinec Ahau
@@ -265,7 +265,7 @@
 - [x] Threefold Thunderhulk
 - [x] Throne of the Grim Captain
 - [x] Tinker's Tote
-- [ ] Tishana's Tidebinder
+- [x] Tishana's Tidebinder
 - [x] Tithing Blade
 - [x] Treasure Map
 - [x] Triumphant Chomp

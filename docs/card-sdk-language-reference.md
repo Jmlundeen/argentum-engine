@@ -1239,6 +1239,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `spell { returnTransformedFromGraveyard(vararg counters: CounterType) }` — **not** an effect but a resolution-destination flag on the spell's `CardScript` (`returnTransformedFromGraveyardOnResolve: ReturnTransformedFromGraveyard?`). Marks a double-faced card so that, when it resolves **after being cast from a graveyard**, it is exiled and then put onto the battlefield **transformed** (its back face up) under its owner's control, entering with the given `counters`, instead of going to its owner's graveyard. Models **Esper Origins** ("If this spell was cast from a graveyard, exile it, then put it onto the battlefield transformed under its owner's control with a finality counter on it"): `spell { effect = …; returnTransformedFromGraveyard(CounterType.FINALITY) }` on the sorcery front, joined to a Saga-creature back via `frontFace.copy(backFace = …)`. Like flashback's own graveyard-cast exile, the destination is derived from the spell's `castFromZone` at resolution time (in `StackResolver`), **not** from an effect run during resolution — so it survives a mid-resolution pause (e.g. an earlier Surveil in the same resolution) and is correctly inert when the spell is countered or fizzles. It **takes precedence over the flashback exile**: a graveyard-cast card that both has flashback and this flag returns transformed rather than exiling. Requires a permanent back face; a non-DFC or non-permanent back is a no-op (the card falls through to its normal graveyard/exile destination, per the official ruling on putting a non-double-faced card onto the battlefield transformed). The back-face flip + battlefield entry reuse the shared `returnDfcFaceFromExile` helper (a Saga back enters with a fresh lore counter, CR 714.2b; leaves/enters triggers fire, not transform triggers).
 - `OpenLifeBid(onWin, participant = Player.AnOpponent)` — open life-bidding auction between you and `participant` (resolved against the effect context). You open at a bid of 1; the two bidders alternate topping the high bid (yes/no to top, then a number for the amount, capped at the bidder's life) until one passes. The high bidder loses that much life; `onWin` runs **only if you win**, with the original targets in context. If `participant` resolves to you (or to nobody), you're the sole bidder and win at the opening bid. For Mages' Contest, bid against the targeted spell's controller and counter it: `Effects.OpenLifeBid(Effects.CounterSpell(), Player.ControllerOf("target spell"))` — pair with a `TargetSpell` requirement.
 - `DestroySourceOfTargetedAbilityEffect` — when the targeted stack object is a permanent's activated/triggered ability, destroy that source permanent. Compose *before* the counter step so the ability component is still readable (Teferi's Response).
+- `RemoveAbilitiesFromSourceOfTargetedAbilityEffect(duration = EndOfTurn, sourceCardTypes = emptySet())` (facade `Effects.RemoveAbilitiesFromSourceOfTargetedAbility(duration, sourceCardTypes)`) — the ability-strip sibling of `DestroySourceOfTargetedAbilityEffect`. When the targeted stack object is a permanent's activated/triggered ability whose source is still on the battlefield **and** (when `sourceCardTypes` is non-empty) has one of those projected card types, that source permanent gains a Layer-6 `RemoveAllAbilities` floating effect for `duration`. The floating effect is keyed to *this effect's* source, so `Duration.WhileSourceOnBattlefield` ends when that permanent (e.g. Tishana) leaves. No-op for a spell target, an already-gone source, or a type mismatch. Compose *before* the counter step so the ability's source component is still readable. Used by **Tishana's Tidebinder** ("If an ability of an artifact, creature, or planeswalker is countered this way, that permanent loses all abilities for as long as this creature remains on the battlefield") — pair with `CounterAbility()`, `Duration.WhileSourceOnBattlefield`, and `sourceCardTypes = {ARTIFACT, CREATURE, PLANESWALKER}`, targeting via an optional (`optional = true`) `Targets.ActivatedOrTriggeredAbility` slot for "up to one".
 - `CopyTargetSpellEffect(target, keywordsForCopy, removeLegendary, addedTokenKeywords, sacrificeTokenAtStep, sacrificeTokenOnlyOnControllersTurn)` (facade `Effects.CopyTargetSpell(...)`) — copy a spell on the stack. `keywordsForCopy` grants keywords to the copy **while it remains a spell** (wither/lifelink). When the copied spell is a **permanent spell** it becomes a token as it resolves (CR 707.10f); the *token-side* riders bake onto that token for its life on the battlefield: `addedTokenKeywords` (e.g. `HASTE`) are unioned into the token's base keywords, and `sacrificeTokenAtStep: Step?` registers a delayed "sacrifice this token" trigger at the next matching step (`sacrificeTokenOnlyOnControllersTurn` gates it to "your next" step). The spell-copy mirror of `CreateTokenCopyOfTargetEffect.addedKeywords` / `sacrificeAtStep`. Used by **Choreographed Sparks** ("Copy target creature spell you control. The copy gains haste and 'At the beginning of the end step, sacrifice this token.'"). Pair with `Targets.CreatureSpellYouControl`.
 - `CopyEachTargetSpellEffect()` (facade `Effects.CopyEachTargetSpell(keywordsForCopy, removeLegendary)`) — copy **every** spell targeted by this effect (one copy per `ChosenTarget.Spell` in context), pausing per copy that has targets so the controller may choose new targets (CR 707.10). Pair with an unlimited spell target requirement — `Targets.AnyNumberOfInstantOrSorcerySpells`. Used by Display of Power ("Copy any number of target instant and/or sorcery spells."). Spells flagged `cantBeCopied` are skipped.
 - `CopyTargetTriggeredAbilityEffect(target)` — copy a triggered ability on the stack.
@@ -4142,6 +4143,11 @@ staticAbility {
   ~ is equipped, …"); a `null` condition always applies. Cloud, Midgar Mercenary combines all three:
   `AdditionalSourceTriggers(sourceFilter = Artifact.withSubtype("Equipment").attachedToSource(),
   alsoSource = true, condition = Conditions.SourceMatches(GameObjectFilter.Any.equipped()))`.
+  The `sourceFilter` may key off the source's own **chosen creature type** —
+  `GameObjectFilter.Creature.withChosenSubtype()` matches creatures whose projected subtypes include the
+  type this permanent chose as it entered (read from the doubler's `sourceId` via
+  `CardPredicate.HasChosenSubtype`). Roaming Throne pairs it with `EntersWithChoice(CREATURE_TYPE)` +
+  `GrantChosenSubtype()` for "another creature you control of the chosen type" (`excludeSelf = true`).
   `TriggerDetector.duplicateSourceTriggers` (and `ActivateAbilityHandler` for triggered mana abilities).
 - `AdditionalAttackTriggers(attackerFilter = GameObjectFilter.Any)` — Windcrag Siege (Mardu): the
   attack-cause analogue of `AdditionalETBOrLTBTriggers`. If a creature matching `attackerFilter`
@@ -6712,13 +6718,22 @@ EntersWithChoice(
 `ChoiceType.OPPONENT` writes an entity-id choice into the `CastChoicesComponent` under
 `ChoiceSlot.OPPONENT` — read back via the `Player.ChosenOpponent` reference (e.g. Jihad's
 anthem + state-trigger condition: `Exists(Player.ChosenOpponent, Zone.BATTLEFIELD, …)`), and
-`ChoiceType.CARD_NAME` writes a chosen **land card name** (every registered land name, presented as
-a searchable option list) into the `CastChoicesComponent` under `ChoiceSlot.CARD_NAME` as a
-`ChoiceValue.TextChoice` — read back via `chosenCardName()` or, for name-keyed static-ability
-filters, `GameObjectFilter.namedFromChosenComponent()` (→ `CardPredicate.NameEqualsChosenComponent`,
-see §7). Used by Petrified Hamlet ("When this land enters, choose a land card name", then two
-statics — `PreventActivatedAbilities(nonManaAbilitiesOnly = true)` and `GrantActivatedAbility` of a
-`{T}: Add {C}` mana ability — both filtered by `namedFromChosenComponent()`), and
+`ChoiceType.CARD_NAME` writes a chosen **card name** (presented as a searchable option list) into
+the `CastChoicesComponent` under `ChoiceSlot.CARD_NAME` as a `ChoiceValue.TextChoice` — read back via
+`chosenCardName()` or, for name-keyed static-ability filters,
+`GameObjectFilter.namedFromChosenComponent()` (→ `CardPredicate.NameEqualsChosenComponent`, see §7).
+The offered pool is controlled by `cardNamePool: CardNamePool` — `CardNamePool.LAND` (default) offers
+every registered land name (Petrified Hamlet's "choose a land card name"); `CardNamePool.ANY` offers
+every registered card name (Sorcerous Spyglass / Pithing Needle's "choose any card name"). Set
+`lookAtOpponentHand = true` to first reveal an opponent's hand to the controller as the permanent
+enters, immediately before the choice (durable reveal via `RevealedToComponent`, correctly masked to
+show only to the controller; purely informational — it never restricts the name chosen, so an empty
+opposing hand still lets you name any card). Used by Petrified Hamlet ("When this land enters, choose
+a land card name", then two statics — `PreventActivatedAbilities(nonManaAbilitiesOnly = true)` and
+`GrantActivatedAbility` of a `{T}: Add {C}` mana ability — both filtered by
+`namedFromChosenComponent()`) and Sorcerous Spyglass (`EntersWithChoice(ChoiceType.CARD_NAME,
+cardNamePool = CardNamePool.ANY, lookAtOpponentHand = true)` +
+`PreventActivatedAbilities(GameObjectFilter.Any.namedFromChosenComponent(), nonManaAbilitiesOnly = true)`), and
 `ChoiceType.NUMBER` (set `minValue` / `maxValue`) writes a chosen number into the
 `CastChoicesComponent` under `ChoiceSlot.CHOSEN_NUMBER` as a `ChoiceValue.NumberChoice` — read back
 by a CDA via `DynamicAmount.CastChoice(CHOSEN_NUMBER)`. This is the *as-enters replacement* (CR
