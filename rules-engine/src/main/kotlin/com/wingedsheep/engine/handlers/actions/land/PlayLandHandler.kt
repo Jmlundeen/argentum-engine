@@ -301,19 +301,15 @@ class PlayLandHandler(
                     .entersAsCopyCandidates(newState, action.cardId, action.playerId, entersAsCopy)
                     .isNotEmpty()
             ) {
-                // Use up a land drop and emit the entry event before pausing.
+                // Use up a land drop before pausing. The entry ZoneChangeEvent is emitted by the
+                // resumer once the copy choice is made, so it carries the final (copied) identity
+                // and `copyOfOriginalName` — see CloneEntersOnBattlefieldContinuation's resumer.
+                // Emitting a printed-name event here too would double the entry and hide the copy.
+                // Only the play-from-permission rider event (if any) is surfaced now.
                 newState = newState.updateEntity(action.playerId) { c ->
                     val landDrops = c.get<LandDropsComponent>() ?: LandDropsComponent()
                     c.with(landDrops.use())
                 }
-                val zoneChangeEvent = ZoneChangeEvent(
-                    action.cardId,
-                    cardComponent.name,
-                    fromZone,
-                    Zone.BATTLEFIELD,
-                    action.playerId
-                )
-                val events = listOf(zoneChangeEvent) + listOfNotNull(riderPlayEvent)
                 newState = newState.tick()
 
                 val result = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
@@ -324,7 +320,7 @@ class PlayLandHandler(
                         cardComponent = cardComponent,
                         effect = entersAsCopy,
                         fromZone = fromZone,
-                        carryEvents = events,
+                        carryEvents = listOfNotNull(riderPlayEvent),
                     )
                 if (result != null) return result
             }

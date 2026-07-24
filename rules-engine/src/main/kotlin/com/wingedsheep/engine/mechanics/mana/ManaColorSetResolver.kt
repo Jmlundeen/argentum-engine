@@ -10,7 +10,6 @@ import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.CommanderRegistryComponent
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.values.LandControllerScope
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
@@ -156,9 +155,13 @@ object ManaColorSetResolver {
         val exiledIds = source.get<LinkedExileComponent>()?.exiledIds ?: return emptySet()
         val colors = mutableSetOf<Color>()
         for (id in exiledIds) {
-            val stillInExile = state.zones.any { (zone, cards) -> zone.zoneType == Zone.EXILE && id in cards }
-            if (!stillInExile) continue
-            colors.addAll(state.getEntity(id)?.get<CardComponent>()?.colors.orEmpty())
+            // An exiled card lives in its owner's exile zone (ZoneTransitionService keys every
+            // non-battlefield zone by owner), so a direct membership check confirms it's still
+            // exiled — a card that has since left exile drops out of the color pool.
+            val card = state.getEntity(id)?.get<CardComponent>() ?: continue
+            val ownerId = card.ownerId ?: continue
+            if (id !in state.getExile(ownerId)) continue
+            colors.addAll(card.colors)
         }
         return colors
     }

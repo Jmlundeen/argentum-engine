@@ -646,7 +646,11 @@ class CastZoneResolver(
         }
 
         private fun matchesCardPredicate(card: CardComponent, predicate: CardPredicate): Boolean {
+            val cmc = card.manaCost.cmc
+            val power = card.baseStats?.basePower
+            val toughness = card.baseStats?.baseToughness
             return when (predicate) {
+                // --- Card types ---
                 is CardPredicate.IsInstant -> card.typeLine.isInstant
                 is CardPredicate.IsSorcery -> card.typeLine.isSorcery
                 is CardPredicate.IsCreature -> card.typeLine.isCreature
@@ -657,21 +661,105 @@ class CastZoneResolver(
                 is CardPredicate.IsNonartifact -> !card.typeLine.isArtifact
                 is CardPredicate.IsLand -> card.typeLine.isLand
                 is CardPredicate.IsNonland -> !card.typeLine.isLand
+                is CardPredicate.IsPlaneswalker -> card.isPlaneswalker
                 is CardPredicate.IsPermanent -> card.typeLine.isPermanent
-                // Subtype gating — required for e.g. "Dinosaur creature spells" (Intrepid
-                // Paleontologist). Without these branches a subtype filter silently matched
-                // every card via the conservative `else`.
+                is CardPredicate.IsBasicLand -> card.typeLine.isBasicLand
+                is CardPredicate.HasAdventure -> card.hasAdventure
+                // --- Supertypes ---
+                is CardPredicate.IsLegendary -> card.typeLine.isLegendary
+                is CardPredicate.IsNonlegendary -> !card.typeLine.isLegendary
+                // --- Colors ---
+                is CardPredicate.HasColor -> predicate.color in card.colors
+                is CardPredicate.NotColor -> predicate.color !in card.colors
+                is CardPredicate.IsColorless -> card.colors.isEmpty()
+                is CardPredicate.IsColored -> card.colors.isNotEmpty()
+                is CardPredicate.IsMulticolored -> card.colors.size >= 2
+                is CardPredicate.IsMonocolored -> card.colors.size == 1
+                // --- Subtypes ---
                 is CardPredicate.HasSubtype -> card.typeLine.hasSubtype(predicate.subtype)
                 is CardPredicate.HasAnyOfSubtypes ->
                     predicate.subtypes.any { card.typeLine.hasSubtype(it) }
                 is CardPredicate.NotSubtype -> !card.typeLine.hasSubtype(predicate.subtype)
-                is CardPredicate.ManaValueAtLeast -> card.manaCost.cmc >= predicate.min
-                is CardPredicate.ManaValueAtMost -> card.manaCost.cmc <= predicate.max
-                is CardPredicate.ManaValueEquals -> card.manaCost.cmc == predicate.value
+                is CardPredicate.HasBasicLandType ->
+                    card.typeLine.hasSubtype(com.wingedsheep.sdk.core.Subtype(predicate.landType))
+                // --- Name / origin ---
+                is CardPredicate.NameEquals -> card.name == predicate.name
+                is CardPredicate.OriginallyPrintedInSet ->
+                    card.originalSetCode?.equals(predicate.setCode, ignoreCase = true) == true
+                // --- Keywords ---
+                is CardPredicate.HasKeyword -> predicate.keyword in card.baseKeywords
+                is CardPredicate.NotKeyword -> predicate.keyword !in card.baseKeywords
+                // --- Mana value ---
+                is CardPredicate.ManaValueEquals -> cmc == predicate.value
+                is CardPredicate.ManaValueAtMost -> cmc <= predicate.max
+                is CardPredicate.ManaValueAtLeast -> cmc >= predicate.min
+                is CardPredicate.ManaValueIsEven -> cmc % 2 == 0
+                is CardPredicate.ManaValueIsOdd -> cmc % 2 != 0
+                is CardPredicate.HasXInManaCost -> card.manaCost.hasX
+                // --- Power / toughness (null base P/T — e.g. */noncreature — never matches) ---
+                is CardPredicate.PowerEquals -> power == predicate.value
+                is CardPredicate.PowerAtMost -> power != null && power <= predicate.max
+                is CardPredicate.PowerAtLeast -> power != null && power >= predicate.min
+                is CardPredicate.ToughnessEquals -> toughness == predicate.value
+                is CardPredicate.ToughnessAtMost -> toughness != null && toughness <= predicate.max
+                is CardPredicate.ToughnessAtLeast -> toughness != null && toughness >= predicate.min
+                is CardPredicate.PowerOrToughnessAtLeast ->
+                    (power != null && power >= predicate.min) || (toughness != null && toughness >= predicate.min)
+                is CardPredicate.PowerOrToughnessAtMost ->
+                    (power != null && power <= predicate.max) || (toughness != null && toughness <= predicate.max)
+                is CardPredicate.TotalPowerAndToughnessAtMost ->
+                    power != null && toughness != null && power + toughness <= predicate.max
+                is CardPredicate.ToughnessGreaterThanPower ->
+                    power != null && toughness != null && toughness > power
+                // --- Intrinsic activated abilities (precomputed flags) ---
+                is CardPredicate.HasActivatedAbility -> card.hasActivatedAbility
+                is CardPredicate.HasNonManaActivatedAbility -> card.hasNonManaActivatedAbility
+                // --- Combinators ---
                 is CardPredicate.Or -> predicate.predicates.any { matchesCardPredicate(card, it) }
                 is CardPredicate.And -> predicate.predicates.all { matchesCardPredicate(card, it) }
                 is CardPredicate.Not -> !matchesCardPredicate(card, predicate.predicate)
-                else -> true // Conservative: allow unknown predicates
+                // Predicates that can't be judged from a card's static characteristics alone —
+                // they need runtime/interaction context (a chosen value, another entity, X, a
+                // pipeline variable/stored group, the recipient/source of an effect), or describe
+                // a stack ability rather than a castable card. No cast-from-zone filter uses them,
+                // and matching a condition we can't verify would silently widen the grant, so they
+                // fail closed. This `when` is exhaustive: adding a CardPredicate forces a decision
+                // here rather than leaking through a permissive `else`.
+                is CardPredicate.IsToken,
+                is CardPredicate.IsNontoken,
+                is CardPredicate.HasChosenColor,
+                is CardPredicate.HasChosenSubtype,
+                is CardPredicate.SharesChosenColorWithSource,
+                is CardPredicate.NameEqualsChosen,
+                is CardPredicate.NameEqualsChosenComponent,
+                is CardPredicate.NameNotSharedWithControlledRoom,
+                is CardPredicate.ManaValueEqualsX,
+                is CardPredicate.ManaValueAtMostX,
+                is CardPredicate.ManaValueAtMostEntity,
+                is CardPredicate.ManaValueAtMostEntityManaSpent,
+                is CardPredicate.ManaValueAtMostColorsSpent,
+                is CardPredicate.ManaValueAtMostDynamic,
+                is CardPredicate.PowerEqualsX,
+                is CardPredicate.ToughnessAtMostX,
+                is CardPredicate.PowerAtMostEntity,
+                is CardPredicate.PowerGreaterThanEntity,
+                is CardPredicate.PowerLessThanEntity,
+                is CardPredicate.HasSubtypeFromVariable,
+                is CardPredicate.HasSubtypeInStoredList,
+                is CardPredicate.HasSubtypeInEachStoredGroup,
+                is CardPredicate.NotOfSourceChosenType,
+                is CardPredicate.SharesCreatureTypeWithSource,
+                is CardPredicate.SharesCreatureTypeWithTriggeringEntity,
+                is CardPredicate.SharesCreatureTypeWith,
+                is CardPredicate.SharesColorWith,
+                is CardPredicate.SharesColorWithRecipient,
+                is CardPredicate.SharesColorWithPermanentYouControl,
+                is CardPredicate.DoesNotShareCreatureTypeWithPermanentYouControl,
+                is CardPredicate.DoesNotShareLandTypeWithPermanentYouControl,
+                is CardPredicate.TargetsMatching,
+                is CardPredicate.IsActivatedOrTriggeredAbility,
+                is CardPredicate.IsTriggeredAbility,
+                is CardPredicate.IsActivatedAbility -> false
             }
         }
     }
