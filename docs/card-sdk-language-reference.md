@@ -4177,10 +4177,12 @@ staticAbility {
   permanents sacrificed this turn by *any* player — not controller-scoped — reading the
   turn-scoped `GameState.permanentsSacrificedThisTurn` counter; The Balrog, Durin's Bane),
   `CardsInGraveyardMatchingFilter`, `FixedIfAnyTargetMatches`,
-  `GreatestManaValueAmongPermanentsYouControl(filter)` (Sunderflock — "the greatest mana value among
-  Elementals you control"), `GreatestPowerAmongPermanentsYouControl(filter)` (The Skullspore Nexus —
-  "the greatest power among creatures you control"; power read from projected state so counters and
-  buffs count; empty match → 0), … — see `CostStaticAbilities.kt` for the full list.
+  `GreatestPropertyAmongPermanentsYouControl(property, filter)` — "{X} less, where X is the greatest
+  `<property>` among `<filter>` you control", parameterized over `EntityNumericProperty`:
+  `ManaValue` (Sunderflock — "greatest mana value among Elementals you control", read from the card
+  definition), `Power` (The Skullspore Nexus — "greatest power among creatures you control", read
+  from projected state so counters and buffs count); empty match → 0. … — see `CostStaticAbilities.kt`
+  for the full list.
 - `gating: CostGating` — gates whether/how often the modifier fires:
   - `None` (default) — applies to every matching cast.
   - `NthOfTypePerTurn(n)` — only when this is the Nth matching spell each turn (1-indexed; counts the

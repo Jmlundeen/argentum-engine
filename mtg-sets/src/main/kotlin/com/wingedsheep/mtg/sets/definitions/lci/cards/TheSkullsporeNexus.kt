@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * The Skullspore Nexus {6}{G}{G}
@@ -27,7 +28,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * Modeled per the Comprehensive Rules and Scryfall rulings:
  *  - Cost reduction: a self-cost [ModifySpellCost] with the
- *    [CostReductionSource.GreatestPowerAmongPermanentsYouControl] dynamic source over creatures you
+ *    [CostReductionSource.GreatestPropertyAmongPermanentsYouControl] (`EntityNumericProperty.Power`)
+ *    dynamic source over creatures you
  *    control. Read from projected state, so a creature whose power is defined by another value
  *    (e.g. cards in hand) contributes its current power. Cannot reduce the {G}{G} pips or go below 0.
  *  - Death trigger: a batched [Triggers.OneOrMoreCreaturesYouControlDie] over *nontoken* creatures
@@ -52,7 +54,9 @@ val TheSkullsporeNexus = card("The Skullspore Nexus") {
         ability = ModifySpellCost(
             target = SpellCostTarget.SelfCast,
             modification = CostModification.ReduceGenericBy(
-                CostReductionSource.GreatestPowerAmongPermanentsYouControl(Filters.Creature)
+                CostReductionSource.GreatestPropertyAmongPermanentsYouControl(
+                    EntityNumericProperty.Power, Filters.Creature
+                )
             ),
         )
     }

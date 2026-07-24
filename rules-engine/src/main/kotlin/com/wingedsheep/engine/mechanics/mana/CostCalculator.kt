@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CharacteristicValue
+import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -413,11 +414,8 @@ class CostCalculator(
             is CostReductionSource.FixedIfCreatureAttackingYou -> {
                 if (isAnyCreatureAttacking(state, playerId)) source.amount else 0
             }
-            is CostReductionSource.GreatestManaValueAmongPermanentsYouControl -> {
-                greatestManaValueAmongMatching(state, playerId, source.filter)
-            }
-            is CostReductionSource.GreatestPowerAmongPermanentsYouControl -> {
-                greatestPowerAmongMatching(state, playerId, source.filter)
+            is CostReductionSource.GreatestPropertyAmongPermanentsYouControl -> {
+                greatestPropertyAmongMatching(state, playerId, source.filter, source.property)
             }
             is CostReductionSource.FixedIfVoid -> {
                 if (state.nonlandPermanentLeftBattlefieldThisTurn || state.spellWarpedThisTurn)
@@ -471,60 +469,47 @@ class CostCalculator(
     }
 
     /**
-     * Find the greatest mana value among permanents the player controls matching a filter.
-     * Returns 0 if none match. Mana value is read from CardDefinition.manaCost.cmc;
-     * X-costs contribute X = 0 per Rule 202.3b for permanents on the battlefield.
+     * Find the greatest value of [property] among permanents the player controls matching a filter.
+     * Returns 0 if none match. Power/toughness are read from projected state (CR 613) so counters
+     * and continuous buffs count, falling back to the printed base when a permanent has no projected
+     * P/T; base power/toughness read the printed base directly; mana value is read from
+     * CardDefinition.manaCost.cmc (X-costs contribute X = 0 per Rule 202.3b on the battlefield).
      */
-    private fun greatestManaValueAmongMatching(
+    private fun greatestPropertyAmongMatching(
         state: GameState,
         playerId: EntityId,
-        filter: GameObjectFilter
+        filter: GameObjectFilter,
+        property: EntityNumericProperty
     ): Int {
         val projectedState = state.projectedState
-        var maxMv = 0
+        var maxValue = 0
         for (entityId in state.getBattlefield(playerId)) {
             val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
             val matches = filter.cardPredicates.all { predicate ->
                 matchesBattlefieldPredicate(entityId, cardDef, predicate, projectedState)
             }
-            if (matches) {
-                val mv = cardDef.manaCost.cmc
-                if (mv > maxMv) maxMv = mv
+            if (!matches) continue
+            val value = when (property) {
+                EntityNumericProperty.Power ->
+                    projectedState.getPower(entityId) ?: baseCharacteristic(card.baseStats?.power)
+                EntityNumericProperty.Toughness ->
+                    projectedState.getToughness(entityId) ?: baseCharacteristic(card.baseStats?.toughness)
+                EntityNumericProperty.BasePower -> baseCharacteristic(card.baseStats?.power)
+                EntityNumericProperty.BaseToughness -> baseCharacteristic(card.baseStats?.toughness)
+                EntityNumericProperty.ManaValue -> cardDef.manaCost.cmc
+                else -> 0
             }
+            if (value > maxValue) maxValue = value
         }
-        return maxMv
+        return maxValue
     }
 
-    /**
-     * Find the greatest power among permanents the player controls matching a filter.
-     * Returns 0 if none match. Power is read from projected state (CR 613) so counters and
-     * continuous buffs on the controlled permanents count. The power-reading sibling of
-     * [greatestManaValueAmongMatching].
-     */
-    private fun greatestPowerAmongMatching(
-        state: GameState,
-        playerId: EntityId,
-        filter: GameObjectFilter
-    ): Int {
-        val projectedState = state.projectedState
-        var maxPower = 0
-        for (entityId in state.getBattlefield(playerId)) {
-            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
-            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
-            val matches = filter.cardPredicates.all { predicate ->
-                matchesBattlefieldPredicate(entityId, cardDef, predicate, projectedState)
-            }
-            if (matches) {
-                val power = projectedState.getPower(entityId) ?: when (val p = card.baseStats?.power) {
-                    is CharacteristicValue.Fixed -> p.value
-                    is CharacteristicValue.DynamicWithOffset -> p.offset
-                    else -> 0
-                }
-                if (power > maxPower) maxPower = power
-            }
-        }
-        return maxPower
+    /** Printed base P/T from a [CharacteristicValue] — the fixed value, a CDA's offset, or 0. */
+    private fun baseCharacteristic(value: CharacteristicValue?): Int = when (value) {
+        is CharacteristicValue.Fixed -> value.value
+        is CharacteristicValue.DynamicWithOffset -> value.offset
+        else -> 0
     }
 
     /**

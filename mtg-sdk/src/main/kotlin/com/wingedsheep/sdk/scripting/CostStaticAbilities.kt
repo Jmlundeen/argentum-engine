@@ -3,6 +3,7 @@ package com.wingedsheep.sdk.scripting
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
+import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -529,41 +530,30 @@ sealed interface CostReductionSource {
     }
 
     /**
-     * Reduces cost by the greatest mana value among permanents the caster controls
-     * matching a filter. Used for Sunderflock ("This spell costs {X} less to cast,
-     * where X is the greatest mana value among Elementals you control.").
+     * Reduces cost by the greatest value of a numeric [property] among permanents the caster
+     * controls matching a [filter] — "{X} less, where X is the greatest <property> among
+     * <filter> you control". Empty matches yield 0 reduction.
      *
-     * Empty matches yield 0 reduction. Mana value is read from the card definition
-     * (X-cost permanents contribute X = 0).
+     * Parameterized over the property so one source shape covers the whole family instead of a
+     * type-per-property:
+     *  - `GreatestPropertyAmongPermanentsYouControl(EntityNumericProperty.Power, Filters.Creature)`
+     *    — The Skullspore Nexus ("the greatest power among creatures you control").
+     *  - `GreatestPropertyAmongPermanentsYouControl(EntityNumericProperty.ManaValue, <Elementals>)`
+     *    — Sunderflock ("the greatest mana value among Elementals you control").
      *
+     * Power/toughness are read from projected state (CR 613), so counters and continuous buffs
+     * count; mana value is read from the card definition (X-cost permanents contribute X = 0).
+     *
+     * @property property Which numeric characteristic to take the greatest of
      * @property filter The filter that controlled permanents must match
      */
-    @SerialName("GreatestManaValueAmongPermanentsYouControl")
+    @SerialName("GreatestPropertyAmongPermanentsYouControl")
     @Serializable
-    data class GreatestManaValueAmongPermanentsYouControl(
+    data class GreatestPropertyAmongPermanentsYouControl(
+        val property: EntityNumericProperty,
         val filter: GameObjectFilter
     ) : CostReductionSource {
-        override val description: String = "the greatest mana value among ${filter.description} you control"
-    }
-
-    /**
-     * Reduces cost by the greatest **power** among permanents the caster controls matching a
-     * filter. Used for The Skullspore Nexus ("This spell costs {X} less to cast, where X is the
-     * greatest power among creatures you control.") via
-     * `GreatestPowerAmongPermanentsYouControl(Filters.Creature)`.
-     *
-     * Empty matches yield 0 reduction. Power is read from projected state (CR 613), so counters
-     * and continuous buffs on the controlled creatures count. The power-reading sibling of
-     * [GreatestManaValueAmongPermanentsYouControl].
-     *
-     * @property filter The filter that controlled permanents must match
-     */
-    @SerialName("GreatestPowerAmongPermanentsYouControl")
-    @Serializable
-    data class GreatestPowerAmongPermanentsYouControl(
-        val filter: GameObjectFilter
-    ) : CostReductionSource {
-        override val description: String = "the greatest power among ${filter.description} you control"
+        override val description: String = "the greatest ${property.description} among ${filter.description} you control"
     }
 
     /**

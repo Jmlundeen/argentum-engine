@@ -18493,7 +18493,8 @@
                 "modification": {
                     "type": "ReduceGenericBy",
                     "source": {
-                        "type": "GreatestPowerAmongPermanentsYouControl",
+                        "type": "GreatestPropertyAmongPermanentsYouControl",
+                        "property": "Power",
                         "filter": "creature"
                     }
                 }

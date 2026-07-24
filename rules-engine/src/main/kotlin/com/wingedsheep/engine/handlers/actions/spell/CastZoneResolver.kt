@@ -744,6 +744,9 @@ class CastZoneResolver(
                 is CardPredicate.PowerAtMostEntity,
                 is CardPredicate.PowerGreaterThanEntity,
                 is CardPredicate.PowerLessThanEntity,
+                // A card in a zone has no projected pump, so its power never exceeds its own
+                // base power — never greater (mirrors CostCalculator's static treatment).
+                is CardPredicate.PowerGreaterThanBase,
                 is CardPredicate.HasSubtypeFromVariable,
                 is CardPredicate.HasSubtypeInStoredList,
                 is CardPredicate.HasSubtypeInEachStoredGroup,

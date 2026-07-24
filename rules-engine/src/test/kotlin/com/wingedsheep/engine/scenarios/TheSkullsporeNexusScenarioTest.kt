@@ -20,7 +20,7 @@ import io.kotest.matchers.shouldBe
  *    creature token with base power and toughness each equal to the total power of those creatures."
  *  - "{2}, {T}: Double target creature's power until end of turn."
  *
- * Exercises the new `GreatestPowerAmongPermanentsYouControl` cost source, the `diedBatchTotalPower`
+ * Exercises the `GreatestPropertyAmongPermanentsYouControl(Power)` cost source, the `diedBatchTotalPower`
  * death-batch dynamic amount (summed last-known power of the *nontoken* dying creatures), and the
  * reused ModifyStats doubling (`+X/+0` at resolution).
  */
