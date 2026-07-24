@@ -1,1 +1,127 @@
-
+// Ramos, Dragon Engine
+{
+    "name": "Ramos, Dragon Engine",
+    "manaCost": "{6}",
+    "typeLine": "Legendary Artifact Creature — Dragon",
+    "oracleText": "Flying\nWhenever you cast a spell, put a +1/+1 counter on Ramos for each of that spell's colors.\nRemove five +1/+1 counters from Ramos: Add {W}{W}{U}{U}{B}{B}{R}{R}{G}{G}. Activate only once each turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": "SpellCastEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddDynamicCounters",
+                    "counterType": "+1/+1",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Triggering",
+                        "numericProperty": "ColorCount"
+                    },
+                    "target": "Self"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomRemoveCounters",
+                        "counterType": "+1/+1",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        },
+                        "self": true
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "WHITE",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLUE",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLACK",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "RED",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "GREEN",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "restrictions": [
+                    "OncePerTurn"
+                ],
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "MYTHIC",
+        "artist": "Joseph Meehan",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/e/2e747ef1-a1ad-4859-a70c-3f935f017310.jpg?1783935930",
+        "rulings": [
+            {
+                "date": "2024-11-08",
+                "text": "Ramos's triggered ability counts the number of colors a spell has (from zero to five), not how many colored mana symbols are there in its mana cost or how many colors of mana you spent."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "If you cast a colorless spell, Ramos's triggered ability triggers, but it won't get any +1/+1 counters."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "Ramos's triggered ability resolves before the spell that caused it to trigger. The ability will resolve even if that spell is countered or otherwise leaves the stack without resolving. In that case, use its last known information to determine what colors it was."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE",
+        "BLACK",
+        "RED",
+        "GREEN"
+    ]
+}
