@@ -3,6 +3,7 @@
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
 **Implemented:** 286 / 286
+**Status:** ✅ Complete — every card human-authored with a passing scenario test; archived.
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
