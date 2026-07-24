@@ -6,6 +6,7 @@ import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.CommanderRegistryComponent
 import com.wingedsheep.sdk.core.Color
@@ -51,6 +52,7 @@ object ManaColorSetResolver {
         is ManaColorSet.AmongCardsInGraveyard -> amongCardsInGraveyard(colorSet, state, projected, controllerId)
         is ManaColorSet.LandsCouldProduce -> landsCouldProduce(colorSet, state, projected, controllerId, cardRegistry)
         is ManaColorSet.SourceChosenColor -> sourceChosenColor(state, sourceId)
+        is ManaColorSet.AmongLinkedExiledCards -> amongLinkedExiledCards(state, sourceId)
     }
 
     /**
@@ -136,5 +138,31 @@ object ManaColorSetResolver {
     private fun sourceChosenColor(state: GameState, sourceId: EntityId?): Set<Color> {
         val source = sourceId?.let { state.getEntity(it) } ?: return emptySet()
         return setOfNotNull(source.chosenColor())
+    }
+
+    /**
+     * Union of the base colors of the cards currently exiled with the source permanent.
+     *
+     * The candidate ids come from the source's [LinkedExileComponent] (stamped by
+     * `MoveToZoneEffect(linkToSource = true)`); each is counted only while it is *still in the
+     * exile zone* — a card that has since left exile is no longer "exiled with" the source, so it
+     * drops out of the color pool (matching the still-in-exile filter used by the linked-exile
+     * return executors). Colors are read from each card's base [CardComponent.colors]; exile-zone
+     * cards aren't projected. Colorless-only or empty piles yield an empty set → no mana produced.
+     */
+    private fun amongLinkedExiledCards(state: GameState, sourceId: EntityId?): Set<Color> {
+        val source = sourceId?.let { state.getEntity(it) } ?: return emptySet()
+        val exiledIds = source.get<LinkedExileComponent>()?.exiledIds ?: return emptySet()
+        val colors = mutableSetOf<Color>()
+        for (id in exiledIds) {
+            // An exiled card lives in its owner's exile zone (ZoneTransitionService keys every
+            // non-battlefield zone by owner), so a direct membership check confirms it's still
+            // exiled — a card that has since left exile drops out of the color pool.
+            val card = state.getEntity(id)?.get<CardComponent>() ?: continue
+            val ownerId = card.ownerId ?: continue
+            if (id !in state.getExile(ownerId)) continue
+            colors.addAll(card.colors)
+        }
+        return colors
     }
 }

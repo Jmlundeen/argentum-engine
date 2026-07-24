@@ -1990,6 +1990,15 @@ object Effects {
         AddManaOfChoiceEffect(ManaColorSet.AmongCardsInGraveyard(filter), DynamicAmount.Fixed(1), restriction)
 
     /**
+     * Add one mana of any color among the cards currently exiled with the source permanent
+     * (its `LinkedExileComponent`, still in the exile zone; base colors). "Add one mana of any
+     * of the exiled cards' colors." (Pit of Offerings). Sugar for
+     * `AddManaOfChoice(ManaColorSet.AmongLinkedExiledCards)`.
+     */
+    fun AddManaOfColorAmongLinkedExile(restriction: ManaRestriction? = null): Effect =
+        AddManaOfChoiceEffect(ManaColorSet.AmongLinkedExiledCards, DynamicAmount.Fixed(1), restriction)
+
+    /**
      * For each color among permanents matching a filter, add one mana of that color.
      * Used for cards like Bloom Tender — produces one mana of every color present (0–5 total).
      */

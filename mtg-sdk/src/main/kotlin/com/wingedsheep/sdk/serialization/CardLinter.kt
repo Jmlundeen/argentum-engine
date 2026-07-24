@@ -272,6 +272,23 @@ object CardLinter {
             type == "CreateToken" || type == "CreatePredefinedToken" ||
                 type == "CreateTokenCopyOfTarget" || type == "CreateTokenCopyOfSource" ->
                 listOf(Kind.WRITE to (Space.COLLECTION to "createdTokens"))
+            // The scry / surveil macros are opaque nodes on the card, but the engine expands each
+            // into a Gather → Select → Move pipeline (LibraryPatterns.scryPipeline /
+            // surveilPipeline) whose selected/remainder collections seed the *same* EffectContext.
+            // Sibling effects can therefore read the cards kept on top / put below — e.g. Starving
+            // Revenant draws and drains per card left on top via
+            // DistinctEntitiesInCollections("toTop"). Surface those writes so such reads resolve
+            // instead of looking unwired. (Collection names mirror the two pipelines above.)
+            type == "Scry" ->
+                listOf(
+                    Kind.WRITE to (Space.COLLECTION to "toBottom"),
+                    Kind.WRITE to (Space.COLLECTION to "toTop"),
+                )
+            type == "Surveil" ->
+                listOf(
+                    Kind.WRITE to (Space.COLLECTION to "toGraveyard"),
+                    Kind.WRITE to (Space.COLLECTION to "toTop"),
+                )
             else -> emptyList()
         }
 

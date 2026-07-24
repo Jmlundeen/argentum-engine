@@ -134,7 +134,17 @@ data class GrantMayCastFromLinkedExile(
      * When true, only cards exiled this turn are eligible (Maralen). Checked via
      * [com.wingedsheep.engine.state.components.battlefield.ExileEntryTurnComponent].
      */
-    val exiledThisTurnOnly: Boolean = false
+    val exiledThisTurnOnly: Boolean = false,
+    /**
+     * Cast-this-way entry rider (CR 614-style): when set, a permanent cast from this linked-exile
+     * pile *under this grant* enters the battlefield with one counter of that type on it. Mirrors
+     * [MayCastFromGraveyard.entersWithCounter], but for the linked-exile cast path. Defaults to null
+     * (no rider), so existing linked-exile cast cards are unaffected.
+     *
+     * Intrepid Paleontologist: `entersWithCounter = CounterType.FINALITY` — "If you cast a spell this
+     * way, that creature enters with a finality counter on it."
+     */
+    val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null
 ) : StaticAbility {
     override val description: String = buildString {
         // "pay life equal to its mana value rather than pay its mana cost" — Valgavoth, Terror Eater
@@ -159,6 +169,9 @@ data class GrantMayCastFromLinkedExile(
         if (additionalCost != null) append(" by ${additionalCost.description.lowercase()} in addition to paying their other costs")
         if (oncePerTurn) append(". This ability may be used only once each turn")
         append(".")
+        if (entersWithCounter != null) {
+            append(" If you cast a spell this way, that permanent enters with a ${entersWithCounter.name.lowercase()} counter on it.")
+        }
     }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)

@@ -2,7 +2,7 @@
 
 **Set Size:** 286 booster cards (excluding basic lands and tokens)
 **Release Date:** November 17, 2023
-**Implemented:** 269 / 286
+**Implemented:** 273 / 286
 - [x] Abrade
 - [x] Abuelo's Awakening
 - [x] Abuelo, Ancestral Echo
@@ -88,7 +88,7 @@
 - [x] Earthshaker Dreadmaw
 - [x] Eaten by Piranhas
 - [x] Echo of Dusk
-- [ ] Echoing Deeps
+- [x] Echoing Deeps
 - [x] Enterprising Scallywag
 - [x] Envoy of Okinec Ahau
 - [x] Etali's Favor
@@ -131,7 +131,7 @@
 - [x] Idol of the Deep King
 - [x] In the Presence of Ages
 - [x] Inti, Seneschal of the Sun
-- [ ] Intrepid Paleontologist
+- [x] Intrepid Paleontologist
 - [x] Inverted Iceberg
 - [x] Ironpaw Aspirant
 - [x] Itzquinth, Firstborn of Gishath
@@ -183,7 +183,7 @@
 - [x] Pathfinding Axejaw
 - [x] Petrify
 - [x] Pirate Hat
-- [ ] Pit of Offerings
+- [x] Pit of Offerings
 - [x] Plundering Pirate
 - [x] Poetic Ingenuity
 - [x] Poison Dart Frog
@@ -236,7 +236,7 @@
 - [x] Squirming Emergence
 - [x] Staggering Size
 - [x] Stalactite Stalker
-- [ ] Starving Revenant
+- [x] Starving Revenant
 - [x] Staunch Crewmate
 - [x] Stinging Cave Crawler
 - [x] Subterranean Schooner

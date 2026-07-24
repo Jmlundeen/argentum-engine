@@ -207,6 +207,40 @@ data class CloneEntersContinuation(
 ) : ContinuationFrame
 
 /**
+ * Resume after a player chooses (or declines) a card/permanent to copy for an
+ * [com.wingedsheep.sdk.scripting.EntersAsCopy] replacement on a permanent that has *already* been
+ * placed on the battlefield **directly** — a land played (Echoing Deeps / Vesuva / Thespian's Stage)
+ * or a token/put-onto-battlefield permanent — rather than a spell resolving off the stack (which uses
+ * [CloneEntersContinuation]).
+ *
+ * The resumer copies the chosen object's copiable characteristics (CR 707.2) onto the entity, adds
+ * any [additionalSubtypes] / [additionalKeywords] and overrides, taps the entity if
+ * [tappedIfCopied] and a copy was actually made, optionally exiles the copied card, then fires the
+ * entry's ETB triggers off a synthesized [ZoneChangeEvent] (so the copied identity's landfall /
+ * "when ~ enters" triggers see the final characteristics). Declining leaves the permanent as its
+ * printed self, untapped.
+ *
+ * @property entityId The permanent already on the battlefield.
+ * @property controllerId Its controller (also the copy chooser).
+ * @property fromZone The zone the permanent came from, used to synthesize the entry event.
+ * @property tappedIfCopied Tap the permanent iff it entered as a copy ("enter tapped as a copy").
+ */
+@Serializable
+data class CloneEntersOnBattlefieldContinuation(
+    override val decisionId: String,
+    val entityId: EntityId,
+    val controllerId: EntityId,
+    val fromZone: Zone? = null,
+    val additionalSubtypes: List<String> = emptyList(),
+    val additionalKeywords: List<Keyword> = emptyList(),
+    val nameOverride: String? = null,
+    val powerOverride: Int? = null,
+    val toughnessOverride: Int? = null,
+    val exileCopiedCard: Boolean = false,
+    val tappedIfCopied: Boolean = false
+) : ContinuationFrame
+
+/**
  * Resume after player makes an "as enters" choice for a spell being resolved.
  *
  * Handles all choice types (color, creature type, creature on battlefield) via

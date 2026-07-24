@@ -906,6 +906,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `AddManaOfColorAmongGraveyard(filter)` — one mana of any color among cards in your graveyard matching
   `filter` (reads each card's base colors; sugar for `ManaColorSet.AmongCardsInGraveyard(filter)`). The
   Grey Havens ("any color among legendary creature cards in your graveyard").
+- `AddManaOfColorAmongLinkedExile()` — one mana of any color among the cards currently exiled *with*
+  the source permanent (its `LinkedExileComponent`, still in the exile zone; reads each card's base
+  colors; sugar for `ManaColorSet.AmongLinkedExiledCards`). Pit of Offerings ("any of the exiled
+  cards' colors"). Pair with a `MoveToZoneEffect(linkToSource = true)` that records the exiled pile.
 - `AddManaOfColorLandsCouldProduce(scope)` — sugar for `AddManaOfChoice(ManaColorSet.LandsCouldProduce(scope))`. Fellwar Stone / Exotic Orchard / Reflecting Pool shape.
 - `AddManaOfColorInCommanderColorIdentity()` — sugar for `AddManaOfChoice(ManaColorSet.CommanderIdentity)`. Arcane Signet / Command Tower shape.
 - `AddAnyColorManaSpendOnChosenType(typeName)` — mana that can only pay for a specific card type (kept separate because it derives a runtime [ManaRestriction] from the source's chosen subtype).
@@ -4528,7 +4532,7 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   in your graveyard has flashback … equal to that card's mana cost") and one for
   `InstantOrSorcery.withSubtype(Lesson)` with `cost = {1}` ("each Lesson card in your graveyard has
   flashback {1}"), both `duringYourTurnOnly = true`.
-- `GrantMayCastFromLinkedExile(filter = Nonland, duringYourTurnOnly = false, additionalCost = null, ownedByYou = false, withoutPayingManaCost = false, oncePerTurn = false, maxManaValue = null, exiledThisTurnOnly = false)`
+- `GrantMayCastFromLinkedExile(filter = Nonland, duringYourTurnOnly = false, additionalCost = null, ownedByYou = false, withoutPayingManaCost = false, oncePerTurn = false, maxManaValue = null, exiledThisTurnOnly = false, entersWithCounter = null)`
   — "you may cast cards exiled with this permanent" — reads the source's `LinkedExileComponent` (Rona,
   Disciple of Gix; Maralen, Fae Ascendant; Dawnhand Dissident). Casting spells from linked exile is
   enumerated by `CastFromZoneEnumerator.enumerateLinkedExile`; the cast path deliberately skips lands.
@@ -4538,6 +4542,14 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   (e.g. `GameObjectFilter.Any`, no `IsNonland` predicate), the permission also covers *playing* land
   cards from the linked exile — surfaced by `PlayLandEnumerator` and authorized by `PlayLandHandler`
   (lands cost no life). Pair with a `RedirectZoneChange(linkToSource = true)` to fill the exile pile.
+  **Cast-this-way entry rider:** `entersWithCounter` (a `CounterType`) mirrors
+  `MayCastFromGraveyard.entersWithCounter` for the linked-exile path — a permanent cast from this pile
+  *under this grant* enters the battlefield with one such counter (`CastSpellHandler` freezes the same
+  `GraveyardCastRiderComponent` it uses for graveyard casts, applied at resolution by `StackResolver`).
+  Intrepid Paleontologist = `GrantMayCastFromLinkedExile(filter = Creature.withSubtype("Dinosaur"),
+  ownedByYou = true, entersWithCounter = CounterType.FINALITY)` — "You may cast Dinosaur creature spells
+  from among cards you own exiled with this creature. If you cast a spell this way, that creature enters
+  with a finality counter on it."
 - `GraveyardCreaturesHaveSneak(cost)` — "Creature cards in your graveyard have sneak `cost`. You may
   cast creature spells from your graveyard using their sneak abilities." (Ninja Teen level 3.) While
   the controller has this static active, their graveyard creature cards become castable via the
@@ -6286,6 +6298,7 @@ solver picks if there's only one), and that color is added to the pool.
 - `ManaColorSet.AmongPermanents(filter)` — colors of permanents matching `filter`, read via projected state so type/color-changing effects are honored. Mox Amber shape.
 - `ManaColorSet.LandsCouldProduce(scope)` — colors any land in `scope` could produce; tapped state and activation costs are ignored (CR 106.7). `scope` is `LandControllerScope.{YOU, OPPONENTS, ANY}`. Fellwar Stone / Exotic Orchard / Reflecting Pool shape.
 - `ManaColorSet.SourceChosenColor` — the single color stored on the source's `ChosenColorComponent` (set via `EntersWithChoice(ChoiceType.COLOR)`). Uncharted Haven / Ashling Rekindled shape.
+- `ManaColorSet.AmongLinkedExiledCards` — union of the base colors of the cards currently exiled *with* the source permanent — the ids in its `LinkedExileComponent` (set by `MoveToZoneEffect(linkToSource = true)`) that are still in the exile zone. A card that has since left exile drops out of the pool; colorless-only or empty piles produce no mana. Pit of Offerings shape ("any of the exiled cards' colors").
 
 ### `ManaRestriction`
 
@@ -6913,17 +6926,24 @@ replacementEffect {
   trigger itself. Used by Worldwalker Helm (`TokenCreationEvent(You, Artifact)`, add `Map`, `inheritTapped = true`)
   and Peregrin Took (`additionalTokenType = "Food"`, "those tokens plus an additional Food token are created instead")
   and Quina, Qu Gourmet (`additionalTokenType = "Frog"`, default `appliesTo` = any token you create, adds a 1/1 green Frog).
-- `EntersAsCopy(optional, copyFilter, copyFromZone, filterByTotalManaSpent, additionalSubtypes, additionalKeywords, nameOverride, powerOverride, toughnessOverride, exileCopiedCard)` —
-  "enter as a copy of …". As the permanent resolves, the controller picks an object matching
+- `EntersAsCopy(optional, copyFilter, copyFromZone, filterByTotalManaSpent, additionalSubtypes, additionalKeywords, nameOverride, powerOverride, toughnessOverride, exileCopiedCard, tappedIfCopied)` —
+  "enter as a copy of …". As the permanent enters, the controller picks an object matching
   `copyFilter` and the permanent enters as a copy (Rule 707 copiable values), with any overrides
   applied. `copyFromZone` selects the candidate pool: `Zone.BATTLEFIELD` (default — Clone, Clever
-  Impersonator, Mockingbird) copies a permanent in play; `Zone.GRAVEYARD` copies a creature *card*
-  from any graveyard (Superior Spider-Man) via the modal card-list overlay. `additionalSubtypes` /
+  Impersonator, Mockingbird) copies a permanent in play; `Zone.GRAVEYARD` copies a *card*
+  from any graveyard (Superior Spider-Man; Echoing Deeps copies a land card) via the modal card-list
+  overlay. `additionalSubtypes` /
   `additionalKeywords` are added "in addition to its other types"; `nameOverride` keeps a fixed name;
   `powerOverride` / `toughnessOverride` force base P/T; `exileCopiedCard` exiles the copied card after
   the copy ("When you do, exile that card"). `filterByTotalManaSpent` restricts copy targets to mana
-  value ≤ total mana spent (Mockingbird). The copy snapshots a `CopyOfComponent` so it reverts to its
-  printed identity when it leaves the battlefield (CR 400.7 / 707.2).
+  value ≤ total mana spent (Mockingbird). `tappedIfCopied` makes the permanent enter **tapped** only
+  when it actually enters as a copy — the "enter tapped as a copy" rider on the land-copy cycle
+  (Echoing Deeps; Vesuva / Thespian's Stage copying a land on the battlefield); declining the copy
+  enters it untapped as its printed self. The copy snapshots a `CopyOfComponent` so it reverts to its
+  printed identity when it leaves the battlefield (CR 400.7 / 707.2). Works both when the source is
+  cast as a spell (resolved off the stack) **and** when it enters the battlefield directly — a land
+  played (Echoing Deeps) pauses via `PermanentEntryReplacements.pauseForEntersAsCopy`, its resumer
+  `CloneEntersOnBattlefieldContinuation` copying onto the already-placed permanent in place.
 - `ModifyDrawAmount(modifier, restrictions, appliesTo)` — modify the number of cards a draw
   instruction announces by a fixed amount, optionally gated by extra `restrictions: List<Condition>`
   evaluated against the drawing player as controller. Applied **once** per draw instruction at the
@@ -7431,7 +7451,10 @@ levels, saga chapters, faces — is covered automatically. What it checks:
   `ChooseOption` / a cast-time additional cost, …) in the same resolution scope. A read written
   *nowhere* on the card is an **error** (typo → silent no-op); read-before-write and
   cross-resolution reads are warnings, as are stores nothing reads. A collection write `x`
-  also satisfies the numeric read `x_count`.
+  also satisfies the numeric read `x_count`. Macro effects that the engine expands into a
+  pipeline count as writers of the collections that expansion seeds: `Scry` writes `toTop` /
+  `toBottom` and `Surveil` writes `toTop` / `toGraveyard`, so a sibling effect may read the
+  kept-on-top cards (e.g. Starving Revenant's `DistinctEntitiesInCollections("toTop")`).
 - **Target bindings per owning ability** — `ContextTarget(i)` must fit the owning ability's
   flattened target slots (a `count = 2` requirement spans two indices); `BoundVariable(name)`
   must match a requirement `id` (indexed form `id[i]` allowed). Modes inherit the card-level

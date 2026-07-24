@@ -36,7 +36,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.MayCastFromGraveyard
 import com.wingedsheep.sdk.scripting.MayCastSelfFromZones
 import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
-import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.engine.mechanics.FlashbackGrants
 import com.wingedsheep.engine.mechanics.HarmonizeGrants
 import com.wingedsheep.engine.mechanics.WarpGrants
@@ -742,16 +741,12 @@ class CastFromZoneEnumerator : ActionEnumerator {
                 // Mana-value cap (Maralen)
                 if (maxManaValueCap != null && exiledCard.manaCost.cmc > maxManaValueCap) continue
 
-                // Check filter (e.g., nonland)
-                val passesFilter = grantAbility.filter.cardPredicates.all { pred ->
-                    when (pred) {
-                        is CardPredicate.IsNonland -> !exiledCard.typeLine.isLand
-                        is CardPredicate.IsCreature -> exiledCard.typeLine.isCreature
-                        is CardPredicate.IsArtifact -> exiledCard.typeLine.isArtifact
-                        is CardPredicate.IsNonartifact -> !exiledCard.typeLine.isArtifact
-                        else -> true
-                    }
-                }
+                // Check filter (e.g., nonland, or "Dinosaur creature" for Intrepid
+                // Paleontologist). Delegate to the shared matcher so legal-action
+                // enumeration and cast-time validation (CastZoneResolver.matchesCardFilter)
+                // agree on subtype/type gating.
+                val passesFilter = com.wingedsheep.engine.handlers.actions.spell.CastZoneResolver
+                    .matchesCardFilter(exiledCard, grantAbility.filter)
                 if (!passesFilter) continue
 
                 // Verify card is actually in exile

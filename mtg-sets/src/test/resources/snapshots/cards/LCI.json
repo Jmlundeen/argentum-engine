@@ -6066,6 +6066,54 @@
     ]
 }
 
+// Echoing Deeps
+{
+    "name": "Echoing Deeps",
+    "manaCost": "",
+    "typeLine": "Land — Cave",
+    "oracleText": "You may have this land enter tapped as a copy of any land card in a graveyard, except it's a Cave in addition to its other types.\n{T}: Add {C}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "copyFilter": {
+                    "cardPredicates": [
+                        "IsLand"
+                    ]
+                },
+                "copyFromZone": "Graveyard",
+                "additionalSubtypes": [
+                    "Cave"
+                ],
+                "tappedIfCopied": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "271",
+        "rarity": "RARE",
+        "artist": "Mauricio Calle",
+        "flavorText": "The still, silent waters reflect what was, not what is.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/4/244c06b3-532d-426e-8bee-ee9461d092a6.jpg?1782694396"
+    },
+    "colorIdentityOverride": []
+}
+
 // Enterprising Scallywag
 {
     "name": "Enterprising Scallywag",
@@ -8758,6 +8806,88 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Intrepid Paleontologist
+{
+    "name": "Intrepid Paleontologist",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Human Druid",
+    "oracleText": "{T}: Add one mana of any color.\n{2}: Exile target card from a graveyard.\nYou may cast Dinosaur creature spells from among cards you own exiled with this creature. If you cast a spell this way, that creature enters with a finality counter on it. (If a creature with a finality counter on it would die, exile it instead.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": "CostTap",
+                "effect": "AddManaOfChoice",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target card in a graveyard"
+                    },
+                    "destination": "Exile",
+                    "linkToSource": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {},
+                            "zone": "Graveyard"
+                        },
+                        "id": "target card in a graveyard"
+                    }
+                ]
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantMayCastFromLinkedExile",
+                "filter": "creature Dinosaur",
+                "ownedByYou": true,
+                "entersWithCounter": "FINALITY"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "193",
+        "rarity": "RARE",
+        "artist": "Irina Nordsol",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/7/871a164a-0fe6-480e-a1be-cbffce884bd3.jpg?1782694454",
+        "rulings": [
+            {
+                "date": "2023-11-10",
+                "text": "Finality counters aren't a keyword ability. A finality counter doesn't give any abilities to the permanent it's on."
+            },
+            {
+                "date": "2023-11-10",
+                "text": "You cast the exiled Dinosaur creature spell using the permission Intrepid Paleontologist grants. You must still pay that spell's costs and follow its normal timing permissions (usually sorcery speed)."
+            },
+            {
+                "date": "2023-11-10",
+                "text": "If Intrepid Paleontologist leaves the battlefield, the cards exiled with it remain exiled and can no longer be cast."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -12657,6 +12787,93 @@
     ]
 }
 
+// Pit of Offerings
+{
+    "name": "Pit of Offerings",
+    "manaCost": "",
+    "typeLine": "Land — Cave",
+    "oracleText": "This land enters tapped.\nWhen this land enters, exile up to three target cards from graveyards.\n{T}: Add {C}.\n{T}: Add one mana of any of the exiled cards' colors.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Exile",
+                        "linkToSource": true
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "count": 3,
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": {},
+                        "zone": "Graveyard"
+                    },
+                    "id": "cards from graveyards"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "ability_3",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "colorSet": "ManaColorSet.AmongLinkedExiledCards"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "278",
+        "rarity": "UNCOMMON",
+        "artist": "Martin de Diego Sádaba",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bc7d3957-b483-4a1f-a244-293c90032f5e.jpg?1782694390",
+        "rulings": [
+            {
+                "date": "2023-11-10",
+                "text": "The five colors are white, blue, black, red, and green. The last ability of Pit of Offerings can't produce {C}."
+            },
+            {
+                "date": "2023-11-10",
+                "text": "If no cards are exiled with Pit of Offerings, its last ability can't add mana."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Plundering Pirate
 {
     "name": "Plundering Pirate",
@@ -16179,6 +16396,116 @@
                 "text": "A permanent card is an artifact, battle, creature, enchantment, land, or planeswalker card. Tokens are not cards, and while tokens are put into the graveyard before ceasing to exist, that action doesn't count as a player having descended."
             }
         ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Starving Revenant
+{
+    "name": "Starving Revenant",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Creature — Spirit Horror",
+    "oracleText": "When this creature enters, surveil 2. Then for each card you put on top of your library, you draw a card and you lose 3 life.\nDescend 8 — Whenever you draw a card, if there are eight or more permanent cards in your graveyard, target opponent loses 1 life and you gain 1 life.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Surveil",
+                            "count": 2
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "DistinctEntitiesInCollections",
+                                "collections": [
+                                    "toTop"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Multiply",
+                                "amount": {
+                                    "type": "DistinctEntitiesInCollections",
+                                    "collections": [
+                                        "toTop"
+                                    ]
+                                },
+                                "multiplier": 3
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "ability_2",
+                "trigger": "DrawEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target opponent"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "target opponent"
+                },
+                "triggerCondition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "You",
+                        "zone": "Graveyard",
+                        "filter": "permanent"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 8
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "rarity": "RARE",
+        "artist": "Fesbra",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f25ea466-eb48-4c4c-b5d4-35f58e46ebe1.jpg?1783913770"
     },
     "colorIdentityOverride": [
         "BLACK"

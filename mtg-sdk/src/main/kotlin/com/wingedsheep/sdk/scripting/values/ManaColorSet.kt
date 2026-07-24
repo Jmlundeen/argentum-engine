@@ -89,6 +89,20 @@ sealed interface ManaColorSet {
     }
 
     /**
+     * The union of colors among the cards currently exiled *with* the source permanent — the
+     * cards recorded in its `LinkedExileComponent` (set by `MoveToZoneEffect(linkToSource = true)`)
+     * that are still in the exile zone. Colors are read from each exiled card's base colors
+     * (exile-zone cards aren't projected). Empty if the source exiled no cards, they've all since
+     * left exile, or every exiled card is colorless — in which case no mana is produced. Used by
+     * Pit of Offerings: "Add one mana of any of the exiled cards' colors."
+     */
+    @SerialName("ManaColorSet.AmongLinkedExiledCards")
+    @Serializable
+    data object AmongLinkedExiledCards : ManaColorSet {
+        override val description: String = "any of the exiled cards' colors"
+    }
+
+    /**
      * The single color recorded on the source permanent's `CastChoicesComponent`
      * (set when it entered the battlefield, e.g., via `EntersWithChoice(COLOR)`).
      * If no color was chosen, no mana is produced. Used by Unchartered Haven and

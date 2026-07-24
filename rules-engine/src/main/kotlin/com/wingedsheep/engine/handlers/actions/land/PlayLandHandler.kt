@@ -24,6 +24,7 @@ import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.components.battlefield.GraveyardPlayPermissionUsedComponent
 import com.wingedsheep.sdk.core.CardType
+import com.wingedsheep.sdk.scripting.EntersAsCopy
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
@@ -281,6 +282,47 @@ class PlayLandHandler(
                     return ExecutionResult.success(triggerResult.newState, allEvents)
                 }
                 return ExecutionResult.success(newState, onEnterEvents)
+            }
+        }
+
+        // EntersAsCopy — "you may have this land enter [tapped] as a copy of a land card in a
+        // graveyard, except it's a Cave …" (Echoing Deeps; also Vesuva / Thespian's Stage copying a
+        // land on the battlefield). This is an as-enters replacement (CR 707.2): pause for the copy
+        // choice; [CloneEntersOnBattlefieldContinuation]'s resumer copies the chosen land's copiable
+        // characteristics onto this land, adds the extra subtype, taps it if the rider says so, and
+        // fires the entry's ETB triggers. Only engaged when a candidate exists — otherwise the land
+        // just enters as its printed self via the normal finish below.
+        if (cardDef != null) {
+            val entersAsCopy = cardDef.script.replacementEffects
+                .filterIsInstance<EntersAsCopy>()
+                .firstOrNull()
+            if (entersAsCopy != null &&
+                com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
+                    .entersAsCopyCandidates(newState, action.cardId, action.playerId, entersAsCopy)
+                    .isNotEmpty()
+            ) {
+                // Use up a land drop before pausing. The entry ZoneChangeEvent is emitted by the
+                // resumer once the copy choice is made, so it carries the final (copied) identity
+                // and `copyOfOriginalName` — see CloneEntersOnBattlefieldContinuation's resumer.
+                // Emitting a printed-name event here too would double the entry and hide the copy.
+                // Only the play-from-permission rider event (if any) is surfaced now.
+                newState = newState.updateEntity(action.playerId) { c ->
+                    val landDrops = c.get<LandDropsComponent>() ?: LandDropsComponent()
+                    c.with(landDrops.use())
+                }
+                newState = newState.tick()
+
+                val result = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
+                    .pauseForEntersAsCopy(
+                        state = newState,
+                        entityId = action.cardId,
+                        controllerId = action.playerId,
+                        cardComponent = cardComponent,
+                        effect = entersAsCopy,
+                        fromZone = fromZone,
+                        carryEvents = listOfNotNull(riderPlayEvent),
+                    )
+                if (result != null) return result
             }
         }
 
