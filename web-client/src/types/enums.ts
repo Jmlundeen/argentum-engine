@@ -403,6 +403,7 @@ export enum CounterType {
   DREAD = 'DREAD',
   INCUBATION = 'INCUBATION',
   FELLOWSHIP = 'FELLOWSHIP',
+  BAIT = 'BAIT',
   BORE = 'BORE',
 }
 
@@ -463,6 +464,7 @@ export const CounterTypeDisplayNames: Record<CounterType, string> = {
   [CounterType.DREAD]: 'Dread',
   [CounterType.INCUBATION]: 'Incubation',
   [CounterType.FELLOWSHIP]: 'Fellowship',
+  [CounterType.BAIT]: 'Bait',
   [CounterType.BORE]: 'Bore',
 }
 

@@ -5,6 +5,7 @@ import com.wingedsheep.engine.core.AttackersDeclaredEvent
 import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.core.TappedEvent
 import com.wingedsheep.engine.core.TurnFaceUpEvent
+import com.wingedsheep.engine.core.UntappedEvent
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.core.Zone
@@ -82,6 +83,7 @@ class AttachmentTriggerDetector(private val matcher: TriggerMatcher) {
             is AttackersDeclaredEvent -> event.attackers
             is TurnFaceUpEvent -> listOf(event.entityId)
             is TappedEvent -> listOf(event.entityId)
+            is UntappedEvent -> listOf(event.entityId)
             // "an ability of enchanted artifact … was activated" (Artifact Possession) — the
             // activated ability's source is the enchanted permanent.
             is AbilityActivatedEvent -> listOf(event.sourceId)
@@ -121,6 +123,11 @@ class AttachmentTriggerDetector(private val matcher: TriggerMatcher) {
             }
             is EventPattern.TapEvent -> {
                 event is TappedEvent && event.entityId == attachedEntityId
+            }
+            // "Whenever equipped creature becomes untapped" (Fishing Pole). UntapEvent carries no
+            // filter, so identity with the attached permanent is the whole match.
+            is EventPattern.UntapEvent -> {
+                event is UntappedEvent && event.entityId == attachedEntityId
             }
             is EventPattern.AbilityActivatedEvent -> {
                 if (event !is AbilityActivatedEvent) return false

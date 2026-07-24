@@ -906,8 +906,17 @@ class PredicateEvaluator {
             StatePredicate.IsTapped -> container.has<TappedComponent>()
             StatePredicate.IsUntapped -> !container.has<TappedComponent>()
 
-            // Combat state
-            StatePredicate.IsAttacking -> container.has<AttackingComponent>()
+            // Combat state.
+            //
+            // On the battlefield this is the live "declared as attacker this combat" check. Once
+            // the permanent has left, the live component is gone (the exit's combat cleanup tears
+            // down the attack), so we fall back to the frozen last-known snapshot (CR 608.2h) —
+            // that is exactly what "draw a card if it was attacking" (Garna, Bloodfist of Keld)
+            // needs from a dies trigger that resolves after the death. The fallback can only fire
+            // for an entity outside the battlefield, so live battlefield reads are unchanged.
+            StatePredicate.IsAttacking ->
+                container.get<AttackingComponent>() != null ||
+                    container.get<LastKnownPermanentComponent>()?.snapshot?.wasAttacking == true
             StatePredicate.IsBlocking -> container.has<BlockingComponent>()
             StatePredicate.IsBlocked -> {
                 // Check if this attacking creature has any blockers assigned

@@ -311,6 +311,23 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     }
 
     /**
+     * Tap the permanent that granted this activated ability to the source — the third member of
+     * the granter-cost family alongside [ExileGrantingPermanent] and [SacrificeGrantingPermanent],
+     * and the granter-scoped sibling of the plain [Tap] (which taps the ability's *host*).
+     *
+     * Fishing Pole grants the equipped creature "{1}, {T}, **Tap Fishing Pole**: Put a bait counter
+     * on Fishing Pole" — two different permanents tap: `{T}` taps the creature that has the
+     * ability, this taps the Equipment. Per CR 201.5a (and the printed ruling) the name refers only
+     * to the specific granting permanent, so an already-tapped granter makes the cost unpayable
+     * even with another same-named Equipment untapped elsewhere.
+     */
+    @SerialName("CostTapGrantingPermanent")
+    @Serializable
+    data object TapGrantingPermanent : AbilityCost {
+        override val description: String = "Tap the granting permanent"
+    }
+
+    /**
      * Sacrifice a creature of the type chosen when this permanent entered the battlefield.
      * Used by cards like Doom Cannon that choose a creature type on entry and reference it in costs.
      */

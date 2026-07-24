@@ -171,6 +171,125 @@
     ]
 }
 
+// Mazemind Tome
+{
+    "name": "Mazemind Tome",
+    "manaCost": "{2}",
+    "typeLine": "Artifact — Book",
+    "oracleText": "{T}, Put a page counter on this artifact: Scry 1. (Look at the top card of your library. You may put that card on the bottom.)\n{2}, {T}, Put a page counter on this artifact: Draw a card.\nWhen there are four or more page counters on this artifact, exile it. If you do, you gain 4 life.",
+    "script": {
+        "stateTriggeredAbilities": [
+            {
+                "id": "ability_1",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "EntityProperty",
+                        "entity": "Source",
+                        "numericProperty": {
+                            "type": "CounterCount",
+                            "counterType": {
+                                "type": "Named",
+                                "name": "page"
+                            }
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.DoAction",
+                        "action": {
+                            "type": "MoveToZone",
+                            "target": "Self",
+                            "destination": "Exile",
+                            "fromZone": "Battlefield"
+                        }
+                    },
+                    "then": {
+                        "type": "GainLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    }
+                },
+                "descriptionOverride": "When there are four or more page counters on this artifact, exile it. If you do, you gain 4 life"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPutCountersOnSelf",
+                                "counterType": "page"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Scry",
+                    "count": 1
+                }
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPutCountersOnSelf",
+                                "counterType": "page"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "232",
+        "rarity": "RARE",
+        "artist": "Randy Gallegos",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/f/9fd761f3-6b43-4150-8595-dc3abd85b06c.jpg?1783930659",
+        "rulings": [
+            {
+                "date": "2020-06-23",
+                "text": "If Mazemind Tome leaves the battlefield while its triggered ability is on the stack, you can't exile it from the zone it's put into."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Primal Might
 {
     "name": "Primal Might",

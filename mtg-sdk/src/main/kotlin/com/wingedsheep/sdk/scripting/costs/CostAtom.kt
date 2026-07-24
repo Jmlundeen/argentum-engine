@@ -235,6 +235,30 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
         }
     }
 
+    /**
+     * Put [count] counters of [counterType] on the permanent the cost belongs to — "Put a page
+     * counter on this artifact" (Mazemind Tome), the *accruing* mirror of [RemoveCounters] with
+     * `self = true`.
+     *
+     * Self-scoped by design: every printed counter-adding cost puts the counters on the very
+     * permanent whose ability is being activated, so there is nothing to select and nothing to
+     * choose ([selectionCount] stays 0). It is also **always payable** — unlike every other atom
+     * this one takes nothing away, which is exactly what makes the printed cards work (Mazemind
+     * Tome stays activatable right up to the counter that exiles it).
+     */
+    @SerialName("AtomPutCountersOnSelf")
+    @Serializable
+    data class PutCountersOnSelf(
+        val counterType: String,
+        val count: Int = 1,
+    ) : CostAtom {
+        override val description: String get() = buildString {
+            append("put ")
+            append(quantify(count, "$counterType counter"))
+            append(" on this permanent")
+        }
+    }
+
     /** Reveal [count] cards matching [filter] from your hand (the cards stay in hand). */
     @SerialName("AtomRevealFromHand")
     @Serializable

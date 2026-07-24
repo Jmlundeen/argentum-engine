@@ -64,6 +64,10 @@ class CostPaymentContinuationResumer(
                 } else {
                     resumeSelection(state, continuation, cost, response, checkForMore)
                 }
+            // Ability-scoped only; never reaches a PayCost prompt, but it is a yes/no shape
+            // (nothing to select) if one is ever built.
+            is CostAtom.PutCountersOnSelf ->
+                resumeYesNo(state, continuation, cost, response, checkForMore)
         }
     }
 

@@ -37,7 +37,8 @@ class CostAtomSerializationTest : FunSpec({
         CostAtom.RevealFromHand(GameObjectFilter.Any, count = 1),
         CostAtom.RemoveCounters(Counters.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Creature),
         CostAtom.RemoveCounters("charge", self = true),
-        CostAtom.RemoveCounters(counterType = null, filter = GameObjectFilter.Creature)
+        CostAtom.RemoveCounters(counterType = null, filter = GameObjectFilter.Creature),
+        CostAtom.PutCountersOnSelf(Counters.PAGE, count = 1)
     )
 
     test("every concrete CostAtom subtype has a representative in this test") {

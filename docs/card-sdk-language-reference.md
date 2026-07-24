@@ -276,6 +276,23 @@ excluded.
     top in `canPay`, enumeration, and payment. The legal action still ships one flat material list
     (min = max = slot count); an illegal set that can't fill every slot is rejected at payment time
     (no per-slot selection UI).
+- `Costs.PutCounterOnSelf(counterType, count = 1)` — "Put a [kind] counter on this permanent" as
+  part of the activation cost (Mazemind Tome: "{T}, Put a page counter on this artifact: Scry 1").
+  The *accruing* mirror of `Costs.RemoveCounterFromSelf`, and the only cost that adds something
+  rather than spending it: it is **always payable**, which is exactly what lets Mazemind Tome reach
+  the fourth page counter that exiles it. Paid at activation (so the counter lands before the
+  ability resolves, and stays even if the ability is countered), and routed through the normal
+  counter-placement chokepoint — the "can't have counters put on it" gate and the placement
+  replacements (Hardened Scales, Doubling Season) all apply. Activated-ability scoped: there is no
+  additional-cost or `PayCost` form, since a spell on the stack has no permanent to accrue them on.
+- `Costs.TapGrantingPermanent` — tap the permanent whose static ability *granted* this activated
+  ability, the third member of the granter-cost family alongside `Costs.ExileGrantingPermanent` and
+  `Costs.SacrificeGrantingPermanent`. Use for an Equipment/Aura whose granted ability names the
+  Equipment itself: Fishing Pole's "Equipped creature has '{1}, {T}, **Tap Fishing Pole**: …'",
+  where `Costs.Tap` taps the *host creature* and this taps the *Equipment* — compose both in a
+  `Costs.Composite`. Per CR 201.5a the name refers only to the granting permanent, so an
+  already-tapped (or departed) granter makes the ability unactivatable even with another same-named
+  Equipment untapped elsewhere; the enumerator and `ActivateAbilityHandler` both gate on it.
 - `Costs.Composite(c1, c2, ...)` — multiple costs paid together.
 - `Costs.RemoveCounters(count = 1, counterType = null, filter = Any)` — remove `count` counters
   from among permanents matching `filter` you control. When `counterType` is set (e.g. `"+1/+1"`),
@@ -1441,6 +1458,15 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
     "{2}, {T}: Target opponent gains control of another target permanent you control. If they do, you
     draw a card" → `IfYouDoEffect(GiveControlToTargetPlayer(permanent, opponent), DrawCards(1),
     successCriterion = ControlChanged)`.
+    `SuccessCriterion.CountersRemoved` gates on whether the action **actually took a counter off**
+    something (a positive-amount `CountersRemovedEvent`) — a removal against a permanent carrying no
+    such counter, or one that has already left the battlefield, emits none and counts as "didn't
+    happen" (`RemoveCountersExecutor` reports the amount genuinely removed, clamped to what was
+    there). Use for the "Remove a [kind] counter from [permanent]. If you do, …" shape, where
+    `Auto` can't infer (no zone move) and `Always` would wrongly fire on an empty permanent.
+    Fishing Pole: "Whenever equipped creature becomes untapped, remove a bait counter from this
+    Equipment. If you do, create a 1/1 blue Fish creature token" → `IfYouDoEffect(
+    RemoveCounters(Counters.BAIT, 1, Self), CreateToken(...), successCriterion = CountersRemoved)`.
     `CollectionNonEmpty` gates on the action's actual pipeline collection
     (`storedCollections[name].size >= min` after the action runs) — the collections propagate onto
     the gate frame via `exposeCollectionsToNextFrame`, in both the synchronous and the
@@ -2602,7 +2628,12 @@ work for abilities-on-stack (which carry no `CardComponent`).
 
 - `IsTapped` — currently tapped.
 - `IsUntapped` — currently untapped.
-- `IsAttacking` — declared as attacker this combat.
+- `IsAttacking` — declared as attacker this combat. **Last-known-information aware** (CR 608.2h): once
+  the permanent has left the battlefield the live attack is gone, so the predicate falls back to the
+  battlefield-exit snapshot (`EntitySnapshot.wasAttacking`). That is what lets a dies trigger ask
+  "was it attacking?" after the creature is already in the graveyard — Garna, Bloodfist of Keld:
+  `Conditions.EntityMatches(EffectTarget.TriggeringEntity, GameObjectFilter.Any.attacking())`.
+  Battlefield reads are unchanged; the fallback can only fire for an entity outside the battlefield.
 - `IsBlocking` — declared as blocker this combat.
 - `HasLockedDoor` (filter builder `hasLockedDoor()`) — a Room permanent (CR 709.5) with at least one locked
   door, i.e. a half lacking its "unlocked" designation (CR 709.5c). Reads the engine's
@@ -3069,6 +3100,9 @@ in the repo today):
   `Triggers.attacks(binding = TriggerBinding.ATTACHED)`
 - *Enchanted permanent becomes tapped* (Uncontrolled Infestation, Cryoshatter):
   `Triggers.becomesTapped(binding = TriggerBinding.ATTACHED)`
+- *Equipped creature becomes untapped* (Fishing Pole):
+  `Triggers.becomesUntapped(binding = TriggerBinding.ATTACHED)` — the factory form of the SELF-only
+  `Triggers.BecomesUntapped`. `UntapEvent` carries no filter, so binding is the only axis.
 - *Enchanted creature is turned face up* (Fatal Mutation):
   `Triggers.turnedFaceUp(binding = TriggerBinding.ATTACHED)`
 - *At the beginning of enchanted creature's controller's `<step>`* (Custody Battle,
@@ -6972,7 +7006,7 @@ substitution.
 - `charge`, `time`, `level`, `quest`, `shield`, `fade`, `vanishing`, `experience`, `age`, `velocity`, `awakening`,
   `blood`, `cage`, `doom`, `storage`, `divinity`, `charm`, `music`, `crumble`, `corpse`, `germ`, `ink`, `growth`,
   `hour`, `energy`, `scry`, `aura`, `chapter`, `citation`, `rune`, `scar`, `crux`, `omen`, `secret`, `feather`,
-  `hourglass`, `hope`, `verse`, `influence`, `burden`, `loot`, `soul` — assorted printed counter kinds. (`hourglass`: Temporal Distortion
+  `hourglass`, `hope`, `verse`, `influence`, `burden`, `loot`, `soul`, `bait` — assorted printed counter kinds. (`hourglass`: Temporal Distortion
   — a permanent with one doesn't untap during its controller's untap step; model the restriction with
   `GrantKeyword(AbilityFlag.DOESNT_UNTAP.name, GroupFilter(... .withCounter(Counters.HOURGLASS)))` so it stays
   projection-scoped.) (`hope` / `verse` / `influence` / `burden`: LTR — Dawn of a New Age / Lost Isle Calling /
@@ -7011,6 +7045,11 @@ substitution.
   "that many" via `AddDynamicCounters(Counters.INCUBATION, DynamicAmount.ContextProperty(TRIGGER_DAMAGE_AMOUNT), Self)`;
   an activated ability spends three via `Costs.RemoveCounterFromSelf(Counters.INCUBATION, 3)` to hatch a Drake token) —
   a pure passive resource counter with no inherent rule. Not MTG's Incubate/incubator-token mechanic.
+  `bait` (`Counters.BAIT`): FDN — Fishing Pole (the Equipment's *granted* ability accrues one via
+  `Costs.PutCounterOnSelf(Counters.BAIT)` + `AddCountersEffect(..., EffectTarget.GrantingSource)`;
+  its "equipped creature becomes untapped" trigger spends one through an `IfYouDoEffect` gated on
+  `SuccessCriterion.CountersRemoved` to make a Fish token) — another pure passive resource counter
+  with no inherent rule.
   `fellowship` (`Counters.FELLOWSHIP`): FDN — Banner of Kinship (enters with one per creature you control of
   the as-enters chosen type via `EntersWithDynamicCounters(CounterTypeFilter.Named(Counters.FELLOWSHIP),
   DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withChosenSubtype()))`; a

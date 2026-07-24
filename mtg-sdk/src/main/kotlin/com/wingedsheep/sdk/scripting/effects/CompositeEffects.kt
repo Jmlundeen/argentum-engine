@@ -445,6 +445,21 @@ sealed interface SuccessCriterion {
     @SerialName("SuccessCriterion.ControlChanged")
     @Serializable
     data object ControlChanged : SuccessCriterion
+
+    /**
+     * Action succeeded iff the gated action actually *removed a counter* — at least one
+     * `CountersRemovedEvent` with a positive amount was emitted during the action. Use for the
+     * "Remove a [kind] counter from [permanent]. If you do, …" shape, where the removal silently
+     * does nothing when the permanent carries no such counter (or has left the battlefield):
+     * counter removal is not a zone move, so `Auto` can't infer it, and `Always` would wrongly
+     * fire the payoff on an empty permanent.
+     *
+     * Fishing Pole: "Whenever equipped creature becomes untapped, remove a bait counter from this
+     * Equipment. If you do, create a 1/1 blue Fish creature token." — no bait counter means no Fish.
+     */
+    @SerialName("SuccessCriterion.CountersRemoved")
+    @Serializable
+    data object CountersRemoved : SuccessCriterion
 }
 
 /**

@@ -70,6 +70,7 @@ enum class CounterType {
     SPORE,
     INCUBATION,
     FELLOWSHIP,
+    BAIT,
     BORE;
 
     companion object {
@@ -201,6 +202,13 @@ object Counters {
      * count to reduce an activated ability's cost. No inherent rule.
      */
     const val PAGE = "page"
+
+    /**
+     * Bait counter (FDN — Fishing Pole). Passive storage counter with no inherent rule; the
+     * Equipment's granted activated ability accumulates one and its "equipped creature becomes
+     * untapped" trigger spends one to reel in a Fish token. No inherent rule.
+     */
+    const val BAIT = "bait"
 
     /**
      * Rev counter (DSK — Chainsaw). Passive storage counter with no inherent rule; the card's own

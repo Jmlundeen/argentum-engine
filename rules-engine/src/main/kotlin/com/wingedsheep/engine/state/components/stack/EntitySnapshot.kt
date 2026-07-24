@@ -101,6 +101,15 @@ data class EntitySnapshot(
     val attachedTo: EntityId? = null,
     /** Creatures blocking, or blocked by, this one when it left (CR 509; Abu Ja'far). */
     val blockingOrBlockedByIds: List<EntityId> = emptyList(),
+    /**
+     * True if this permanent was an attacking creature (CR 506.4) at the moment it left the
+     * battlefield. Frozen here because the live `AttackingComponent` is torn down by the exit's
+     * combat cleanup, so a dies/leaves trigger asking "was it attacking?" has to read last known
+     * information (CR 608.2h) — Garna, Bloodfist of Keld ("draw a card if it was attacking").
+     * Backs the last-known leg of
+     * [com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsAttacking].
+     */
+    val wasAttacking: Boolean = false,
     /** True if the leaving entity was a token (CR 704.5d — suppress persist-style return triggers). */
     val wasToken: Boolean = false,
     /** Per-player damage dealt to this entity this turn, keyed by source-controller (Grothama). */
