@@ -38,7 +38,10 @@ class GiveControlToTargetPlayerExecutor : EffectExecutor<GiveControlToTargetPlay
         val cardComponent = targetContainer.get<CardComponent>()
             ?: return EffectResult.error(state, "Target is not a card")
 
-        val newControllerId = context.resolvePlayerTarget(effect.newController)
+        // State-aware overload: the new controller may be a relational / stored player reference
+        // (Player.ChosenOpponent for Wishclaw Talisman's "an opponent gains control of this
+        // artifact", Player.ControllerOf, …), none of which the stateless resolver can see.
+        val newControllerId = context.resolvePlayerTarget(effect.newController, state)
             ?: return EffectResult.error(state, "No valid player target for control change")
 
         // Use projected controller so floating-effect-based control changes are respected

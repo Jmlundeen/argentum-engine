@@ -687,6 +687,7 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   CounterType.BAIT,
   CounterType.BORE,
   CounterType.POINT,
+  CounterType.WISH,
   CounterType.PLUS_ONE_PLUS_ZERO,
   CounterType.PLUS_ZERO_PLUS_ONE,
   CounterType.MINUS_ONE_MINUS_ZERO,

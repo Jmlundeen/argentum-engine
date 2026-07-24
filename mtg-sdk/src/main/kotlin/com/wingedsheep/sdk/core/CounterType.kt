@@ -73,7 +73,8 @@ enum class CounterType {
     FELLOWSHIP,
     BAIT,
     BORE,
-    POINT;
+    POINT,
+    WISH;
 
     companion object {
         /**
@@ -327,6 +328,15 @@ object Counters {
      * `StateProjector.KEYWORD_COUNTER_MAP`.
      */
     const val POINT = "point"
+
+    /**
+     * Wish counter (ELD — Wishclaw Talisman). Passive "uses left" counter with no inherent rule of
+     * its own — the Talisman enters with three and each activation of its tutor ability removes one
+     * as part of the cost, so the counters bound how many times it can be used before it is stuck on
+     * the battlefield. NOT a keyword counter, so it is intentionally absent from
+     * `StateProjector.KEYWORD_COUNTER_MAP`.
+     */
+    const val WISH = "wish"
 
     /**
      * Wildcard sentinel for triggers/events that fire on counters of *any* type, e.g.
